@@ -209,6 +209,59 @@
 
                 <!-- TAB 2: NETWORK & TWEAKS -->
                 <div x-show="activeTab === 'network'" class="space-y-6">
+                    <!-- Optimization Profile Switches -->
+                    <div class="bg-card border border-border rounded-2xl p-6 space-y-4">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <h3 class="text-sm font-bold text-white uppercase tracking-wider">Dynamic Optimizations Tweaks</h3>
+                                <p class="text-xs text-gray-400 font-mono">Turn on/off individual optimizations (saved to tweaks.json)</p>
+                            </div>
+                            <button type="button" @click="saveTweakConfig()" class="px-5 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-bold transition">
+                                Apply & Save
+                            </button>
+                        </div>
+                        <template x-if="networkData.tweaks_json">
+                            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 font-mono text-xs">
+                                <label class="flex items-center justify-between p-3 bg-black border border-border rounded-xl cursor-pointer hover:border-blue-500/30 transition">
+                                    <span class="text-gray-300">LTE/5G CA Support</span>
+                                    <input type="checkbox" x-model="networkData.tweaks_json.lte_carrier_aggregation" class="w-4 h-4 accent-blue-500" />
+                                </label>
+                                <label class="flex items-center justify-between p-3 bg-black border border-border rounded-xl cursor-pointer hover:border-blue-500/30 transition">
+                                    <span class="text-gray-300">TCP Buffers Tuning</span>
+                                    <input type="checkbox" x-model="networkData.tweaks_json.tcp_buffer_optimization" class="w-4 h-4 accent-blue-500" />
+                                </label>
+                                <label class="flex items-center justify-between p-3 bg-black border border-border rounded-xl cursor-pointer hover:border-blue-500/30 transition">
+                                    <span class="text-gray-300">BBR2 Congestion</span>
+                                    <input type="checkbox" x-model="networkData.tweaks_json.bbr2_congestion_control" class="w-4 h-4 accent-blue-500" />
+                                </label>
+                                <label class="flex items-center justify-between p-3 bg-black border border-border rounded-xl cursor-pointer hover:border-blue-500/30 transition">
+                                    <span class="text-gray-300">Sysctl Core Buffers</span>
+                                    <input type="checkbox" x-model="networkData.tweaks_json.sysctl_buffers_opt" class="w-4 h-4 accent-blue-500" />
+                                </label>
+                                <label class="flex items-center justify-between p-3 bg-black border border-border rounded-xl cursor-pointer hover:border-blue-500/30 transition">
+                                    <span class="text-gray-300">Dalvik Responsiveness</span>
+                                    <input type="checkbox" x-model="networkData.tweaks_json.dalvik_responsiveness" class="w-4 h-4 accent-blue-500" />
+                                </label>
+                                <label class="flex items-center justify-between p-3 bg-black border border-border rounded-xl cursor-pointer hover:border-blue-500/30 transition">
+                                    <span class="text-gray-300">Global Settings Opts</span>
+                                    <input type="checkbox" x-model="networkData.tweaks_json.settings_global_tweaks" class="w-4 h-4 accent-blue-500" />
+                                </label>
+                                <label class="flex items-center justify-between p-3 bg-black border border-border rounded-xl cursor-pointer hover:border-blue-500/30 transition">
+                                    <span class="text-gray-300">hotspot TTL Spoofing</span>
+                                    <input type="checkbox" x-model="networkData.tweaks_json.ttl_spoofing" class="w-4 h-4 accent-blue-500" />
+                                </label>
+                                <label class="flex items-center justify-between p-3 bg-black border border-border rounded-xl cursor-pointer hover:border-blue-500/30 transition">
+                                    <span class="text-gray-300">RPS Packet Steering</span>
+                                    <input type="checkbox" x-model="networkData.tweaks_json.packet_steering_rps" class="w-4 h-4 accent-blue-500" />
+                                </label>
+                                <label class="flex items-center justify-between p-3 bg-black border border-border rounded-xl cursor-pointer hover:border-blue-500/30 transition">
+                                    <span class="text-gray-300">Interface MTU Tuning</span>
+                                    <input type="checkbox" x-model="networkData.tweaks_json.mtu_tuning" class="w-4 h-4 accent-blue-500" />
+                                </label>
+                            </div>
+                        </template>
+                    </div>
+
                     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                         <!-- Sysctl & CA Status -->
                         <div class="bg-card border border-border rounded-2xl p-6 space-y-4">

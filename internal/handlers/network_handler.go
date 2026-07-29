@@ -46,6 +46,7 @@ func HandleNetworkTweaks(w http.ResponseWriter, r *http.Request) {
 		ttlStatus := network.GetTTLSpoofStatus()
 		tcpCongestion, _ := network.GetSysctl("net.ipv4.tcp_congestion_control")
 		tcpFastOpen, _ := network.GetSysctl("net.ipv4.tcp_fastopen")
+		tweaksJson, _ := network.LoadTweaks()
 
 		w.Header().Set("Content-Type", "application/json")
 		_ = json.NewEncoder(w).Encode(map[string]interface{}{
@@ -54,6 +55,7 @@ func HandleNetworkTweaks(w http.ResponseWriter, r *http.Request) {
 			"tcp_congestion": tcpCongestion,
 			"tcp_fastopen":   tcpFastOpen,
 			"preset_dns":     network.PresetDNS,
+			"tweaks_json":    tweaksJson,
 		})
 		return
 	}
@@ -91,6 +93,15 @@ func HandleNetworkTweaks(w http.ResponseWriter, r *http.Request) {
 				err := network.SetDNS(req.Primary, req.Secondary)
 				w.Header().Set("Content-Type", "application/json")
 				_ = json.NewEncoder(w).Encode(map[string]interface{}{"success": err == nil, "error": fmt.Sprintf("%v", err)})
+				return
+			}
+		case "save_tweaks":
+			var req network.TweaksConfig
+			if err := json.NewDecoder(r.Body).Decode(&req); err == nil {
+				errSave := network.SaveTweaks(req)
+				_ = network.ApplyAllTweaks() // Apply immediately
+				w.Header().Set("Content-Type", "application/json")
+				_ = json.NewEncoder(w).Encode(map[string]interface{}{"success": errSave == nil, "error": fmt.Sprintf("%v", errSave)})
 				return
 			}
 		}

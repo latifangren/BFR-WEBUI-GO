@@ -237,6 +237,25 @@ function dashboard() {
             } catch (e) {}
         },
 
+        async saveTweakConfig() {
+            try {
+                const res = await fetch('/api/network/tweaks?action=save_tweaks', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(this.networkData.tweaks_json)
+                });
+                const data = await res.json();
+                if (data.success) {
+                    alert('Tweaks configuration saved and applied.');
+                    this.fetchNetworkData();
+                } else {
+                    alert('Failed to save tweaks: ' + data.error);
+                }
+            } catch (e) {
+                alert('Save request failed');
+            }
+        },
+
         async fetchRPSConfigs() {
             try {
                 const res = await fetch('/api/network/rps');

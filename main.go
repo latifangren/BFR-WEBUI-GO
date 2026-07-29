@@ -8,11 +8,22 @@ import (
 
 	"bfr-webui-go/internal/auth"
 	"bfr-webui-go/internal/handlers"
+	"bfr-webui-go/internal/network"
 )
 
 func main() {
 	port := flag.String("port", "8080", "HTTP server port")
+	applyTweaks := flag.Bool("apply-tweaks", false, "Apply all optimized network tweaks and exit")
 	flag.Parse()
+
+	if *applyTweaks {
+		log.Println("Applying system & network optimizations from tweaks.json...")
+		if err := network.ApplyAllTweaks(); err != nil {
+			log.Fatalf("Failed to apply tweaks: %v", err)
+		}
+		log.Println("Optimizations applied successfully.")
+		os.Exit(0)
+	}
 
 	if envPort := os.Getenv("PORT"); envPort != "" {
 		*port = envPort
