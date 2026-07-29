@@ -23,6 +23,7 @@ func RegisterRoutes(mux *http.ServeMux, authMgr *auth.Manager) {
 
 	authH := NewAuthHandler(authMgr)
 	termH := NewTerminalHandler(authMgr)
+	scrcpyH := NewScrcpyHandler(authMgr)
 
 	// Auth URLs
 	mux.HandleFunc("/api/auth/status", authH.Status)
@@ -66,6 +67,20 @@ func RegisterRoutes(mux *http.ServeMux, authMgr *auth.Manager) {
 	mux.HandleFunc("/api/hotspot/status", protected(HandleHotspotStatus))
 	mux.HandleFunc("/api/hotspot/control", protected(HandleHotspotControl))
 	mux.HandleFunc("/api/hotspot/clients", protected(HandleHotspotClients))
+
+	// Vnstat URLs
+	mux.HandleFunc("/api/vnstat/stats", protected(HandleVnstatStats))
+	mux.HandleFunc("/api/vnstat/reset", protected(HandleVnstatReset))
+
+	// Smart Charger URLs
+	mux.HandleFunc("/api/charger/config", protected(HandleChargerConfig))
+	mux.HandleFunc("/api/charger/toggle", protected(HandleChargerToggle))
+
+	// SMS Viewer URLs
+	mux.HandleFunc("/api/sms/inbox", protected(HandleSMSInbox))
+
+	// Remote Screen Scrcpy WS
+	mux.HandleFunc("/api/scrcpy/ws", scrcpyH.HandleWS)
 
 	// Terminal WS (WS connection does auth verification inside handle method)
 	mux.HandleFunc("/api/terminal/ws", termH.HandleWS)

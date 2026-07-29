@@ -50,6 +50,12 @@
                     <button type="button" @click="activeTab = 'tools'" :class="activeTab === 'tools' ? 'bg-blue-600 text-white shadow-md' : 'text-gray-400 hover:text-white'" class="px-3.5 py-1.5 rounded-lg text-xs font-semibold transition">
                         System Tools
                     </button>
+                    <button type="button" @click="activeTab = 'sms'; fetchSMS()" :class="activeTab === 'sms' ? 'bg-blue-600 text-white shadow-md' : 'text-gray-400 hover:text-white'" class="px-3.5 py-1.5 rounded-lg text-xs font-semibold transition">
+                        SMS Viewer
+                    </button>
+                    <button type="button" @click="activeTab = 'scrcpy'" :class="activeTab === 'scrcpy' ? 'bg-blue-600 text-white shadow-md' : 'text-gray-400 hover:text-white'" class="px-3.5 py-1.5 rounded-lg text-xs font-semibold transition">
+                        Remote Screen
+                    </button>
                 </nav>
             </template>
 
@@ -71,6 +77,8 @@
                 <button type="button" @click="activeTab = 'files'; fetchFileList(currentPath)" :class="activeTab === 'files' ? 'bg-blue-600 text-white' : 'text-gray-400 bg-card border border-border'" class="px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap">Files</button>
                 <button type="button" @click="activeTab = 'terminal'; initTerminal()" :class="activeTab === 'terminal' ? 'bg-blue-600 text-white' : 'text-gray-400 bg-card border border-border'" class="px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap">Terminal</button>
                 <button type="button" @click="activeTab = 'tools'" :class="activeTab === 'tools' ? 'bg-blue-600 text-white' : 'text-gray-400 bg-card border border-border'" class="px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap">Tools</button>
+                <button type="button" @click="activeTab = 'sms'; fetchSMS()" :class="activeTab === 'sms' ? 'bg-blue-600 text-white' : 'text-gray-400 bg-card border border-border'" class="px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap">SMS Viewer</button>
+                <button type="button" @click="activeTab = 'scrcpy'" :class="activeTab === 'scrcpy' ? 'bg-blue-600 text-white' : 'text-gray-400 bg-card border border-border'" class="px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap">Remote Screen</button>
             </div>
         </template>
     </header>
@@ -180,6 +188,121 @@
                             </div>
                         </div>
                     </template>
+
+                    <!-- Bandwidth & Quota Monitor (vnstat) -->
+                    <div class="bg-card border border-border rounded-2xl p-6 space-y-5">
+                        <div class="flex items-center justify-between flex-wrap gap-2">
+                            <div>
+                                <h3 class="text-sm font-bold text-white uppercase tracking-wider font-mono flex items-center gap-2">
+                                    <span>Bandwidth & Quota Monitor</span>
+                                    <span class="text-[10px] bg-blue-500/20 text-blue-400 border border-blue-500/30 px-2 py-0.5 rounded-md font-mono">vnstat</span>
+                                </h3>
+                                <p class="text-xs text-gray-400 font-mono">Persistent daily & monthly network traffic statistics</p>
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <button type="button" @click="fetchVnstatData()" class="px-3 py-1.5 bg-black hover:bg-gray-900 border border-border text-xs text-gray-300 hover:text-white rounded-xl font-mono font-semibold transition">
+                                    Refresh
+                                </button>
+                                <button type="button" @click="showVnstatResetModal = true" class="px-3 py-1.5 bg-red-600/20 hover:bg-red-600/30 text-red-400 border border-red-500/30 rounded-xl text-xs font-mono font-bold transition">
+                                    Reset Stats
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Summary Cards Grid -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <!-- Today's Usage Card -->
+                            <div class="bg-black border border-border rounded-xl p-4 space-y-3">
+                                <div class="flex items-center justify-between text-xs font-mono border-b border-border/60 pb-2">
+                                    <span class="font-bold text-gray-300 uppercase">Today's Usage</span>
+                                    <span class="text-blue-400 font-extrabold" x-text="formatBytes(vnstatData?.daily?.total?.total || 0)"></span>
+                                </div>
+                                <div class="grid grid-cols-3 gap-2 text-center font-mono">
+                                    <div class="bg-card/60 p-2.5 rounded-lg border border-border/40">
+                                        <div class="text-[10px] text-gray-500 uppercase font-bold">Download</div>
+                                        <div class="text-xs font-bold text-green-400 mt-1" x-text="formatBytes(vnstatData?.daily?.total?.rx_bytes || 0)"></div>
+                                    </div>
+                                    <div class="bg-card/60 p-2.5 rounded-lg border border-border/40">
+                                        <div class="text-[10px] text-gray-500 uppercase font-bold">Upload</div>
+                                        <div class="text-xs font-bold text-purple-400 mt-1" x-text="formatBytes(vnstatData?.daily?.total?.tx_bytes || 0)"></div>
+                                    </div>
+                                    <div class="bg-card/60 p-2.5 rounded-lg border border-border/40">
+                                        <div class="text-[10px] text-gray-500 uppercase font-bold">Total</div>
+                                        <div class="text-xs font-extrabold text-white mt-1" x-text="formatBytes(vnstatData?.daily?.total?.total || 0)"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- This Month's Usage Card -->
+                            <div class="bg-black border border-border rounded-xl p-4 space-y-3">
+                                <div class="flex items-center justify-between text-xs font-mono border-b border-border/60 pb-2">
+                                    <span class="font-bold text-gray-300 uppercase">This Month's Usage</span>
+                                    <span class="text-amber-400 font-extrabold" x-text="formatBytes(vnstatData?.monthly?.total?.total || 0)"></span>
+                                </div>
+                                <div class="grid grid-cols-3 gap-2 text-center font-mono">
+                                    <div class="bg-card/60 p-2.5 rounded-lg border border-border/40">
+                                        <div class="text-[10px] text-gray-500 uppercase font-bold">Download</div>
+                                        <div class="text-xs font-bold text-green-400 mt-1" x-text="formatBytes(vnstatData?.monthly?.total?.rx_bytes || 0)"></div>
+                                    </div>
+                                    <div class="bg-card/60 p-2.5 rounded-lg border border-border/40">
+                                        <div class="text-[10px] text-gray-500 uppercase font-bold">Upload</div>
+                                        <div class="text-xs font-bold text-purple-400 mt-1" x-text="formatBytes(vnstatData?.monthly?.total?.tx_bytes || 0)"></div>
+                                    </div>
+                                    <div class="bg-card/60 p-2.5 rounded-lg border border-border/40">
+                                        <div class="text-[10px] text-gray-500 uppercase font-bold">Total</div>
+                                        <div class="text-xs font-extrabold text-white mt-1" x-text="formatBytes(vnstatData?.monthly?.total?.total || 0)"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Per-Interface Traffic Table -->
+                        <div class="space-y-2 font-mono">
+                            <div class="text-xs font-bold text-gray-400 uppercase tracking-wider">Interface Statistics (WLAN vs LTE Mobile Data)</div>
+                            <div class="bg-black border border-border rounded-xl overflow-hidden text-xs">
+                                <table class="w-full text-left border-collapse">
+                                    <thead class="bg-gray-900/60 text-gray-400 border-b border-border">
+                                        <tr>
+                                            <th class="p-3">Interface</th>
+                                            <th class="p-3">Type</th>
+                                            <th class="p-3">Today (DL / UL)</th>
+                                            <th class="p-3">Month (DL / UL)</th>
+                                            <th class="p-3 text-right">Total Month</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-border/50 text-gray-300">
+                                        <template x-for="item in vnstatInterfaceList" :key="item.name">
+                                            <tr class="hover:bg-card/50 transition">
+                                                <td class="p-3 font-bold text-white font-mono" x-text="item.name"></td>
+                                                <td class="p-3">
+                                                    <span class="px-2 py-0.5 rounded text-[10px] font-bold"
+                                                        :class="item.type.includes('WLAN') ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' : (item.type.includes('LTE') ? 'bg-green-500/20 text-green-400 border border-green-500/30' : 'bg-gray-800 text-gray-400')"
+                                                        x-text="item.type">
+                                                    </span>
+                                                </td>
+                                                <td class="p-3">
+                                                    <span class="text-green-400 font-semibold" x-text="formatBytes(item.dailyRx)"></span>
+                                                    <span class="text-gray-500"> / </span>
+                                                    <span class="text-purple-400 font-semibold" x-text="formatBytes(item.dailyTx)"></span>
+                                                </td>
+                                                <td class="p-3">
+                                                    <span class="text-green-400 font-semibold" x-text="formatBytes(item.monthlyRx)"></span>
+                                                    <span class="text-gray-500"> / </span>
+                                                    <span class="text-purple-400 font-semibold" x-text="formatBytes(item.monthlyTx)"></span>
+                                                </td>
+                                                <td class="p-3 text-right font-extrabold text-white" x-text="formatBytes(item.monthlyTotal)"></td>
+                                            </tr>
+                                        </template>
+                                        <template x-if="vnstatInterfaceList.length === 0">
+                                            <tr>
+                                                <td colspan="5" class="p-4 text-center text-gray-500 italic">No interface activity recorded yet</td>
+                                            </tr>
+                                        </template>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
 
                     <!-- Quick Power Actions -->
                     <div class="bg-card border border-border rounded-2xl p-6 space-y-4">
@@ -536,6 +659,82 @@
 
                 <!-- TAB 5: SYSTEM TOOLS -->
                 <div x-show="activeTab === 'tools'" class="space-y-6">
+                    <!-- Smart Charger Limit Control -->
+                    <div class="bg-card border border-border rounded-2xl p-6 space-y-5">
+                        <div class="flex items-center justify-between flex-wrap gap-2">
+                            <div>
+                                <h3 class="text-sm font-bold text-white uppercase tracking-wider font-mono flex items-center gap-2">
+                                    <span>Smart Charger Limit Control</span>
+                                    <span class="text-[10px] bg-green-500/20 text-green-400 border border-green-500/30 px-2 py-0.5 rounded-md font-mono"
+                                        x-text="chargerConfig.config?.enabled ? 'Active' : 'Disabled'"></span>
+                                </h3>
+                                <p class="text-xs text-gray-400 font-mono">Battery lifespan protection via sysfs auto-scanner</p>
+                            </div>
+                            <div class="flex items-center space-x-2 font-mono">
+                                <label for="charger-enabled-check" class="flex items-center space-x-2 cursor-pointer bg-black border border-border px-3 py-1.5 rounded-xl hover:border-blue-500/40 transition">
+                                    <input id="charger-enabled-check" type="checkbox" x-model="chargerConfig.config.enabled" @change="saveChargerConfig()" class="w-4 h-4 accent-blue-500" />
+                                    <span class="text-xs text-white font-bold" x-text="chargerConfig.config?.enabled ? 'Limiter ON' : 'Limiter OFF'"></span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Auto-Detected Path Status Badge & Current Battery Level -->
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 font-mono text-xs">
+                            <div class="bg-black border border-border rounded-xl p-3.5 space-y-1">
+                                <div class="text-[10px] text-gray-500 uppercase font-bold">Auto-Detected Control Path</div>
+                                <div class="text-xs font-bold text-blue-400 truncate" x-text="chargerConfig.detected_path || 'Scanning /sys/class/power_supply...'"></div>
+                                <template x-if="chargerConfig.detected_type">
+                                    <div class="text-[10px] text-gray-400" x-text="'Type: ' + chargerConfig.detected_type"></div>
+                                </template>
+                            </div>
+                            <div class="bg-black border border-border rounded-xl p-3.5 space-y-1">
+                                <div class="text-[10px] text-gray-500 uppercase font-bold">Charging Switch Status</div>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-xs font-bold" :class="chargerConfig.charging_disabled ? 'text-amber-400' : 'text-green-400'"
+                                        x-text="chargerConfig.charging_disabled ? 'PAUSED (Battery Guard Active)' : 'CHARGING ALLOWED'">
+                                    </span>
+                                    <span class="text-xs text-white font-extrabold" x-text="chargerConfig.current_level >= 0 ? chargerConfig.current_level + '%' : ''"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Threshold Settings -->
+                        <div class="bg-black border border-border rounded-xl p-4 space-y-4 font-mono">
+                            <div class="flex items-center justify-between">
+                                <span class="text-xs font-bold text-gray-300 uppercase tracking-wider">Dynamic Thresholds</span>
+                                <button type="button" @click="saveChargerConfig()" class="px-4 py-1.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-bold transition">
+                                    Save Thresholds
+                                </button>
+                            </div>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div class="space-y-1">
+                                    <label for="charger-start-pct" class="text-xs text-gray-400">Resume Charging Below (Start %)</label>
+                                    <input id="charger-start-pct" type="number" min="5" max="95" x-model.number="chargerConfig.config.start_percent" class="w-full bg-card border border-border rounded-xl px-3 py-2 text-xs text-white font-bold" />
+                                </div>
+                                <div class="space-y-1">
+                                    <label for="charger-stop-pct" class="text-xs text-gray-400">Pause Charging Above (Stop %)</label>
+                                    <input id="charger-stop-pct" type="number" min="10" max="100" x-model.number="chargerConfig.config.stop_percent" class="w-full bg-card border border-border rounded-xl px-3 py-2 text-xs text-white font-bold" />
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Real-time Controller Logs -->
+                        <div class="space-y-2 font-mono">
+                            <div class="flex items-center justify-between">
+                                <span class="text-xs font-bold text-gray-400 uppercase tracking-wider">Controller Activity Logs</span>
+                                <button type="button" @click="fetchChargerConfig()" class="text-[10px] text-blue-400 hover:underline">Refresh</button>
+                            </div>
+                            <div class="bg-black border border-border rounded-xl p-3 h-36 overflow-y-auto font-mono text-[11px] text-gray-300 space-y-1 custom-scrollbar">
+                                <template x-for="log in (chargerConfig.logs || [])" :key="log">
+                                    <div x-text="log" class="whitespace-pre-wrap"></div>
+                                </template>
+                                <template x-if="!chargerConfig.logs || chargerConfig.logs.length === 0">
+                                    <div class="text-gray-500 italic text-center py-4">No controller events recorded yet</div>
+                                </template>
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- Hotspot & Tethering Control -->
                     <div class="bg-card border border-border rounded-2xl p-6 space-y-4">
                         <div class="flex items-center justify-between">
@@ -629,6 +828,173 @@
                         </div>
                     </template>
                 </div>
+
+                <!-- TAB 7: SMS VIEWER -->
+                <div x-show="activeTab === 'sms'" class="space-y-6">
+                    <div class="bg-card border border-border rounded-2xl p-6 space-y-5">
+                        <!-- Top Toolbar / Header & Search -->
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                            <div>
+                                <h3 class="text-sm font-bold text-white uppercase tracking-wider font-mono flex items-center gap-2">
+                                    <span>SMS Inbox & OTP Finder</span>
+                                    <span class="text-[10px] bg-amber-500/20 text-amber-400 border border-amber-500/30 px-2 py-0.5 rounded-md font-mono" x-text="smsTotal + ' Messages'"></span>
+                                </h3>
+                                <p class="text-xs text-gray-400 font-mono">SQLite telephony DB direct reader & OTP extraction tool</p>
+                            </div>
+
+                            <!-- Search Bar -->
+                            <form @submit.prevent="fetchSMS(true)" class="flex items-center gap-2 font-mono">
+                                <div class="relative flex-1 sm:w-72">
+                                    <input type="text" x-model="smsSearchQuery" placeholder="Search OTP, Gojek, Grab, Bank, number..." class="w-full bg-black border border-border rounded-xl px-3 py-2 text-xs text-white placeholder-gray-500 focus:outline-none focus:border-blue-500" />
+                                </div>
+                                <button type="submit" class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-bold transition flex items-center gap-1">
+                                    Search
+                                </button>
+                                <button type="button" @click="smsSearchQuery = ''; fetchSMS(true)" class="px-3 py-2 bg-black border border-border text-gray-300 hover:text-white rounded-xl text-xs font-bold transition">
+                                    Clear
+                                </button>
+                            </form>
+                        </div>
+
+                        <!-- Quick OTP Keyword Chips -->
+                        <div class="flex items-center space-x-2 text-xs font-mono overflow-x-auto custom-scrollbar pb-1">
+                            <span class="text-gray-500 font-bold uppercase text-[10px]">Filter Presets:</span>
+                            <button type="button" @click="smsSearchQuery = 'OTP'; fetchSMS(true)" class="px-2.5 py-1 bg-black border border-border rounded-lg text-amber-400 hover:border-amber-500/50 font-mono">OTP</button>
+                            <button type="button" @click="smsSearchQuery = 'Gojek'; fetchSMS(true)" class="px-2.5 py-1 bg-black border border-border rounded-lg text-green-400 hover:border-green-500/50 font-mono">Gojek</button>
+                            <button type="button" @click="smsSearchQuery = 'Grab'; fetchSMS(true)" class="px-2.5 py-1 bg-black border border-border rounded-lg text-green-400 hover:border-green-500/50 font-mono">Grab</button>
+                            <button type="button" @click="smsSearchQuery = 'Bank'; fetchSMS(true)" class="px-2.5 py-1 bg-black border border-border rounded-lg text-blue-400 hover:border-blue-500/50 font-mono">Banking</button>
+                            <button type="button" @click="smsSearchQuery = 'kode'; fetchSMS(true)" class="px-2.5 py-1 bg-black border border-border rounded-lg text-purple-400 hover:border-purple-500/50 font-mono">Kode Verifikasi</button>
+                        </div>
+
+                        <!-- Loading State -->
+                        <div x-show="isLoadingSms" class="text-center py-8 font-mono text-xs text-gray-400 animate-pulse">
+                            Loading telephony database...
+                        </div>
+
+                        <!-- Messages Table -->
+                        <div x-show="!isLoadingSms" class="bg-black border border-border rounded-xl overflow-hidden font-mono text-xs">
+                            <table class="w-full text-left border-collapse">
+                                <thead class="bg-gray-900/60 text-gray-400 border-b border-border">
+                                    <tr>
+                                        <th class="p-3 w-36">Sender / Address</th>
+                                        <th class="p-3">Message Body</th>
+                                        <th class="p-3 w-44">Date</th>
+                                        <th class="p-3 w-20 text-center">Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-border/50 text-gray-300">
+                                    <template x-for="msg in smsList" :key="msg.id">
+                                        <tr class="hover:bg-card/50 transition">
+                                            <td class="p-3 font-bold text-white whitespace-nowrap" x-text="msg.address || 'Unknown'"></td>
+                                            <td class="p-3 leading-relaxed break-words" x-html="formatSMSBody(msg.body)"></td>
+                                            <td class="p-3 text-gray-400 text-[11px] whitespace-nowrap" x-text="formatSMSDate(msg.date)"></td>
+                                            <td class="p-3 text-center whitespace-nowrap">
+                                                <span class="px-2 py-0.5 rounded text-[10px] font-bold"
+                                                    :class="msg.read === 1 ? 'bg-gray-800 text-gray-400' : 'bg-blue-500/20 text-blue-400 border border-blue-500/30'"
+                                                    x-text="msg.read === 1 ? 'Read' : 'Unread'"></span>
+                                            </td>
+                                        </tr>
+                                    </template>
+                                    <template x-if="smsList.length === 0">
+                                        <tr>
+                                            <td colspan="4" class="p-6 text-center text-gray-500 italic">No SMS messages found matching criteria</td>
+                                        </tr>
+                                    </template>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Pagination Footer -->
+                        <div class="flex items-center justify-between font-mono text-xs pt-2">
+                            <span class="text-gray-400" x-text="'Showing ' + (smsList.length > 0 ? smsOffset + 1 : 0) + ' - ' + Math.min(smsOffset + smsLimit, smsTotal) + ' of ' + smsTotal + ' messages'"></span>
+                            <div class="flex items-center space-x-2">
+                                <button type="button" @click="prevSMSPage()" :disabled="smsOffset === 0" :class="smsOffset === 0 ? 'opacity-50 cursor-not-allowed bg-card' : 'bg-black hover:bg-gray-900'" class="px-3.5 py-1.5 border border-border text-gray-300 rounded-xl font-bold transition">
+                                    Previous
+                                </button>
+                                <button type="button" @click="nextSMSPage()" :disabled="smsOffset + smsLimit >= smsTotal" :class="smsOffset + smsLimit >= smsTotal ? 'opacity-50 cursor-not-allowed bg-card' : 'bg-black hover:bg-gray-900'" class="px-3.5 py-1.5 border border-border text-gray-300 rounded-xl font-bold transition">
+                                    Next
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB 8: REMOTE SCREEN (SCRCPY) -->
+                <div x-show="activeTab === 'scrcpy'" class="space-y-6">
+                    <div class="bg-card border border-border rounded-2xl p-6 space-y-5">
+                        <!-- Top Toolbar / Header & Controls -->
+                        <div class="flex items-center justify-between flex-wrap gap-2">
+                            <div>
+                                <h3 class="text-sm font-bold text-white uppercase tracking-wider font-mono flex items-center gap-2">
+                                    <span>Web Screen Mirroring & Touch Controller</span>
+                                    <span class="text-[10px] bg-blue-500/20 text-blue-400 border border-blue-500/30 px-2 py-0.5 rounded-md font-mono"
+                                        x-text="isMirroring ? screenRate + ' FPS' : 'Disconnected'"></span>
+                                </h3>
+                                <p class="text-xs text-gray-400 font-mono">Real-time device display frame stream with touch & key injection</p>
+                            </div>
+                            <div class="flex items-center space-x-2 font-mono">
+                                <button type="button" @click="isMirroring ? stopMirroring() : startMirroring()"
+                                    :class="isMirroring ? 'bg-red-600 hover:bg-red-500' : 'bg-green-600 hover:bg-green-500'"
+                                    class="px-4 py-2 rounded-xl text-xs font-bold text-white transition">
+                                    <span x-text="isMirroring ? 'Stop Stream' : 'Start Mirroring'"></span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Canvas Display Container -->
+                        <div class="flex flex-col items-center justify-center space-y-4">
+                            <div class="bg-black border-2 border-border rounded-2xl overflow-hidden relative shadow-2xl flex items-center justify-center min-h-[400px] max-w-sm w-full select-none cursor-crosshair">
+                                <template x-if="scrcpyImgUrl">
+                                    <img :src="scrcpyImgUrl"
+                                        @click="handleScreenClick($event)"
+                                        @touchstart="handleScreenTouchStart($event)"
+                                        @touchend="handleScreenTouchEnd($event)"
+                                        class="w-full h-auto object-contain block max-h-[600px] touch-none"
+                                        alt="Android Screen Stream" />
+                                </template>
+                                <template x-if="!scrcpyImgUrl">
+                                    <div class="p-8 text-center space-y-3 font-mono">
+                                        <div class="w-12 h-12 rounded-2xl bg-gray-900 border border-border mx-auto flex items-center justify-center text-gray-500 font-bold">
+                                            📱
+                                        </div>
+                                        <div class="text-xs text-gray-400 font-semibold">Screen Stream Stopped</div>
+                                        <button type="button" @click="startMirroring()" class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-bold transition">
+                                            Connect Screen
+                                        </button>
+                                    </div>
+                                </template>
+                            </div>
+
+                            <!-- Hardware Control Buttons -->
+                            <div class="grid grid-cols-2 sm:grid-cols-5 gap-2 max-w-md w-full font-mono text-xs">
+                                <button type="button" @click="sendKey('back')" class="p-2.5 bg-black hover:bg-gray-900 border border-border rounded-xl font-bold text-gray-200 transition">
+                                    ◀ Back
+                                </button>
+                                <button type="button" @click="sendKey('home')" class="p-2.5 bg-black hover:bg-gray-900 border border-border rounded-xl font-bold text-gray-200 transition">
+                                    ● Home
+                                </button>
+                                <button type="button" @click="sendKey('recents')" class="p-2.5 bg-black hover:bg-gray-900 border border-border rounded-xl font-bold text-gray-200 transition">
+                                    ■ Recents
+                                </button>
+                                <button type="button" @click="sendKey('vol_up')" class="p-2.5 bg-black hover:bg-gray-900 border border-border rounded-xl font-bold text-gray-200 transition">
+                                    🔊 Vol +
+                                </button>
+                                <button type="button" @click="sendKey('vol_down')" class="p-2.5 bg-black hover:bg-gray-900 border border-border rounded-xl font-bold text-gray-200 transition">
+                                    🔉 Vol -
+                                </button>
+                            </div>
+
+                            <!-- Text Input Injection Box -->
+                            <form @submit.prevent="sendScrcpyText()" class="flex items-center gap-2 max-w-md w-full font-mono">
+                                <label for="scrcpy-text-input" class="sr-only">Input text to send to device</label>
+                                <input id="scrcpy-text-input" type="text" x-model="scrcpyTextInput" placeholder="Type text to send to device..." class="flex-1 bg-black border border-border rounded-xl px-3.5 py-2 text-xs text-white placeholder-gray-500 focus:outline-none focus:border-blue-500" />
+                                <button type="submit" class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-bold transition">
+                                    Send Text
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
             </div>
         </template>
     </main>
@@ -682,6 +1048,22 @@
             <div class="flex space-x-3 pt-2">
                 <button type="button" @click="modal.show = false" class="flex-1 bg-black border border-border text-gray-300 py-2 rounded-xl text-sm font-medium">Cancel</button>
                 <button type="button" @click="executePowerAction()" class="flex-1 bg-red-600 text-white py-2 rounded-xl text-sm font-medium">Confirm</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Reset Vnstat Modal (Neobrutalist confirmation dialog) -->
+    <div x-show="showVnstatResetModal" x-cloak class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 font-mono">
+        <div class="bg-card border-2 border-red-500/80 rounded-2xl p-6 max-w-sm w-full space-y-4 shadow-2xl">
+            <div class="flex items-center space-x-3 text-red-500">
+                <h3 class="text-base font-extrabold text-white uppercase tracking-wider">Reset Traffic Stats</h3>
+            </div>
+            <p class="text-xs text-gray-300 leading-relaxed">
+                Are you sure you want to reset all daily and monthly bandwidth usage data? This action cannot be undone.
+            </p>
+            <div class="flex space-x-3 pt-2">
+                <button type="button" @click="showVnstatResetModal = false" class="flex-1 bg-black border border-border text-gray-300 py-2.5 rounded-xl text-xs font-bold hover:bg-gray-900 transition">Cancel</button>
+                <button type="button" @click="resetVnstatData()" class="flex-1 bg-red-600 hover:bg-red-500 text-white py-2.5 rounded-xl text-xs font-bold transition shadow-lg shadow-red-600/30">Reset All</button>
             </div>
         </div>
     </div>

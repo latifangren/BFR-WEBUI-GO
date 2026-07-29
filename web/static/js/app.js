@@ -31,10 +31,77 @@ function dashboard() {
         hotspotClients: [],
         rpsConfigs: [],
 
+        // Smart Charger State
+        chargerConfig: {
+            config: { enabled: false, start_percent: 70, stop_percent: 80 },
+            detected_path: '',
+            detected_type: '',
+            charging_disabled: false,
+            current_level: -1,
+            logs: []
+        },
+
+        // SMS Viewer State
+        smsList: [],
+        smsTotal: 0,
+        smsLimit: 20,
+        smsOffset: 0,
+        smsSearchQuery: '',
+        isLoadingSms: false,
+
+        // Remote Screen (Scrcpy) State
+        scrcpyWs: null,
+        isMirroring: false,
+        screenRate: 0,
+        scrcpyTextInput: '',
+        scrcpyImgUrl: '',
+        scrcpyLastFrameTime: 0,
+        scrcpySwipeStart: null,
+
+        // Vnstat Bandwidth State
+        vnstatData: {
+            daily: { total: { rx_bytes: 0, tx_bytes: 0, total: 0 }, interfaces: {} },
+            monthly: { total: { rx_bytes: 0, tx_bytes: 0, total: 0 }, interfaces: {} }
+        },
+        showVnstatResetModal: false,
+
         modal: { show: false, action: '', actionName: '' },
 
         get currentPathSegments() {
             return this.currentPath.split('/').filter(Boolean);
+        },
+
+        get vnstatInterfaceList() {
+            if (!this.vnstatData) return [];
+            const dailyIfaces = (this.vnstatData.daily && this.vnstatData.daily.interfaces) || {};
+            const monthlyIfaces = (this.vnstatData.monthly && this.vnstatData.monthly.interfaces) || {};
+
+            const names = new Set([...Object.keys(dailyIfaces), ...Object.keys(monthlyIfaces)]);
+            const list = [];
+
+            names.forEach(name => {
+                const d = dailyIfaces[name] || { rx_bytes: 0, tx_bytes: 0 };
+                const m = monthlyIfaces[name] || { rx_bytes: 0, tx_bytes: 0 };
+                let type = 'Other';
+                const lower = name.toLowerCase();
+                if (lower.startsWith('wlan') || lower.startsWith('ap') || lower.startsWith('softap') || lower.startsWith('swlan')) {
+                    type = 'WLAN';
+                } else if (lower.startsWith('rmnet') || lower.startsWith('ccmni') || lower.startsWith('pdp') || lower.startsWith('wwan') || lower.startsWith('v4-rmnet')) {
+                    type = 'LTE / Mobile Data';
+                }
+                list.push({
+                    name: name,
+                    type: type,
+                    dailyRx: d.rx_bytes,
+                    dailyTx: d.tx_bytes,
+                    dailyTotal: d.rx_bytes + d.tx_bytes,
+                    monthlyRx: m.rx_bytes,
+                    monthlyTx: m.tx_bytes,
+                    monthlyTotal: m.rx_bytes + m.tx_bytes
+                });
+            });
+
+            return list.sort((a, b) => b.monthlyTotal - a.monthlyTotal);
         },
 
         async init() {
@@ -47,6 +114,8 @@ function dashboard() {
                 this.fetchHotspotStatus();
                 this.fetchHotspotClients();
                 this.fetchRPSConfigs();
+                this.fetchVnstatData();
+                this.fetchChargerConfig();
             }
         },
 
@@ -79,6 +148,8 @@ function dashboard() {
                     this.fetchHotspotStatus();
                     this.fetchHotspotClients();
                     this.fetchRPSConfigs();
+                    this.fetchVnstatData();
+                    this.fetchChargerConfig();
                 } else {
                     this.authError = data.error || 'Invalid password';
                 }
@@ -111,7 +182,240 @@ function dashboard() {
                 if (res.ok) {
                     this.stats = await res.json();
                 }
+                this.fetchVnstatData();
+                this.fetchChargerConfig();
             } catch (e) {}
+        },
+
+        async fetchChargerConfig() {
+            try {
+                const res = await fetch('/api/charger/config');
+                if (res.ok) {
+                    this.chargerConfig = await res.json();
+                }
+            } catch (e) {}
+        },
+
+        async saveChargerConfig() {
+            try {
+                const res = await fetch('/api/charger/toggle', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(this.chargerConfig.config)
+                });
+                if (res.ok) {
+                    this.chargerConfig = await res.json();
+                }
+            } catch (e) {}
+        },
+
+        async fetchVnstatData() {
+            try {
+                const res = await fetch('/api/vnstat/stats');
+                if (res.ok) {
+                    this.vnstatData = await res.json();
+                }
+            } catch (e) {}
+        },
+
+        async resetVnstatData() {
+            this.showVnstatResetModal = false;
+            try {
+                const res = await fetch('/api/vnstat/reset', { method: 'POST' });
+                if (res.ok) {
+                    this.vnstatData = await res.json();
+                }
+            } catch (e) {}
+        },
+
+        // SMS Viewer Methods
+        async fetchSMS(newSearch = false) {
+            if (newSearch) {
+                this.smsOffset = 0;
+            }
+            this.isLoadingSms = true;
+            try {
+                const query = new URLSearchParams({
+                    limit: this.smsLimit,
+                    offset: this.smsOffset,
+                    q: this.smsSearchQuery || ''
+                });
+                const res = await fetch('/api/sms/inbox?' + query.toString());
+                if (res.ok) {
+                    const data = await res.json();
+                    this.smsList = data.messages || [];
+                    this.smsTotal = data.total || 0;
+                }
+            } catch (e) {
+            } finally {
+                this.isLoadingSms = false;
+            }
+        },
+
+        nextSMSPage() {
+            if (this.smsOffset + this.smsLimit < this.smsTotal) {
+                this.smsOffset += this.smsLimit;
+                this.fetchSMS();
+            }
+        },
+
+        prevSMSPage() {
+            if (this.smsOffset >= this.smsLimit) {
+                this.smsOffset -= this.smsLimit;
+                this.fetchSMS();
+            } else {
+                this.smsOffset = 0;
+                this.fetchSMS();
+            }
+        },
+
+        formatSMSDate(timestamp) {
+            if (!timestamp) return 'N/A';
+            let t = timestamp;
+            if (t < 10000000000) {
+                t = t * 1000;
+            }
+            const date = new Date(t);
+            return date.toLocaleString();
+        },
+
+        formatSMSBody(body) {
+            if (!body) return '';
+            // Escape HTML characters
+            let safe = body.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+            // Highlight OTP/verification code phrases (4-8 digits or keywords)
+            safe = safe.replace(/(\b\d{4,8}\b)/g, '<mark class="bg-amber-400/30 text-amber-300 font-extrabold px-1 py-0.5 rounded">$1</mark>');
+            return safe;
+        },
+
+        // Remote Screen (Scrcpy) Methods
+        startMirroring() {
+            if (this.isMirroring) return;
+            const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+            const wsUrl = `${protocol}//${window.location.host}/api/scrcpy/ws`;
+
+            this.scrcpyWs = new WebSocket(wsUrl);
+            this.scrcpyWs.binaryType = 'blob';
+
+            this.scrcpyWs.onopen = () => {
+                this.isMirroring = true;
+                this.scrcpyLastFrameTime = Date.now();
+            };
+
+            this.scrcpyWs.onmessage = (event) => {
+                if (event.data instanceof Blob) {
+                    const now = Date.now();
+                    if (this.scrcpyLastFrameTime > 0) {
+                        const delta = now - this.scrcpyLastFrameTime;
+                        if (delta > 0) {
+                            this.screenRate = (1000 / delta).toFixed(1);
+                        }
+                    }
+                    this.scrcpyLastFrameTime = now;
+
+                    const url = URL.createObjectURL(event.data);
+                    if (this.scrcpyImgUrl) {
+                        URL.revokeObjectURL(this.scrcpyImgUrl);
+                    }
+                    this.scrcpyImgUrl = url;
+                }
+            };
+
+            this.scrcpyWs.onclose = () => {
+                this.isMirroring = false;
+                this.screenRate = 0;
+            };
+
+            this.scrcpyWs.onerror = () => {
+                this.isMirroring = false;
+                this.screenRate = 0;
+            };
+        },
+
+        stopMirroring() {
+            if (this.scrcpyWs) {
+                this.scrcpyWs.close();
+                this.scrcpyWs = null;
+            }
+            if (this.scrcpyImgUrl) {
+                URL.revokeObjectURL(this.scrcpyImgUrl);
+                this.scrcpyImgUrl = '';
+            }
+            this.isMirroring = false;
+            this.screenRate = 0;
+        },
+
+        sendScrcpyEvent(evt) {
+            if (this.scrcpyWs && this.scrcpyWs.readyState === WebSocket.OPEN) {
+                this.scrcpyWs.send(JSON.stringify(evt));
+            }
+        },
+
+        sendKey(action, keycode = 0) {
+            this.sendScrcpyEvent({ action: action, keycode: keycode });
+        },
+
+        sendScrcpyText() {
+            if (!this.scrcpyTextInput) return;
+            this.sendScrcpyEvent({ action: 'text', text: this.scrcpyTextInput });
+            this.scrcpyTextInput = '';
+        },
+
+        handleScreenClick(event) {
+            const img = event.target;
+            const rect = img.getBoundingClientRect();
+            const clickX = event.clientX - rect.left;
+            const clickY = event.clientY - rect.top;
+
+            const natW = img.naturalWidth || 1080;
+            const natH = img.naturalHeight || 2400;
+
+            const targetX = Math.round((clickX / rect.width) * natW);
+            const targetY = Math.round((clickY / rect.height) * natH);
+
+            this.sendScrcpyEvent({ action: 'click', x: targetX, y: targetY });
+        },
+
+        handleScreenTouchStart(event) {
+            if (!event.touches || event.touches.length === 0) return;
+            const touch = event.touches[0];
+            const img = event.target;
+            const rect = img.getBoundingClientRect();
+            this.scrcpySwipeStart = {
+                x: touch.clientX - rect.left,
+                y: touch.clientY - rect.top,
+                time: Date.now(),
+                rectWidth: rect.width,
+                rectHeight: rect.height,
+                natW: img.naturalWidth || 1080,
+                natH: img.naturalHeight || 2400
+            };
+        },
+
+        handleScreenTouchEnd(event) {
+            if (!this.scrcpySwipeStart || !event.changedTouches || event.changedTouches.length === 0) return;
+            const touch = event.changedTouches[0];
+            const img = event.target;
+            const rect = img.getBoundingClientRect();
+            const endX = touch.clientX - rect.left;
+            const endY = touch.clientY - rect.top;
+            const duration = Math.max(100, Date.now() - this.scrcpySwipeStart.time);
+
+            const natW = this.scrcpySwipeStart.natW;
+            const natH = this.scrcpySwipeStart.natH;
+
+            const x1 = Math.round((this.scrcpySwipeStart.x / this.scrcpySwipeStart.rectWidth) * natW);
+            const y1 = Math.round((this.scrcpySwipeStart.y / this.scrcpySwipeStart.rectHeight) * natH);
+            const x2 = Math.round((endX / rect.width) * natW);
+            const y2 = Math.round((endY / rect.height) * natH);
+
+            const dist = Math.hypot(x2 - x1, y2 - y1);
+            if (dist > 30) {
+                this.sendScrcpyEvent({ action: 'swipe', x: x1, y: y1, x2: x2, y2: y2, duration: duration });
+            } else {
+                this.sendScrcpyEvent({ action: 'click', x: x1, y: y1 });
+            }
+            this.scrcpySwipeStart = null;
         },
 
         // File Manager Methods

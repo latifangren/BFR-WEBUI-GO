@@ -9,6 +9,8 @@ import (
 	"bfr-webui-go/internal/auth"
 	"bfr-webui-go/internal/handlers"
 	"bfr-webui-go/internal/network"
+	_ "bfr-webui-go/internal/charger"
+	_ "bfr-webui-go/internal/vnstat"
 )
 
 func main() {
