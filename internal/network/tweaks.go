@@ -167,6 +167,14 @@ type devStat struct {
 	TxPackets uint64
 }
 
+func GetProp(prop string) string {
+	out, err := exec.Command("getprop", prop).Output()
+	if err != nil {
+		return ""
+	}
+	return strings.TrimSpace(string(out))
+}
+
 func parseProcNetDev() map[string]devStat {
 	res := make(map[string]devStat)
 	file, err := os.Open("/proc/net/dev")

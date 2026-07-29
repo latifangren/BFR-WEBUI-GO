@@ -1,4 +1,4 @@
-# LTE/5G Carrier Aggregation
+# LTE/5G Carrier Aggregation & Radio Tweaks
 gsm.lte.ca.support=1
 persist.radio.lte_ca=1
 vendor.radio.lte_ca=1
@@ -6,6 +6,11 @@ persist.sys.cnd.iwlan.enable=1
 persist.radio.rat_on=combine
 persist.radio.data_ltd_sys_ind=1
 persist.radio.data_con_rrc=1
+persist.radio.add_power_save=1
+persist.radio.snapshot_enabled=1
+persist.radio.snapshot_timer=22
+ro.telephony.default_network=9,10,22
+telephony.lteOnCdmaDevice=1
 
 # TCP & Network Stack Optimization
 net.tcp.buffersize.default=4096,87380,256000,4096,16384,256000
@@ -18,9 +23,14 @@ net.tcp.buffersize.hspa=4094,87380,256000,4096,16384,256000
 net.tcp.buffersize.gprs=4092,87380,11680,4092,87380,11680
 net.tcp.buffersize.edge=4093,26280,35040,4093,16384,35040
 
-# TCP BBR Congestion Control
+# TCP BBR Congestion Control & IP Protocol Flags
 net.ipv4.tcp_congestion_control=bbr2
 net.core.default_qdisc=fq
+net.ipv4.tcp_timestamps=1
+net.ipv4.tcp_sack=1
+net.ipv4.tcp_window_scaling=1
+net.ipv6.conf.all.accept_ra=2
+net.ipv6.conf.default.accept_ra=2
 
 # System & Responsiveness Tweaks
 persist.sys.use_dithering=0

@@ -232,10 +232,10 @@
                             <div class="p-4 bg-black border border-border rounded-xl flex items-center justify-between">
                                 <div>
                                     <div class="text-xs font-bold text-white">TTL Spoofing (iptables mangle)</div>
-                                    <div class="text-[10px] text-gray-400">Set TTL=64 for bypass hotspot throttling</div>
+                                    <div class="text-[10px] text-gray-400 font-mono">Bypass hotspot data usage limits</div>
                                 </div>
                                 <button type="button" @click="toggleTTL()" :class="networkData.ttl_spoof ? 'bg-blue-600' : 'bg-gray-800'" class="px-4 py-2 rounded-xl text-xs font-bold transition">
-                                    <span x-text="networkData.ttl_spoof ? 'ENABLED (64)' : 'DISABLED'"></span>
+                                    <span x-text="networkData.ttl_spoof ? 'ENABLED (Auto)' : 'DISABLED'"></span>
                                 </button>
                             </div>
                         </div>
@@ -245,9 +245,9 @@
                             <h3 class="text-sm font-bold text-white uppercase tracking-wider">DNS Resolver Switcher</h3>
                             <div class="grid grid-cols-2 gap-3">
                                 <template x-for="dns in networkData.preset_dns || []" :key="dns.name">
-                                    <button type="button" @click="setDNS(dns.primary, dns.secondary)" class="p-3 bg-black hover:bg-gray-900 border border-border rounded-xl text-left transition">
+                                    <button type="button" @click="setDNS(dns.primary, dns.secondary)" class="p-3 bg-black hover:bg-gray-900 border border-border rounded-xl text-left transition font-mono">
                                         <div class="text-xs font-bold text-white" x-text="dns.name"></div>
-                                        <div class="text-[10px] font-mono text-gray-400" x-text="dns.primary + ' / ' + dns.secondary"></div>
+                                        <div class="text-[10px] text-gray-400" x-text="dns.primary + ' / ' + dns.secondary"></div>
                                     </button>
                                 </template>
                             </div>
@@ -267,22 +267,38 @@
                         </div>
                     </div>
 
-                    <!-- Interfaces List -->
+                    <!-- RPS Packet Steering Settings -->
                     <div class="bg-card border border-border rounded-2xl p-6 space-y-4">
+                        <h3 class="text-sm font-bold text-white uppercase tracking-wider">RPS Packet Steering Configuration</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 font-mono">
+                            <template x-for="r in rpsConfigs" :key="r.interface">
+                                <div class="bg-black border border-border rounded-xl p-4 flex items-center justify-between">
+                                    <div>
+                                        <div class="text-xs font-bold text-blue-400" x-text="r.interface"></div>
+                                        <div class="text-[10px] text-gray-400" x-text="'Bitmask: ' + r.bitmask"></div>
+                                    </div>
+                                    <button type="button" @click="setRPS(r.interface, 'f')" class="px-3 py-1.5 bg-blue-600 hover:bg-blue-500 rounded-xl text-xs font-bold transition">Activate (f)</button>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+
+                    <!-- Interfaces List -->
+                    <div class="bg-card border border-border rounded-2xl p-6 space-y-4 font-mono">
                         <h3 class="text-sm font-bold text-white uppercase tracking-wider">Active Network Interfaces</h3>
                         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                             <template x-for="iface in networkData.interfaces || []" :key="iface.name">
                                 <div class="bg-black border border-border rounded-xl p-4 space-y-2">
                                     <div class="flex items-center justify-between">
-                                        <span class="text-xs font-bold text-blue-400 font-mono" x-text="iface.name"></span>
-                                        <span class="text-[10px] text-gray-400 font-mono" x-text="'MTU: ' + iface.mtu"></span>
+                                        <span class="text-xs font-bold text-blue-400" x-text="iface.name"></span>
+                                        <span class="text-[10px] text-gray-400" x-text="'MTU: ' + iface.mtu"></span>
                                     </div>
-                                    <div class="text-[11px] font-mono text-gray-300">
+                                    <div class="text-[11px] text-gray-300">
                                         <template x-for="ip in iface.ips || []" :key="ip">
                                             <div x-text="ip" class="truncate"></div>
                                         </template>
                                     </div>
-                                    <div class="flex items-center justify-between text-[10px] font-mono text-gray-400 pt-1 border-t border-border/50">
+                                    <div class="flex items-center justify-between text-[10px] text-gray-400 pt-1 border-t border-border/50">
                                         <span x-text="'RX: ' + formatBytes(iface.rx_bytes)"></span>
                                         <span x-text="'TX: ' + formatBytes(iface.tx_bytes)"></span>
                                     </div>
@@ -298,7 +314,7 @@
                         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                             <div>
                                 <h3 class="text-sm font-bold text-white uppercase tracking-wider">Mihomo / Clash Core Manager</h3>
-                                <p class="text-xs text-gray-400">Control Box4Magisk / Clash For Magisk services</p>
+                                <p class="text-xs text-gray-400 font-mono">Control Box4Magisk / Clash For Magisk services</p>
                             </div>
                             <div class="flex items-center space-x-2">
                                 <button type="button" @click="controlProxy('start')" class="px-3.5 py-1.5 bg-green-600 hover:bg-green-500 text-white rounded-xl text-xs font-bold transition">Start</button>
@@ -322,9 +338,32 @@
                             </template>
                         </div>
 
+                        <!-- Core Watchdog and Config Manager Controls -->
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 font-mono">
+                            <div class="p-4 bg-black border border-border rounded-xl flex items-center justify-between">
+                                <div>
+                                    <div class="text-xs font-bold text-white">Proxy Watchdog</div>
+                                    <div class="text-[9px] text-gray-500">Auto-restart core if process dies</div>
+                                </div>
+                                <button type="button" @click="toggleProxyWatchdog()" :class="proxyData.watchdog ? 'bg-blue-600' : 'bg-gray-800'" class="px-3 py-1.5 rounded-xl text-xs font-bold transition">
+                                    <span x-text="proxyData.watchdog ? 'ENABLED' : 'DISABLED'"></span>
+                                </button>
+                            </div>
+
+                            <div class="p-4 bg-black border border-border rounded-xl flex items-center justify-between">
+                                <div>
+                                    <div class="text-xs font-bold text-white">Config Manager</div>
+                                    <div class="text-[9px] text-gray-500">Edit proxy yaml settings</div>
+                                </div>
+                                <button type="button" @click="openYamlConfigEditor()" class="px-3 py-1.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-bold transition">
+                                    Edit Config
+                                </button>
+                            </div>
+                        </div>
+
                         <!-- Core Mode Switcher -->
                         <div class="p-4 bg-black border border-border rounded-xl flex items-center justify-between">
-                            <span class="text-xs font-bold text-white">Proxy Mode</span>
+                            <span class="text-xs font-bold text-white font-mono">Proxy Mode</span>
                             <div class="flex space-x-2">
                                 <button type="button" @click="setProxyMode('Rule')" :class="proxyData.mode === 'Rule' ? 'bg-blue-600 text-white' : 'bg-card text-gray-400 border border-border'" class="px-3 py-1 rounded-lg text-xs font-bold">Rule</button>
                                 <button type="button" @click="setProxyMode('Global')" :class="proxyData.mode === 'Global' ? 'bg-blue-600 text-white' : 'bg-card text-gray-400 border border-border'" class="px-3 py-1 rounded-lg text-xs font-bold">Global</button>
@@ -333,7 +372,7 @@
                         </div>
 
                         <!-- Live Logs -->
-                        <div class="space-y-2">
+                        <div class="space-y-2 font-mono">
                             <div class="flex items-center justify-between">
                                 <span class="text-xs font-bold text-gray-400">Live Core Logs (SSE Stream)</span>
                                 <button type="button" @click="proxyLogs = []" class="text-[10px] text-gray-500 hover:text-white">Clear</button>
@@ -444,6 +483,65 @@
 
                 <!-- TAB 5: SYSTEM TOOLS -->
                 <div x-show="activeTab === 'tools'" class="space-y-6">
+                    <!-- Hotspot & Tethering Control -->
+                    <div class="bg-card border border-border rounded-2xl p-6 space-y-4">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <h3 class="text-sm font-bold text-white uppercase tracking-wider font-mono">Wi-Fi Hotspot & Tethering Control</h3>
+                                <p class="text-xs text-gray-400 font-mono">Manage local softap client access</p>
+                            </div>
+                            <button type="button" @click="toggleHotspot()" :class="hotspotStatus.enabled ? 'bg-red-600' : 'bg-green-600'" class="px-4 py-2 rounded-xl text-xs font-bold transition">
+                                <span x-text="hotspotStatus.enabled ? 'Stop Hotspot' : 'Start Hotspot'"></span>
+                            </button>
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 font-mono">
+                            <div class="space-y-1">
+                                <label for="hs-ssid" class="text-xs text-gray-400">Hotspot SSID</label>
+                                <input id="hs-ssid" type="text" x-model="hotspotStatus.ssid" class="w-full bg-black border border-border rounded-xl px-3 py-2 text-xs text-white" />
+                            </div>
+                            <div class="space-y-1">
+                                <label for="hs-pwd" class="text-xs text-gray-400">Conf Password (WPA2)</label>
+                                <input id="hs-pwd" type="password" x-model="hotspotPass" class="w-full bg-black border border-border rounded-xl px-3 py-2 text-xs text-white" placeholder="Min 8 chars" />
+                            </div>
+                        </div>
+
+                        <!-- Connected Clients -->
+                        <div class="space-y-2 font-mono">
+                            <div class="flex items-center justify-between">
+                                <span class="text-xs font-bold text-gray-400 uppercase tracking-wider">Connected Hotspot Clients</span>
+                                <button type="button" @click="fetchHotspotClients()" class="text-[10px] text-blue-400 font-bold hover:underline">Refresh</button>
+                            </div>
+                            <div class="bg-black border border-border rounded-xl overflow-hidden text-xs">
+                                <table class="w-full text-left">
+                                    <thead class="bg-gray-900/50 text-gray-400 border-b border-border">
+                                        <tr>
+                                            <th class="p-3">Device Name</th>
+                                            <th class="p-3">IP Address</th>
+                                            <th class="p-3">MAC Address</th>
+                                            <th class="p-3 text-right">Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-border/50 text-gray-300">
+                                        <template x-for="client in hotspotClients" :key="client.mac">
+                                            <tr class="hover:bg-card/50 transition">
+                                                <td class="p-3 font-semibold text-white" x-text="client.device"></td>
+                                                <td class="p-3 text-blue-400" x-text="client.ip"></td>
+                                                <td class="p-3 text-gray-400" x-text="client.mac"></td>
+                                                <td class="p-3 text-right font-semibold text-green-400" x-text="client.state"></td>
+                                            </tr>
+                                        </template>
+                                        <template x-if="hotspotClients.length === 0">
+                                            <tr>
+                                                <td colspan="4" class="p-4 text-center text-gray-500 italic">No connected clients detected</td>
+                                            </tr>
+                                        </template>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- Disk Partitions -->
                     <div class="bg-card border border-border rounded-2xl p-6 space-y-4">
                         <h3 class="text-sm font-bold text-white uppercase tracking-wider">Storage & Disk Partitions</h3>
@@ -563,6 +661,12 @@
                 showDirModal: false,
                 newDirName: '',
 
+                // Hotspot & Extra State
+                hotspotStatus: { enabled: false, ssid: 'AndroidAP' },
+                hotspotPass: '',
+                hotspotClients: [],
+                rpsConfigs: [],
+
                 modal: { show: false, action: '', actionName: '' },
 
                 get currentPathSegments() {
@@ -576,6 +680,9 @@
                         this.fetchNetworkData();
                         this.fetchProxyStatus();
                         this.setupProxyLogs();
+                        this.fetchHotspotStatus();
+                        this.fetchHotspotClients();
+                        this.fetchRPSConfigs();
                     }
                 },
 
@@ -763,13 +870,34 @@
                     } catch (e) {}
                 },
 
+                async fetchRPSConfigs() {
+                    try {
+                        const res = await fetch('/api/network/rps');
+                        if (res.ok) {
+                            const data = await res.json();
+                            this.rpsConfigs = data.configs || [];
+                        }
+                    } catch (e) {}
+                },
+
+                async setRPS(iface, bitmask) {
+                    try {
+                        await fetch('/api/network/rps', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ interface: iface, bitmask: bitmask })
+                        });
+                        this.fetchRPSConfigs();
+                    } catch (e) {}
+                },
+
                 async toggleTTL() {
                     const next = !this.networkData.ttl_spoof;
                     try {
                         await fetch('/api/network/tweaks?action=ttl', {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ enable: next, ttl: 64 })
+                            body: JSON.stringify({ enable: next, ttl: 0 })
                         });
                         this.fetchNetworkData();
                     } catch (e) {}
@@ -810,6 +938,30 @@
                     } catch (e) {}
                 },
 
+                async toggleProxyWatchdog() {
+                    const next = !this.proxyData.watchdog;
+                    try {
+                        await fetch('/api/proxy/watchdog', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ enable: next })
+                        });
+                        this.fetchProxyStatus();
+                    } catch (e) {}
+                },
+
+                async openYamlConfigEditor() {
+                    try {
+                        const res = await fetch('/api/proxy/config');
+                        if (res.ok) {
+                            const data = await res.json();
+                            this.editingFilePath = data.path;
+                            this.editorContent = data.content;
+                            this.showEditorModal = true;
+                        }
+                    } catch (e) {}
+                },
+
                 async controlProxy(action) {
                     try {
                         await fetch('/api/proxy/control', {
@@ -829,6 +981,39 @@
                             body: JSON.stringify({ mode })
                         });
                         this.fetchProxyStatus();
+                    } catch (e) {}
+                },
+
+                async fetchHotspotStatus() {
+                    try {
+                        const res = await fetch('/api/hotspot/status');
+                        if (res.ok) {
+                            this.hotspotStatus = await res.json();
+                        }
+                    } catch (e) {}
+                },
+
+                async toggleHotspot() {
+                    const next = !this.hotspotStatus.enabled;
+                    try {
+                        await fetch('/api/hotspot/control', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ enable: next, ssid: this.hotspotStatus.ssid, password: this.hotspotPass })
+                        });
+                        setTimeout(() => {
+                            this.fetchHotspotStatus();
+                            this.fetchHotspotClients();
+                        }, 2000);
+                    } catch (e) {}
+                },
+
+                async fetchHotspotClients() {
+                    try {
+                        const res = await fetch('/api/hotspot/clients');
+                        if (res.ok) {
+                            this.hotspotClients = await res.json() || [];
+                        }
                     } catch (e) {}
                 },
 

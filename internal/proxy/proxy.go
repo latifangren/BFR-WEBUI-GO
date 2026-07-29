@@ -7,9 +7,11 @@ import (
 	"net/http"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"strconv"
 	"strings"
 	"sync"
+	"time"
 
 	"github.com/gorilla/websocket"
 )
@@ -43,7 +45,45 @@ var (
 		"/system/bin/mihomo",
 		"/system/bin/clash",
 	}
+
+	watchdogEnabled = false
+	watchdogMux     sync.Mutex
 )
+
+func init() {
+	go runWatchdog()
+}
+
+func SetWatchdog(enable bool) {
+	watchdogMux.Lock()
+	defer watchdogMux.Unlock()
+	watchdogEnabled = enable
+}
+
+func GetWatchdog() bool {
+	watchdogMux.Lock()
+	defer watchdogMux.Unlock()
+	return watchdogEnabled
+}
+
+func runWatchdog() {
+	ticker := time.NewTicker(10 * time.Second)
+	for range ticker.C {
+		if GetWatchdog() {
+			cores := DetectCores()
+			anyRunning := false
+			for _, c := range cores {
+				if c.Running {
+					anyRunning = true
+					break
+				}
+			}
+			if !anyRunning {
+				_ = ControlService("start")
+			}
+		}
+	}
+}
 
 func DetectCores() []CoreInfo {
 	var list []CoreInfo
@@ -101,9 +141,9 @@ func ControlService(action string) error {
 		if _, ok := checkRunning("clash"); ok {
 			return nil
 		}
-		// Attempt service restart / data script
 		cmdStr = "if [ -f /data/adb/box/scripts/box.service ]; then /data/adb/box/scripts/box.service start; elif [ -f /data/adb/clash/scripts/clash.service ]; then /data/adb/clash/scripts/clash.service start; else su -c mihomo -d /data/adb/box/bin/ & fi"
 	case "stop":
+		SetWatchdog(false)
 		cmdStr = "if [ -f /data/adb/box/scripts/box.service ]; then /data/adb/box/scripts/box.service stop; elif [ -f /data/adb/clash/scripts/clash.service ]; then /data/adb/clash/scripts/clash.service stop; else killall mihomo clash 2>/dev/null || true; fi"
 	case "restart":
 		cmdStr = "if [ -f /data/adb/box/scripts/box.service ]; then /data/adb/box/scripts/box.service restart; elif [ -f /data/adb/clash/scripts/clash.service ]; then /data/adb/clash/scripts/clash.service restart; else killall mihomo clash 2>/dev/null; sleep 1; mihomo -d /data/adb/box/bin/ & fi"
@@ -153,7 +193,6 @@ func StreamLogs(w http.ResponseWriter, r *http.Request) {
 		close(logChan)
 	}()
 
-	// Tail log file in background
 	logFile := "/data/adb/box/run/runs.log"
 	if _, err := os.Stat(logFile); err != nil {
 		logFile = "/data/adb/clash/run/runs.log"
@@ -188,7 +227,6 @@ func StreamLogs(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetMode() string {
-	// Call local Mihomo/Clash REST API if running
 	resp, err := http.Get("http://127.0.0.1:9090/configs")
 	if err != nil {
 		return "Rule"
@@ -216,4 +254,35 @@ func SetMode(mode string) error {
 	}
 	defer resp.Body.Close()
 	return nil
+}
+
+func DetectConfigPath() string {
+	paths := []string{
+		"/data/adb/box/clash/config.yaml",
+		"/data/adb/box/config.yaml",
+		"/data/adb/clash/config.yaml",
+		"/data/adb/modules/box4magisk/config.yaml",
+	}
+	for _, p := range paths {
+		if _, err := os.Stat(p); err == nil {
+			return p
+		}
+	}
+	return paths[0]
+}
+
+func ReadConfig() (string, string, error) {
+	p := DetectConfigPath()
+	data, err := os.ReadFile(p)
+	if err != nil {
+		return p, "", err
+	}
+	return p, string(data), nil
+}
+
+func SaveConfig(content string) error {
+	p := DetectConfigPath()
+	dir := filepath.Dir(p)
+	_ = os.MkdirAll(dir, 0755)
+	return os.WriteFile(p, []byte(content), 0644)
 }
