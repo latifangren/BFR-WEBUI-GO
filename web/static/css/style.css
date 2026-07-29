@@ -1,26 +1,332 @@
+/* Custom variable definitions for Neobrutalist styling based on Highs Vault Dashboard */
+:root {
+  --neo-bg: #f4f6fa;
+  --neo-card: #ffffff;
+  --neo-card-sub: #f8fafc;
+  --neo-text: #0f172a;
+  --neo-muted: #64748b;
+  --neo-border: #0f172a;
+  --neo-accent: #5c3bf5;
+  --neo-shadow: #0f172a;
+}
+
+.dark {
+  --neo-bg: #090d16;
+  --neo-card: #131927;
+  --neo-card-sub: #1e293b;
+  --neo-text: #f8fafc;
+  --neo-muted: #94a3b8;
+  --neo-border: #ffffff;
+  --neo-accent: #7c3aed;
+  --neo-shadow: #7c3aed;
+}
+
+/* Base resets and visual overlay */
 [x-cloak] { display: none !important; }
+
 body {
-    background-color: #000000;
-    color: #e5e7eb;
-    font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  background-color: var(--neo-bg) !important;
+  color: var(--neo-text) !important;
+  font-family: 'Space Grotesk', 'Geist', ui-sans-serif, system-ui, -apple-system, sans-serif !important;
+  position: relative;
 }
+
+/* Subtle physical grid/telemetry dots overlay */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  background-image: radial-gradient(var(--neo-border) 1px, transparent 1px);
+  background-size: 24px 24px;
+  opacity: 0.03;
+  pointer-events: none;
+  z-index: 10;
+}
+
+/* Core layouts overrides */
 .bg-amoled {
-    background-color: #000000 !important;
+  background-color: var(--neo-bg) !important;
 }
+
 .bg-card {
-    background-color: #0a0a0a !important;
+  background-color: var(--neo-card) !important;
+  border: 2px solid var(--neo-border) !important;
+  box-shadow: 4px 4px 0px 0px var(--neo-shadow) !important;
+  border-radius: 4px !important;
+  transition: transform 0.15s cubic-bezier(0.32, 0.72, 0, 1), box-shadow 0.15s cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+.bg-black {
+  background-color: var(--neo-card-sub) !important;
+  border: 2px solid var(--neo-border) !important;
+  border-radius: 4px !important;
+}
+
+/* Focused borders */
+.border {
+  border: 2px solid var(--neo-border) !important;
+}
+.border-b {
+  border-bottom: 2px solid var(--neo-border) !important;
+}
+.border-t {
+  border-top: 2px solid var(--neo-border) !important;
+}
+.border-l {
+  border-left: 2px solid var(--neo-border) !important;
+}
+.border-r {
+  border-right: 2px solid var(--neo-border) !important;
 }
 .border-border {
-    border-color: #1f1f1f !important;
+  border-color: var(--neo-border) !important;
 }
-.custom-scrollbar::-webkit-scrollbar {
-    width: 6px;
-    height: 6px;
+
+/* Text & Muted elements */
+.text-white,
+.text-gray-100,
+.text-gray-200,
+.text-gray-300 {
+  color: var(--neo-text) !important;
 }
-.custom-scrollbar::-webkit-scrollbar-track {
-    background: #050505;
+
+.text-gray-400,
+.text-gray-500 {
+  color: var(--neo-muted) !important;
 }
-.custom-scrollbar::-webkit-scrollbar-thumb {
-    background: #1f1f1f;
-    border-radius: 3px;
+
+.text-blue-500,
+.text-blue-400 {
+  color: var(--neo-accent) !important;
+}
+
+/* Buttons utility states */
+button,
+.btn {
+  background-color: var(--neo-card) !important;
+  color: var(--neo-text) !important;
+  border: 2px solid var(--neo-border) !important;
+  border-radius: 4px !important;
+  box-shadow: 4px 4px 0px 0px var(--neo-shadow) !important;
+  font-weight: 700 !important;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  transition: transform 0.1s cubic-bezier(0.32, 0.72, 0, 1), box-shadow 0.1s cubic-bezier(0.32, 0.72, 0, 1), background-color 0.1s ease !important;
+}
+
+button:hover,
+.btn:hover {
+  background-color: var(--neo-card-sub) !important;
+  transform: translate(-1px, -1px);
+  box-shadow: 5px 5px 0px 0px var(--neo-shadow) !important;
+}
+
+button:active,
+.btn:active {
+  transform: translate(2px, 2px) !important;
+  box-shadow: 2px 2px 0px 0px var(--neo-shadow) !important;
+}
+
+/* Remove button shadows & borders where they act as clean tabs inside a container */
+nav button,
+header button {
+  box-shadow: none !important;
+  border: none !important;
+  text-transform: none;
+  letter-spacing: normal;
+}
+
+nav button:hover,
+header button:hover {
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+nav button:active,
+header button:active {
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+/* Color accents on buttons override */
+.bg-blue-600,
+.bg-blue-500,
+button[class*="bg-blue"] {
+  background-color: var(--neo-accent) !important;
+  color: #ffffff !important;
+}
+.bg-blue-600:hover,
+.bg-blue-500:hover {
+  filter: brightness(1.1);
+}
+
+.bg-red-600,
+.bg-red-500,
+button[class*="bg-red"] {
+  background-color: #ef4444 !important;
+  color: #ffffff !important;
+}
+.bg-red-600:hover,
+.bg-red-500:hover {
+  filter: brightness(1.1);
+}
+
+.bg-green-600,
+.bg-green-500,
+button[class*="bg-green"] {
+  background-color: #22c55e !important;
+  color: #ffffff !important;
+}
+.bg-green-600:hover,
+.bg-green-500:hover {
+  filter: brightness(1.1);
+}
+
+.bg-amber-600,
+.bg-amber-500,
+button[class*="bg-amber"] {
+  background-color: #f59e0b !important;
+  color: #ffffff !important;
+}
+.bg-amber-600:hover,
+.bg-amber-500:hover {
+  filter: brightness(1.1);
+}
+
+/* Header dynamic overrides */
+header {
+  background-color: var(--neo-card) !important;
+  border-bottom: 2px solid var(--neo-border) !important;
+}
+
+header div[class*="bg-blue-600"] {
+  border: 2px solid var(--neo-border) !important;
+  box-shadow: 2px 2px 0px 0px var(--neo-shadow) !important;
+  border-radius: 4px !important;
+}
+
+/* Inputs & Form controls override */
+input[type="text"],
+input[type="password"],
+textarea,
+select {
+  background-color: var(--neo-card-sub) !important;
+  color: var(--neo-text) !important;
+  border: 2px solid var(--neo-border) !important;
+  border-radius: 4px !important;
+  box-shadow: inset 2px 2px 0px 0px rgba(0,0,0,0.06) !important;
+  padding: 0.5rem 0.75rem !important;
+  font-family: inherit;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+input[type="text"]:focus,
+input[type="password"]:focus,
+textarea:focus,
+select:focus {
+  outline: none !important;
+  border-color: var(--neo-accent) !important;
+  box-shadow: 2px 2px 0px 0px var(--neo-shadow) !important;
+}
+
+/* Text editor codes raw typing */
+textarea.bg-black {
+  font-family: 'JetBrains Mono', 'IBM Plex Mono', 'Fira Code', 'Courier New', monospace !important;
+  letter-spacing: -0.01em;
+  line-height: 1.5;
+  background-color: var(--neo-card-sub) !important;
+  color: var(--neo-text) !important;
+  border: 2px solid var(--neo-border) !important;
+  padding: 1.25rem !important;
+  box-shadow: none !important;
+}
+
+/* Tables styling */
+table {
+  border-collapse: collapse !important;
+  width: 100% !important;
+}
+
+thead, tr[class*="bg-gray-900"] {
+  background-color: var(--neo-card-sub) !important;
+}
+
+th {
+  background-color: var(--neo-card-sub) !important;
+  color: var(--neo-text) !important;
+  font-weight: 700 !important;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  letter-spacing: 0.05em;
+  border-bottom: 2px solid var(--neo-border) !important;
+  padding: 0.75rem !important;
+}
+
+td {
+  border-bottom: 1px solid var(--neo-border) !important;
+  background-color: var(--neo-card) !important;
+  color: var(--neo-text) !important;
+  padding: 0.75rem !important;
+}
+
+tr:hover td {
+  background-color: var(--neo-card-sub) !important;
+}
+
+/* Terminal container wrapper custom styling */
+#terminal-container {
+  background-color: var(--neo-card) !important;
+  border: 2px solid var(--neo-border) !important;
+  border-radius: 4px !important;
+  box-shadow: 4px 4px 0px 0px var(--neo-shadow) !important;
+  padding: 8px !important;
+}
+
+.xterm-viewport {
+  background-color: var(--neo-card) !important;
+}
+
+.xterm-rows {
+  color: var(--neo-text) !important;
+}
+
+/* Modals */
+.fixed div.bg-card {
+  border-radius: 4px !important;
+  box-shadow: 8px 8px 0px 0px var(--neo-shadow) !important;
+  transform: scale(1.02);
+}
+
+/* Custom code preview & syntax boxes */
+pre {
+  background-color: var(--neo-card-sub) !important;
+  border: 2px solid var(--neo-border) !important;
+  border-radius: 4px !important;
+  color: var(--neo-text) !important;
+}
+
+/* Custom scrollbars */
+.custom-scrollbar::-webkit-scrollbar,
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track,
+::-webkit-scrollbar-track {
+  background: var(--neo-card-sub);
+  border-left: 2px solid var(--neo-border);
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb,
+::-webkit-scrollbar-thumb {
+  background: var(--neo-border);
+  border: 2px solid var(--neo-card-sub);
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover,
+::-webkit-scrollbar-thumb:hover {
+  background: var(--neo-accent);
 }
