@@ -4,48 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BFR WEBUI GO</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/xterm@5.3.0/css/xterm.css" />
-    <script src="https://cdn.jsdelivr.net/npm/xterm@5.3.0/lib/xterm.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/xterm-addon-fit@0.8.0/lib/xterm-addon-fit.js"></script>
-    <script>
-        tailwind.config = {
-            darkMode: 'class',
-            theme: {
-                extend: {
-                    colors: {
-                        amoled: '#000000',
-                        card: '#0a0a0a',
-                        border: '#1f1f1f',
-                        accent: '#3b82f6',
-                        danger: '#ef4444',
-                        warning: '#f59e0b',
-                        success: '#10b981'
-                    }
-                }
-            }
-        }
-    </script>
-    <style>
-        [x-cloak] { display: none !important; }
-        body {
-            background-color: #000000;
-            color: #e5e7eb;
-            font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-        }
-        .custom-scrollbar::-webkit-scrollbar {
-            width: 6px;
-            height: 6px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-track {
-            background: #050505;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb {
-            background: #1f1f1f;
-            border-radius: 3px;
-        }
-    </style>
+    <link rel="stylesheet" href="/static/css/tailwind.min.css" />
+    <link rel="stylesheet" href="/static/css/xterm.css" />
+    <link rel="stylesheet" href="/static/css/style.css" />
+    <script defer src="/static/js/alpine.min.js"></script>
+    <script src="/static/js/xterm.js"></script>
+    <script src="/static/js/xterm-addon-fit.js"></script>
 </head>
 <body class="bg-amoled text-gray-200 min-h-screen flex flex-col antialiased selection:bg-blue-500 selection:text-white"
       x-data="dashboard()" x-init="init()">
