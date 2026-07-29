@@ -1,0 +1,958 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BFR WEBUI GO</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/xterm@5.3.0/css/xterm.css" />
+    <script src="https://cdn.jsdelivr.net/npm/xterm@5.3.0/lib/xterm.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xterm-addon-fit@0.8.0/lib/xterm-addon-fit.js"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        amoled: '#000000',
+                        card: '#0a0a0a',
+                        border: '#1f1f1f',
+                        accent: '#3b82f6',
+                        danger: '#ef4444',
+                        warning: '#f59e0b',
+                        success: '#10b981'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        [x-cloak] { display: none !important; }
+        body {
+            background-color: #000000;
+            color: #e5e7eb;
+            font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #050505;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #1f1f1f;
+            border-radius: 3px;
+        }
+    </style>
+</head>
+<body class="bg-amoled text-gray-200 min-h-screen flex flex-col antialiased selection:bg-blue-500 selection:text-white"
+      x-data="dashboard()" x-init="init()">
+
+    <!-- Header -->
+    <header class="border-b border-border bg-card/80 backdrop-blur sticky top-0 z-40">
+        <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="w-9 h-9 rounded-xl bg-blue-600 flex items-center justify-center font-bold text-white shadow-lg shadow-blue-500/20">
+                    B
+                </div>
+                <div>
+                    <h1 class="font-bold text-lg leading-none tracking-wide text-white flex items-center gap-2">
+                        BFR WEBUI <span class="text-blue-500 text-xs px-2 py-0.5 rounded bg-blue-500/10 border border-blue-500/20 font-mono">GO v1.0</span>
+                    </h1>
+                    <p class="text-xs text-gray-400 mt-0.5" x-text="stats.model ? stats.model + ' (Android ' + stats.android_ver + ')' : 'Android System WebUI'"></p>
+                </div>
+            </div>
+
+            <!-- Navigation Tabs (Desktop) -->
+            <template x-if="authenticated">
+                <nav class="hidden md:flex items-center space-x-1 bg-black p-1 rounded-xl border border-border">
+                    <button type="button" @click="activeTab = 'overview'" :class="activeTab === 'overview' ? 'bg-blue-600 text-white shadow-md' : 'text-gray-400 hover:text-white'" class="px-3.5 py-1.5 rounded-lg text-xs font-semibold transition">
+                        Overview
+                    </button>
+                    <button type="button" @click="activeTab = 'network'" :class="activeTab === 'network' ? 'bg-blue-600 text-white shadow-md' : 'text-gray-400 hover:text-white'" class="px-3.5 py-1.5 rounded-lg text-xs font-semibold transition">
+                        Network & Tweaks
+                    </button>
+                    <button type="button" @click="activeTab = 'proxy'" :class="activeTab === 'proxy' ? 'bg-blue-600 text-white shadow-md' : 'text-gray-400 hover:text-white'" class="px-3.5 py-1.5 rounded-lg text-xs font-semibold transition">
+                        Proxy Core
+                    </button>
+                    <button type="button" @click="activeTab = 'files'; fetchFileList(currentPath)" :class="activeTab === 'files' ? 'bg-blue-600 text-white shadow-md' : 'text-gray-400 hover:text-white'" class="px-3.5 py-1.5 rounded-lg text-xs font-semibold transition">
+                        File Manager
+                    </button>
+                    <button type="button" @click="activeTab = 'terminal'; initTerminal()" :class="activeTab === 'terminal' ? 'bg-blue-600 text-white shadow-md' : 'text-gray-400 hover:text-white'" class="px-3.5 py-1.5 rounded-lg text-xs font-semibold transition">
+                        Web Terminal
+                    </button>
+                    <button type="button" @click="activeTab = 'tools'" :class="activeTab === 'tools' ? 'bg-blue-600 text-white shadow-md' : 'text-gray-400 hover:text-white'" class="px-3.5 py-1.5 rounded-lg text-xs font-semibold transition">
+                        System Tools
+                    </button>
+                </nav>
+            </template>
+
+            <div class="flex items-center space-x-3">
+                <template x-if="authenticated">
+                    <button type="button" @click="logout()" class="px-3.5 py-1.5 text-xs font-medium text-red-400 hover:text-red-300 bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 rounded-xl transition">
+                        Logout
+                    </button>
+                </template>
+            </div>
+        </div>
+
+        <!-- Navigation Tabs (Mobile) -->
+        <template x-if="authenticated">
+            <div class="md:hidden flex items-center overflow-x-auto px-4 py-2 border-t border-border space-x-2 custom-scrollbar">
+                <button type="button" @click="activeTab = 'overview'" :class="activeTab === 'overview' ? 'bg-blue-600 text-white' : 'text-gray-400 bg-card border border-border'" class="px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap">Overview</button>
+                <button type="button" @click="activeTab = 'network'" :class="activeTab === 'network' ? 'bg-blue-600 text-white' : 'text-gray-400 bg-card border border-border'" class="px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap">Network</button>
+                <button type="button" @click="activeTab = 'proxy'" :class="activeTab === 'proxy' ? 'bg-blue-600 text-white' : 'text-gray-400 bg-card border border-border'" class="px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap">Proxy Core</button>
+                <button type="button" @click="activeTab = 'files'; fetchFileList(currentPath)" :class="activeTab === 'files' ? 'bg-blue-600 text-white' : 'text-gray-400 bg-card border border-border'" class="px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap">Files</button>
+                <button type="button" @click="activeTab = 'terminal'; initTerminal()" :class="activeTab === 'terminal' ? 'bg-blue-600 text-white' : 'text-gray-400 bg-card border border-border'" class="px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap">Terminal</button>
+                <button type="button" @click="activeTab = 'tools'" :class="activeTab === 'tools' ? 'bg-blue-600 text-white' : 'text-gray-400 bg-card border border-border'" class="px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap">Tools</button>
+            </div>
+        </template>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-1 max-w-7xl w-full mx-auto px-4 py-6 space-y-6">
+        <!-- Auth Modal/Form -->
+        <template x-if="!authenticated">
+            <div class="max-w-md mx-auto my-16 bg-card border border-border rounded-3xl p-8 shadow-2xl space-y-6">
+                <div class="text-center space-y-2">
+                    <div class="w-12 h-12 rounded-2xl bg-blue-600 mx-auto flex items-center justify-center font-bold text-xl text-white shadow-xl shadow-blue-500/20">B</div>
+                    <h2 class="text-2xl font-extrabold text-white">BFR WebUI Authentication</h2>
+                    <p class="text-xs text-gray-400">High-performance Android System WebUI & Control Panel</p>
+                </div>
+                <form @submit.prevent="login()" class="space-y-4">
+                    <div>
+                        <label for="pwd" class="block text-xs font-medium text-gray-400 mb-1">Access Password</label>
+                        <input id="pwd" type="password" x-model="loginPassword" class="w-full bg-black border border-border rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-blue-500 transition placeholder-gray-600 font-mono" placeholder="Default: bfr" required />
+                    </div>
+                    <template x-if="authError">
+                        <p class="text-xs text-red-400 font-medium" x-text="authError"></p>
+                    </template>
+                    <button type="submit" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-semibold py-3 rounded-xl text-sm transition shadow-lg shadow-blue-600/20">
+                        Sign In
+                    </button>
+                </form>
+            </div>
+        </template>
+
+        <template x-if="authenticated">
+            <div class="space-y-6">
+                <!-- TAB 1: OVERVIEW -->
+                <div x-show="activeTab === 'overview'" class="space-y-6">
+                    <!-- Stat Gauges -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                        <!-- CPU Gauge -->
+                        <div class="bg-card border border-border rounded-2xl p-5 flex flex-col justify-between">
+                            <div class="flex items-center justify-between text-gray-400 mb-3">
+                                <span class="text-xs font-bold uppercase tracking-wider">CPU Load</span>
+                                <span class="text-xs font-mono text-blue-400" x-text="stats.cpu_cores ? stats.cpu_cores.length + ' Cores' : ''"></span>
+                            </div>
+                            <div class="flex items-baseline space-x-2">
+                                <span class="text-4xl font-extrabold text-white" x-text="stats.cpu_usage ? stats.cpu_usage.toFixed(1) + '%' : '0%'"></span>
+                            </div>
+                            <div class="w-full bg-black rounded-full h-2 mt-4 overflow-hidden border border-border">
+                                <div class="bg-blue-500 h-2 rounded-full transition-all duration-500" :style="'width: ' + (stats.cpu_usage || 0) + '%'"></div>
+                            </div>
+                        </div>
+
+                        <!-- RAM Gauge -->
+                        <div class="bg-card border border-border rounded-2xl p-5 flex flex-col justify-between">
+                            <div class="flex items-center justify-between text-gray-400 mb-3">
+                                <span class="text-xs font-bold uppercase tracking-wider">RAM Usage</span>
+                                <span class="text-xs font-mono text-purple-400" x-text="formatBytes(stats.mem_used) + ' / ' + formatBytes(stats.mem_total)"></span>
+                            </div>
+                            <div class="flex items-baseline space-x-2">
+                                <span class="text-4xl font-extrabold text-white" x-text="stats.mem_used_pct ? stats.mem_used_pct.toFixed(1) + '%' : '0%'"></span>
+                            </div>
+                            <div class="w-full bg-black rounded-full h-2 mt-4 overflow-hidden border border-border">
+                                <div class="bg-purple-500 h-2 rounded-full transition-all duration-500" :style="'width: ' + (stats.mem_used_pct || 0) + '%'"></div>
+                            </div>
+                        </div>
+
+                        <!-- Battery Gauge -->
+                        <div class="bg-card border border-border rounded-2xl p-5 flex flex-col justify-between">
+                            <div class="flex items-center justify-between text-gray-400 mb-3">
+                                <span class="text-xs font-bold uppercase tracking-wider">Battery</span>
+                                <span class="text-xs font-mono text-green-400" x-text="stats.battery_detail ? stats.battery_detail.status : ''"></span>
+                            </div>
+                            <div class="flex items-baseline justify-between">
+                                <span class="text-4xl font-extrabold text-white" x-text="stats.battery_level >= 0 ? stats.battery_level + '%' : 'N/A'"></span>
+                                <span class="text-xs text-gray-400 font-mono" x-text="stats.battery_temp ? stats.battery_temp.toFixed(1) + '°C' : ''"></span>
+                            </div>
+                            <div class="w-full bg-black rounded-full h-2 mt-4 overflow-hidden border border-border">
+                                <div class="bg-green-500 h-2 rounded-full transition-all duration-500" :style="'width: ' + (stats.battery_level || 0) + '%'"></div>
+                            </div>
+                        </div>
+
+                        <!-- Uptime & System -->
+                        <div class="bg-card border border-border rounded-2xl p-5 flex flex-col justify-between">
+                            <div class="flex items-center justify-between text-gray-400 mb-3">
+                                <span class="text-xs font-bold uppercase tracking-wider">Uptime</span>
+                                <span class="text-xs font-mono text-amber-400" x-text="stats.model || 'Android'"></span>
+                            </div>
+                            <div class="flex items-baseline space-x-2">
+                                <span class="text-2xl font-bold text-white font-mono" x-text="formatUptime(stats.uptime)"></span>
+                            </div>
+                            <div class="text-xs text-gray-400 mt-4 flex items-center justify-between font-mono">
+                                <span>Android Release:</span>
+                                <span class="text-white font-bold" x-text="stats.android_ver || 'N/A'"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- CPU Core Frequencies -->
+                    <template x-if="stats.cpu_cores && stats.cpu_cores.length > 0">
+                        <div class="bg-card border border-border rounded-2xl p-6 space-y-4">
+                            <h3 class="text-sm font-bold text-white uppercase tracking-wider">Per-Core Frequencies & Load</h3>
+                            <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-3">
+                                <template x-for="core in stats.cpu_cores" :key="core.core">
+                                    <div class="bg-black border border-border p-3 rounded-xl text-center space-y-1">
+                                        <div class="text-[10px] uppercase font-bold text-gray-500" x-text="'Core ' + core.core"></div>
+                                        <div class="text-sm font-extrabold text-blue-400 font-mono" x-text="core.freq_mhz > 0 ? core.freq_mhz.toFixed(0) + ' MHz' : 'Idle'"></div>
+                                        <div class="text-xs text-gray-300 font-mono" x-text="core.usage.toFixed(0) + '%'"></div>
+                                    </div>
+                                </template>
+                            </div>
+                        </div>
+                    </template>
+
+                    <!-- Quick Power Actions -->
+                    <div class="bg-card border border-border rounded-2xl p-6 space-y-4">
+                        <div>
+                            <h3 class="text-sm font-bold text-white uppercase tracking-wider">Quick Power Actions</h3>
+                            <p class="text-xs text-gray-400">Trigger Magisk / Root System Operations</p>
+                        </div>
+                        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+                            <button type="button" @click="confirmPower('reboot', 'Reboot Device')" class="p-4 bg-black hover:bg-gray-900 border border-border rounded-xl flex flex-col items-center transition group">
+                                <span class="text-xs font-semibold text-gray-200">Reboot</span>
+                            </button>
+                            <button type="button" @click="confirmPower('soft_reboot', 'Soft Reboot')" class="p-4 bg-black hover:bg-gray-900 border border-border rounded-xl flex flex-col items-center transition group">
+                                <span class="text-xs font-semibold text-gray-200">Soft Reboot</span>
+                            </button>
+                            <button type="button" @click="confirmPower('recovery', 'Recovery')" class="p-4 bg-black hover:bg-gray-900 border border-border rounded-xl flex flex-col items-center transition group">
+                                <span class="text-xs font-semibold text-gray-200">Recovery</span>
+                            </button>
+                            <button type="button" @click="confirmPower('bootloader', 'Bootloader')" class="p-4 bg-black hover:bg-gray-900 border border-border rounded-xl flex flex-col items-center transition group">
+                                <span class="text-xs font-semibold text-gray-200">Bootloader</span>
+                            </button>
+                            <button type="button" @click="confirmPower('poweroff', 'Shutdown')" class="p-4 bg-black hover:bg-gray-900 border border-border rounded-xl flex flex-col items-center transition group">
+                                <span class="text-xs font-semibold text-red-400">Power Off</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB 2: NETWORK & TWEAKS -->
+                <div x-show="activeTab === 'network'" class="space-y-6">
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <!-- Sysctl & CA Status -->
+                        <div class="bg-card border border-border rounded-2xl p-6 space-y-4">
+                            <h3 class="text-sm font-bold text-white uppercase tracking-wider">Carrier Aggregation & TCP Congestion</h3>
+                            <div class="space-y-3 font-mono text-xs">
+                                <div class="flex items-center justify-between p-3 bg-black border border-border rounded-xl">
+                                    <span class="text-gray-400">LTE/5G CA Support:</span>
+                                    <span class="text-green-400 font-bold">ENABLED (system.prop)</span>
+                                </div>
+                                <div class="flex items-center justify-between p-3 bg-black border border-border rounded-xl">
+                                    <span class="text-gray-400">TCP Congestion Control:</span>
+                                    <span class="text-blue-400 font-bold" x-text="networkData.tcp_congestion || 'bbr2'"></span>
+                                </div>
+                                <div class="flex items-center justify-between p-3 bg-black border border-border rounded-xl">
+                                    <span class="text-gray-400">TCP Fast Open:</span>
+                                    <span class="text-purple-400 font-bold" x-text="networkData.tcp_fastopen || '3'"></span>
+                                </div>
+                            </div>
+
+                            <!-- TTL Spoofing Toggle -->
+                            <div class="p-4 bg-black border border-border rounded-xl flex items-center justify-between">
+                                <div>
+                                    <div class="text-xs font-bold text-white">TTL Spoofing (iptables mangle)</div>
+                                    <div class="text-[10px] text-gray-400">Set TTL=64 for bypass hotspot throttling</div>
+                                </div>
+                                <button type="button" @click="toggleTTL()" :class="networkData.ttl_spoof ? 'bg-blue-600' : 'bg-gray-800'" class="px-4 py-2 rounded-xl text-xs font-bold transition">
+                                    <span x-text="networkData.ttl_spoof ? 'ENABLED (64)' : 'DISABLED'"></span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- DNS Switcher -->
+                        <div class="bg-card border border-border rounded-2xl p-6 space-y-4">
+                            <h3 class="text-sm font-bold text-white uppercase tracking-wider">DNS Resolver Switcher</h3>
+                            <div class="grid grid-cols-2 gap-3">
+                                <template x-for="dns in networkData.preset_dns || []" :key="dns.name">
+                                    <button type="button" @click="setDNS(dns.primary, dns.secondary)" class="p-3 bg-black hover:bg-gray-900 border border-border rounded-xl text-left transition">
+                                        <div class="text-xs font-bold text-white" x-text="dns.name"></div>
+                                        <div class="text-[10px] font-mono text-gray-400" x-text="dns.primary + ' / ' + dns.secondary"></div>
+                                    </button>
+                                </template>
+                            </div>
+
+                            <div class="pt-2">
+                                <label for="ping-host" class="block text-xs font-bold text-gray-400 mb-1">Ping Diagnostic Tool</label>
+                                <div class="flex space-x-2">
+                                    <input id="ping-host" type="text" x-model="pingHost" class="flex-1 bg-black border border-border rounded-xl px-3 py-2 text-xs font-mono text-white focus:outline-none focus:border-blue-500" placeholder="e.g. 1.1.1.1 or google.com" />
+                                    <button type="button" @click="runPing()" class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-bold transition">
+                                        Ping
+                                    </button>
+                                </div>
+                                <template x-if="pingOutput">
+                                    <pre class="mt-3 p-3 bg-black border border-border rounded-xl text-[10px] font-mono text-green-400 overflow-x-auto max-h-40" x-text="pingOutput"></pre>
+                                </template>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Interfaces List -->
+                    <div class="bg-card border border-border rounded-2xl p-6 space-y-4">
+                        <h3 class="text-sm font-bold text-white uppercase tracking-wider">Active Network Interfaces</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                            <template x-for="iface in networkData.interfaces || []" :key="iface.name">
+                                <div class="bg-black border border-border rounded-xl p-4 space-y-2">
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-xs font-bold text-blue-400 font-mono" x-text="iface.name"></span>
+                                        <span class="text-[10px] text-gray-400 font-mono" x-text="'MTU: ' + iface.mtu"></span>
+                                    </div>
+                                    <div class="text-[11px] font-mono text-gray-300">
+                                        <template x-for="ip in iface.ips || []" :key="ip">
+                                            <div x-text="ip" class="truncate"></div>
+                                        </template>
+                                    </div>
+                                    <div class="flex items-center justify-between text-[10px] font-mono text-gray-400 pt-1 border-t border-border/50">
+                                        <span x-text="'RX: ' + formatBytes(iface.rx_bytes)"></span>
+                                        <span x-text="'TX: ' + formatBytes(iface.tx_bytes)"></span>
+                                    </div>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB 3: PROXY CORE -->
+                <div x-show="activeTab === 'proxy'" class="space-y-6">
+                    <div class="bg-card border border-border rounded-2xl p-6 space-y-4">
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                            <div>
+                                <h3 class="text-sm font-bold text-white uppercase tracking-wider">Mihomo / Clash Core Manager</h3>
+                                <p class="text-xs text-gray-400">Control Box4Magisk / Clash For Magisk services</p>
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <button type="button" @click="controlProxy('start')" class="px-3.5 py-1.5 bg-green-600 hover:bg-green-500 text-white rounded-xl text-xs font-bold transition">Start</button>
+                                <button type="button" @click="controlProxy('stop')" class="px-3.5 py-1.5 bg-red-600 hover:bg-red-500 text-white rounded-xl text-xs font-bold transition">Stop</button>
+                                <button type="button" @click="controlProxy('restart')" class="px-3.5 py-1.5 bg-amber-600 hover:bg-amber-500 text-white rounded-xl text-xs font-bold transition">Restart</button>
+                            </div>
+                        </div>
+
+                        <!-- Cores Status -->
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <template x-for="core in proxyData.cores || []" :key="core.path">
+                                <div class="bg-black border border-border rounded-xl p-4 flex items-center justify-between">
+                                    <div>
+                                        <div class="text-xs font-bold text-white uppercase" x-text="core.name"></div>
+                                        <div class="text-[10px] font-mono text-gray-400 truncate max-w-[200px]" x-text="core.path"></div>
+                                    </div>
+                                    <div class="text-right font-mono text-xs">
+                                        <span :class="core.running ? 'text-green-400' : 'text-gray-500'" x-text="core.running ? 'PID ' + core.pid : 'Stopped'"></span>
+                                    </div>
+                                </div>
+                            </template>
+                        </div>
+
+                        <!-- Core Mode Switcher -->
+                        <div class="p-4 bg-black border border-border rounded-xl flex items-center justify-between">
+                            <span class="text-xs font-bold text-white">Proxy Mode</span>
+                            <div class="flex space-x-2">
+                                <button type="button" @click="setProxyMode('Rule')" :class="proxyData.mode === 'Rule' ? 'bg-blue-600 text-white' : 'bg-card text-gray-400 border border-border'" class="px-3 py-1 rounded-lg text-xs font-bold">Rule</button>
+                                <button type="button" @click="setProxyMode('Global')" :class="proxyData.mode === 'Global' ? 'bg-blue-600 text-white' : 'bg-card text-gray-400 border border-border'" class="px-3 py-1 rounded-lg text-xs font-bold">Global</button>
+                                <button type="button" @click="setProxyMode('Direct')" :class="proxyData.mode === 'Direct' ? 'bg-blue-600 text-white' : 'bg-card text-gray-400 border border-border'" class="px-3 py-1 rounded-lg text-xs font-bold">Direct</button>
+                            </div>
+                        </div>
+
+                        <!-- Live Logs -->
+                        <div class="space-y-2">
+                            <div class="flex items-center justify-between">
+                                <span class="text-xs font-bold text-gray-400">Live Core Logs (SSE Stream)</span>
+                                <button type="button" @click="proxyLogs = []" class="text-[10px] text-gray-500 hover:text-white">Clear</button>
+                            </div>
+                            <div class="bg-black border border-border rounded-xl p-4 h-64 overflow-y-auto font-mono text-[11px] text-gray-300 space-y-1 custom-scrollbar">
+                                <template x-for="log in proxyLogs" :key="log">
+                                    <div x-text="log" class="whitespace-pre-wrap"></div>
+                                </template>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB 6: FILE MANAGER -->
+                <div x-show="activeTab === 'files'" class="space-y-6">
+                    <div class="bg-card border border-border rounded-2xl p-6 space-y-4">
+                        <!-- Top Toolbar & Breadcrumbs -->
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                            <!-- Breadcrumb Path -->
+                            <div class="flex items-center space-x-1 overflow-x-auto text-xs font-mono bg-black border border-border px-3 py-2 rounded-xl custom-scrollbar flex-1">
+                                <button type="button" @click="fetchFileList('/')" class="text-blue-400 hover:underline">root</button>
+                                <template x-for="(segment, idx) in currentPathSegments" :key="idx">
+                                    <div class="flex items-center space-x-1">
+                                        <span class="text-gray-600">/</span>
+                                        <button type="button" @click="navigateBreadcrumb(idx)" class="text-blue-400 hover:underline" x-text="segment"></button>
+                                    </div>
+                                </template>
+                            </div>
+
+                            <!-- Actions -->
+                            <div class="flex items-center space-x-2">
+                                <button type="button" @click="openCreateDirModal()" class="px-3 py-1.5 bg-black hover:bg-gray-900 border border-border text-xs text-gray-200 rounded-xl flex items-center gap-1 font-semibold">
+                                    + New Folder
+                                </button>
+                                <button type="button" @click="showUploadModal = true" class="px-3.5 py-1.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-bold transition">
+                                    Upload
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Quick Path Shortcuts -->
+                        <div class="flex items-center space-x-2 text-xs">
+                            <span class="text-gray-500 font-bold uppercase text-[10px]">Shortcuts:</span>
+                            <button type="button" @click="fetchFileList('/sdcard')" class="px-2.5 py-1 bg-black border border-border rounded-lg text-gray-300 hover:text-white font-mono">/sdcard</button>
+                            <button type="button" @click="fetchFileList('/data/adb')" class="px-2.5 py-1 bg-black border border-border rounded-lg text-gray-300 hover:text-white font-mono">/data/adb</button>
+                            <button type="button" @click="fetchFileList('/data/adb/modules')" class="px-2.5 py-1 bg-black border border-border rounded-lg text-gray-300 hover:text-white font-mono">/modules</button>
+                        </div>
+
+                        <!-- Directory Listing Table -->
+                        <div class="bg-black border border-border rounded-xl overflow-hidden">
+                            <div class="overflow-x-auto">
+                                <table class="w-full text-left text-xs font-mono">
+                                    <thead class="bg-gray-900/50 text-gray-400 border-b border-border">
+                                        <tr>
+                                            <th class="p-3">Name</th>
+                                            <th class="p-3">Size</th>
+                                            <th class="p-3">Permissions</th>
+                                            <th class="p-3 text-right">Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-border/50 text-gray-300">
+                                        <template x-for="file in fileList" :key="file.path">
+                                            <tr class="hover:bg-card/50 transition">
+                                                <td class="p-3">
+                                                    <div class="flex items-center space-x-2">
+                                                        <span x-text="file.is_dir ? '📁' : '📄'"></span>
+                                                        <template x-if="file.is_dir">
+                                                            <button type="button" @click="fetchFileList(file.path)" class="text-blue-400 hover:underline font-semibold" x-text="file.name"></button>
+                                                        </template>
+                                                        <template x-if="!file.is_dir">
+                                                            <span class="text-white" x-text="file.name"></span>
+                                                        </template>
+                                                    </div>
+                                                </td>
+                                                <td class="p-3 text-gray-400" x-text="file.is_dir ? '-' : formatBytes(file.size)"></td>
+                                                <td class="p-3 text-gray-400" x-text="file.permissions"></td>
+                                                <td class="p-3 text-right space-x-2">
+                                                    <template x-if="!file.is_dir">
+                                                        <button type="button" @click="openEditor(file.path)" class="text-blue-400 hover:underline">Edit</button>
+                                                    </template>
+                                                    <template x-if="!file.is_dir">
+                                                        <button type="button" @click="window.open('/api/files/download?path=' + encodeURIComponent(file.path), '_blank')" class="text-green-400 hover:underline">Download</button>
+                                                    </template>
+                                                    <button type="button" @click="deletePath(file.path)" class="text-red-400 hover:underline">Delete</button>
+                                                </td>
+                                            </tr>
+                                        </template>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB 4: WEB TERMINAL -->
+                <div x-show="activeTab === 'terminal'" class="space-y-4">
+                    <div class="bg-card border border-border rounded-2xl p-4">
+                        <div class="flex items-center justify-between mb-3">
+                            <div class="flex items-center space-x-2">
+                                <span class="w-2.5 h-2.5 rounded-full bg-green-500"></span>
+                                <span class="text-xs font-bold font-mono text-white">Root Shell Terminal (/system/bin/sh)</span>
+                            </div>
+                            <button type="button" @click="reconnectTerminal()" class="px-3 py-1 bg-black border border-border text-xs text-gray-300 hover:text-white rounded-lg">Reconnect</button>
+                        </div>
+                        <div id="terminal-container" class="bg-black rounded-xl border border-border p-2 h-[500px]"></div>
+                    </div>
+                </div>
+
+                <!-- TAB 5: SYSTEM TOOLS -->
+                <div x-show="activeTab === 'tools'" class="space-y-6">
+                    <!-- Disk Partitions -->
+                    <div class="bg-card border border-border rounded-2xl p-6 space-y-4">
+                        <h3 class="text-sm font-bold text-white uppercase tracking-wider">Storage & Disk Partitions</h3>
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                            <template x-for="disk in stats.disks || []" :key="disk.path">
+                                <div class="bg-black border border-border rounded-xl p-4 space-y-2">
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-xs font-bold text-white font-mono" x-text="disk.path"></span>
+                                        <span class="text-xs font-mono text-blue-400" x-text="disk.used_pct.toFixed(1) + '%'"></span>
+                                    </div>
+                                    <div class="text-[10px] text-gray-400 font-mono" x-text="formatBytes(disk.used) + ' / ' + formatBytes(disk.total)"></div>
+                                    <div class="w-full bg-gray-900 rounded-full h-1.5 overflow-hidden">
+                                        <div class="bg-blue-500 h-1.5 rounded-full" :style="'width: ' + disk.used_pct + '%'"></div>
+                                    </div>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+
+                    <!-- Thermal Sensors -->
+                    <template x-if="stats.thermals && stats.thermals.length > 0">
+                        <div class="bg-card border border-border rounded-2xl p-6 space-y-4">
+                            <h3 class="text-sm font-bold text-white uppercase tracking-wider">Thermal Zones (°C)</h3>
+                            <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-3">
+                                <template x-for="t in stats.thermals" :key="t.name">
+                                    <div class="bg-black border border-border p-3 rounded-xl text-center space-y-1">
+                                        <div class="text-[10px] font-mono text-gray-400 truncate" x-text="t.name"></div>
+                                        <div class="text-sm font-bold font-mono" :class="t.temp > 70 ? 'text-red-400' : 'text-green-400'" x-text="t.temp.toFixed(1) + '°C'"></div>
+                                    </div>
+                                </template>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+            </div>
+        </template>
+    </main>
+
+    <!-- Editor Modal -->
+    <div x-show="showEditorModal" x-cloak class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+        <div class="bg-card border border-border rounded-2xl p-6 max-w-4xl w-full space-y-4 shadow-2xl">
+            <div class="flex items-center justify-between border-b border-border pb-3">
+                <h3 class="text-sm font-bold text-white font-mono">File Editor: <span x-text="editingFilePath"></span></h3>
+                <button type="button" @click="showEditorModal = false" class="text-gray-400 hover:text-white">✕</button>
+            </div>
+            <textarea x-model="editorContent" class="w-full h-96 bg-black border border-border rounded-xl p-4 text-xs font-mono text-gray-200 focus:outline-none focus:border-blue-500 custom-scrollbar"></textarea>
+            <div class="flex justify-end space-x-3">
+                <button type="button" @click="showEditorModal = false" class="px-4 py-2 bg-black border border-border text-gray-300 rounded-xl text-xs font-medium">Cancel</button>
+                <button type="button" @click="saveFileContent()" class="px-4 py-2 bg-blue-600 text-white rounded-xl text-xs font-bold">Save File</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Upload Modal -->
+    <div x-show="showUploadModal" x-cloak class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+        <div class="bg-card border border-border rounded-2xl p-6 max-w-md w-full space-y-4 shadow-2xl">
+            <h3 class="text-sm font-bold text-white">Upload File</h3>
+            <form @submit.prevent="uploadFile()" class="space-y-4">
+                <input type="file" id="upload-input" class="w-full bg-black border border-border rounded-xl p-3 text-xs text-gray-300" required />
+                <div class="flex justify-end space-x-3">
+                    <button type="button" @click="showUploadModal = false" class="px-4 py-2 bg-black border border-border text-gray-300 rounded-xl text-xs font-medium">Cancel</button>
+                    <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-xl text-xs font-bold">Upload</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Create Folder Modal -->
+    <div x-show="showDirModal" x-cloak class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+        <div class="bg-card border border-border rounded-2xl p-6 max-w-md w-full space-y-4 shadow-2xl">
+            <h3 class="text-sm font-bold text-white">Create New Folder</h3>
+            <input type="text" x-model="newDirName" class="w-full bg-black border border-border rounded-xl p-3 text-xs text-white" placeholder="Folder Name" />
+            <div class="flex justify-end space-x-3">
+                <button type="button" @click="showDirModal = false" class="px-4 py-2 bg-black border border-border text-gray-300 rounded-xl text-xs font-medium">Cancel</button>
+                <button type="button" @click="createDir()" class="px-4 py-2 bg-blue-600 text-white rounded-xl text-xs font-bold">Create</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Confirmation Modal -->
+    <div x-show="modal.show" x-cloak class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+        <div class="bg-card border border-border rounded-2xl p-6 max-w-sm w-full space-y-4 shadow-2xl">
+            <h3 class="text-lg font-bold text-white" x-text="modal.title">Confirm Action</h3>
+            <p class="text-sm text-gray-400" x-text="'Are you sure you want to perform: ' + modal.actionName + '?'"></p>
+            <div class="flex space-x-3 pt-2">
+                <button type="button" @click="modal.show = false" class="flex-1 bg-black border border-border text-gray-300 py-2 rounded-xl text-sm font-medium">Cancel</button>
+                <button type="button" @click="executePowerAction()" class="flex-1 bg-red-600 text-white py-2 rounded-xl text-sm font-medium">Confirm</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function dashboard() {
+            return {
+                authenticated: false,
+                loginPassword: '',
+                authError: '',
+                activeTab: 'overview',
+                stats: {},
+                networkData: {},
+                proxyData: {},
+                proxyLogs: [],
+                pingHost: '1.1.1.1',
+                pingOutput: '',
+                pollTimer: null,
+                term: null,
+                termWS: null,
+                eventSource: null,
+
+                // File Manager State
+                currentPath: '/sdcard',
+                fileList: [],
+                editingFilePath: '',
+                editorContent: '',
+                showEditorModal: false,
+                showUploadModal: false,
+                showDirModal: false,
+                newDirName: '',
+
+                modal: { show: false, action: '', actionName: '' },
+
+                get currentPathSegments() {
+                    return this.currentPath.split('/').filter(Boolean);
+                },
+
+                async init() {
+                    await this.checkAuth();
+                    if (this.authenticated) {
+                        this.startPolling();
+                        this.fetchNetworkData();
+                        this.fetchProxyStatus();
+                        this.setupProxyLogs();
+                    }
+                },
+
+                async checkAuth() {
+                    try {
+                        const res = await fetch('/api/auth/status');
+                        const data = await res.json();
+                        this.authenticated = data.authenticated;
+                    } catch (e) {
+                        this.authenticated = false;
+                    }
+                },
+
+                async login() {
+                    this.authError = '';
+                    try {
+                        const res = await fetch('/api/auth/login', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ password: this.loginPassword })
+                        });
+                        const data = await res.json();
+                        if (res.ok && data.success) {
+                            this.authenticated = true;
+                            this.loginPassword = '';
+                            this.startPolling();
+                            this.fetchNetworkData();
+                            this.fetchProxyStatus();
+                            this.setupProxyLogs();
+                        } else {
+                            this.authError = data.error || 'Invalid password';
+                        }
+                    } catch (e) {
+                        this.authError = 'Connection failed';
+                    }
+                },
+
+                async logout() {
+                    await fetch('/api/auth/logout', { method: 'POST' });
+                    this.authenticated = false;
+                    if (this.pollTimer) clearInterval(this.pollTimer);
+                    if (this.eventSource) this.eventSource.close();
+                },
+
+                startPolling() {
+                    this.fetchStats();
+                    if (this.pollTimer) clearInterval(this.pollTimer);
+                    this.pollTimer = setInterval(() => this.fetchStats(), 2000);
+                },
+
+                async fetchStats() {
+                    try {
+                        const res = await fetch('/api/stats');
+                        if (res.status === 401) {
+                            this.authenticated = false;
+                            if (this.pollTimer) clearInterval(this.pollTimer);
+                            return;
+                        }
+                        if (res.ok) {
+                            this.stats = await res.json();
+                        }
+                    } catch (e) {}
+                },
+
+                // File Manager Methods
+                async fetchFileList(path) {
+                    try {
+                        const res = await fetch('/api/files/list?path=' + encodeURIComponent(path || ''));
+                        if (res.ok) {
+                            const data = await res.json();
+                            this.currentPath = data.path;
+                            this.fileList = data.files || [];
+                        }
+                    } catch (e) {}
+                },
+
+                navigateBreadcrumb(index) {
+                    const segments = this.currentPathSegments.slice(0, index + 1);
+                    const targetPath = '/' + segments.join('/');
+                    this.fetchFileList(targetPath);
+                },
+
+                async openEditor(filePath) {
+                    try {
+                        const res = await fetch('/api/files/read?path=' + encodeURIComponent(filePath));
+                        if (res.ok) {
+                            const data = await res.json();
+                            this.editingFilePath = data.path;
+                            this.editorContent = data.content;
+                            this.showEditorModal = true;
+                        } else {
+                            alert('Cannot read file (may exceed 5MB or be binary)');
+                        }
+                    } catch (e) {}
+                },
+
+                async saveFileContent() {
+                    try {
+                        const res = await fetch('/api/files/save', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ path: this.editingFilePath, content: this.editorContent })
+                        });
+                        const data = await res.json();
+                        if (data.success) {
+                            this.showEditorModal = false;
+                            this.fetchFileList(this.currentPath);
+                        } else {
+                            alert('Save failed: ' + data.error);
+                        }
+                    } catch (e) {}
+                },
+
+                async uploadFile() {
+                    const input = document.getElementById('upload-input');
+                    if (!input.files.length) return;
+
+                    const formData = new FormData();
+                    formData.append('path', this.currentPath);
+                    formData.append('file', input.files[0]);
+
+                    try {
+                        const res = await fetch('/api/files/upload', {
+                            method: 'POST',
+                            body: formData
+                        });
+                        const data = await res.json();
+                        if (data.success) {
+                            this.showUploadModal = false;
+                            this.fetchFileList(this.currentPath);
+                        } else {
+                            alert('Upload failed: ' + data.error);
+                        }
+                    } catch (e) {}
+                },
+
+                openCreateDirModal() {
+                    this.newDirName = '';
+                    this.showDirModal = true;
+                },
+
+                async createDir() {
+                    if (!this.newDirName) return;
+                    const fullPath = this.currentPath + '/' + this.newDirName;
+                    try {
+                        const res = await fetch('/api/files/mkdir', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ path: fullPath })
+                        });
+                        const data = await res.json();
+                        if (data.success) {
+                            this.showDirModal = false;
+                            this.fetchFileList(this.currentPath);
+                        } else {
+                            alert('Create directory failed: ' + data.error);
+                        }
+                    } catch (e) {}
+                },
+
+                async deletePath(targetPath) {
+                    if (!confirm('Are you sure you want to delete: ' + targetPath + '?')) return;
+                    try {
+                        const res = await fetch('/api/files/delete', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ path: targetPath })
+                        });
+                        const data = await res.json();
+                        if (data.success) {
+                            this.fetchFileList(this.currentPath);
+                        } else {
+                            alert('Delete failed: ' + data.error);
+                        }
+                    } catch (e) {}
+                },
+
+                // Network & Power Methods
+                async fetchNetworkData() {
+                    try {
+                        const res = await fetch('/api/network/tweaks');
+                        if (res.ok) {
+                            this.networkData = await res.json();
+                        }
+                    } catch (e) {}
+                },
+
+                async toggleTTL() {
+                    const next = !this.networkData.ttl_spoof;
+                    try {
+                        await fetch('/api/network/tweaks?action=ttl', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ enable: next, ttl: 64 })
+                        });
+                        this.fetchNetworkData();
+                    } catch (e) {}
+                },
+
+                async setDNS(primary, secondary) {
+                    try {
+                        await fetch('/api/network/tweaks?action=dns', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ primary, secondary })
+                        });
+                        alert('DNS applied successfully');
+                    } catch (e) {}
+                },
+
+                async runPing() {
+                    this.pingOutput = 'Pinging...';
+                    try {
+                        const res = await fetch('/api/network/ping', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ host: this.pingHost, count: 4 })
+                        });
+                        const data = await res.json();
+                        this.pingOutput = data.output;
+                    } catch (e) {
+                        this.pingOutput = 'Ping failed';
+                    }
+                },
+
+                async fetchProxyStatus() {
+                    try {
+                        const res = await fetch('/api/proxy/status');
+                        if (res.ok) {
+                            this.proxyData = await res.json();
+                        }
+                    } catch (e) {}
+                },
+
+                async controlProxy(action) {
+                    try {
+                        await fetch('/api/proxy/control', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ action })
+                        });
+                        setTimeout(() => this.fetchProxyStatus(), 1500);
+                    } catch (e) {}
+                },
+
+                async setProxyMode(mode) {
+                    try {
+                        await fetch('/api/proxy/control', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ mode })
+                        });
+                        this.fetchProxyStatus();
+                    } catch (e) {}
+                },
+
+                setupProxyLogs() {
+                    if (this.eventSource) this.eventSource.close();
+                    this.eventSource = new EventSource('/api/proxy/logs');
+                    this.eventSource.onmessage = (e) => {
+                        this.proxyLogs.push(e.data);
+                        if (this.proxyLogs.length > 200) this.proxyLogs.shift();
+                    };
+                },
+
+                initTerminal() {
+                    this.$nextTick(() => {
+                        if (this.term) return;
+                        const container = document.getElementById('terminal-container');
+                        if (!container) return;
+
+                        this.term = new Terminal({
+                            theme: {
+                                background: '#000000',
+                                foreground: '#e5e7eb',
+                                cursor: '#3b82f6'
+                            },
+                            fontFamily: 'monospace',
+                            fontSize: 13
+                        });
+                        const fitAddon = new FitAddon.FitAddon();
+                        this.term.loadAddon(fitAddon);
+                        this.term.open(container);
+                        fitAddon.fit();
+
+                        this.reconnectTerminal();
+                    });
+                },
+
+                reconnectTerminal() {
+                    if (this.termWS) this.termWS.close();
+                    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+                    this.termWS = new WebSocket(`${protocol}//${window.location.host}/api/terminal/ws`);
+
+                    this.termWS.onmessage = (e) => {
+                        if (this.term) this.term.write(e.data);
+                    };
+
+                    this.term.onData((data) => {
+                        if (this.termWS && this.termWS.readyState === WebSocket.OPEN) {
+                            this.termWS.send(data);
+                        }
+                    });
+                },
+
+                confirmPower(action, name) {
+                    this.modal.action = action;
+                    this.modal.actionName = name;
+                    this.modal.show = true;
+                },
+
+                async executePowerAction() {
+                    const action = this.modal.action;
+                    this.modal.show = false;
+                    try {
+                        await fetch('/api/power', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ action })
+                        });
+                    } catch (e) {}
+                },
+
+                formatBytes(bytes) {
+                    if (!bytes) return '0 B';
+                    const k = 1024;
+                    const sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
+                    const i = Math.floor(Math.log(bytes) / Math.log(k));
+                    return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+                },
+
+                formatUptime(seconds) {
+                    if (!seconds) return '0s';
+                    const d = Math.floor(seconds / (3600*24));
+                    const h = Math.floor(seconds % (3600*24) / 3600);
+                    const m = Math.floor(seconds % 3600 / 60);
+                    const s = Math.floor(seconds % 60);
+                    return (d > 0 ? d + "d " : "") + (h > 0 ? h + "h " : "") + (m > 0 ? m + "m " : "") + (s > 0 ? s + "s" : "");
+                }
+            }
+        }
+    </script>
+</body>
+</html>
