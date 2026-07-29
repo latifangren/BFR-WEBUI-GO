@@ -77,6 +77,18 @@ type Stats struct {
 	Disks          []DiskPartition `json:"disks"`
 	Model          string          `json:"model"`
 	AndroidVer     string          `json:"android_ver"`
+	SELinux        string          `json:"selinux"`
+	SecurityPatch  string          `json:"security_patch"`
+	SDKVer         string          `json:"sdk_ver"`
+	Resolution     string          `json:"resolution"`
+	Density        string          `json:"density"`
+	MTU            string          `json:"mtu"`
+	DefaultTTL     string          `json:"default_ttl"`
+	Kernel         string          `json:"kernel"`
+	ServerTime     string          `json:"server_time"`
+	Hostname       string          `json:"hostname"`
+	NetRx          uint64          `json:"net_rx"`
+	NetTx          uint64          `json:"net_tx"`
 }
 
 type cpuStat struct {
@@ -122,6 +134,17 @@ func GetStats() (Stats, error) {
 		s.Model = getProp("ro.product.brand") + " " + getProp("ro.product.device")
 	}
 	s.AndroidVer = getProp("ro.build.version.release")
+	s.SELinux = getSELinux()
+	s.SecurityPatch = getProp("ro.build.version.security_patch")
+	s.SDKVer = getProp("ro.build.version.sdk")
+	s.Resolution = getScreenResolution()
+	s.Density = getScreenDensity()
+	s.MTU = getMTU()
+	s.DefaultTTL = getDefaultTTL()
+	s.Kernel = getKernelVersion()
+	s.ServerTime = getServerTime()
+	s.Hostname = getHostname()
+	s.NetRx, s.NetTx = getNetDevBytes()
 
 	return s, nil
 }
@@ -496,4 +519,130 @@ func getActiveServices() []ServiceStatus {
 		checkService("ADB Wireless", "adb", 5555, "adbd"),
 		checkService("Web UI Server", "webui", 8080),
 	}
+}
+
+func getSELinux() string {
+	data, err := os.ReadFile("/sys/fs/selinux/enforce")
+	if err == nil {
+		if strings.TrimSpace(string(data)) == "1" {
+			return "Enforcing"
+		}
+		return "Permissive"
+	}
+	out, err := exec.Command("getenforce").Output()
+	if err == nil {
+		return strings.TrimSpace(string(out))
+	}
+	return "Disabled / Unknown"
+}
+
+func getHostname() string {
+	h, err := os.Hostname()
+	if err == nil {
+		return h
+	}
+	out, err := exec.Command("hostname").Output()
+	if err == nil {
+		return strings.TrimSpace(string(out))
+	}
+	return "Android"
+}
+
+func getServerTime() string {
+	return time.Now().Format("2006-01-02 15:04:05 MST")
+}
+
+func getKernelVersion() string {
+	data, err := os.ReadFile("/proc/version")
+	if err == nil {
+		parts := strings.Split(string(data), " ")
+		if len(parts) > 2 {
+			return strings.Join(parts[:3], " ")
+		}
+		return strings.TrimSpace(string(data))
+	}
+	out, err := exec.Command("uname", "-r").Output()
+	if err == nil {
+		return strings.TrimSpace(string(out))
+	}
+	return "Unknown Kernel"
+}
+
+func getScreenResolution() string {
+	out, err := exec.Command("wm", "size").Output()
+	if err == nil {
+		str := strings.TrimSpace(string(out))
+		if strings.Contains(str, "Physical size:") {
+			return strings.TrimSpace(strings.Replace(str, "Physical size:", "", 1))
+		}
+		return str
+	}
+	return "Unknown"
+}
+
+func getScreenDensity() string {
+	out, err := exec.Command("wm", "density").Output()
+	if err == nil {
+		str := strings.TrimSpace(string(out))
+		if strings.Contains(str, "Physical density:") {
+			return strings.TrimSpace(strings.Replace(str, "Physical density:", "", 1))
+		}
+		return str
+	}
+	d := getProp("ro.sf.lcd_density")
+	if d != "" {
+		return d + " DPI"
+	}
+	return "Unknown"
+}
+
+func getMTU() string {
+	data, err := os.ReadFile("/sys/class/net/wlan0/mtu")
+	if err == nil {
+		return strings.TrimSpace(string(data))
+	}
+	return "1500 (Default)"
+}
+
+func getDefaultTTL() string {
+	data, err := os.ReadFile("/proc/sys/net/ipv4/ip_default_ttl")
+	if err == nil {
+		return strings.TrimSpace(string(data))
+	}
+	return "64"
+}
+
+func getNetDevBytes() (uint64, uint64) {
+	file, err := os.Open("/proc/net/dev")
+	if err != nil {
+		return 0, 0
+	}
+	defer file.Close()
+
+	var totalRx, totalTx uint64
+	scanner := bufio.NewScanner(file)
+	// Skip first 2 header lines
+	if scanner.Scan() {
+		_ = scanner.Text()
+	}
+	if scanner.Scan() {
+		_ = scanner.Text()
+	}
+
+	for scanner.Scan() {
+		line := scanner.Text()
+		fields := strings.Fields(line)
+		if len(fields) < 10 {
+			continue
+		}
+		ifname := strings.TrimSuffix(fields[0], ":")
+		if ifname == "lo" || strings.HasPrefix(ifname, "dummy") || strings.HasPrefix(ifname, "tun") {
+			continue
+		}
+		rx, _ := strconv.ParseUint(fields[1], 10, 64)
+		tx, _ := strconv.ParseUint(fields[9], 10, 64)
+		totalRx += rx
+		totalTx += tx
+	}
+	return totalRx, totalTx
 }

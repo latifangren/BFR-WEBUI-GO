@@ -6,6 +6,7 @@ import (
 	"os/exec"
 	"sync"
 
+	"github.com/creack/pty"
 	"github.com/gorilla/websocket"
 )
 
@@ -22,78 +23,59 @@ func HandleWebsocket(w http.ResponseWriter, r *http.Request) {
 	defer conn.Close()
 
 	cmd := exec.Command("su")
-	stdin, err := cmd.StdinPipe()
+	f, err := pty.Start(cmd)
 	if err != nil {
 		cmd = exec.Command("/system/bin/sh")
-		stdin, err = cmd.StdinPipe()
+		f, err = pty.Start(cmd)
 		if err != nil {
-			_ = conn.WriteMessage(websocket.TextMessage, []byte("Failed to initialize shell stdin\r\n"))
+			_ = conn.WriteMessage(websocket.TextMessage, []byte("Failed to initialize shell interactive PTY\r\n"))
 			return
 		}
 	}
-
-	stdout, err := cmd.StdoutPipe()
-	if err != nil {
-		_ = conn.WriteMessage(websocket.TextMessage, []byte("Failed to initialize shell stdout\r\n"))
-		return
-	}
-
-	stderr, err := cmd.StderrPipe()
-	if err != nil {
-		_ = conn.WriteMessage(websocket.TextMessage, []byte("Failed to initialize shell stderr\r\n"))
-		return
-	}
-
-	if err := cmd.Start(); err != nil {
-		_ = conn.WriteMessage(websocket.TextMessage, []byte("Failed to start shell process\r\n"))
-		return
-	}
+	defer func() {
+		_ = f.Close()
+		if cmd.Process != nil {
+			_ = cmd.Process.Kill()
+		}
+	}()
 
 	var writeMux sync.Mutex
-	writeWS := func(data []byte) {
+	writeWS := func(data []byte) error {
 		writeMux.Lock()
 		defer writeMux.Unlock()
-		_ = conn.WriteMessage(websocket.TextMessage, data)
+		return conn.WriteMessage(websocket.TextMessage, data)
 	}
 
-	// Read stdout
+	// Read from PTY master file and send to Websocket
 	go func() {
-		buf := make([]byte, 1024)
+		buf := make([]byte, 2048)
 		for {
-			n, err := stdout.Read(buf)
+			n, err := f.Read(buf)
 			if n > 0 {
-				writeWS(buf[:n])
+				if err := writeWS(buf[:n]); err != nil {
+					return
+				}
 			}
 			if err != nil {
+				// EOF or exit closed
 				break
 			}
 		}
 	}()
 
-	// Read stderr
-	go func() {
-		buf := make([]byte, 1024)
-		for {
-			n, err := stderr.Read(buf)
-			if n > 0 {
-				writeWS(buf[:n])
-			}
-			if err != nil {
-				break
-			}
-		}
-	}()
-
-	// Read WS messages and write to stdin
+	// Read from WebSocket and write to PTY master file
 	for {
 		_, msg, err := conn.ReadMessage()
 		if err != nil {
 			break
 		}
-		_, _ = stdin.Write(msg)
+		if _, err := f.Write(msg); err != nil {
+			break
+		}
 	}
+}
 
-	if cmd.Process != nil {
-		_ = cmd.Process.Kill()
-	}
+// Keep it backward compatible if any files depend on old exports
+func HandleWebsocketStdinOnly(w http.ResponseWriter, r *http.Request) {
+	HandleWebsocket(w, r)
 }

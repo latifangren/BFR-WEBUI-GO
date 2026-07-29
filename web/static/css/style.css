@@ -330,3 +330,25 @@ pre {
 ::-webkit-scrollbar-thumb:hover {
   background: var(--neo-accent);
 }
+
+/* Neobrutalist Theme Toggle Switch Override in Header */
+header button.theme-toggle {
+  background-color: var(--neo-card) !important;
+  color: var(--neo-text) !important;
+  border-radius: 4px !important;
+  border: 2px solid var(--neo-border) !important;
+  box-shadow: 4px 4px 0px 0px var(--neo-shadow) !important;
+  font-weight: 700 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.05em !important;
+  transition: transform 0.1s ease, box-shadow 0.1s ease, background-color 0.1s ease !important;
+}
+header button.theme-toggle:hover {
+  background-color: var(--neo-card-sub) !important;
+  transform: translate(-1px, -1px) !important;
+  box-shadow: 5px 5px 0px 0px var(--neo-shadow) !important;
+}
+header button.theme-toggle:active {
+  transform: translate(2px, 2px) !important;
+  box-shadow: 2px 2px 0px 0px var(--neo-shadow) !important;
+}

@@ -4,7 +4,17 @@ function dashboard() {
         loginPassword: '',
         authError: '',
         activeTab: 'overview',
+        isDark: localStorage.getItem('theme') !== 'light',
         stats: {},
+        lastNetRx: 0,
+        lastNetTx: 0,
+        netSpeedRx: 0,
+        netSpeedTx: 0,
+        throughputHistory: [],
+        fileManagerShortcuts: [],
+        showAddShortcutModal: false,
+        newShortcutName: '',
+        newShortcutPath: '',
         networkData: {},
         proxyData: {},
         proxyLogs: [],
@@ -105,6 +115,8 @@ function dashboard() {
         },
 
         async init() {
+            this.applyTheme();
+            this.initShortcuts();
             await this.checkAuth();
             if (this.authenticated) {
                 this.startPolling();
@@ -180,7 +192,22 @@ function dashboard() {
                     return;
                 }
                 if (res.ok) {
-                    this.stats = await res.json();
+                    const data = await res.json();
+                    if (this.lastNetRx > 0 && this.lastNetTx > 0) {
+                        const rxDiff = data.net_rx - this.lastNetRx;
+                        const txDiff = data.net_tx - this.lastNetTx;
+                        if (rxDiff >= 0 && txDiff >= 0) {
+                            this.netSpeedRx = rxDiff / 2;
+                            this.netSpeedTx = txDiff / 2;
+                            this.throughputHistory.push({ rx: this.netSpeedRx, tx: this.netSpeedTx });
+                            if (this.throughputHistory.length > 20) {
+                                this.throughputHistory.shift();
+                            }
+                        }
+                    }
+                    this.lastNetRx = data.net_rx;
+                    this.lastNetTx = data.net_tx;
+                    this.stats = data;
                 }
                 this.fetchVnstatData();
                 this.fetchChargerConfig();
@@ -419,13 +446,36 @@ function dashboard() {
         },
 
         // File Manager Methods
+        getParentPath(path) {
+            if (!path || path === '/') return '/';
+            let clean = path;
+            if (clean.endsWith('/') && clean.length > 1) {
+                clean = clean.slice(0, -1);
+            }
+            const idx = clean.lastIndexOf('/');
+            if (idx <= 0) return '/';
+            return clean.substring(0, idx);
+        },
+
         async fetchFileList(path) {
             try {
                 const res = await fetch('/api/files/list?path=' + encodeURIComponent(path || ''));
                 if (res.ok) {
                     const data = await res.json();
                     this.currentPath = data.path;
-                    this.fileList = data.files || [];
+                    let files = data.files || [];
+                    if (this.currentPath !== '/') {
+                        const parent = this.getParentPath(this.currentPath);
+                        files.unshift({
+                            name: '..',
+                            path: parent,
+                            is_dir: true,
+                            permissions: 'd--r--r--',
+                            size: 0,
+                            is_parent: true
+                        });
+                    }
+                    this.fileList = files;
                 }
             } catch (e) {}
         },
@@ -772,6 +822,68 @@ function dashboard() {
                     body: JSON.stringify({ action })
                 });
             } catch (e) {}
+        },
+
+        toggleTheme() {
+            this.isDark = !this.isDark;
+            localStorage.setItem('theme', this.isDark ? 'dark' : 'light');
+            this.applyTheme();
+        },
+
+        applyTheme() {
+            if (this.isDark) {
+                document.documentElement.classList.add('dark');
+                document.documentElement.classList.remove('light');
+            } else {
+                document.documentElement.classList.add('light');
+                document.documentElement.classList.remove('dark');
+            }
+        },
+
+        initShortcuts() {
+            let saved = localStorage.getItem('fileManagerShortcuts');
+            if (saved) {
+                try {
+                    this.fileManagerShortcuts = JSON.parse(saved);
+                } catch(e) {
+                    this.fileManagerShortcuts = this.getDefaultShortcuts();
+                }
+            } else {
+                this.fileManagerShortcuts = this.getDefaultShortcuts();
+                localStorage.setItem('fileManagerShortcuts', JSON.stringify(this.fileManagerShortcuts));
+            }
+        },
+
+        getDefaultShortcuts() {
+            return [
+                { name: "/sdcard", path: "/sdcard" },
+                { name: "/data/adb", path: "/data/adb" },
+                { name: "/modules", path: "/data/adb/modules" }
+            ];
+        },
+
+        addShortcut(name, path) {
+            if (!name || !path) return;
+            this.fileManagerShortcuts.push({ name, path });
+            localStorage.setItem('fileManagerShortcuts', JSON.stringify(this.fileManagerShortcuts));
+        },
+
+        removeShortcut(index) {
+            this.fileManagerShortcuts.splice(index, 1);
+            localStorage.setItem('fileManagerShortcuts', JSON.stringify(this.fileManagerShortcuts));
+        },
+
+        openAddShortcutModal() {
+            this.newShortcutName = '';
+            this.newShortcutPath = '';
+            this.showAddShortcutModal = true;
+        },
+
+        saveShortcut() {
+            if (this.newShortcutName && this.newShortcutPath) {
+                this.addShortcut(this.newShortcutName.trim(), this.newShortcutPath.trim());
+                this.showAddShortcutModal = false;
+            }
         },
 
         formatBytes(bytes) {

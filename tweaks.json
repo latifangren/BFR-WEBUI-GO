@@ -1,11 +1,11 @@
 {
-  "lte_carrier_aggregation": true,
-  "tcp_buffer_optimization": true,
-  "bbr2_congestion_control": true,
-  "sysctl_buffers_opt": true,
-  "dalvik_responsiveness": true,
-  "settings_global_tweaks": true,
-  "ttl_spoofing": true,
-  "packet_steering_rps": true,
-  "mtu_tuning": true
+  "lte_carrier_aggregation": false,
+  "tcp_buffer_optimization": false,
+  "bbr2_congestion_control": false,
+  "sysctl_buffers_opt": false,
+  "dalvik_responsiveness": false,
+  "settings_global_tweaks": false,
+  "ttl_spoofing": false,
+  "packet_steering_rps": false,
+  "mtu_tuning": false
 }

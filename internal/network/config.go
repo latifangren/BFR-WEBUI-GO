@@ -41,15 +41,15 @@ func LoadTweaks() (TweaksConfig, error) {
 	if err != nil {
 		// Return default config
 		return TweaksConfig{
-			LTECarrierAggregation: true,
-			TCPBufferOptimization: true,
-			BBR2CongestionControl: true,
-			SysctlBuffersOpt:      true,
-			DalvikResponsiveness:  true,
-			SettingsGlobalTweaks:  true,
-			TTLSpoofing:           true,
-			PacketSteeringRPS:     true,
-			MTUTuning:             true,
+			LTECarrierAggregation: false,
+			TCPBufferOptimization: false,
+			BBR2CongestionControl: false,
+			SysctlBuffersOpt:      false,
+			DalvikResponsiveness:  false,
+			SettingsGlobalTweaks:  false,
+			TTLSpoofing:           false,
+			PacketSteeringRPS:     false,
+			MTUTuning:             false,
 		}, nil
 	}
 
