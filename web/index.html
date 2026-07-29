@@ -120,8 +120,15 @@
                                 <span class="text-xs font-bold uppercase tracking-wider">CPU Load</span>
                                 <span class="text-xs font-mono text-blue-400" x-text="stats.cpu_cores ? stats.cpu_cores.length + ' Cores' : ''"></span>
                             </div>
-                            <div class="flex items-baseline space-x-2">
+                            <div class="flex items-baseline justify-between select-none">
                                 <span class="text-4xl font-extrabold text-white" x-text="stats.cpu_usage ? stats.cpu_usage.toFixed(1) + '%' : '0%'"></span>
+                                <template x-if="stats.load_avg">
+                                    <div class="flex flex-col text-[9px] font-mono text-cyan-400 text-right leading-tight">
+                                        <span>1m: <span class="font-extrabold text-white" x-text="stats.load_avg.load1.toFixed(2)"></span></span>
+                                        <span>5m: <span class="font-extrabold text-white" x-text="stats.load_avg.load5.toFixed(2)"></span></span>
+                                        <span>15m: <span class="font-extrabold text-white" x-text="stats.load_avg.load15.toFixed(2)"></span></span>
+                                    </div>
+                                </template>
                             </div>
                             <div class="w-full bg-black rounded-full h-2 mt-4 overflow-hidden border border-border">
                                 <div class="bg-blue-500 h-2 rounded-full transition-all duration-500" :style="'width: ' + (stats.cpu_usage || 0) + '%'"></div>
@@ -137,7 +144,14 @@
                             <div class="flex items-baseline space-x-2">
                                 <span class="text-4xl font-extrabold text-white" x-text="stats.mem_used_pct ? stats.mem_used_pct.toFixed(1) + '%' : '0%'"></span>
                             </div>
-                            <div class="w-full bg-black rounded-full h-2 mt-4 overflow-hidden border border-border">
+                            <!-- Swap/ZRAM box inline info -->
+                            <template x-if="stats.swap_total > 0">
+                                <div class="text-[9px] font-mono text-gray-400 tracking-wider flex justify-between mt-2">
+                                    <span>SWAP/ZRAM:</span>
+                                    <span class="text-purple-300 font-bold" x-text="formatBytes(stats.swap_used) + ' / ' + formatBytes(stats.swap_total) + ' (' + stats.swap_used_pct.toFixed(1) + '%)'"></span>
+                                </div>
+                            </template>
+                            <div class="w-full bg-black rounded-full h-2 mt-2 overflow-hidden border border-border">
                                 <div class="bg-purple-500 h-2 rounded-full transition-all duration-500" :style="'width: ' + (stats.mem_used_pct || 0) + '%'"></div>
                             </div>
                         </div>
@@ -183,6 +197,29 @@
                                         <div class="text-[10px] uppercase font-bold text-gray-500" x-text="'Core ' + core.core"></div>
                                         <div class="text-sm font-extrabold text-blue-400 font-mono" x-text="core.freq_mhz > 0 ? core.freq_mhz.toFixed(0) + ' MHz' : 'Idle'"></div>
                                         <div class="text-xs text-gray-300 font-mono" x-text="core.usage.toFixed(0) + '%'"></div>
+                                    </div>
+                                </template>
+                            </div>
+                        </div>
+                    </template>
+
+                    <!-- Active Services Status List (eZ Monitor Style) -->
+                    <template x-if="stats.active_services && stats.active_services.length > 0">
+                        <div class="bg-card border border-border rounded-2xl p-6 space-y-4">
+                            <h3 class="text-sm font-bold text-white uppercase tracking-wider font-mono">Active Background Services</h3>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+                                <template x-for="service in stats.active_services" :key="service.key">
+                                    <div class="bg-black border border-border p-4 rounded-xl flex items-center justify-between font-mono">
+                                        <div class="space-y-1">
+                                            <div class="text-xs font-bold text-white" x-text="service.name"></div>
+                                            <div class="text-[10px] text-gray-500" x-text="service.detail"></div>
+                                        </div>
+                                        <div>
+                                            <span class="px-2.5 py-1 rounded-md text-[10px] font-extrabold uppercase"
+                                                :class="service.running ? 'bg-green-500/20 text-green-400 border border-green-500/40' : 'bg-red-500/20 text-red-500 border border-red-500/40'"
+                                                x-text="service.running ? 'Active' : 'Stopped'">
+                                            </span>
+                                        </div>
                                     </div>
                                 </template>
                             </div>
@@ -671,10 +708,11 @@
                                 <p class="text-xs text-gray-400 font-mono">Battery lifespan protection via sysfs auto-scanner</p>
                             </div>
                             <div class="flex items-center space-x-2 font-mono">
-                                <label for="charger-enabled-check" class="flex items-center space-x-2 cursor-pointer bg-black border border-border px-3 py-1.5 rounded-xl hover:border-blue-500/40 transition">
-                                    <input id="charger-enabled-check" type="checkbox" x-model="chargerConfig.config.enabled" @change="saveChargerConfig()" class="w-4 h-4 accent-blue-500" />
+                                <label for="charger-enabled-check" class="sr-only">Toggle Smart Charger Limiter</label>
+                                <div class="flex items-center space-x-2 bg-black border border-border px-3 py-1.5 rounded-xl hover:border-blue-500/40 transition">
+                                    <input id="charger-enabled-check" type="checkbox" x-model="chargerConfig.config.enabled" @change="saveChargerConfig()" class="w-4 h-4 accent-blue-500 cursor-pointer" />
                                     <span class="text-xs text-white font-bold" x-text="chargerConfig.config?.enabled ? 'Limiter ON' : 'Limiter OFF'"></span>
-                                </label>
+                                </div>
                             </div>
                         </div>
 

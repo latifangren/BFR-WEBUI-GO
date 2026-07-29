@@ -3,6 +3,7 @@ package sysinfo
 import (
 	"bufio"
 	"fmt"
+	"net"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -40,23 +41,42 @@ type DetailedBattery struct {
 	Technology string  `json:"technology"`
 }
 
+type LoadAverage struct {
+	Load1  float64 `json:"load1"`
+	Load5  float64 `json:"load5"`
+	Load15 float64 `json:"load15"`
+}
+
+type ServiceStatus struct {
+	Name    string `json:"name"`
+	Key     string `json:"key"`
+	Running bool   `json:"running"`
+	Detail  string `json:"detail"`
+}
+
 type Stats struct {
-	CPUUsage      float64         `json:"cpu_usage"`
-	CPUCores      []CPUCoreStat   `json:"cpu_cores"`
-	MemTotal      uint64          `json:"mem_total"`
-	MemFree       uint64          `json:"mem_free"`
-	MemAvailable  uint64          `json:"mem_available"`
-	MemUsed       uint64          `json:"mem_used"`
-	MemUsedPct    float64         `json:"mem_used_pct"`
-	Uptime        float64         `json:"uptime"`
-	BatteryLevel  int             `json:"battery_level"`
-	BatteryStatus string          `json:"battery_status"`
-	BatteryTemp   float64         `json:"battery_temp"`
-	BatteryDetail DetailedBattery `json:"battery_detail"`
-	Thermals      []ThermalZone   `json:"thermals"`
-	Disks         []DiskPartition `json:"disks"`
-	Model         string          `json:"model"`
-	AndroidVer    string          `json:"android_ver"`
+	CPUUsage       float64         `json:"cpu_usage"`
+	CPUCores       []CPUCoreStat   `json:"cpu_cores"`
+	MemTotal       uint64          `json:"mem_total"`
+	MemFree        uint64          `json:"mem_free"`
+	MemAvailable   uint64          `json:"mem_available"`
+	MemUsed        uint64          `json:"mem_used"`
+	MemUsedPct     float64         `json:"mem_used_pct"`
+	SwapTotal      uint64          `json:"swap_total"`
+	SwapFree       uint64          `json:"swap_free"`
+	SwapUsed       uint64          `json:"swap_used"`
+	SwapUsedPct    float64         `json:"swap_used_pct"`
+	LoadAvg        LoadAverage     `json:"load_avg"`
+	ActiveServices []ServiceStatus `json:"active_services"`
+	Uptime         float64         `json:"uptime"`
+	BatteryLevel   int             `json:"battery_level"`
+	BatteryStatus  string          `json:"battery_status"`
+	BatteryTemp    float64         `json:"battery_temp"`
+	BatteryDetail  DetailedBattery `json:"battery_detail"`
+	Thermals       []ThermalZone   `json:"thermals"`
+	Disks          []DiskPartition `json:"disks"`
+	Model          string          `json:"model"`
+	AndroidVer     string          `json:"android_ver"`
 }
 
 type cpuStat struct {
@@ -83,7 +103,7 @@ func GetStats() (Stats, error) {
 	s.CPUUsage = overallUsage
 	s.CPUCores = cores
 
-	s.MemTotal, s.MemFree, s.MemAvailable, s.MemUsed, s.MemUsedPct = getMemInfo()
+	s.MemTotal, s.MemFree, s.MemAvailable, s.MemUsed, s.MemUsedPct, s.SwapTotal, s.SwapFree, s.SwapUsed, s.SwapUsedPct = getMemInfo()
 	s.Uptime = getUptime()
 
 	s.BatteryDetail = getDetailedBattery()
@@ -93,6 +113,9 @@ func GetStats() (Stats, error) {
 
 	s.Thermals = getThermalZones()
 	s.Disks = getDiskPartitions()
+
+	s.LoadAvg = getLoadAvg()
+	s.ActiveServices = getActiveServices()
 
 	s.Model = getProp("ro.product.model")
 	if s.Model == "" {
@@ -206,7 +229,7 @@ func getCoreFreq(core int) float64 {
 	return 0
 }
 
-func getMemInfo() (total, free, avail, used uint64, usedPct float64) {
+func getMemInfo() (total, free, avail, used uint64, usedPct float64, swapTotal, swapFree, swapUsed uint64, swapUsedPct float64) {
 	file, err := os.Open("/proc/meminfo")
 	if err != nil {
 		return
@@ -240,6 +263,15 @@ func getMemInfo() (total, free, avail, used uint64, usedPct float64) {
 	}
 	if total > 0 {
 		usedPct = (float64(used) / float64(total)) * 100
+	}
+
+	swapTotal = memMap["SwapTotal"]
+	swapFree = memMap["SwapFree"]
+	if swapTotal > swapFree {
+		swapUsed = swapTotal - swapFree
+	}
+	if swapTotal > 0 {
+		swapUsedPct = (float64(swapUsed) / float64(swapTotal)) * 100
 	}
 	return
 }
@@ -406,4 +438,62 @@ func getProp(prop string) string {
 		return ""
 	}
 	return strings.TrimSpace(string(out))
+}
+
+func getLoadAvg() LoadAverage {
+	var l LoadAverage
+	data, err := os.ReadFile("/proc/loadavg")
+	if err != nil {
+		return l
+	}
+	fields := strings.Fields(string(data))
+	if len(fields) >= 3 {
+		l.Load1, _ = strconv.ParseFloat(fields[0], 64)
+		l.Load5, _ = strconv.ParseFloat(fields[1], 64)
+		l.Load15, _ = strconv.ParseFloat(fields[2], 64)
+	}
+	return l
+}
+
+func checkService(name, key string, port int, processNames ...string) ServiceStatus {
+	running := false
+	if port > 0 {
+		conn, err := net.DialTimeout("tcp", fmt.Sprintf("127.0.0.1:%d", port), 50*time.Millisecond)
+		if err == nil {
+			conn.Close()
+			running = true
+		}
+	}
+	if !running && len(processNames) > 0 {
+		for _, proc := range processNames {
+			out, err := exec.Command("pidof", proc).Output()
+			if err == nil && len(strings.TrimSpace(string(out))) > 0 {
+				running = true
+				break
+			}
+		}
+	}
+	detail := "Off"
+	if running {
+		if port > 0 {
+			detail = fmt.Sprintf("Running (Port %d)", port)
+		} else {
+			detail = "Running"
+		}
+	}
+	return ServiceStatus{
+		Name:    name,
+		Key:     key,
+		Running: running,
+		Detail:  detail,
+	}
+}
+
+func getActiveServices() []ServiceStatus {
+	return []ServiceStatus{
+		checkService("Clash Core", "clash", 9090, "mihomo", "clash"),
+		checkService("SSH Daemon", "ssh", 22, "sshd", "dropbear"),
+		checkService("ADB Wireless", "adb", 5555, "adbd"),
+		checkService("Web UI Server", "webui", 8080),
+	}
 }
