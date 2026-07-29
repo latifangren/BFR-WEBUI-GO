@@ -1,4 +1,18 @@
+# Binaries
 bfr-webui-android-arm64
 bfr-webui-local.exe
 webui
 *.exe
+*.o
+*.a
+*.so
+
+# Magisk release zip packages
+*.zip
+
+# OS / Editor temporary files
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+
