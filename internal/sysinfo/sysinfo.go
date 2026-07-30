@@ -367,7 +367,7 @@ func getThermalZones() []ThermalZone {
 	}
 
 	prioritizedTypes := []string{"cpu-0", "cpu-1", "cpuss-0", "cpu-top", "soc-thermal", "mtktscpu"}
-	excludedTypes := []string{"modem-therm", "pa_therm", "gpu-step", "pmic-therm"}
+	excludedKeywords := []string{"modem", "pa_", "pa-", "gpu", "npu", "pmic", "charger", "camera", "xo_", "battery", "bms", "wlan"}
 
 	for _, z := range files {
 		typeData, err := os.ReadFile(filepath.Join(z, "type"))
@@ -377,10 +377,10 @@ func getThermalZones() []ThermalZone {
 		typeName := strings.TrimSpace(string(typeData))
 		lowerType := strings.ToLower(typeName)
 
-		// Exclude noisy zones
+		// Strictly exclude non-CPU thermistors
 		exclude := false
-		for _, eType := range excludedTypes {
-			if strings.Contains(lowerType, eType) {
+		for _, kw := range excludedKeywords {
+			if strings.Contains(lowerType, kw) {
 				exclude = true
 				break
 			}
@@ -389,6 +389,7 @@ func getThermalZones() []ThermalZone {
 			continue
 		}
 
+		// Match only CPU SoC core sensor types
 		matched := false
 		for _, pType := range prioritizedTypes {
 			if strings.Contains(lowerType, pType) {
@@ -396,14 +397,15 @@ func getThermalZones() []ThermalZone {
 				break
 			}
 		}
-		// If prioritize match doesn't hit, do generic check for "cpu", "soc", "tsens" etc.
+
+		// If prioritize match doesn't hit, generic checks
 		if !matched {
-			genericTypes := []string{"cpu", "soc", "tsens_tz_sensor", "bms", "battery", "quiet_therm", "ap_therm"}
-			for _, gType := range genericTypes {
-				if strings.Contains(lowerType, gType) {
-					matched = true
-					break
-				}
+			if strings.Contains(lowerType, "cpu") || strings.Contains(lowerType, "soc") || strings.Contains(lowerType, "cpuss") || strings.Contains(lowerType, "mtktscpu") {
+				matched = true
+			} else if lowerType == "ap-therm" || lowerType == "ap_therm" {
+				matched = true
+			} else if strings.Contains(lowerType, "tsens_tz_sensor") {
+				matched = true
 			}
 		}
 
@@ -423,7 +425,8 @@ func getThermalZones() []ThermalZone {
 			t = t / 1000.0
 		}
 
-		if t >= 15 && t <= 100 {
+		// Calculate valid scaled temperatures within 15°C to 90°C
+		if t >= 15 && t <= 90 {
 			zones = append(zones, ThermalZone{
 				Name: typeName,
 				Temp: t,

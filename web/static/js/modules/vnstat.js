@@ -29,11 +29,7 @@ const VnstatModule = {
         }
     },
 
-    get vnstatInterfaceList() {
-        return this.getVnstatInterfaces();
-    },
-
-    getVnstatInterfaces() {
+    getVnstatInterfaceList() {
         const dailyIfaces = this.vnstatData?.daily?.interfaces || {};
         const monthlyIfaces = this.vnstatData?.monthly?.interfaces || {};
 

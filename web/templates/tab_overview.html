@@ -196,7 +196,7 @@
                                         </tr>
                                     </thead>
                                     <tbody class="divide-y divide-border/50 text-gray-300">
-                                        <template x-for="item in vnstatInterfaceList" :key="item.name">
+                                        <template x-for="item in getVnstatInterfaceList()" :key="item.name">
                                             <tr class="hover:bg-card/50 transition">
                                                 <td class="p-3 font-bold text-white font-mono" x-text="item.name"></td>
                                                  <td class="p-3">
@@ -218,7 +218,7 @@
                                                 <td class="p-3 text-right font-extrabold text-white" x-text="formatBytes(item.monthlyTotal)"></td>
                                             </tr>
                                         </template>
-                                        <template x-if="vnstatInterfaceList.length === 0">
+                                        <template x-if="getVnstatInterfaceList().length === 0">
                                             <tr>
                                                 <td colspan="5" class="p-4 text-center text-gray-500 italic">No interface activity recorded yet</td>
                                             </tr>

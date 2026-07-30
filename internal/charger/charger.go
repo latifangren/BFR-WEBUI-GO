@@ -44,8 +44,8 @@ var candidatePaths = []struct {
 }{
 	{"/sys/class/power_supply/battery/charging_enabled", "charging_enabled"},
 	{"/sys/class/power_supply/battery/input_suspend", "input_suspend"},
-	{"/sys/class/power_supply/battery/charge_control_limit_max", "charge_control_limit_max"},
 	{"/sys/class/power_supply/battery/charge_control_limit", "charge_control_limit"},
+	{"/sys/class/power_supply/battery/charge_control_limit_max", "charge_control_limit_max"},
 	{"/sys/class/power_supply/battery/batt_slate_mode", "batt_slate_mode"},
 	{"/sys/class/power_supply/battery/store_mode", "store_mode"},
 	{"/sys/class/power_supply/main/charging_enabled", "charging_enabled"},
@@ -152,10 +152,16 @@ func (m *Manager) saveConfigLocked() {
 }
 
 func fileExistsAndWritable(path string) bool {
-	// Directly run the shell command checking existence and writability
-	cmd := exec.Command("su", "-c", fmt.Sprintf("[ -f %s ] && [ -w %s ] && echo 1 || echo 0", path, path))
+	// Directly check if file is writable via su test
+	cmd := exec.Command("su", "-c", fmt.Sprintf("test -w %s && echo 1 || echo 0", path))
 	out, err := cmd.Output()
 	if err == nil && strings.TrimSpace(string(out)) == "1" {
+		return true
+	}
+	// Direct fallback using su sh syntax
+	cmd2 := exec.Command("su", "-c", fmt.Sprintf("echo 1 > /dev/null; [ -w %s ] && echo 1 || echo 0", path))
+	out2, err2 := cmd2.Output()
+	if err2 == nil && strings.TrimSpace(string(out2)) == "1" {
 		return true
 	}
 	// Fallback to direct os package open check
