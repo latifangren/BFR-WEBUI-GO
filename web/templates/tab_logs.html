@@ -1,0 +1,58 @@
+{{define "tab_logs.html"}}
+                <!-- TAB: APPLICATION LOGS -->
+                <div x-show="activeTab === 'logs'" class="space-y-6" x-init="$watch('activeTab', v => { if (v === 'logs') { fetchLogs(); setTimeout(() => { const el = document.getElementById('logs-container'); if(el) el.scrollTop = el.scrollHeight; }, 100); } })">
+                    <div class="bg-card border border-border rounded-2xl p-6 space-y-5">
+                        <div class="flex items-center justify-between flex-wrap gap-2">
+                            <div>
+                                <h3 class="text-sm font-bold text-white uppercase tracking-wider font-mono flex items-center gap-2">
+                                    <span>Application Logs</span>
+                                    <span class="text-[10px] px-2 py-0.5 font-bold font-mono tracking-wider uppercase badge-inactive"
+                                        x-text="logsData.entries.length + ' entries'"></span>
+                                </h3>
+                                <p class="text-xs text-gray-400 font-mono">Real-time system event stream & error diagnostics</p>
+                            </div>
+                            <div class="flex items-center space-x-2 font-mono">
+                                <select x-model="logsData.filter" @change="fetchLogs()" class="bg-black border border-border rounded-xl px-3 py-1.5 text-xs text-white font-bold">
+                                    <option value="">All Categories</option>
+                                    <option value="auth">Auth</option>
+                                    <option value="ssh">SSH</option>
+                                    <option value="proxy">Proxy</option>
+                                    <option value="network">Network</option>
+                                    <option value="hotspot">Hotspot</option>
+                                    <option value="files">Files</option>
+                                    <option value="terminal">Terminal</option>
+                                    <option value="charger">Charger</option>
+                                    <option value="sms">SMS</option>
+                                </select>
+                                <button type="button" @click="fetchLogs()" class="px-3 py-1.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-bold transition">
+                                    Refresh
+                                </button>
+                                <button type="button" @click="clearLogs()" class="px-3 py-1.5 bg-red-600 hover:bg-red-500 text-white rounded-xl text-xs font-bold transition">
+                                    Clear
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Log Entries -->
+                        <div class="bg-black border border-border/30 rounded-xl p-3 h-[400px] overflow-y-auto font-mono text-xs space-y-1" id="logs-container">
+                            <template x-if="logsData.entries.length === 0">
+                                <div class="text-gray-500 text-center py-8">No log entries yet. Actions will appear here.</div>
+                            </template>
+                            <template x-for="(entry, idx) in logsData.entries" :key="entry.time + '-' + idx">
+                                <div class="flex items-start gap-2 py-1 border-b border-border/10 last:border-0 hover:bg-white/5 px-1 rounded transition-colors break-all">
+                                    <span class="text-gray-600 whitespace-nowrap shrink-0" x-text="entry.time"></span>
+                                    <span class="text-[10px] px-1.5 py-0.5 rounded font-bold uppercase tracking-wider shrink-0"
+                                        :class="{
+                                            'text-blue-400': entry.level === 'INFO',
+                                            'text-yellow-400': entry.level === 'WARN',
+                                            'text-red-400': entry.level === 'ERROR'
+                                        }"
+                                        x-text="entry.level"></span>
+                                    <span class="text-purple-400 font-bold shrink-0" x-text="'[' + entry.category + ']'"></span>
+                                    <span class="text-gray-300 break-words" x-text="entry.message"></span>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+                </div>
+{{end}}

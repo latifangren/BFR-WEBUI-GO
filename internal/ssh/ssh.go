@@ -9,6 +9,9 @@ import (
 	"strconv"
 	"strings"
 	"sync"
+	"time"
+
+	"bfr-webui-go/internal/logger"
 )
 
 type Config struct {
@@ -119,8 +122,8 @@ func (m *Manager) detectSshBinary() string {
 func (m *Manager) getRunningProcess() (string, int) {
 	candidates := []string{"dropbear", "sshd"}
 	for _, c := range candidates {
-		// Run via su -c pgrep to query root processes
-		cmd := exec.Command("su", "-c", "pgrep -f "+c)
+		// Specifically target sshd/dropbear instances bound to our custom port
+		cmd := exec.Command("su", "-c", fmt.Sprintf("pgrep -f \"%s.*-p %d\"", c, m.config.Port))
 		out, err := cmd.Output()
 		if err == nil {
 			lines := strings.Split(strings.TrimSpace(string(out)), "\n")
@@ -184,6 +187,8 @@ func (m *Manager) Start() error {
 		m.binaryPath = bin
 	}
 	if bin == "" {
+		l := logger.Get()
+		l.Errorf("ssh", "no ssh daemon binary found on system")
 		return fmt.Errorf("no SSH daemon binary found on target system")
 	}
 
@@ -192,28 +197,32 @@ func (m *Manager) Start() error {
 
 	if isDropbear {
 		addr := fmt.Sprintf("%s:%d", m.config.Bind, m.config.Port)
-		// Run dropbear as a daemon process in the background using `su`
 		cmdStr = fmt.Sprintf("%s -p %s -R", bin, addr)
 	} else {
-		// Assume OpenSSH sshd; -D runs in foreground if we want but since we spawn as daemon we run blockingly in su shell background
 		cmdStr = fmt.Sprintf("%s -h /data/ssh/ssh_host_rsa_key -p %d -o \"ListenAddress %s\" -o \"PasswordAuthentication yes\"", bin, m.config.Port, m.config.Bind)
 	}
 
-	// Launch in root shell context in the background using background execution syntax
-	cmd := exec.Command("su", "-c", cmdStr+" &")
-	err := cmd.Start()
+	// Use nohup for clean daemon detach — prevents SIGHUP kill when su exits
+	fullCmd := fmt.Sprintf("nohup %s > /dev/null 2>&1 &", cmdStr)
+	cmd := exec.Command("su", "-c", fullCmd)
+	err := cmd.Run()
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to launch ssh daemon: %v", err)
 	}
 
 	m.config.Enabled = true
 	_ = m.saveConfig()
 
-	// Wait in goroutine to release system process resources
-	go func() {
-		_ = cmd.Wait()
-	}()
+	// Post-start verification: wait briefly then check if daemon actually survived
+	time.Sleep(500 * time.Millisecond)
+	_, verifiedPid := m.getRunningProcess()
+	l := logger.Get()
+	if verifiedPid == 0 {
+		l.Errorf("ssh", "daemon exited immediately after start binary=%s cmd=%s", bin, fullCmd)
+		return fmt.Errorf("ssh daemon started but exited immediately. binary=%s cmd=%s", bin, fullCmd)
+	}
 
+	l.Infof("ssh", "daemon started pid=%d port=%d bind=%s binary=%s", verifiedPid, m.config.Port, m.config.Bind, bin)
 	return nil
 }
 
@@ -221,16 +230,13 @@ func (m *Manager) Stop() error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 
-	procName, pid := m.getRunningProcess()
+	_, pid := m.getRunningProcess()
 	if pid > 0 {
 		_ = exec.Command("su", "-c", fmt.Sprintf("kill -15 %d", pid)).Run()
 	}
 
-	// Generic backup kill tools
-	if procName != "" {
-		_ = exec.Command("su", "-c", "killall "+procName).Run()
-		_ = exec.Command("su", "-c", "pkill -f "+procName).Run()
-	}
+	l := logger.Get()
+	l.Infof("ssh", "daemon stopped pid=%d", pid)
 
 	m.config.Enabled = false
 	_ = m.saveConfig()

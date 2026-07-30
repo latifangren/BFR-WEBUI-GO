@@ -16,19 +16,19 @@ type SysctlTweak struct {
 }
 
 type InterfaceInfo struct {
-	Name      string `json:"name"`
-	IPs       []string `json:"ips"`
-	MTU       int    `json:"mtu"`
-	TxQueueLen int   `json:"txqueuelen"`
-	RxBytes   uint64 `json:"rx_bytes"`
-	TxBytes   uint64 `json:"tx_bytes"`
-	RxPackets uint64 `json:"rx_packets"`
-	TxPackets uint64 `json:"tx_packets"`
+	Name       string   `json:"name"`
+	IPs        []string `json:"ips"`
+	MTU        int      `json:"mtu"`
+	TxQueueLen int      `json:"txqueuelen"`
+	RxBytes    uint64   `json:"rx_bytes"`
+	TxBytes    uint64   `json:"tx_bytes"`
+	RxPackets  uint64   `json:"rx_packets"`
+	TxPackets  uint64   `json:"tx_packets"`
 }
 
 type DNSServer struct {
-	Name  string `json:"name"`
-	Primary string `json:"primary"`
+	Name      string `json:"name"`
+	Primary   string `json:"primary"`
 	Secondary string `json:"secondary"`
 }
 

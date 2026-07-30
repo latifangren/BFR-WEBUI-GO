@@ -9,15 +9,15 @@ import (
 )
 
 const (
-	CookieName    = "bfr_session"
+	CookieName      = "bfr_session"
 	DefaultPassword = "bfr"
 	SessionDuration = 24 * time.Hour
 )
 
 type Manager struct {
-	mu          sync.RWMutex
-	password    string
-	sessions    map[string]time.Time
+	mu       sync.RWMutex
+	password string
+	sessions map[string]time.Time
 }
 
 func NewManager(password string) *Manager {

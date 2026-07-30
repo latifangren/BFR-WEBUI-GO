@@ -10,7 +10,11 @@ const SshModule = {
         try {
             const res = await fetch('/api/ssh/status');
             if (res.ok) {
-                this.sshData = await res.json();
+                const data = await res.json();
+                this.sshData.config = data.config || data.Config || this.sshData.config;
+                this.sshData.running = data.running || data.Running || false;
+                this.sshData.pid = data.pid || data.Pid || 0;
+                this.sshData.binary_path = data.binary_path || data.BinaryPath || '';
             }
         } catch (e) {}
     },

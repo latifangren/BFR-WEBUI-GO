@@ -13,6 +13,7 @@ function dashboard() {
         ScrcpyModule,
         DonationModule,
         SshModule,
+        LogsModule,
         {
             // Authenticated root orchestration flow
             async init() {
@@ -30,6 +31,7 @@ function dashboard() {
                     this.fetchVnstatData();
                     this.fetchChargerConfig();
                     this.fetchSSHStatus();
+                    this.startLogsPolling();
                 }
             },
 
@@ -65,6 +67,7 @@ function dashboard() {
                         this.fetchVnstatData();
                         this.fetchChargerConfig();
                         this.fetchSSHStatus();
+                        this.startLogsPolling();
                     } else {
                         this.authError = data.error || 'Invalid password';
                     }
@@ -78,6 +81,7 @@ function dashboard() {
                 this.authenticated = false;
                 if (this.pollTimer) clearInterval(this.pollTimer);
                 if (this.eventSource) this.eventSource.close();
+                this.stopLogsPolling();
             },
 
             formatBytes(bytes) {

@@ -9,10 +9,10 @@ import (
 )
 
 type ConnectedClient struct {
-	IP       string `json:"ip"`
-	MAC      string `json:"mac"`
-	Device   string `json:"device"`
-	State    string `json:"state"`
+	IP     string `json:"ip"`
+	MAC    string `json:"mac"`
+	Device string `json:"device"`
+	State  string `json:"state"`
 }
 
 type HotspotStatus struct {
