@@ -99,8 +99,13 @@ type NetworkDetail struct {
 	IPAddresses    []string  `json:"ip_addresses"`
 	Gateway        string    `json:"gateway"`
 	DNS            []string  `json:"dns"`
+	DNS1           string    `json:"dns1"`
+	DNS2           string    `json:"dns2"`
 	WiFiSSID       string    `json:"wifi_ssid"`
+	WiFiSignal     string    `json:"wifi_signal"`
 	WiFiSignalDBM  string    `json:"wifi_signal_dbm"`
+	WiFiRSSI       int       `json:"wifi_rssi"`
+	WiFiFullInfo   string    `json:"wifi_full_info"`
 	MCCMNC         []string  `json:"mcc_mnc"`
 	Roaming        string    `json:"roaming"`
 	HotspotClients int       `json:"hotspot_clients"`
@@ -114,6 +119,10 @@ type SIMSlot struct {
 	RSRP          string  `json:"rsrp"`
 	RSRQ          string  `json:"rsrq"`
 	SINR          string  `json:"sinr"`
+	RSRPInt       int     `json:"rsrp_int"`
+	RSRQInt       int     `json:"rsrq_int"`
+	SINRInt       int     `json:"sinr_int"`
+	SignalStatus  string  `json:"signal_status"`
 	SignalQuality string  `json:"signal_quality"`
 	SignalScore   float64 `json:"signal_score"`
 }
@@ -493,11 +502,11 @@ func getDiskPartitions() []DiskPartition {
 	targets := []string{"/data", "/system", "/sdcard"}
 
 	for _, target := range targets {
-		out, err := exec.Command("df", "-k", target).Output()
-		if err != nil {
+		out := runCmdTimeout(2*time.Second, "df", "-k", target)
+		if out == "" {
 			continue
 		}
-		lines := strings.Split(strings.TrimSpace(string(out)), "\n")
+		lines := strings.Split(strings.TrimSpace(out), "\n")
 		if len(lines) >= 2 {
 			fields := strings.Fields(lines[len(lines)-1])
 			if len(fields) >= 5 {
@@ -554,11 +563,7 @@ func RunSpeedtest() (map[string]interface{}, error) {
 }
 
 func getProp(prop string) string {
-	out, err := exec.Command("getprop", prop).Output()
-	if err != nil {
-		return ""
-	}
-	return strings.TrimSpace(string(out))
+	return runCmdTimeout(3*time.Second, "getprop", prop)
 }
 
 func getLoadAvg() LoadAverage {
@@ -627,9 +632,9 @@ func getSELinux() string {
 		}
 		return "Permissive"
 	}
-	out, err := exec.Command("getenforce").Output()
-	if err == nil {
-		return strings.TrimSpace(string(out))
+	out := runCmdTimeout(2*time.Second, "getenforce")
+	if out != "" {
+		return out
 	}
 	return "Disabled / Unknown"
 }
@@ -639,9 +644,9 @@ func getHostname() string {
 	if err == nil {
 		return h
 	}
-	out, err := exec.Command("hostname").Output()
-	if err == nil {
-		return strings.TrimSpace(string(out))
+	out := runCmdTimeout(2*time.Second, "hostname")
+	if out != "" {
+		return out
 	}
 	return "Android"
 }
@@ -659,33 +664,31 @@ func getKernelVersion() string {
 		}
 		return strings.TrimSpace(string(data))
 	}
-	out, err := exec.Command("uname", "-r").Output()
-	if err == nil {
-		return strings.TrimSpace(string(out))
+	out := runCmdTimeout(2*time.Second, "uname", "-r")
+	if out != "" {
+		return out
 	}
 	return "Unknown Kernel"
 }
 
 func getScreenResolution() string {
-	out, err := exec.Command("wm", "size").Output()
-	if err == nil {
-		str := strings.TrimSpace(string(out))
-		if strings.Contains(str, "Physical size:") {
-			return strings.TrimSpace(strings.Replace(str, "Physical size:", "", 1))
+	out := runCmdTimeout(2*time.Second, "wm", "size")
+	if out != "" {
+		if strings.Contains(out, "Physical size:") {
+			return strings.TrimSpace(strings.Replace(out, "Physical size:", "", 1))
 		}
-		return str
+		return out
 	}
 	return "Unknown"
 }
 
 func getScreenDensity() string {
-	out, err := exec.Command("wm", "density").Output()
-	if err == nil {
-		str := strings.TrimSpace(string(out))
-		if strings.Contains(str, "Physical density:") {
-			return strings.TrimSpace(strings.Replace(str, "Physical density:", "", 1))
+	out := runCmdTimeout(2*time.Second, "wm", "density")
+	if out != "" {
+		if strings.Contains(out, "Physical density:") {
+			return strings.TrimSpace(strings.Replace(out, "Physical density:", "", 1))
 		}
-		return str
+		return out
 	}
 	d := getProp("ro.sf.lcd_density")
 	if d != "" {
@@ -767,10 +770,28 @@ func getNetworkDetail() NetworkDetail {
 	return nd
 }
 
+func parseSignalQuality(rsrp int) float64 {
+	// Scale: -140 dBm → 0.0, -44 dBm → 10.0 (3GPP typical range)
+	if rsrp >= 0 {
+		return 0.0
+	}
+	score := (float64(rsrp) + 140.0) / 96.0 * 10.0
+	if score < 0 {
+		score = 0
+	}
+	if score > 10 {
+		score = 10
+	}
+	// Round to 1 decimal
+	score = float64(int(score*10+0.5)) / 10.0
+	return score
+}
+
 func buildNetworkDetail() NetworkDetail {
 	var nd NetworkDetail
 	nd.WiFiSSID = "Unknown"
 	nd.WiFiSignalDBM = "—"
+	nd.WiFiSignal = "—"
 	nd.Roaming = "Unknown"
 
 	const cmdTimeout = 2 * time.Second
@@ -809,10 +830,12 @@ func buildNetworkDetail() NetworkDetail {
 	dns1 := getProp("net.dns1")
 	if dns1 != "" {
 		nd.DNS = append(nd.DNS, dns1)
+		nd.DNS1 = dns1
 	}
 	dns2 := getProp("net.dns2")
 	if dns2 != "" && dns2 != dns1 {
 		nd.DNS = append(nd.DNS, dns2)
+		nd.DNS2 = dns2
 	}
 	if len(nd.DNS) == 0 {
 		out := runCmdTimeout(cmdTimeout, "getprop")
@@ -840,16 +863,37 @@ func buildNetworkDetail() NetworkDetail {
 
 	// 4. WiFi SSID / RSSI
 	wifiStr := runCmdTimeout(cmdTimeout, "cmd", "wifi", "status")
+	nd.WiFiFullInfo = wifiStr
 	if strings.Contains(wifiStr, "SSID: ") {
 		ssidParts := strings.Split(wifiStr, "SSID: ")
 		if len(ssidParts) > 1 {
-			nd.WiFiSSID = strings.Trim(strings.Split(ssidParts[1], "\n")[0], "\" ")
+			rawSSID := strings.Trim(strings.TrimSpace(strings.Split(ssidParts[1], "\n")[0]), "\" ")
+			nd.WiFiSSID = rawSSID
 		}
 	}
+	var rssiVal int
 	if strings.Contains(wifiStr, "RSSI: ") {
 		rssiParts := strings.Split(wifiStr, "RSSI: ")
 		if len(rssiParts) > 1 {
-			nd.WiFiSignalDBM = strings.TrimSpace(strings.Split(rssiParts[1], "\n")[0]) + " dBm"
+			rssiEnd := strings.Split(rssiParts[1], "\n")[0]
+			// e.g. -34
+			valStr := strings.TrimSpace(rssiEnd)
+			if r, err := strconv.Atoi(valStr); err == nil {
+				rssiVal = r
+			}
+			nd.WiFiRSSI = rssiVal
+			nd.WiFiSignalDBM = valStr
+			nd.WiFiSignal = nd.WiFiSignalDBM + " dBm"
+		}
+	}
+	// Try to get link speed
+	if strings.Contains(wifiStr, "Link speed: ") {
+		speedParts := strings.Split(wifiStr, "Link speed: ")
+		if len(speedParts) > 1 {
+			speedEnd := strings.Split(speedParts[1], "\n")[0] // e.g. 866Mbps
+			if nd.WiFiSignal != "—" {
+				nd.WiFiSignal += " / " + strings.TrimSpace(speedEnd)
+			}
 		}
 	}
 
@@ -899,25 +943,61 @@ func buildNetworkDetail() NetworkDetail {
 	}
 
 	// Telephony Registry — best-effort, timeout-bounded
-	telOut := runCmdTimeout(cmdTimeout, "su", "-c", "dumpsys telephony.registry | grep -i 'mSignalStrength='")
-	rsrp, rsrq, sinr := "—", "—", "—"
-	if strings.Contains(telOut, "rsrp=") {
-		parts := strings.Split(telOut, " rsrp=")
-		if len(parts) > 1 {
-			rsrp = strings.Split(parts[1], " ")[0]
+	// we will run once and match by subscription/slot index if possible, otherwise apply to slot 1
+	telCtx, cancelTel := context.WithTimeout(context.Background(), cmdTimeout)
+	defer cancelTel()
+	telOutBytes, _ := exec.CommandContext(telCtx, "su", "-c", "dumpsys telephony.registry").Output()
+	telOut := string(telOutBytes)
+
+	// Naive per-slot extraction from dumpsys
+	signalBlocks := strings.Split(telOut, "mSignalStrength=SignalStrength:")
+	var rsrps []int
+	var rsrqs []int
+	var sinrs []int
+
+	for i := 1; i < len(signalBlocks); i++ {
+		block := signalBlocks[i]
+
+		rsrp, rsrq, sinr := 0, 0, 0
+		if strings.Contains(block, "rsrp=") {
+			parts := strings.Split(block, " rsrp=")
+			if len(parts) > 1 {
+				rStr := strings.Split(parts[1], " ")[0]
+				r, _ := strconv.Atoi(rStr)
+				rsrp = r
+			}
 		}
-	}
-	if strings.Contains(telOut, "rsrq=") {
-		parts := strings.Split(telOut, " rsrq=")
-		if len(parts) > 1 {
-			rsrq = strings.Split(parts[1], " ")[0]
+		if strings.Contains(block, "rsrq=") {
+			parts := strings.Split(block, " rsrq=")
+			if len(parts) > 1 {
+				rStr := strings.Split(parts[1], " ")[0]
+				r, _ := strconv.Atoi(rStr)
+				rsrq = r
+			}
 		}
-	}
-	if strings.Contains(telOut, "rssnr=") {
-		parts := strings.Split(telOut, " rssnr=")
-		if len(parts) > 1 {
-			sinr = strings.Split(parts[1], " ")[0]
+		if strings.Contains(block, "rssnr=") {
+			parts := strings.Split(block, " rssnr=")
+			if len(parts) > 1 {
+				sStr := strings.Split(parts[1], " ")[0]
+				s, _ := strconv.Atoi(sStr)
+				sinr = s
+			}
 		}
+
+		// some devices return MAX_INT for unavailable
+		if rsrp == 2147483647 {
+			rsrp = 0
+		}
+		if rsrq == 2147483647 {
+			rsrq = 0
+		}
+		if sinr == 2147483647 {
+			sinr = 0
+		}
+
+		rsrps = append(rsrps, rsrp)
+		rsrqs = append(rsrqs, rsrq)
+		sinrs = append(sinrs, sinr)
 	}
 
 	for i := 0; i < numSlots; i++ {
@@ -932,37 +1012,45 @@ func buildNetworkDetail() NetworkDetail {
 			slot.Operator = strings.TrimSpace(nums[i])
 		}
 
-		slot.RSRP, slot.RSRQ, slot.SINR = "—", "—", "—"
-		slot.SignalQuality, slot.SignalScore = "Unavailable (Not LTE)", 0
+		rsrp, rsrq, sinr := 0, 0, 0
+		if i < len(rsrps) {
+			rsrp = rsrps[i]
+			rsrq = rsrqs[i]
+			sinr = sinrs[i]
+		}
 
-		nt := strings.ToLower(slot.NetworkType)
-		if strings.Contains(nt, "lte") || strings.Contains(nt, "4g") || strings.Contains(nt, "5g") || strings.Contains(nt, "nr") {
-			if rsrp != "—" && rsrp != "2147483647" {
-				slot.RSRP = rsrp + " dBm"
-				slot.RSRQ = rsrq + " dB"
-				slot.SINR = sinr + " dB"
+		slot.RSRPInt = rsrp
+		slot.RSRQInt = rsrq
+		slot.SINRInt = sinr
 
-				if r, err := strconv.Atoi(rsrp); err == nil && r < 0 {
-					if r >= -90 {
-						slot.SignalQuality = "Excellent"
-					} else if r >= -105 {
-						slot.SignalQuality = "Good"
-					} else if r >= -115 {
-						slot.SignalQuality = "Fair"
-					} else {
-						slot.SignalQuality = "Poor"
-					}
-					// Linear score: 0 at RSRP=-120, 5 at RSRP=-70
-					lerp := (float64(r) + 120.0) / 50.0 * 5.0
-					if lerp < 0 {
-						lerp = 0
-					}
-					if lerp > 5 {
-						lerp = 5
-					}
-					slot.SignalScore = lerp
-				}
+		if rsrp == 0 || rsrp == -1 {
+			slot.RSRP = "—"
+			slot.RSRQ = "—"
+			slot.SINR = "—"
+			slot.SignalStatus = "—"
+		} else {
+			slot.RSRP = strconv.Itoa(rsrp)
+			slot.SignalStatus = slot.RSRP + " dBm"
+			slot.RSRQ = strconv.Itoa(rsrq)
+			slot.SINR = strconv.Itoa(sinr)
+		}
+
+		score := parseSignalQuality(rsrp)
+		slot.SignalScore = score
+
+		if rsrp < 0 {
+			if rsrp >= -90 {
+				slot.SignalQuality = "Excellent"
+			} else if rsrp >= -105 {
+				slot.SignalQuality = "Good"
+			} else if rsrp >= -115 {
+				slot.SignalQuality = "Fair"
+			} else {
+				slot.SignalQuality = "Poor"
 			}
+		} else {
+			slot.SignalQuality = "Unavailable"
+			slot.SignalScore = 0
 		}
 		nd.SIMSlots = append(nd.SIMSlots, slot)
 	}

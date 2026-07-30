@@ -96,9 +96,10 @@ const SysinfoModule = {
         if (score === null || score === undefined || score === '') return '—';
         const s = parseFloat(score);
         if (isNaN(s)) return '—';
-        const filled = Math.max(0, Math.min(5, Math.round(s)));
-        const empty = 5 - filled;
-        return '▮'.repeat(filled) + '▯'.repeat(empty) + ' (' + s.toFixed(1) + ')';
+        // scale to 10 bars
+        const filled = Math.max(0, Math.min(10, Math.round(s)));
+        const empty = 10 - filled;
+        return '▮'.repeat(filled) + '▯'.repeat(empty) + ' (' + s.toFixed(1) + '/10)';
     },
 
     networkCardSubtext() {
