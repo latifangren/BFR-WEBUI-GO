@@ -61,12 +61,9 @@ const SysinfoModule = {
         return (mA > 0 ? '+' : '') + mA.toFixed(1) + ' mA';
     },
 
-    formatBatteryVoltage(uv) {
-        if (uv === null || uv === undefined) return '—';
-        if (Math.abs(uv) > 10000) {
-            return (uv / 1000000).toFixed(2) + ' V';
-        }
-        return uv + ' mV';
+    formatBatteryVoltage(mv) {
+        if (mv === null || mv === undefined) return '—';
+        return (mv / 1000.0).toFixed(2) + ' V';
     },
 
     // ── Network Detail Helpers ──────────────────────────────

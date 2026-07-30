@@ -4,7 +4,7 @@
         <div class="bg-card border border-border rounded-2xl p-6 max-w-4xl w-full space-y-4 shadow-2xl">
             <div class="flex items-center justify-between border-b border-border pb-3">
                 <h3 class="text-sm font-bold text-white font-mono">File Editor: <span x-text="editingFilePath"></span></h3>
-                <button type="button" @click="showEditorModal = false" class="text-gray-400 hover:text-white">Ã¢Åâ¢</button>
+                <button type="button" @click="showEditorModal = false" class="text-gray-400 hover:text-white">&#x2715;</button>
             </div>
             <textarea x-model="editorContent" class="w-full h-96 bg-black border border-border rounded-xl p-4 text-xs font-mono text-gray-200 focus:outline-none focus:border-blue-500 custom-scrollbar"></textarea>
             <div class="flex justify-end space-x-3">
@@ -86,22 +86,21 @@
         </div>
     </div>
 
-    <!-- Ã¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢Â -->
-    <!--  NETWORK DETAIL MODAL                                -->
-    <!-- Ã¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢Â -->
+    <!-- ══════════════════════════════════════════════════════ -->
+    <!--  NETWORK DETAIL MODAL                                 -->
+    <!-- ══════════════════════════════════════════════════════ -->
     <div x-show="showNetworkModal" x-cloak class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 font-mono animate-fade-in" @keydown.escape.window="showNetworkModal = false">
         <div @click.outside="showNetworkModal = false" class="bg-card border-2 border-border rounded-2xl p-6 max-w-2xl w-full space-y-5 shadow-[6px_6px_0px_0px_var(--neo-shadow)] max-h-[85vh] overflow-y-auto custom-scrollbar">
             <!-- Header -->
             <div class="flex items-center justify-between border-b-2 border-border pb-4">
                 <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 rounded-xl bg-cyan-500/10 border-2 border-cyan-500/30 flex items-center justify-center text-cyan-400 text-lg">
-                        📶</div>
+                    <div class="w-10 h-10 rounded-xl bg-cyan-500/10 border-2 border-cyan-500/30 flex items-center justify-center text-cyan-400 text-lg">📶</div>
                     <div>
                         <h3 class="text-sm font-bold text-white uppercase tracking-wider">Network Detail</h3>
                         <p class="text-[10px] text-gray-400 mt-0.5">Full Network Information</p>
                     </div>
                 </div>
-                <button type="button" @click="showNetworkModal = false" class="w-8 h-8 rounded-lg bg-black border border-border flex items-center justify-center text-gray-400 hover:text-white hover:border-red-500/40 transition-all text-xs font-bold">Ã¢Åâ¢</button>
+                <button type="button" @click="showNetworkModal = false" class="w-8 h-8 rounded-lg bg-black border border-border flex items-center justify-center text-gray-400 hover:text-white hover:border-red-500/40 transition-all text-xs font-bold">&#x2715;</button>
             </div>
 
             <!-- Connection Summary Strip -->
@@ -111,10 +110,10 @@
                       x-text="stats.network_detail?.wifi_ssid || 'Wi-Fi Off'"></span>
                 <span class="px-2.5 py-1 rounded-md border"
                       :class="(stats.network_detail?.roaming && stats.network_detail.roaming !== 'No' && stats.network_detail.roaming !== 'Unknown' && stats.network_detail.roaming !== '' ? 'bg-amber-500/10 text-amber-400 border-amber-500/30' : 'bg-green-500/10 text-green-400 border-green-500/30')"
-                      x-text="(stats.network_detail?.roaming && stats.network_detail.roaming !== 'No' && stats.network_detail.roaming !== 'Unknown' && stats.network_detail.roaming !== '') ? 'Ã°Å¸ââ Roaming Active' : 'Ã°Å¸ÂÂ  Home'"></span>
+                      x-text="(stats.network_detail?.roaming && stats.network_detail.roaming !== 'No' && stats.network_detail.roaming !== 'Unknown' && stats.network_detail.roaming !== '') ? '🔗 Roaming Active' : '🏠 Home'"></span>
                 <template x-if="stats.network_detail?.hotspot_clients > 0">
                     <span class="px-2.5 py-1 rounded-md bg-purple-500/10 text-purple-400 border border-purple-500/30"
-                          x-text="'Ã°Å¸ââ ' + stats.network_detail.hotspot_clients + ' Client(s)'"></span>
+                          x-text="'📡 ' + stats.network_detail.hotspot_clients + ' Client(s)'"></span>
                 </template>
             </div>
 
@@ -135,7 +134,7 @@
                         <div class="w-6 h-6 rounded-md bg-blue-500/15 border border-blue-500/25 flex items-center justify-center text-blue-400 text-[10px]">🔗</div>
                         <span class="text-gray-400 font-bold uppercase tracking-wider text-[10px]">Gateway</span>
                     </div>
-                    <div class="text-white font-extrabold pl-8 text-[11px] break-words leading-tight" x-text="stats.network_detail?.gateway || 'Ã¢â¬â'"></div>
+                    <div class="text-white font-extrabold pl-8 text-[11px] break-words leading-tight" x-text="stats.network_detail?.gateway || '—'"></div>
                 </div>
 
                 <!-- DNS Servers -->
@@ -145,7 +144,7 @@
                         <span class="text-gray-400 font-bold uppercase tracking-wider text-[10px]">DNS Server</span>
                     </div>
                     <div class="flex flex-col gap-1 pl-8">
-                        <div class="text-white font-extrabold text-[11px] break-words leading-tight" x-text="stats.network_detail?.dns1 ? 'DNS1: ' + stats.network_detail.dns1 : 'Ã¢â¬â'"></div>
+                        <div class="text-white font-extrabold text-[11px] break-words leading-tight" x-text="stats.network_detail?.dns1 ? 'DNS1: ' + stats.network_detail.dns1 : '—'"></div>
                         <div class="text-white font-extrabold text-[11px] break-words leading-tight" x-text="stats.network_detail?.dns2 ? 'DNS2: ' + stats.network_detail.dns2 : ''"></div>
                     </div>
                 </div>
@@ -156,37 +155,121 @@
                         <div class="w-6 h-6 rounded-md bg-emerald-500/15 border border-emerald-500/25 flex items-center justify-center text-emerald-400 text-[10px]">📡</div>
                         <span class="text-gray-400 font-bold uppercase tracking-wider text-[10px]">Wi-Fi SSID</span>
                     </div>
-                    <div class="text-white font-extrabold pl-8 text-[11px] break-words" x-text="stats.network_detail?.wifi_ssid || 'Ã¢â¬â'"></div>
+                    <div class="text-white font-extrabold pl-8 text-[11px] break-words" x-text="stats.network_detail?.wifi_ssid || '—'"></div>
                 </div>
 
                 <!-- Wi-Fi Signal -->
-                <div class="bg-flat rounded-xl p-3.5 border border-border/60 space-y-1.5" x-data="{ showWi-Fi Signal</span>
-                        </div>
-                        <button type="button" x-show="stats.network_detail?.wifi_full_info" @click="showWi-Fixed(1) + ' ÃÂ°C' : 'Ã¢â¬â'"></div>
+                <div class="bg-flat rounded-xl p-3.5 border border-border/60 space-y-1.5">
+                    <div class="flex items-center gap-2">
+                        <div class="w-6 h-6 rounded-md bg-sky-500/15 border border-sky-500/25 flex items-center justify-center text-sky-400 text-[10px]">📶</div>
+                        <span class="text-gray-400 font-bold uppercase tracking-wider text-[10px]">Wi-Fi Signal</span>
+                    </div>
+                    <div class="text-white font-extrabold pl-8 text-[11px] break-words" x-text="stats.network_detail?.wifi_signal || '—'"></div>
                 </div>
 
-                <!-- Operational Status -->
+                <!-- Roaming -->
+                <div class="bg-flat rounded-xl p-3.5 border border-border/60 space-y-1.5">
+                    <div class="flex items-center gap-2">
+                        <div class="w-6 h-6 rounded-md bg-amber-500/15 border border-amber-500/25 flex items-center justify-center text-amber-400 text-[10px]">🌍</div>
+                        <span class="text-gray-400 font-bold uppercase tracking-wider text-[10px]">Roaming</span>
+                    </div>
+                    <div class="text-white font-extrabold pl-8 text-[11px]" x-text="stats.network_detail?.roaming || '—'"></div>
+                </div>
+
+                <!-- Hotspot Clients -->
+                <div class="bg-flat rounded-xl p-3.5 border border-border/60 space-y-1.5">
+                    <div class="flex items-center gap-2">
+                        <div class="w-6 h-6 rounded-md bg-purple-500/15 border border-purple-500/25 flex items-center justify-center text-purple-400 text-[10px]">📲</div>
+                        <span class="text-gray-400 font-bold uppercase tracking-wider text-[10px]">Hotspot Clients</span>
+                    </div>
+                    <div class="text-white font-extrabold pl-8 text-[11px]" x-text="stats.network_detail?.hotspot_clients ?? '0'"></div>
+                </div>
+            </div>
+
+            <!-- Close Button -->
+            <button type="button" @click="showNetworkModal = false" class="w-full bg-black hover:bg-gray-900 border-2 border-border py-2.5 rounded-xl text-xs font-bold text-gray-300 hover:text-white transition-all uppercase tracking-wider">
+                Close
+            </button>
+        </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════ -->
+    <!--  BATTERY DETAIL MODAL                                 -->
+    <!-- ══════════════════════════════════════════════════════ -->
+    <div x-show="showBatteryModal" x-cloak class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 font-mono animate-fade-in" @keydown.escape.window="showBatteryModal = false">
+        <div @click.outside="showBatteryModal = false" class="bg-card border-2 border-border rounded-2xl p-6 max-w-lg w-full space-y-5 shadow-[6px_6px_0px_0px_var(--neo-shadow)] max-h-[85vh] overflow-y-auto custom-scrollbar">
+            <!-- Header -->
+            <div class="flex items-center justify-between border-b-2 border-border pb-4">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-green-500/10 border-2 border-green-500/30 flex items-center justify-center text-green-400 text-lg">🔋</div>
+                    <div>
+                        <h3 class="text-sm font-bold text-white uppercase tracking-wider">Battery Detail</h3>
+                        <p class="text-[10px] text-gray-400 mt-0.5">Full Battery Information</p>
+                    </div>
+                </div>
+                <button type="button" @click="showBatteryModal = false" class="w-8 h-8 rounded-lg bg-black border border-border flex items-center justify-center text-gray-400 hover:text-white hover:border-red-500/40 transition-all text-xs font-bold">&#x2715;</button>
+            </div>
+
+            <!-- Detail Grid -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                <!-- Capacity -->
+                <div class="bg-flat rounded-xl p-3.5 border border-border/60 space-y-1.5">
+                    <div class="flex items-center gap-2">
+                        <div class="w-6 h-6 rounded-md bg-green-500/15 border border-green-500/25 flex items-center justify-center text-green-400 text-[10px]">⚡</div>
+                        <span class="text-gray-400 font-bold uppercase tracking-wider text-[10px]">Capacity</span>
+                    </div>
+                    <div class="text-white font-extrabold pl-8 text-[11px]" x-text="stats.battery_detail ? stats.battery_detail.capacity + '%' : '—'"></div>
+                </div>
+
+                <!-- Status -->
                 <div class="bg-flat rounded-xl p-3.5 border border-border/60 space-y-1.5">
                     <div class="flex items-center gap-2">
                         <div class="w-6 h-6 rounded-md bg-green-500/15 border border-green-500/25 flex items-center justify-center text-green-400 text-[10px]">💚</div>
-                        <span class="text-gray-400 font-bold uppercase tracking-wider text-[10px]">Operational Status</span>
+                        <span class="text-gray-400 font-bold uppercase tracking-wider text-[10px]">Status</span>
                     </div>
-                    <div class="text-white font-extrabold pl-8 text-[11px]" x-text="stats.battery_detail ? (stats.battery_detail.status || 'Ã¢â¬â') : 'Ã¢â¬â'"></div>
+                    <div class="text-white font-extrabold pl-8 text-[11px]" x-text="stats.battery_detail ? (stats.battery_detail.status || '—') : '—'"></div>
                 </div>
 
-                <!-- Health & Technology -->
-                <div class="bg-flat rounded-xl p-3.5 border border-border/60 space-y-1.5 col-span-2 sm:col-span-1">
+                <!-- Temperature -->
+                <div class="bg-flat rounded-xl p-3.5 border border-border/60 space-y-1.5">
+                    <div class="flex items-center gap-2">
+                        <div class="w-6 h-6 rounded-md bg-orange-500/15 border border-orange-500/25 flex items-center justify-center text-orange-400 text-[10px]">🌡</div>
+                        <span class="text-gray-400 font-bold uppercase tracking-wider text-[10px]">Temperature</span>
+                    </div>
+                    <div class="text-white font-extrabold pl-8 text-[11px]" x-text="stats.battery_detail ? stats.battery_detail.temp.toFixed(1) + ' °C' : '—'"></div>
+                </div>
+
+                <!-- Voltage -->
+                <div class="bg-flat rounded-xl p-3.5 border border-border/60 space-y-1.5">
+                    <div class="flex items-center gap-2">
+                        <div class="w-6 h-6 rounded-md bg-yellow-500/15 border border-yellow-500/25 flex items-center justify-center text-yellow-400 text-[10px]">⚡</div>
+                        <span class="text-gray-400 font-bold uppercase tracking-wider text-[10px]">Voltage</span>
+                    </div>
+                    <div class="text-white font-extrabold pl-8 text-[11px]" x-text="stats.battery_detail ? formatBatteryVoltage(stats.battery_detail.voltage_mv) : '—'"></div>
+                </div>
+
+                <!-- Health -->
+                <div class="bg-flat rounded-xl p-3.5 border border-border/60 space-y-1.5">
                     <div class="flex items-center gap-2">
                         <div class="w-6 h-6 rounded-md bg-blue-500/15 border border-blue-500/25 flex items-center justify-center text-blue-400 text-[10px]">🛡️</div>
-                        <span class="text-gray-400 font-bold uppercase tracking-wider text-[10px]">Health &amp; Technology</span>
+                        <span class="text-gray-400 font-bold uppercase tracking-wider text-[10px]">Health</span>
                     </div>
-                    <div class="text-white font-extrabold pl-8" x-text="stats.battery_detail ? stats.battery_detail.health + ' (' + stats.battery_detail.technology + ')' : 'Ã¢â¬â'"></div>
+                    <div class="text-white font-extrabold pl-8 text-[11px]" x-text="stats.battery_detail ? (stats.battery_detail.health || '—') : '—'"></div>
+                </div>
+
+                <!-- Technology -->
+                <div class="bg-flat rounded-xl p-3.5 border border-border/60 space-y-1.5">
+                    <div class="flex items-center gap-2">
+                        <div class="w-6 h-6 rounded-md bg-violet-500/15 border border-violet-500/25 flex items-center justify-center text-violet-400 text-[10px]">🔬</div>
+                        <span class="text-gray-400 font-bold uppercase tracking-wider text-[10px]">Technology</span>
+                    </div>
+                    <div class="text-white font-extrabold pl-8 text-[11px]" x-text="stats.battery_detail ? (stats.battery_detail.technology || '—') : '—'"></div>
                 </div>
             </div>
 
             <!-- Close Button -->
             <button type="button" @click="showBatteryModal = false" class="w-full bg-black hover:bg-gray-900 border-2 border-border py-2.5 rounded-xl text-xs font-bold text-gray-300 hover:text-white transition-all uppercase tracking-wider">
-                Tutup Ã¢â¬â Close
+                Close
             </button>
         </div>
     </div>
@@ -195,7 +278,7 @@
     <div x-show="confirmModal.show" x-cloak class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 font-mono animate-fade-in">
         <div class="bg-card border border-border rounded-2xl p-6 max-w-md w-full space-y-4 shadow-2xl">
             <div class="flex items-center space-x-2 text-amber-500">
-                <span class="text-lg">⚠️</span>
+                <span class="text-lg">&#x26A0;&#xFE0F;</span>
                 <h3 class="text-sm font-bold text-white uppercase tracking-wider" x-text="confirmModal.title">Confirm Action</h3>
             </div>
             <p class="text-xs text-gray-300 leading-relaxed font-mono" x-text="confirmModal.message"></p>
@@ -214,7 +297,7 @@
                 <!-- Status icon/badge -->
                 <div class="flex items-center justify-center w-5 h-5 rounded-full font-bold select-none shrink-0"
                      :class="t.type === 'success' ? 'bg-green-500/10 text-green-500' : (t.type === 'error' ? 'bg-red-500/10 text-red-500' : 'bg-amber-500/10 text-amber-500')">
-                    <span x-text="t.type === 'success' ? 'Ã¢Åâ' : (t.type === 'error' ? 'Ã¢Åâ¢' : 'Ã¢âÂ¹')"></span>
+                    <span x-text="t.type === 'success' ? '✓' : (t.type === 'error' ? '✕' : 'ℹ')"></span>
                 </div>
                 <!-- Text payload -->
                 <div class="flex-1 min-w-0">
@@ -223,7 +306,7 @@
                 </div>
                 <!-- Close dismissal button -->
                 <button type="button" @click="removeToast(t.id)" class="text-gray-400 hover:text-white font-extrabold text-base leading-none select-none focus:outline-none shrink-0" aria-label="Dismiss toast">
-                    Ã¢Åâ¢
+                    &#x2715;
                 </button>
             </div>
         </template>

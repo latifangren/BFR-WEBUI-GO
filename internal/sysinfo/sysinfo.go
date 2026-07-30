@@ -487,8 +487,8 @@ func getThermalZones() []ThermalZone {
 			t = t / 1000.0
 		}
 
-		// Calculate valid scaled temperatures within 15°C to 90°C
-		if t >= 15 && t <= 90 {
+		// Calculate valid scaled temperatures within 15°C to 115°C
+		if t >= 15 && t <= 115 {
 			zones = append(zones, ThermalZone{
 				Name: typeName,
 				Temp: t,

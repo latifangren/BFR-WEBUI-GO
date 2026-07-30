@@ -3,6 +3,7 @@ package handlers
 import (
 	"html/template"
 	"io/fs"
+	"log"
 	"net/http"
 
 	"bfr-webui-go/internal/auth"
@@ -11,6 +12,9 @@ import (
 
 func RegisterRoutes(mux *http.ServeMux, authMgr *auth.Manager) {
 	tmpl, tmplErr := template.New("index.html").ParseFS(web.Files, "index.html", "templates/*.html")
+	if tmplErr != nil {
+		log.Fatalf("Template parse error: %v", tmplErr)
+	}
 
 	subFS, err := fs.Sub(web.Files, ".")
 	if err == nil {
@@ -20,7 +24,7 @@ func RegisterRoutes(mux *http.ServeMux, authMgr *auth.Manager) {
 				fileServer.ServeHTTP(w, r)
 				return
 			}
-			if tmplErr == nil && tmpl != nil {
+			if tmpl != nil {
 				w.Header().Set("Content-Type", "text/html; charset=utf-8")
 				if err := tmpl.Execute(w, nil); err != nil {
 					http.Error(w, err.Error(), http.StatusInternalServerError)
