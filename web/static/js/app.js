@@ -15,6 +15,7 @@ function dashboard() {
         showAddShortcutModal: false,
         newShortcutName: '',
         newShortcutPath: '',
+        ttlValue: 64,
         networkData: {},
         proxyData: {},
         proxyLogs: [],
@@ -311,8 +312,8 @@ function dashboard() {
             // Escape HTML characters
             let safe = body.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
             // Highlight OTP/verification code phrases (4-8 digits or keywords)
-            safe = safe.replace(/(\b\d{4,8}\b)/g, '<mark class="bg-amber-400/30 text-amber-300 font-extrabold px-1 py-0.5 rounded">$1</mark>');
-            return safe;
+            const regex = /\b(\d{4,8})\b/g;
+            return safe.replace(regex, '<mark class="bg-[#f59e0b]/20 px-1 text-[#f59e0b] rounded font-bold border-b border-[#f59e0b]/30 font-mono">$1</mark>');
         },
 
         // Remote Screen (Scrcpy) Methods
@@ -631,13 +632,12 @@ function dashboard() {
             } catch (e) {}
         },
 
-        async toggleTTL() {
-            const next = !this.networkData.ttl_spoof;
+        async applyTTLConfig(enable) {
             try {
                 await fetch('/api/network/tweaks?action=ttl', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ enable: next, ttl: 0 })
+                    body: JSON.stringify({ enable: enable, ttl: parseInt(this.ttlValue || 64) })
                 });
                 this.fetchNetworkData();
             } catch (e) {}

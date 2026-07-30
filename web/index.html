@@ -32,7 +32,7 @@
                 </div>
                 <div>
                     <h1 class="font-bold text-lg leading-none tracking-wide text-white flex items-center gap-2">
-                        BFR WEBUI <span class="text-blue-500 text-xs px-2 py-0.5 rounded bg-blue-500/10 border border-blue-500/20 font-mono">GO v1.0</span>
+                        BFR WEBUI <span class="ml-2 px-2 py-0.5 rounded bg-[#f59e0b] text-black text-[10px] font-extrabold uppercase tracking-wide border border-black shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]">PRO</span>
                     </h1>
                     <p class="text-xs text-gray-400 mt-0.5" x-text="stats.model ? stats.model + ' (Android ' + stats.android_ver + ')' : 'Android System WebUI'"></p>
                 </div>
@@ -68,6 +68,9 @@
                     <button type="button" @click="activeTab = 'sysinfo'" :class="activeTab === 'sysinfo' ? 'bg-blue-600 text-white shadow-md' : 'text-gray-400 hover:text-white'" class="px-3.5 py-1.5 rounded-lg text-xs font-semibold transition">
                         System Info
                     </button>
+                    <button type="button" @click="activeTab = 'about'" :class="activeTab === 'about' ? 'bg-blue-600 text-white shadow-md' : 'text-gray-400 hover:text-white'" class="px-3.5 py-1.5 rounded-lg text-xs font-semibold transition">
+                        About
+                    </button>
                 </nav>
             </template>
 
@@ -97,6 +100,7 @@
                 <button type="button" @click="activeTab = 'sms'; fetchSMS()" :class="activeTab === 'sms' ? 'bg-blue-600 text-white' : 'text-gray-400 bg-card border border-border'" class="px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap">SMS Viewer</button>
                 <button type="button" @click="activeTab = 'scrcpy'" :class="activeTab === 'scrcpy' ? 'bg-blue-600 text-white' : 'text-gray-400 bg-card border border-border'" class="px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap">Remote Screen</button>
                 <button type="button" @click="activeTab = 'sysinfo'" :class="activeTab === 'sysinfo' ? 'bg-blue-600 text-white' : 'text-gray-400 bg-card border border-border'" class="px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap">System Info</button>
+                <button type="button" @click="activeTab = 'about'" :class="activeTab === 'about' ? 'bg-blue-600 text-white' : 'text-gray-400 bg-card border border-border'" class="px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap">About</button>
             </div>
         </template>
     </header>
@@ -148,7 +152,7 @@
                                     </div>
                                 </template>
                             </div>
-                            <div class="w-full bg-black rounded-full h-2 mt-4 overflow-hidden border border-border">
+                            <div class="w-full bg-flat rounded-full h-2 mt-4 overflow-hidden">
                                 <div class="bg-blue-500 h-2 rounded-full transition-all duration-500" :style="'width: ' + (stats.cpu_usage || 0) + '%'"></div>
                             </div>
                         </div>
@@ -169,7 +173,7 @@
                                     <span class="text-purple-300 font-bold" x-text="formatBytes(stats.swap_used) + ' / ' + formatBytes(stats.swap_total) + ' (' + stats.swap_used_pct.toFixed(1) + '%)'"></span>
                                 </div>
                             </template>
-                            <div class="w-full bg-black rounded-full h-2 mt-2 overflow-hidden border border-border">
+                            <div class="w-full bg-flat rounded-full h-2 mt-2 overflow-hidden">
                                 <div class="bg-purple-500 h-2 rounded-full transition-all duration-500" :style="'width: ' + (stats.mem_used_pct || 0) + '%'"></div>
                             </div>
                         </div>
@@ -184,7 +188,7 @@
                                 <span class="text-4xl font-extrabold text-white" x-text="stats.battery_level >= 0 ? stats.battery_level + '%' : 'N/A'"></span>
                                 <span class="text-xs text-gray-400 font-mono" x-text="stats.battery_temp ? stats.battery_temp.toFixed(1) + '°C' : ''"></span>
                             </div>
-                            <div class="w-full bg-black rounded-full h-2 mt-4 overflow-hidden border border-border">
+                            <div class="w-full bg-flat rounded-full h-2 mt-4 overflow-hidden">
                                 <div class="bg-green-500 h-2 rounded-full transition-all duration-500" :style="'width: ' + (stats.battery_level || 0) + '%'"></div>
                             </div>
                         </div>
@@ -198,7 +202,7 @@
                             <div class="flex items-baseline space-x-2">
                                 <span class="text-2xl font-bold text-white font-mono" x-text="formatUptime(stats.uptime)"></span>
                             </div>
-                            <div class="w-full bg-black rounded-full h-2 mt-4 overflow-hidden border border-border">
+                            <div class="w-full bg-flat rounded-full h-2 mt-4 overflow-hidden">
                                 <div class="bg-amber-500 h-2 rounded-full transition-all duration-500" style="width: 100%"></div>
                             </div>
                         </div>
@@ -210,7 +214,7 @@
                             <h3 class="text-sm font-bold text-white uppercase tracking-wider">Per-Core Frequencies & Load</h3>
                             <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-3">
                                 <template x-for="core in stats.cpu_cores" :key="core.core">
-                                    <div class="bg-black border border-border p-3 rounded-xl text-center space-y-1">
+                                    <div class="bg-flat p-3 rounded-xl text-center space-y-1">
                                         <div class="text-[10px] uppercase font-bold text-gray-500" x-text="'Core ' + core.core"></div>
                                         <div class="text-sm font-extrabold text-blue-400 font-mono" x-text="core.freq_mhz > 0 ? core.freq_mhz.toFixed(0) + ' MHz' : 'Idle'"></div>
                                         <div class="text-xs text-gray-300 font-mono" x-text="core.usage.toFixed(0) + '%'"></div>
@@ -226,14 +230,14 @@
                             <h3 class="text-sm font-bold text-white uppercase tracking-wider font-mono">Active Background Services</h3>
                             <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
                                 <template x-for="service in stats.active_services" :key="service.key">
-                                    <div class="bg-black border border-border p-4 rounded-xl flex items-center justify-between font-mono">
+                                    <div class="bg-flat p-4 rounded-xl flex items-center justify-between font-mono">
                                         <div class="space-y-1">
                                             <div class="text-xs font-bold text-white" x-text="service.name"></div>
                                             <div class="text-[10px] text-gray-500" x-text="service.detail"></div>
                                         </div>
                                          <div>
-                                             <span class="px-2.5 py-1 rounded text-[10px] font-extrabold uppercase tracking-wider"
-                                                 :class="service.running ? 'bg-green-500/10 text-green-500' : 'bg-red-500/10 text-red-500'"
+                                             <span class="px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-wider"
+                                                 :class="service.running ? 'badge-active' : 'badge-inactive'"
                                                  x-text="service.running ? 'Active' : 'Stopped'">
                                              </span>
                                          </div>
@@ -249,7 +253,7 @@
                             <div>
                                 <h3 class="text-sm font-bold text-white uppercase tracking-wider font-mono flex items-center gap-2">
                                     <span>Bandwidth & Quota Monitor</span>
-                                    <span class="text-[10px] bg-blue-500/20 text-blue-400 border border-blue-500/30 px-2 py-0.5 rounded-md font-mono">vnstat</span>
+                                    <span class="text-[10px] px-2 py-0.5 font-mono badge-info">vnstat</span>
                                 </h3>
                                 <p class="text-xs text-gray-400 font-mono">Persistent daily & monthly network traffic statistics</p>
                             </div>
@@ -266,21 +270,21 @@
                         <!-- Summary Cards Grid -->
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <!-- Today's Usage Card -->
-                            <div class="bg-black border border-border rounded-xl p-4 space-y-3">
+                            <div class="bg-flat rounded-xl p-4 space-y-3">
                                 <div class="flex items-center justify-between text-xs font-mono border-b border-border/60 pb-2">
                                     <span class="font-bold text-gray-300 uppercase">Today's Usage</span>
                                     <span class="text-blue-400 font-extrabold" x-text="formatBytes(vnstatData?.daily?.total?.total || 0)"></span>
                                 </div>
                                 <div class="grid grid-cols-3 gap-2 text-center font-mono">
-                                    <div class="bg-card/60 p-2.5 rounded-lg border border-border/40">
+                                    <div class="bg-card/50 p-2.5 rounded-lg">
                                         <div class="text-[10px] text-gray-500 uppercase font-bold">Download</div>
                                         <div class="text-xs font-bold text-green-400 mt-1" x-text="formatBytes(vnstatData?.daily?.total?.rx_bytes || 0)"></div>
                                     </div>
-                                    <div class="bg-card/60 p-2.5 rounded-lg border border-border/40">
+                                    <div class="bg-card/50 p-2.5 rounded-lg">
                                         <div class="text-[10px] text-gray-500 uppercase font-bold">Upload</div>
                                         <div class="text-xs font-bold text-purple-400 mt-1" x-text="formatBytes(vnstatData?.daily?.total?.tx_bytes || 0)"></div>
                                     </div>
-                                    <div class="bg-card/60 p-2.5 rounded-lg border border-border/40">
+                                    <div class="bg-card/50 p-2.5 rounded-lg">
                                         <div class="text-[10px] text-gray-500 uppercase font-bold">Total</div>
                                         <div class="text-xs font-extrabold text-white mt-1" x-text="formatBytes(vnstatData?.daily?.total?.total || 0)"></div>
                                     </div>
@@ -288,21 +292,21 @@
                             </div>
 
                             <!-- This Month's Usage Card -->
-                            <div class="bg-black border border-border rounded-xl p-4 space-y-3">
+                            <div class="bg-flat rounded-xl p-4 space-y-3">
                                 <div class="flex items-center justify-between text-xs font-mono border-b border-border/60 pb-2">
                                     <span class="font-bold text-gray-300 uppercase">This Month's Usage</span>
                                     <span class="text-amber-400 font-extrabold" x-text="formatBytes(vnstatData?.monthly?.total?.total || 0)"></span>
                                 </div>
                                 <div class="grid grid-cols-3 gap-2 text-center font-mono">
-                                    <div class="bg-card/60 p-2.5 rounded-lg border border-border/40">
+                                    <div class="bg-card/50 p-2.5 rounded-lg">
                                         <div class="text-[10px] text-gray-500 uppercase font-bold">Download</div>
                                         <div class="text-xs font-bold text-green-400 mt-1" x-text="formatBytes(vnstatData?.monthly?.total?.rx_bytes || 0)"></div>
                                     </div>
-                                    <div class="bg-card/60 p-2.5 rounded-lg border border-border/40">
+                                    <div class="bg-card/50 p-2.5 rounded-lg">
                                         <div class="text-[10px] text-gray-500 uppercase font-bold">Upload</div>
                                         <div class="text-xs font-bold text-purple-400 mt-1" x-text="formatBytes(vnstatData?.monthly?.total?.tx_bytes || 0)"></div>
                                     </div>
-                                    <div class="bg-card/60 p-2.5 rounded-lg border border-border/40">
+                                    <div class="bg-card/50 p-2.5 rounded-lg">
                                         <div class="text-[10px] text-gray-500 uppercase font-bold">Total</div>
                                         <div class="text-xs font-extrabold text-white mt-1" x-text="formatBytes(vnstatData?.monthly?.total?.total || 0)"></div>
                                     </div>
@@ -313,7 +317,7 @@
                         <!-- Per-Interface Traffic Table -->
                         <div class="space-y-2 font-mono">
                             <div class="text-xs font-bold text-gray-400 uppercase tracking-wider">Interface Statistics (WLAN vs LTE Mobile Data)</div>
-                            <div class="bg-black border border-border rounded-xl overflow-hidden text-xs">
+                            <div class="bg-flat rounded-xl overflow-hidden text-xs">
                                 <table class="w-full text-left border-collapse">
                                     <thead class="bg-gray-900/60 text-gray-400 border-b border-border">
                                         <tr>
@@ -329,8 +333,8 @@
                                             <tr class="hover:bg-card/50 transition">
                                                 <td class="p-3 font-bold text-white font-mono" x-text="item.name"></td>
                                                  <td class="p-3">
-                                                     <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider"
-                                                         :class="item.type.includes('WLAN') ? 'bg-blue-500/10 text-blue-500' : (item.type.includes('LTE') ? 'bg-green-500/10 text-green-500' : 'bg-gray-500/10 text-gray-400')"
+                                                     <span class="px-2 py-0.5 text-[10px] font-extrabold uppercase tracking-wider"
+                                                         :class="item.type.includes('WLAN') ? 'badge-info' : (item.type.includes('LTE') ? 'badge-active' : 'badge-neutral')"
                                                          x-text="item.type">
                                                      </span>
                                                  </td>
@@ -458,15 +462,34 @@
                                 </div>
                             </div>
 
-                            <!-- TTL Spoofing Toggle -->
-                            <div class="p-4 bg-black border border-border rounded-xl flex items-center justify-between">
-                                <div>
-                                    <div class="text-xs font-bold text-white">TTL Spoofing (iptables mangle)</div>
-                                    <div class="text-[10px] text-gray-400 font-mono">Bypass hotspot data usage limits</div>
+                            <!-- TTL Spoofing Config -->
+                            <div class="p-5 bg-black border border-border rounded-xl space-y-4 font-mono">
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <div class="text-xs font-bold text-white uppercase tracking-wider">TTL Spoofing (iptables mangle)</div>
+                                        <div class="text-[10px] text-gray-400">Bypass hotspot data usage detection mechanisms</div>
+                                    </div>
+                                    <div>
+                                        <span class="px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-wider"
+                                            :class="networkData.ttl_spoof ? 'badge-active' : 'badge-inactive'"
+                                            x-text="networkData.ttl_spoof ? 'Active' : 'Disabled'">
+                                        </span>
+                                    </div>
                                 </div>
-                                <button type="button" @click="toggleTTL()" :class="networkData.ttl_spoof ? 'bg-blue-600' : 'bg-gray-800'" class="px-4 py-2 rounded-xl text-xs font-bold transition">
-                                    <span x-text="networkData.ttl_spoof ? 'ENABLED (Auto)' : 'DISABLED'"></span>
-                                </button>
+                                <div class="flex flex-col sm:flex-row items-center gap-3">
+                                    <div class="flex items-center gap-2 w-full sm:w-auto">
+                                        <label for="ttl-val-input" class="text-xs text-gray-400 whitespace-nowrap">Target TTL:</label>
+                                        <input id="ttl-val-input" type="number" min="1" max="255" x-model.number="ttlValue" class="w-20 bg-card border border-border rounded-xl px-2.5 py-1 font-bold text-xs" />
+                                    </div>
+                                    <div class="flex items-center gap-2 w-full sm:w-auto justify-end sm:ml-auto">
+                                        <button type="button" @click="applyTTLConfig(true)" class="px-3.5 py-1.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-black transition">
+                                            Activate
+                                        </button>
+                                        <button type="button" @click="applyTTLConfig(false)" class="px-3.5 py-1.5 bg-black hover:bg-gray-900 border border-border text-red-400 hover:text-red-300 rounded-xl text-xs font-bold transition">
+                                            Disable
+                                        </button>
+                                    </div>
+                                </div>
                             </div>
                         </div>
 
@@ -500,12 +523,22 @@
                     <!-- RPS Packet Steering Settings -->
                     <div class="bg-card border border-border rounded-2xl p-6 space-y-4 font-mono">
                         <h3 class="text-sm font-bold text-white uppercase tracking-wider">RPS Packet Steering Configuration</h3>
+                        
+                        <div class="p-4 bg-black/60 border border-border rounded-xl mb-4 text-[11px] text-gray-400 font-mono space-y-1">
+                            <div class="font-bold text-amber-500 flex items-center gap-1">💡 What is RPS Packet Steering?</div>
+                            <div>Receive Packet Steering (RPS) distributes incoming network packets to multiple CPU cores. Enabling it on network interfaces (e.g. wlan0 for hotspot, rmnet_data for mobile data) prevents CPU Core 0 bottlenecks, reducing ping spikes in online games when your hotspot is active.</div>
+                            <div class="pt-1 text-[10px] text-gray-500">Bitmask Guide: <span class="text-blue-400 font-bold">0F</span> = Core 0-3 (Efficiency) | <span class="text-blue-400 font-bold">F0</span> = Core 4-7 (Performance) | <span class="text-blue-400 font-bold">FF</span> = All Cores (Max performance) | <span class="text-red-400 font-bold">00</span> = Disabled.</div>
+                        </div>
+
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <template x-for="r in rpsConfigs" :key="r.interface">
                                 <div class="bg-black border border-border rounded-xl p-4 flex items-center justify-between">
                                     <div>
                                         <div class="text-xs font-bold text-blue-400" x-text="r.interface"></div>
-                                        <div class="text-[10px] text-gray-400" x-text="'Bitmask: ' + r.bitmask"></div>
+                                        <div class="text-[10px] text-gray-400 flex items-center flex-wrap gap-1">
+                                            <span>Bitmask: <span class="text-white font-semibold" x-text="r.bitmask"></span></span>
+                                            <span class="text-[9px] text-gray-500" x-text="r.bitmask === '0f' || r.bitmask === '0F' ? '(Core 0-3 Efficiency)' : (r.bitmask === 'f0' || r.bitmask === 'F0' ? '(Core 4-7 Performance)' : (r.bitmask === 'ff' || r.bitmask === 'FF' ? '(All Cores Max)' : (r.bitmask === '00' ? '(Disabled)' : '(Custom)')))"></span>
+                                        </div>
                                     </div>
                                     <button type="button" @click="setRPS(r.interface, 'f')" class="px-3 py-1.5 bg-blue-600 hover:bg-blue-500 rounded-xl text-xs font-bold transition">Activate (f)</button>
                                 </div>
@@ -556,13 +589,16 @@
                         <!-- Cores Status -->
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 col-mono">
                             <template x-for="core in proxyData.cores || []" :key="core.path">
-                                <div class="bg-black border border-border rounded-xl p-4 flex items-center justify-between">
+                                <div class="bg-flat p-4 flex items-center justify-between">
                                     <div>
                                         <div class="text-xs font-bold text-white uppercase" x-text="core.name"></div>
                                         <div class="text-[10px] font-mono text-gray-400 truncate max-w-[200px]" x-text="core.path"></div>
                                     </div>
                                     <div class="text-right font-mono text-xs">
-                                        <span :class="core.running ? 'text-green-400' : 'text-gray-500'" x-text="core.running ? 'PID ' + core.pid : 'Stopped'"></span>
+                                         <span class="px-2 py-0.5 text-[10px] font-extrabold uppercase tracking-wider"
+                                             :class="core.running ? 'badge-active' : 'badge-neutral'"
+                                             x-text="core.running ? 'PID ' + core.pid : 'Stopped'">
+                                         </span>
                                     </div>
                                 </div>
                             </template>
@@ -570,7 +606,7 @@
 
                         <!-- Core Watchdog and Config Manager Controls -->
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 font-mono">
-                            <div class="p-4 bg-black border border-border rounded-xl flex items-center justify-between">
+                            <div class="p-4 bg-flat rounded-xl flex items-center justify-between">
                                 <div>
                                     <div class="text-xs font-bold text-white">Proxy Watchdog</div>
                                     <div class="text-[9px] text-gray-500">Auto-restart core if process dies</div>
@@ -580,7 +616,7 @@
                                 </button>
                             </div>
 
-                            <div class="p-4 bg-black border border-border rounded-xl flex items-center justify-between">
+                            <div class="p-4 bg-flat rounded-xl flex items-center justify-between">
                                 <div>
                                     <div class="text-xs font-bold text-white">Config Manager</div>
                                     <div class="text-[9px] text-gray-500">Edit proxy yaml settings</div>
@@ -592,7 +628,7 @@
                         </div>
 
                         <!-- Core Mode Switcher -->
-                        <div class="p-4 bg-black border border-border rounded-xl flex items-center justify-between">
+                        <div class="p-4 bg-flat rounded-xl flex items-center justify-between">
                             <span class="text-xs font-bold text-white font-mono">Proxy Mode</span>
                             <div class="flex space-x-2">
                                 <button type="button" @click="setProxyMode('Rule')" :class="proxyData.mode === 'Rule' ? 'bg-blue-600 text-white' : 'bg-card text-gray-400 border border-border'" class="px-3 py-1 rounded-lg text-xs font-bold">Rule</button>
@@ -607,7 +643,7 @@
                                 <span class="text-xs font-bold text-gray-400">Live Core Logs (SSE Stream)</span>
                                 <button type="button" @click="proxyLogs = []" class="text-[10px] text-gray-500 hover:text-white">Clear</button>
                             </div>
-                            <div class="bg-black border border-border rounded-xl p-4 h-64 overflow-y-auto font-mono text-[11px] text-gray-300 space-y-1 custom-scrollbar">
+                            <div class="bg-flat p-4 h-64 overflow-y-auto font-mono text-[11px] text-gray-300 space-y-1 custom-scrollbar">
                                 <template x-for="log in proxyLogs" :key="log">
                                     <div x-text="log" class="whitespace-pre-wrap"></div>
                                 </template>
@@ -623,11 +659,11 @@
                         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                             <!-- Breadcrumb Path -->
                             <div class="flex items-center space-x-1 overflow-x-auto text-xs font-mono bg-black border border-border px-3 py-2 rounded-xl custom-scrollbar flex-1">
-                                <button type="button" @click="fetchFileList('/')" class="text-blue-400 hover:underline">root</button>
+                                <span @click="fetchFileList('/')" class="text-blue-500 hover:underline cursor-pointer font-semibold">root</span>
                                 <template x-for="(segment, idx) in currentPathSegments" :key="idx">
                                     <div class="flex items-center space-x-1">
                                         <span class="text-gray-600">/</span>
-                                        <button type="button" @click="navigateBreadcrumb(idx)" class="text-blue-400 hover:underline" x-text="segment"></button>
+                                        <span @click="navigateBreadcrumb(idx)" class="text-blue-500 hover:underline cursor-pointer font-semibold" x-text="segment"></span>
                                     </div>
                                 </template>
                             </div>
@@ -725,15 +761,15 @@
                             <div>
                                 <h3 class="text-sm font-bold text-white uppercase tracking-wider font-mono flex items-center gap-2">
                                     <span>Smart Charger Limit Control</span>
-                                    <span class="text-[10px] rounded px-2 py-0.5 font-bold font-mono tracking-wider uppercase"
-                                        :class="chargerConfig.config?.enabled ? 'bg-green-500/10 text-green-500' : 'bg-red-500/10 text-red-500'"
+                                    <span class="text-[10px] px-2 py-0.5 font-bold font-mono tracking-wider uppercase"
+                                        :class="chargerConfig.config?.enabled ? 'badge-active' : 'badge-inactive'"
                                         x-text="chargerConfig.config?.enabled ? 'Active' : 'Disabled'"></span>
                                 </h3>
                                 <p class="text-xs text-gray-400 font-mono">Battery lifespan protection via sysfs auto-scanner</p>
                             </div>
                             <div class="flex items-center space-x-2 font-mono">
                                 <label for="charger-enabled-check" class="sr-only">Toggle Smart Charger Limiter</label>
-                                <div class="flex items-center space-x-2 bg-black border border-border px-3 py-1.5 rounded-xl hover:border-blue-500/40 transition">
+                                <div class="flex items-center space-x-2 bg-flat px-3 py-1.5 rounded-xl transition">
                                     <input id="charger-enabled-check" type="checkbox" x-model="chargerConfig.config.enabled" @change="saveChargerConfig()" class="w-4 h-4 accent-blue-500 cursor-pointer" />
                                     <span class="text-xs text-white font-bold" x-text="chargerConfig.config?.enabled ? 'Limiter ON' : 'Limiter OFF'"></span>
                                 </div>
@@ -742,14 +778,14 @@
 
                         <!-- Auto-Detected Path Status Badge & Current Battery Level -->
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 font-mono text-xs">
-                            <div class="bg-black border border-border rounded-xl p-3.5 space-y-1">
+                            <div class="bg-flat rounded-xl p-3.5 space-y-1">
                                 <div class="text-[10px] text-gray-500 uppercase font-bold">Auto-Detected Control Path</div>
                                 <div class="text-xs font-bold text-blue-400 truncate" x-text="chargerConfig.detected_path || 'Scanning /sys/class/power_supply...'"></div>
                                 <template x-if="chargerConfig.detected_type">
                                     <div class="text-[10px] text-gray-400" x-text="'Type: ' + chargerConfig.detected_type"></div>
                                 </template>
                             </div>
-                            <div class="bg-black border border-border rounded-xl p-3.5 space-y-1">
+                            <div class="bg-flat rounded-xl p-3.5 space-y-1">
                                 <div class="text-[10px] text-gray-500 uppercase font-bold">Charging Switch Status</div>
                                 <div class="flex items-center justify-between">
                                     <span class="text-xs font-bold" :class="chargerConfig.charging_disabled ? 'text-amber-400' : 'text-green-400'"
@@ -761,7 +797,7 @@
                         </div>
 
                         <!-- Threshold Settings -->
-                        <div class="bg-black border border-border rounded-xl p-4 space-y-4 font-mono">
+                        <div class="bg-flat rounded-xl p-4 space-y-4 font-mono">
                             <div class="flex items-center justify-between">
                                 <span class="text-xs font-bold text-gray-300 uppercase tracking-wider">Dynamic Thresholds</span>
                                 <button type="button" @click="saveChargerConfig()" class="px-4 py-1.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-bold transition">
@@ -786,7 +822,7 @@
                                 <span class="text-xs font-bold text-gray-400 uppercase tracking-wider">Controller Activity Logs</span>
                                 <button type="button" @click="fetchChargerConfig()" class="text-[10px] text-blue-400 hover:underline">Refresh</button>
                             </div>
-                            <div class="bg-black border border-border rounded-xl p-3 h-36 overflow-y-auto font-mono text-[11px] text-gray-300 space-y-1 custom-scrollbar">
+                            <div class="bg-flat p-3 h-36 overflow-y-auto font-mono text-[11px] text-gray-300 space-y-1 custom-scrollbar">
                                 <template x-for="log in (chargerConfig.logs || [])" :key="log">
                                     <div x-text="log" class="whitespace-pre-wrap"></div>
                                 </template>
@@ -826,7 +862,7 @@
                                 <span class="text-xs font-bold text-gray-400 uppercase tracking-wider font-mono">Connected Hotspot Clients</span>
                                 <button type="button" @click="fetchHotspotClients()" class="text-[10px] text-blue-400 font-bold hover:underline">Refresh</button>
                             </div>
-                            <div class="bg-black border border-border rounded-xl overflow-hidden text-xs">
+                            <div class="bg-flat rounded-xl overflow-hidden text-xs">
                                 <table class="w-full text-left">
                                     <thead class="bg-gray-900/50 text-gray-400 border-b border-border">
                                         <tr>
@@ -861,13 +897,13 @@
                         <h3 class="text-sm font-bold text-white uppercase tracking-wider">Storage & Disk Partitions</h3>
                         <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                             <template x-for="disk in stats.disks || []" :key="disk.path">
-                                <div class="bg-black border border-border rounded-xl p-4 space-y-2">
+                                <div class="bg-flat rounded-xl p-4 space-y-2">
                                     <div class="flex items-center justify-between">
                                         <span class="text-xs font-bold text-white font-mono" x-text="disk.path"></span>
                                         <span class="text-xs font-mono text-blue-400" x-text="disk.used_pct.toFixed(1) + '%'"></span>
                                     </div>
                                     <div class="text-[10px] text-gray-400 font-mono" x-text="formatBytes(disk.used) + ' / ' + formatBytes(disk.total)"></div>
-                                    <div class="w-full bg-gray-900 rounded-full h-1.5 overflow-hidden">
+                                    <div class="w-full bg-card rounded-full h-1.5 overflow-hidden">
                                         <div class="bg-blue-500 h-1.5 rounded-full" :style="'width: ' + disk.used_pct + '%'"></div>
                                     </div>
                                 </div>
@@ -881,7 +917,7 @@
                             <h3 class="text-sm font-bold text-white uppercase tracking-wider">Thermal Zones (°C)</h3>
                             <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-3">
                                 <template x-for="t in stats.thermals" :key="t.name">
-                                    <div class="bg-black border border-border p-3 rounded-xl text-center space-y-1">
+                                    <div class="bg-flat p-3 rounded-xl text-center space-y-1">
                                         <div class="text-[10px] font-mono text-gray-400 truncate" x-text="t.name"></div>
                                         <div class="text-sm font-bold font-mono" :class="t.temp > 70 ? 'text-red-400' : 'text-green-400'" x-text="t.temp.toFixed(1) + '°C'"></div>
                                     </div>
@@ -899,7 +935,7 @@
                             <div>
                                 <h3 class="text-sm font-bold text-white uppercase tracking-wider font-mono flex items-center gap-2">
                                     <span>SMS Inbox & OTP Finder</span>
-                                    <span class="text-[10px] bg-amber-500/10 text-amber-500 rounded px-2 py-0.5 font-bold font-mono tracking-wider uppercase" x-text="smsTotal + ' Messages'"></span>
+                                    <span class="text-[10px] px-2 py-0.5 font-mono badge-warning" x-text="smsTotal + ' Messages'"></span>
                                 </h3>
                                 <p class="text-xs text-gray-400 font-mono">SQLite telephony DB direct reader & OTP extraction tool</p>
                             </div>
@@ -934,7 +970,7 @@
                         </div>
 
                         <!-- Messages Table -->
-                        <div x-show="!isLoadingSms" class="bg-black border border-border rounded-xl overflow-hidden font-mono text-xs">
+                        <div x-show="!isLoadingSms" class="bg-flat rounded-xl overflow-hidden font-mono text-xs">
                             <table class="w-full text-left border-collapse">
                                 <thead class="bg-gray-900/60 text-gray-400 border-b border-border">
                                     <tr>
@@ -951,8 +987,8 @@
                                             <td class="p-3 leading-relaxed break-words" x-html="formatSMSBody(msg.body)"></td>
                                             <td class="p-3 text-gray-400 text-[11px] whitespace-nowrap" x-text="formatSMSDate(msg.date)"></td>
                                              <td class="p-3 text-center whitespace-nowrap">
-                                                 <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider"
-                                                     :class="msg.read === 1 ? 'bg-gray-800/80 text-gray-400' : 'bg-blue-500/10 text-blue-500'"
+                                                 <span class="px-2 py-0.5 text-[10px] font-extrabold uppercase tracking-wider"
+                                                     :class="msg.read === 1 ? 'badge-neutral' : 'badge-info'"
                                                      x-text="msg.read === 1 ? 'Read' : 'Unread'"></span>
                                              </td>
                                         </tr>
@@ -989,8 +1025,8 @@
                             <div>
                                 <h3 class="text-sm font-bold text-white uppercase tracking-wider font-mono flex items-center gap-2">
                                     <span>Web Screen Mirroring & Touch Controller</span>
-                                    <span class="text-[10px] rounded px-2 py-0.5 font-bold font-mono tracking-wider uppercase"
-                                        :class="isMirroring ? 'bg-blue-500/10 text-blue-500' : 'bg-gray-500/10 text-gray-400'"
+                                    <span class="text-[10px] px-2 py-0.5 font-bold font-mono tracking-wider uppercase"
+                                        :class="isMirroring ? 'badge-info' : 'badge-neutral'"
                                         x-text="isMirroring ? screenRate + ' FPS' : 'Disconnected'"></span>
                                 </h3>
                                 <p class="text-xs text-gray-400 font-mono">Real-time device display frame stream with touch & key injection</p>
@@ -1186,6 +1222,90 @@
                                 Auto-scalable vector telemetry analyzer
                             </div>
                         </div>
+                    </div>
+                </div>
+            </div>
+        </template>
+
+        <!-- TAB 10: ABOUT -->
+        <template x-if="authenticated && activeTab === 'about'">
+            <div class="space-y-6 max-w-3xl mx-auto">
+                <div class="bg-card border border-border rounded-2xl p-8 space-y-6 shadow-2xl">
+                    <!-- Heading -->
+                    <div class="flex items-center space-x-4 border-b border-border/40 pb-4">
+                        <div class="w-12 h-12 rounded-2xl bg-blue-600 flex items-center justify-center font-extrabold text-2xl text-white shadow-lg shadow-blue-500/20">
+                            B
+                        </div>
+                        <div>
+                            <h2 class="text-xl font-extrabold text-white flex items-center gap-2">
+                                BFR WEBUI <span class="px-2 py-0.5 rounded bg-[#f59e0b] text-black text-[10px] font-extrabold uppercase tracking-wide border border-black shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]">PRO</span>
+                            </h2>
+                            <p class="text-xs text-gray-400 font-mono mt-0.5">High-Performance Android System WebUI & Control Panel</p>
+                        </div>
+                    </div>
+
+                    <!-- Meta specifications -->
+                    <div class="grid grid-cols-2 gap-4 font-mono text-xs">
+                        <div class="bg-black border border-border p-4 rounded-xl space-y-1">
+                            <div class="text-[10px] text-gray-500 uppercase font-bold">App Version</div>
+                            <div class="text-xs font-bold text-white">GO v1.0</div>
+                        </div>
+                        <div class="bg-black border border-border p-4 rounded-xl space-y-1">
+                            <div class="text-[10px] text-gray-500 uppercase font-bold">Environment</div>
+                            <div class="text-xs font-bold text-white">Magisk / KernelSU Module</div>
+                        </div>
+                    </div>
+
+                    <!-- Features -->
+                    <div class="space-y-3 font-mono text-xs">
+                        <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider">Magisk Module Key Features</h3>
+                        <div class="bg-black border border-border p-5 rounded-xl space-y-3">
+                            <div class="flex items-start gap-3">
+                                <span class="text-blue-500 font-bold">⚡</span>
+                                <div>
+                                    <div class="font-extrabold text-white">BBR2 TCP Congestion Control</div>
+                                    <div class="text-gray-400 text-[11px] mt-0.5">Active congestion prevention algorithms tailored for low latency and high bandwidth wireless networks.</div>
+                                </div>
+                            </div>
+                            <div class="flex items-start gap-3 border-t border-border/30 pt-3">
+                                <span class="text-blue-500 font-bold">⚙️</span>
+                                <div>
+                                    <div class="font-extrabold text-white">System Optimizer Tweaks</div>
+                                    <div class="text-gray-400 text-[11px] mt-0.5">Kernel sysctl variables configurations, TCP FastOpen, Queue limits allocations, and SDK-aware TTL configurations.</div>
+                                </div>
+                            </div>
+                            <div class="flex items-start gap-3 border-t border-border/30 pt-3">
+                                <span class="text-blue-500 font-bold">🔋</span>
+                                <div>
+                                    <div class="font-extrabold text-white">Dynamic Charge Limiter</div>
+                                    <div class="text-gray-400 text-[11px] mt-0.5">Automated battery lifespan charging limits scanning based on device sysfs properties to prevent degradation.</div>
+                                </div>
+                            </div>
+                            <div class="flex items-start gap-3 border-t border-border/30 pt-3">
+                                <span class="text-blue-500 font-bold">💬</span>
+                                <div>
+                                    <div class="font-extrabold text-white">Telephony SQLite OTP Scanner</div>
+                                    <div class="text-gray-400 text-[11px] mt-0.5">Direct system inbox database query controller retrieving recent incoming verifications, OTP tokens & bank notification codes.</div>
+                                </div>
+                            </div>
+                            <div class="flex items-start gap-3 border-t border-border/30 pt-3">
+                                <span class="text-blue-500 font-bold">📺</span>
+                                <div>
+                                    <div class="font-extrabold text-white">Websocket Term & Screen Mirroring</div>
+                                    <div class="text-gray-400 text-[11px] mt-0.5">Interactive low-latency root shells, canvas screen rendering and inputs/swipes injection overlay controls.</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Git repo info -->
+                    <div class="flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-border/40 pt-5">
+                        <div class="text-xs font-mono text-gray-400">
+                            Check repository updates and developer documentation on GitHub:
+                        </div>
+                        <a href="https://github.com/BFR-Project/BFR-WEBUI-GO" target="_blank" class="px-5 py-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-bold transition uppercase tracking-wider select-none shadow-[4px_4px_0px_0px_var(--neo-shadow)] hover:translate-y-[-1px] active:translate-y-[1px]">
+                            GitHub Repository
+                        </a>
                     </div>
                 </div>
             </div>

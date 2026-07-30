@@ -161,6 +161,13 @@ func ReadSMSInbox(limit int, offset int, searchQuery string) (SMSResponse, error
 		msg.Read = int(read.Int64)
 		msg.Type = int(msgType.Int64)
 
+		if msg.Date > 9999999999 {
+			msg.Date = msg.Date / 1000
+		}
+		if msg.DateSent > 9999999999 {
+			msg.DateSent = msg.DateSent / 1000
+		}
+
 		messages = append(messages, msg)
 	}
 
