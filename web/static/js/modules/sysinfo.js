@@ -42,6 +42,7 @@ const SysinfoModule = {
             }
             this.fetchVnstatData();
             this.fetchChargerConfig();
+            this.fetchSSHStatus();
         } catch (e) {}
     },
 

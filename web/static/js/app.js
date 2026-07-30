@@ -12,6 +12,7 @@ function dashboard() {
         SmsModule,
         ScrcpyModule,
         DonationModule,
+        SshModule,
         {
             // Authenticated root orchestration flow
             async init() {
@@ -28,6 +29,7 @@ function dashboard() {
                     this.fetchRPSConfigs();
                     this.fetchVnstatData();
                     this.fetchChargerConfig();
+                    this.fetchSSHStatus();
                 }
             },
 
@@ -62,6 +64,7 @@ function dashboard() {
                         this.fetchRPSConfigs();
                         this.fetchVnstatData();
                         this.fetchChargerConfig();
+                        this.fetchSSHStatus();
                     } else {
                         this.authError = data.error || 'Invalid password';
                     }

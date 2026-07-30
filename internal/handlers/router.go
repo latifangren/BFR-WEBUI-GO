@@ -88,6 +88,11 @@ func RegisterRoutes(mux *http.ServeMux, authMgr *auth.Manager) {
 	mux.HandleFunc("/api/charger/config", protected(HandleChargerConfig))
 	mux.HandleFunc("/api/charger/toggle", protected(HandleChargerToggle))
 
+	// SSH URLs
+	mux.HandleFunc("/api/ssh/status", protected(HandleSSHStatus))
+	mux.HandleFunc("/api/ssh/config", protected(HandleSSHConfig))
+	mux.HandleFunc("/api/ssh/control", protected(HandleSSHControl))
+
 	// SMS Viewer URLs
 	mux.HandleFunc("/api/sms/inbox", protected(HandleSMSInbox))
 

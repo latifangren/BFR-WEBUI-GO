@@ -10,6 +10,7 @@ import (
 	"bfr-webui-go/internal/handlers"
 	"bfr-webui-go/internal/network"
 	_ "bfr-webui-go/internal/charger"
+	_ "bfr-webui-go/internal/ssh"
 	_ "bfr-webui-go/internal/vnstat"
 )
 
