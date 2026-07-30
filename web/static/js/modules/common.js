@@ -7,6 +7,8 @@ const CommonModule = {
     toasts: [],
     confirmModal: { show: false, title: 'Confirmation', message: '', onConfirm: null },
     modal: { show: false, action: '', actionName: '' },
+    showBatteryModal: false,
+    showNetworkModal: false,
 
     toggleTheme() {
         this.isDark = !this.isDark;

@@ -51,7 +51,7 @@
                         </div>
 
                         <!-- Battery Gauge -->
-                        <div class="bg-card border border-border rounded-2xl p-5 flex flex-col justify-between">
+                        <div @click="showBatteryModal = true" class="bg-card border border-border rounded-2xl p-5 flex flex-col justify-between cursor-pointer hover:bg-card/80 hover:border-green-500/40 transition-all duration-200 group">
                             <div class="flex items-center justify-between text-gray-400 mb-3">
                                 <span class="text-xs font-bold uppercase tracking-wider">Battery</span>
                                 <span class="text-xs font-mono text-green-400" x-text="stats.battery_detail ? stats.battery_detail.status : ''"></span>
@@ -65,19 +65,28 @@
                             </div>
                         </div>
 
-                        <!-- Uptime & System -->
-                        <div class="bg-card border border-border rounded-2xl p-5 flex flex-col justify-between">
+                        <!-- Network Detail -->
+                        <div @click="showNetworkModal = true" class="bg-card border border-border rounded-2xl p-5 flex flex-col justify-between cursor-pointer hover:bg-card/80 hover:border-cyan-500/40 transition-all duration-200 group">
                             <div class="flex items-center justify-between text-gray-400 mb-3">
-                                <span class="text-xs font-bold uppercase tracking-wider">Uptime</span>
-                                <span class="text-xs font-mono text-amber-400" x-text="stats.model || 'Android'"></span>
+                                <span class="text-xs font-bold uppercase tracking-wider">Network</span>
+                                <span class="text-xs font-mono text-cyan-400" x-text="stats.network_detail?.roaming && stats.network_detail.roaming !== 'No' && stats.network_detail.roaming !== '' ? '🔗 Roaming' : '📶'"></span>
                             </div>
-                            <div class="flex items-baseline space-x-2">
-                                <span class="text-2xl font-bold text-white font-mono" x-text="formatUptime(stats.uptime)"></span>
+                            <div class="flex flex-col">
+                                <span class="text-2xl font-bold text-white font-mono truncate" x-text="primaryNetworkIP()"></span>
+                                <span class="text-xs text-gray-400 font-mono mt-1 truncate" x-text="networkCardSubtext()"></span>
                             </div>
                             <div class="w-full bg-flat rounded-full h-2 mt-4 overflow-hidden">
-                                <div class="bg-amber-500 h-2 rounded-full transition-all duration-500" style="width: 100%"></div>
+                                <div class="bg-cyan-500 h-2 rounded-full transition-all duration-500" style="width: 100%"></div>
                             </div>
                         </div>
+                    </div>
+
+                    <!-- Uptime & Model row -->
+                    <div class="text-center font-mono text-[11px] text-gray-400 tracking-wider">
+                        <span class="text-gray-500">Uptime:</span>
+                        <span class="text-gray-300 font-bold" x-text="formatUptime(stats.uptime) || '—'"></span>
+                        <span class="text-gray-600 mx-1.5">•</span>
+                        <span class="text-gray-500" x-text="stats.model || 'Android'"></span>
                     </div>
 
                     <!-- CPU Core Frequencies -->

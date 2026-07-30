@@ -2,6 +2,7 @@ package sysinfo
 
 import (
 	"bufio"
+	"context"
 	"fmt"
 	"net"
 	"os"
@@ -91,6 +92,30 @@ type Stats struct {
 	Hostname       string          `json:"hostname"`
 	NetRx          uint64          `json:"net_rx"`
 	NetTx          uint64          `json:"net_tx"`
+	NetworkDetail  NetworkDetail   `json:"network_detail"`
+}
+
+type NetworkDetail struct {
+	IPAddresses    []string  `json:"ip_addresses"`
+	Gateway        string    `json:"gateway"`
+	DNS            []string  `json:"dns"`
+	WiFiSSID       string    `json:"wifi_ssid"`
+	WiFiSignalDBM  string    `json:"wifi_signal_dbm"`
+	MCCMNC         []string  `json:"mcc_mnc"`
+	Roaming        string    `json:"roaming"`
+	HotspotClients int       `json:"hotspot_clients"`
+	SIMSlots       []SIMSlot `json:"sim_slots"`
+}
+
+type SIMSlot struct {
+	Slot          int     `json:"slot"`
+	Operator      string  `json:"operator"`
+	NetworkType   string  `json:"network_type"`
+	RSRP          string  `json:"rsrp"`
+	RSRQ          string  `json:"rsrq"`
+	SINR          string  `json:"sinr"`
+	SignalQuality string  `json:"signal_quality"`
+	SignalScore   float64 `json:"signal_score"`
 }
 
 type cpuStat struct {
@@ -102,6 +127,10 @@ var (
 	lastCPU      cpuStat
 	lastCoreCPUs map[int]cpuStat
 	cpuMux       sync.Mutex
+
+	networkDetailCache   NetworkDetail
+	networkDetailCacheAt time.Time
+	networkDetailCacheMu sync.Mutex
 )
 
 func init() {
@@ -169,6 +198,7 @@ func GetStats() (Stats, error) {
 	s.LocalTime = getAndroidLocalTime()
 	s.Hostname = getHostname()
 	s.NetRx, s.NetTx = getNetDevBytes()
+	s.NetworkDetail = getNetworkDetail()
 
 	return s, nil
 }
@@ -713,6 +743,231 @@ func getNetDevBytes() (uint64, uint64) {
 		totalTx += tx
 	}
 	return totalRx, totalTx
+}
+
+// runCmdTimeout runs an external command with a hard timeout, returns trimmed stdout.
+func runCmdTimeout(timeout time.Duration, name string, args ...string) string {
+	ctx, cancel := context.WithTimeout(context.Background(), timeout)
+	defer cancel()
+	out, _ := exec.CommandContext(ctx, name, args...).Output()
+	return strings.TrimSpace(string(out))
+}
+
+func getNetworkDetail() NetworkDetail {
+	networkDetailCacheMu.Lock()
+	defer networkDetailCacheMu.Unlock()
+
+	if !networkDetailCacheAt.IsZero() && time.Since(networkDetailCacheAt) < 15*time.Second {
+		return networkDetailCache
+	}
+
+	nd := buildNetworkDetail()
+	networkDetailCache = nd
+	networkDetailCacheAt = time.Now()
+	return nd
+}
+
+func buildNetworkDetail() NetworkDetail {
+	var nd NetworkDetail
+	nd.WiFiSSID = "Unknown"
+	nd.WiFiSignalDBM = "—"
+	nd.Roaming = "Unknown"
+
+	const cmdTimeout = 2 * time.Second
+
+	// 1. IP Addresses (cheap — no subprocess)
+	ifaces, err := net.Interfaces()
+	if err == nil {
+		for _, i := range ifaces {
+			if i.Flags&net.FlagLoopback != 0 {
+				continue
+			}
+			addrs, err := i.Addrs()
+			if err == nil {
+				for _, addr := range addrs {
+					ip := addr.String()
+					if !strings.Contains(ip, ":") { // simple IPv4 filter
+						nd.IPAddresses = append(nd.IPAddresses, strings.Split(ip, "/")[0])
+					}
+				}
+			}
+		}
+	}
+
+	// 2. Gateway
+	if out := runCmdTimeout(cmdTimeout, "ip", "route", "show", "default"); out != "" {
+		parts := strings.Fields(out)
+		for i, p := range parts {
+			if p == "via" && i+1 < len(parts) {
+				nd.Gateway = parts[i+1]
+				break
+			}
+		}
+	}
+
+	// 3. DNS
+	dns1 := getProp("net.dns1")
+	if dns1 != "" {
+		nd.DNS = append(nd.DNS, dns1)
+	}
+	dns2 := getProp("net.dns2")
+	if dns2 != "" && dns2 != dns1 {
+		nd.DNS = append(nd.DNS, dns2)
+	}
+	if len(nd.DNS) == 0 {
+		out := runCmdTimeout(cmdTimeout, "getprop")
+		for _, ln := range strings.Split(out, "\n") {
+			if strings.Contains(ln, "dns") && strings.Contains(ln, "]: [") {
+				parts := strings.Split(ln, "]: [")
+				if len(parts) == 2 {
+					val := strings.TrimRight(parts[1], "]")
+					if net.ParseIP(val) != nil {
+						found := false
+						for _, d := range nd.DNS {
+							if d == val {
+								found = true
+								break
+							}
+						}
+						if !found {
+							nd.DNS = append(nd.DNS, val)
+						}
+					}
+				}
+			}
+		}
+	}
+
+	// 4. WiFi SSID / RSSI
+	wifiStr := runCmdTimeout(cmdTimeout, "cmd", "wifi", "status")
+	if strings.Contains(wifiStr, "SSID: ") {
+		ssidParts := strings.Split(wifiStr, "SSID: ")
+		if len(ssidParts) > 1 {
+			nd.WiFiSSID = strings.Trim(strings.Split(ssidParts[1], "\n")[0], "\" ")
+		}
+	}
+	if strings.Contains(wifiStr, "RSSI: ") {
+		rssiParts := strings.Split(wifiStr, "RSSI: ")
+		if len(rssiParts) > 1 {
+			nd.WiFiSignalDBM = strings.TrimSpace(strings.Split(rssiParts[1], "\n")[0]) + " dBm"
+		}
+	}
+
+	// 5. MCC/MNC and Roaming
+	numString := getProp("gsm.operator.numeric")
+	if numString == "" {
+		numString = getProp("gsm.sim.operator.numeric")
+	}
+	for _, num := range strings.Split(numString, ",") {
+		n := strings.TrimSpace(num)
+		if n != "" {
+			nd.MCCMNC = append(nd.MCCMNC, n)
+		}
+	}
+	roam := getProp("gsm.operator.isroaming")
+	if strings.Contains(roam, "true") {
+		nd.Roaming = "Yes"
+	} else if strings.Contains(roam, "false") {
+		nd.Roaming = "No"
+	}
+
+	// 6. Hotspot clients via /proc/net/arp (no subprocess)
+	var arpCount int
+	if f, err := os.Open("/proc/net/arp"); err == nil {
+		scanner := bufio.NewScanner(f)
+		for scanner.Scan() {
+			txt := scanner.Text()
+			if strings.Contains(txt, "0x2") && !strings.Contains(txt, "00:00:00:00:00:00") {
+				arpCount++
+			}
+		}
+		f.Close()
+	}
+	nd.HotspotClients = arpCount
+
+	// 7. SIM Slots
+	opers := strings.Split(getProp("gsm.operator.alpha"), ",")
+	types := strings.Split(getProp("gsm.network.type"), ",")
+	nums := strings.Split(getProp("gsm.operator.numeric"), ",")
+
+	numSlots := len(nums)
+	if len(opers) > numSlots {
+		numSlots = len(opers)
+	}
+	if len(types) > numSlots {
+		numSlots = len(types)
+	}
+
+	// Telephony Registry — best-effort, timeout-bounded
+	telOut := runCmdTimeout(cmdTimeout, "su", "-c", "dumpsys telephony.registry | grep -i 'mSignalStrength='")
+	rsrp, rsrq, sinr := "—", "—", "—"
+	if strings.Contains(telOut, "rsrp=") {
+		parts := strings.Split(telOut, " rsrp=")
+		if len(parts) > 1 {
+			rsrp = strings.Split(parts[1], " ")[0]
+		}
+	}
+	if strings.Contains(telOut, "rsrq=") {
+		parts := strings.Split(telOut, " rsrq=")
+		if len(parts) > 1 {
+			rsrq = strings.Split(parts[1], " ")[0]
+		}
+	}
+	if strings.Contains(telOut, "rssnr=") {
+		parts := strings.Split(telOut, " rssnr=")
+		if len(parts) > 1 {
+			sinr = strings.Split(parts[1], " ")[0]
+		}
+	}
+
+	for i := 0; i < numSlots; i++ {
+		slot := SIMSlot{Slot: i + 1, Operator: "Unknown", NetworkType: "Unknown"}
+		if i < len(opers) && strings.TrimSpace(opers[i]) != "" {
+			slot.Operator = strings.TrimSpace(opers[i])
+		}
+		if i < len(types) && strings.TrimSpace(types[i]) != "" {
+			slot.NetworkType = strings.TrimSpace(types[i])
+		}
+		if i < len(nums) && strings.TrimSpace(nums[i]) != "" && slot.Operator == "Unknown" {
+			slot.Operator = strings.TrimSpace(nums[i])
+		}
+
+		slot.RSRP, slot.RSRQ, slot.SINR = "—", "—", "—"
+		slot.SignalQuality, slot.SignalScore = "Unavailable (Not LTE)", 0
+
+		nt := strings.ToLower(slot.NetworkType)
+		if strings.Contains(nt, "lte") || strings.Contains(nt, "4g") || strings.Contains(nt, "5g") || strings.Contains(nt, "nr") {
+			if rsrp != "—" && rsrp != "2147483647" {
+				slot.RSRP = rsrp + " dBm"
+				slot.RSRQ = rsrq + " dB"
+				slot.SINR = sinr + " dB"
+
+				if r, err := strconv.Atoi(rsrp); err == nil && r < 0 {
+					if r >= -90 {
+						slot.SignalQuality = "Excellent"
+					} else if r >= -105 {
+						slot.SignalQuality = "Good"
+					} else if r >= -115 {
+						slot.SignalQuality = "Fair"
+					} else {
+						slot.SignalQuality = "Poor"
+					}
+					// Linear score: 0 at RSRP=-120, 5 at RSRP=-70
+					lerp := (float64(r) + 120.0) / 50.0 * 5.0
+					if lerp < 0 {
+						lerp = 0
+					}
+					if lerp > 5 {
+						lerp = 5
+					}
+					slot.SignalScore = lerp
+				}
+			}
+		}
+		nd.SIMSlots = append(nd.SIMSlots, slot)
+	}
+
+	return nd
 }
 
 func getAndroidLocalTime() string {
