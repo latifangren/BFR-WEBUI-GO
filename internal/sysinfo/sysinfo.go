@@ -86,6 +86,7 @@ type Stats struct {
 	DefaultTTL     string          `json:"default_ttl"`
 	Kernel         string          `json:"kernel"`
 	ServerTime     string          `json:"server_time"`
+	LocalTime      string          `json:"local_time"`
 	Hostname       string          `json:"hostname"`
 	NetRx          uint64          `json:"net_rx"`
 	NetTx          uint64          `json:"net_tx"`
@@ -143,6 +144,7 @@ func GetStats() (Stats, error) {
 	s.DefaultTTL = getDefaultTTL()
 	s.Kernel = getKernelVersion()
 	s.ServerTime = getServerTime()
+	s.LocalTime = getAndroidLocalTime()
 	s.Hostname = getHostname()
 	s.NetRx, s.NetTx = getNetDevBytes()
 
@@ -364,25 +366,42 @@ func getThermalZones() []ThermalZone {
 		return zones
 	}
 
+	prioritizedTypes := []string{"cpu", "soc", "tsens_tz_sensor", "mtktscpu", "bms", "battery", "quiet_therm", "ap_therm"}
+
 	for _, z := range files {
 		typeData, err := os.ReadFile(filepath.Join(z, "type"))
 		if err != nil {
 			continue
 		}
-		name := strings.TrimSpace(string(typeData))
+		typeName := strings.TrimSpace(string(typeData))
+		lowerType := strings.ToLower(typeName)
+
+		matched := false
+		for _, pType := range prioritizedTypes {
+			if strings.Contains(lowerType, pType) {
+				matched = true
+				break
+			}
+		}
+		if !matched {
+			continue
+		}
 
 		tempData, err := os.ReadFile(filepath.Join(z, "temp"))
 		if err != nil {
 			continue
 		}
 		t, _ := strconv.ParseFloat(strings.TrimSpace(string(tempData)), 64)
-		if t > 1000 {
+
+		if t > 100 && t < 1000 {
+			t = t / 10.0
+		} else if t >= 1000 && t < 150000 {
 			t = t / 1000.0
 		}
 
-		if t > -20 && t < 150 { // Reasonable sanity range
+		if t >= 15 && t <= 100 {
 			zones = append(zones, ThermalZone{
-				Name: name,
+				Name: typeName,
 				Temp: t,
 			})
 		}
@@ -645,4 +664,16 @@ func getNetDevBytes() (uint64, uint64) {
 		totalTx += tx
 	}
 	return totalRx, totalTx
+}
+
+func getAndroidLocalTime() string {
+	tz := getProp("persist.sys.timezone")
+	if tz == "" {
+		return time.Now().Format("2006-01-02 15:04:05 MST")
+	}
+	loc, err := time.LoadLocation(tz)
+	if err != nil {
+		return time.Now().Format("2006-01-02 15:04:05 MST")
+	}
+	return time.Now().In(loc).Format("2006-01-02 15:04:05 MST")
 }

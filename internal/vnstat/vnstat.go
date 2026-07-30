@@ -311,6 +311,43 @@ func (t *Tracker) getStatsLocked() StatsResponse {
 		Total:   mRx + mTx,
 	}
 
+	dailyEmpty := (len(t.daily) == 0 || resp.Daily.Total.Total == 0)
+	monthlyEmpty := (len(t.monthly) == 0 || resp.Monthly.Total.Total == 0)
+
+	if dailyEmpty || monthlyEmpty {
+		rawStats := parseProcNetDev()
+		for iface, raw := range rawStats {
+			lower := strings.ToLower(iface)
+			isPhysical := strings.HasPrefix(lower, "wlan") ||
+				strings.HasPrefix(lower, "ap") ||
+				strings.HasPrefix(lower, "softap") ||
+				strings.HasPrefix(lower, "rmnet") ||
+				strings.HasPrefix(lower, "ccmni") ||
+				strings.HasPrefix(lower, "wwan")
+
+			if isPhysical {
+				if dailyEmpty {
+					resp.Daily.Interfaces[iface] = InterfaceStat{
+						RxBytes: raw.rxBytes,
+						TxBytes: raw.txBytes,
+					}
+					resp.Daily.Total.RxBytes += raw.rxBytes
+					resp.Daily.Total.TxBytes += raw.txBytes
+				}
+				if monthlyEmpty {
+					resp.Monthly.Interfaces[iface] = InterfaceStat{
+						RxBytes: raw.rxBytes,
+						TxBytes: raw.txBytes,
+					}
+					resp.Monthly.Total.RxBytes += raw.rxBytes
+					resp.Monthly.Total.TxBytes += raw.txBytes
+				}
+			}
+		}
+		resp.Daily.Total.Total = resp.Daily.Total.RxBytes + resp.Daily.Total.TxBytes
+		resp.Monthly.Total.Total = resp.Monthly.Total.RxBytes + resp.Monthly.Total.TxBytes
+	}
+
 	resp.LastUpdated = t.lastUpdated
 	return resp
 }

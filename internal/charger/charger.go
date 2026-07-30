@@ -46,6 +46,15 @@ var candidatePaths = []struct {
 	{"/sys/class/power_supply/battery/input_suspend", "input_suspend"},
 	{"/sys/class/power_supply/battery/charge_control_limit_max", "charge_control_limit_max"},
 	{"/sys/class/power_supply/battery/charge_control_limit", "charge_control_limit"},
+	{"/sys/class/power_supply/battery/batt_slate_mode", "batt_slate_mode"},
+	{"/sys/class/power_supply/battery/store_mode", "store_mode"},
+	{"/sys/class/power_supply/main/charging_enabled", "charging_enabled"},
+	{"/sys/class/power_supply/bms/charging_enabled", "charging_enabled"},
+	{"/sys/class/power_supply/charger/charging_enabled", "charging_enabled"},
+	{"/sys/class/power_supply/usb/charging_enabled", "charging_enabled"},
+	{"/sys/class/power_supply/battery/mmi_charging_enable", "mmi_charging_enable"},
+	{"/sys/class/power_supply/battery/op_disable_charge", "op_disable_charge"},
+	{"/sys/class/power_supply/battery/charging_switch", "charging_switch"},
 }
 
 var (
@@ -214,10 +223,10 @@ func (m *Manager) setChargingStateLocked(disable bool) {
 
 	var enableVal, disableVal string
 	switch m.detectedType {
-	case "input_suspend":
+	case "input_suspend", "op_disable_charge":
 		enableVal = "0"
 		disableVal = "1"
-	case "charging_enabled", "charge_control_limit", "charge_control_limit_max":
+	case "charging_enabled", "charge_control_limit", "charge_control_limit_max", "batt_slate_mode", "store_mode", "mmi_charging_enable", "charging_switch":
 		enableVal = "1"
 		disableVal = "0"
 	default:
