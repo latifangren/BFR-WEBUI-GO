@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"html/template"
 	"io/fs"
 	"net/http"
 
@@ -9,12 +10,21 @@ import (
 )
 
 func RegisterRoutes(mux *http.ServeMux, authMgr *auth.Manager) {
+	tmpl, tmplErr := template.New("index.html").ParseFS(web.Files, "index.html", "templates/*.html")
+
 	subFS, err := fs.Sub(web.Files, ".")
 	if err == nil {
 		fileServer := http.FileServer(http.FS(subFS))
 		mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 			if r.URL.Path != "/" && r.URL.Path != "/index.html" {
 				fileServer.ServeHTTP(w, r)
+				return
+			}
+			if tmplErr == nil && tmpl != nil {
+				w.Header().Set("Content-Type", "text/html; charset=utf-8")
+				if err := tmpl.Execute(w, nil); err != nil {
+					http.Error(w, err.Error(), http.StatusInternalServerError)
+				}
 				return
 			}
 			fileServer.ServeHTTP(w, r)

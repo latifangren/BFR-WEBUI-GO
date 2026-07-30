@@ -1,0 +1,60 @@
+{{define "tab_hotspot.html"}}
+                    <!-- Hotspot & Tethering Control -->
+                    <div class="bg-card border border-border rounded-2xl p-6 space-y-4">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <h3 class="text-sm font-bold text-white uppercase tracking-wider font-mono">Wi-Fi Hotspot & Tethering Control</h3>
+                                <p class="text-xs text-gray-400 font-mono">Manage local softap client access</p>
+                            </div>
+                            <button type="button" @click="toggleHotspot()" :class="hotspotStatus.enabled ? 'bg-red-600' : 'bg-green-600'" class="px-4 py-2 rounded-xl text-xs font-bold transition">
+                                <span x-text="hotspotStatus.enabled ? 'Stop Hotspot' : 'Start Hotspot'"></span>
+                            </button>
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 font-mono">
+                            <div class="space-y-1">
+                                <label for="hs-ssid" class="text-xs text-gray-400">Hotspot SSID</label>
+                                <input id="hs-ssid" type="text" x-model="hotspotStatus.ssid" class="w-full bg-black border border-border rounded-xl px-3 py-2 text-xs text-white" />
+                            </div>
+                            <div class="space-y-1">
+                                <label for="hs-pwd" class="text-xs text-gray-400">Conf Password (WPA2)</label>
+                                <input id="hs-pwd" type="password" x-model="hotspotPass" class="w-full bg-black border border-border rounded-xl px-3 py-2 text-xs text-white" placeholder="Min 8 chars" />
+                            </div>
+                        </div>
+
+                        <!-- Connected Clients -->
+                        <div class="space-y-2 font-mono">
+                            <div class="flex items-center justify-between">
+                                <span class="text-xs font-bold text-gray-400 uppercase tracking-wider font-mono">Connected Hotspot Clients</span>
+                                <button type="button" @click="fetchHotspotClients()" class="text-[10px] text-blue-400 font-bold hover:underline">Refresh</button>
+                            </div>
+                            <div class="bg-flat rounded-xl overflow-hidden text-xs">
+                                <table class="w-full text-left">
+                                    <thead class="bg-gray-900/50 text-gray-400 border-b border-border">
+                                        <tr>
+                                            <th class="p-3">Device Name</th>
+                                            <th class="p-3">IP Address</th>
+                                            <th class="p-3">MAC Address</th>
+                                            <th class="p-3 text-right">Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-border/50 text-gray-300">
+                                        <template x-for="client in hotspotClients" :key="client.mac">
+                                            <tr class="hover:bg-card/50 transition">
+                                                <td class="p-3 font-semibold text-white" x-text="client.device"></td>
+                                                <td class="p-3 text-blue-400" x-text="client.ip"></td>
+                                                <td class="p-3 text-gray-400" x-text="client.mac"></td>
+                                                <td class="p-3 text-right font-semibold text-green-400" x-text="client.state"></td>
+                                            </tr>
+                                        </template>
+                                        <template x-if="hotspotClients.length === 0">
+                                            <tr>
+                                                <td colspan="4" class="p-4 text-center text-gray-500 italic">No connected clients detected</td>
+                                            </tr>
+                                        </template>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+{{end}}

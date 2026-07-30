@@ -1,0 +1,82 @@
+{{define "tab_proxy.html"}}
+                <!-- TAB 3: PROXY CORE -->
+                <div x-show="activeTab === 'proxy'" class="space-y-6">
+                    <div class="bg-card border border-border rounded-2xl p-6 space-y-4">
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                            <div>
+                                <h3 class="text-sm font-bold text-white uppercase tracking-wider">Mihomo / Clash Core Manager</h3>
+                                <p class="text-xs text-gray-400 font-mono">Control Box4Magisk / Clash For Magisk services</p>
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <button type="button" @click="controlProxy('start')" class="px-3.5 py-1.5 bg-green-600 hover:bg-green-500 text-white rounded-xl text-xs font-bold transition">Start</button>
+                                <button type="button" @click="controlProxy('stop')" class="px-3.5 py-1.5 bg-red-600 hover:bg-red-500 text-white rounded-xl text-xs font-bold transition">Stop</button>
+                                <button type="button" @click="controlProxy('restart')" class="px-3.5 py-1.5 bg-amber-600 hover:bg-amber-500 text-white rounded-xl text-xs font-bold transition">Restart</button>
+                            </div>
+                        </div>
+
+                        <!-- Cores Status -->
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 col-mono">
+                            <template x-for="core in proxyData.cores || []" :key="core.path">
+                                <div class="bg-flat p-4 flex items-center justify-between">
+                                    <div>
+                                        <div class="text-xs font-bold text-white uppercase" x-text="core.name"></div>
+                                        <div class="text-[10px] font-mono text-gray-400 truncate max-w-[200px]" x-text="core.path"></div>
+                                    </div>
+                                    <div class="text-right font-mono text-xs">
+                                         <span class="px-2 py-0.5 text-[10px] font-extrabold uppercase tracking-wider"
+                                             :class="core.running ? 'badge-active' : 'badge-neutral'"
+                                             x-text="core.running ? 'PID ' + core.pid : 'Stopped'">
+                                         </span>
+                                    </div>
+                                </div>
+                            </template>
+                        </div>
+
+                        <!-- Core Watchdog and Config Manager Controls -->
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 font-mono">
+                            <div class="p-4 bg-flat rounded-xl flex items-center justify-between">
+                                <div>
+                                    <div class="text-xs font-bold text-white">Proxy Watchdog</div>
+                                    <div class="text-[9px] text-gray-500">Auto-restart core if process dies</div>
+                                </div>
+                                <button type="button" @click="toggleProxyWatchdog()" :class="proxyData.watchdog ? 'bg-blue-600' : 'bg-gray-800'" class="px-3 py-1.5 rounded-xl text-xs font-bold transition">
+                                    <span x-text="proxyData.watchdog ? 'ENABLED' : 'DISABLED'"></span>
+                                </button>
+                            </div>
+
+                            <div class="p-4 bg-flat rounded-xl flex items-center justify-between">
+                                <div>
+                                    <div class="text-xs font-bold text-white">Config Manager</div>
+                                    <div class="text-[9px] text-gray-500">Edit proxy yaml settings</div>
+                                </div>
+                                <button type="button" @click="openYamlConfigEditor()" class="px-3 py-1.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-bold transition">
+                                    Edit Config
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Core Mode Switcher -->
+                        <div class="p-4 bg-flat rounded-xl flex items-center justify-between">
+                            <span class="text-xs font-bold text-white font-mono">Proxy Mode</span>
+                            <div class="flex space-x-2">
+                                <button type="button" @click="setProxyMode('Rule')" :class="proxyData.mode === 'Rule' ? 'bg-blue-600 text-white' : 'bg-card text-gray-400 border border-border'" class="px-3 py-1 rounded-lg text-xs font-bold">Rule</button>
+                                <button type="button" @click="setProxyMode('Global')" :class="proxyData.mode === 'Global' ? 'bg-blue-600 text-white' : 'bg-card text-gray-400 border border-border'" class="px-3 py-1 rounded-lg text-xs font-bold">Global</button>
+                                <button type="button" @click="setProxyMode('Direct')" :class="proxyData.mode === 'Direct' ? 'bg-blue-600 text-white' : 'bg-card text-gray-400 border border-border'" class="px-3 py-1 rounded-lg text-xs font-bold">Direct</button>
+                            </div>
+                        </div>
+
+                        <!-- Live Logs -->
+                        <div class="space-y-2 font-mono">
+                            <div class="flex items-center justify-between">
+                                <span class="text-xs font-bold text-gray-400">Live Core Logs (SSE Stream)</span>
+                                <button type="button" @click="proxyLogs = []" class="text-[10px] text-gray-500 hover:text-white">Clear</button>
+                            </div>
+                            <div class="bg-flat p-4 h-64 overflow-y-auto font-mono text-[11px] text-gray-300 space-y-1 custom-scrollbar">
+                                <template x-for="log in proxyLogs" :key="log">
+                                    <div x-text="log" class="whitespace-pre-wrap"></div>
+                                </template>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+{{end}}

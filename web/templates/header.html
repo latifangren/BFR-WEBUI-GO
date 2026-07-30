@@ -1,0 +1,50 @@
+{{define "header.html"}}
+    <!-- Header -->
+    <header class="border-b border-border bg-card/80 backdrop-blur sticky top-0 z-40">
+        <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="w-9 h-9 rounded-xl bg-blue-600 flex items-center justify-center font-bold text-white shadow-lg shadow-blue-500/20">
+                    B
+                </div>
+                <div>
+                    <h1 class="font-bold text-lg leading-none tracking-wide text-white flex items-center gap-2">
+                        BFR WEBUI <span class="ml-2 px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-wider shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]" style="background-color: #f59e0b !important; color: #000000 !important; border: 1.5px solid #000000 !important;">PRO</span>
+                    </h1>
+                    <p class="text-xs text-gray-400 mt-0.5" x-text="stats.model ? stats.model + ' (Android ' + stats.android_ver + ')' : 'Android System WebUI'"></p>
+                </div>
+            </div>
+
+            <!-- Navigation Tabs (Desktop) -->
+            {{template "sidebar.html" .}}
+
+            <div class="flex items-center space-x-3">
+                <button type="button" @click="toggleTheme()" class="theme-toggle px-2.5 py-1.5 text-xs font-extrabold flex items-center justify-center gap-1.5 transition-all duration-100 select-none">
+                    <span x-show="isDark">🌙</span>
+                    <span x-show="!isDark">☀️</span>
+                    <span x-text="isDark ? 'Dark' : 'Light'"></span>
+                </button>
+                <template x-if="authenticated">
+                    <button type="button" @click="logout()" class="px-3.5 py-1.5 text-xs font-medium text-red-400 hover:text-red-300 bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 rounded-xl transition">
+                        Logout
+                    </button>
+                </template>
+            </div>
+        </div>
+
+        <!-- Navigation Tabs (Mobile) -->
+        <template x-if="authenticated">
+            <div class="md:hidden flex items-center overflow-x-auto px-4 py-2 border-t border-border space-x-2 custom-scrollbar">
+                <button type="button" @click="activeTab = 'overview'" :class="activeTab === 'overview' ? 'bg-blue-600 text-white' : 'text-gray-400 bg-card border border-border'" class="px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap">Overview</button>
+                <button type="button" @click="activeTab = 'network'" :class="activeTab === 'network' ? 'bg-blue-600 text-white' : 'text-gray-400 bg-card border border-border'" class="px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap">Network</button>
+                <button type="button" @click="activeTab = 'proxy'" :class="activeTab === 'proxy' ? 'bg-blue-600 text-white' : 'text-gray-400 bg-card border border-border'" class="px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap">Proxy Core</button>
+                <button type="button" @click="activeTab = 'files'; fetchFileList(currentPath)" :class="activeTab === 'files' ? 'bg-blue-600 text-white' : 'text-gray-400 bg-card border border-border'" class="px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap">Files</button>
+                <button type="button" @click="activeTab = 'terminal'; initTerminal()" :class="activeTab === 'terminal' ? 'bg-blue-600 text-white' : 'text-gray-400 bg-card border border-border'" class="px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap">Terminal</button>
+                <button type="button" @click="activeTab = 'tools'" :class="activeTab === 'tools' ? 'bg-blue-600 text-white' : 'text-gray-400 bg-card border border-border'" class="px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap">Tools</button>
+                <button type="button" @click="activeTab = 'sms'; fetchSMS()" :class="activeTab === 'sms' ? 'bg-blue-600 text-white' : 'text-gray-400 bg-card border border-border'" class="px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap">SMS Viewer</button>
+                <button type="button" @click="activeTab = 'scrcpy'" :class="activeTab === 'scrcpy' ? 'bg-blue-600 text-white' : 'text-gray-400 bg-card border border-border'" class="px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap">Remote Screen</button>
+                <button type="button" @click="activeTab = 'sysinfo'" :class="activeTab === 'sysinfo' ? 'bg-blue-600 text-white' : 'text-gray-400 bg-card border border-border'" class="px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap">System Info</button>
+                <button type="button" @click="activeTab = 'about'" :class="activeTab === 'about' ? 'bg-blue-600 text-white' : 'text-gray-400 bg-card border border-border'" class="px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap">About</button>
+            </div>
+        </template>
+    </header>
+{{end}}

@@ -1,0 +1,156 @@
+{{define "tab_about.html"}}
+        <!-- TAB 10: ABOUT -->
+        <div x-show="activeTab === 'about'" class="space-y-6 max-w-3xl mx-auto">
+            <div class="bg-card border border-border rounded-2xl p-8 space-y-6 shadow-2xl">
+                <!-- Heading -->
+                <div class="flex items-center space-x-4 border-b border-border/40 pb-4">
+                    <div class="w-12 h-12 rounded-2xl bg-blue-600 flex items-center justify-center font-extrabold text-2xl text-white shadow-lg shadow-blue-500/20">
+                        B
+                    </div>
+                    <div>
+                        <h2 class="text-xl font-extrabold text-white flex items-center gap-2">
+                            BFR WEBUI <span class="ml-2 px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-wider shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]" style="background-color: #f59e0b !important; color: #000000 !important; border: 1.5px solid #000000 !important;">PRO</span>
+                        </h2>
+                        <p class="text-xs text-gray-400 font-mono mt-0.5">High-Performance Android System WebUI & Control Panel</p>
+                    </div>
+                </div>
+
+                <!-- Meta specifications -->
+                <div class="grid grid-cols-2 gap-4 font-mono text-xs">
+                    <div class="bg-black border border-border p-4 rounded-xl space-y-1">
+                        <div class="text-[10px] text-gray-500 uppercase font-bold">App Version</div>
+                        <div class="text-xs font-bold text-white">GO v1.0</div>
+                    </div>
+                    <div class="bg-black border border-border p-4 rounded-xl space-y-1">
+                        <div class="text-[10px] text-gray-500 uppercase font-bold">Environment</div>
+                        <div class="text-xs font-bold text-white">Magisk / KernelSU Module</div>
+                    </div>
+                </div>
+
+                <!-- Features -->
+                <div class="space-y-3 font-mono text-xs">
+                    <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider">Magisk Module Key Features</h3>
+                    <div class="bg-black border border-border p-5 rounded-xl space-y-3">
+                        <div class="flex items-start gap-3">
+                            <span class="text-blue-500 font-bold">⚡</span>
+                            <div>
+                                <div class="font-extrabold text-white">BBR2 TCP Congestion Control</div>
+                                <div class="text-gray-400 text-[11px] mt-0.5">Active congestion prevention algorithms tailored for low latency and high bandwidth wireless networks.</div>
+                            </div>
+                        </div>
+                        <div class="flex items-start gap-3 border-t border-border/30 pt-3">
+                            <span class="text-blue-500 font-bold">⚙️</span>
+                            <div>
+                                <div class="font-extrabold text-white">System Optimizer Tweaks</div>
+                                <div class="text-gray-400 text-[11px] mt-0.5">Kernel sysctl variables configurations, TCP FastOpen, Queue limits allocations, and SDK-aware TTL configurations.</div>
+                            </div>
+                        </div>
+                        <div class="flex items-start gap-3 border-t border-border/30 pt-3">
+                            <span class="text-blue-500 font-bold">🔋</span>
+                            <div>
+                                <div class="font-extrabold text-white">Dynamic Charge Limiter</div>
+                                <div class="text-gray-400 text-[11px] mt-0.5">Automated battery lifespan charging limits scanning based on device sysfs properties to prevent degradation.</div>
+                            </div>
+                        </div>
+                        <div class="flex items-start gap-3 border-t border-border/30 pt-3">
+                            <span class="text-blue-500 font-bold">💬</span>
+                            <div>
+                                <div class="font-extrabold text-white">Telephony SQLite OTP Scanner</div>
+                                <div class="text-gray-400 text-[11px] mt-0.5">Direct system inbox database query controller retrieving recent incoming verifications, OTP tokens & bank notification codes.</div>
+                            </div>
+                        </div>
+                        <div class="flex items-start gap-3 border-t border-border/30 pt-3">
+                            <span class="text-blue-500 font-bold">📺</span>
+                            <div>
+                                <div class="font-extrabold text-white">Websocket Term & Screen Mirroring</div>
+                                <div class="text-gray-400 text-[11px] mt-0.5">Interactive low-latency root shells, canvas screen rendering and inputs/swipes injection overlay controls.</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Git repo info -->
+                <div class="flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-border/40 pt-5">
+                    <div class="text-xs font-mono text-gray-400">
+                        Check repository updates and developer documentation on GitHub:
+                    </div>
+                    <a href="https://github.com/latifangren/BFR-WEBUI-GO" target="_blank" class="px-5 py-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-bold transition uppercase tracking-wider select-none shadow-[4px_4px_0px_0px_var(--neo-shadow)] hover:translate-y-[-1px] active:translate-y-[1px]">
+                        GitHub Repository
+                    </a>
+                </div>
+            </div>
+
+            <!-- Donation Card -->
+            <div class="bg-card border border-border rounded-2xl p-8 space-y-6 shadow-2xl font-mono">
+                <div class="border-b border-border/40 pb-4">
+                    <h2 class="text-xl font-extrabold text-white flex items-center gap-2">
+                        <span>💸 Support Project Development</span>
+                    </h2>
+                    <p class="text-xs text-gray-400 mt-0.5">Your support helps keep this open-source project active and updated</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <!-- Left Column: QRIS -->
+                    <div class="space-y-4 text-center">
+                        <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider text-left">Scan QRIS to Donate</h3>
+                        <div class="bg-white p-3.5 rounded-2xl inline-block max-w-full">
+                            <img src="/static/img/qris.jpg" alt="QRIS SekarRepku Store" class="w-60 max-w-full rounded-xl border border-border shadow-[4px_4px_0px_0px_var(--neo-shadow)] mx-auto block" />
+                        </div>
+                        <p class="text-[10px] text-gray-400 leading-relaxed max-w-xs mx-auto italic">
+                            "Supported by all Indonesian E-Wallets & Mobile Banking (Gopay, OVO, Dana, ShopeePay, BCA, Mandiri, BRI, etc.)"
+                        </p>
+                    </div>
+
+                    <!-- Right Column: Form -->
+                    <div class="space-y-4 text-left">
+                        <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider">Donation Confirmation Data</h3>
+                        <div class="space-y-3 font-mono text-xs">
+                            <div class="space-y-1">
+                                <label for="donor-name" class="text-xs text-gray-400">Donor Name</label>
+                                <input id="donor-name" type="text" x-model="donorName" class="w-full bg-black border border-border rounded-xl px-3.5 py-2 text-xs text-white" placeholder="Your name or 'Anonymous'" />
+                            </div>
+                            <div class="space-y-1">
+                                <label for="donor-amount" class="text-xs text-gray-400">Donation Amount (Rp)</label>
+                                <input id="donor-amount" type="number" min="0" x-model.number="donationAmount" class="w-full bg-black border border-border rounded-xl px-3.5 py-2 text-xs text-white" placeholder="e.g. 100000" />
+                            </div>
+                            <div class="space-y-1">
+                                <label for="donor-msg" class="text-xs text-gray-400">Message / Note</label>
+                                <textarea id="donor-msg" x-model="donorMessage" rows="3" class="w-full bg-black border border-border rounded-xl px-3.5 py-2 text-xs text-white" placeholder="Write your message or note for developer..."></textarea>
+                            </div>
+                        </div>
+
+                        <div class="flex flex-col gap-2 pt-2">
+                            <button type="button" @click="sendDonationConfirmation('telegram')" class="w-full py-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-bold transition uppercase tracking-wider select-none shadow-[2px_2px_0px_0px_var(--neo-shadow)] hover:translate-y-[-1px] active:translate-y-[1px] flex items-center justify-center gap-1.5">
+                                ✈ Confirm via Telegram
+                            </button>
+                            <button type="button" @click="sendDonationConfirmation('facebook')" class="w-full py-2.5 bg-black border border-border text-gray-300 hover:text-white rounded-xl text-xs font-bold transition uppercase tracking-wider select-none shadow-[2px_2px_0px_0px_var(--neo-shadow)] hover:translate-y-[-1px] active:translate-y-[1px] flex items-center justify-center gap-1.5">
+                                👥 Confirm via Facebook
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Community & Support Card -->
+            <div class="bg-card border border-border rounded-2xl p-8 space-y-6 shadow-2xl font-mono">
+                <div class="border-b border-border/40 pb-4">
+                    <h2 class="text-xl font-extrabold text-white flex items-center gap-2">
+                        <span>💬 Community & Support</span>
+                    </h2>
+                    <p class="text-xs text-gray-400 mt-0.5">Connect for updates, ask questions, or report system issues</p>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <a href="https://t.me/Latifan_id" target="_blank" class="px-5 py-3 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-bold transition uppercase tracking-wider select-none text-center shadow-[4px_4px_0px_0px_var(--neo-shadow)] hover:translate-y-[-1px] active:translate-y-[1px] flex items-center justify-center gap-1.5">
+                        ✈ Telegram Support
+                    </a>
+                    <a href="https://www.facebook.com/latifan.latifan.latifan.latif" target="_blank" class="px-5 py-3 bg-black border border-border text-gray-300 hover:text-white rounded-xl text-xs font-bold transition uppercase tracking-wider select-none text-center shadow-[4px_4px_0px_0px_var(--neo-shadow)] hover:translate-y-[-1px] active:translate-y-[1px] flex items-center justify-center gap-1.5">
+                        👥 Facebook Profile
+                    </a>
+                    <a href="https://github.com/latifangren/BFR-WEBUI-GO/issues" target="_blank" class="px-5 py-3 bg-red-600/10 hover:bg-red-600/20 text-red-500 border border-red-500/30 rounded-xl text-xs font-bold transition uppercase tracking-wider select-none text-center shadow-[4px_4px_0px_0px_var(--neo-shadow)] hover:translate-y-[-1px] active:translate-y-[1px] flex items-center justify-center gap-1.5">
+                        🐙 Report GitHub Issue
+                    </a>
+                </div>
+            </div>
+        </div>
+{{end}}

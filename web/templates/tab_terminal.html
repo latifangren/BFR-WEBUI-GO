@@ -1,0 +1,15 @@
+{{define "tab_terminal.html"}}
+                <!-- TAB 4: WEB TERMINAL -->
+                <div x-show="activeTab === 'terminal'" class="space-y-4">
+                    <div class="bg-card border border-border rounded-2xl p-4">
+                        <div class="flex items-center justify-between mb-3">
+                            <div class="flex items-center space-x-2">
+                                <span class="w-2.5 h-2.5 rounded-full bg-green-500"></span>
+                                <span class="text-xs font-bold font-mono text-white">Root Shell Terminal (/system/bin/sh)</span>
+                            </div>
+                            <button type="button" @click="reconnectTerminal()" class="px-3 py-1 bg-black border border-border text-xs text-gray-300 hover:text-white rounded-lg">Reconnect</button>
+                        </div>
+                        <div id="terminal-container" class="bg-black rounded-xl border border-border p-2 h-[500px]"></div>
+                    </div>
+                </div>
+{{end}}

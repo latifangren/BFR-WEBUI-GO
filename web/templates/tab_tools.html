@@ -1,0 +1,41 @@
+{{define "tab_tools.html"}}
+                <!-- TAB 5: SYSTEM TOOLS -->
+                <div x-show="activeTab === 'tools'" class="space-y-6">
+                    {{template "tab_charger.html" .}}
+                    {{template "tab_hotspot.html" .}}
+
+                    <!-- Disk Partitions -->
+                    <div class="bg-card border border-border rounded-2xl p-6 space-y-4">
+                        <h3 class="text-sm font-bold text-white uppercase tracking-wider">Storage & Disk Partitions</h3>
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                            <template x-for="disk in stats.disks || []" :key="disk.path">
+                                <div class="bg-flat rounded-xl p-4 space-y-2">
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-xs font-bold text-white font-mono" x-text="disk.path"></span>
+                                        <span class="text-xs font-mono text-blue-400" x-text="disk.used_pct.toFixed(1) + '%'"></span>
+                                    </div>
+                                    <div class="text-[10px] text-gray-400 font-mono" x-text="formatBytes(disk.used) + ' / ' + formatBytes(disk.total)"></div>
+                                    <div class="w-full bg-card rounded-full h-1.5 overflow-hidden">
+                                        <div class="bg-blue-500 h-1.5 rounded-full" :style="'width: ' + disk.used_pct + '%'"></div>
+                                    </div>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+
+                    <!-- Thermal Sensors -->
+                    <template x-if="stats.thermals && stats.thermals.length > 0">
+                        <div class="bg-card border border-border rounded-2xl p-6 space-y-4">
+                            <h3 class="text-sm font-bold text-white uppercase tracking-wider">Thermal Zones (°C)</h3>
+                            <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-3">
+                                <template x-for="t in stats.thermals" :key="t.name">
+                                    <div class="bg-flat p-3 rounded-xl text-center space-y-1">
+                                        <div class="text-[10px] font-mono text-gray-400 truncate" x-text="t.name"></div>
+                                        <div class="text-sm font-bold font-mono" :class="t.temp > 70 ? 'text-red-400' : 'text-green-400'" x-text="t.temp.toFixed(1) + '°C'"></div>
+                                    </div>
+                                </template>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+{{end}}

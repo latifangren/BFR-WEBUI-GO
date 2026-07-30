@@ -1,0 +1,131 @@
+{{define "tab_sysinfo.html"}}
+        <!-- TAB 9: SYSTEM INFO -->
+        <template x-if="authenticated && activeTab === 'sysinfo'">
+            <div class="space-y-6">
+                <!-- Dual Grid -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <!-- Left: Device Details (Neobrutalist Bento Box) -->
+                    <div class="lg:col-span-2 bg-card border border-border rounded-2xl p-6 space-y-4">
+                        <h3 class="text-sm font-bold text-white uppercase tracking-wider font-mono flex items-center gap-2">
+                            <span>Device Specifications & Hardware Info</span>
+                        </h3>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 font-mono text-xs">
+                            <div class="bg-black border border-border p-3.5 rounded-xl space-y-1">
+                                <div class="text-[10px] text-gray-500 uppercase font-bold">Device Model</div>
+                                <div class="text-xs font-bold text-white" x-text="stats.model || 'Unknown'"></div>
+                            </div>
+                            <div class="bg-black border border-border p-3.5 rounded-xl space-y-1">
+                                <div class="text-[10px] text-gray-500 uppercase font-bold">OS Version & API</div>
+                                <div class="text-xs font-bold text-white" x-text="'Android ' + (stats.android_ver || 'N/A') + ' (API ' + (stats.sdk_ver || 'N/A') + ')'"></div>
+                            </div>
+                            <div class="bg-black border border-border p-3.5 rounded-xl space-y-1">
+                                <div class="text-[10px] text-gray-500 uppercase font-bold">SELinux Status</div>
+                                <div class="text-xs font-bold text-white" x-text="stats.selinux || 'Unknown'"></div>
+                            </div>
+                            <div class="bg-black border border-border p-3.5 rounded-xl space-y-1">
+                                <div class="text-[10px] text-gray-500 uppercase font-bold">Security Patch</div>
+                                <div class="text-xs font-bold text-white" x-text="stats.security_patch || 'N/A'"></div>
+                            </div>
+                            <div class="bg-black border border-border p-3.5 rounded-xl space-y-1">
+                                <div class="text-[10px] text-gray-500 uppercase font-bold">Screen Resolution</div>
+                                <div class="text-xs font-bold text-white" x-text="stats.resolution || 'Unknown'"></div>
+                            </div>
+                            <div class="bg-black border border-border p-3.5 rounded-xl space-y-1">
+                                <div class="text-[10px] text-gray-500 uppercase font-bold">Density (DPI)</div>
+                                <div class="text-xs font-bold text-white" x-text="stats.density || 'Unknown'"></div>
+                            </div>
+                            <div class="bg-black border border-border p-3.5 rounded-xl space-y-1">
+                                <div class="text-[10px] text-gray-500 uppercase font-bold">WLAN MTU (wlan0)</div>
+                                <div class="text-xs font-bold text-white" x-text="stats.mtu || '1500 (Default)'"></div>
+                            </div>
+                            <div class="bg-black border border-border p-3.5 rounded-xl space-y-1">
+                                <div class="text-[10px] text-gray-500 uppercase font-bold">Default TTL</div>
+                                <div class="text-xs font-bold text-white" x-text="stats.default_ttl || '64'"></div>
+                            </div>
+                            <div class="bg-black border border-border p-3.5 rounded-xl space-y-1 sm:col-span-2">
+                                <div class="text-[10px] text-gray-500 uppercase font-bold">Server Hostname & Time</div>
+                                <div class="text-xs font-bold text-white" x-text="stats.hostname + ' / ' + stats.server_time"></div>
+                            </div>
+                            <div class="bg-black border border-border p-3.5 rounded-xl space-y-1 sm:col-span-2">
+                                <div class="text-[10px] text-gray-500 uppercase font-bold">Linux Kernel String</div>
+                                <div class="text-xs font-semibold text-white font-mono break-all" x-text="stats.kernel || 'Unknown'"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right: Real-time network throughput live SVG graph -->
+                    <div class="bg-card border border-border rounded-2xl p-6 space-y-5">
+                        <div>
+                            <h3 class="text-sm font-bold text-white uppercase tracking-wider font-mono flex items-center gap-2">
+                                <span>Throughput monitor</span>
+                                <span class="text-[10px] bg-blue-500/10 text-blue-500 rounded px-2 py-0.5 font-bold font-mono tracking-wider">LIVE</span>
+                            </h3>
+                            <p class="text-xs text-gray-400 font-mono">Real-time network traffic bandwidth rate (Rx/Tx)</p>
+                        </div>
+
+                        <!-- Graph Canvas replacement with lightweight inline dynamic SVG -->
+                        <div class="bg-black border border-border rounded-xl p-3 flex flex-col justify-between h-48 relative overflow-hidden">
+                            <div class="absolute inset-0 flex flex-col justify-between p-2 pointer-events-none text-[8px] font-mono text-gray-600 bg-[radial-gradient(#ffffff0a_1px,transparent_1px)] [background-size:16px_16px]">
+                                <span>MAX FLOW RATE</span>
+                                <div class="border-b border-border/20 w-full my-auto"></div>
+                                <span>0 KB/s</span>
+                            </div>
+
+                            <!-- SVG Chart Path -->
+                            <div class="flex-1 w-full relative">
+                                <svg class="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none" aria-label="Real-time Network Throughput Chart">
+                                    <title>Throughput Chart</title>
+                                    <!-- Rx Path (Blue) -->
+                                    <path
+                                        :d="throughputHistory.length > 1 ? 'M ' + throughputHistory.map((pt, idx) => {
+                                            const x = (idx / (throughputHistory.length - 1)) * 100;
+                                            const maxLimit = Math.max(...throughputHistory.map(p => Math.max(p.rx, p.tx, 1024)));
+                                            const y = 100 - ((pt.rx / maxLimit) * 85);
+                                            return x + ' ' + y;
+                                        }).join(' L ') : 'M 0 100'"
+                                        fill="none" stroke="var(--neo-accent)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"
+                                    />
+                                    <!-- Tx Path (Purple/Red) -->
+                                    <path
+                                        :d="throughputHistory.length > 1 ? 'M ' + throughputHistory.map((pt, idx) => {
+                                            const x = (idx / (throughputHistory.length - 1)) * 100;
+                                            const maxLimit = Math.max(...throughputHistory.map(p => Math.max(p.rx, p.tx, 1024)));
+                                            const y = 100 - ((pt.tx / maxLimit) * 85);
+                                            return x + ' ' + y;
+                                        }).join(' L ') : 'M 0 100'"
+                                        fill="none" stroke="#ef4444" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"
+                                    />
+                                </svg>
+                            </div>
+
+                            <!-- Dynamic Legends -->
+                            <div class="flex items-center justify-between text-[10px] font-mono border-t border-border/40 pt-2 z-10">
+                                <div class="flex items-center space-x-1.5">
+                                    <span class="w-2 h-2 rounded bg-[#5c3bf5] inline-block shadow"></span>
+                                    <span class="text-white">Rx: <span class="font-bold font-mono text-[#5c3bf5]" x-text="formatBytes(netSpeedRx) + '/s'"></span></span>
+                                </div>
+                                <div class="flex items-center space-x-1.5">
+                                    <span class="w-2 h-2 rounded bg-red-500 inline-block shadow"></span>
+                                    <span class="text-white">Tx: <span class="font-bold font-mono text-red-500" x-text="formatBytes(netSpeedTx) + '/s'"></span></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- System Load metrics visual tag -->
+                        <div class="bg-black border border-border rounded-xl p-3.5 font-mono text-xs space-y-2">
+                            <div class="text-[10px] text-gray-500 uppercase font-bold flex justify-between">
+                                <span>Root Processor Load</span>
+                                <span class="text-cyan-400" x-text="'1m: ' + (stats.load_avg?.load1?.toFixed(2) || '0.00')"></span>
+                            </div>
+                            <div class="w-full bg-card rounded-full h-1.5 overflow-hidden">
+                                <div class="bg-cyan-400 h-1.5 rounded-full" :style="'width: ' + Math.min((stats.cpu_usage || 0), 100) + '%'"></div>
+                            </div>
+                            <div class="text-[9px] text-gray-400 leading-tight">
+                                Auto-scalable vector telemetry analyzer
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </template>
+{{end}}

@@ -1,0 +1,37 @@
+{{define "sidebar.html"}}
+    <!-- Navigation Tabs (Desktop) -->
+    <template x-if="authenticated">
+        <nav class="hidden md:flex items-center space-x-1 bg-black p-1 rounded-xl border border-border">
+            <button type="button" @click="activeTab = 'overview'" :class="activeTab === 'overview' ? 'bg-blue-600 text-white shadow-md' : 'text-gray-400 hover:text-white'" class="px-3.5 py-1.5 rounded-lg text-xs font-semibold transition">
+                Overview
+            </button>
+            <button type="button" @click="activeTab = 'network'" :class="activeTab === 'network' ? 'bg-blue-600 text-white shadow-md' : 'text-gray-400 hover:text-white'" class="px-3.5 py-1.5 rounded-lg text-xs font-semibold transition">
+                Network & Tweaks
+            </button>
+            <button type="button" @click="activeTab = 'proxy'" :class="activeTab === 'proxy' ? 'bg-blue-600 text-white shadow-md' : 'text-gray-400 hover:text-white'" class="px-3.5 py-1.5 rounded-lg text-xs font-semibold transition">
+                Proxy Core
+            </button>
+            <button type="button" @click="activeTab = 'files'; fetchFileList(currentPath)" :class="activeTab === 'files' ? 'bg-blue-600 text-white shadow-md' : 'text-gray-400 hover:text-white'" class="px-3.5 py-1.5 rounded-lg text-xs font-semibold transition">
+                File Manager
+            </button>
+            <button type="button" @click="activeTab = 'terminal'; initTerminal()" :class="activeTab === 'terminal' ? 'bg-blue-600 text-white shadow-md' : 'text-gray-400 hover:text-white'" class="px-3.5 py-1.5 rounded-lg text-xs font-semibold transition">
+                Web Terminal
+            </button>
+            <button type="button" @click="activeTab = 'tools'" :class="activeTab === 'tools' ? 'bg-blue-600 text-white shadow-md' : 'text-gray-400 hover:text-white'" class="px-3.5 py-1.5 rounded-lg text-xs font-semibold transition">
+                System Tools
+            </button>
+            <button type="button" @click="activeTab = 'sms'; fetchSMS()" :class="activeTab === 'sms' ? 'bg-blue-600 text-white shadow-md' : 'text-gray-400 hover:text-white'" class="px-3.5 py-1.5 rounded-lg text-xs font-semibold transition">
+                SMS Viewer
+            </button>
+            <button type="button" @click="activeTab = 'scrcpy'" :class="activeTab === 'scrcpy' ? 'bg-blue-600 text-white shadow-md' : 'text-gray-400 hover:text-white'" class="px-3.5 py-1.5 rounded-lg text-xs font-semibold transition">
+                Remote Screen
+            </button>
+            <button type="button" @click="activeTab = 'sysinfo'" :class="activeTab === 'sysinfo' ? 'bg-blue-600 text-white shadow-md' : 'text-gray-400 hover:text-white'" class="px-3.5 py-1.5 rounded-lg text-xs font-semibold transition">
+                System Info
+            </button>
+            <button type="button" @click="activeTab = 'about'" :class="activeTab === 'about' ? 'bg-blue-600 text-white shadow-md' : 'text-gray-400 hover:text-white'" class="px-3.5 py-1.5 rounded-lg text-xs font-semibold transition">
+                About
+            </button>
+        </nav>
+    </template>
+{{end}}
