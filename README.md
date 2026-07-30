@@ -69,6 +69,21 @@ High-performance, ultra-lightweight, 100% offline-ready Android System Control P
 
 ---
 
+## ⚖️ Architecture & Performance Comparison
+
+This section provides an objective comparison between traditional multi-process PHP web server environments commonly run on Android devices (e.g., using Lighttpd or Nginx with PHP-FPM) and the BFR-WEBUI-GO single-binary architecture.
+
+| Feature / Metric | Traditional PHP Web Server Stack | BFR-WEBUI-GO PRO (Go Native Stack) |
+| :--- | :--- | :--- |
+| **Runtime Dependencies** | Requires Lighttpd/Nginx + PHP-FPM binaries, config files, and system libraries | Single Standalone Binary (~10MB) with embedded assets |
+| **RAM Memory Footprint** | ~40MB - 100MB+ (varies depending on web server worker pooling) | ~12MB ultra-low RAM usage (highly optimized Go runtime) |
+| **Process Lifecycle** | Multi-process supervisor daemons (web server master/workers + PHP process manager) | 1 Single Daemon Process handling logic, assets, and system interaction |
+| **Update Flow** | Typically requires phone reboot or complex webserver service restarts to refresh | Instant Restartless Update (upgrades apply seamlessly without rebooting) |
+| **UI/UX & Interactivity** | Traditional web forms (often requires full page reloads or custom ajax scripts) | Reactive Neobrutalist UI with Toast notifications, live graphs, and custom modals |
+| **Best Use Case** | Select if you require live, on-device editing of scripts/source code directly in a web directory | Select if you prioritize extreme battery efficiency, low RAM usage, instant response, and courier-grade single-binary reliability |
+
+---
+
 ## 📦 Installation
 
 1. Compile the tool or download the release archive `BFR-WEBUI-Magisk-v0.1.0.zip`.
