@@ -8,6 +8,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"regexp"
 	"strconv"
 	"strings"
 	"sync"
@@ -799,6 +800,8 @@ func buildNetworkDetail() NetworkDetail {
 	// 1. IP Addresses (cheap — no subprocess)
 	ifaces, err := net.Interfaces()
 	if err == nil {
+		var wlanIPs []string
+		var otherIPs []string
 		for _, i := range ifaces {
 			if i.Flags&net.FlagLoopback != 0 {
 				continue
@@ -808,20 +811,35 @@ func buildNetworkDetail() NetworkDetail {
 				for _, addr := range addrs {
 					ip := addr.String()
 					if !strings.Contains(ip, ":") { // simple IPv4 filter
-						nd.IPAddresses = append(nd.IPAddresses, strings.Split(ip, "/")[0])
+						cleanIP := strings.Split(ip, "/")[0]
+						if strings.Contains(strings.ToLower(i.Name), "wlan") {
+							wlanIPs = append(wlanIPs, cleanIP)
+						} else {
+							otherIPs = append(otherIPs, cleanIP)
+						}
 					}
 				}
 			}
 		}
+		nd.IPAddresses = append(nd.IPAddresses, wlanIPs...)
+		nd.IPAddresses = append(nd.IPAddresses, otherIPs...)
 	}
 
 	// 2. Gateway
-	if out := runCmdTimeout(cmdTimeout, "ip", "route", "show", "default"); out != "" {
-		parts := strings.Fields(out)
-		for i, p := range parts {
-			if p == "via" && i+1 < len(parts) {
-				nd.Gateway = parts[i+1]
-				break
+	if out := runCmdTimeout(cmdTimeout, "ip", "route"); out != "" {
+		for _, line := range strings.Split(out, "\n") {
+			line = strings.TrimSpace(line)
+			if strings.HasPrefix(line, "default via ") || strings.Contains(line, "default via ") {
+				parts := strings.Fields(line)
+				for i, p := range parts {
+					if p == "via" && i+1 < len(parts) {
+						nd.Gateway = parts[i+1]
+						break
+					}
+				}
+				if nd.Gateway != "" {
+					break
+				}
 			}
 		}
 	}
@@ -839,22 +857,21 @@ func buildNetworkDetail() NetworkDetail {
 	}
 	if len(nd.DNS) == 0 {
 		out := runCmdTimeout(cmdTimeout, "getprop")
-		for _, ln := range strings.Split(out, "\n") {
-			if strings.Contains(ln, "dns") && strings.Contains(ln, "]: [") {
-				parts := strings.Split(ln, "]: [")
-				if len(parts) == 2 {
-					val := strings.TrimRight(parts[1], "]")
-					if net.ParseIP(val) != nil {
-						found := false
-						for _, d := range nd.DNS {
-							if d == val {
-								found = true
-								break
-							}
+		reDNS := regexp.MustCompile(`(?i)\[.*dns.*\]:\s*\[([0-9\.]+)\]`)
+		matches := reDNS.FindAllStringSubmatch(out, -1)
+		for _, match := range matches {
+			if len(match) > 1 {
+				val := match[1]
+				if net.ParseIP(val) != nil {
+					found := false
+					for _, d := range nd.DNS {
+						if d == val {
+							found = true
+							break
 						}
-						if !found {
-							nd.DNS = append(nd.DNS, val)
-						}
+					}
+					if !found {
+						nd.DNS = append(nd.DNS, val)
 					}
 				}
 			}
@@ -864,25 +881,27 @@ func buildNetworkDetail() NetworkDetail {
 	// 4. WiFi SSID / RSSI
 	wifiStr := runCmdTimeout(cmdTimeout, "cmd", "wifi", "status")
 	nd.WiFiFullInfo = wifiStr
-	if strings.Contains(wifiStr, "SSID: ") {
-		ssidParts := strings.Split(wifiStr, "SSID: ")
-		if len(ssidParts) > 1 {
-			rawSSID := strings.Trim(strings.TrimSpace(strings.Split(ssidParts[1], "\n")[0]), "\" ")
-			nd.WiFiSSID = rawSSID
+
+	reSSID := regexp.MustCompile(`(?i)SSID:\s*"([^"]+)"|SSID:\s*([^\s,]+)`)
+	ssidMatch := reSSID.FindStringSubmatch(wifiStr)
+	if len(ssidMatch) > 1 {
+		if ssidMatch[1] != "" {
+			nd.WiFiSSID = ssidMatch[1]
+		} else if len(ssidMatch) > 2 && ssidMatch[2] != "" {
+			nd.WiFiSSID = ssidMatch[2]
 		}
 	}
+
 	var rssiVal int
 	if strings.Contains(wifiStr, "RSSI: ") {
 		rssiParts := strings.Split(wifiStr, "RSSI: ")
 		if len(rssiParts) > 1 {
-			rssiEnd := strings.Split(rssiParts[1], "\n")[0]
-			// e.g. -34
-			valStr := strings.TrimSpace(rssiEnd)
-			if r, err := strconv.Atoi(valStr); err == nil {
+			rssiEnd := strings.Trim(strings.Split(rssiParts[1], "\n")[0], " ,")
+			if r, err := strconv.Atoi(rssiEnd); err == nil {
 				rssiVal = r
 			}
 			nd.WiFiRSSI = rssiVal
-			nd.WiFiSignalDBM = valStr
+			nd.WiFiSignalDBM = rssiEnd
 			nd.WiFiSignal = nd.WiFiSignalDBM + " dBm"
 		}
 	}
@@ -890,9 +909,9 @@ func buildNetworkDetail() NetworkDetail {
 	if strings.Contains(wifiStr, "Link speed: ") {
 		speedParts := strings.Split(wifiStr, "Link speed: ")
 		if len(speedParts) > 1 {
-			speedEnd := strings.Split(speedParts[1], "\n")[0] // e.g. 866Mbps
+			speedEnd := strings.Trim(strings.Split(speedParts[1], "\n")[0], " ,")
 			if nd.WiFiSignal != "—" {
-				nd.WiFiSignal += " / " + strings.TrimSpace(speedEnd)
+				nd.WiFiSignal += " / " + speedEnd
 			}
 		}
 	}
