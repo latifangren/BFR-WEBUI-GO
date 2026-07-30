@@ -4,7 +4,7 @@
         <div class="bg-card border border-border rounded-2xl p-6 max-w-4xl w-full space-y-4 shadow-2xl">
             <div class="flex items-center justify-between border-b border-border pb-3">
                 <h3 class="text-sm font-bold text-white font-mono">File Editor: <span x-text="editingFilePath"></span></h3>
-                <button type="button" @click="showEditorModal = false" class="text-gray-400 hover:text-white">âœ•</button>
+                <button type="button" @click="showEditorModal = false" class="text-gray-400 hover:text-white">Ã¢Åâ¢</button>
             </div>
             <textarea x-model="editorContent" class="w-full h-96 bg-black border border-border rounded-xl p-4 text-xs font-mono text-gray-200 focus:outline-none focus:border-blue-500 custom-scrollbar"></textarea>
             <div class="flex justify-end space-x-3">
@@ -86,36 +86,35 @@
         </div>
     </div>
 
-    <!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
+    <!-- Ã¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢Â -->
     <!--  NETWORK DETAIL MODAL                                -->
-    <!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
+    <!-- Ã¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢ÂÃ¢â¢Â -->
     <div x-show="showNetworkModal" x-cloak class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 font-mono animate-fade-in" @keydown.escape.window="showNetworkModal = false">
         <div @click.outside="showNetworkModal = false" class="bg-card border-2 border-border rounded-2xl p-6 max-w-2xl w-full space-y-5 shadow-[6px_6px_0px_0px_var(--neo-shadow)] max-h-[85vh] overflow-y-auto custom-scrollbar">
             <!-- Header -->
             <div class="flex items-center justify-between border-b-2 border-border pb-4">
                 <div class="flex items-center gap-3">
                     <div class="w-10 h-10 rounded-xl bg-cyan-500/10 border-2 border-cyan-500/30 flex items-center justify-center text-cyan-400 text-lg">
-                        ðŸ“¶
-                    </div>
+                        📶</div>
                     <div>
                         <h3 class="text-sm font-bold text-white uppercase tracking-wider">Network Detail</h3>
                         <p class="text-[10px] text-gray-400 mt-0.5">Full Network Information</p>
                     </div>
                 </div>
-                <button type="button" @click="showNetworkModal = false" class="w-8 h-8 rounded-lg bg-black border border-border flex items-center justify-center text-gray-400 hover:text-white hover:border-red-500/40 transition-all text-xs font-bold">âœ•</button>
+                <button type="button" @click="showNetworkModal = false" class="w-8 h-8 rounded-lg bg-black border border-border flex items-center justify-center text-gray-400 hover:text-white hover:border-red-500/40 transition-all text-xs font-bold">Ã¢Åâ¢</button>
             </div>
 
             <!-- Connection Summary Strip -->
             <div class="flex flex-wrap gap-2 text-[10px] font-bold uppercase tracking-wider">
                 <span class="px-2.5 py-1 rounded-md border"
                       :class="(stats.network_detail?.wifi_ssid ? 'bg-cyan-500/10 text-cyan-400 border-cyan-500/30' : 'bg-gray-500/10 text-gray-400 border-gray-500/30')"
-                      x-text="stats.network_detail?.wifi_ssid || 'Wiâ€‘Fi Off'"></span>
+                      x-text="stats.network_detail?.wifi_ssid || 'Wi-Fi Off'"></span>
                 <span class="px-2.5 py-1 rounded-md border"
                       :class="(stats.network_detail?.roaming && stats.network_detail.roaming !== 'No' && stats.network_detail.roaming !== 'Unknown' && stats.network_detail.roaming !== '' ? 'bg-amber-500/10 text-amber-400 border-amber-500/30' : 'bg-green-500/10 text-green-400 border-green-500/30')"
-                      x-text="(stats.network_detail?.roaming && stats.network_detail.roaming !== 'No' && stats.network_detail.roaming !== 'Unknown' && stats.network_detail.roaming !== '') ? 'ðŸ”— Roaming Active' : 'ðŸ  Home'"></span>
+                      x-text="(stats.network_detail?.roaming && stats.network_detail.roaming !== 'No' && stats.network_detail.roaming !== 'Unknown' && stats.network_detail.roaming !== '') ? 'Ã°Å¸ââ Roaming Active' : 'Ã°Å¸ÂÂ  Home'"></span>
                 <template x-if="stats.network_detail?.hotspot_clients > 0">
                     <span class="px-2.5 py-1 rounded-md bg-purple-500/10 text-purple-400 border border-purple-500/30"
-                          x-text="'ðŸ”— ' + stats.network_detail.hotspot_clients + ' Client(s)'"></span>
+                          x-text="'Ã°Å¸ââ ' + stats.network_detail.hotspot_clients + ' Client(s)'"></span>
                 </template>
             </div>
 
@@ -124,7 +123,7 @@
                 <!-- IP Address -->
                 <div class="bg-flat rounded-xl p-3.5 border border-border/60 space-y-1.5">
                     <div class="flex items-center gap-2">
-                        <div class="w-6 h-6 rounded-md bg-cyan-500/15 border border-cyan-500/25 flex items-center justify-center text-cyan-400 text-[10px]">ðŸŒ</div>
+                        <div class="w-6 h-6 rounded-md bg-cyan-500/15 border border-cyan-500/25 flex items-center justify-center text-cyan-400 text-[10px]">🌐</div>
                         <span class="text-gray-400 font-bold uppercase tracking-wider text-[10px]">IP Address</span>
                     </div>
                     <div class="text-white font-extrabold pl-8 text-[11px] break-words leading-tight" x-text="formatNetworkList(stats.network_detail?.ip_addresses)"></div>
@@ -133,252 +132,61 @@
                 <!-- Gateway -->
                 <div class="bg-flat rounded-xl p-3.5 border border-border/60 space-y-1.5">
                     <div class="flex items-center gap-2">
-                        <div class="w-6 h-6 rounded-md bg-blue-500/15 border border-blue-500/25 flex items-center justify-center text-blue-400 text-[10px]">ðŸ”—</div>
+                        <div class="w-6 h-6 rounded-md bg-blue-500/15 border border-blue-500/25 flex items-center justify-center text-blue-400 text-[10px]">🔗</div>
                         <span class="text-gray-400 font-bold uppercase tracking-wider text-[10px]">Gateway</span>
                     </div>
-                    <div class="text-white font-extrabold pl-8 text-[11px] break-words leading-tight" x-text="stats.network_detail?.gateway || 'â€”'"></div>
+                    <div class="text-white font-extrabold pl-8 text-[11px] break-words leading-tight" x-text="stats.network_detail?.gateway || 'Ã¢â¬â'"></div>
                 </div>
 
                 <!-- DNS Servers -->
                 <div class="bg-flat rounded-xl p-3.5 border border-border/60 space-y-1.5 col-span-1 sm:col-span-2">
                     <div class="flex items-center gap-2">
-                        <div class="w-6 h-6 rounded-md bg-violet-500/15 border border-violet-500/25 flex items-center justify-center text-violet-400 text-[10px]">ðŸ“¡</div>
+                        <div class="w-6 h-6 rounded-md bg-violet-500/15 border border-violet-500/25 flex items-center justify-center text-violet-400 text-[10px]">📡</div>
                         <span class="text-gray-400 font-bold uppercase tracking-wider text-[10px]">DNS Server</span>
                     </div>
                     <div class="flex flex-col gap-1 pl-8">
-                        <div class="text-white font-extrabold text-[11px] break-words leading-tight" x-text="stats.network_detail?.dns1 ? 'DNS1: ' + stats.network_detail.dns1 : 'â€”'"></div>
+                        <div class="text-white font-extrabold text-[11px] break-words leading-tight" x-text="stats.network_detail?.dns1 ? 'DNS1: ' + stats.network_detail.dns1 : 'Ã¢â¬â'"></div>
                         <div class="text-white font-extrabold text-[11px] break-words leading-tight" x-text="stats.network_detail?.dns2 ? 'DNS2: ' + stats.network_detail.dns2 : ''"></div>
                     </div>
                 </div>
 
-                <!-- Wiâ€‘Fi SSID -->
+                <!-- Wi-Fi SSID -->
                 <div class="bg-flat rounded-xl p-3.5 border border-border/60 space-y-1.5">
                     <div class="flex items-center gap-2">
-                        <div class="w-6 h-6 rounded-md bg-emerald-500/15 border border-emerald-500/25 flex items-center justify-center text-emerald-400 text-[10px]">ðŸ“¡</div>
-                        <span class="text-gray-400 font-bold uppercase tracking-wider text-[10px]">Wiâ€‘Fi SSID</span>
+                        <div class="w-6 h-6 rounded-md bg-emerald-500/15 border border-emerald-500/25 flex items-center justify-center text-emerald-400 text-[10px]">📡</div>
+                        <span class="text-gray-400 font-bold uppercase tracking-wider text-[10px]">Wi-Fi SSID</span>
                     </div>
-                    <div class="text-white font-extrabold pl-8 text-[11px] break-words" x-text="stats.network_detail?.wifi_ssid || 'â€”'"></div>
+                    <div class="text-white font-extrabold pl-8 text-[11px] break-words" x-text="stats.network_detail?.wifi_ssid || 'Ã¢â¬â'"></div>
                 </div>
 
-                <!-- Wiâ€‘Fi Signal -->
-                <div class="bg-flat rounded-xl p-3.5 border border-border/60 space-y-1.5" x-data="{ showWifiDetail: false }">
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-center gap-2">
-                            <div class="w-6 h-6 rounded-md bg-teal-500/15 border border-teal-500/25 flex items-center justify-center text-teal-400 text-[10px]">ðŸ“¶</div>
-                            <span class="text-gray-400 font-bold uppercase tracking-wider text-[10px]">Wiâ€‘Fi Signal</span>
+                <!-- Wi-Fi Signal -->
+                <div class="bg-flat rounded-xl p-3.5 border border-border/60 space-y-1.5" x-data="{ showWi-Fi Signal</span>
                         </div>
-                        <button type="button" x-show="stats.network_detail?.wifi_full_info" @click="showWifiDetail = !showWifiDetail" class="text-[10px] bg-black/40 border border-border px-1.5 py-0.5 rounded text-gray-400 hover:text-white" x-text="showWifiDetail ? 'Hide' : 'Details'"></button>
-                    </div>
-                    <div class="text-white font-extrabold pl-8 text-[11px]" x-text="stats.network_detail?.wifi_signal || 'â€”'"></div>
-                    <div x-show="showWifiDetail" class="pl-8 pt-2 overflow-x-auto">
-                        <div class="bg-black border border-border rounded-lg p-2 text-[9px] text-gray-400 whitespace-pre-wrap break-words font-mono uppercase" x-text="stats.network_detail?.wifi_full_info"></div>
-                    </div>
-                </div>
-
-                <!-- SIM MCC/MNC -->
-                <div class="bg-flat rounded-xl p-3.5 border border-border/60 space-y-1.5">
-                    <div class="flex items-center gap-2">
-                        <div class="w-6 h-6 rounded-md bg-orange-500/15 border border-orange-500/25 flex items-center justify-center text-orange-400 text-[10px]">ðŸ”²</div>
-                        <span class="text-gray-400 font-bold uppercase tracking-wider text-[10px]">SIM MCC/MNC</span>
-                    </div>
-                    <div class="text-white font-extrabold pl-8 text-[11px]" x-text="formatNetworkList(stats.network_detail?.mcc_mnc)"></div>
-                </div>
-
-                <!-- Roaming Status -->
-                <div class="bg-flat rounded-xl p-3.5 border border-border/60 space-y-1.5">
-                    <div class="flex items-center gap-2">
-                        <div class="w-6 h-6 rounded-md bg-amber-500/15 border border-amber-500/25 flex items-center justify-center text-amber-400 text-[10px]">âœˆï¸</div>
-                        <span class="text-gray-400 font-bold uppercase tracking-wider text-[10px]">Roaming</span>
-                    </div>
-                    <div class="text-white font-extrabold pl-8 text-[11px]" x-text="stats.network_detail?.roaming || 'â€”'"></div>
-                </div>
-
-                <!-- Hotspot Clients -->
-                <div class="bg-flat rounded-xl p-3.5 border border-border/60 space-y-1.5">
-                    <div class="flex items-center gap-2">
-                        <div class="w-6 h-6 rounded-md bg-fuchsia-500/15 border border-fuchsia-500/25 flex items-center justify-center text-fuchsia-400 text-[10px]">ðŸ‘¥</div>
-                        <span class="text-gray-400 font-bold uppercase tracking-wider text-[10px]">Hotspot Clients</span>
-                    </div>
-                    <div class="text-white font-extrabold pl-8 text-[11px]" x-text="stats.network_detail?.hotspot_clients !== undefined ? stats.network_detail.hotspot_clients : 'â€”'"></div>
-                </div>
-            </div>
-
-            <!-- SIM Slot Section -->
-            <template x-if="stats.network_detail?.sim_slots && stats.network_detail.sim_slots.length > 0">
-                <div class="space-y-3">
-                    <div class="border-b-2 border-border pb-2">
-                        <h4 class="text-[11px] font-bold text-white uppercase tracking-wider">SIM Slots</h4>
-                    </div>
-                    <template x-for="(slot, idx) in stats.network_detail.sim_slots" :key="idx">
-                        <div class="bg-flat rounded-xl p-4 border border-border/60 space-y-3">
-                            <!-- SIM Slot Header -->
-                            <div class="flex items-center gap-2 mb-2">
-                                <div class="w-6 h-6 rounded-md flex items-center justify-center text-[10px] font-extrabold border"
-                                     :class="(slot.slot === 1 || slot.slot == '1') ? 'bg-blue-500/15 border-blue-500/25 text-blue-400' : 'bg-amber-500/15 border-amber-500/25 text-amber-400'"
-                                     x-text="'S' + (slot.slot || (idx + 1))"></div>
-                                <span class="text-xs font-bold text-gray-300 uppercase tracking-wider" x-text="'SIM Slot ' + (slot.slot || (idx + 1))"></span>
-                            </div>
-
-                            <!-- SIM Detail Grid -->
-                            <div class="grid grid-cols-2 sm:grid-cols-3 gap-2 text-[10px]">
-                                <div class="space-y-0.5">
-                                    <span class="text-gray-500 font-bold uppercase tracking-wider">Operator</span>
-                                    <div class="text-white font-extrabold text-[11px] leading-tight" x-text="slot.operator || 'â€”'"></div>
-                                </div>
-                                <div class="space-y-0.5">
-                                    <span class="text-gray-500 font-bold uppercase tracking-wider">Network</span>
-                                    <div class="text-white font-extrabold text-[11px] leading-tight" x-text="slot.network_type || 'â€”'"></div>
-                                </div>
-                                <div class="space-y-0.5">
-                                    <span class="text-gray-500 font-bold uppercase tracking-wider">Signal</span>
-                                    <div class="text-white font-extrabold text-[11px] leading-tight" x-text="slot.signal_status || 'â€”'"></div>
-                                </div>
-                                <!-- RSRP (SIM 2) -->
-                                <template x-if="slot.rsrp && slot.rsrp !== 'â€”'">
-                                    <div class="space-y-0.5">
-                                        <span class="text-gray-500 font-bold uppercase tracking-wider">LTE RSRP</span>
-                                        <div class="text-cyan-400 font-extrabold text-[11px] leading-tight" x-text="slot.rsrp + ' dBm'"></div>
-                                    </div>
-                                </template>
-                                <!-- RSRQ (SIM 2) -->
-                                <template x-if="slot.rsrq && slot.rsrq !== 'â€”'">
-                                    <div class="space-y-0.5">
-                                        <span class="text-gray-500 font-bold uppercase tracking-wider">LTE RSRQ</span>
-                                        <div class="text-cyan-400 font-extrabold text-[11px] leading-tight" x-text="slot.rsrq + ' dB'"></div>
-                                    </div>
-                                </template>
-                                <!-- SINR (SIM 2) -->
-                                <template x-if="slot.sinr && slot.sinr !== 'â€”'">
-                                    <div class="space-y-0.5">
-                                        <span class="text-gray-500 font-bold uppercase tracking-wider">LTE SINR</span>
-                                        <div class="text-cyan-400 font-extrabold text-[11px] leading-tight" x-text="slot.sinr + ' dB'"></div>
-                                    </div>
-                                </template>
-                                <!-- Signal Score -->
-                                <template x-if="slot.signal_score !== undefined && slot.signal_score !== null">
-                                    <div class="space-y-0.5 col-span-2 sm:col-span-3">
-                                        <span class="text-gray-500 font-bold uppercase tracking-wider">Signal Quality</span>
-                                        <div class="flex items-center gap-2">
-                                            <div class="text-white font-extrabold text-[12px] leading-tight" x-text="signalQualityBars(slot.signal_score)"></div>
-                                            <span class="text-[10px] text-gray-400" x-text="slot.signal_quality"></span>
-                                        </div>
-                                    </div>
-                                </template>
-                            </div>
-                        </div>
-                    </template>
-                </div>
-            </template>
-
-            <!-- Close Button -->
-            <button type="button" @click="showNetworkModal = false" class="w-full bg-black hover:bg-gray-900 border-2 border-border py-2.5 rounded-xl text-xs font-bold text-gray-300 hover:text-white transition-all uppercase tracking-wider">
-                Tutup â€” Close
-            </button>
-        </div>
-    </div>
-
-    <!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
-    <!--  BATTERY DETAIL MODAL                                 -->
-    <!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
-    <!-- Battery Detail Modal -->
-    <div x-show="showBatteryModal" x-cloak class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 font-mono animate-fade-in">
-        <div @click.outside="showBatteryModal = false" class="bg-card border-2 border-border rounded-2xl p-6 max-w-lg w-full space-y-5 shadow-[6px_6px_0px_0px_var(--neo-shadow)]">
-            <!-- Header -->
-            <div class="flex items-center justify-between border-b-2 border-border pb-4">
-                <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 rounded-xl bg-yellow-500/10 border-2 border-yellow-500/30 flex items-center justify-center text-yellow-400 text-lg">
-                        ðŸ”‹
-                    </div>
-                    <div>
-                        <h3 class="text-sm font-bold text-white uppercase tracking-wider">Detail Informasi Daya</h3>
-                        <p class="text-[10px] text-gray-400 mt-0.5">Power Info Detail</p>
-                    </div>
-                </div>
-                <button type="button" @click="showBatteryModal = false" class="w-8 h-8 rounded-lg bg-black border border-border flex items-center justify-center text-gray-400 hover:text-white hover:border-red-500/40 transition-all text-xs font-bold">âœ•</button>
-            </div>
-
-            <!-- Battery Level Bar -->
-            <div class="space-y-2">
-                <div class="flex items-baseline justify-between">
-                    <span class="text-4xl font-extrabold text-white" x-text="stats.battery_level >= 0 ? stats.battery_level + '%' : 'N/A'"></span>
-                    <span class="text-xs text-green-400 font-bold" x-text="stats.battery_detail ? stats.battery_detail.status : 'â€”'"></span>
-                </div>
-                <div class="w-full bg-flat rounded-full h-3 overflow-hidden border border-border/50">
-                    <div class="h-3 rounded-full transition-all duration-700"
-                         :class="(stats.battery_level || 0) > 20 ? 'bg-green-500' : 'bg-red-500'"
-                         :style="'width: ' + (stats.battery_level || 0) + '%'"></div>
-                </div>
-            </div>
-
-            <!-- Detail Grid -->
-            <div class="grid grid-cols-2 gap-3 text-xs">
-                <!-- Power Source -->
-                <div class="bg-flat rounded-xl p-3.5 border border-border/60 space-y-1.5">
-                    <div class="flex items-center gap-2">
-                        <div class="w-6 h-6 rounded-md bg-yellow-500/15 border border-yellow-500/25 flex items-center justify-center text-yellow-400 text-[10px]">âš¡</div>
-                        <span class="text-gray-400 font-bold uppercase tracking-wider text-[10px]">Power Source</span>
-                    </div>
-                    <div class="text-white font-extrabold pl-8" x-text="stats.battery_detail ? 'Battery' : 'â€”'"></div>
-                </div>
-
-                <!-- Power Level -->
-                <div class="bg-flat rounded-xl p-3.5 border border-border/60 space-y-1.5">
-                    <div class="flex items-center gap-2">
-                        <div class="w-6 h-6 rounded-md bg-cyan-500/15 border border-cyan-500/25 flex items-center justify-center text-cyan-400 text-[10px]">ðŸ“Š</div>
-                        <span class="text-gray-400 font-bold uppercase tracking-wider text-[10px]">Power Level</span>
-                    </div>
-                    <div class="text-white font-extrabold pl-8" x-text="stats.battery_level >= 0 ? stats.battery_level + '%' : 'â€”'"></div>
-                </div>
-
-                <!-- Battery Current -->
-                <div class="bg-flat rounded-xl p-3.5 border border-border/60 space-y-1.5">
-                    <div class="flex items-center gap-2">
-                        <div class="w-6 h-6 rounded-md bg-purple-500/15 border border-purple-500/25 flex items-center justify-center text-purple-400 text-[10px]">ðŸ”Œ</div>
-                        <span class="text-gray-400 font-bold uppercase tracking-wider text-[10px]">Battery Current</span>
-                    </div>
-                    <div class="text-white font-extrabold pl-8" x-text="formatBatteryCurrent(stats.battery_detail?.current_now)"></div>
-                </div>
-
-                <!-- Voltage -->
-                <div class="bg-flat rounded-xl p-3.5 border border-border/60 space-y-1.5">
-                    <div class="flex items-center gap-2">
-                        <div class="w-6 h-6 rounded-md bg-blue-500/15 border border-blue-500/25 flex items-center justify-center text-blue-400 text-[10px]">âš¡</div>
-                        <span class="text-gray-400 font-bold uppercase tracking-wider text-[10px]">Voltage</span>
-                    </div>
-                    <div class="text-white font-extrabold pl-8" x-text="formatBatteryVoltage(stats.battery_detail?.voltage_now)"></div>
-                </div>
-
-                <!-- Battery Temp -->
-                <div class="bg-flat rounded-xl p-3.5 border border-border/60 space-y-1.5">
-                    <div class="flex items-center gap-2">
-                        <div class="w-6 h-6 rounded-md bg-red-500/15 border border-red-500/25 flex items-center justify-center text-red-400 text-[10px]">ðŸŒ¡ï¸</div>
-                        <span class="text-gray-400 font-bold uppercase tracking-wider text-[10px]">Battery Temp</span>
-                    </div>
-                    <div class="text-white font-extrabold pl-8" x-text="stats.battery_temp ? stats.battery_temp.toFixed(1) + ' Â°C' : 'â€”'"></div>
+                        <button type="button" x-show="stats.network_detail?.wifi_full_info" @click="showWi-Fixed(1) + ' ÃÂ°C' : 'Ã¢â¬â'"></div>
                 </div>
 
                 <!-- Operational Status -->
                 <div class="bg-flat rounded-xl p-3.5 border border-border/60 space-y-1.5">
                     <div class="flex items-center gap-2">
-                        <div class="w-6 h-6 rounded-md bg-green-500/15 border border-green-500/25 flex items-center justify-center text-green-400 text-[10px]">ðŸ’š</div>
+                        <div class="w-6 h-6 rounded-md bg-green-500/15 border border-green-500/25 flex items-center justify-center text-green-400 text-[10px]">💚</div>
                         <span class="text-gray-400 font-bold uppercase tracking-wider text-[10px]">Operational Status</span>
                     </div>
-                    <div class="text-white font-extrabold pl-8 text-[11px]" x-text="stats.battery_detail ? (stats.battery_detail.status || 'â€”') : 'â€”'"></div>
+                    <div class="text-white font-extrabold pl-8 text-[11px]" x-text="stats.battery_detail ? (stats.battery_detail.status || 'Ã¢â¬â') : 'Ã¢â¬â'"></div>
                 </div>
 
                 <!-- Health & Technology -->
                 <div class="bg-flat rounded-xl p-3.5 border border-border/60 space-y-1.5 col-span-2 sm:col-span-1">
                     <div class="flex items-center gap-2">
-                        <div class="w-6 h-6 rounded-md bg-blue-500/15 border border-blue-500/25 flex items-center justify-center text-blue-400 text-[10px]">ðŸ›¡ï¸</div>
+                        <div class="w-6 h-6 rounded-md bg-blue-500/15 border border-blue-500/25 flex items-center justify-center text-blue-400 text-[10px]">🛡️</div>
                         <span class="text-gray-400 font-bold uppercase tracking-wider text-[10px]">Health &amp; Technology</span>
                     </div>
-                    <div class="text-white font-extrabold pl-8" x-text="stats.battery_detail ? stats.battery_detail.health + ' (' + stats.battery_detail.technology + ')' : 'â€”'"></div>
+                    <div class="text-white font-extrabold pl-8" x-text="stats.battery_detail ? stats.battery_detail.health + ' (' + stats.battery_detail.technology + ')' : 'Ã¢â¬â'"></div>
                 </div>
             </div>
 
             <!-- Close Button -->
             <button type="button" @click="showBatteryModal = false" class="w-full bg-black hover:bg-gray-900 border-2 border-border py-2.5 rounded-xl text-xs font-bold text-gray-300 hover:text-white transition-all uppercase tracking-wider">
-                Tutup â€” Close
+                Tutup Ã¢â¬â Close
             </button>
         </div>
     </div>
@@ -387,7 +195,7 @@
     <div x-show="confirmModal.show" x-cloak class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 font-mono animate-fade-in">
         <div class="bg-card border border-border rounded-2xl p-6 max-w-md w-full space-y-4 shadow-2xl">
             <div class="flex items-center space-x-2 text-amber-500">
-                <span class="text-lg">âš ï¸</span>
+                <span class="text-lg">⚠️</span>
                 <h3 class="text-sm font-bold text-white uppercase tracking-wider" x-text="confirmModal.title">Confirm Action</h3>
             </div>
             <p class="text-xs text-gray-300 leading-relaxed font-mono" x-text="confirmModal.message"></p>
@@ -406,7 +214,7 @@
                 <!-- Status icon/badge -->
                 <div class="flex items-center justify-center w-5 h-5 rounded-full font-bold select-none shrink-0"
                      :class="t.type === 'success' ? 'bg-green-500/10 text-green-500' : (t.type === 'error' ? 'bg-red-500/10 text-red-500' : 'bg-amber-500/10 text-amber-500')">
-                    <span x-text="t.type === 'success' ? 'âœ“' : (t.type === 'error' ? 'âœ•' : 'â„¹')"></span>
+                    <span x-text="t.type === 'success' ? 'Ã¢Åâ' : (t.type === 'error' ? 'Ã¢Åâ¢' : 'Ã¢âÂ¹')"></span>
                 </div>
                 <!-- Text payload -->
                 <div class="flex-1 min-w-0">
@@ -415,7 +223,7 @@
                 </div>
                 <!-- Close dismissal button -->
                 <button type="button" @click="removeToast(t.id)" class="text-gray-400 hover:text-white font-extrabold text-base leading-none select-none focus:outline-none shrink-0" aria-label="Dismiss toast">
-                    âœ•
+                    Ã¢Åâ¢
                 </button>
             </div>
         </template>

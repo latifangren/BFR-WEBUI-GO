@@ -896,7 +896,8 @@ func buildNetworkDetail() NetworkDetail {
 	if strings.Contains(wifiStr, "RSSI: ") {
 		rssiParts := strings.Split(wifiStr, "RSSI: ")
 		if len(rssiParts) > 1 {
-			rssiEnd := strings.Trim(strings.Split(rssiParts[1], "\n")[0], " ,")
+			// Split by newline first, then by comma to handle single-line output
+			rssiEnd := strings.Trim(strings.Split(strings.Split(rssiParts[1], "\n")[0], ",")[0], " ")
 			if r, err := strconv.Atoi(rssiEnd); err == nil {
 				rssiVal = r
 			}
@@ -909,7 +910,8 @@ func buildNetworkDetail() NetworkDetail {
 	if strings.Contains(wifiStr, "Link speed: ") {
 		speedParts := strings.Split(wifiStr, "Link speed: ")
 		if len(speedParts) > 1 {
-			speedEnd := strings.Trim(strings.Split(speedParts[1], "\n")[0], " ,")
+			// Split by newline first, then by comma to handle single-line output
+			speedEnd := strings.Trim(strings.Split(strings.Split(speedParts[1], "\n")[0], ",")[0], " ")
 			if nd.WiFiSignal != "—" {
 				nd.WiFiSignal += " / " + speedEnd
 			}
