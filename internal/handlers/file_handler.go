@@ -17,6 +17,15 @@ type filePathRequest struct {
 	Path string `json:"path"`
 }
 
+type fileRenameRequest struct {
+	OldPath string `json:"old_path"`
+	NewPath string `json:"new_path"`
+}
+
+type fileCreateRequest struct {
+	Path string `json:"path"`
+}
+
 func HandleFilesList(w http.ResponseWriter, r *http.Request) {
 	dirPath := r.URL.Query().Get("path")
 	files, currentPath, err := filemanager.ListDirectory(dirPath)
@@ -137,6 +146,46 @@ func HandleFilesMkdir(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	err := filemanager.CreateDir(req.Path)
+	w.Header().Set("Content-Type", "application/json")
+	_ = json.NewEncoder(w).Encode(map[string]interface{}{
+		"success": err == nil,
+		"error":   fmt.Sprintf("%v", err),
+	})
+}
+
+func HandleFilesRename(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+	var req fileRenameRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil || req.OldPath == "" || req.NewPath == "" {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusBadRequest)
+		_ = json.NewEncoder(w).Encode(map[string]interface{}{"error": "Invalid rename payload"})
+		return
+	}
+	err := filemanager.RenamePath(req.OldPath, req.NewPath)
+	w.Header().Set("Content-Type", "application/json")
+	_ = json.NewEncoder(w).Encode(map[string]interface{}{
+		"success": err == nil,
+		"error":   fmt.Sprintf("%v", err),
+	})
+}
+
+func HandleFilesCreate(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+	var req fileCreateRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil || req.Path == "" {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusBadRequest)
+		_ = json.NewEncoder(w).Encode(map[string]interface{}{"error": "Invalid file path"})
+		return
+	}
+	err := filemanager.CreateFile(req.Path)
 	w.Header().Set("Content-Type", "application/json")
 	_ = json.NewEncoder(w).Encode(map[string]interface{}{
 		"success": err == nil,

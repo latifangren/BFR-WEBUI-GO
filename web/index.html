@@ -261,7 +261,7 @@
                                 <button type="button" @click="fetchVnstatData()" class="px-3 py-1.5 bg-black hover:bg-gray-900 border border-border text-xs text-gray-300 hover:text-white rounded-xl font-mono font-semibold transition">
                                     Refresh
                                 </button>
-                                <button type="button" @click="showVnstatResetModal = true" class="px-3 py-1.5 bg-red-600/20 hover:bg-red-600/30 text-red-400 border border-red-500/30 rounded-xl text-xs font-mono font-bold transition">
+                                 <button type="button" @click="showConfirm('Reset Traffic Stats', 'Are you sure you want to reset all daily and monthly bandwidth usage data? This action cannot be undone.', () => resetVnstatData())" class="px-3 py-1.5 bg-red-600/20 hover:bg-red-600/30 text-red-400 border border-red-500/30 rounded-xl text-xs font-mono font-bold transition">
                                     Reset Stats
                                 </button>
                             </div>
@@ -495,7 +495,10 @@
 
                         <!-- DNS Switcher -->
                         <div class="bg-card border border-border rounded-2xl p-6 space-y-4">
-                            <h3 class="text-sm font-bold text-white uppercase tracking-wider">DNS Resolver Switcher</h3>
+                            <div class="flex items-center justify-between flex-wrap gap-2">
+                                <h3 class="text-sm font-bold text-white uppercase tracking-wider">DNS Resolver Switcher</h3>
+                                <div class="text-xs font-mono text-gray-400">Active System DNS: <span class="text-blue-400 font-bold" x-text="(networkData.active_dns1 || 'Default') + ' / ' + (networkData.active_dns2 || 'None')"></span></div>
+                            </div>
                             <div class="grid grid-cols-2 gap-3">
                                 <template x-for="dns in networkData.preset_dns || []" :key="dns.name">
                                     <button type="button" @click="setDNS(dns.primary, dns.secondary)" class="p-3 bg-black hover:bg-gray-900 border border-border rounded-xl text-left transition font-mono">
@@ -540,7 +543,10 @@
                                             <span class="text-[9px] text-gray-500" x-text="r.bitmask === '0f' || r.bitmask === '0F' ? '(Core 0-3 Efficiency)' : (r.bitmask === 'f0' || r.bitmask === 'F0' ? '(Core 4-7 Performance)' : (r.bitmask === 'ff' || r.bitmask === 'FF' ? '(All Cores Max)' : (r.bitmask === '00' ? '(Disabled)' : '(Custom)')))"></span>
                                         </div>
                                     </div>
-                                    <button type="button" @click="setRPS(r.interface, 'f')" class="px-3 py-1.5 bg-blue-600 hover:bg-blue-500 rounded-xl text-xs font-bold transition">Activate (f)</button>
+                                    <div class="flex items-center gap-2">
+                                        <button type="button" @click="setRPS(r.interface, 'f')" class="px-3 py-1.5 bg-blue-600 hover:bg-blue-500 rounded-xl text-xs font-bold transition">Activate (f)</button>
+                                        <button type="button" @click="setRPS(r.interface, '00')" class="px-3 py-1.5 bg-black hover:bg-gray-900 border border-border text-red-400 hover:text-red-300 rounded-xl text-xs font-bold transition">Deactivate (00)</button>
+                                    </div>
                                 </div>
                             </template>
                         </div>
@@ -670,6 +676,9 @@
 
                             <!-- Actions -->
                             <div class="flex items-center space-x-2">
+                                <button type="button" @click="openCreateFileModal()" class="px-3 py-1.5 bg-black hover:bg-gray-900 border border-border text-xs text-gray-200 rounded-xl flex items-center gap-1 font-semibold">
+                                    + New File
+                                </button>
                                 <button type="button" @click="openCreateDirModal()" class="px-3 py-1.5 bg-black hover:bg-gray-900 border border-border text-xs text-gray-200 rounded-xl flex items-center gap-1 font-semibold">
                                     + New Folder
                                 </button>
@@ -721,15 +730,23 @@
                                                  </td>
                                                  <td class="p-3 text-gray-400" x-text="file.is_dir ? '-' : formatBytes(file.size)"></td>
                                                  <td class="p-3 text-gray-400" x-text="file.permissions"></td>
-                                                 <td class="p-3 text-right space-x-3 select-none">
-                                                     <template x-if="!file.is_dir">
-                                                         <span @click="openEditor(file.path)" class="text-blue-500 hover:underline cursor-pointer font-bold text-xs">EDIT</span>
-                                                     </template>
-                                                     <template x-if="!file.is_dir">
-                                                         <span @click="window.open('/api/files/download?path=' + encodeURIComponent(file.path), '_blank')" class="text-green-500 hover:underline cursor-pointer font-bold text-xs">DOWNLOAD</span>
-                                                     </template>
-                                                     <span @click="deletePath(file.path)" class="text-red-500 hover:underline cursor-pointer font-bold text-xs">DELETE</span>
-                                                 </td>
+                                                  <td class="p-3 text-right space-x-3 select-none">
+                                                      <template x-if="!file.is_parent">
+                                                          <span @click="openRenameModal(file)" class="text-amber-500 hover:underline cursor-pointer font-bold text-xs">RENAME</span>
+                                                      </template>
+                                                      <template x-if="!file.is_dir && !file.is_parent">
+                                                          <span @click="openEditor(file.path)" class="text-blue-500 hover:underline cursor-pointer font-bold text-xs">EDIT</span>
+                                                      </template>
+                                                      <template x-if="!file.is_dir && !file.is_parent">
+                                                          <span @click="window.open('/api/files/download?path=' + encodeURIComponent(file.path), '_blank')" class="text-green-500 hover:underline cursor-pointer font-bold text-xs">DOWNLOAD</span>
+                                                      </template>
+                                                      <template x-if="!file.is_parent">
+                                                          <span @click="deletePath(file.path)" class="text-red-500 hover:underline cursor-pointer font-bold text-xs">DELETE</span>
+                                                      </template>
+                                                      <template x-if="file.is_parent">
+                                                          <span class="text-gray-500 font-bold text-xs">-</span>
+                                                      </template>
+                                                  </td>
                                             </tr>
                                         </template>
                                     </tbody>
@@ -1303,7 +1320,7 @@
                         <div class="text-xs font-mono text-gray-400">
                             Check repository updates and developer documentation on GitHub:
                         </div>
-                        <a href="https://github.com/BFR-Project/BFR-WEBUI-GO" target="_blank" class="px-5 py-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-bold transition uppercase tracking-wider select-none shadow-[4px_4px_0px_0px_var(--neo-shadow)] hover:translate-y-[-1px] active:translate-y-[1px]">
+                        <a href="https://github.com/latifangren/BFR-WEBUI-GO" target="_blank" class="px-5 py-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-bold transition uppercase tracking-wider select-none shadow-[4px_4px_0px_0px_var(--neo-shadow)] hover:translate-y-[-1px] active:translate-y-[1px]">
                             GitHub Repository
                         </a>
                     </div>
@@ -1353,14 +1370,27 @@
         </div>
     </div>
 
-    <!-- Confirmation Modal -->
-    <div x-show="modal.show" x-cloak class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
-        <div class="bg-card border border-border rounded-2xl p-6 max-w-sm w-full space-y-4 shadow-2xl">
-            <h3 class="text-lg font-bold text-white" x-text="modal.title">Confirm Action</h3>
-            <p class="text-sm text-gray-400" x-text="'Are you sure you want to perform: ' + modal.actionName + '?'"></p>
-            <div class="flex space-x-3 pt-2">
-                <button type="button" @click="modal.show = false" class="flex-1 bg-black border border-border text-gray-300 py-2 rounded-xl text-sm font-medium">Cancel</button>
-                <button type="button" @click="executePowerAction()" class="flex-1 bg-red-600 text-white py-2 rounded-xl text-sm font-medium">Confirm</button>
+    <!-- Create File Modal -->
+    <div x-show="showFileModal" x-cloak class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 font-mono">
+        <div class="bg-card border border-border rounded-2xl p-6 max-w-md w-full space-y-4 shadow-2xl">
+            <h3 class="text-sm font-bold text-white uppercase tracking-wider">Create New File</h3>
+            <input type="text" x-model="newFileName" class="w-full bg-black border border-border rounded-xl p-3 text-xs text-white" placeholder="File Name (e.g. script.sh)" />
+            <div class="flex justify-end space-x-3">
+                <button type="button" @click="showFileModal = false" class="px-4 py-2 bg-black border border-border text-gray-300 rounded-xl text-xs font-semibold">Cancel</button>
+                <button type="button" @click="createFile()" class="px-4 py-2 bg-blue-600 text-white rounded-xl text-xs font-bold">Create File</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Rename Modal -->
+    <div x-show="showRenameModal" x-cloak class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 font-mono">
+        <div class="bg-card border border-border rounded-2xl p-6 max-w-md w-full space-y-4 shadow-2xl">
+            <h3 class="text-sm font-bold text-white uppercase tracking-wider">Rename Item</h3>
+            <div class="text-[10px] text-gray-400 truncate" x-text="'Renaming: ' + renameOldPath"></div>
+            <input type="text" x-model="renameNewName" class="w-full bg-black border border-border rounded-xl p-3 text-xs text-white" placeholder="New Name" />
+            <div class="flex justify-end space-x-3">
+                <button type="button" @click="showRenameModal = false" class="px-4 py-2 bg-black border border-border text-gray-300 rounded-xl text-xs font-semibold">Cancel</button>
+                <button type="button" @click="renamePath()" class="px-4 py-2 bg-blue-600 text-white rounded-xl text-xs font-bold font-mono">Rename</button>
             </div>
         </div>
     </div>
@@ -1386,20 +1416,42 @@
         </div>
     </div>
 
-    <!-- Reset Vnstat Modal (Neobrutalist confirmation dialog) -->
-    <div x-show="showVnstatResetModal" x-cloak class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 font-mono">
-        <div class="bg-card border-2 border-red-500/80 rounded-2xl p-6 max-w-sm w-full space-y-4 shadow-2xl">
-            <div class="flex items-center space-x-3 text-red-500">
-                <h3 class="text-base font-extrabold text-white uppercase tracking-wider">Reset Traffic Stats</h3>
+    <!-- Neobrutalist Confirmation Modal -->
+    <div x-show="confirmModal.show" x-cloak class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 font-mono">
+        <div class="bg-card border border-border rounded-2xl p-6 max-w-md w-full space-y-4 shadow-2xl">
+            <div class="flex items-center space-x-2 text-amber-500">
+                <span class="text-lg">⚠️</span>
+                <h3 class="text-sm font-bold text-white uppercase tracking-wider" x-text="confirmModal.title">Confirm Action</h3>
             </div>
-            <p class="text-xs text-gray-300 leading-relaxed">
-                Are you sure you want to reset all daily and monthly bandwidth usage data? This action cannot be undone.
-            </p>
+            <p class="text-xs text-gray-300 leading-relaxed font-mono" x-text="confirmModal.message"></p>
             <div class="flex space-x-3 pt-2">
-                <button type="button" @click="showVnstatResetModal = false" class="flex-1 bg-black border border-border text-gray-300 py-2.5 rounded-xl text-xs font-bold hover:bg-gray-900 transition">Cancel</button>
-                <button type="button" @click="resetVnstatData()" class="flex-1 bg-red-600 hover:bg-red-500 text-white py-2.5 rounded-xl text-xs font-bold transition shadow-lg shadow-red-600/30">Reset All</button>
+                <button type="button" @click="confirmModal.show = false" class="flex-1 bg-black border border-border text-gray-300 py-2 rounded-xl text-xs font-bold transition">Cancel</button>
+                <button type="button" @click="confirmModal.onConfirm()" class="flex-1 bg-blue-600 hover:bg-blue-500 text-white py-2 rounded-xl text-xs font-bold transition shadow-lg shadow-blue-500/20">Confirm</button>
             </div>
         </div>
+    </div>
+
+    <!-- Floating Toast Notifications System Container -->
+    <div class="fixed top-4 right-4 z-50 flex flex-col gap-2.5 max-w-sm w-full pointer-events-none p-4" aria-live="polite">
+        <template x-for="t in toasts" :key="t.id">
+            <div class="bg-card border-2 border-border p-3.5 rounded-xl shadow-[4px_4px_0px_0px_var(--neo-shadow)] pointer-events-auto flex items-start justify-between gap-3 text-xs font-mono transition-all duration-300 transform translate-y-0 ease-out"
+                 :class="t.type === 'success' ? 'border-green-500' : (t.type === 'error' ? 'border-red-500' : 'border-amber-500')">
+                <!-- Status icon/badge -->
+                <div class="flex items-center justify-center w-5 h-5 rounded-full font-bold select-none shrink-0"
+                     :class="t.type === 'success' ? 'bg-green-500/10 text-green-500' : (t.type === 'error' ? 'bg-red-500/10 text-red-500' : 'bg-amber-500/10 text-amber-500')">
+                    <span x-text="t.type === 'success' ? '✓' : (t.type === 'error' ? '✕' : 'ℹ')"></span>
+                </div>
+                <!-- Text payload -->
+                <div class="flex-1 min-w-0">
+                    <div class="font-extrabold text-white uppercase tracking-wider text-[10px]" x-text="t.title"></div>
+                    <div class="text-gray-300 text-[10px] mt-0.5" x-text="t.message"></div>
+                </div>
+                <!-- Close dismissal button -->
+                <button type="button" @click="removeToast(t.id)" class="text-gray-400 hover:text-white font-extrabold text-base leading-none select-none focus:outline-none shrink-0" aria-label="Dismiss toast">
+                    ✕
+                </button>
+            </div>
+        </template>
     </div>
 
     <script src="/static/js/app.js"></script>

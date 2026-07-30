@@ -15,6 +15,13 @@ function dashboard() {
         showAddShortcutModal: false,
         newShortcutName: '',
         newShortcutPath: '',
+        showFileModal: false,
+        newFileName: '',
+        showRenameModal: false,
+        renameOldPath: '',
+        renameNewName: '',
+        confirmModal: { show: false, title: 'Confirmation', message: '', onConfirm: null },
+        toasts: [],
         ttlValue: 64,
         networkData: {},
         proxyData: {},
@@ -233,8 +240,13 @@ function dashboard() {
                 });
                 if (res.ok) {
                     this.chargerConfig = await res.json();
+                    this.showToast('Charger Limiter', 'Battery charge settings updated!', 'success');
+                } else {
+                    this.showToast('Charger Error', 'Failed to update battery settings.', 'error');
                 }
-            } catch (e) {}
+            } catch (e) {
+                this.showToast('Charger Error', 'Battery settings request failed.', 'error');
+            }
         },
 
         async fetchVnstatData() {
@@ -252,8 +264,13 @@ function dashboard() {
                 const res = await fetch('/api/vnstat/reset', { method: 'POST' });
                 if (res.ok) {
                     this.vnstatData = await res.json();
+                    this.showToast('Reset Success', 'Bandwidth logs database cleared.', 'success');
+                } else {
+                    this.showToast('Reset Error', 'Failed to reset traffic logs.', 'error');
                 }
-            } catch (e) {}
+            } catch (e) {
+                this.showToast('Reset Error', 'Reset request failed.', 'error');
+            }
         },
 
         // SMS Viewer Methods
@@ -496,9 +513,11 @@ function dashboard() {
                     this.editorContent = data.content;
                     this.showEditorModal = true;
                 } else {
-                    alert('Cannot read file (may exceed 5MB or be binary)');
+                    this.showToast('Read Error', 'Cannot read file (may exceed 5MB or be binary)', 'error');
                 }
-            } catch (e) {}
+            } catch (e) {
+                this.showToast('Read Error', 'Failed to retrieve file content.', 'error');
+            }
         },
 
         async saveFileContent() {
@@ -512,10 +531,13 @@ function dashboard() {
                 if (data.success) {
                     this.showEditorModal = false;
                     this.fetchFileList(this.currentPath);
+                    this.showToast('File Saved', 'File contents written successfully!', 'success');
                 } else {
-                    alert('Save failed: ' + data.error);
+                    this.showToast('Save Error', data.error, 'error');
                 }
-            } catch (e) {}
+            } catch (e) {
+                this.showToast('Save Error', 'File writing request failed.', 'error');
+            }
         },
 
         async uploadFile() {
@@ -535,10 +557,13 @@ function dashboard() {
                 if (data.success) {
                     this.showUploadModal = false;
                     this.fetchFileList(this.currentPath);
+                    this.showToast('Upload Success', 'File uploaded successfully!', 'success');
                 } else {
-                    alert('Upload failed: ' + data.error);
+                    this.showToast('Upload Error', 'Upload failed: ' + data.error, 'error');
                 }
-            } catch (e) {}
+            } catch (e) {
+                this.showToast('Upload Error', 'File upload request failed.', 'error');
+            }
         },
 
         openCreateDirModal() {
@@ -559,27 +584,95 @@ function dashboard() {
                 if (data.success) {
                     this.showDirModal = false;
                     this.fetchFileList(this.currentPath);
+                    this.showToast('Folder Created', 'New directory created successfully!', 'success');
                 } else {
-                    alert('Create directory failed: ' + data.error);
+                    this.showToast('Directory Error', 'Create directory failed: ' + data.error, 'error');
                 }
-            } catch (e) {}
+            } catch (e) {
+                this.showToast('Directory Error', 'Create directory request failed.', 'error');
+            }
         },
 
-        async deletePath(targetPath) {
-            if (!confirm('Are you sure you want to delete: ' + targetPath + '?')) return;
+        deletePath(targetPath) {
+            this.showConfirm(
+                'Delete Confirmation',
+                `Are you sure you want to delete: ${targetPath}?`,
+                async () => {
+                    try {
+                        const res = await fetch('/api/files/delete', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ path: targetPath })
+                        });
+                        const data = await res.json();
+                        if (data.success) {
+                            this.fetchFileList(this.currentPath);
+                            this.showToast('Delete Success', 'Item deleted successfully!', 'success');
+                        } else {
+                            this.showToast('Delete Error', 'Delete failed: ' + data.error, 'error');
+                        }
+                    } catch (e) {
+                        this.showToast('Delete Error', 'Delete request failed.', 'error');
+                    }
+                }
+            );
+        },
+
+        openCreateFileModal() {
+            this.newFileName = '';
+            this.showFileModal = true;
+        },
+
+        async createFile() {
+            if (!this.newFileName) return;
+            const fullPath = this.currentPath + (this.currentPath.endsWith('/') ? '' : '/') + this.newFileName.trim();
             try {
-                const res = await fetch('/api/files/delete', {
+                const res = await fetch('/api/files/create', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ path: targetPath })
+                    body: JSON.stringify({ path: fullPath })
                 });
                 const data = await res.json();
                 if (data.success) {
+                    this.showFileModal = false;
                     this.fetchFileList(this.currentPath);
+                    this.showToast('File Created', 'New empty file created successfully!', 'success');
                 } else {
-                    alert('Delete failed: ' + data.error);
+                    this.showToast('Create File Error', 'Create file failed: ' + data.error, 'error');
                 }
-            } catch (e) {}
+            } catch (e) {
+                this.showToast('Create File Error', 'Create file request failed.', 'error');
+            }
+        },
+
+        openRenameModal(file) {
+            this.renameOldPath = file.path;
+            this.renameNewName = file.name;
+            this.showRenameModal = true;
+        },
+
+        async renamePath() {
+            if (!this.renameNewName) return;
+            const idx = this.renameOldPath.lastIndexOf('/');
+            const parent = idx >= 0 ? this.renameOldPath.substring(0, idx + 1) : '';
+            const newPath = parent + this.renameNewName.trim();
+            try {
+                const res = await fetch('/api/files/rename', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ old_path: this.renameOldPath, new_path: newPath })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    this.showRenameModal = false;
+                    this.fetchFileList(this.currentPath);
+                    this.showToast('Rename Success', 'Item renamed successfully!', 'success');
+                } else {
+                    this.showToast('Rename Error', 'Rename failed: ' + data.error, 'error');
+                }
+            } catch (e) {
+                this.showToast('Rename Error', 'Rename request failed.', 'error');
+            }
         },
 
         // Network & Power Methods
@@ -601,13 +694,13 @@ function dashboard() {
                 });
                 const data = await res.json();
                 if (data.success) {
-                    alert('Tweaks configuration saved and applied.');
+                    this.showToast('Tweaks Saved', 'System optimizations updated successfully!', 'success');
                     this.fetchNetworkData();
                 } else {
-                    alert('Failed to save tweaks: ' + data.error);
+                    this.showToast('Save Error', 'Failed to save tweaks: ' + data.error, 'error');
                 }
             } catch (e) {
-                alert('Save request failed');
+                this.showToast('Save Error', 'Save request failed', 'error');
             }
         },
 
@@ -623,35 +716,55 @@ function dashboard() {
 
         async setRPS(iface, bitmask) {
             try {
-                await fetch('/api/network/rps', {
+                const res = await fetch('/api/network/rps', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ interface: iface, bitmask: bitmask })
                 });
+                if (res.ok) {
+                    this.showToast('RPS Updated', 'Packet steering bitmask configured!', 'success');
+                } else {
+                    this.showToast('RPS Error', 'Failed to update RPS configuration', 'error');
+                }
                 this.fetchRPSConfigs();
-            } catch (e) {}
+            } catch (e) {
+                this.showToast('RPS Error', 'RPS request failed', 'error');
+            }
         },
 
         async applyTTLConfig(enable) {
             try {
-                await fetch('/api/network/tweaks?action=ttl', {
+                const res = await fetch('/api/network/tweaks?action=ttl', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ enable: enable, ttl: parseInt(this.ttlValue || 64) })
                 });
+                if (res.ok) {
+                    this.showToast('TTL Updated', 'Target TTL configured successfully!', 'success');
+                } else {
+                    this.showToast('TTL Error', 'Failed to configure TTL', 'error');
+                }
                 this.fetchNetworkData();
-            } catch (e) {}
+            } catch (e) {
+                this.showToast('TTL Error', 'TTL request failed', 'error');
+            }
         },
 
         async setDNS(primary, secondary) {
             try {
-                await fetch('/api/network/tweaks?action=dns', {
+                const res = await fetch('/api/network/tweaks?action=dns', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ primary, secondary })
                 });
-                alert('DNS applied successfully');
-            } catch (e) {}
+                if (res.ok) {
+                    this.showToast('DNS Updated', 'System DNS changed successfully!', 'success');
+                } else {
+                    this.showToast('DNS Error', 'Failed to update DNS resolver', 'error');
+                }
+            } catch (e) {
+                this.showToast('DNS Error', 'DNS request failed', 'error');
+            }
         },
 
         async runPing() {
@@ -704,24 +817,38 @@ function dashboard() {
 
         async controlProxy(action) {
             try {
-                await fetch('/api/proxy/control', {
+                const res = await fetch('/api/proxy/control', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ action })
                 });
+                if (res.ok) {
+                    this.showToast('Proxy Core Action', 'Instruction: ' + action + ' sent to proxy service.', 'info');
+                } else {
+                    this.showToast('Proxy Error', 'Failed to control proxy core', 'error');
+                }
                 setTimeout(() => this.fetchProxyStatus(), 1500);
-            } catch (e) {}
+            } catch (e) {
+                this.showToast('Proxy Error', 'Proxy control request failed', 'error');
+            }
         },
 
         async setProxyMode(mode) {
             try {
-                await fetch('/api/proxy/control', {
+                const res = await fetch('/api/proxy/control', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ mode })
                 });
+                if (res.ok) {
+                    this.showToast('Proxy Mode Config', 'Routing mode set to: ' + mode, 'success');
+                } else {
+                    this.showToast('Proxy Error', 'Failed to update routing mode', 'error');
+                }
                 this.fetchProxyStatus();
-            } catch (e) {}
+            } catch (e) {
+                this.showToast('Proxy Error', 'Proxy mode request failed', 'error');
+            }
         },
 
         async fetchHotspotStatus() {
@@ -736,16 +863,23 @@ function dashboard() {
         async toggleHotspot() {
             const next = !this.hotspotStatus.enabled;
             try {
-                await fetch('/api/hotspot/control', {
+                const res = await fetch('/api/hotspot/control', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ enable: next, ssid: this.hotspotStatus.ssid, password: this.hotspotPass })
                 });
+                if (res.ok) {
+                    this.showToast('Hotspot Access Point', next ? 'Starting softAP hotspot...' : 'Stopping hotspot...', 'info');
+                } else {
+                    this.showToast('Hotspot Error', 'Failed to change hotspot status', 'error');
+                }
                 setTimeout(() => {
                     this.fetchHotspotStatus();
                     this.fetchHotspotClients();
                 }, 2000);
-            } catch (e) {}
+            } catch (e) {
+                this.showToast('Hotspot Error', 'Hotspot request failed', 'error');
+            }
         },
 
         async fetchHotspotClients() {
@@ -807,21 +941,43 @@ function dashboard() {
         },
 
         confirmPower(action, name) {
-            this.modal.action = action;
-            this.modal.actionName = name;
-            this.modal.show = true;
+            this.showConfirm(
+                'Confirm Action',
+                `Are you sure you want to perform: ${name}?`,
+                async () => {
+                    try {
+                        await fetch('/api/power', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ action: action })
+                        });
+                    } catch (e) {}
+                }
+            );
         },
 
-        async executePowerAction() {
-            const action = this.modal.action;
-            this.modal.show = false;
-            try {
-                await fetch('/api/power', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ action })
-                });
-            } catch (e) {}
+        showConfirm(title, message, callback) {
+            this.confirmModal = {
+                show: true,
+                title: title,
+                message: message,
+                onConfirm: () => {
+                    this.confirmModal.show = false;
+                    if (callback) callback();
+                }
+            };
+        },
+
+        showToast(title, message, type = 'info', duration = 3000) {
+            const id = Date.now() + Math.random();
+            this.toasts.push({ id, title, message, type });
+            setTimeout(() => {
+                this.removeToast(id);
+            }, duration);
+        },
+
+        removeToast(id) {
+            this.toasts = this.toasts.filter(t => t.id !== id);
         },
 
         toggleTheme() {

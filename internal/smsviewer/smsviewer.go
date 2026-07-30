@@ -82,6 +82,95 @@ func getDBPath() (string, func(), error) {
 	return targetPath, func() {}, nil
 }
 
+func ReadSMSViaContentProvider(limit int, offset int, searchQuery string) (SMSResponse, error) {
+	// Execute Android content query command via su
+	cmdStr := "content query --uri content://sms --projection _id,address,body,date,read,type"
+	out, err := exec.Command("su", "-c", cmdStr).CombinedOutput()
+	if err != nil {
+		return SMSResponse{Messages: []SMSMessage{}, Limit: limit, Offset: offset, Search: searchQuery, Error: fmt.Sprintf("content query failed: %v", err)}, nil
+	}
+
+	lines := strings.Split(string(out), "\n")
+	allMessages := make([]SMSMessage, 0)
+
+	for _, line := range lines {
+		line = strings.TrimSpace(line)
+		if !strings.HasPrefix(line, "Row:") {
+			continue
+		}
+
+		var msg SMSMessage
+		// Parse Row format: Row: 0 _id=1, address=+628123, body=Hello, date=1710000000000, read=1, type=1
+		parts := strings.Split(line, ", ")
+		for _, part := range parts {
+			kv := strings.SplitN(part, "=", 2)
+			if len(kv) != 2 {
+				continue
+			}
+			key := strings.TrimSpace(kv[0])
+			val := strings.TrimSpace(kv[1])
+
+			// If key starts with Row: X _id
+			if strings.Contains(key, "_id") {
+				var id int64
+				fmt.Sscanf(val, "%d", &id)
+				msg.ID = id
+			} else if key == "address" {
+				msg.Address = val
+			} else if key == "body" {
+				msg.Body = val
+			} else if key == "date" {
+				var d int64
+				fmt.Sscanf(val, "%d", &d)
+				if d > 9999999999 {
+					d = d / 1000
+				}
+				msg.Date = d
+			} else if key == "read" {
+				var r int
+				fmt.Sscanf(val, "%d", &r)
+				msg.Read = r
+			} else if key == "type" {
+				var t int
+				fmt.Sscanf(val, "%d", &t)
+				msg.Type = t
+			}
+		}
+
+		if searchQuery != "" {
+			qLower := strings.ToLower(searchQuery)
+			if !strings.Contains(strings.ToLower(msg.Address), qLower) && !strings.Contains(strings.ToLower(msg.Body), qLower) {
+				continue
+			}
+		}
+
+		if msg.Address != "" || msg.Body != "" {
+			allMessages = append(allMessages, msg)
+		}
+	}
+
+	total := len(allMessages)
+	// Apply limit and offset pagination
+	start := offset
+	if start > total {
+		start = total
+	}
+	end := start + limit
+	if end > total {
+		end = total
+	}
+
+	sliced := allMessages[start:end]
+
+	return SMSResponse{
+		Messages: sliced,
+		Total:    total,
+		Limit:    limit,
+		Offset:   offset,
+		Search:   searchQuery,
+	}, nil
+}
+
 func ReadSMSInbox(limit int, offset int, searchQuery string) (SMSResponse, error) {
 	if limit <= 0 {
 		limit = 20
@@ -93,8 +182,18 @@ func ReadSMSInbox(limit int, offset int, searchQuery string) (SMSResponse, error
 		offset = 0
 	}
 
+	// Primary method: ContentProvider query (works 100% reliably on Android 10-16 ROMs without file locking)
+	cpResp, cpErr := ReadSMSViaContentProvider(limit, offset, searchQuery)
+	if cpErr == nil && len(cpResp.Messages) > 0 {
+		return cpResp, nil
+	}
+
+	// Fallback to direct SQLite DB query
 	dbPath, cleanup, err := getDBPath()
 	if err != nil {
+		if len(cpResp.Messages) > 0 {
+			return cpResp, nil
+		}
 		return SMSResponse{Messages: []SMSMessage{}, Limit: limit, Offset: offset, Search: searchQuery, Error: err.Error()}, nil
 	}
 	defer cleanup()

@@ -62,6 +62,8 @@ func RegisterRoutes(mux *http.ServeMux, authMgr *auth.Manager) {
 	mux.HandleFunc("/api/files/download", protected(HandleFilesDownload))
 	mux.HandleFunc("/api/files/delete", protected(HandleFilesDelete))
 	mux.HandleFunc("/api/files/mkdir", protected(HandleFilesMkdir))
+	mux.HandleFunc("/api/files/rename", protected(HandleFilesRename))
+	mux.HandleFunc("/api/files/create", protected(HandleFilesCreate))
 
 	// Hotspot URLs
 	mux.HandleFunc("/api/hotspot/status", protected(HandleHotspotStatus))

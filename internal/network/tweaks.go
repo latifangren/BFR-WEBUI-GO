@@ -102,6 +102,20 @@ func SetInterfaceConfig(iface string, mtu int, txqueuelen int) error {
 	return nil
 }
 
+func GetActiveDNS() (string, string) {
+	d1, _ := exec.Command("getprop", "net.dns1").Output()
+	d2, _ := exec.Command("getprop", "net.dns2").Output()
+	dns1 := strings.TrimSpace(string(d1))
+	dns2 := strings.TrimSpace(string(d2))
+	if dns1 == "" {
+		dns1 = "Default/DHCP"
+	}
+	if dns2 == "" {
+		dns2 = "None"
+	}
+	return dns1, dns2
+}
+
 func SetDNS(primary, secondary string) error {
 	cmds := []string{
 		fmt.Sprintf("setprop net.dns1 %s", primary),

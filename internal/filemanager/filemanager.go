@@ -103,6 +103,21 @@ func UploadFile(dirPath string, fileName string, reader io.Reader) error {
 	return err
 }
 
+func CreateFile(filePath string) error {
+	cleanPath := filepath.Clean(filePath)
+	file, err := os.Create(cleanPath)
+	if err != nil {
+		return err
+	}
+	return file.Close()
+}
+
+func RenamePath(oldPath string, newPath string) error {
+	cleanOld := filepath.Clean(oldPath)
+	cleanNew := filepath.Clean(newPath)
+	return os.Rename(cleanOld, cleanNew)
+}
+
 func DownloadFile(filePath string, w http.ResponseWriter, r *http.Request) {
 	cleanPath := filepath.Clean(filePath)
 	info, err := os.Stat(cleanPath)

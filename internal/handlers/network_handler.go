@@ -48,6 +48,7 @@ func HandleNetworkTweaks(w http.ResponseWriter, r *http.Request) {
 		tcpFastOpen, _ := network.GetSysctl("net.ipv4.tcp_fastopen")
 		tweaksJson, _ := network.LoadTweaks()
 
+		d1, d2 := network.GetActiveDNS()
 		w.Header().Set("Content-Type", "application/json")
 		_ = json.NewEncoder(w).Encode(map[string]interface{}{
 			"interfaces":     ifaces,
@@ -55,6 +56,8 @@ func HandleNetworkTweaks(w http.ResponseWriter, r *http.Request) {
 			"tcp_congestion": tcpCongestion,
 			"tcp_fastopen":   tcpFastOpen,
 			"preset_dns":     network.PresetDNS,
+			"active_dns1":    d1,
+			"active_dns2":    d2,
 			"tweaks_json":    tweaksJson,
 		})
 		return
