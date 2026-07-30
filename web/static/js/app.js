@@ -22,6 +22,9 @@ function dashboard() {
         renameNewName: '',
         confirmModal: { show: false, title: 'Confirmation', message: '', onConfirm: null },
         toasts: [],
+        donorName: '',
+        donationAmount: '',
+        donorMessage: '',
         ttlValue: 64,
         networkData: {},
         proxyData: {},
@@ -978,6 +981,23 @@ function dashboard() {
 
         removeToast(id) {
             this.toasts = this.toasts.filter(t => t.id !== id);
+        },
+
+        sendDonationConfirmation(platform) {
+            const name = this.donorName.trim() || 'Hamba Allah';
+            const amount = this.donationAmount || '0';
+            const msg = this.donorMessage.trim() || '-';
+            const text = `Halo, saya ingin mengkonfirmasi donasi BFR WebUI Go.\n\nNama: ${name}\nJumlah: Rp ${parseInt(amount).toLocaleString('id-ID')}\nPesan/Doa: ${msg}`;
+            navigator.clipboard.writeText(text).then(() => {
+                this.showToast('Copied confirmation text', 'Confirmation message copied to clipboard!', 'success');
+            }).catch(() => {});
+            if (platform === 'telegram') {
+                const url = `https://t.me/Latifan_id?text=${encodeURIComponent(text)}`;
+                window.open(url, '_blank');
+            } else if (platform === 'facebook') {
+                const url = `https://www.facebook.com/latifan.latifan.latifan.latif`;
+                window.open(url, '_blank');
+            }
         },
 
         toggleTheme() {

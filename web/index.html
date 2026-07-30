@@ -1325,6 +1325,57 @@
                         </a>
                     </div>
                 </div>
+
+                <!-- Donation Card -->
+                <div class="bg-card border border-border rounded-2xl p-8 space-y-6 shadow-2xl font-mono">
+                    <div class="border-b border-border/40 pb-4">
+                        <h2 class="text-xl font-extrabold text-white flex items-center gap-2">
+                            <span>💸 Support Project Development</span>
+                        </h2>
+                        <p class="text-xs text-gray-400 mt-0.5">Your support helps keep this open-source project active and updated</p>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <!-- Left Column: QRIS -->
+                        <div class="space-y-4 text-center">
+                            <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider text-left">Scan QRIS to Donate</h3>
+                            <div class="bg-white p-3.5 rounded-2xl inline-block max-w-full">
+                                <img src="/static/img/qris.jpg" alt="QRIS SekarRepku Store" class="w-60 max-w-full rounded-xl border border-border shadow-[4px_4px_0px_0px_var(--neo-shadow)] mx-auto block" />
+                            </div>
+                            <p class="text-[10px] text-gray-400 leading-relaxed max-w-xs mx-auto italic">
+                                "Supported by all Indonesian E-Wallets & Mobile Banking (Gopay, OVO, Dana, ShopeePay, BCA, Mandiri, BRI, etc.)"
+                            </p>
+                        </div>
+
+                        <!-- Right Column: Form -->
+                        <div class="space-y-4 text-left">
+                            <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider">Donation Confirmation Data</h3>
+                            <div class="space-y-3 font-mono text-xs">
+                                <div class="space-y-1">
+                                    <label for="donor-name" class="text-xs text-gray-400">Donor Name</label>
+                                    <input id="donor-name" type="text" x-model="donorName" class="w-full bg-black border border-border rounded-xl px-3.5 py-2 text-xs text-white" placeholder="Your name or 'Hamba Allah'" />
+                                </div>
+                                <div class="space-y-1">
+                                    <label for="donor-amount" class="text-xs text-gray-400">Donation Amount (Rp)</label>
+                                    <input id="donor-amount" type="number" min="0" x-model.number="donationAmount" class="w-full bg-black border border-border rounded-xl px-3.5 py-2 text-xs text-white" placeholder="e.g. 100000" />
+                                </div>
+                                <div class="space-y-1">
+                                    <label for="donor-msg" class="text-xs text-gray-400">Message / Prayers</label>
+                                    <textarea id="donor-msg" x-model="donorMessage" rows="3" class="w-full bg-black border border-border rounded-xl px-3.5 py-2 text-xs text-white" placeholder="Write your wishes or prayers..."></textarea>
+                                </div>
+                            </div>
+
+                            <div class="flex flex-col gap-2 pt-2">
+                                <button type="button" @click="sendDonationConfirmation('telegram')" class="w-full py-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-bold transition uppercase tracking-wider select-none shadow-[2px_2px_0px_0px_var(--neo-shadow)] hover:translate-y-[-1px] active:translate-y-[1px] flex items-center justify-center gap-1.5">
+                                    ✈ Confirm via Telegram
+                                </button>
+                                <button type="button" @click="sendDonationConfirmation('facebook')" class="w-full py-2.5 bg-black border border-border text-gray-300 hover:text-white rounded-xl text-xs font-bold transition uppercase tracking-wider select-none shadow-[2px_2px_0px_0px_var(--neo-shadow)] hover:translate-y-[-1px] active:translate-y-[1px] flex items-center justify-center gap-1.5">
+                                    👥 Confirm via Facebook
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </template>
     </main>
