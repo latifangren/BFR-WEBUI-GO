@@ -15,11 +15,12 @@ ui_print "- Prior instances terminated."
 ui_print "- Installing module to: $MODPATH"
 ui_print "- Setting up execution permissions..."
 set_perm "$MODPATH/service.sh" 0 0 0755
-set_perm "$MODPATH/webui" 0 0 0755 0755
+set_perm "$MODPATH/webui" 0 0 0755
 
 ui_print "- Launching WebUI dynamically..."
-# Start the service immediately without requiring reboot
-/data/adb/modules/bfr_webui_go/webui &
+# Start the newly installed binary from active MODPATH (which is modules_update during flash)
+chmod 755 "$MODPATH/webui"
+"$MODPATH"/webui &
 
 ui_print "- Server started in background."
 ui_print "- Web Panel URL: http://127.0.0.1:8080 or http://[your-ip-address]:8080"
