@@ -30,9 +30,12 @@ const VnstatModule = {
     },
 
     get vnstatInterfaceList() {
-        if (!this.vnstatData) return [];
-        const dailyIfaces = (this.vnstatData.daily && this.vnstatData.daily.interfaces) || {};
-        const monthlyIfaces = (this.vnstatData.monthly && this.vnstatData.monthly.interfaces) || {};
+        return this.getVnstatInterfaces();
+    },
+
+    getVnstatInterfaces() {
+        const dailyIfaces = this.vnstatData?.daily?.interfaces || {};
+        const monthlyIfaces = this.vnstatData?.monthly?.interfaces || {};
 
         const names = new Set([...Object.keys(dailyIfaces), ...Object.keys(monthlyIfaces)]);
         const list = [];

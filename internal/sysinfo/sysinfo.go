@@ -366,7 +366,8 @@ func getThermalZones() []ThermalZone {
 		return zones
 	}
 
-	prioritizedTypes := []string{"cpu", "soc", "tsens_tz_sensor", "mtktscpu", "bms", "battery", "quiet_therm", "ap_therm"}
+	prioritizedTypes := []string{"cpu-0", "cpu-1", "cpuss-0", "cpu-top", "soc-thermal", "mtktscpu"}
+	excludedTypes := []string{"modem-therm", "pa_therm", "gpu-step", "pmic-therm"}
 
 	for _, z := range files {
 		typeData, err := os.ReadFile(filepath.Join(z, "type"))
@@ -376,6 +377,18 @@ func getThermalZones() []ThermalZone {
 		typeName := strings.TrimSpace(string(typeData))
 		lowerType := strings.ToLower(typeName)
 
+		// Exclude noisy zones
+		exclude := false
+		for _, eType := range excludedTypes {
+			if strings.Contains(lowerType, eType) {
+				exclude = true
+				break
+			}
+		}
+		if exclude {
+			continue
+		}
+
 		matched := false
 		for _, pType := range prioritizedTypes {
 			if strings.Contains(lowerType, pType) {
@@ -383,6 +396,17 @@ func getThermalZones() []ThermalZone {
 				break
 			}
 		}
+		// If prioritize match doesn't hit, do generic check for "cpu", "soc", "tsens" etc.
+		if !matched {
+			genericTypes := []string{"cpu", "soc", "tsens_tz_sensor", "bms", "battery", "quiet_therm", "ap_therm"}
+			for _, gType := range genericTypes {
+				if strings.Contains(lowerType, gType) {
+					matched = true
+					break
+				}
+			}
+		}
+
 		if !matched {
 			continue
 		}

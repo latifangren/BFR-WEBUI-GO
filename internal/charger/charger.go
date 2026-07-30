@@ -151,23 +151,17 @@ func (m *Manager) saveConfigLocked() {
 	}
 }
 
-func fileIsWritable(path string) bool {
-	if _, err := os.Stat(path); err != nil {
-		return false
+func fileExistsAndWritable(path string) bool {
+	// Directly run the shell command checking existence and writability
+	cmd := exec.Command("su", "-c", fmt.Sprintf("[ -f %s ] && [ -w %s ] && echo 1 || echo 0", path, path))
+	out, err := cmd.Output()
+	if err == nil && strings.TrimSpace(string(out)) == "1" {
+		return true
 	}
+	// Fallback to direct os package open check
 	file, err := os.OpenFile(path, os.O_WRONLY, 0644)
 	if err == nil {
 		file.Close()
-		return true
-	}
-	// Try su -c test -w
-	out, err := exec.Command("su", "-c", fmt.Sprintf("test -w %s && echo 1 || echo 0", path)).Output()
-	if err == nil && strings.TrimSpace(string(out)) == "1" {
-		return true
-	}
-	// Or check if file exists via su
-	out, err = exec.Command("su", "-c", fmt.Sprintf("test -f %s && echo 1 || echo 0", path)).Output()
-	if err == nil && strings.TrimSpace(string(out)) == "1" {
 		return true
 	}
 	return false
@@ -175,7 +169,7 @@ func fileIsWritable(path string) bool {
 
 func (m *Manager) autoScan() {
 	for _, cand := range candidatePaths {
-		if fileIsWritable(cand.path) {
+		if fileExistsAndWritable(cand.path) {
 			m.detectedPath = cand.path
 			m.detectedType = cand.typ
 			m.log(fmt.Sprintf("Auto-scanned charging control path: %s (%s)", cand.path, cand.typ))
@@ -223,12 +217,12 @@ func (m *Manager) setChargingStateLocked(disable bool) {
 
 	var enableVal, disableVal string
 	switch m.detectedType {
+	case "charge_control_limit", "charge_control_limit_max":
+		enableVal = "100"
+		disableVal = strconv.Itoa(m.config.StopPercent)
 	case "input_suspend", "op_disable_charge":
 		enableVal = "0"
 		disableVal = "1"
-	case "charging_enabled", "charge_control_limit", "charge_control_limit_max", "batt_slate_mode", "store_mode", "mmi_charging_enable", "charging_switch":
-		enableVal = "1"
-		disableVal = "0"
 	default:
 		enableVal = "1"
 		disableVal = "0"
@@ -273,6 +267,19 @@ func (m *Manager) evaluateLocked() {
 		return
 	}
 
+	// For percentage threshold kernels: write directly when enabled
+	if m.detectedType == "charge_control_limit" || m.detectedType == "charge_control_limit_max" {
+		expectedVal := strconv.Itoa(m.config.StopPercent)
+		if !m.chargingDisabled {
+			m.setChargingStateLocked(true)
+		} else {
+			// If already set, verify we write the updated stop percent if config changed
+			_ = writeSysfs(m.detectedPath, expectedVal)
+		}
+		return
+	}
+
+	// For binary switches: handle StopPercent and StartPercent threshold cycles
 	if level >= m.config.StopPercent {
 		if !m.chargingDisabled {
 			m.log(fmt.Sprintf("Battery level (%d%%) >= stop limit (%d%%). Stopping charge.", level, m.config.StopPercent))
@@ -292,7 +299,7 @@ func (m *Manager) start() {
 	m.mu.Unlock()
 
 	go func() {
-		ticker := time.NewTicker(30 * time.Second)
+		ticker := time.NewTicker(15 * time.Second)
 		defer ticker.Stop()
 		for range ticker.C {
 			m.mu.Lock()
