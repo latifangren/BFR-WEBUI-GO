@@ -25,6 +25,8 @@ function dashboard() {
         donorName: '',
         donationAmount: '',
         donorMessage: '',
+        isDragging: false,
+        showAllRpsInterfaces: false,
         ttlValue: 64,
         networkData: {},
         proxyData: {},
@@ -569,6 +571,33 @@ function dashboard() {
             }
         },
 
+        async handleFileDrop(event) {
+            this.isDragging = false;
+            const files = event.dataTransfer.files;
+            if (!files.length) return;
+
+            const formData = new FormData();
+            formData.append('path', this.currentPath);
+            formData.append('file', files[0]);
+
+            this.showToast('Uploading Drop', 'Uploading dropped file...', 'info');
+            try {
+                const res = await fetch('/api/files/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+                const data = await res.json();
+                if (data.success) {
+                    this.fetchFileList(this.currentPath);
+                    this.showToast('Upload Success', 'Dropped file uploaded successfully!', 'success');
+                } else {
+                    this.showToast('Upload Error', 'Upload failed: ' + data.error, 'error');
+                }
+            } catch (e) {
+                this.showToast('Upload Error', 'Dropped file upload failed.', 'error');
+            }
+        },
+
         openCreateDirModal() {
             this.newDirName = '';
             this.showDirModal = true;
@@ -984,13 +1013,19 @@ function dashboard() {
         },
 
         sendDonationConfirmation(platform) {
-            const name = this.donorName.trim() || 'Hamba Allah';
-            const amount = this.donationAmount || '0';
+            const name = this.donorName.trim() || 'Anonymous';
+            const amount = this.donationAmount ? 'Rp ' + parseInt(this.donationAmount).toLocaleString('id-ID') : 'Rp 0';
             const msg = this.donorMessage.trim() || '-';
-            const text = `Halo, saya ingin mengkonfirmasi donasi BFR WebUI Go.\n\nNama: ${name}\nJumlah: Rp ${parseInt(amount).toLocaleString('id-ID')}\nPesan/Doa: ${msg}`;
+            const text = `Donation Confirmation\nName: ${name}\nAmount: ${amount}\nMessage: ${msg}`;
+            
             navigator.clipboard.writeText(text).then(() => {
-                this.showToast('Copied confirmation text', 'Confirmation message copied to clipboard!', 'success');
+                if (platform === 'telegram') {
+                    this.showToast('Copied confirmation text', 'Confirmation text copied to clipboard!', 'success');
+                } else if (platform === 'facebook') {
+                    this.showToast('Copied confirmation text', 'Confirmation message copied! Opening Facebook chat...', 'success');
+                }
             }).catch(() => {});
+
             if (platform === 'telegram') {
                 const url = `https://t.me/Latifan_id?text=${encodeURIComponent(text)}`;
                 window.open(url, '_blank');
@@ -998,6 +1033,29 @@ function dashboard() {
                 const url = `https://www.facebook.com/latifan.latifan.latifan.latif`;
                 window.open(url, '_blank');
             }
+        },
+
+        isPhysicalInterface(name) {
+            if (!name) return false;
+            const lower = name.toLowerCase();
+            return lower.startsWith('wlan') ||
+                   lower.startsWith('rmnet') ||
+                   lower.startsWith('r_rmnet') ||
+                   lower.startsWith('rndis') ||
+                   lower.startsWith('eth') ||
+                   lower.startsWith('p2p');
+        },
+
+        getRPSBitmaskLabel(bitmask) {
+            if (!bitmask) return 'Disabled';
+            const bm = bitmask.toLowerCase().trim();
+            if (bm === '00') return 'Disabled';
+            if (bm === 'cc') return 'Qualcomm / Vendor Default (Core 2,3,6,7)';
+            if (bm === '02') return 'Core 1 Dedicated';
+            if (bm === '0f' || bm === '0f') return 'Core 0-3 (Efficiency)';
+            if (bm === 'f0' || bm === 'f0') return 'Core 4-7 (Performance)';
+            if (bm === 'ff' || bm === 'ff') return 'All Cores (Max Throughput)';
+            return `Custom Hex (0x${bitmask})`;
         },
 
         toggleTheme() {

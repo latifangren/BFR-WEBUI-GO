@@ -32,7 +32,7 @@
                 </div>
                 <div>
                     <h1 class="font-bold text-lg leading-none tracking-wide text-white flex items-center gap-2">
-                        BFR WEBUI <span class="ml-2 px-2 py-0.5 rounded bg-[#f59e0b] text-black text-[10px] font-extrabold uppercase tracking-wide border border-black shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]">PRO</span>
+                        BFR WEBUI <span class="ml-2 px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-wider shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]" style="background-color: #f59e0b !important; color: #000000 !important; border: 1.5px solid #000000 !important;">PRO</span>
                     </h1>
                     <p class="text-xs text-gray-400 mt-0.5" x-text="stats.model ? stats.model + ' (Android ' + stats.android_ver + ')' : 'Android System WebUI'"></p>
                 </div>
@@ -525,9 +525,14 @@
 
                     <!-- RPS Packet Steering Settings -->
                     <div class="bg-card border border-border rounded-2xl p-6 space-y-4 font-mono">
-                        <h3 class="text-sm font-bold text-white uppercase tracking-wider">RPS Packet Steering Configuration</h3>
+                        <div class="flex items-center justify-between flex-wrap gap-2">
+                            <h3 class="text-sm font-bold text-white uppercase tracking-wider">RPS Packet Steering Configuration</h3>
+                            <button type="button" @click="showAllRpsInterfaces = !showAllRpsInterfaces" class="px-3 py-1.5 bg-black border border-border text-xs font-mono text-gray-300 rounded-xl hover:text-white transition">
+                                <span x-text="showAllRpsInterfaces ? 'Hide Virtual Interfaces' : 'Show Virtual Interfaces (lo, dummy, sit, etc.)'"></span>
+                            </button>
+                        </div>
                         
-                        <div class="p-4 bg-black/60 border border-border rounded-xl mb-4 text-[11px] text-gray-400 font-mono space-y-1">
+                        <div class="p-4 bg-black/60 border border-border rounded-xl text-[11px] text-gray-400 font-mono space-y-1">
                             <div class="font-bold text-amber-500 flex items-center gap-1">💡 What is RPS Packet Steering?</div>
                             <div>Receive Packet Steering (RPS) distributes incoming network packets to multiple CPU cores. Enabling it on network interfaces (e.g. wlan0 for hotspot, rmnet_data for mobile data) prevents CPU Core 0 bottlenecks, reducing ping spikes in online games when your hotspot is active.</div>
                             <div class="pt-1 text-[10px] text-gray-500">Bitmask Guide: <span class="text-blue-400 font-bold">0F</span> = Core 0-3 (Efficiency) | <span class="text-blue-400 font-bold">F0</span> = Core 4-7 (Performance) | <span class="text-blue-400 font-bold">FF</span> = All Cores (Max performance) | <span class="text-red-400 font-bold">00</span> = Disabled.</div>
@@ -535,19 +540,46 @@
 
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <template x-for="r in rpsConfigs" :key="r.interface">
-                                <div class="bg-black border border-border rounded-xl p-4 flex items-center justify-between">
-                                    <div>
-                                        <div class="text-xs font-bold text-blue-400" x-text="r.interface"></div>
-                                        <div class="text-[10px] text-gray-400 flex items-center flex-wrap gap-1">
-                                            <span>Bitmask: <span class="text-white font-semibold" x-text="r.bitmask"></span></span>
-                                            <span class="text-[9px] text-gray-500" x-text="r.bitmask === '0f' || r.bitmask === '0F' ? '(Core 0-3 Efficiency)' : (r.bitmask === 'f0' || r.bitmask === 'F0' ? '(Core 4-7 Performance)' : (r.bitmask === 'ff' || r.bitmask === 'FF' ? '(All Cores Max)' : (r.bitmask === '00' ? '(Disabled)' : '(Custom)')))"></span>
+                                <template x-if="showAllRpsInterfaces || isPhysicalInterface(r.interface)">
+                                    <div class="bg-black border border-border rounded-xl p-4 flex flex-col gap-3">
+                                        <div class="flex items-center justify-between">
+                                            <div class="text-xs font-bold text-blue-400" x-text="r.interface"></div>
+                                            <span class="px-2.5 py-0.5 rounded text-[10px] font-extrabold uppercase tracking-wider bg-blue-500/10 text-blue-500 border border-blue-500/20"
+                                                :class="r.bitmask !== '00' ? 'bg-green-500/10 text-green-500 border-green-500/20' : 'bg-gray-500/10 text-gray-400 border-gray-500/20'"
+                                                x-text="getRPSBitmaskLabel(r.bitmask)">
+                                            </span>
+                                        </div>
+                                        
+                                        <!-- Preset Buttons Grid -->
+                                        <div class="grid grid-cols-2 sm:grid-cols-5 gap-1.5 pt-1 select-none">
+                                            <button type="button" @click="setRPS(r.interface, 'cc')"
+                                                :class="r.bitmask.toLowerCase().trim() === 'cc' ? 'bg-blue-600 text-white border-blue-500 shadow-none' : 'bg-black text-gray-400 border-border shadow-none hover:bg-gray-900'"
+                                                class="px-2 py-1.5 border rounded-lg text-[10px] font-bold transition-all text-center">
+                                                Vendor (cc)
+                                            </button>
+                                            <button type="button" @click="setRPS(r.interface, '0f')"
+                                                :class="r.bitmask.toLowerCase().trim() === '0f' ? 'bg-blue-600 text-white border-blue-500 shadow-none' : 'bg-black text-gray-400 border-border shadow-none hover:bg-gray-900'"
+                                                class="px-2 py-1.5 border rounded-lg text-[10px] font-bold transition-all text-center">
+                                                Eff (0f)
+                                            </button>
+                                            <button type="button" @click="setRPS(r.interface, 'f0')"
+                                                :class="r.bitmask.toLowerCase().trim() === 'f0' ? 'bg-blue-600 text-white border-blue-500 shadow-none' : 'bg-black text-gray-400 border-border shadow-none hover:bg-gray-900'"
+                                                class="px-2 py-1.5 border rounded-lg text-[10px] font-bold transition-all text-center">
+                                                Perf (f0)
+                                            </button>
+                                            <button type="button" @click="setRPS(r.interface, 'ff')"
+                                                :class="r.bitmask.toLowerCase().trim() === 'ff' ? 'bg-blue-600 text-white border-blue-500 shadow-none' : 'bg-black text-gray-400 border-border shadow-none hover:bg-gray-900'"
+                                                class="px-2 py-1.5 border rounded-lg text-[10px] font-bold transition-all text-center">
+                                                Max All (ff)
+                                            </button>
+                                            <button type="button" @click="setRPS(r.interface, '00')"
+                                                :class="r.bitmask.toLowerCase().trim() === '00' ? 'bg-red-650 text-white border-red-500 shadow-none' : 'bg-black text-red-550 border-border shadow-none hover:bg-gray-900'"
+                                                class="px-2 py-1.5 border rounded-lg text-[10px] font-bold transition-all text-center col-span-2 sm:col-span-1">
+                                                OFF (00)
+                                            </button>
                                         </div>
                                     </div>
-                                    <div class="flex items-center gap-2">
-                                        <button type="button" @click="setRPS(r.interface, 'f')" class="px-3 py-1.5 bg-blue-600 hover:bg-blue-500 rounded-xl text-xs font-bold transition">Activate (f)</button>
-                                        <button type="button" @click="setRPS(r.interface, '00')" class="px-3 py-1.5 bg-black hover:bg-gray-900 border border-border text-red-400 hover:text-red-300 rounded-xl text-xs font-bold transition">Deactivate (00)</button>
-                                    </div>
-                                </div>
+                                </template>
                             </template>
                         </div>
                     </div>
@@ -703,9 +735,19 @@
                         </div>
 
                         <!-- Directory Listing Table -->
-                        <div class="bg-black border border-border rounded-xl overflow-hidden">
-                            <div class="overflow-x-auto">
-                                <table class="w-full text-left text-xs font-mono">
+                        <div class="relative"
+                             @dragover.prevent="isDragging = true"
+                             @dragleave.prevent="isDragging = false"
+                             @drop.prevent="handleFileDrop($event)">
+                            <div x-show="isDragging" x-cloak class="absolute inset-0 bg-blue-600/20 backdrop-blur-sm border-2 border-dashed border-blue-550 rounded-xl z-30 flex items-center justify-center pointer-events-none">
+                                <div class="bg-[#1e293b] border-2 border-border p-4 rounded-xl shadow-2xl flex items-center gap-2 text-xs font-mono font-bold text-white select-none">
+                                    <span>📥</span>
+                                    <span>Drop files here to upload to current directory</span>
+                                </div>
+                            </div>
+                            <div class="bg-black border border-border rounded-xl overflow-hidden">
+                                <div class="overflow-x-auto">
+                                    <table class="w-full text-left text-xs font-mono">
                                     <thead class="bg-gray-900/50 text-gray-400 border-b border-border">
                                         <tr>
                                             <th class="p-3">Name</th>
@@ -752,6 +794,7 @@
                                     </tbody>
                                 </table>
                             </div>
+                        </div>
                         </div>
                     </div>
                 </div>
@@ -1255,7 +1298,7 @@
                         </div>
                         <div>
                             <h2 class="text-xl font-extrabold text-white flex items-center gap-2">
-                                BFR WEBUI <span class="px-2 py-0.5 rounded bg-[#f59e0b] text-black text-[10px] font-extrabold uppercase tracking-wide border border-black shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]">PRO</span>
+                                BFR WEBUI <span class="ml-2 px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-wider shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]" style="background-color: #f59e0b !important; color: #000000 !important; border: 1.5px solid #000000 !important;">PRO</span>
                             </h2>
                             <p class="text-xs text-gray-400 font-mono mt-0.5">High-Performance Android System WebUI & Control Panel</p>
                         </div>
@@ -1353,15 +1396,15 @@
                             <div class="space-y-3 font-mono text-xs">
                                 <div class="space-y-1">
                                     <label for="donor-name" class="text-xs text-gray-400">Donor Name</label>
-                                    <input id="donor-name" type="text" x-model="donorName" class="w-full bg-black border border-border rounded-xl px-3.5 py-2 text-xs text-white" placeholder="Your name or 'Hamba Allah'" />
+                                    <input id="donor-name" type="text" x-model="donorName" class="w-full bg-black border border-border rounded-xl px-3.5 py-2 text-xs text-white" placeholder="Your name or 'Anonymous'" />
                                 </div>
                                 <div class="space-y-1">
                                     <label for="donor-amount" class="text-xs text-gray-400">Donation Amount (Rp)</label>
                                     <input id="donor-amount" type="number" min="0" x-model.number="donationAmount" class="w-full bg-black border border-border rounded-xl px-3.5 py-2 text-xs text-white" placeholder="e.g. 100000" />
                                 </div>
                                 <div class="space-y-1">
-                                    <label for="donor-msg" class="text-xs text-gray-400">Message / Prayers</label>
-                                    <textarea id="donor-msg" x-model="donorMessage" rows="3" class="w-full bg-black border border-border rounded-xl px-3.5 py-2 text-xs text-white" placeholder="Write your wishes or prayers..."></textarea>
+                                    <label for="donor-msg" class="text-xs text-gray-400">Message / Note</label>
+                                    <textarea id="donor-msg" x-model="donorMessage" rows="3" class="w-full bg-black border border-border rounded-xl px-3.5 py-2 text-xs text-white" placeholder="Write your message or note for developer..."></textarea>
                                 </div>
                             </div>
 
@@ -1374,6 +1417,28 @@
                                 </button>
                             </div>
                         </div>
+                    </div>
+                </div>
+
+                <!-- Community & Support Card -->
+                <div class="bg-card border border-border rounded-2xl p-8 space-y-6 shadow-2xl font-mono">
+                    <div class="border-b border-border/40 pb-4">
+                        <h2 class="text-xl font-extrabold text-white flex items-center gap-2">
+                            <span>💬 Community & Support</span>
+                        </h2>
+                        <p class="text-xs text-gray-400 mt-0.5">Connect for updates, ask questions, or report system issues</p>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                        <a href="https://t.me/Latifan_id" target="_blank" class="px-5 py-3 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-bold transition uppercase tracking-wider select-none text-center shadow-[4px_4px_0px_0px_var(--neo-shadow)] hover:translate-y-[-1px] active:translate-y-[1px] flex items-center justify-center gap-1.5">
+                            ✈ Telegram Support
+                        </a>
+                        <a href="https://www.facebook.com/latifan.latifan.latifan.latif" target="_blank" class="px-5 py-3 bg-black border border-border text-gray-300 hover:text-white rounded-xl text-xs font-bold transition uppercase tracking-wider select-none text-center shadow-[4px_4px_0px_0px_var(--neo-shadow)] hover:translate-y-[-1px] active:translate-y-[1px] flex items-center justify-center gap-1.5">
+                            👥 Facebook Profile
+                        </a>
+                        <a href="https://github.com/latifangren/BFR-WEBUI-GO/issues" target="_blank" class="px-5 py-3 bg-red-600/10 hover:bg-red-600/20 text-red-500 border border-red-500/30 rounded-xl text-xs font-bold transition uppercase tracking-wider select-none text-center shadow-[4px_4px_0px_0px_var(--neo-shadow)] hover:translate-y-[-1px] active:translate-y-[1px] flex items-center justify-center gap-1.5">
+                            🐙 Report GitHub Issue
+                        </a>
                     </div>
                 </div>
             </div>
