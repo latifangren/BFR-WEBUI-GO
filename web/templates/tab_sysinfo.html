@@ -44,7 +44,7 @@
                             </div>
                             <div class="bg-black border border-border p-3.5 rounded-xl space-y-1 sm:col-span-2">
                                 <div class="text-[10px] text-gray-500 uppercase font-bold">Server Hostname & Time</div>
-                                <div class="text-xs font-bold text-white" x-text="stats.hostname + ' / ' + stats.server_time"></div>
+                                <div class="text-xs font-bold text-white" x-text="stats.hostname + ' / ' + (stats.local_time || stats.server_time)"></div>
                             </div>
                             <div class="bg-black border border-border p-3.5 rounded-xl space-y-1 sm:col-span-2">
                                 <div class="text-[10px] text-gray-500 uppercase font-bold">Linux Kernel String</div>

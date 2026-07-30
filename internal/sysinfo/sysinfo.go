@@ -57,6 +57,7 @@ type ServiceStatus struct {
 type Stats struct {
 	CPUUsage       float64         `json:"cpu_usage"`
 	CPUCores       []CPUCoreStat   `json:"cpu_cores"`
+	CPUTemp        float64         `json:"cpu_temp"`
 	MemTotal       uint64          `json:"mem_total"`
 	MemFree        uint64          `json:"mem_free"`
 	MemAvailable   uint64          `json:"mem_available"`
@@ -125,6 +126,27 @@ func GetStats() (Stats, error) {
 	s.BatteryTemp = s.BatteryDetail.Temp
 
 	s.Thermals = getThermalZones()
+	// Calculate average CPU thermal temperature
+	var cpuThermalSum float64
+	var cpuThermalCount int
+	for _, tz := range s.Thermals {
+		// Only average genuine CPU/SoC zones
+		lowerName := strings.ToLower(tz.Name)
+		if strings.Contains(lowerName, "cpu") || strings.Contains(lowerName, "soc") || strings.Contains(lowerName, "ap-therm") || strings.Contains(lowerName, "ap_therm") {
+			cpuThermalSum += tz.Temp
+			cpuThermalCount++
+		}
+	}
+	if cpuThermalCount > 0 {
+		s.CPUTemp = cpuThermalSum / float64(cpuThermalCount)
+	} else if len(s.Thermals) > 0 {
+		// Fallback to first zone
+		s.CPUTemp = s.Thermals[0].Temp
+	} else {
+		// Fallback to battery temperature if no CPU thermals found
+		s.CPUTemp = s.BatteryTemp
+	}
+
 	s.Disks = getDiskPartitions()
 
 	s.LoadAvg = getLoadAvg()
@@ -367,7 +389,7 @@ func getThermalZones() []ThermalZone {
 	}
 
 	prioritizedTypes := []string{"cpu-0", "cpu-1", "cpuss-0", "cpu-top", "soc-thermal", "mtktscpu"}
-	excludedKeywords := []string{"modem", "pa_", "pa-", "gpu", "npu", "pmic", "charger", "camera", "xo_", "battery", "bms", "wlan"}
+	excludedKeywords := []string{"modem", "pa_", "pa-", "gpu", "npu", "pmic", "charger", "camera", "xo_", "battery", "bms", "wlan", "soc", "soc_"}
 
 	for _, z := range files {
 		typeData, err := os.ReadFile(filepath.Join(z, "type"))
@@ -400,7 +422,7 @@ func getThermalZones() []ThermalZone {
 
 		// If prioritize match doesn't hit, generic checks
 		if !matched {
-			if strings.Contains(lowerType, "cpu") || strings.Contains(lowerType, "soc") || strings.Contains(lowerType, "cpuss") || strings.Contains(lowerType, "mtktscpu") {
+			if strings.Contains(lowerType, "cpu") || strings.Contains(lowerType, "cpuss") || strings.Contains(lowerType, "mtktscpu") {
 				matched = true
 			} else if lowerType == "ap-therm" || lowerType == "ap_therm" {
 				matched = true
