@@ -959,28 +959,40 @@ func buildNetworkDetail() NetworkDetail {
 		block := signalBlocks[i]
 
 		rsrp, rsrq, sinr := 0, 0, 0
-		if strings.Contains(block, "rsrp=") {
-			parts := strings.Split(block, " rsrp=")
-			if len(parts) > 1 {
-				rStr := strings.Split(parts[1], " ")[0]
-				r, _ := strconv.Atoi(rStr)
-				rsrp = r
+		if idx := strings.Index(block, "rsrp="); idx != -1 {
+			valStart := idx + 5
+			valEnd := valStart
+			for valEnd < len(block) && (block[valEnd] == '-' || (block[valEnd] >= '0' && block[valEnd] <= '9')) {
+				valEnd++
+			}
+			if valStart < valEnd {
+				if r, err := strconv.Atoi(block[valStart:valEnd]); err == nil {
+					rsrp = r
+				}
 			}
 		}
-		if strings.Contains(block, "rsrq=") {
-			parts := strings.Split(block, " rsrq=")
-			if len(parts) > 1 {
-				rStr := strings.Split(parts[1], " ")[0]
-				r, _ := strconv.Atoi(rStr)
-				rsrq = r
+		if idx := strings.Index(block, "rsrq="); idx != -1 {
+			valStart := idx + 5
+			valEnd := valStart
+			for valEnd < len(block) && (block[valEnd] == '-' || (block[valEnd] >= '0' && block[valEnd] <= '9')) {
+				valEnd++
+			}
+			if valStart < valEnd {
+				if r, err := strconv.Atoi(block[valStart:valEnd]); err == nil {
+					rsrq = r
+				}
 			}
 		}
-		if strings.Contains(block, "rssnr=") {
-			parts := strings.Split(block, " rssnr=")
-			if len(parts) > 1 {
-				sStr := strings.Split(parts[1], " ")[0]
-				s, _ := strconv.Atoi(sStr)
-				sinr = s
+		if idx := strings.Index(block, "rssnr="); idx != -1 {
+			valStart := idx + 6
+			valEnd := valStart
+			for valEnd < len(block) && (block[valEnd] == '-' || (block[valEnd] >= '0' && block[valEnd] <= '9')) {
+				valEnd++
+			}
+			if valStart < valEnd {
+				if r, err := strconv.Atoi(block[valStart:valEnd]); err == nil {
+					sinr = r
+				}
 			}
 		}
 
