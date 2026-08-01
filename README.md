@@ -1,69 +1,71 @@
 # BFR-WEBUI-GO
 
-> **Panel Kontrol System Android & WebUI Ultra-Ringan**  
-> Didesain khusus sebagai modul Magisk / KernelSU / APatch yang 100% offline-ready, ditulis dalam bahasa Go modular dengan antarmuka Alpine.js & Tailwind CSS.
+> **Ultra-Lightweight Android System Control Panel & WebUI**  
+> Specially designed as a 100% offline-ready Magisk / KernelSU / APatch module. Built with a modular Go backend, Alpine.js, and a Neo-Brutalist Tailwind CSS dark AMOLED interface.
 
 ---
 
-## ⚡ Fitur Utama
+## ⚡ Key Features
 
-- **Offline-Ready & Ringan**: Binary tunggal (~10MB) terkompilasi statis dengan konsumsi RAM sangat rendah.
-- **Manajemen Proxy & Core**: Kontrol daemon Clash / Mihomo, pergantian mode (Rule, Global, Direct, Script), serta pemantauan log real-time via WebSocket.
-- **Pengaturan Jaringan & Tweaks**:
-  - Konfigurasi Sysctl (TCP Congestion BBR2, Buffer optimization, dll).
-  - Pengaturan DNS kustom & DNS Spoofing.
-  - Pengaturan TTL & HL Spoofing (IPv4 & IPv6).
-  - Tuning Packet Steering / RPS (Receive Packet Steering) per interface.
-  - Pengaturan MTU dan TxQueueLen dinamis.
-- **SoftAP & Hotspot Controller**: Manajemen hotspot Android, pemantauan perangkat terhubung (ARP table), dan pembatasan client.
-- **Pengontrol Pengisian Daya (Charger Control)**: Manajemen ambang pengisian daya baterai & kontrol sysfs otomatis.
-- **SMS Viewer**: Membaca SMS masuk (termasuk kode OTP/2FA) langsung dari dashboard.
-- **Terminal Web (PTY)**: Terminal interaktif penuh berbasis PTY & WebSockets dengan hak akses root.
-- **Manajer File Terintegrasi**: Akses pembacaan, pengunggahan, pengeditan, dan pengunduhan file sistem.
-- **Informasi Sistem & Hardware**: Pemantauan beban CPU, penggunaan RAM, status baterai, suhu thermal, dan statistik jaringan.
-
----
-
-## 🌐 Dokumentasi & Panduan Instalasi
-
-Dokumentasi lengkap panduan instalasi dapat dilihat pada folder [`docs/`](./docs/):
-
-- 🇮🇩 [Panduan Instalasi Bahasa Indonesia](./docs/INSTALLATION_ID.md)
-- 🇬🇧 [English Installation Guide](./docs/INSTALLATION_EN.md)
+- **Offline-Ready & Tiny Footprint**: Runs as a single compiled Go binary (~10MB) with extremely low memory usage (~15MB RAM RSS).
+- **Security-First Model**: Robust input sanitization, double-submit CSS/Custom Header CSRF protection, IP-based rate limiting, and SameSite session security.
+- **Proxy Core Controller**: Full daemon controller for Clash / Mihomo. Allows hot-swapping proxy modes (Rule, Global, Direct, Script) and real-time log monitoring over WebSockets.
+- **Custom Android Network Tweaks**:
+  - Live Sysctl tuning (TCP Congestion BBRv2, buffer optimization, core TCP properties).
+  - Custom DNS configuration and iptables DNAT injection.
+  - TTL & Hop Limit spoofing (supporting both IPv4 and IPv6).
+  - Packet steering (RPS) auto-tuner for high-throughput mobile networks.
+  - Dynamic MTU and TxQueueLen controllers.
+- **Magisk / KernelSU / APatch Module Manager**: View, toggle, and install root modules (`.zip`) natively via web interfaces.
+- **CPU Governor & Thermal Monitor**: Real-time core frequency gauges, thermal zone monitoring, and active CPU scaling governor switcher.
+- **Live Android Logcat Live Tail**: Interactive WebSocket terminal view of system logs with level filters (Debug, Info, Warn, Error) and keyword search.
+- **System Backups**: One-click configuration export and import backup (.json) bundle.
+- **SoftAP & Hotspot Controller**: Full SoftAP configuration, Client DHCP/ARP lease table monitoring, and connection banning.
+- **Smart Battery Charger Tuning**: Auto-control of battery thresholds via sysfs charger overrides.
+- **Root Web Terminal (PTY)**: Complete interactive Web-based root shell console driven by pty & WebSockets.
+- **Sophisticated File Manager**: Full read, write, cut, copy, paste clipboard operations, file permissions grid (`chmod`/`chown`), search, and ZipSlip-hardened archiver.
+- **PWA Support**: Fully installable PWA with service worker network-first API caching.
 
 ---
 
-## ⚙️ Konfigurasi Variabel Lingkungan (Environment Variables)
+## 🌐 Documentation & Guides
 
-BFR-WEBUI-GO dapat dikustomisasi menggunakan variabel lingkungan. Pengaturan default otomatis digunakan jika variabel tidak diset.
+Complete setup, customization, and usage guides are available in English and Indonesian:
 
-Lihat contoh lengkap di file [`env.example`](./env.example):
+- 🇬🇧 [English Installation & Operation Guide](./docs/INSTALLATION_EN.md)
+- 🇮🇩 [Indonesian Installation Guide](./docs/INSTALLATION_ID.md)
 
-| Variabel | Default | Deskripsi |
+---
+
+## ⚙️ Environment Overrides
+
+BFR-WEBUI-GO is fully configurable via system properties or environment flags. 
+
+See[`env.example`](./env.example) for baseline templates:
+
+| Variable | Default Value | Description |
 |---|---|---|
-| `PORT` | `8080` | Port HTTP tempat WebUI berjalan |
-| `BFR_PASSWORD` | `bfr` | Password autentikasi login WebUI |
-| `BFR_SU_BIN` | `su` | Perintah/binary root (misal `su`, `ksu`, `apatch`) |
-| `BFR_MODULE_DIR` | `/data/adb/modules/bfr_webui_go` | Direktori tempat modul terinstall |
-| `BFR_BOX_BASE` | `/data/adb/box` | Path basis untuk modul Box |
-| `BFR_CLASH_BASE` | `/data/adb/clash` | Path basis untuk modul Clash |
-| `BFR_CLASH_API` | `http://127.0.0.1:9090` | Endpoint REST API Clash / Mihomo |
-| `BFR_SMS_DB` | *(Auto-scan)* | Path kustom database SMS SQLite |
-| `BFR_LEASES_FILE` | `/data/misc/dhcp/dnsmasq.leases` | Path file DHCP leases SoftAP |
-| `BFR_ALLOWED_DIRS` | `/sdcard,/storage,/data/adb,...` | Batas direktori yang diizinkan untuk File Manager |
+| `PORT` | `8080` | HTTP WebUI server bind port |
+| `BFR_PASSWORD` | `bfr` | Sign-in access password |
+| `BFR_SU_BIN` | `su` | Root executor binary binary (e.g. `su`, `ksu`, `apatch`) |
+| `BFR_MODULE_DIR` | `/data/adb/modules/bfr_webui_go` | Base module install path |
+| `BFR_BOX_BASE` | `/data/adb/box` | Box framework base path |
+| `BFR_CLASH_API` | `http://127.0.0.1:9090` | Clash API controller address |
+| `BFR_LEASES_FILE` | `/data/misc/dhcp/dnsmasq.leases` | Hotspot leases file path |
+| `BFR_ALLOWED_DIRS` | `/sdcard,/storage,/data/adb...` | FileManager path boundaries |
 
 ---
 
-## 🛠️ Kompilasi dari Source
+## 🛠️ Building From Source
 
-Untuk melakukan kompilasi manual targeting Android arm64:
+To compile the target binary for Android ARM64 environments manually:
 
 ```bash
-GOOS=android GOARCH=arm64 CGO_ENABLED=0 go build -ldflags="-s -w" -o bfr_webui_go main.go
+GOOS=android GOARCH=arm64 CGO_ENABLED=0 go build -ldflags="-s -w" -o webui main.go
 ```
 
 ---
 
-## 📄 Lisensi
+## 📄 License
 
-Proyek ini dirilis di bawah lisensi MIT.
+This project is licensed under the terms of the MIT License.
