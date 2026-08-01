@@ -158,7 +158,10 @@ func GetInterfaces() ([]InterfaceInfo, error) {
 		// Read txqueuelen
 		qlenData, err := os.ReadFile(fmt.Sprintf("/sys/class/net/%s/tx_queue_len", ifc.Name))
 		if err == nil {
-			info.TxQueueLen, _ = strconv.Atoi(strings.TrimSpace(string(qlenData)))
+			// L-1: handle strconv.Atoi error instead of silently ignoring it.
+			if qlen, err := strconv.Atoi(strings.TrimSpace(string(qlenData))); err == nil {
+				info.TxQueueLen = qlen
+			}
 		}
 
 		if stats, ok := netDevStats[ifc.Name]; ok {

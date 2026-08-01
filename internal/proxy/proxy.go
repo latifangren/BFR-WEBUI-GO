@@ -2,6 +2,8 @@ package proxy
 
 import (
 	"bufio"
+	"bytes"
+	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
@@ -30,6 +32,11 @@ type LogHub struct {
 	listeners map[chan string]bool
 }
 
+// M-7: dedicated HTTP client with timeout for Clash API requests.
+var clashHTTPClient = &http.Client{
+	Timeout: 5 * time.Second,
+}
+
 var (
 	hub = &LogHub{
 		listeners: make(map[chan string]bool),
@@ -37,9 +44,14 @@ var (
 	upgrader = websocket.Upgrader{
 		CheckOrigin: func(r *http.Request) bool { return true },
 	}
+
+	// L-4: allow overriding hardcoded base paths via environment variables.
+	boxBasePath   = envOrDefault("BFR_BOX_BASE", "/data/adb/box")
+	clashBasePath = envOrDefault("BFR_CLASH_BASE", "/data/adb/clash")
+
 	possibleCores = []string{
-		"/data/adb/box/bin/mihomo",
-		"/data/adb/clash/clash",
+		boxBasePath + "/bin/mihomo",
+		clashBasePath + "/clash",
 		"/data/adb/modules/box4magisk/bin/mihomo",
 		"/data/adb/modules/clash_for_magisk/bin/clash",
 		"/system/bin/mihomo",
@@ -49,6 +61,14 @@ var (
 	watchdogEnabled = false
 	watchdogMux     sync.Mutex
 )
+
+// envOrDefault returns the value of the environment variable if set, else the fallback.
+func envOrDefault(key, fallback string) string {
+	if v := os.Getenv(key); v != "" {
+		return v
+	}
+	return fallback
+}
 
 func init() {
 	go runWatchdog()
@@ -68,6 +88,7 @@ func GetWatchdog() bool {
 
 func runWatchdog() {
 	ticker := time.NewTicker(10 * time.Second)
+	defer ticker.Stop()
 	for range ticker.C {
 		if GetWatchdog() {
 			cores := DetectCores()
@@ -141,12 +162,21 @@ func ControlService(action string) error {
 		if _, ok := checkRunning("clash"); ok {
 			return nil
 		}
-		cmdStr = "if [ -f /data/adb/box/scripts/box.service ]; then /data/adb/box/scripts/box.service start; elif [ -f /data/adb/clash/scripts/clash.service ]; then /data/adb/clash/scripts/clash.service start; else su -c mihomo -d /data/adb/box/bin/ & fi"
+		cmdStr = fmt.Sprintf(
+			"if [ -f %s/scripts/box.service ]; then %s/scripts/box.service start; elif [ -f %s/scripts/clash.service ]; then %s/scripts/clash.service start; else su -c mihomo -d %s/bin/ & fi",
+			boxBasePath, boxBasePath, clashBasePath, clashBasePath, boxBasePath,
+		)
 	case "stop":
 		SetWatchdog(false)
-		cmdStr = "if [ -f /data/adb/box/scripts/box.service ]; then /data/adb/box/scripts/box.service stop; elif [ -f /data/adb/clash/scripts/clash.service ]; then /data/adb/clash/scripts/clash.service stop; else killall mihomo clash 2>/dev/null || true; fi"
+		cmdStr = fmt.Sprintf(
+			"if [ -f %s/scripts/box.service ]; then %s/scripts/box.service stop; elif [ -f %s/scripts/clash.service ]; then %s/scripts/clash.service stop; else killall mihomo clash 2>/dev/null || true; fi",
+			boxBasePath, boxBasePath, clashBasePath, clashBasePath,
+		)
 	case "restart":
-		cmdStr = "if [ -f /data/adb/box/scripts/box.service ]; then /data/adb/box/scripts/box.service restart; elif [ -f /data/adb/clash/scripts/clash.service ]; then /data/adb/clash/scripts/clash.service restart; else killall mihomo clash 2>/dev/null; sleep 1; mihomo -d /data/adb/box/bin/ & fi"
+		cmdStr = fmt.Sprintf(
+			"if [ -f %s/scripts/box.service ]; then %s/scripts/box.service restart; elif [ -f %s/scripts/clash.service ]; then %s/scripts/clash.service restart; else killall mihomo clash 2>/dev/null; sleep 1; mihomo -d %s/bin/ & fi",
+			boxBasePath, boxBasePath, clashBasePath, clashBasePath, boxBasePath,
+		)
 	default:
 		return fmt.Errorf("unknown action: %s", action)
 	}
@@ -193,9 +223,10 @@ func StreamLogs(w http.ResponseWriter, r *http.Request) {
 		close(logChan)
 	}()
 
-	logFile := "/data/adb/box/run/runs.log"
+	// L-4: use env-overridable base path for log file detection.
+	logFile := boxBasePath + "/run/runs.log"
 	if _, err := os.Stat(logFile); err != nil {
-		logFile = "/data/adb/clash/run/runs.log"
+		logFile = clashBasePath + "/run/runs.log"
 	}
 
 	cmd := exec.Command("su", "-c", "tail -n 50 -f "+logFile)
@@ -227,7 +258,8 @@ func StreamLogs(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetMode() string {
-	resp, err := http.Get("http://127.0.0.1:9090/configs")
+	// M-7: use dedicated clashHTTPClient with timeout.
+	resp, err := clashHTTPClient.Get("http://127.0.0.1:9090/configs")
 	if err != nil {
 		return "Rule"
 	}
@@ -243,12 +275,19 @@ func GetMode() string {
 }
 
 func SetMode(mode string) error {
-	req, err := http.NewRequest(http.MethodPatch, "http://127.0.0.1:9090/configs", strings.NewReader(fmt.Sprintf(`{"mode": "%s"}`, mode)))
+	// M-2/B-1: use json.Marshal for the payload instead of fmt.Sprintf.
+	payload, err := json.Marshal(map[string]string{"mode": mode})
+	if err != nil {
+		return fmt.Errorf("failed to marshal mode payload: %w", err)
+	}
+
+	req, err := http.NewRequest(http.MethodPatch, "http://127.0.0.1:9090/configs", bytes.NewReader(payload))
 	if err != nil {
 		return err
 	}
 	req.Header.Set("Content-Type", "application/json")
-	resp, err := http.DefaultClient.Do(req)
+	// M-7: use dedicated clashHTTPClient with timeout.
+	resp, err := clashHTTPClient.Do(req)
 	if err != nil {
 		return err
 	}
@@ -257,10 +296,11 @@ func SetMode(mode string) error {
 }
 
 func DetectConfigPath() string {
+	// L-4: allow overriding base paths via environment variables.
 	paths := []string{
-		"/data/adb/box/clash/config.yaml",
-		"/data/adb/box/config.yaml",
-		"/data/adb/clash/config.yaml",
+		boxBasePath + "/clash/config.yaml",
+		boxBasePath + "/config.yaml",
+		clashBasePath + "/config.yaml",
 		"/data/adb/modules/box4magisk/config.yaml",
 	}
 	for _, p := range paths {

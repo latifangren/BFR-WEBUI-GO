@@ -1,10 +1,14 @@
 package main
 
 import (
+	"context"
 	"flag"
 	"log"
 	"net/http"
 	"os"
+	"os/signal"
+	"syscall"
+	"time"
 
 	"bfr-webui-go/internal/auth"
 	_ "bfr-webui-go/internal/charger"
@@ -39,8 +43,31 @@ func main() {
 	handlers.RegisterRoutes(mux, authMgr)
 
 	addr := ":" + *port
-	log.Printf("BFR WEBUI GO starting on %s...", addr)
-	if err := http.ListenAndServe(addr, mux); err != nil {
-		log.Fatalf("Server error: %v", err)
+	server := &http.Server{
+		Addr:    addr,
+		Handler: mux,
 	}
+
+	// L-5: Graceful shutdown on SIGINT / SIGTERM.
+	quit := make(chan os.Signal, 1)
+	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
+
+	go func() {
+		log.Printf("BFR WEBUI GO starting on %s...", addr)
+		if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+			log.Fatalf("Server error: %v", err)
+		}
+	}()
+
+	<-quit
+	log.Println("Shutting down server...")
+
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	if err := server.Shutdown(ctx); err != nil {
+		log.Fatalf("Server forced to shutdown: %v", err)
+	}
+
+	log.Println("Server exited cleanly.")
 }

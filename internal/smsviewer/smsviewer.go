@@ -71,7 +71,8 @@ func getDBPath() (string, func(), error) {
 
 	// If direct read fails due to root permission, copy to temporary location in /data/local/tmp or current dir via su
 	tmpPath := "/data/local/tmp/telephony_bfr_copy.db"
-	cmdStr := fmt.Sprintf("su -c 'cp %s %s && chmod 666 %s'", targetPath, tmpPath, tmpPath)
+	// M-8: use chmod 600 (owner-read-write only) for the temp DB copy.
+	cmdStr := fmt.Sprintf("su -c 'cp %s %s && chmod 600 %s'", targetPath, tmpPath, tmpPath)
 	if err := exec.Command("sh", "-c", cmdStr).Run(); err == nil {
 		cleanup := func() {
 			_ = os.Remove(tmpPath)

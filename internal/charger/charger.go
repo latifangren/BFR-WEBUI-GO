@@ -315,9 +315,11 @@ func (m *Manager) start() {
 	}()
 }
 
+// M-6: GetStatus reads current state only — does NOT call evaluateLocked() to
+// avoid sysfs writes/side-effects from a read-only GET request. Actual
+// charging evaluation continues on the background ticker (start()).
 func (m *Manager) GetStatus() StatusResponse {
-	m.mu.Lock()
-	m.evaluateLocked()
+	m.mu.RLock()
 	resp := StatusResponse{
 		Config:           m.config,
 		DetectedPath:     m.detectedPath,
@@ -327,7 +329,7 @@ func (m *Manager) GetStatus() StatusResponse {
 		Logs:             make([]string, len(m.logs)),
 	}
 	copy(resp.Logs, m.logs)
-	m.mu.Unlock()
+	m.mu.RUnlock()
 	return resp
 }
 

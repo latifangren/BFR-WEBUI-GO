@@ -63,7 +63,7 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 		Path:     "/",
 		HttpOnly: true,
 		Expires:  time.Now().Add(auth.SessionDuration),
-		SameSite: http.SameSiteLaxMode,
+		SameSite: http.SameSiteStrictMode, // M-9: use Strict to prevent CSRF.
 	})
 
 	w.Header().Set("Content-Type", "application/json")
@@ -87,6 +87,7 @@ func (h *AuthHandler) Logout(w http.ResponseWriter, r *http.Request) {
 		Path:     "/",
 		HttpOnly: true,
 		MaxAge:   -1,
+		SameSite: http.SameSiteStrictMode,
 	})
 
 	w.Header().Set("Content-Type", "application/json")

@@ -119,11 +119,11 @@ func (m *Manager) detectSshBinary() string {
 	return ""
 }
 
-func (m *Manager) getRunningProcess() (string, int) {
+func (m *Manager) getRunningProcessForPort(port int) (string, int) {
 	candidates := []string{"dropbear", "sshd"}
 	for _, c := range candidates {
 		// Specifically target sshd/dropbear instances bound to our custom port
-		cmd := exec.Command("su", "-c", fmt.Sprintf("pgrep -f \"%s.*-p %d\"", c, m.config.Port))
+		cmd := exec.Command("su", "-c", fmt.Sprintf("pgrep -f \"%s.*-p %d\"", c, port))
 		out, err := cmd.Output()
 		if err == nil {
 			lines := strings.Split(strings.TrimSpace(string(out)), "\n")
@@ -139,44 +139,58 @@ func (m *Manager) getRunningProcess() (string, int) {
 	return "", 0
 }
 
+func (m *Manager) getRunningProcess() (string, int) {
+	m.mu.RLock()
+	port := m.config.Port
+	m.mu.RUnlock()
+	return m.getRunningProcessForPort(port)
+}
+
 func checkPidRunning(pid int) bool {
 	cmd := exec.Command("su", "-c", fmt.Sprintf("kill -0 %d", pid))
 	return cmd.Run() == nil
 }
 
+// M-5: GetStatus does not hold m.mu.RLock() while executing su/pgrep commands.
 func (m *Manager) GetStatus() StatusResponse {
 	m.mu.RLock()
-	defer m.mu.RUnlock()
-
-	_, pid := m.getRunningProcess()
-	running := pid > 0
+	cfg := m.config
 	bin := m.binaryPath
+	m.mu.RUnlock()
+
+	_, pid := m.getRunningProcessForPort(cfg.Port)
+	running := pid > 0
 	if bin == "" {
 		bin = m.detectSshBinary()
 	}
 
 	return StatusResponse{
-		Config:     m.config,
+		Config:     cfg,
 		Running:    running,
 		Pid:        pid,
 		BinaryPath: bin,
 	}
 }
 
-func (m *Manager) SaveConfig(cfg Config) StatusResponse {
+// M-12: SaveConfig validates cfg.Port (1 to 65535).
+func (m *Manager) SaveConfig(cfg Config) (StatusResponse, error) {
+	if cfg.Port < 1 || cfg.Port > 65535 {
+		return m.GetStatus(), fmt.Errorf("invalid port: must be between 1 and 65535")
+	}
+
 	m.mu.Lock()
 	m.config = cfg
 	_ = m.saveConfig()
 	m.mu.Unlock()
 
-	return m.GetStatus()
+	return m.GetStatus(), nil
 }
 
 func (m *Manager) Start() error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 
-	_, pid := m.getRunningProcess()
+	_, pid := m.getRunningProcessForPort(m.config.Port)
 	if pid > 0 {
 		return nil // already running
 	}
@@ -215,7 +229,7 @@ func (m *Manager) Start() error {
 
 	// Post-start verification: wait briefly then check if daemon actually survived
 	time.Sleep(500 * time.Millisecond)
-	_, verifiedPid := m.getRunningProcess()
+	_, verifiedPid := m.getRunningProcessForPort(m.config.Port)
 	l := logger.Get()
 	if verifiedPid == 0 {
 		l.Errorf("ssh", "daemon exited immediately after start binary=%s cmd=%s", bin, fullCmd)
@@ -230,7 +244,7 @@ func (m *Manager) Stop() error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 
-	_, pid := m.getRunningProcess()
+	_, pid := m.getRunningProcessForPort(m.config.Port)
 	if pid > 0 {
 		_ = exec.Command("su", "-c", fmt.Sprintf("kill -15 %d", pid)).Run()
 	}

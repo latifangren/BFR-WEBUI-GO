@@ -10,6 +10,28 @@ import (
 	"bfr-webui-go/web"
 )
 
+// L-3: securityHeaders middleware sets security headers on responses.
+func securityHeaders(next http.HandlerFunc) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("X-Content-Type-Options", "nosniff")
+		w.Header().Set("X-Frame-Options", "DENY")
+		w.Header().Set("Referrer-Policy", "no-referrer")
+		next(w, r)
+	}
+}
+
+// M-1: maxBodySize middleware enforces 1MB max body size on POST/PUT/PATCH requests using http.MaxBytesReader.
+func maxBodySize(next http.HandlerFunc) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		if r.Method == http.MethodPost || r.Method == http.MethodPut || r.Method == http.MethodPatch {
+			if r.URL.Path != "/api/files/upload" {
+				r.Body = http.MaxBytesReader(w, r.Body, 1<<20) // 1MB limit
+			}
+		}
+		next(w, r)
+	}
+}
+
 func RegisterRoutes(mux *http.ServeMux, authMgr *auth.Manager) {
 	tmpl, tmplErr := template.New("index.html").ParseFS(web.Files, "index.html", "templates/*.html")
 	if tmplErr != nil {
@@ -19,7 +41,7 @@ func RegisterRoutes(mux *http.ServeMux, authMgr *auth.Manager) {
 	subFS, err := fs.Sub(web.Files, ".")
 	if err == nil {
 		fileServer := http.FileServer(http.FS(subFS))
-		mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		mux.HandleFunc("/", securityHeaders(func(w http.ResponseWriter, r *http.Request) {
 			if r.URL.Path != "/" && r.URL.Path != "/index.html" {
 				fileServer.ServeHTTP(w, r)
 				return
@@ -32,77 +54,83 @@ func RegisterRoutes(mux *http.ServeMux, authMgr *auth.Manager) {
 				return
 			}
 			fileServer.ServeHTTP(w, r)
-		})
+		}))
 	}
 
 	authH := NewAuthHandler(authMgr)
 	termH := NewTerminalHandler(authMgr)
 	scrcpyH := NewScrcpyHandler(authMgr)
 
-	// Auth URLs
-	mux.HandleFunc("/api/auth/status", authH.Status)
-	mux.HandleFunc("/api/auth/login", authH.Login)
-	mux.HandleFunc("/api/auth/logout", authH.Logout)
+	// Helper wrapper combining security headers, max body limit, and optional auth
+	wrap := func(h http.HandlerFunc, isProtected bool) http.HandlerFunc {
+		fn := h
+		if isProtected {
+			fn = authH.RequireAuth(fn)
+		}
+		return securityHeaders(maxBodySize(fn))
+	}
 
-	// Middleware protection wrapper
-	protected := authH.RequireAuth
+	// Auth URLs
+	mux.HandleFunc("/api/auth/status", wrap(authH.Status, false))
+	mux.HandleFunc("/api/auth/login", wrap(authH.Login, false))
+	mux.HandleFunc("/api/auth/logout", wrap(authH.Logout, false))
 
 	// Sysinfo URLs
-	mux.HandleFunc("/api/stats", protected(HandleSysinfo))
-	mux.HandleFunc("/api/sysinfo", protected(HandleSysinfo))
+	mux.HandleFunc("/api/stats", wrap(HandleSysinfo, true))
+	mux.HandleFunc("/api/sysinfo", wrap(HandleSysinfo, true))
 
 	// Power URLs
-	mux.HandleFunc("/api/power", protected(HandlePower))
+	mux.HandleFunc("/api/power", wrap(HandlePower, true))
 
 	// Network URLs
-	mux.HandleFunc("/api/network/tweaks", protected(HandleNetworkTweaks))
-	mux.HandleFunc("/api/network/ping", protected(HandlePing))
-	mux.HandleFunc("/api/network/dns", protected(HandleDNS))
-	mux.HandleFunc("/api/network/rps", protected(HandleRPS))
-	mux.HandleFunc("/api/network/ttl", protected(HandleTTL))
+	mux.HandleFunc("/api/network/tweaks", wrap(HandleNetworkTweaks, true))
+	mux.HandleFunc("/api/network/ping", wrap(HandlePing, true))
+	mux.HandleFunc("/api/network/dns", wrap(HandleDNS, true))
+	mux.HandleFunc("/api/network/rps", wrap(HandleRPS, true))
+	mux.HandleFunc("/api/network/ttl", wrap(HandleTTL, true))
 
 	// Proxy URLs
-	mux.HandleFunc("/api/proxy/status", protected(HandleProxyStatus))
-	mux.HandleFunc("/api/proxy/control", protected(HandleProxyControl))
-	mux.HandleFunc("/api/proxy/logs", protected(HandleProxyLogs))
-	mux.HandleFunc("/api/proxy/watchdog", protected(HandleProxyWatchdog))
-	mux.HandleFunc("/api/proxy/config", protected(HandleProxyConfig))
+	mux.HandleFunc("/api/proxy/status", wrap(HandleProxyStatus, true))
+	mux.HandleFunc("/api/proxy/control", wrap(HandleProxyControl, true))
+	mux.HandleFunc("/api/proxy/logs", wrap(HandleProxyLogs, true))
+	mux.HandleFunc("/api/proxy/watchdog", wrap(HandleProxyWatchdog, true))
+	mux.HandleFunc("/api/proxy/config", wrap(HandleProxyConfig, true))
 
 	// Files URLs
-	mux.HandleFunc("/api/files/list", protected(HandleFilesList))
-	mux.HandleFunc("/api/files/read", protected(HandleFilesRead))
-	mux.HandleFunc("/api/files/save", protected(HandleFilesSave))
-	mux.HandleFunc("/api/files/upload", protected(HandleFilesUpload))
-	mux.HandleFunc("/api/files/download", protected(HandleFilesDownload))
-	mux.HandleFunc("/api/files/delete", protected(HandleFilesDelete))
-	mux.HandleFunc("/api/files/mkdir", protected(HandleFilesMkdir))
-	mux.HandleFunc("/api/files/rename", protected(HandleFilesRename))
-	mux.HandleFunc("/api/files/create", protected(HandleFilesCreate))
+	mux.HandleFunc("/api/files/list", wrap(HandleFilesList, true))
+	mux.HandleFunc("/api/files/read", wrap(HandleFilesRead, true))
+	mux.HandleFunc("/api/files/save", wrap(HandleFilesSave, true))
+	mux.HandleFunc("/api/files/upload", wrap(HandleFilesUpload, true))
+	mux.HandleFunc("/api/files/download", wrap(HandleFilesDownload, true))
+	mux.HandleFunc("/api/files/delete", wrap(HandleFilesDelete, true))
+	mux.HandleFunc("/api/files/mkdir", wrap(HandleFilesMkdir, true))
+	mux.HandleFunc("/api/files/rename", wrap(HandleFilesRename, true))
+	mux.HandleFunc("/api/files/create", wrap(HandleFilesCreate, true))
 
 	// Hotspot URLs
-	mux.HandleFunc("/api/hotspot/status", protected(HandleHotspotStatus))
-	mux.HandleFunc("/api/hotspot/control", protected(HandleHotspotControl))
-	mux.HandleFunc("/api/hotspot/clients", protected(HandleHotspotClients))
+	mux.HandleFunc("/api/hotspot/status", wrap(HandleHotspotStatus, true))
+	mux.HandleFunc("/api/hotspot/control", wrap(HandleHotspotControl, true))
+	mux.HandleFunc("/api/hotspot/clients", wrap(HandleHotspotClients, true))
 
 	// Vnstat URLs
-	mux.HandleFunc("/api/vnstat/stats", protected(HandleVnstatStats))
-	mux.HandleFunc("/api/vnstat/reset", protected(HandleVnstatReset))
+	mux.HandleFunc("/api/vnstat/stats", wrap(HandleVnstatStats, true))
+	mux.HandleFunc("/api/vnstat/reset", wrap(HandleVnstatReset, true))
 
 	// Smart Charger URLs
-	mux.HandleFunc("/api/charger/config", protected(HandleChargerConfig))
-	mux.HandleFunc("/api/charger/toggle", protected(HandleChargerToggle))
+	mux.HandleFunc("/api/charger/config", wrap(HandleChargerConfig, true))
+	mux.HandleFunc("/api/charger/toggle", wrap(HandleChargerToggle, true))
 
 	// SSH URLs
-	mux.HandleFunc("/api/ssh/status", protected(HandleSSHStatus))
-	mux.HandleFunc("/api/ssh/config", protected(HandleSSHConfig))
-	mux.HandleFunc("/api/ssh/control", protected(HandleSSHControl))
+	mux.HandleFunc("/api/ssh/status", wrap(HandleSSHStatus, true))
+	mux.HandleFunc("/api/ssh/config", wrap(HandleSSHConfig, true))
+	mux.HandleFunc("/api/ssh/control", wrap(HandleSSHControl, true))
 
 	// Logs URLs
-	mux.HandleFunc("/api/logs", protected(HandleLogs))
-	mux.HandleFunc("/api/logs/clear", protected(HandleLogsClear))
+	mux.HandleFunc("/api/logs", wrap(HandleLogs, true))
+	mux.HandleFunc("/api/logs/clear", wrap(HandleLogsClear, true))
 
 	// SMS Viewer URLs
-	mux.HandleFunc("/api/sms/inbox", protected(HandleSMSInbox))
+	mux.HandleFunc("/api/sms/inbox", wrap(HandleSMSInbox, true))
 
 	// Remote Screen Scrcpy WS
 	mux.HandleFunc("/api/scrcpy/ws", scrcpyH.HandleWS)

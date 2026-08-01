@@ -23,6 +23,9 @@ func HandleWebsocket(w http.ResponseWriter, r *http.Request) {
 	}
 	defer conn.Close()
 
+	// M-10: limit incoming message size to 512 KB to prevent memory exhaustion.
+	conn.SetReadLimit(512 * 1024)
+
 	var writeMux sync.Mutex
 	writeWS := func(data []byte) error {
 		writeMux.Lock()
@@ -191,9 +194,4 @@ func HandleWebsocket(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 	}
-}
-
-// Keep it backward compatible if any files depend on old exports
-func HandleWebsocketStdinOnly(w http.ResponseWriter, r *http.Request) {
-	HandleWebsocket(w, r)
 }

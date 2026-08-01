@@ -32,7 +32,13 @@ func HandleSSHConfig(w http.ResponseWriter, r *http.Request) {
 	}
 
 	manager := ssh.GetManager()
-	status := manager.SaveConfig(cfg)
+	status, err := manager.SaveConfig(cfg)
+	if err != nil {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusBadRequest)
+		_ = json.NewEncoder(w).Encode(map[string]string{"error": err.Error()})
+		return
+	}
 	w.Header().Set("Content-Type", "application/json")
 	_ = json.NewEncoder(w).Encode(status)
 }

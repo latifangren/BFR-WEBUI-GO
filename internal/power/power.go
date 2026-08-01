@@ -21,7 +21,7 @@ func Execute(action Action) error {
 	switch action {
 	case ActionReboot:
 		cmd = exec.Command("su", "-c", "svc power reboot || reboot")
-	case ActionPoweroff:
+	case ActionPoweroff, "shutdown":
 		cmd = exec.Command("su", "-c", "svc power shutdown || reboot -p")
 	case ActionRebootRecovery:
 		cmd = exec.Command("su", "-c", "reboot recovery")

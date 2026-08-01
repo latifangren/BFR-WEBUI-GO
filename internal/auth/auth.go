@@ -79,6 +79,7 @@ func (m *Manager) GetTokenFromRequest(r *http.Request) string {
 
 func (m *Manager) cleanupLoop() {
 	ticker := time.NewTicker(30 * time.Minute)
+	defer ticker.Stop() // M-4: stop ticker to release resources when goroutine exits.
 	for range ticker.C {
 		m.mu.Lock()
 		now := time.Now()

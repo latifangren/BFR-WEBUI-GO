@@ -51,6 +51,34 @@ func captureScreenFrame() ([]byte, error) {
 	return out, nil
 }
 
+// M-13: SanitizeInput cleans shell special characters like backtick, dollar sign,
+// semicolon, backslash, quotes, and other shell operators from text input.
+func SanitizeInput(text string) string {
+	if text == "" {
+		return ""
+	}
+	s := strings.ReplaceAll(text, " ", "%s")
+	replacer := strings.NewReplacer(
+		"`", "",
+		"$", "",
+		";", "",
+		"\\", "",
+		"'", "",
+		"\"", "",
+		"&", "",
+		"|", "",
+		"<", "",
+		">", "",
+		"(", "",
+		")", "",
+		"{", "",
+		"}", "",
+		"\n", "",
+		"\r", "",
+	)
+	return replacer.Replace(s)
+}
+
 func handleInputEvent(evt InputEvent) {
 	switch evt.Action {
 	case "click", "tap":
@@ -68,10 +96,8 @@ func handleInputEvent(evt InputEvent) {
 			_ = exec.Command("su", "-c", fmt.Sprintf("input keyevent %d", evt.KeyCode)).Run()
 		}
 	case "text":
-		if evt.Text != "" {
-			safeText := strings.ReplaceAll(evt.Text, " ", "%s")
-			safeText = strings.ReplaceAll(safeText, "'", "")
-			safeText = strings.ReplaceAll(safeText, "\"", "")
+		safeText := SanitizeInput(evt.Text)
+		if safeText != "" {
 			_ = exec.Command("su", "-c", fmt.Sprintf("input text '%s'", safeText)).Run()
 		}
 	case "back":

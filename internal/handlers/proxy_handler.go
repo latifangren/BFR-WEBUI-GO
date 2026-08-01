@@ -47,6 +47,19 @@ func HandleProxyControl(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if req.Mode != "" {
+		// M-3: validate mode against a strict whitelist before forwarding.
+		validModes := map[string]bool{
+			"rule":   true,
+			"global": true,
+			"direct": true,
+			"script": true,
+		}
+		if !validModes[req.Mode] {
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusBadRequest)
+			_ = json.NewEncoder(w).Encode(map[string]interface{}{"error": "invalid mode; must be one of: rule, global, direct, script"})
+			return
+		}
 		err := proxy.SetMode(req.Mode)
 		w.Header().Set("Content-Type", "application/json")
 		_ = json.NewEncoder(w).Encode(map[string]interface{}{"success": err == nil, "error": fmt.Sprintf("%v", err)})
@@ -54,6 +67,17 @@ func HandleProxyControl(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if req.Action != "" {
+		validActions := map[string]bool{
+			"start":   true,
+			"stop":    true,
+			"restart": true,
+		}
+		if !validActions[req.Action] {
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusBadRequest)
+			_ = json.NewEncoder(w).Encode(map[string]interface{}{"error": "invalid action; must be one of: start, stop, restart"})
+			return
+		}
 		err := proxy.ControlService(req.Action)
 		w.Header().Set("Content-Type", "application/json")
 		_ = json.NewEncoder(w).Encode(map[string]interface{}{"success": err == nil, "error": fmt.Sprintf("%v", err)})
