@@ -6,7 +6,7 @@ Dokumen ini memetakan rencana peningkatan dan pengembangan untuk panel kontrol s
 
 ## 1. Performa & Efisiensi Sumber Daya
 * **`sync.Pool` Memory Buffer Reuse**: Gunakan `sync.Pool` untuk pooling buffer `bytes.Buffer` atau slice byte pada penanganan upload/download file berukuran besar serta terminal WebSocket PTY untuk membatasi overhead Garbage Collector (GC) pada RAM Android rendah (2GB/3GB).
-* **Direct `/proc` & `/sys` Reading**: Hindari pemanggilan subprocess `su -c cat ...` pada berkas-berkas sysfs/procfs yang sebenarnya bisa dibaca langsung tanpa permission root khusus (misal: `/proc/meminfo`, `/proc/net/dev`) menggunakan `os.ReadFile`.
+* **[x] Direct `/proc` & `/sys` Reading**: Hindari pemanggilan subprocess `su -c cat ...` pada berkas-berkas sysfs/procfs yang sebenarnya bisa dibaca langsung tanpa permission root khusus (misal: `/proc/meminfo`, `/proc/net/dev`) menggunakan `os.ReadFile` atau pembacaan `/proc/[pid]/comm`.
 * **Adaptive Frame Throttling untuk Scrcpy**: Lakukan pemantauan throughput WebSocket secara real-time pada stream Scrcpy screen capture, secara dinamis melompati frame (frame skipping) saat koneksi terdeteksi lambat atau jenuh.
 
 ---
@@ -19,7 +19,7 @@ Dokumen ini memetakan rencana peningkatan dan pengembangan untuk panel kontrol s
 ---
 
 ## 3. UI/UX & Pengalaman Developer (DX)
-* **PWA (Progressive Web App) Support**: Tambahkan registrasi Service Worker (`sw.js`) dan berkas `manifest.json`. Memungkinkan pemasangan aplikasi panel kontrol ini langsung ke Android Home Screen dengan tampilan khas standalone app.
+* **[x] PWA (Progressive Web App) Support**: Tambahkan registrasi Service Worker (`sw.js`) dan berkas `manifest.json`. Memungkinkan pemasangan aplikasi panel kontrol ini langsung ke Android Home Screen dengan tampilan khas standalone app.
 * **Global Toast Notification Engine**: Ganti alert standar menggunakan sistem notifikasi toast dinamis berbasis Alpine.js store dengan transisi visual yang mulus.
 * **Embedded OpenAPI / Swagger UI**: Sediakan antarmuka dokumentasi API interaktif (Scalar UI atau Swagger UI) pada rute `/docs` untuk memudahkan integrasi script otomatisasi pihak ketiga.
 
