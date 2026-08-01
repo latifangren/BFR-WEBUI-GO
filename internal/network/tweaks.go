@@ -94,8 +94,8 @@ func SetTTLSpoof(enable bool, ttl int) error {
 		ttl = 64
 	}
 	// Clear existing
-	exec.Command(config.SUBin, "-c", "iptables -t mangle -D POSTROUTING -j TTL --ttl-set 64 2>/dev/null").Run()
-	exec.Command(config.SUBin, "-c", "ip6tables -t mangle -D POSTROUTING -j HL --hl-set 64 2>/dev/null").Run()
+	_ = exec.Command(config.SUBin, "-c", "iptables -t mangle -D POSTROUTING -j TTL --ttl-set 64 2>/dev/null").Run()
+	_ = exec.Command(config.SUBin, "-c", "ip6tables -t mangle -D POSTROUTING -j HL --hl-set 64 2>/dev/null").Run()
 
 	if enable {
 		cmdV4 := fmt.Sprintf("iptables -t mangle -A POSTROUTING -j TTL --ttl-set %d", ttl)
@@ -103,7 +103,7 @@ func SetTTLSpoof(enable bool, ttl int) error {
 		if out, err := exec.Command(config.SUBin, "-c", cmdV4).CombinedOutput(); err != nil {
 			return fmt.Errorf("iptables error: %v, output: %s", err, string(out))
 		}
-		exec.Command(config.SUBin, "-c", cmdV6).Run()
+		_ = exec.Command(config.SUBin, "-c", cmdV6).Run()
 	}
 	return nil
 }
