@@ -133,7 +133,52 @@ func DetectCores() []CoreInfo {
 	return list
 }
 
+func findPID(name string) (int, bool) {
+	entries, err := os.ReadDir("/proc")
+	if err != nil {
+		return 0, false
+	}
+
+	nameLower := strings.ToLower(name)
+
+	for _, entry := range entries {
+		if !entry.IsDir() {
+			continue
+		}
+		pid, err := strconv.Atoi(entry.Name())
+		if err != nil || pid <= 0 {
+			continue
+		}
+
+		commPath := fmt.Sprintf("/proc/%d/comm", pid)
+		if commBytes, err := os.ReadFile(commPath); err == nil {
+			commStr := strings.TrimSpace(string(commBytes))
+			if strings.EqualFold(commStr, name) || strings.Contains(strings.ToLower(commStr), nameLower) {
+				return pid, true
+			}
+		}
+
+		cmdlinePath := fmt.Sprintf("/proc/%d/cmdline", pid)
+		if cmdlineBytes, err := os.ReadFile(cmdlinePath); err == nil && len(cmdlineBytes) > 0 {
+			cmdStr := strings.ReplaceAll(string(cmdlineBytes), "\x00", " ")
+			cmdStr = strings.TrimSpace(cmdStr)
+			fields := strings.Fields(cmdStr)
+			if len(fields) > 0 {
+				base := filepath.Base(fields[0])
+				if strings.EqualFold(base, name) || strings.Contains(strings.ToLower(cmdStr), nameLower) {
+					return pid, true
+				}
+			}
+		}
+	}
+
+	return 0, false
+}
+
 func checkRunning(name string) (int, bool) {
+	if pid, ok := findPID(name); ok {
+		return pid, true
+	}
 	out, err := exec.Command(config.SUBin, "-c", "pidof "+name).Output()
 	if err == nil {
 		fields := strings.Fields(string(out))
@@ -146,6 +191,17 @@ func checkRunning(name string) (int, bool) {
 }
 
 func getMemoryUsage(pid int) string {
+	statusPath := fmt.Sprintf("/proc/%d/status", pid)
+	if data, err := os.ReadFile(statusPath); err == nil {
+		scanner := bufio.NewScanner(bytes.NewReader(data))
+		for scanner.Scan() {
+			line := scanner.Text()
+			if strings.HasPrefix(line, "VmRSS:") {
+				return strings.TrimSpace(line)
+			}
+		}
+	}
+
 	out, err := exec.Command(config.SUBin, "-c", fmt.Sprintf("cat /proc/%d/status | grep RSS", pid)).Output()
 	if err == nil {
 		return strings.TrimSpace(string(out))

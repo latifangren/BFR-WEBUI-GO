@@ -593,6 +593,48 @@ func getLoadAvg() LoadAverage {
 	return l
 }
 
+func findPID(name string) (int, bool) {
+	entries, err := os.ReadDir("/proc")
+	if err != nil {
+		return 0, false
+	}
+
+	nameLower := strings.ToLower(name)
+
+	for _, entry := range entries {
+		if !entry.IsDir() {
+			continue
+		}
+		pid, err := strconv.Atoi(entry.Name())
+		if err != nil || pid <= 0 {
+			continue
+		}
+
+		commPath := fmt.Sprintf("/proc/%d/comm", pid)
+		if commBytes, err := os.ReadFile(commPath); err == nil {
+			commStr := strings.TrimSpace(string(commBytes))
+			if strings.EqualFold(commStr, name) || strings.Contains(strings.ToLower(commStr), nameLower) {
+				return pid, true
+			}
+		}
+
+		cmdlinePath := fmt.Sprintf("/proc/%d/cmdline", pid)
+		if cmdlineBytes, err := os.ReadFile(cmdlinePath); err == nil && len(cmdlineBytes) > 0 {
+			cmdStr := strings.ReplaceAll(string(cmdlineBytes), "\x00", " ")
+			cmdStr = strings.TrimSpace(cmdStr)
+			fields := strings.Fields(cmdStr)
+			if len(fields) > 0 {
+				base := filepath.Base(fields[0])
+				if strings.EqualFold(base, name) || strings.Contains(strings.ToLower(cmdStr), nameLower) {
+					return pid, true
+				}
+			}
+		}
+	}
+
+	return 0, false
+}
+
 func checkService(name, key string, port int, processNames ...string) ServiceStatus {
 	running := false
 	if port > 0 {
@@ -604,6 +646,10 @@ func checkService(name, key string, port int, processNames ...string) ServiceSta
 	}
 	if !running && len(processNames) > 0 {
 		for _, proc := range processNames {
+			if _, ok := findPID(proc); ok {
+				running = true
+				break
+			}
 			out, err := exec.Command("pidof", proc).Output()
 			if err == nil && len(strings.TrimSpace(string(out))) > 0 {
 				running = true

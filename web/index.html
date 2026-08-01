@@ -16,9 +16,18 @@
     <link rel="stylesheet" href="/static/css/tailwind.min.css" />
     <link rel="stylesheet" href="/static/css/xterm.css" />
     <link rel="stylesheet" href="/static/css/style.css" />
+    <link rel="manifest" href="/manifest.json" />
+    <meta name="theme-color" content="#0f172a" />
     <script defer src="/static/js/alpine.min.js"></script>
     <script src="/static/js/xterm.js"></script>
     <script src="/static/js/xterm-addon-fit.js"></script>
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js').catch(() => {});
+            });
+        }
+    </script>
 </head>
 <body class="bg-amoled text-gray-200 min-h-screen flex flex-col antialiased selection:bg-blue-500 selection:text-white"
       x-data="dashboard()" x-init="init()">
