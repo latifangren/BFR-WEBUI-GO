@@ -1,0 +1,51 @@
+# Changelog
+
+All notable changes to the **BFR-WEBUI-GO** project will be documented in this file.
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+---
+
+## [1.0.0] - 2026-08-02
+
+### Added
+- **Enhanced File Manager**:
+  - Modular backend refactoring (`filemanager.go`, `ops.go`, `permissions.go`, `archive.go`, `search.go`).
+  - Single & batch file operations (`CopyPath`, `MovePath`, `BatchDelete`, `BatchCopy`, `BatchMove`).
+  - File permissions & ownership editor (`chmod` octal modes & `chown` owner/group with recursive toggle).
+  - ZIP archive compression (`CompressZip`) and extraction (`ExtractZip`) with Zip Slip protection.
+  - Case-insensitive bounded file search (`SearchFiles`).
+  - Partition storage usage metrics (`GetStorageUsage`).
+  - Interactive UI components: Storage Usage Bar, Cut/Copy/Paste Clipboard status pill, Multi-select checkboxes, Image preview modal with keyboard navigation, and custom Octal-to-Symbolic `rwx` permission editor matrix.
+- **Dynamic Gateway & DNS Detection**:
+  - Active gateway detection via `ip route get 8.8.8.8` (Tier 1) with fallbacks for Android 8–16+.
+  - Multi-source DNS detection and transparent UI status labeling (`Active`, `Active / Wi-Fi`, `Active / Cellular`, `Wi-Fi Config`, `Cellular Config`).
+  - Upgraded DNS Switcher supporting `ndc resolver` and dual-protocol TCP/UDP port 53 `iptables` DNAT redirection.
+- **Centralized Environment Configuration (`internal/config`)**:
+  - Added support for `BFR_SU_BIN`, `BFR_MODULE_DIR`, `BFR_CLASH_API`, `BFR_SMS_DB`, `BFR_LEASES_FILE`, and `BFR_ALLOWED_DIRS` environment variable overrides.
+- **Application Event Logger**:
+  - Implemented global `LogWriter` streaming standard Go logs into `logger.Get()`.
+  - Added real-time audit event logging across Auth, Power, Network, Proxy, SoftAP Hotspot, File Manager, Terminal, SSH, Charger, and Scrcpy handlers.
+- **Feature-Based Modular Web Structure**:
+  - Reorganized frontend templates into `web/templates/<feature>/` subdirectories.
+  - Reorganized JavaScript modules into `web/static/js/modules/<feature>/` subdirectories.
+  - Refactored Go HTML template loader in `router.go` to parse templates recursively using `fs.WalkDir`.
+- **Documentation Suite**:
+  - Added `docs/PROJECT_STRUCTURE.md`, `docs/API_REFERENCE.md`, `docs/DEVELOPMENT.md`, `docs/SECURITY.md`, and `env.example`.
+
+### Fixed
+- **Deadlock in SSH Manager**: Fixed `sync.RWMutex` re-entrancy deadlock in `ssh.go` (`Start()` and `Stop()`).
+- **Security Audit Findings (Group A, Medium, Low)**:
+  - Resolved command injection vulnerabilities in `SetSysctl`, `SetDNS`, `SetInterfaceConfig`, `ConfigureRPS`, and `resolveDeviceName` via strict regex and IP validation.
+  - Enforced `SanitizePath` with symlink resolution across file operations.
+  - Hardened authentication tokens (no timestamp fallback) and updated session cookies to `SameSite=Strict`.
+  - Enforced 1MB request body limit on POST handlers and added HTTP security headers (`nosniff`, `DENY`, `no-referrer`).
+  - Set 512KB WebSocket ReadLimit for terminal sessions and added 5s timeout to Clash API HTTP client.
+  - Fixed temporary SMS DB file permissions (`chmod 600`).
+  - Added graceful shutdown handling for `SIGINT`/`SIGTERM` in `main.go`.
+
+---
+
+## [0.4.0] - 2026-07-31
+- Initial public release of BFR-WEBUI-GO as a Magisk / KernelSU module.
