@@ -5,6 +5,7 @@ import (
 	"io/fs"
 	"log"
 	"net/http"
+	"strings"
 
 	"bfr-webui-go/internal/auth"
 	"bfr-webui-go/web"
@@ -33,7 +34,18 @@ func maxBodySize(next http.HandlerFunc) http.HandlerFunc {
 }
 
 func RegisterRoutes(mux *http.ServeMux, authMgr *auth.Manager) {
-	tmpl, tmplErr := template.New("index.html").ParseFS(web.Files, "index.html", "templates/*.html")
+	var htmlFiles []string
+	_ = fs.WalkDir(web.Files, ".", func(path string, d fs.DirEntry, err error) error {
+		if err != nil {
+			return nil
+		}
+		if !d.IsDir() && strings.HasSuffix(path, ".html") {
+			htmlFiles = append(htmlFiles, path)
+		}
+		return nil
+	})
+
+	tmpl, tmplErr := template.New("index.html").ParseFS(web.Files, htmlFiles...)
 	if tmplErr != nil {
 		log.Fatalf("Template parse error: %v", tmplErr)
 	}
@@ -106,6 +118,14 @@ func RegisterRoutes(mux *http.ServeMux, authMgr *auth.Manager) {
 	mux.HandleFunc("/api/files/mkdir", wrap(HandleFilesMkdir, true))
 	mux.HandleFunc("/api/files/rename", wrap(HandleFilesRename, true))
 	mux.HandleFunc("/api/files/create", wrap(HandleFilesCreate, true))
+	mux.HandleFunc("/api/files/copy", wrap(HandleFilesCopy, true))
+	mux.HandleFunc("/api/files/move", wrap(HandleFilesMove, true))
+	mux.HandleFunc("/api/files/batch", wrap(HandleFilesBatch, true))
+	mux.HandleFunc("/api/files/permissions", wrap(HandleFilesPermissions, true))
+	mux.HandleFunc("/api/files/compress", wrap(HandleFilesCompress, true))
+	mux.HandleFunc("/api/files/extract", wrap(HandleFilesExtract, true))
+	mux.HandleFunc("/api/files/search", wrap(HandleFilesSearch, true))
+	mux.HandleFunc("/api/files/storage", wrap(HandleFilesStorage, true))
 
 	// Hotspot URLs
 	mux.HandleFunc("/api/hotspot/status", wrap(HandleHotspotStatus, true))

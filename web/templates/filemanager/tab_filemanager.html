@@ -1,0 +1,375 @@
+{{define "tab_filemanager.html"}}
+                <!-- TAB 6: FILE MANAGER -->
+                <div x-show="activeTab === 'files'" class="space-y-6">
+                    <div class="bg-card border border-border rounded-2xl p-6 space-y-4">
+
+                        <!-- ══════════════════════════════════════════  -->
+                        <!--  STORAGE USAGE INDICATOR                   -->
+                        <!-- ══════════════════════════════════════════  -->
+                        <div class="bg-black border border-border rounded-xl p-3.5 space-y-2.5">
+                            <div class="flex items-center justify-between text-[10px] font-mono font-bold uppercase tracking-wider">
+                                <div class="flex items-center gap-2">
+                                    <span class="text-gray-400">💾 Storage</span>
+                                    <span class="text-gray-500 font-normal" x-text="storageInfo.mount || '/sdcard'"></span>
+                                </div>
+                                <div class="flex items-center gap-3 tabular-nums">
+                                    <span class="text-green-400">Free: <span x-text="storageInfo.free_str || '—'"></span></span>
+                                    <span class="text-gray-600">|</span>
+                                    <span class="text-amber-400">Used: <span x-text="storageInfo.used_str || '—'"></span></span>
+                                    <span class="text-gray-600">|</span>
+                                    <span class="text-gray-400">Total: <span x-text="storageInfo.total_str || '—'"></span></span>
+                                </div>
+                            </div>
+                            <!-- Segmented bar: used (amber) + free (green) -->
+                            <div class="relative w-full h-3 bg-flat rounded-sm overflow-hidden border border-border/60">
+                                <!-- Used segment -->
+                                <div class="absolute left-0 top-0 h-full bg-amber-500/80 transition-all duration-700 ease-out"
+                                     :style="'width: ' + (storageInfo.used_pct || 0) + '%'"></div>
+                                <!-- Free segment fills the rest naturally -->
+                                <div class="absolute top-0 h-full bg-green-500/30 transition-all duration-700 ease-out"
+                                     :style="'left: ' + (storageInfo.used_pct || 0) + '%; width: ' + (100 - (storageInfo.used_pct || 0)) + '%'"></div>
+                                <!-- Tick marks overlay -->
+                                <div class="absolute inset-0 flex pointer-events-none">
+                                    <div class="flex-1 border-r border-black/30"></div>
+                                    <div class="flex-1 border-r border-black/30"></div>
+                                    <div class="flex-1 border-r border-black/30"></div>
+                                    <div class="flex-1"></div>
+                                </div>
+                            </div>
+                            <!-- Percentage labels under bar -->
+                            <div class="flex items-center justify-between text-[9px] font-mono text-gray-500">
+                                <span>0%</span>
+                                <span class="text-amber-400 font-bold" x-text="(storageInfo.used_pct || 0).toFixed(1) + '% used'"></span>
+                                <span>100%</span>
+                            </div>
+                        </div>
+
+                        <!-- ══════════════════════════════════════════  -->
+                        <!--  TOP TOOLBAR & BREADCRUMBS                 -->
+                        <!-- ══════════════════════════════════════════  -->
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                            <!-- Breadcrumb Path -->
+                            <div class="flex items-center space-x-1 overflow-x-auto text-xs font-mono bg-black border border-border px-3 py-2 rounded-xl custom-scrollbar flex-1">
+                                <span @click="fetchFileList('/')" class="text-blue-500 hover:underline cursor-pointer font-semibold">root</span>
+                                <template x-for="(segment, idx) in currentPathSegments" :key="idx">
+                                    <div class="flex items-center space-x-1">
+                                        <span class="text-gray-600">/</span>
+                                        <span @click="navigateBreadcrumb(idx)" class="text-blue-500 hover:underline cursor-pointer font-semibold" x-text="segment"></span>
+                                    </div>
+                                </template>
+                            </div>
+
+                            <!-- Create & Upload Actions -->
+                            <div class="flex items-center space-x-2 shrink-0">
+                                <button type="button" @click="openCreateFileModal()" class="px-3 py-1.5 bg-black hover:bg-gray-900 border border-border text-xs text-gray-200 rounded-xl flex items-center gap-1 font-semibold">
+                                    + New File
+                                </button>
+                                <button type="button" @click="openCreateDirModal()" class="px-3 py-1.5 bg-black hover:bg-gray-900 border border-border text-xs text-gray-200 rounded-xl flex items-center gap-1 font-semibold">
+                                    + New Folder
+                                </button>
+                                <button type="button" @click="showUploadModal = true" class="px-3.5 py-1.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-bold transition">
+                                    Upload
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- ══════════════════════════════════════════  -->
+                        <!--  QUICK PATH SHORTCUTS                      -->
+                        <!-- ══════════════════════════════════════════  -->
+                        <div class="flex flex-wrap items-center gap-2 text-xs font-mono select-none">
+                            <span class="text-gray-500 font-bold uppercase text-[10px]">Shortcuts:</span>
+                            <template x-for="(sc, index) in fileManagerShortcuts" :key="index">
+                                <div class="inline-flex items-center bg-black border border-border rounded px-2.5 py-1 gap-1.5 shadow-[2px_2px_0px_0px_var(--neo-shadow)] transition hover:-translate-y-0.5">
+                                    <span @click="fetchFileList(sc.path)" class="text-blue-500 hover:underline cursor-pointer font-semibold" x-text="sc.name"></span>
+                                    <span @click="removeShortcut(index)" class="text-red-500 hover:text-red-650 cursor-pointer font-extrabold text-[12px] ml-0.5" title="Remove bookmark">×</span>
+                                </div>
+                            </template>
+                            <button type="button" @click="openAddShortcutModal()" class="px-2.5 py-1.5 bg-blue-600/10 hover:bg-blue-600/20 text-blue-500 border border-blue-500/30 rounded-xl text-[10px] font-bold transition flex items-center gap-0.5 uppercase tracking-wide">
+                                + Add Shortcut
+                            </button>
+                        </div>
+
+                        <!-- ══════════════════════════════════════════  -->
+                        <!--  CLIPBOARD / SEARCH / BATCH TOOLBAR        -->
+                        <!-- ══════════════════════════════════════════  -->
+                        <div class="space-y-2">
+
+                            <!-- Row 1: Clipboard ops + Search -->
+                            <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+
+                                <!-- Clipboard action group -->
+                                <div class="flex items-center gap-1.5 shrink-0">
+                                    <!-- Cut -->
+                                    <button type="button"
+                                            @click="fmCut()"
+                                            title="Cut selected or focused item"
+                                            :class="fmClipboard && fmClipboard.op === 'cut' ? 'border-amber-500/60 text-amber-400' : 'border-border text-gray-400'"
+                                            class="px-2.5 py-1.5 bg-black border text-[10px] font-bold font-mono uppercase tracking-wide rounded-lg flex items-center gap-1 transition hover:border-amber-500/50 hover:text-amber-400">
+                                        <svg class="w-3 h-3" viewBox="0 0 16 16" fill="currentColor"><path d="M3.5 3.5a1.5 1.5 0 1 0 3 0 1.5 1.5 0 0 0-3 0m3.862.158 5.345-2.673.586 1.172-4.83 2.415a2.5 2.5 0 0 1-1.101 3.34L5.5 9H7a1 1 0 0 1 1 1v.5a1 1 0 0 1-1 1H5.5a2.5 2.5 0 0 1-2.447-2.976A2.5 2.5 0 0 1 5.362 6.73l1.293-.647A2.489 2.489 0 0 1 7 3.5ZM9.5 12.5a1.5 1.5 0 1 0 3 0 1.5 1.5 0 0 0-3 0m-1 0a2.5 2.5 0 0 1 4.447-1.553l1.76-.88.587 1.172-1.765.882A2.501 2.501 0 0 1 8.5 12.5M8 8l1.5-3 2 4H8Z"/></svg>
+                                        Cut
+                                    </button>
+
+                                    <!-- Copy -->
+                                    <button type="button"
+                                            @click="fmCopy()"
+                                            title="Copy selected or focused item"
+                                            :class="fmClipboard && fmClipboard.op === 'copy' ? 'border-blue-500/60 text-blue-400' : 'border-border text-gray-400'"
+                                            class="px-2.5 py-1.5 bg-black border text-[10px] font-bold font-mono uppercase tracking-wide rounded-lg flex items-center gap-1 transition hover:border-blue-500/50 hover:text-blue-400">
+                                        <svg class="w-3 h-3" viewBox="0 0 16 16" fill="currentColor"><path d="M4 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2zm2-1a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1zM2 5a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1v-1h1v1a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h1v1z"/></svg>
+                                        Copy
+                                    </button>
+
+                                    <!-- Paste — only lit when clipboard is populated -->
+                                    <button type="button"
+                                            @click="fmPaste()"
+                                            title="Paste clipboard item here"
+                                            :disabled="!fmClipboard"
+                                            :class="fmClipboard ? 'border-green-500/60 text-green-400 hover:border-green-400' : 'border-border/40 text-gray-600 cursor-not-allowed opacity-50'"
+                                            class="px-2.5 py-1.5 bg-black border text-[10px] font-bold font-mono uppercase tracking-wide rounded-lg flex items-center gap-1 transition">
+                                        <svg class="w-3 h-3" viewBox="0 0 16 16" fill="currentColor"><path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1z"/><path d="M9.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5zm-3-1A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0z"/></svg>
+                                        Paste
+                                    </button>
+
+                                    <!-- Clipboard status pill -->
+                                    <template x-if="fmClipboard">
+                                        <div class="flex items-center gap-1.5 px-2.5 py-1 bg-flat border border-border/60 rounded-lg text-[9px] font-mono text-gray-400 max-w-[140px]">
+                                            <span :class="fmClipboard.op === 'cut' ? 'text-amber-400' : 'text-blue-400'" x-text="fmClipboard.op === 'cut' ? '✂' : '⧉'"></span>
+                                            <span class="truncate" x-text="fmClipboard.name"></span>
+                                            <button type="button" @click="fmClipboard = null" class="text-gray-600 hover:text-red-400 font-bold ml-0.5 !border-0 !shadow-none !bg-transparent !p-0 !m-0">×</button>
+                                        </div>
+                                    </template>
+                                </div>
+
+                                <!-- Spacer -->
+                                <div class="flex-1"></div>
+
+                                <!-- Search input (clearable) -->
+                                <div class="relative flex-1 max-w-xs">
+                                    <div class="absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none">
+                                        <svg class="w-3 h-3" viewBox="0 0 16 16" fill="currentColor"><path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398l3.85 3.85a1 1 0 0 0 1.415-1.415zm-5.242 1.1a5.5 5.5 0 1 1 0-11 5.5 5.5 0 0 1 0 11"/></svg>
+                                    </div>
+                                    <input type="text"
+                                           x-model="fmSearchQuery"
+                                           @input="fmFilterFiles()"
+                                           placeholder="Search files…"
+                                           class="w-full pl-8 pr-8 py-1.5 bg-black border border-border text-xs font-mono text-gray-200 rounded-lg focus:outline-none focus:border-blue-500/70 placeholder-gray-600 transition" />
+                                    <!-- Clear button -->
+                                    <button type="button"
+                                            x-show="fmSearchQuery"
+                                            @click="fmSearchQuery = ''; fmFilterFiles()"
+                                            class="absolute right-2 top-1/2 -translate-y-1/2 text-gray-500 hover:text-red-400 !border-0 !shadow-none !bg-transparent !p-0 !m-0 text-sm font-bold">
+                                        ×
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Row 2: Batch operations bar — shown when 1+ items selected -->
+                            <div x-show="fmSelectedPaths.length > 0" x-cloak
+                                 class="flex flex-wrap items-center gap-2 px-3 py-2 bg-blue-600/8 border border-blue-500/25 rounded-xl animate-fade-in">
+
+                                <!-- Selection count badge -->
+                                <div class="px-2 py-0.5 bg-blue-500/15 border border-blue-500/30 rounded text-[10px] font-mono font-bold text-blue-400 shrink-0">
+                                    <span x-text="fmSelectedPaths.length"></span> selected
+                                </div>
+
+                                <!-- Deselect all -->
+                                <button type="button" @click="fmClearSelection()"
+                                        class="px-2.5 py-1 text-[10px] font-bold font-mono uppercase tracking-wide border border-border text-gray-400 rounded-lg bg-black">
+                                    ✕ Clear
+                                </button>
+
+                                <div class="w-px h-4 bg-border/60 mx-0.5 shrink-0"></div>
+
+                                <!-- Delete Selected -->
+                                <button type="button" @click="fmDeleteSelected()"
+                                        class="px-2.5 py-1 text-[10px] font-bold font-mono uppercase tracking-wide border border-red-500/40 text-red-400 rounded-lg bg-red-500/5 hover:bg-red-500/10 transition">
+                                    🗑 Delete
+                                </button>
+
+                                <!-- Copy Selected -->
+                                <button type="button" @click="fmCopySelected()"
+                                        class="px-2.5 py-1 text-[10px] font-bold font-mono uppercase tracking-wide border border-blue-500/40 text-blue-400 rounded-lg bg-blue-500/5 hover:bg-blue-500/10 transition">
+                                    ⧉ Copy
+                                </button>
+
+                                <!-- Move Selected -->
+                                <button type="button" @click="fmMoveSelected()"
+                                        class="px-2.5 py-1 text-[10px] font-bold font-mono uppercase tracking-wide border border-amber-500/40 text-amber-400 rounded-lg bg-amber-500/5 hover:bg-amber-500/10 transition">
+                                    ✂ Move
+                                </button>
+
+                                <!-- Compress to ZIP -->
+                                <button type="button" @click="fmCompressSelected()"
+                                        class="px-2.5 py-1 text-[10px] font-bold font-mono uppercase tracking-wide border border-purple-500/40 text-purple-400 rounded-lg bg-purple-500/5 hover:bg-purple-500/10 transition">
+                                    📦 ZIP
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- ══════════════════════════════════════════  -->
+                        <!--  DIRECTORY LISTING TABLE                   -->
+                        <!-- ══════════════════════════════════════════  -->
+                        <div class="relative"
+                             @dragover.prevent="isDragging = true"
+                             @dragleave.prevent="isDragging = false"
+                             @drop.prevent="handleFileDrop($event)">
+
+                            <!-- Drag-over overlay -->
+                            <div x-show="isDragging" x-cloak class="absolute inset-0 bg-blue-600/20 backdrop-blur-sm border-2 border-dashed border-blue-550 rounded-xl z-30 flex items-center justify-center pointer-events-none">
+                                <div class="bg-[#1e293b] border-2 border-border p-4 rounded-xl shadow-2xl flex items-center gap-2 text-xs font-mono font-bold text-white select-none">
+                                    <span>📥</span>
+                                    <span>Drop files here to upload to current directory</span>
+                                </div>
+                            </div>
+
+                            <div class="bg-black border border-border rounded-xl overflow-hidden">
+                                <div class="overflow-x-auto">
+                                    <table class="w-full text-left text-xs font-mono">
+                                        <thead class="bg-gray-900/50 text-gray-400 border-b border-border">
+                                            <tr>
+                                                <!-- Checkbox column: check-all -->
+                                                <th class="p-3 w-8">
+                                                    <input type="checkbox"
+                                                           :checked="fmAllSelected()"
+                                                           @change="fmToggleAll($event.target.checked)"
+                                                           class="w-3.5 h-3.5 accent-blue-500 cursor-pointer rounded-sm" />
+                                                </th>
+                                                <th class="p-3">Name</th>
+                                                <th class="p-3 hidden sm:table-cell">Size</th>
+                                                <th class="p-3 hidden md:table-cell">Permissions</th>
+                                                <th class="p-3 text-right">Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody class="divide-y divide-border/50 text-gray-300">
+                                            <template x-for="file in fmFilteredList()" :key="file.path">
+                                                <tr class="hover:bg-card/50 transition group"
+                                                    :class="fmSelectedPaths.includes(file.path) ? 'bg-blue-500/5' : ''">
+
+                                                    <!-- Checkbox cell -->
+                                                    <td class="p-3 w-8">
+                                                        <template x-if="!file.is_parent">
+                                                            <input type="checkbox"
+                                                                   :value="file.path"
+                                                                   :checked="fmSelectedPaths.includes(file.path)"
+                                                                   @change="fmToggleSelect(file.path)"
+                                                                   class="w-3.5 h-3.5 accent-blue-500 cursor-pointer rounded-sm" />
+                                                        </template>
+                                                        <template x-if="file.is_parent">
+                                                            <span class="text-gray-600 text-[10px] select-none">↑</span>
+                                                        </template>
+                                                    </td>
+
+                                                    <!-- Name cell -->
+                                                    <td class="p-3">
+                                                        <div class="flex items-center space-x-2">
+                                                            <!-- Icon -->
+                                                            <span class="text-sm leading-none shrink-0" x-text="fmFileIcon(file)"></span>
+                                                            <!-- Clickable name -->
+                                                            <template x-if="file.is_dir">
+                                                                <span @click="fetchFileList(file.path)" class="text-blue-500 hover:underline cursor-pointer font-bold truncate max-w-[200px]" x-text="file.name"></span>
+                                                            </template>
+                                                            <template x-if="!file.is_dir">
+                                                                <span class="text-white font-medium truncate max-w-[200px]" x-text="file.name"></span>
+                                                            </template>
+                                                        </div>
+                                                    </td>
+
+                                                    <!-- Size cell -->
+                                                    <td class="p-3 text-gray-400 hidden sm:table-cell tabular-nums" x-text="file.is_dir ? '—' : formatBytes(file.size)"></td>
+
+                                                    <!-- Permissions cell -->
+                                                    <td class="p-3 hidden md:table-cell">
+                                                        <span class="font-mono text-[10px] text-gray-500 bg-flat px-1.5 py-0.5 rounded border border-border/40" x-text="file.permissions"></span>
+                                                    </td>
+
+                                                    <!-- Actions cell -->
+                                                    <td class="p-3 text-right">
+                                                        <div class="flex items-center justify-end gap-2.5 flex-wrap select-none">
+
+                                                            <!-- RENAME -->
+                                                            <template x-if="!file.is_parent">
+                                                                <span @click="openRenameModal(file)"
+                                                                      class="text-amber-500 hover:underline cursor-pointer font-bold text-[10px] uppercase tracking-wide">Rename</span>
+                                                            </template>
+
+                                                            <!-- EDIT (text files only) -->
+                                                            <template x-if="!file.is_dir && !file.is_parent">
+                                                                <span @click="openEditor(file.path)"
+                                                                      class="text-blue-500 hover:underline cursor-pointer font-bold text-[10px] uppercase tracking-wide">Edit</span>
+                                                            </template>
+
+                                                            <!-- IMAGE PREVIEW (image files) -->
+                                                            <template x-if="!file.is_dir && !file.is_parent && fmIsImage(file.name)">
+                                                                <span @click="fmOpenImagePreview(file)"
+                                                                      class="text-pink-400 hover:underline cursor-pointer font-bold text-[10px] uppercase tracking-wide">View</span>
+                                                            </template>
+
+                                                            <!-- DOWNLOAD -->
+                                                            <template x-if="!file.is_dir && !file.is_parent">
+                                                                <span @click="window.open('/api/files/download?path=' + encodeURIComponent(file.path), '_blank')"
+                                                                      class="text-green-500 hover:underline cursor-pointer font-bold text-[10px] uppercase tracking-wide">Down</span>
+                                                            </template>
+
+                                                            <!-- PERM — chmod/chown modal -->
+                                                            <template x-if="!file.is_parent">
+                                                                <span @click="fmOpenPermModal(file)"
+                                                                      class="text-violet-400 hover:underline cursor-pointer font-bold text-[10px] uppercase tracking-wide">Perm</span>
+                                                            </template>
+
+                                                            <!-- UNZIP — only for .zip files -->
+                                                            <template x-if="!file.is_dir && !file.is_parent && file.name.endsWith('.zip')">
+                                                                <span @click="fmUnzip(file.path)"
+                                                                      class="text-orange-400 hover:underline cursor-pointer font-bold text-[10px] uppercase tracking-wide">Unzip</span>
+                                                            </template>
+
+                                                            <!-- DELETE -->
+                                                            <template x-if="!file.is_parent">
+                                                                <span @click="deletePath(file.path)"
+                                                                      class="text-red-500 hover:underline cursor-pointer font-bold text-[10px] uppercase tracking-wide">Del</span>
+                                                            </template>
+
+                                                            <!-- Parent row placeholder -->
+                                                            <template x-if="file.is_parent">
+                                                                <span class="text-gray-600 font-bold text-[10px]">—</span>
+                                                            </template>
+
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            </template>
+
+                                            <!-- Empty state -->
+                                            <template x-if="fmFilteredList().length === 0">
+                                                <tr>
+                                                    <td colspan="5" class="p-8 text-center text-gray-600 text-xs font-mono">
+                                                        <div class="flex flex-col items-center gap-2">
+                                                            <span class="text-2xl">📭</span>
+                                                            <span x-text="fmSearchQuery ? 'No files match \'' + fmSearchQuery + '\'' : 'Directory is empty'"></span>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            </template>
+                                        </tbody>
+                                    </table>
+                                </div>
+
+                                <!-- Table footer: item count + selection summary -->
+                                <div class="border-t border-border/60 px-4 py-2 flex items-center justify-between text-[10px] font-mono text-gray-600">
+                                    <span>
+                                        <span x-text="fmFilteredList().length"></span>
+                                        <span x-text="fmFilteredList().length === 1 ? ' item' : ' items'"></span>
+                                        <template x-if="fmSearchQuery">
+                                            <span> (filtered)</span>
+                                        </template>
+                                    </span>
+                                    <template x-if="fmSelectedPaths.length > 0">
+                                        <span class="text-blue-400 font-bold">
+                                            <span x-text="fmSelectedPaths.length"></span> selected
+                                        </span>
+                                    </template>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+{{end}}

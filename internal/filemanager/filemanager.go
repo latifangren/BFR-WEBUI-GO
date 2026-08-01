@@ -2,7 +2,6 @@ package filemanager
 
 import (
 	"fmt"
-	"io"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -147,51 +146,6 @@ func SaveFile(filePath string, content string) error {
 	return os.WriteFile(cleanPath, []byte(content), 0644)
 }
 
-func UploadFile(dirPath string, fileName string, reader io.Reader) error {
-	cleanDir, err := SanitizePath(dirPath)
-	if err != nil {
-		return err
-	}
-	safeFileName := filepath.Base(fileName)
-	targetPath, err := SanitizePath(filepath.Join(cleanDir, safeFileName))
-	if err != nil {
-		return err
-	}
-
-	out, err := os.Create(targetPath)
-	if err != nil {
-		return err
-	}
-	defer out.Close()
-
-	_, err = io.Copy(out, reader)
-	return err
-}
-
-func CreateFile(filePath string) error {
-	cleanPath, err := SanitizePath(filePath)
-	if err != nil {
-		return err
-	}
-	file, err := os.Create(cleanPath)
-	if err != nil {
-		return err
-	}
-	return file.Close()
-}
-
-func RenamePath(oldPath string, newPath string) error {
-	cleanOld, err := SanitizePath(oldPath)
-	if err != nil {
-		return err
-	}
-	cleanNew, err := SanitizePath(newPath)
-	if err != nil {
-		return err
-	}
-	return os.Rename(cleanOld, cleanNew)
-}
-
 func DownloadFile(filePath string, w http.ResponseWriter, r *http.Request) {
 	cleanPath, err := SanitizePath(filePath)
 	if err != nil {
@@ -209,25 +163,4 @@ func DownloadFile(filePath string, w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Length", fmt.Sprintf("%d", info.Size()))
 
 	http.ServeFile(w, r, cleanPath)
-}
-
-func DeletePath(targetPath string) error {
-	cleanPath, err := SanitizePath(targetPath)
-	if err != nil {
-		return err
-	}
-	for _, base := range config.AllowedDirs {
-		if cleanPath == filepath.Clean(base) {
-			return fmt.Errorf("cannot delete root allowed directory: %s", cleanPath)
-		}
-	}
-	return os.RemoveAll(cleanPath)
-}
-
-func CreateDir(dirPath string) error {
-	cleanPath, err := SanitizePath(dirPath)
-	if err != nil {
-		return err
-	}
-	return os.MkdirAll(cleanPath, 0755)
 }
