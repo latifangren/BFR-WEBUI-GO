@@ -72,6 +72,7 @@ func RegisterRoutes(mux *http.ServeMux, authMgr *auth.Manager) {
 	authH := NewAuthHandler(authMgr)
 	termH := NewTerminalHandler(authMgr)
 	scrcpyH := NewScrcpyHandler(authMgr)
+	logcatH := NewLogcatHandler(authMgr)
 
 	// Helper wrapper combining security headers, max body limit, and optional auth
 	wrap := func(h http.HandlerFunc, isProtected bool) http.HandlerFunc {
@@ -90,6 +91,13 @@ func RegisterRoutes(mux *http.ServeMux, authMgr *auth.Manager) {
 	// Sysinfo URLs
 	mux.HandleFunc("/api/stats", wrap(HandleSysinfo, true))
 	mux.HandleFunc("/api/sysinfo", wrap(HandleSysinfo, true))
+	mux.HandleFunc("/api/sysinfo/governor", wrap(func(w http.ResponseWriter, r *http.Request) {
+		if r.Method == http.MethodGet {
+			HandleGovernorStatus(w, r)
+		} else {
+			HandleGovernorSet(w, r)
+		}
+	}, true))
 
 	// Power URLs
 	mux.HandleFunc("/api/power", wrap(HandlePower, true))
@@ -148,6 +156,16 @@ func RegisterRoutes(mux *http.ServeMux, authMgr *auth.Manager) {
 	// Logs URLs
 	mux.HandleFunc("/api/logs", wrap(HandleLogs, true))
 	mux.HandleFunc("/api/logs/clear", wrap(HandleLogsClear, true))
+	mux.HandleFunc("/api/logs/logcat/stream", logcatH.HandleWS)
+
+	// Modules URLs
+	mux.HandleFunc("/api/modules", wrap(HandleModulesList, true))
+	mux.HandleFunc("/api/modules/toggle", wrap(HandleModulesToggle, true))
+	mux.HandleFunc("/api/modules/install", wrap(HandleModulesInstall, true))
+
+	// Backup URLs
+	mux.HandleFunc("/api/backup/export", wrap(HandleBackupExport, true))
+	mux.HandleFunc("/api/backup/import", wrap(HandleBackupImport, true))
 
 	// SMS Viewer URLs
 	mux.HandleFunc("/api/sms/inbox", wrap(HandleSMSInbox, true))

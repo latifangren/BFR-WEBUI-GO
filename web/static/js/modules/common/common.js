@@ -9,6 +9,42 @@ const CommonModule = {
     modal: { show: false, action: '', actionName: '' },
     showBatteryModal: false,
     showNetworkModal: false,
+    showBackupModal: false,
+
+    async exportBackup() {
+        try {
+            window.location.href = '/api/backup/export';
+            this.showToast('Backup Export', 'Downloading configuration backup...', 'info');
+        } catch (e) {
+            this.showToast('Backup Error', 'Failed to export backup', 'error');
+        }
+    },
+
+    async importBackup() {
+        const input = document.getElementById('backup-import-input');
+        if (!input || !input.files.length) return;
+
+        const file = input.files[0];
+        try {
+            const content = await file.text();
+            const res = await fetch('/api/backup/import', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: content
+            });
+            const data = await res.json();
+            if (data.success) {
+                this.showToast('Backup Imported', 'Configurations restored successfully!', 'success');
+                this.showBackupModal = false;
+                input.value = '';
+                setTimeout(() => location.reload(), 1000);
+            } else {
+                this.showToast('Import Error', data.error || 'Failed to import backup', 'error');
+            }
+        } catch (e) {
+            this.showToast('Import Error', 'Failed reading backup file', 'error');
+        }
+    },
 
     toggleTheme() {
         this.isDark = !this.isDark;

@@ -24,6 +24,11 @@
                     <span x-text="isDark ? 'Dark' : 'Light'"></span>
                 </button>
                 <template x-if="authenticated">
+                    <button type="button" @click="showBackupModal = true" class="px-2.5 py-1.5 text-xs font-extrabold text-gray-300 hover:text-white bg-flat border border-border/60 rounded-xl transition select-none" title="Backup & Settings">
+                        ⚙️
+                    </button>
+                </template>
+                <template x-if="authenticated">
                     <button type="button" @click="logout()" class="px-3.5 py-1.5 text-xs font-medium text-red-400 hover:text-red-300 bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 rounded-xl transition">
                         Logout
                     </button>

@@ -14,6 +14,8 @@ function dashboard() {
         DonationModule,
         SshModule,
         LogsModule,
+        ModulesModule,
+        LogcatModule,
         {
             // Authenticated root orchestration flow
             async init() {

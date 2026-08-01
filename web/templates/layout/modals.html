@@ -537,6 +537,50 @@
         </div>
     </div>
 
+    <!-- Backup & Restore Modal Dialog -->
+    <div x-show="showBackupModal"
+         class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm"
+         x-transition:enter="transition ease-out duration-200"
+         x-transition:enter-start="opacity-0 scale-95"
+         x-transition:enter-end="opacity-100 scale-100"
+         x-transition:leave="transition ease-in duration-150"
+         x-transition:leave-start="opacity-100 scale-100"
+         x-transition:leave-end="opacity-0 scale-95"
+         @keydown.escape.window="showBackupModal = false">
+        <div class="bg-card border-2 border-border rounded-2xl max-w-md w-full p-6 space-y-5 shadow-2xl font-mono text-xs"
+             @click.away="showBackupModal = false">
+            <div class="flex items-center justify-between border-b border-border/40 pb-3">
+                <h3 class="text-sm font-extrabold text-white uppercase tracking-wider flex items-center gap-2">
+                    <span>⚙️ Backup & Restore Config</span>
+                </h3>
+                <button type="button" @click="showBackupModal = false" class="text-gray-400 hover:text-white font-bold text-base select-none">
+                    &#x2715;
+                </button>
+            </div>
+
+            <div class="space-y-4">
+                <!-- Export Section -->
+                <div class="bg-flat p-4 rounded-xl space-y-2 border border-border/50">
+                    <div class="font-extrabold text-white uppercase text-[11px]">Export Configuration</div>
+                    <p class="text-[10px] text-gray-400">Download a full JSON bundle containing SSH, Charger, Vnstat, and Network tweaks settings.</p>
+                    <button type="button" @click="exportBackup()" class="w-full py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-bold transition flex items-center justify-center gap-2">
+                        <span>📥 Download Backup Bundle</span>
+                    </button>
+                </div>
+
+                <!-- Import Section -->
+                <div class="bg-flat p-4 rounded-xl space-y-2 border border-border/50">
+                    <div class="font-extrabold text-white uppercase text-[11px]">Restore Configuration</div>
+                    <p class="text-[10px] text-gray-400">Upload a previously exported JSON backup bundle to restore module settings instantly.</p>
+                    <input id="backup-import-input" type="file" accept=".json" class="w-full text-[11px] text-gray-400 file:mr-3 file:py-1 file:px-2.5 file:rounded-lg file:border-0 file:text-[10px] file:font-bold file:bg-black file:text-white cursor-pointer" />
+                    <button type="button" @click="importBackup()" class="w-full py-2 bg-green-600 hover:bg-green-500 text-white rounded-xl font-bold transition flex items-center justify-center gap-2 mt-2">
+                        <span>📤 Restore Settings</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Floating Toast Notifications System Container -->
     <div class="fixed top-4 right-4 z-50 flex flex-col gap-2.5 max-w-sm w-full pointer-events-none p-4" aria-live="polite">
         <template x-for="t in toasts" :key="t.id">

@@ -10,6 +10,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **Magisk / KernelSU / APatch Module Manager**:
+  - Full module scanning API (`/api/modules`) parsing properties (`module.prop`) and handling enabled/disabled/removed states.
+  - POST endpoints for toggling modules (via touch/rm `/disable`) and installing uploaded module ZIP packages (`magisk --install-module` / `ksud` / `apatch`).
+  - Dark AMOLED module manager UI dropdown view in Tools with ZIP flashing dropzone.
+- **CPU Governor & Thermal Control**:
+  - GET `/api/sysinfo/governor` listing available CPU scaling governors, current CPU frequencies per core, and GPU/Thermal zone temperatures.
+  - POST `/api/sysinfo/governor` applying selected scaling governors to all CPU cores with timeout limits and regex safety.
+  - Segmented control UI panel inside System Info.
+- **Live Android Logcat Stream**:
+  - Live logcat tail WebSocket handler (`/api/logs/logcat/stream`) executing `logcat` subprocess and streaming data in real-time under request context.
+  - Real-time logging terminal component in Logs with severity level buttons and text search filters.
+- **Config Backup & Restore**:
+  - Implemented `/api/backup/export` and `/api/backup/import` APIs to securely back up and restore vital system settings (charger, ssh, tweaks, proxy).
+  - Gear button (`⚙️`) settings overlay and Backup/Restore dropzone modal.
 - **PWA (Progressive Web App) Support**:
   - Added `web/manifest.json` with standalone display configuration, AMOLED theme colors, and icons.
   - Added `web/sw.js` (Service Worker) with offline caching strategy for static assets and network-first strategy for `/api/*`.

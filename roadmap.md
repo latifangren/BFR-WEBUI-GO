@@ -26,10 +26,10 @@ Dokumen ini memetakan rencana peningkatan dan pengembangan untuk panel kontrol s
 ---
 
 ## 4. Fitur & Integrasi Sistem Android
-* **Module Manager (Magisk / KernelSU / APatch)**: Tambahkan API `/api/modules` untuk mengelola modul root terpasang: melihat detail modul, mengaktifkan/menonaktifkan modul via berkas `disable`, serta upload file `.zip` modul untuk diinstal di latar belakang menggunakan `magisk --install-module`.
-* **Live Logcat Stream**: Sediakan streaming log sistem Android secara real-time menggunakan Server-Sent Events (SSE) atau WebSocket lengkap dengan opsi pencarian kata kunci dan filter log level (Debug, Info, Warn, Error).
-* **Thermal & CPU Governor Tweak**: Panel kontrol frekuensi CPU dan modul manager governor untuk mengubah mode scaling CPU secara instan (Performance, Schedutil, Powersave) langsung dari WebUI.
-* **Konfigurasi Backup & Restore**: Ekspor dan impor seluruh file konfigurasi (`charger_config.json`, `ssh_config.json`, tweaks, proxy rules) menjadi satu berkas kompresi `.tar.gz` portabel.
+* **[x] Module Manager (Magisk / KernelSU / APatch)**: Tambahkan API `/api/modules` untuk mengelola modul root terpasang: melihat detail modul, mengaktifkan/menonaktifkan modul via berkas `disable`, serta upload file `.zip` modul untuk diinstal di latar belakang menggunakan `magisk --install-module`.
+* **[x] Live Logcat Stream**: Sediakan streaming log sistem Android secara real-time menggunakan Server-Sent Events (SSE) atau WebSocket lengkap dengan opsi pencarian kata kunci dan filter log level (Debug, Info, Warn, Error).
+* **[x] Thermal & CPU Governor Tweak**: Panel kontrol frekuensi CPU dan modul manager governor untuk mengubah mode scaling CPU secara instan (Performance, Schedutil, Powersave) langsung dari WebUI.
+* **[x] Konfigurasi Backup & Restore**: Ekspor dan impor seluruh file konfigurasi (`charger_config.json`, `ssh_config.json`, tweaks, proxy rules) menjadi satu berkas kompresi `.tar.gz` portabel (diimplementasikan via kompresi JSON bundle).
 
 ---
 

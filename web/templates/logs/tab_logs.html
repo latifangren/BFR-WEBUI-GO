@@ -1,57 +1,109 @@
 {{define "tab_logs.html"}}
                 <!-- TAB: APPLICATION LOGS -->
-                <div x-show="activeTab === 'logs'" class="space-y-6" x-init="$watch('activeTab', v => { if (v === 'logs') { fetchLogs(); setTimeout(() => { const el = document.getElementById('logs-container'); if(el) el.scrollTop = el.scrollHeight; }, 100); } })">
+                <div x-show="activeTab === 'logs'" class="space-y-6" x-init="$watch('activeTab', v => { if (v === 'logs') { fetchLogs(); setTimeout(() => { const el = document.getElementById('logs-container'); if(el) el.scrollTop = el.scrollHeight; }, 100); } })" x-data="{ logSubTab: 'audit' }">
                     <div class="bg-card border border-border rounded-2xl p-6 space-y-5">
-                        <div class="flex items-center justify-between flex-wrap gap-2">
+                        <div class="flex items-center justify-between flex-wrap gap-2 border-b border-border/40 pb-4">
                             <div>
                                 <h3 class="text-sm font-bold text-white uppercase tracking-wider font-mono flex items-center gap-2">
-                                    <span>Application Logs</span>
-                                    <span class="text-[10px] px-2 py-0.5 font-bold font-mono tracking-wider uppercase badge-inactive"
-                                        x-text="logsData.entries.length + ' entries'"></span>
+                                    <span>System & Application Logs</span>
                                 </h3>
-                                <p class="text-xs text-gray-400 font-mono">Real-time system event stream & error diagnostics</p>
+                                <p class="text-xs text-gray-400 font-mono">Real-time event stream, security audit & live Android logcat</p>
                             </div>
                             <div class="flex items-center space-x-2 font-mono">
-                                <select x-model="logsData.filter" @change="fetchLogs()" class="bg-black border border-border rounded-xl px-3 py-1.5 text-xs text-white font-bold">
-                                    <option value="">All Categories</option>
-                                    <option value="auth">Auth</option>
-                                    <option value="ssh">SSH</option>
-                                    <option value="proxy">Proxy</option>
-                                    <option value="network">Network</option>
-                                    <option value="hotspot">Hotspot</option>
-                                    <option value="files">Files</option>
-                                    <option value="terminal">Terminal</option>
-                                    <option value="charger">Charger</option>
-                                    <option value="sms">SMS</option>
-                                </select>
-                                <button type="button" @click="fetchLogs()" class="px-3 py-1.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-bold transition">
-                                    Refresh
+                                <button type="button" @click="logSubTab = 'audit'" :class="logSubTab === 'audit' ? 'bg-blue-600 text-white' : 'bg-black text-gray-400 border border-border'" class="px-3 py-1.5 rounded-xl text-xs font-bold transition">
+                                    WebUI Audit Logs
                                 </button>
-                                <button type="button" @click="clearLogs()" class="px-3 py-1.5 bg-red-600 hover:bg-red-500 text-white rounded-xl text-xs font-bold transition">
-                                    Clear
+                                <button type="button" @click="logSubTab = 'logcat'; initLogcat()" :class="logSubTab === 'logcat' ? 'bg-blue-600 text-white' : 'bg-black text-gray-400 border border-border'" class="px-3 py-1.5 rounded-xl text-xs font-bold transition">
+                                    Android Logcat
                                 </button>
                             </div>
                         </div>
 
-                        <!-- Log Entries -->
-                        <div class="bg-black border border-border/30 rounded-xl p-3 h-[400px] overflow-y-auto font-mono text-xs space-y-1" id="logs-container">
-                            <template x-if="logsData.entries.length === 0">
-                                <div class="text-gray-500 text-center py-8">No log entries yet. Actions will appear here.</div>
-                            </template>
-                            <template x-for="(entry, idx) in logsData.entries" :key="entry.time + '-' + idx">
-                                <div class="flex items-start gap-2 py-1 border-b border-border/10 last:border-0 hover:bg-white/5 px-1 rounded transition-colors break-all">
-                                    <span class="text-gray-600 whitespace-nowrap shrink-0" x-text="entry.time"></span>
-                                    <span class="text-[10px] px-1.5 py-0.5 rounded font-bold uppercase tracking-wider shrink-0"
-                                        :class="{
-                                            'text-blue-400': entry.level === 'INFO',
-                                            'text-yellow-400': entry.level === 'WARN',
-                                            'text-red-400': entry.level === 'ERROR'
-                                        }"
-                                        x-text="entry.level"></span>
-                                    <span class="text-purple-400 font-bold shrink-0" x-text="'[' + entry.category + ']'"></span>
-                                    <span class="text-gray-300 break-words" x-text="entry.message"></span>
+                        <!-- Sub-tab 1: WebUI Audit Logs -->
+                        <div x-show="logSubTab === 'audit'" class="space-y-4">
+                            <div class="flex items-center justify-between flex-wrap gap-2 font-mono">
+                                <span class="text-xs text-gray-400" x-text="logsData.entries.length + ' log entries'"></span>
+                                <div class="flex items-center space-x-2">
+                                    <select x-model="logsData.filter" @change="fetchLogs()" class="bg-black border border-border rounded-xl px-3 py-1.5 text-xs text-white font-bold">
+                                        <option value="">All Categories</option>
+                                        <option value="auth">Auth</option>
+                                        <option value="ssh">SSH</option>
+                                        <option value="proxy">Proxy</option>
+                                        <option value="network">Network</option>
+                                        <option value="hotspot">Hotspot</option>
+                                        <option value="files">Files</option>
+                                        <option value="terminal">Terminal</option>
+                                        <option value="charger">Charger</option>
+                                        <option value="sms">SMS</option>
+                                    </select>
+                                    <button type="button" @click="fetchLogs()" class="px-3 py-1.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-bold transition">
+                                        Refresh
+                                    </button>
+                                    <button type="button" @click="clearLogs()" class="px-3 py-1.5 bg-red-600 hover:bg-red-500 text-white rounded-xl text-xs font-bold transition">
+                                        Clear
+                                    </button>
                                 </div>
-                            </template>
+                            </div>
+
+                            <!-- Log Entries -->
+                            <div class="bg-black border border-border/30 rounded-xl p-3 h-[420px] overflow-y-auto font-mono text-xs space-y-1" id="logs-container">
+                                <template x-if="logsData.entries.length === 0">
+                                    <div class="text-gray-500 text-center py-8">No log entries yet. Actions will appear here.</div>
+                                </template>
+                                <template x-for="(entry, idx) in logsData.entries" :key="entry.time + '-' + idx">
+                                    <div class="flex items-start gap-2 py-1 border-b border-border/10 last:border-0 hover:bg-white/5 px-1 rounded transition-colors break-all">
+                                        <span class="text-gray-600 whitespace-nowrap shrink-0" x-text="entry.time"></span>
+                                        <span class="text-[10px] px-1.5 py-0.5 rounded font-bold uppercase tracking-wider shrink-0"
+                                            :class="{
+                                                'text-blue-400': entry.level === 'INFO',
+                                                'text-yellow-400': entry.level === 'WARN',
+                                                'text-red-400': entry.level === 'ERROR'
+                                            }"
+                                            x-text="entry.level"></span>
+                                        <span class="text-purple-400 font-bold shrink-0" x-text="'[' + entry.category + ']'"></span>
+                                        <span class="text-gray-300 break-words" x-text="entry.message"></span>
+                                    </div>
+                                </template>
+                            </div>
+                        </div>
+
+                        <!-- Sub-tab 2: Live Android Logcat Stream -->
+                        <div x-show="logSubTab === 'logcat'" class="space-y-4 font-mono">
+                            <div class="flex items-center justify-between flex-wrap gap-2">
+                                <div class="flex items-center space-x-2">
+                                    <button type="button" @click="logcatFilter = 'ALL'" :class="logcatFilter === 'ALL' ? 'bg-blue-600 text-white' : 'bg-flat text-gray-400 border border-border/40'" class="px-2.5 py-1 rounded-lg text-xs font-bold">ALL</button>
+                                    <button type="button" @click="logcatFilter = 'DEBUG'" :class="logcatFilter === 'DEBUG' ? 'bg-blue-600 text-white' : 'bg-flat text-gray-400 border border-border/40'" class="px-2.5 py-1 rounded-lg text-xs font-bold">DEBUG</button>
+                                    <button type="button" @click="logcatFilter = 'INFO'" :class="logcatFilter === 'INFO' ? 'bg-blue-600 text-white' : 'bg-flat text-gray-400 border border-border/40'" class="px-2.5 py-1 rounded-lg text-xs font-bold">INFO</button>
+                                    <button type="button" @click="logcatFilter = 'WARN'" :class="logcatFilter === 'WARN' ? 'bg-amber-600 text-white' : 'bg-flat text-gray-400 border border-border/40'" class="px-2.5 py-1 rounded-lg text-xs font-bold">WARN</button>
+                                    <button type="button" @click="logcatFilter = 'ERROR'" :class="logcatFilter === 'ERROR' ? 'bg-red-600 text-white' : 'bg-flat text-gray-400 border border-border/40'" class="px-2.5 py-1 rounded-lg text-xs font-bold">ERROR</button>
+                                </div>
+
+                                <div class="flex items-center space-x-2">
+                                    <input type="text" x-model="logcatSearch" placeholder="Search logcat..." class="bg-black border border-border rounded-xl px-3 py-1 text-xs text-white placeholder-gray-500 w-36 sm:w-48" />
+                                    <label class="flex items-center space-x-1 text-xs text-gray-400 cursor-pointer select-none">
+                                        <input type="checkbox" x-model="logcatAutoscroll" class="rounded bg-black border-border" />
+                                        <span>Autoscroll</span>
+                                    </label>
+                                    <button type="button" @click="clearLogcat()" class="px-3 py-1 bg-red-600 hover:bg-red-500 text-white rounded-xl text-xs font-bold transition">Clear</button>
+                                </div>
+                            </div>
+
+                            <!-- Stream output viewport -->
+                            <div class="bg-black border border-border/30 rounded-xl p-3 h-[420px] overflow-y-auto font-mono text-[11px] leading-relaxed space-y-0.5" id="logcat-stream-container">
+                                <template x-if="filteredLogcatEntries().length === 0">
+                                    <div class="text-gray-500 text-center py-8">No logcat entries matching filter.</div>
+                                </template>
+                                <template x-for="(entry, idx) in filteredLogcatEntries()" :key="idx">
+                                    <div class="whitespace-pre-wrap break-all hover:bg-white/5 px-1 rounded font-mono"
+                                         :class="{
+                                             'text-gray-300': entry.level === 'INFO',
+                                             'text-blue-300': entry.level === 'DEBUG',
+                                             'text-yellow-300': entry.level === 'WARN',
+                                             'text-red-400': entry.level === 'ERROR'
+                                         }"
+                                         x-text="entry.raw"></div>
+                                </template>
+                            </div>
                         </div>
                     </div>
                 </div>

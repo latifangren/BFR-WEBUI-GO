@@ -43,7 +43,38 @@ const SysinfoModule = {
             this.fetchVnstatData();
             this.fetchChargerConfig();
             this.fetchSSHStatus();
+            this.fetchGovernorInfo();
         } catch (e) {}
+    },
+
+    async fetchGovernorInfo() {
+        try {
+            const res = await fetch('/api/sysinfo/governor');
+            if (res.ok) {
+                const data = await res.json();
+                this.stats = { ...this.stats, governorInfo: data };
+            }
+        } catch (e) {}
+    },
+
+    async setGovernor(gov) {
+        if (!gov) return;
+        try {
+            const res = await fetch('/api/sysinfo/governor', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ governor: gov })
+            });
+            const data = await res.json();
+            if (data.success) {
+                this.showToast('Governor Updated', `Scaling governor set to ${gov}`, 'success');
+                this.fetchGovernorInfo();
+            } else {
+                this.showToast('Governor Error', data.error || 'Failed to update governor', 'error');
+            }
+        } catch (e) {
+            this.showToast('Governor Error', 'Governor update request failed', 'error');
+        }
     },
 
     formatUptime(seconds) {
