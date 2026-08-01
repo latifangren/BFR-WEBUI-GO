@@ -6,6 +6,7 @@ import (
 	"os"
 	"path/filepath"
 
+	"bfr-webui-go/internal/bufferpool"
 	"bfr-webui-go/internal/config"
 )
 
@@ -114,7 +115,10 @@ func copyFileSingle(src, dst string) error {
 	}
 	defer out.Close()
 
-	if _, err = io.Copy(out, in); err != nil {
+	buf := bufferpool.GetBytes(32768)
+	defer bufferpool.PutBytes(buf)
+
+	if _, err = io.CopyBuffer(out, in, buf); err != nil {
 		return err
 	}
 	return nil

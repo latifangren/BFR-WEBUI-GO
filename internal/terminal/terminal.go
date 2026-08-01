@@ -7,6 +7,7 @@ import (
 	"os/exec"
 	"sync"
 
+	"bfr-webui-go/internal/bufferpool"
 	"bfr-webui-go/internal/config"
 	"github.com/creack/pty"
 	"github.com/gorilla/websocket"
@@ -91,7 +92,8 @@ func HandleWebsocket(w http.ResponseWriter, r *http.Request) {
 
 		// Read from PTY master file and send to Websocket
 		go func() {
-			buf := make([]byte, 2048)
+			buf := bufferpool.GetBytes(2048)
+			defer bufferpool.PutBytes(buf)
 			for {
 				n, err := shellFile.Read(buf)
 				if n > 0 {
@@ -157,7 +159,8 @@ func HandleWebsocket(w http.ResponseWriter, r *http.Request) {
 
 		// Forward stdout to Websocket
 		go func() {
-			buf := make([]byte, 1024)
+			buf := bufferpool.GetBytes(1024)
+			defer bufferpool.PutBytes(buf)
 			for {
 				n, err := stdoutPipe.Read(buf)
 				if n > 0 {
@@ -171,7 +174,8 @@ func HandleWebsocket(w http.ResponseWriter, r *http.Request) {
 
 		// Forward stderr to Websocket
 		go func() {
-			buf := make([]byte, 1024)
+			buf := bufferpool.GetBytes(1024)
+			defer bufferpool.PutBytes(buf)
 			for {
 				n, err := stderrPipe.Read(buf)
 				if n > 0 {

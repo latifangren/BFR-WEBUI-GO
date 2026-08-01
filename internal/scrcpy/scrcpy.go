@@ -13,6 +13,7 @@ import (
 	"sync"
 	"time"
 
+	"bfr-webui-go/internal/bufferpool"
 	"bfr-webui-go/internal/config"
 	"github.com/gorilla/websocket"
 )
@@ -43,9 +44,12 @@ func captureScreenFrame() ([]byte, error) {
 
 	img, err := png.Decode(bytes.NewReader(out))
 	if err == nil {
-		var buf bytes.Buffer
-		if err := jpeg.Encode(&buf, img, &jpeg.Options{Quality: 50}); err == nil {
-			return buf.Bytes(), nil
+		buf := bufferpool.GetBuffer()
+		defer bufferpool.PutBuffer(buf)
+		if err := jpeg.Encode(buf, img, &jpeg.Options{Quality: 50}); err == nil {
+			encoded := make([]byte, buf.Len())
+			copy(encoded, buf.Bytes())
+			return encoded, nil
 		}
 	}
 
@@ -149,14 +153,19 @@ func HandleWebsocket(w http.ResponseWriter, r *http.Request) {
 		case <-done:
 			return
 		case <-ticker.C:
+			// Adaptive Frame Throttling: TryLock to skip frame capture/send if previous write is still lagging
+			if !writeMux.TryLock() {
+				continue
+			}
+
 			frameData, err := captureScreenFrame()
 			if err == nil && len(frameData) > 0 {
-				writeMux.Lock()
 				err = conn.WriteMessage(websocket.BinaryMessage, frameData)
-				writeMux.Unlock()
-				if err != nil {
-					return
-				}
+			}
+			writeMux.Unlock()
+
+			if err != nil {
+				return
 			}
 		}
 	}

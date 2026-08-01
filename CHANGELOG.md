@@ -7,6 +7,35 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [Unreleased]
+
+### Added
+- **PWA (Progressive Web App) Support**:
+  - Added `web/manifest.json` with standalone display configuration, AMOLED theme colors, and icons.
+  - Added `web/sw.js` (Service Worker) with offline caching strategy for static assets and network-first strategy for `/api/*`.
+  - Registered Service Worker and theme color meta tags in `web/index.html`.
+- **Global Toast Notification Engine**:
+  - Implemented Alpine.js store-driven floating Toast notification system (`$dispatch('notify', {type, title, message})`).
+- **Embedded OpenAPI 3.0 & Interactive Docs Viewer**:
+  - Created complete OpenAPI 3.0 specification (`web/openapi.json`).
+  - Added `/docs` endpoint serving embedded Scalar API Reference documentation viewer.
+- **Root Command Executor (`ExecSuContext`)**:
+  - Added `config.ExecSuContext` and `config.ExecSuTimeout` helpers with `context.WithTimeout` to prevent process deadlocks when running root commands.
+- **Background Worker Task Pool**:
+  - Added lightweight 2-worker goroutine queue (`internal/worker/worker.go`) for executing CPU and disk-intensive operations asynchronously.
+- **Development Roadmap**:
+  - Added `roadmap.md` documenting future improvements across Performance, Architecture, UX, System Integrations, and Security.
+
+### Performance & Memory
+- **Procfs Direct Parsing**:
+  - Replaced subprocess `pidof` and `cat /proc` shell pipes with direct Go procfs reading (`/proc/[pid]/comm` and `/proc/[pid]/status`) to reduce CPU overhead and latency.
+- **`sync.Pool` Memory Buffer Reuse**:
+  - Implemented `internal/bufferpool` reusing `bytes.Buffer` and bucketed byte slices (1KB, 2KB, 32KB) across terminal PTY, Scrcpy JPEG encoding, and file copy operations.
+- **Adaptive Frame Throttling for Scrcpy**:
+  - Implemented `writeMux.TryLock()` frame skipping to prevent buffer accumulation when streaming over slow Wi-Fi.
+
+---
+
 ## [1.0.0] - 2026-08-02
 
 ### Added

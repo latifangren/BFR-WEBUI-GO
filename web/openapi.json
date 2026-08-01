@@ -1,0 +1,155 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "BFR WEBUI GO API",
+    "description": "Ultra-lightweight Android System Control Panel & WebUI REST API",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/api/auth/status": {
+      "get": {
+        "summary": "Get authentication status",
+        "responses": {
+          "200": { "description": "Auth status response" }
+        }
+      }
+    },
+    "/api/auth/login": {
+      "post": {
+        "summary": "Authenticate session",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "password": { "type": "string" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Login successful" },
+          "401": { "description": "Invalid password" }
+        }
+      }
+    },
+    "/api/auth/logout": {
+      "post": {
+        "summary": "Invalidate current session",
+        "responses": {
+          "200": { "description": "Logged out" }
+        }
+      }
+    },
+    "/api/stats": {
+      "get": {
+        "summary": "Get real-time system stats (CPU, RAM, thermals, disks, battery)",
+        "responses": {
+          "200": { "description": "System statistics object" }
+        }
+      }
+    },
+    "/api/power": {
+      "post": {
+        "summary": "Execute system power action",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "action": { "type": "string", "enum": ["reboot", "shutdown", "soft_reboot", "recovery", "bootloader"] }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Power action initiated" },
+          "400": { "description": "Invalid action" }
+        }
+      }
+    },
+    "/api/network/tweaks": {
+      "get": {
+        "summary": "Get active network interface stats and tweaks config",
+        "responses": { "200": { "description": "Network status" } }
+      },
+      "post": {
+        "summary": "Apply sysctl, TTL, interface, or DNS network tweaks",
+        "responses": { "200": { "description": "Tweak applied" } }
+      }
+    },
+    "/api/network/dns": {
+      "get": {
+        "summary": "Get preset DNS list",
+        "responses": { "200": { "description": "DNS preset list" } }
+      },
+      "post": {
+        "summary": "Set primary and secondary DNS",
+        "responses": { "200": { "description": "DNS updated" } }
+      }
+    },
+    "/api/proxy/status": {
+      "get": {
+        "summary": "Get Clash/Mihomo proxy core status",
+        "responses": { "200": { "description": "Proxy status" } }
+      }
+    },
+    "/api/proxy/control": {
+      "post": {
+        "summary": "Control proxy service (start/stop/restart) or set mode (rule/global/direct/script)",
+        "responses": { "200": { "description": "Proxy control response" } }
+      }
+    },
+    "/api/files/list": {
+      "get": {
+        "summary": "List files in directory",
+        "parameters": [
+          { "name": "path", "in": "query", "schema": { "type": "string" } }
+        ],
+        "responses": { "200": { "description": "File list" } }
+      }
+    },
+    "/api/files/storage": {
+      "get": {
+        "summary": "Get storage partition usage",
+        "responses": { "200": { "description": "Storage statistics" } }
+      }
+    },
+    "/api/hotspot/status": {
+      "get": {
+        "summary": "Get SoftAP hotspot status",
+        "responses": { "200": { "description": "Hotspot status" } }
+      }
+    },
+    "/api/ssh/status": {
+      "get": {
+        "summary": "Get SSH daemon status",
+        "responses": { "200": { "description": "SSH status" } }
+      }
+    },
+    "/api/charger/config": {
+      "get": {
+        "summary": "Get Smart Charger control status",
+        "responses": { "200": { "description": "Charger status" } }
+      }
+    },
+    "/api/sms/inbox": {
+      "get": {
+        "summary": "Read SMS inbox messages",
+        "responses": { "200": { "description": "SMS inbox response" } }
+      }
+    },
+    "/api/logs": {
+      "get": {
+        "summary": "Get application security & system audit log entries",
+        "responses": { "200": { "description": "Log entries" } }
+      }
+    }
+  }
+}

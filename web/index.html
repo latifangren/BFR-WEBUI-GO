@@ -30,7 +30,8 @@
     </script>
 </head>
 <body class="bg-amoled text-gray-200 min-h-screen flex flex-col antialiased selection:bg-blue-500 selection:text-white"
-      x-data="dashboard()" x-init="init()">
+      x-data="dashboard()" x-init="init()"
+      @notify.window="showToast($event.detail.title || $event.detail.type || 'Notification', $event.detail.message || $event.detail.msg || '', $event.detail.type || 'info')">
 
     {{template "header.html" .}}
 

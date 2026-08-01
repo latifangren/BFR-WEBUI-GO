@@ -1,8 +1,11 @@
 package config
 
 import (
+	"context"
 	"os"
+	"os/exec"
 	"strings"
+	"time"
 )
 
 // envOrDefault returns env value or fallback if not set.
@@ -15,6 +18,21 @@ func envOrDefault(key, fallback string) string {
 
 // BFR_SU_BIN override for root shell invocation.
 var SUBin = envOrDefault("BFR_SU_BIN", "su")
+
+// ExecSuContext executes a command string with root privileges using context cancellation.
+func ExecSuContext(ctx context.Context, cmdStr string) ([]byte, error) {
+	return exec.CommandContext(ctx, SUBin, "-c", cmdStr).CombinedOutput()
+}
+
+// ExecSuTimeout executes a command string with root privileges using a hard timeout duration.
+func ExecSuTimeout(d time.Duration, cmdStr string) ([]byte, error) {
+	if d <= 0 {
+		d = 5 * time.Second
+	}
+	ctx, cancel := context.WithTimeout(context.Background(), d)
+	defer cancel()
+	return ExecSuContext(ctx, cmdStr)
+}
 
 // BFR_MODULE_DIR override for Magisk module installation directory.
 var ModuleDir = envOrDefault("BFR_MODULE_DIR", "/data/adb/modules/bfr_webui_go")

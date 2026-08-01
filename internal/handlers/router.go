@@ -152,6 +152,26 @@ func RegisterRoutes(mux *http.ServeMux, authMgr *auth.Manager) {
 	// SMS Viewer URLs
 	mux.HandleFunc("/api/sms/inbox", wrap(HandleSMSInbox, true))
 
+	// Docs URL
+	mux.HandleFunc("/docs", wrap(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "text/html; charset=utf-8")
+		html := `<!doctype html>
+<html>
+<head>
+  <title>BFR WEBUI GO API Docs</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>body { margin: 0; background: #0f172a; color: #fff; }</style>
+</head>
+<body>
+  <script id="api-reference" data-url="/openapi.json"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@scalar/api-reference"></script>
+  <noscript><p style="padding:20px;">OpenAPI specification is available at <a href="/openapi.json" style="color:#60a5fa">/openapi.json</a></p></noscript>
+</body>
+</html>`
+		_, _ = w.Write([]byte(html))
+	}, false))
+
 	// Remote Screen Scrcpy WS
 	mux.HandleFunc("/api/scrcpy/ws", scrcpyH.HandleWS)
 
