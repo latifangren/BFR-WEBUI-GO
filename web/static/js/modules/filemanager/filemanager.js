@@ -392,26 +392,66 @@ const FilemanagerModule = {
 
     // UI Formatting Helpers
     fmFileIcon(file) {
-        if (file.is_parent) return 'ph-folder-dashed';
-        if (file.is_dir) return 'ph-folder-simple-fill';
-        const name = file.name.toLowerCase();
-        if (name.endsWith('.zip') || name.endsWith('.tar') || name.endsWith('.gz') || name.endsWith('.7z')) return 'ph-file-archive';
-        if (this.fmIsImage(file)) return 'ph-image-square';
-        if (name.endsWith('.txt') || name.endsWith('.md') || name.endsWith('.json') || name.endsWith('.yaml') || name.endsWith('.sh') || name.endsWith('.log')) return 'ph-file-text';
-        if (name.endsWith('.apk')) return 'ph-android-logo';
-        return 'ph-file';
+        if (!file) return '📄';
+        if (file.is_parent) return '⬆️';
+        if (file.is_dir) return '📁';
+        const name = (file.name || '').toLowerCase();
+        if (name.endsWith('.zip') || name.endsWith('.tar') || name.endsWith('.gz') || name.endsWith('.7z')) return '📦';
+        if (this.fmIsImage(file) || name.endsWith('.png') || name.endsWith('.jpg') || name.endsWith('.jpeg') || name.endsWith('.webp') || name.endsWith('.svg') || name.endsWith('.gif')) return '🖼️';
+        if (name.endsWith('.txt') || name.endsWith('.md') || name.endsWith('.json') || name.endsWith('.yaml') || name.endsWith('.sh') || name.endsWith('.log') || name.endsWith('.go') || name.endsWith('.prop') || name.endsWith('.conf')) return '📄';
+        if (name.endsWith('.apk')) return '📱';
+        if (name.endsWith('.mp3') || name.endsWith('.wav') || name.endsWith('.flac') || name.endsWith('.ogg')) return '🎵';
+        if (name.endsWith('.mp4') || name.endsWith('.mkv') || name.endsWith('.avi')) return '🎬';
+        return '📄';
     },
 
-    fmOctalToSymbolic(permissions) {
-        if (!permissions) return 'rw-r--r--';
-        if (permissions.length === 10 || permissions.startsWith('d') || permissions.startsWith('-')) {
-            return permissions;
+    fmOctalToSymbolic(mode) {
+        if (!mode) return 'rw-r--r--';
+        const str = String(mode).trim();
+        if (str.length === 10 || str.startsWith('d') || str.startsWith('-')) {
+            return str;
         }
-        return permissions;
+        let clean = str;
+        if (clean.length === 4 && clean.startsWith('0')) {
+            clean = clean.substring(1);
+        }
+        if (clean.length < 3) {
+            clean = clean.padStart(3, '0');
+        }
+        const mapping = {
+            '0': '---',
+            '1': '--x',
+            '2': '-w-',
+            '3': '-wx',
+            '4': 'r--',
+            '5': 'r-x',
+            '6': 'rw-',
+            '7': 'rwx'
+        };
+        const u = mapping[clean[0]] || 'rwx';
+        const g = mapping[clean[1]] || 'r-x';
+        const o = mapping[clean[2]] || 'r-x';
+        return u + g + o;
     },
 
-    fmOctalBit(octal, pos) {
-        return true;
+    fmOctalBit(mode, row, col) {
+        if (!mode) return false;
+        let str = String(mode).trim();
+        if (str.length === 4 && str.startsWith('0')) {
+            str = str.substring(1);
+        }
+        if (str.length < 3) {
+            str = str.padStart(3, '0');
+        }
+        const digitChar = str[row];
+        if (!digitChar) return false;
+        const num = parseInt(digitChar, 10);
+        if (isNaN(num)) return false;
+
+        if (col === 0) return (num & 4) !== 0; // Read bit
+        if (col === 1) return (num & 2) !== 0; // Write bit
+        if (col === 2) return (num & 1) !== 0; // Execute bit
+        return false;
     },
 
     // Existing Dialog / Editor Methods
