@@ -1,0 +1,99 @@
+name: Release and Artifact Builder
+
+on:
+  push:
+    branches: [ main ]
+    tags:
+      - 'v*.*.*'
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    name: Build & Validate Target
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Go Environment
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.22'
+          cache: true
+
+      - name: Check Formatting & Golang Vet
+        run: |
+          go fmt ./...
+          go vet ./...
+
+      - name: Run Tests
+        run: go test -v ./...
+
+      - name: Cross-Compile Android ARM64
+        env:
+          GOOS: android
+          GOARCH: arm64
+          CGO_ENABLED: 0
+        run: |
+          go build -ldflags="-s -w" -o webui .
+
+      - name: Package Magisk Module Zip
+        run: |
+          zip -r BFR-WEBUI-Magisk-${{ github.ref_name }}.zip customize.sh module.prop service.sh system.prop tweaks.json env.example webui
+
+      - name: Upload Build Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: BFR-WEBUI-Magisk-${{ github.ref_name }}
+          path: |
+            BFR-WEBUI-Magisk-${{ github.ref_name }}.zip
+            webui
+          retention-days: 7
+
+  release:
+    name: Publish Github Release
+    needs: build
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Download Build Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: BFR-WEBUI-Magisk-${{ github.ref_name }}
+
+      - name: Extract Release Notes from CHANGELOG
+        id: changelog
+        run: |
+          # Strip 'v' prefix from tag to match CHANGELOG version format (e.g. [1.0.0])
+          TAG_VER="${{ github.ref_name }}"
+          RAW_VER="${TAG_VER#v}"
+          
+          echo "Extracting release notes for version: $RAW_VER"
+          
+          # Extract everything under the specific version header up to the next version header
+          awk "/## \[$RAW_VER\]/{p=1;next} /^## \[/{p=0} p" CHANGELOG.md > release_notes.md
+          
+          if [ ! -s release_notes.md ]; then
+            echo "Warning: Version section not found or empty in CHANGELOG.md. Using fallback notes."
+            echo "Release of BFR-WEBUI-GO version $TAG_VER" > release_notes.md
+          fi
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          body_path: release_notes.md
+          files: |
+            BFR-WEBUI-Magisk-${{ github.ref_name }}.zip
+            webui
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
