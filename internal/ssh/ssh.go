@@ -140,13 +140,6 @@ func (m *Manager) getRunningProcessForPort(port int) (string, int) {
 	return "", 0
 }
 
-func (m *Manager) getRunningProcess() (string, int) {
-	m.mu.RLock()
-	port := m.config.Port
-	m.mu.RUnlock()
-	return m.getRunningProcessForPort(port)
-}
-
 func checkPidRunning(pid int) bool {
 	cmd := exec.Command(config.SUBin, "-c", fmt.Sprintf("kill -0 %d", pid))
 	return cmd.Run() == nil

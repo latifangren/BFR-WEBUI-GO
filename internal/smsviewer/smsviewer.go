@@ -5,12 +5,12 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"strconv"
 	"strings"
 
 	"bfr-webui-go/internal/config"
 
 	_ "github.com/ncruces/go-sqlite3/driver"
-	_ "github.com/ncruces/go-sqlite3/embed"
 )
 
 type SMSMessage struct {
@@ -119,27 +119,23 @@ func ReadSMSViaContentProvider(limit int, offset int, searchQuery string) (SMSRe
 
 			// If key starts with Row: X _id
 			if strings.Contains(key, "_id") {
-				var id int64
-				fmt.Sscanf(val, "%d", &id)
+				id, _ := strconv.ParseInt(val, 10, 64)
 				msg.ID = id
 			} else if key == "address" {
 				msg.Address = val
 			} else if key == "body" {
 				msg.Body = val
 			} else if key == "date" {
-				var d int64
-				fmt.Sscanf(val, "%d", &d)
+				d, _ := strconv.ParseInt(val, 10, 64)
 				if d > 9999999999 {
 					d = d / 1000
 				}
 				msg.Date = d
 			} else if key == "read" {
-				var r int
-				fmt.Sscanf(val, "%d", &r)
+				r, _ := strconv.Atoi(val)
 				msg.Read = r
 			} else if key == "type" {
-				var t int
-				fmt.Sscanf(val, "%d", &t)
+				t, _ := strconv.Atoi(val)
 				msg.Type = t
 			}
 		}

@@ -16,7 +16,6 @@ import (
 	"time"
 
 	"bfr-webui-go/internal/config"
-	"github.com/gorilla/websocket"
 )
 
 type CoreInfo struct {
@@ -41,9 +40,6 @@ var clashHTTPClient = &http.Client{
 var (
 	hub = &LogHub{
 		listeners: make(map[chan string]bool),
-	}
-	upgrader = websocket.Upgrader{
-		CheckOrigin: func(r *http.Request) bool { return true },
 	}
 
 	// L-4: allow overriding hardcoded base paths via environment variables.
