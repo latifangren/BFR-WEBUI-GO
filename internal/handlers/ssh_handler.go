@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 
+	"bfr-webui-go/internal/logger"
 	"bfr-webui-go/internal/ssh"
 )
 
@@ -39,6 +40,7 @@ func HandleSSHConfig(w http.ResponseWriter, r *http.Request) {
 		_ = json.NewEncoder(w).Encode(map[string]string{"error": err.Error()})
 		return
 	}
+	logger.Get().Infof("SSH", "SSH configuration updated (Port: %d)", cfg.Port)
 	w.Header().Set("Content-Type", "application/json")
 	_ = json.NewEncoder(w).Encode(status)
 }
@@ -61,6 +63,7 @@ func HandleSSHControl(w http.ResponseWriter, r *http.Request) {
 	}
 
 	manager := ssh.GetManager()
+	logger.Get().Infof("SSH", "SSH service action requested: %s", req.Action)
 	var err error
 	switch req.Action {
 	case "start":

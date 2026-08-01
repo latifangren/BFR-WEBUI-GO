@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"bfr-webui-go/internal/hotspot"
+	"bfr-webui-go/internal/logger"
 )
 
 type hotspotControlRequest struct {
@@ -35,6 +36,9 @@ func HandleHotspotControl(w http.ResponseWriter, r *http.Request) {
 	}
 
 	err := hotspot.ToggleHotspot(req.Enable, req.SSID, req.Pass)
+	if err == nil {
+		logger.Get().Infof("hotspot", "Hotspot toggle executed: enable=%v, ssid=%s", req.Enable, req.SSID)
+	}
 	w.Header().Set("Content-Type", "application/json")
 	_ = json.NewEncoder(w).Encode(map[string]interface{}{
 		"success": err == nil,

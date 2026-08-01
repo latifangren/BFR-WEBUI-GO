@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 
+	"bfr-webui-go/internal/logger"
 	"bfr-webui-go/internal/proxy"
 )
 
@@ -61,6 +62,9 @@ func HandleProxyControl(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		err := proxy.SetMode(req.Mode)
+		if err == nil {
+			logger.Get().Infof("proxy", "Proxy mode set to %s", req.Mode)
+		}
 		w.Header().Set("Content-Type", "application/json")
 		_ = json.NewEncoder(w).Encode(map[string]interface{}{"success": err == nil, "error": fmt.Sprintf("%v", err)})
 		return
@@ -79,6 +83,9 @@ func HandleProxyControl(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		err := proxy.ControlService(req.Action)
+		if err == nil {
+			logger.Get().Infof("proxy", "Proxy service action executed: %s", req.Action)
+		}
 		w.Header().Set("Content-Type", "application/json")
 		_ = json.NewEncoder(w).Encode(map[string]interface{}{"success": err == nil, "error": fmt.Sprintf("%v", err)})
 		return

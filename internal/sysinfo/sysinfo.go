@@ -13,6 +13,8 @@ import (
 	"strings"
 	"sync"
 	"time"
+
+	"bfr-webui-go/internal/config"
 )
 
 type CPUCoreStat struct {
@@ -835,56 +837,195 @@ func buildNetworkDetail() NetworkDetail {
 	}
 
 	// 2. Gateway
-	if out := runCmdTimeout(cmdTimeout, "ip", "route"); out != "" {
-		for _, line := range strings.Split(out, "\n") {
-			line = strings.TrimSpace(line)
-			if strings.HasPrefix(line, "default via ") || strings.Contains(line, "default via ") {
-				parts := strings.Fields(line)
-				for i, p := range parts {
-					if p == "via" && i+1 < len(parts) {
-						nd.Gateway = parts[i+1]
+	if out := runCmdTimeout(cmdTimeout, "ip", "route", "get", "8.8.8.8"); out != "" {
+		parts := strings.Fields(out)
+		for i, p := range parts {
+			if p == "via" && i+1 < len(parts) {
+				gw := parts[i+1]
+				if net.ParseIP(gw) != nil {
+					nd.Gateway = gw
+					break
+				}
+			}
+		}
+	}
+	if nd.Gateway == "" {
+		if out := runCmdTimeout(cmdTimeout, "ip", "route", "show", "table", "all"); out != "" {
+			for _, line := range strings.Split(out, "\n") {
+				line = strings.TrimSpace(line)
+				if strings.Contains(line, "default via ") {
+					parts := strings.Fields(line)
+					for i, p := range parts {
+						if p == "via" && i+1 < len(parts) {
+							gw := parts[i+1]
+							if net.ParseIP(gw) != nil {
+								nd.Gateway = gw
+								break
+							}
+						}
+					}
+					if nd.Gateway != "" {
 						break
 					}
 				}
-				if nd.Gateway != "" {
-					break
+			}
+		}
+	}
+	if nd.Gateway == "" {
+		if out := runCmdTimeout(cmdTimeout, "ip", "route"); out != "" {
+			for _, line := range strings.Split(out, "\n") {
+				line = strings.TrimSpace(line)
+				if strings.Contains(line, "default via ") {
+					parts := strings.Fields(line)
+					for i, p := range parts {
+						if p == "via" && i+1 < len(parts) {
+							gw := parts[i+1]
+							if net.ParseIP(gw) != nil {
+								nd.Gateway = gw
+								break
+							}
+						}
+					}
+					if nd.Gateway != "" {
+						break
+					}
 				}
 			}
 		}
 	}
 
 	// 3. DNS
-	dns1 := getProp("net.dns1")
-	if dns1 != "" {
-		nd.DNS = append(nd.DNS, dns1)
-		nd.DNS1 = dns1
+	seenIPs := make(map[string]bool)
+
+	addDNS := func(rawIP, label string) {
+		rawIP = strings.TrimPrefix(strings.TrimSpace(rawIP), "/")
+		if net.ParseIP(rawIP) != nil {
+			if !seenIPs[rawIP] {
+				seenIPs[rawIP] = true
+				nd.DNS = append(nd.DNS, fmt.Sprintf("%s (%s)", rawIP, label))
+			}
+		}
 	}
-	dns2 := getProp("net.dns2")
-	if dns2 != "" && dns2 != dns1 {
-		nd.DNS = append(nd.DNS, dns2)
-		nd.DNS2 = dns2
-	}
-	if len(nd.DNS) == 0 {
-		out := runCmdTimeout(cmdTimeout, "getprop")
-		reDNS := regexp.MustCompile(`(?i)\[.*dns.*\]:\s*\[([0-9\.]+)\]`)
-		matches := reDNS.FindAllStringSubmatch(out, -1)
-		for _, match := range matches {
-			if len(match) > 1 {
-				val := match[1]
-				if net.ParseIP(val) != nil {
-					found := false
-					for _, d := range nd.DNS {
-						if d == val {
-							found = true
-							break
-						}
-					}
-					if !found {
-						nd.DNS = append(nd.DNS, val)
+
+	// 3a. Active/Running DNS (dumpsys dnsresolver)
+	if resolverOut := runCmdTimeout(cmdTimeout, config.SUBin, "-c", "dumpsys dnsresolver"); resolverOut != "" {
+		blocks := strings.Split(resolverOut, "netId")
+		reDNSList := regexp.MustCompile(`(?i)(?:DNS servers|DnsAddresses|Server[s]?):\s*\[?\s*([^\]\n]+)\]?`)
+		reIfaceList := regexp.MustCompile(`(?i)(?:Interface names|Interface|iface):\s*\[?\s*([^\]\n]+)\]?`)
+
+		for _, block := range blocks {
+			if strings.TrimSpace(block) == "" {
+				continue
+			}
+			iface := ""
+			if ifaceMatch := reIfaceList.FindStringSubmatch(block); len(ifaceMatch) > 1 {
+				iface = strings.ToLower(strings.TrimSpace(ifaceMatch[1]))
+			}
+
+			label := "Active"
+			if strings.Contains(iface, "wlan") {
+				label = "Active / Wi-Fi"
+			} else if strings.Contains(iface, "rmnet") || strings.Contains(iface, "ccmni") || strings.Contains(iface, "p2p") {
+				label = "Active / Cellular"
+			}
+
+			dnsMatches := reDNSList.FindAllStringSubmatch(block, -1)
+			for _, m := range dnsMatches {
+				if len(m) > 1 {
+					tokens := strings.Fields(strings.ReplaceAll(m[1], ",", " "))
+					for _, tok := range tokens {
+						addDNS(tok, label)
 					}
 				}
 			}
 		}
+
+		if len(seenIPs) == 0 {
+			lines := strings.Split(resolverOut, "\n")
+			curIface := ""
+			reIP := regexp.MustCompile(`([0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3})`)
+			for _, line := range lines {
+				lower := strings.ToLower(line)
+				if strings.Contains(lower, "wlan") {
+					curIface = "wlan"
+				} else if strings.Contains(lower, "rmnet") || strings.Contains(lower, "ccmni") || strings.Contains(lower, "p2p") {
+					curIface = "rmnet"
+				}
+				for _, ipMatch := range reIP.FindAllString(line, -1) {
+					label := "Active"
+					if curIface == "wlan" {
+						label = "Active / Wi-Fi"
+					} else if curIface == "rmnet" {
+						label = "Active / Cellular"
+					}
+					addDNS(ipMatch, label)
+				}
+			}
+		}
+	}
+
+	// 3b. Network Profile Config DNS (dumpsys connectivity)
+	if connOut := runCmdTimeout(cmdTimeout, config.SUBin, "-c", "dumpsys connectivity"); connOut != "" {
+		blocks := strings.Split(connOut, "NetworkAgentInfo")
+		reDnsAddr := regexp.MustCompile(`(?i)DnsAddresses:\s*\[\s*([^\]]+)\]`)
+
+		for _, block := range blocks {
+			if strings.TrimSpace(block) == "" {
+				continue
+			}
+			blockLower := strings.ToLower(block)
+			isWifi := strings.Contains(blockLower, "wifi") || strings.Contains(blockLower, "wlan")
+			isCell := strings.Contains(blockLower, "cellular") || strings.Contains(blockLower, "rmnet") || strings.Contains(blockLower, "ccmni")
+
+			label := "Config"
+			if isWifi {
+				label = "Wi-Fi Config"
+			} else if isCell {
+				label = "Cellular Config"
+			}
+
+			if dnsMatch := reDnsAddr.FindStringSubmatch(block); len(dnsMatch) > 1 {
+				tokens := strings.Fields(strings.ReplaceAll(dnsMatch[1], ",", " "))
+				for _, tok := range tokens {
+					addDNS(tok, label)
+				}
+			}
+		}
+
+		reDnsAddrAll := regexp.MustCompile(`(?i)DnsAddresses:\s*\[\s*([^\]]+)\]`)
+		for _, m := range reDnsAddrAll.FindAllStringSubmatch(connOut, -1) {
+			if len(m) > 1 {
+				tokens := strings.Fields(strings.ReplaceAll(m[1], ",", " "))
+				for _, tok := range tokens {
+					addDNS(tok, "Config")
+				}
+			}
+		}
+	}
+
+	// 3c. Fallback properties
+	if dns1 := getProp("net.dns1"); dns1 != "" {
+		addDNS(dns1, "Config")
+	}
+	if dns2 := getProp("net.dns2"); dns2 != "" {
+		addDNS(dns2, "Config")
+	}
+
+	if out := runCmdTimeout(cmdTimeout, "getprop"); out != "" {
+		reDNS := regexp.MustCompile(`(?i)\[.*dns.*\]:\s*\[([0-9\.]+)\]`)
+		matches := reDNS.FindAllStringSubmatch(out, -1)
+		for _, match := range matches {
+			if len(match) > 1 {
+				addDNS(match[1], "Config")
+			}
+		}
+	}
+
+	if len(nd.DNS) > 0 {
+		nd.DNS1 = nd.DNS[0]
+	}
+	if len(nd.DNS) > 1 {
+		nd.DNS2 = nd.DNS[1]
 	}
 
 	// 4. WiFi SSID / RSSI

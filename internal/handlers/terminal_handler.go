@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"bfr-webui-go/internal/auth"
+	"bfr-webui-go/internal/logger"
 	"bfr-webui-go/internal/terminal"
 )
 
@@ -24,5 +25,7 @@ func (h *TerminalHandler) HandleWS(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Unauthorized", http.StatusUnauthorized)
 		return
 	}
+	logger.Get().Infof("Terminal", "Web terminal session started from %s", r.RemoteAddr)
+	defer logger.Get().Infof("Terminal", "Web terminal session closed from %s", r.RemoteAddr)
 	terminal.HandleWebsocket(w, r)
 }

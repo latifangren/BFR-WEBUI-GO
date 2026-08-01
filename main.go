@@ -13,12 +13,15 @@ import (
 	"bfr-webui-go/internal/auth"
 	_ "bfr-webui-go/internal/charger"
 	"bfr-webui-go/internal/handlers"
+	"bfr-webui-go/internal/logger"
 	"bfr-webui-go/internal/network"
 	_ "bfr-webui-go/internal/ssh"
 	_ "bfr-webui-go/internal/vnstat"
 )
 
 func main() {
+	logger.SetupGlobalLogHook()
+
 	port := flag.String("port", "8080", "HTTP server port")
 	applyTweaks := flag.Bool("apply-tweaks", false, "Apply all optimized network tweaks and exit")
 	flag.Parse()

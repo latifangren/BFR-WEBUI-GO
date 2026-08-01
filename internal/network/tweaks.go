@@ -11,6 +11,7 @@ import (
 	"strings"
 
 	"bfr-webui-go/internal/config"
+	"bfr-webui-go/internal/logger"
 )
 
 var (
@@ -149,23 +150,53 @@ func GetActiveDNS() (string, string) {
 
 func SetDNS(primary, secondary string) error {
 	// N-2: validate DNS IP addresses
-	if primary == "" || net.ParseIP(primary) == nil {
+	parsedPrimary := net.ParseIP(primary)
+	if primary == "" || parsedPrimary == nil {
 		return fmt.Errorf("invalid primary DNS IP address: %s", primary)
 	}
 	if secondary != "" && net.ParseIP(secondary) == nil {
 		return fmt.Errorf("invalid secondary DNS IP address: %s", secondary)
 	}
+
+	isIPv6 := parsedPrimary.To4() == nil
+
 	cmds := []string{
 		fmt.Sprintf("setprop net.dns1 %s", primary),
 		fmt.Sprintf("setprop net.dns2 %s", secondary),
 		"iptables -t nat -D OUTPUT -p udp --dport 53 -j REDIRECT --to-ports 53 2>/dev/null || true",
-		fmt.Sprintf("iptables -t nat -A OUTPUT -p udp --dport 53 -j DNAT --to-destination %s:53 2>/dev/null || true", primary),
+		"iptables -t nat -D OUTPUT -p tcp --dport 53 -j REDIRECT --to-ports 53 2>/dev/null || true",
 	}
+
+	if isIPv6 {
+		cmds = append(cmds,
+			fmt.Sprintf("ip6tables -t nat -A OUTPUT -p udp --dport 53 -j DNAT --to-destination [%s]:53 2>/dev/null || true", primary),
+			fmt.Sprintf("ip6tables -t nat -A OUTPUT -p tcp --dport 53 -j DNAT --to-destination [%s]:53 2>/dev/null || true", primary),
+		)
+	} else {
+		cmds = append(cmds,
+			fmt.Sprintf("iptables -t nat -A OUTPUT -p udp --dport 53 -j DNAT --to-destination %s:53 2>/dev/null || true", primary),
+			fmt.Sprintf("iptables -t nat -A OUTPUT -p tcp --dport 53 -j DNAT --to-destination %s:53 2>/dev/null || true", primary),
+		)
+	}
+
 	cmdStr := strings.Join(cmds, " && ")
 	out, err := exec.Command(config.SUBin, "-c", cmdStr).CombinedOutput()
 	if err != nil {
+		logger.Get().Errorf("network", "Failed setting DNS: %v, out: %s", err, string(out))
 		return fmt.Errorf("dns error: %v, out: %s", err, string(out))
 	}
+
+	if ifaces, err := net.Interfaces(); err == nil {
+		for _, ifc := range ifaces {
+			name := strings.ToLower(ifc.Name)
+			if strings.Contains(name, "wlan") || strings.Contains(name, "rmnet") {
+				ndcCmd := fmt.Sprintf("ndc resolver setnetdns %s \"\" %s %s", ifc.Name, primary, secondary)
+				_ = exec.Command(config.SUBin, "-c", ndcCmd).Run()
+			}
+		}
+	}
+
+	logger.Get().Infof("network", "DNS updated successfully: primary=%s, secondary=%s", primary, secondary)
 	return nil
 }
 

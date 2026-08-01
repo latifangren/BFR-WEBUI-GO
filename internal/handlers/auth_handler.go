@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"bfr-webui-go/internal/auth"
+	"bfr-webui-go/internal/logger"
 )
 
 type AuthHandler struct {
@@ -48,6 +49,7 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 
 	token, ok := h.authMgr.Authenticate(req.Password)
 	if !ok {
+		logger.Get().Warnf("auth", "Failed login attempt from %s", r.RemoteAddr)
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusUnauthorized)
 		_ = json.NewEncoder(w).Encode(map[string]interface{}{
@@ -56,6 +58,8 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 		})
 		return
 	}
+
+	logger.Get().Infof("auth", "User authenticated successfully from %s", r.RemoteAddr)
 
 	http.SetCookie(w, &http.Cookie{
 		Name:     auth.CookieName,
@@ -80,6 +84,7 @@ func (h *AuthHandler) Logout(w http.ResponseWriter, r *http.Request) {
 
 	token := h.authMgr.GetTokenFromRequest(r)
 	h.authMgr.Logout(token)
+	logger.Get().Infof("auth", "User logged out")
 
 	http.SetCookie(w, &http.Cookie{
 		Name:     auth.CookieName,

@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"bfr-webui-go/internal/auth"
+	"bfr-webui-go/internal/logger"
 	"bfr-webui-go/internal/scrcpy"
 )
 
@@ -24,5 +25,6 @@ func (h *ScrcpyHandler) HandleWS(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Unauthorized", http.StatusUnauthorized)
 		return
 	}
+	logger.Get().Infof("Scrcpy", "Screen control session connected from %s", r.RemoteAddr)
 	scrcpy.HandleWebsocket(w, r)
 }

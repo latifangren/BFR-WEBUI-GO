@@ -8,6 +8,7 @@ import (
 	"strings"
 	"time"
 
+	"bfr-webui-go/internal/logger"
 	"bfr-webui-go/internal/power"
 )
 
@@ -63,6 +64,8 @@ func HandlePower(w http.ResponseWriter, r *http.Request) {
 	case "bootloader":
 		act = power.ActionRebootBootloader
 	}
+
+	logger.Get().Infof("Power", "Executing power action: %s", act)
 
 	go func() {
 		time.Sleep(500 * time.Millisecond)

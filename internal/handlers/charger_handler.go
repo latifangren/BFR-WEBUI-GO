@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"bfr-webui-go/internal/charger"
+	"bfr-webui-go/internal/logger"
 )
 
 func HandleChargerConfig(w http.ResponseWriter, r *http.Request) {
@@ -31,6 +32,7 @@ func HandleChargerToggle(w http.ResponseWriter, r *http.Request) {
 	}
 
 	status := charger.UpdateConfig(cfg)
+	logger.Get().Infof("Charger", "Charger control config updated: enabled=%v, start=%d%%, stop=%d%%", cfg.Enabled, cfg.StartPercent, cfg.StopPercent)
 	w.Header().Set("Content-Type", "application/json")
 	_ = json.NewEncoder(w).Encode(status)
 }

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 
+	"bfr-webui-go/internal/logger"
 	"bfr-webui-go/internal/network"
 	"bfr-webui-go/internal/sysinfo"
 )
@@ -93,6 +94,7 @@ func HandleNetworkTweaks(w http.ResponseWriter, r *http.Request) {
 		case "dns":
 			var req dnsRequest
 			if err := json.NewDecoder(r.Body).Decode(&req); err == nil {
+				logger.Get().Infof("network", "DNS change requested: primary=%s, secondary=%s", req.Primary, req.Secondary)
 				err := network.SetDNS(req.Primary, req.Secondary)
 				w.Header().Set("Content-Type", "application/json")
 				_ = json.NewEncoder(w).Encode(map[string]interface{}{"success": err == nil, "error": fmt.Sprintf("%v", err)})
@@ -150,6 +152,7 @@ func HandleDNS(w http.ResponseWriter, r *http.Request) {
 			_ = json.NewEncoder(w).Encode(map[string]interface{}{"error": "Invalid DNS request"})
 			return
 		}
+		logger.Get().Infof("network", "DNS preset update requested: primary=%s, secondary=%s", req.Primary, req.Secondary)
 		err := network.SetDNS(req.Primary, req.Secondary)
 		w.Header().Set("Content-Type", "application/json")
 		_ = json.NewEncoder(w).Encode(map[string]interface{}{"success": err == nil, "error": fmt.Sprintf("%v", err)})

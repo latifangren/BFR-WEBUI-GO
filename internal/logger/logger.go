@@ -2,9 +2,28 @@ package logger
 
 import (
 	"fmt"
+	"io"
+	"log"
+	"os"
+	"strings"
 	"sync"
 	"time"
 )
+
+type LogWriter struct{}
+
+func (w *LogWriter) Write(p []byte) (n int, err error) {
+	msg := strings.TrimSpace(string(p))
+	if msg != "" {
+		Get().log(Info, "System", msg)
+	}
+	return len(p), nil
+}
+
+func SetupGlobalLogHook() {
+	mw := io.MultiWriter(os.Stderr, &LogWriter{})
+	log.SetOutput(mw)
+}
 
 type Level string
 

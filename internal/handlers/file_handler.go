@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"bfr-webui-go/internal/filemanager"
+	"bfr-webui-go/internal/logger"
 )
 
 type fileSaveRequest struct {
@@ -71,6 +72,9 @@ func HandleFilesSave(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	err := filemanager.SaveFile(req.Path, req.Content)
+	if err == nil {
+		logger.Get().Infof("filemanager", "File saved: path=%s", req.Path)
+	}
 	w.Header().Set("Content-Type", "application/json")
 	_ = json.NewEncoder(w).Encode(map[string]interface{}{
 		"success": err == nil,
@@ -126,6 +130,9 @@ func HandleFilesDelete(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	err := filemanager.DeletePath(req.Path)
+	if err == nil {
+		logger.Get().Infof("filemanager", "Path deleted: path=%s", req.Path)
+	}
 	w.Header().Set("Content-Type", "application/json")
 	_ = json.NewEncoder(w).Encode(map[string]interface{}{
 		"success": err == nil,
