@@ -9,6 +9,8 @@ import (
 	"strings"
 	"sync"
 	"time"
+
+	"bfr-webui-go/internal/config"
 )
 
 type InterfaceStat struct {
@@ -63,7 +65,7 @@ var (
 )
 
 func getStoragePath() string {
-	magiskDir := "/data/adb/modules/bfr_webui_go"
+	magiskDir := config.ModuleDir
 	magiskPath := filepath.Join(magiskDir, "vnstat_data.json")
 	if _, err := os.Stat(magiskDir); err == nil {
 		return magiskPath

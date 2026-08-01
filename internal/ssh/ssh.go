@@ -11,6 +11,7 @@ import (
 	"sync"
 	"time"
 
+	"bfr-webui-go/internal/config"
 	"bfr-webui-go/internal/logger"
 )
 
@@ -41,7 +42,7 @@ var (
 )
 
 func getStoragePath() string {
-	magiskDir := "/data/adb/modules/bfr_webui_go"
+	magiskDir := config.ModuleDir
 	magiskPath := filepath.Join(magiskDir, "ssh_config.json")
 	if _, err := os.Stat(magiskDir); err == nil {
 		return magiskPath
@@ -123,7 +124,7 @@ func (m *Manager) getRunningProcessForPort(port int) (string, int) {
 	candidates := []string{"dropbear", "sshd"}
 	for _, c := range candidates {
 		// Specifically target sshd/dropbear instances bound to our custom port
-		cmd := exec.Command("su", "-c", fmt.Sprintf("pgrep -f \"%s.*-p %d\"", c, port))
+		cmd := exec.Command(config.SUBin, "-c", fmt.Sprintf("pgrep -f \"%s.*-p %d\"", c, port))
 		out, err := cmd.Output()
 		if err == nil {
 			lines := strings.Split(strings.TrimSpace(string(out)), "\n")
@@ -147,7 +148,7 @@ func (m *Manager) getRunningProcess() (string, int) {
 }
 
 func checkPidRunning(pid int) bool {
-	cmd := exec.Command("su", "-c", fmt.Sprintf("kill -0 %d", pid))
+	cmd := exec.Command(config.SUBin, "-c", fmt.Sprintf("kill -0 %d", pid))
 	return cmd.Run() == nil
 }
 
@@ -218,7 +219,7 @@ func (m *Manager) Start() error {
 
 	// Use nohup for clean daemon detach — prevents SIGHUP kill when su exits
 	fullCmd := fmt.Sprintf("nohup %s > /dev/null 2>&1 &", cmdStr)
-	cmd := exec.Command("su", "-c", fullCmd)
+	cmd := exec.Command(config.SUBin, "-c", fullCmd)
 	err := cmd.Run()
 	if err != nil {
 		return fmt.Errorf("failed to launch ssh daemon: %v", err)
@@ -246,7 +247,7 @@ func (m *Manager) Stop() error {
 
 	_, pid := m.getRunningProcessForPort(m.config.Port)
 	if pid > 0 {
-		_ = exec.Command("su", "-c", fmt.Sprintf("kill -15 %d", pid)).Run()
+		_ = exec.Command(config.SUBin, "-c", fmt.Sprintf("kill -15 %d", pid)).Run()
 	}
 
 	l := logger.Get()

@@ -537,7 +537,16 @@ func getDiskPartitions() []DiskPartition {
 	return disks
 }
 
+var rePingHost = regexp.MustCompile(`^[a-zA-Z0-9.-]+$`)
+
+// H-3: RunPing validates host ensuring net.ParseIP(host) != nil or regexp ^[a-zA-Z0-9.-]+$ (and no leading -).
 func RunPing(host string, count int) (string, error) {
+	if host == "" || strings.HasPrefix(host, "-") {
+		return "", fmt.Errorf("invalid ping host")
+	}
+	if net.ParseIP(host) == nil && !rePingHost.MatchString(host) {
+		return "", fmt.Errorf("invalid ping host format")
+	}
 	if count <= 0 || count > 10 {
 		count = 4
 	}

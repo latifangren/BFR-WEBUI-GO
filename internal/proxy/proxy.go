@@ -15,6 +15,7 @@ import (
 	"sync"
 	"time"
 
+	"bfr-webui-go/internal/config"
 	"github.com/gorilla/websocket"
 )
 
@@ -133,7 +134,7 @@ func DetectCores() []CoreInfo {
 }
 
 func checkRunning(name string) (int, bool) {
-	out, err := exec.Command("su", "-c", "pidof "+name).Output()
+	out, err := exec.Command(config.SUBin, "-c", "pidof "+name).Output()
 	if err == nil {
 		fields := strings.Fields(string(out))
 		if len(fields) > 0 {
@@ -145,7 +146,7 @@ func checkRunning(name string) (int, bool) {
 }
 
 func getMemoryUsage(pid int) string {
-	out, err := exec.Command("su", "-c", fmt.Sprintf("cat /proc/%d/status | grep RSS", pid)).Output()
+	out, err := exec.Command(config.SUBin, "-c", fmt.Sprintf("cat /proc/%d/status | grep RSS", pid)).Output()
 	if err == nil {
 		return strings.TrimSpace(string(out))
 	}
@@ -163,8 +164,8 @@ func ControlService(action string) error {
 			return nil
 		}
 		cmdStr = fmt.Sprintf(
-			"if [ -f %s/scripts/box.service ]; then %s/scripts/box.service start; elif [ -f %s/scripts/clash.service ]; then %s/scripts/clash.service start; else su -c mihomo -d %s/bin/ & fi",
-			boxBasePath, boxBasePath, clashBasePath, clashBasePath, boxBasePath,
+			"if [ -f %s/scripts/box.service ]; then %s/scripts/box.service start; elif [ -f %s/scripts/clash.service ]; then %s/scripts/clash.service start; else %s -c mihomo -d %s/bin/ & fi",
+			boxBasePath, boxBasePath, clashBasePath, clashBasePath, config.SUBin, boxBasePath,
 		)
 	case "stop":
 		SetWatchdog(false)
@@ -181,7 +182,7 @@ func ControlService(action string) error {
 		return fmt.Errorf("unknown action: %s", action)
 	}
 
-	out, err := exec.Command("su", "-c", cmdStr).CombinedOutput()
+	out, err := exec.Command(config.SUBin, "-c", cmdStr).CombinedOutput()
 	if err != nil {
 		return fmt.Errorf("control error: %v, out: %s", err, string(out))
 	}
@@ -229,7 +230,7 @@ func StreamLogs(w http.ResponseWriter, r *http.Request) {
 		logFile = clashBasePath + "/run/runs.log"
 	}
 
-	cmd := exec.Command("su", "-c", "tail -n 50 -f "+logFile)
+	cmd := exec.Command(config.SUBin, "-c", "tail -n 50 -f "+logFile)
 	stdout, err := cmd.StdoutPipe()
 	if err == nil {
 		if err := cmd.Start(); err == nil {
@@ -259,7 +260,7 @@ func StreamLogs(w http.ResponseWriter, r *http.Request) {
 
 func GetMode() string {
 	// M-7: use dedicated clashHTTPClient with timeout.
-	resp, err := clashHTTPClient.Get("http://127.0.0.1:9090/configs")
+	resp, err := clashHTTPClient.Get(config.ClashAPI + "/configs")
 	if err != nil {
 		return "Rule"
 	}
@@ -281,7 +282,7 @@ func SetMode(mode string) error {
 		return fmt.Errorf("failed to marshal mode payload: %w", err)
 	}
 
-	req, err := http.NewRequest(http.MethodPatch, "http://127.0.0.1:9090/configs", bytes.NewReader(payload))
+	req, err := http.NewRequest(http.MethodPatch, config.ClashAPI+"/configs", bytes.NewReader(payload))
 	if err != nil {
 		return err
 	}

@@ -13,6 +13,7 @@ import (
 	"sync"
 	"time"
 
+	"bfr-webui-go/internal/config"
 	"github.com/gorilla/websocket"
 )
 
@@ -32,7 +33,7 @@ var upgrader = websocket.Upgrader{
 }
 
 func captureScreenFrame() ([]byte, error) {
-	out, err := exec.Command("su", "-c", "screencap -p").Output()
+	out, err := exec.Command(config.SUBin, "-c", "screencap -p").Output()
 	if err != nil || len(out) == 0 {
 		out, err = exec.Command("/system/bin/screencap", "-p").Output()
 		if err != nil || len(out) == 0 {
@@ -83,33 +84,33 @@ func handleInputEvent(evt InputEvent) {
 	switch evt.Action {
 	case "click", "tap":
 		if evt.X >= 0 && evt.Y >= 0 {
-			_ = exec.Command("su", "-c", fmt.Sprintf("input tap %d %d", evt.X, evt.Y)).Run()
+			_ = exec.Command(config.SUBin, "-c", fmt.Sprintf("input tap %d %d", evt.X, evt.Y)).Run()
 		}
 	case "swipe":
 		dur := evt.Duration
 		if dur <= 0 {
 			dur = 300
 		}
-		_ = exec.Command("su", "-c", fmt.Sprintf("input swipe %d %d %d %d %d", evt.X, evt.Y, evt.X2, evt.Y2, dur)).Run()
+		_ = exec.Command(config.SUBin, "-c", fmt.Sprintf("input swipe %d %d %d %d %d", evt.X, evt.Y, evt.X2, evt.Y2, dur)).Run()
 	case "key", "keycode":
 		if evt.KeyCode > 0 {
-			_ = exec.Command("su", "-c", fmt.Sprintf("input keyevent %d", evt.KeyCode)).Run()
+			_ = exec.Command(config.SUBin, "-c", fmt.Sprintf("input keyevent %d", evt.KeyCode)).Run()
 		}
 	case "text":
 		safeText := SanitizeInput(evt.Text)
 		if safeText != "" {
-			_ = exec.Command("su", "-c", fmt.Sprintf("input text '%s'", safeText)).Run()
+			_ = exec.Command(config.SUBin, "-c", fmt.Sprintf("input text '%s'", safeText)).Run()
 		}
 	case "back":
-		_ = exec.Command("su", "-c", "input keyevent 4").Run()
+		_ = exec.Command(config.SUBin, "-c", "input keyevent 4").Run()
 	case "home":
-		_ = exec.Command("su", "-c", "input keyevent 3").Run()
+		_ = exec.Command(config.SUBin, "-c", "input keyevent 3").Run()
 	case "recents", "app_switch":
-		_ = exec.Command("su", "-c", "input keyevent 187").Run()
+		_ = exec.Command(config.SUBin, "-c", "input keyevent 187").Run()
 	case "vol_up":
-		_ = exec.Command("su", "-c", "input keyevent 24").Run()
+		_ = exec.Command(config.SUBin, "-c", "input keyevent 24").Run()
 	case "vol_down":
-		_ = exec.Command("su", "-c", "input keyevent 25").Run()
+		_ = exec.Command(config.SUBin, "-c", "input keyevent 25").Run()
 	}
 }
 

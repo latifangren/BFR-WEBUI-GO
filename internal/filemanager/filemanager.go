@@ -7,7 +7,10 @@ import (
 	"os"
 	"path/filepath"
 	"sort"
+	"strings"
 	"time"
+
+	"bfr-webui-go/internal/config"
 )
 
 type FileInfo struct {
@@ -21,6 +24,51 @@ type FileInfo struct {
 
 const MaxReadFileSize = 5 * 1024 * 1024 // 5 MB
 
+// H-2 & H-4: SanitizePath cleans path, resolves symlinks, and enforces that target stays within allowed base directories.
+func SanitizePath(userPath string) (string, error) {
+	if userPath == "" {
+		return "", fmt.Errorf("empty path")
+	}
+	clean := filepath.Clean(userPath)
+	if !strings.HasPrefix(clean, "/") {
+		clean = "/" + clean
+		clean = filepath.Clean(clean)
+	}
+
+	var evalPath string
+	if _, err := os.Lstat(clean); err == nil {
+		eval, err := filepath.EvalSymlinks(clean)
+		if err != nil {
+			return "", fmt.Errorf("symlink resolution error: %w", err)
+		}
+		evalPath = eval
+	} else {
+		dir := filepath.Dir(clean)
+		base := filepath.Base(clean)
+		evalDir, err := filepath.EvalSymlinks(dir)
+		if err != nil {
+			evalDir = dir
+		}
+		evalPath = filepath.Join(evalDir, base)
+	}
+
+	evalPath = filepath.Clean(evalPath)
+
+	for _, b := range config.AllowedDirs {
+		cleanBase := filepath.Clean(b)
+		evalBase := cleanBase
+		if target, err := filepath.EvalSymlinks(cleanBase); err == nil {
+			evalBase = target
+		}
+
+		if evalPath == cleanBase || strings.HasPrefix(evalPath, cleanBase+"/") ||
+			evalPath == evalBase || strings.HasPrefix(evalPath, evalBase+"/") {
+			return evalPath, nil
+		}
+	}
+	return "", fmt.Errorf("access denied: path %s is outside allowed directories", clean)
+}
+
 func ListDirectory(dirPath string) ([]FileInfo, string, error) {
 	if dirPath == "" {
 		if _, err := os.Stat("/sdcard"); err == nil {
@@ -28,11 +76,15 @@ func ListDirectory(dirPath string) ([]FileInfo, string, error) {
 		} else if _, err := os.Stat("/data/adb"); err == nil {
 			dirPath = "/data/adb"
 		} else {
-			dirPath = "/"
+			dirPath = "/data/local/tmp"
 		}
 	}
 
-	cleanPath := filepath.Clean(dirPath)
+	cleanPath, err := SanitizePath(dirPath)
+	if err != nil {
+		return nil, dirPath, err
+	}
+
 	entries, err := os.ReadDir(cleanPath)
 	if err != nil {
 		return nil, cleanPath, err
@@ -65,7 +117,10 @@ func ListDirectory(dirPath string) ([]FileInfo, string, error) {
 }
 
 func ReadFile(filePath string) (string, error) {
-	cleanPath := filepath.Clean(filePath)
+	cleanPath, err := SanitizePath(filePath)
+	if err != nil {
+		return "", err
+	}
 	info, err := os.Stat(cleanPath)
 	if err != nil {
 		return "", err
@@ -85,13 +140,23 @@ func ReadFile(filePath string) (string, error) {
 }
 
 func SaveFile(filePath string, content string) error {
-	cleanPath := filepath.Clean(filePath)
+	cleanPath, err := SanitizePath(filePath)
+	if err != nil {
+		return err
+	}
 	return os.WriteFile(cleanPath, []byte(content), 0644)
 }
 
 func UploadFile(dirPath string, fileName string, reader io.Reader) error {
-	cleanDir := filepath.Clean(dirPath)
-	targetPath := filepath.Join(cleanDir, fileName)
+	cleanDir, err := SanitizePath(dirPath)
+	if err != nil {
+		return err
+	}
+	safeFileName := filepath.Base(fileName)
+	targetPath, err := SanitizePath(filepath.Join(cleanDir, safeFileName))
+	if err != nil {
+		return err
+	}
 
 	out, err := os.Create(targetPath)
 	if err != nil {
@@ -104,7 +169,10 @@ func UploadFile(dirPath string, fileName string, reader io.Reader) error {
 }
 
 func CreateFile(filePath string) error {
-	cleanPath := filepath.Clean(filePath)
+	cleanPath, err := SanitizePath(filePath)
+	if err != nil {
+		return err
+	}
 	file, err := os.Create(cleanPath)
 	if err != nil {
 		return err
@@ -113,13 +181,23 @@ func CreateFile(filePath string) error {
 }
 
 func RenamePath(oldPath string, newPath string) error {
-	cleanOld := filepath.Clean(oldPath)
-	cleanNew := filepath.Clean(newPath)
+	cleanOld, err := SanitizePath(oldPath)
+	if err != nil {
+		return err
+	}
+	cleanNew, err := SanitizePath(newPath)
+	if err != nil {
+		return err
+	}
 	return os.Rename(cleanOld, cleanNew)
 }
 
 func DownloadFile(filePath string, w http.ResponseWriter, r *http.Request) {
-	cleanPath := filepath.Clean(filePath)
+	cleanPath, err := SanitizePath(filePath)
+	if err != nil {
+		http.Error(w, "Access denied", http.StatusForbidden)
+		return
+	}
 	info, err := os.Stat(cleanPath)
 	if err != nil || info.IsDir() {
 		http.Error(w, "File not found", http.StatusNotFound)
@@ -134,11 +212,22 @@ func DownloadFile(filePath string, w http.ResponseWriter, r *http.Request) {
 }
 
 func DeletePath(targetPath string) error {
-	cleanPath := filepath.Clean(targetPath)
+	cleanPath, err := SanitizePath(targetPath)
+	if err != nil {
+		return err
+	}
+	for _, base := range config.AllowedDirs {
+		if cleanPath == filepath.Clean(base) {
+			return fmt.Errorf("cannot delete root allowed directory: %s", cleanPath)
+		}
+	}
 	return os.RemoveAll(cleanPath)
 }
 
 func CreateDir(dirPath string) error {
-	cleanPath := filepath.Clean(dirPath)
+	cleanPath, err := SanitizePath(dirPath)
+	if err != nil {
+		return err
+	}
 	return os.MkdirAll(cleanPath, 0755)
 }

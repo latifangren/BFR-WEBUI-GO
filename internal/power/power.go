@@ -3,6 +3,8 @@ package power
 import (
 	"fmt"
 	"os/exec"
+
+	"bfr-webui-go/internal/config"
 )
 
 type Action string
@@ -20,15 +22,15 @@ func Execute(action Action) error {
 
 	switch action {
 	case ActionReboot:
-		cmd = exec.Command("su", "-c", "svc power reboot || reboot")
+		cmd = exec.Command(config.SUBin, "-c", "svc power reboot || reboot")
 	case ActionPoweroff, "shutdown":
-		cmd = exec.Command("su", "-c", "svc power shutdown || reboot -p")
+		cmd = exec.Command(config.SUBin, "-c", "svc power shutdown || reboot -p")
 	case ActionRebootRecovery:
-		cmd = exec.Command("su", "-c", "reboot recovery")
+		cmd = exec.Command(config.SUBin, "-c", "reboot recovery")
 	case ActionRebootBootloader:
-		cmd = exec.Command("su", "-c", "reboot bootloader || reboot fastboot")
+		cmd = exec.Command(config.SUBin, "-c", "reboot bootloader || reboot fastboot")
 	case ActionSoftReboot:
-		cmd = exec.Command("su", "-c", "setprop ctl.restart zygote")
+		cmd = exec.Command(config.SUBin, "-c", "setprop ctl.restart zygote")
 	default:
 		return fmt.Errorf("unknown power action: %s", action)
 	}

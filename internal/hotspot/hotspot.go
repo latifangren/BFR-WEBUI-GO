@@ -3,9 +3,19 @@ package hotspot
 import (
 	"bufio"
 	"fmt"
+	"net"
 	"os"
 	"os/exec"
+	"regexp"
 	"strings"
+
+	"bfr-webui-go/internal/config"
+)
+
+var (
+	// H-6: SSID and Passphrase validation regexes
+	reHotspotSSID       = regexp.MustCompile(`^[a-zA-Z0-9 _\-]{1,32}$`)
+	reHotspotPassphrase = regexp.MustCompile(`^[a-zA-Z0-9!@#$%^&*()_+\-=\[\]{}|:<>,.?/~]{8,63}$`)
 )
 
 type ConnectedClient struct {
@@ -23,18 +33,18 @@ type HotspotStatus struct {
 func GetHotspotStatus() HotspotStatus {
 	var status HotspotStatus
 
-	out, err := exec.Command("su", "-c", "cmd wifi status 2>/dev/null | grep 'Wifi AP'").Output()
+	out, err := exec.Command(config.SUBin, "-c", "cmd wifi status 2>/dev/null | grep 'Wifi AP'").Output()
 	if err == nil && strings.Contains(string(out), "enabled") {
 		status.Enabled = true
 	} else {
 		// Fallback check
-		out2, err2 := exec.Command("su", "-c", "ifconfig wlan1 2>/dev/null || ifconfig ap0 2>/dev/null").Output()
+		out2, err2 := exec.Command(config.SUBin, "-c", "ifconfig wlan1 2>/dev/null || ifconfig ap0 2>/dev/null").Output()
 		if err2 == nil && strings.Contains(string(out2), "inet addr") {
 			status.Enabled = true
 		}
 	}
 
-	ssidOut, err := exec.Command("su", "-c", "settings get global softap_ssid 2>/dev/null").Output()
+	ssidOut, err := exec.Command(config.SUBin, "-c", "settings get global softap_ssid 2>/dev/null").Output()
 	if err == nil {
 		status.SSID = strings.TrimSpace(string(ssidOut))
 	}
@@ -46,11 +56,18 @@ func GetHotspotStatus() HotspotStatus {
 }
 
 func ToggleHotspot(enable bool, ssid string, pass string) error {
+	// H-6: Validate SSID and passphrase against strict regex patterns
 	if ssid != "" {
-		_ = exec.Command("su", "-c", fmt.Sprintf("settings put global softap_ssid \"%s\"", ssid)).Run()
+		if !reHotspotSSID.MatchString(ssid) {
+			return fmt.Errorf("invalid SSID: must be 1-32 alphanumeric characters, spaces, underscores, or hyphens")
+		}
+		_ = exec.Command(config.SUBin, "-c", fmt.Sprintf("settings put global softap_ssid \"%s\"", ssid)).Run()
 	}
 	if pass != "" {
-		_ = exec.Command("su", "-c", fmt.Sprintf("settings put global softap_passphrase \"%s\"", pass)).Run()
+		if !reHotspotPassphrase.MatchString(pass) {
+			return fmt.Errorf("invalid passphrase: must be 8-63 valid characters")
+		}
+		_ = exec.Command(config.SUBin, "-c", fmt.Sprintf("settings put global softap_passphrase \"%s\"", pass)).Run()
 	}
 
 	var cmdStr string
@@ -60,7 +77,7 @@ func ToggleHotspot(enable bool, ssid string, pass string) error {
 		cmdStr = "cmd wifi stop-softap 2>/dev/null || service call wifi 24 i32 0"
 	}
 
-	out, err := exec.Command("su", "-c", cmdStr).CombinedOutput()
+	out, err := exec.Command(config.SUBin, "-c", cmdStr).CombinedOutput()
 	if err != nil {
 		return fmt.Errorf("hotspot error: %v, out: %s", err, string(out))
 	}
@@ -71,7 +88,7 @@ func GetConnectedClients() ([]ConnectedClient, error) {
 	var clients []ConnectedClient
 
 	// Try ip neigh show
-	out, err := exec.Command("su", "-c", "ip neigh show 2>/dev/null").Output()
+	out, err := exec.Command(config.SUBin, "-c", "ip neigh show 2>/dev/null").Output()
 	if err == nil {
 		lines := strings.Split(strings.TrimSpace(string(out)), "\n")
 		for _, line := range lines {
@@ -134,8 +151,11 @@ func GetConnectedClients() ([]ConnectedClient, error) {
 }
 
 func resolveDeviceName(ip string) string {
-	// Check /data/misc/dhcp/dnsmasq.leases or gethostbyaddr
-	out, err := exec.Command("su", "-c", fmt.Sprintf("grep '%s' /data/misc/dhcp/dnsmasq.leases 2>/dev/null", ip)).Output()
+	// B-2: Validate IP before putting it into a shell grep command
+	if net.ParseIP(ip) == nil {
+		return ""
+	}
+	out, err := exec.Command(config.SUBin, "-c", fmt.Sprintf("grep '%s' %s 2>/dev/null", ip, config.LeasesFile)).Output()
 	if err == nil {
 		fields := strings.Fields(string(out))
 		if len(fields) >= 4 {

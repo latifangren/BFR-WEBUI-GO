@@ -7,6 +7,8 @@ import (
 	"os/exec"
 	"strings"
 
+	"bfr-webui-go/internal/config"
+
 	_ "github.com/ncruces/go-sqlite3/driver"
 	_ "github.com/ncruces/go-sqlite3/embed"
 )
@@ -38,8 +40,12 @@ var candidateDBPaths = []string{
 }
 
 func getDBPath() (string, func(), error) {
+	paths := candidateDBPaths
+	if config.SMSDb != "" {
+		paths = append([]string{config.SMSDb}, candidateDBPaths...)
+	}
 	var targetPath string
-	for _, p := range candidateDBPaths {
+	for _, p := range paths {
 		if _, err := os.Stat(p); err == nil {
 			targetPath = p
 			break
@@ -48,8 +54,8 @@ func getDBPath() (string, func(), error) {
 
 	if targetPath == "" {
 		// Try using su to check files
-		for _, p := range candidateDBPaths {
-			out, err := exec.Command("su", "-c", fmt.Sprintf("test -f %s && echo 1 || echo 0", p)).Output()
+		for _, p := range paths {
+			out, err := exec.Command(config.SUBin, "-c", fmt.Sprintf("test -f %s && echo 1 || echo 0", p)).Output()
 			if err == nil && strings.TrimSpace(string(out)) == "1" {
 				targetPath = p
 				break
@@ -72,7 +78,7 @@ func getDBPath() (string, func(), error) {
 	// If direct read fails due to root permission, copy to temporary location in /data/local/tmp or current dir via su
 	tmpPath := "/data/local/tmp/telephony_bfr_copy.db"
 	// M-8: use chmod 600 (owner-read-write only) for the temp DB copy.
-	cmdStr := fmt.Sprintf("su -c 'cp %s %s && chmod 600 %s'", targetPath, tmpPath, tmpPath)
+	cmdStr := fmt.Sprintf("%s -c 'cp %s %s && chmod 600 %s'", config.SUBin, targetPath, tmpPath, tmpPath)
 	if err := exec.Command("sh", "-c", cmdStr).Run(); err == nil {
 		cleanup := func() {
 			_ = os.Remove(tmpPath)
@@ -86,7 +92,7 @@ func getDBPath() (string, func(), error) {
 func ReadSMSViaContentProvider(limit int, offset int, searchQuery string) (SMSResponse, error) {
 	// Execute Android content query command via su
 	cmdStr := "content query --uri content://sms --projection _id,address,body,date,read,type"
-	out, err := exec.Command("su", "-c", cmdStr).CombinedOutput()
+	out, err := exec.Command(config.SUBin, "-c", cmdStr).CombinedOutput()
 	if err != nil {
 		return SMSResponse{Messages: []SMSMessage{}, Limit: limit, Offset: offset, Search: searchQuery, Error: fmt.Sprintf("content query failed: %v", err)}, nil
 	}

@@ -3,6 +3,7 @@ package auth
 import (
 	"crypto/rand"
 	"encoding/hex"
+	"fmt"
 	"net/http"
 	"sync"
 	"time"
@@ -40,7 +41,10 @@ func (m *Manager) Authenticate(password string) (string, bool) {
 		return "", false
 	}
 
-	token := generateToken()
+	token, err := generateToken()
+	if err != nil {
+		return "", false
+	}
 	m.sessions[token] = time.Now().Add(SessionDuration)
 	return token, true
 }
@@ -92,14 +96,11 @@ func (m *Manager) cleanupLoop() {
 	}
 }
 
-func generateToken() string {
-	bytes := make([]byte, 32)
-	if _, err := rand.Read(bytes); err != nil {
-		return strconvTimeHex()
+// H-5: generateToken returns an error if crypto/rand fails; no timestamp fallback.
+func generateToken() (string, error) {
+	b := make([]byte, 32)
+	if _, err := rand.Read(b); err != nil {
+		return "", fmt.Errorf("failed to generate secure token: %w", err)
 	}
-	return hex.EncodeToString(bytes)
-}
-
-func strconvTimeHex() string {
-	return hex.EncodeToString([]byte(time.Now().String()))
+	return hex.EncodeToString(b), nil
 }

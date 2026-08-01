@@ -4,7 +4,10 @@ import (
 	"encoding/json"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"strings"
+
+	"bfr-webui-go/internal/config"
 )
 
 type TweaksConfig struct {
@@ -22,7 +25,7 @@ type TweaksConfig struct {
 func GetConfigPath() string {
 	// Try Magisk folder first, fallback to current dir
 	paths := []string{
-		"/data/adb/modules/bfr_webui_go/tweaks.json",
+		filepath.Join(config.ModuleDir, "tweaks.json"),
 		"./tweaks.json",
 		"tweaks.json",
 	}
@@ -73,18 +76,18 @@ func ApplyAllTweaks() error {
 	}
 
 	if cfg.SettingsGlobalTweaks {
-		_ = exec.Command("su", "-c", "settings put global adb_enabled 1").Run()
-		_ = exec.Command("su", "-c", "settings put global window_animation_scale 0.1").Run()
-		_ = exec.Command("su", "-c", "settings put global transition_animation_scale 0.1").Run()
-		_ = exec.Command("su", "-c", "settings put global animator_duration_scale 0.1").Run()
-		_ = exec.Command("su", "-c", "settings put global gprs_detach_timer 30").Run()
+		_ = exec.Command(config.SUBin, "-c", "settings put global adb_enabled 1").Run()
+		_ = exec.Command(config.SUBin, "-c", "settings put global window_animation_scale 0.1").Run()
+		_ = exec.Command(config.SUBin, "-c", "settings put global transition_animation_scale 0.1").Run()
+		_ = exec.Command(config.SUBin, "-c", "settings put global animator_duration_scale 0.1").Run()
+		_ = exec.Command(config.SUBin, "-c", "settings put global gprs_detach_timer 30").Run()
 	}
 
 	if cfg.LTECarrierAggregation {
-		_ = exec.Command("su", "-c", "settings put global lte_ca_config 1").Run()
-		_ = exec.Command("su", "-c", "setprop gsm.lte.ca.support 1").Run()
-		_ = exec.Command("su", "-c", "setprop persist.radio.lte_ca 1").Run()
-		_ = exec.Command("su", "-c", "setprop vendor.radio.lte_ca 1").Run()
+		_ = exec.Command(config.SUBin, "-c", "settings put global lte_ca_config 1").Run()
+		_ = exec.Command(config.SUBin, "-c", "setprop gsm.lte.ca.support 1").Run()
+		_ = exec.Command(config.SUBin, "-c", "setprop persist.radio.lte_ca 1").Run()
+		_ = exec.Command(config.SUBin, "-c", "setprop vendor.radio.lte_ca 1").Run()
 	}
 
 	if cfg.SysctlBuffersOpt {
@@ -139,9 +142,9 @@ func ApplyAllTweaks() error {
 	}
 
 	if cfg.DalvikResponsiveness {
-		_ = exec.Command("su", "-c", "setprop dalvik.vm.heaptargetutilization 0.75").Run()
-		_ = exec.Command("su", "-c", "setprop dalvik.vm.heapgrowthlimit 256m").Run()
-		_ = exec.Command("su", "-c", "setprop dalvik.vm.heapsize 512m").Run()
+		_ = exec.Command(config.SUBin, "-c", "setprop dalvik.vm.heaptargetutilization 0.75").Run()
+		_ = exec.Command(config.SUBin, "-c", "setprop dalvik.vm.heapgrowthlimit 256m").Run()
+		_ = exec.Command(config.SUBin, "-c", "setprop dalvik.vm.heapsize 512m").Run()
 	}
 
 	return nil

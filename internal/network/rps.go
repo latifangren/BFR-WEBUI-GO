@@ -5,8 +5,17 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"regexp"
 	"strconv"
 	"strings"
+
+	"bfr-webui-go/internal/config"
+)
+
+var (
+	// N-1: Regexes for RPS interface and bitmask validation
+	reRPSIface  = regexp.MustCompile(`^[a-zA-Z0-9._-]+$`)
+	reRPSBitmask = regexp.MustCompile(`^[0-9a-fA-F]+$`)
 )
 
 type RPSConfig struct {
@@ -16,8 +25,8 @@ type RPSConfig struct {
 
 func SetTTLSpoofSDK(enable bool, targetTTL int) error {
 	// Remove existing rules
-	exec.Command("su", "-c", "iptables -t mangle -D POSTROUTING -j TTL --ttl-set 64 2>/dev/null").Run()
-	exec.Command("su", "-c", "ip6tables -t mangle -D POSTROUTING -j HL --hl-set 64 2>/dev/null").Run()
+	exec.Command(config.SUBin, "-c", "iptables -t mangle -D POSTROUTING -j TTL --ttl-set 64 2>/dev/null").Run()
+	exec.Command(config.SUBin, "-c", "ip6tables -t mangle -D POSTROUTING -j HL --hl-set 64 2>/dev/null").Run()
 
 	if !enable {
 		return nil
@@ -37,16 +46,23 @@ func SetTTLSpoofSDK(enable bool, targetTTL int) error {
 	cmdV4 := fmt.Sprintf("iptables -t mangle -A POSTROUTING -j TTL --ttl-set %d", targetTTL)
 	cmdV6 := fmt.Sprintf("ip6tables -t mangle -A POSTROUTING -j HL --hl-set %d", targetTTL)
 
-	if out, err := exec.Command("su", "-c", cmdV4).CombinedOutput(); err != nil {
+	if out, err := exec.Command(config.SUBin, "-c", cmdV4).CombinedOutput(); err != nil {
 		return fmt.Errorf("iptables error: %v, output: %s", err, string(out))
 	}
-	exec.Command("su", "-c", cmdV6).Run()
+	exec.Command(config.SUBin, "-c", cmdV6).Run()
 	return nil
 }
 
 func ConfigureRPS(iface string, bitmask string) error {
+	// N-1: validate iface and bitmask before shell execution
+	if !reRPSIface.MatchString(iface) {
+		return fmt.Errorf("invalid interface name: %s", iface)
+	}
 	if bitmask == "" {
 		bitmask = "f" // Default all 4 cores or first quad
+	}
+	if !reRPSBitmask.MatchString(bitmask) {
+		return fmt.Errorf("invalid bitmask: %s — must be a hexadecimal string", bitmask)
 	}
 
 	queues, err := filepath.Glob(fmt.Sprintf("/sys/class/net/%s/queues/rx-*/rps_cpus", iface))
@@ -56,7 +72,7 @@ func ConfigureRPS(iface string, bitmask string) error {
 
 	for _, q := range queues {
 		cmdStr := fmt.Sprintf("echo %s > %s", bitmask, q)
-		if out, err := exec.Command("su", "-c", cmdStr).CombinedOutput(); err != nil {
+		if out, err := exec.Command(config.SUBin, "-c", cmdStr).CombinedOutput(); err != nil {
 			return fmt.Errorf("failed to set RPS for %s: %v, out: %s", q, err, string(out))
 		}
 	}

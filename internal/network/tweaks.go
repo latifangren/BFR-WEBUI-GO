@@ -6,8 +6,18 @@ import (
 	"net"
 	"os"
 	"os/exec"
+	"regexp"
 	"strconv"
 	"strings"
+
+	"bfr-webui-go/internal/config"
+)
+
+var (
+	// H-1 & N-3 validation regexes
+	reSysctlKey = regexp.MustCompile(`^[a-zA-Z0-9_.-]+$`)
+	reSysctlVal = regexp.MustCompile(`^[a-zA-Z0-9_. -]+$`)
+	reIfaceName = regexp.MustCompile(`^[a-zA-Z0-9._-]+$`)
 )
 
 type SysctlTweak struct {
@@ -40,7 +50,11 @@ var PresetDNS = []DNSServer{
 }
 
 func GetSysctl(key string) (string, error) {
-	out, err := exec.Command("su", "-c", "sysctl -n "+key).Output()
+	// H-1: validate key before shell command
+	if !reSysctlKey.MatchString(key) {
+		return "", fmt.Errorf("invalid sysctl key")
+	}
+	out, err := exec.Command(config.SUBin, "-c", "sysctl -n "+key).Output()
 	if err != nil {
 		out, err = exec.Command("sysctl", "-n", key).Output()
 		if err != nil {
@@ -51,8 +65,15 @@ func GetSysctl(key string) (string, error) {
 }
 
 func SetSysctl(key, value string) error {
+	// H-1: validate key and value before shell execution
+	if !reSysctlKey.MatchString(key) {
+		return fmt.Errorf("invalid sysctl key: %s", key)
+	}
+	if !reSysctlVal.MatchString(value) {
+		return fmt.Errorf("invalid sysctl value: %s", value)
+	}
 	cmdStr := fmt.Sprintf("sysctl -w %s=\"%s\"", key, value)
-	out, err := exec.Command("su", "-c", cmdStr).CombinedOutput()
+	out, err := exec.Command(config.SUBin, "-c", cmdStr).CombinedOutput()
 	if err != nil {
 		return fmt.Errorf("sysctl error: %v, output: %s", err, string(out))
 	}
@@ -60,7 +81,7 @@ func SetSysctl(key, value string) error {
 }
 
 func GetTTLSpoofStatus() bool {
-	out, err := exec.Command("su", "-c", "iptables -t mangle -C POSTROUTING -j TTL --ttl-set 64").CombinedOutput()
+	out, err := exec.Command(config.SUBin, "-c", "iptables -t mangle -C POSTROUTING -j TTL --ttl-set 64").CombinedOutput()
 	if err == nil {
 		return true
 	}
@@ -72,30 +93,40 @@ func SetTTLSpoof(enable bool, ttl int) error {
 		ttl = 64
 	}
 	// Clear existing
-	exec.Command("su", "-c", "iptables -t mangle -D POSTROUTING -j TTL --ttl-set 64 2>/dev/null").Run()
-	exec.Command("su", "-c", "ip6tables -t mangle -D POSTROUTING -j HL --hl-set 64 2>/dev/null").Run()
+	exec.Command(config.SUBin, "-c", "iptables -t mangle -D POSTROUTING -j TTL --ttl-set 64 2>/dev/null").Run()
+	exec.Command(config.SUBin, "-c", "ip6tables -t mangle -D POSTROUTING -j HL --hl-set 64 2>/dev/null").Run()
 
 	if enable {
 		cmdV4 := fmt.Sprintf("iptables -t mangle -A POSTROUTING -j TTL --ttl-set %d", ttl)
 		cmdV6 := fmt.Sprintf("ip6tables -t mangle -A POSTROUTING -j HL --hl-set %d", ttl)
-		if out, err := exec.Command("su", "-c", cmdV4).CombinedOutput(); err != nil {
+		if out, err := exec.Command(config.SUBin, "-c", cmdV4).CombinedOutput(); err != nil {
 			return fmt.Errorf("iptables error: %v, output: %s", err, string(out))
 		}
-		exec.Command("su", "-c", cmdV6).Run()
+		exec.Command(config.SUBin, "-c", cmdV6).Run()
 	}
 	return nil
 }
 
 func SetInterfaceConfig(iface string, mtu int, txqueuelen int) error {
+	// N-3: validate iface, MTU, and TxQueueLen
+	if !reIfaceName.MatchString(iface) {
+		return fmt.Errorf("invalid interface name: %s", iface)
+	}
 	if mtu > 0 {
+		if mtu < 68 || mtu > 9000 {
+			return fmt.Errorf("invalid MTU %d: must be between 68 and 9000", mtu)
+		}
 		cmd := fmt.Sprintf("ip link set %s mtu %d", iface, mtu)
-		if out, err := exec.Command("su", "-c", cmd).CombinedOutput(); err != nil {
+		if out, err := exec.Command(config.SUBin, "-c", cmd).CombinedOutput(); err != nil {
 			return fmt.Errorf("mtu error: %v, out: %s", err, string(out))
 		}
 	}
 	if txqueuelen > 0 {
+		if txqueuelen > 100000 {
+			return fmt.Errorf("invalid txqueuelen %d: must be between 0 and 100000", txqueuelen)
+		}
 		cmd := fmt.Sprintf("ip link set %s txqueuelen %d", iface, txqueuelen)
-		if out, err := exec.Command("su", "-c", cmd).CombinedOutput(); err != nil {
+		if out, err := exec.Command(config.SUBin, "-c", cmd).CombinedOutput(); err != nil {
 			return fmt.Errorf("txqueuelen error: %v, out: %s", err, string(out))
 		}
 	}
@@ -117,16 +148,21 @@ func GetActiveDNS() (string, string) {
 }
 
 func SetDNS(primary, secondary string) error {
+	// N-2: validate DNS IP addresses
+	if primary == "" || net.ParseIP(primary) == nil {
+		return fmt.Errorf("invalid primary DNS IP address: %s", primary)
+	}
+	if secondary != "" && net.ParseIP(secondary) == nil {
+		return fmt.Errorf("invalid secondary DNS IP address: %s", secondary)
+	}
 	cmds := []string{
 		fmt.Sprintf("setprop net.dns1 %s", primary),
 		fmt.Sprintf("setprop net.dns2 %s", secondary),
 		"iptables -t nat -D OUTPUT -p udp --dport 53 -j REDIRECT --to-ports 53 2>/dev/null || true",
-	}
-	if primary != "" {
-		cmds = append(cmds, fmt.Sprintf("iptables -t nat -A OUTPUT -p udp --dport 53 -j DNAT --to-destination %s:53 2>/dev/null || true", primary))
+		fmt.Sprintf("iptables -t nat -A OUTPUT -p udp --dport 53 -j DNAT --to-destination %s:53 2>/dev/null || true", primary),
 	}
 	cmdStr := strings.Join(cmds, " && ")
-	out, err := exec.Command("su", "-c", cmdStr).CombinedOutput()
+	out, err := exec.Command(config.SUBin, "-c", cmdStr).CombinedOutput()
 	if err != nil {
 		return fmt.Errorf("dns error: %v, out: %s", err, string(out))
 	}

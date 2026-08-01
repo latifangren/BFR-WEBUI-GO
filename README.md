@@ -1,105 +1,69 @@
-# BFR-WEBUI-GO PRO
+# BFR-WEBUI-GO
 
-[![Go Version](https://img.shields.io/badge/Go-1.21+-00ADD8?style=for-the-badge&logo=go&logoColor=white)](https://go.dev)
-[![Alpine.js](https://img.shields.io/badge/Alpine.js-3.x-2F855A?style=for-the-badge&logo=alpine.js&logoColor=white)](https://alpinejs.dev)
-[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-3.x-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)](https://tailwindcss.com)
-[![Magisk](https://img.shields.io/badge/Magisk-Supported-green?style=for-the-badge&logo=android&logoColor=white)](https://github.com/topjohnwu/Magisk)
-[![KernelSU](https://img.shields.io/badge/KernelSU-Supported-red?style=for-the-badge)](https://github.com/tiann/KernelSU)
-[![APatch](https://img.shields.io/badge/APatch-Supported-blue?style=for-the-badge)](https://github.com/bmaxiyi/APatch)
-
-High-performance, ultra-lightweight, 100% offline-ready Android System Control Panel & WebUI designed to run as a Magisk, KernelSU, or APatch module. It compiles into a single standalone Go binary, packaging frontend resources inside a tiny memory footprint.
+> **Panel Kontrol System Android & WebUI Ultra-Ringan**  
+> Didesain khusus sebagai modul Magisk / KernelSU / APatch yang 100% offline-ready, ditulis dalam bahasa Go modular dengan antarmuka Alpine.js & Tailwind CSS.
 
 ---
 
-## ✨ Features Highlight
+## ⚡ Fitur Utama
 
-### ⚡ Ultra-lightweight Single Binary
-- Single compiled binary (~10MB) embedded with all assets.
-- 100% offline ready with zero runtime dependencies or CDN connections.
-- Highly optimized Go daemon with minimal CPU & RAM footprint (~12MB).
-
-### 🎨 PRO Neobrutalism UI & Dark Mode
-- **Atmospheric Palette**: High-contrast, Neobrutalist design supporting light mode and Amoled dark mode.
-- **Yoinks-style PRO Badge**: Crisp black text on a gold accent badge.
-- **Floating Toast Notifications**: In-app feedback system for all background API actions (saving settings, file actions, Core controls).
-- **Custom Confirmation Modals**: Seamless in-app dialog confirm overlays, eliminating clunky native browser popups.
-
-### 📶 Network & Carrier Optimization
-- **Carrier Aggregation (LTE-A / 5G)**: Optimizations to lock carrier aggregation (`gsm.lte.ca.support=1`, `persist.radio.lte_ca=1`).
-- **TCP Congestion Control**: BBR / BBR2 TCP Congestion options with sysctl buffer allocations.
-- **Interactive TTL Spoofing**: Numeric TTL input control (1-255) with separate **Activate** and **Disable** actions to bypass carrier hotspot limits.
-- **Multi-Core RPS (Receive Packet Steering)**: Distributes network packet traffic workloads. Includes a dynamic CPU core bitmask guide:
-  - `0F` = Core 0-3 (Efficiency)
-  - `F0` = Core 4-7 (Performance)
-  - `FF` = All Cores (Max performance)
-  - `00` = Disabled
-- **One-Click DNS Switcher & Live Display**: Switch resolvers instantly + displays the active system DNS addresses (`net.dns1`/`net.dns2`) in real-time.
-- **Built-in Ping Diagnostics**: Telemetry utility to test network connectivity and host latency.
-
-### 💻 SELinux-Immune Web Terminal
-- Bi-directional interactive root shell (spawning `/system/bin/sh` or target shell with `su` context) using xterm.js via WebSockets.
-- Seamless terminal session management and PTY fallback mechanisms.
-
-### 📂 Enhanced Web File Manager
-- **Hierarchical Navigation**: Direct folder navigation featuring a parent directory directory link (`📁 ..`).
-- **Dynamic Shortcuts**: Dynamically populated path bookmark shortcuts stored in client `localStorage`.
-- **Full Scope Operations**: Support for **+ New File**, **+ New Folder**, **Rename**, **Edit** (with code editor modal), **Upload**, **Download**, and **Delete**.
-
-### 📱 SMS OTP Viewer (Android 16 Ready)
-- Telephony DB parser reading SQLite database directly or falling back to `content query --uri content://sms` to ensure compatibility with Android 10 to Android 16.
-- **Auto OTP Highlight**: Soft yellow visual highlighting of numeric tokens and banking authentication codes.
-
-### 🖥️ Remote Screen Projection (Scrcpy WS)
-- Dynamic display projection streaming layout frame loops via WebSocket directly to a canvas.
-- Fully injected control signals supporting touch movements, clicks, and physical key presses (Back, Home, Recents, Vol+/Vol-).
-
-### 🔋 Smart Battery Charger Control
-- Battery lifespan protection limiting power supplies when charge levels reach designated threshold inputs (e.g., stop charging at 80% to avoid thermal wear).
-
-### 📊 vnStat Bandwidth Monitor
-- Captures overall network throughput metrics providing Daily, Monthly, and Weekly data consumption structures.
-
-### ℹ️ System Info & Telemetry Dashboard
-- Exhaustive system readout showing Device Model, OS release, API levels, SELinux status, Security patch level, Screen resolution, Screen density (DPI), MTU config, Default TTL, Hostname, and Linux Kernel string details.
-- **Bandwidth Throughput Monitor**: Live dynamic SVG graph tracing real-time network throughput rate (Rx/Tx).
-
-### ☕ Support & QRIS Donation Integration
-- Built-in QRIS payment code display (SekarRepku Store) supporting Indonesian wallets and banking transfers.
-- Integrated confirm message builder sending auto-copied confirmation details directly to Telegram or Facebook.
+- **Offline-Ready & Ringan**: Binary tunggal (~10MB) terkompilasi statis dengan konsumsi RAM sangat rendah.
+- **Manajemen Proxy & Core**: Kontrol daemon Clash / Mihomo, pergantian mode (Rule, Global, Direct, Script), serta pemantauan log real-time via WebSocket.
+- **Pengaturan Jaringan & Tweaks**:
+  - Konfigurasi Sysctl (TCP Congestion BBR2, Buffer optimization, dll).
+  - Pengaturan DNS kustom & DNS Spoofing.
+  - Pengaturan TTL & HL Spoofing (IPv4 & IPv6).
+  - Tuning Packet Steering / RPS (Receive Packet Steering) per interface.
+  - Pengaturan MTU dan TxQueueLen dinamis.
+- **SoftAP & Hotspot Controller**: Manajemen hotspot Android, pemantauan perangkat terhubung (ARP table), dan pembatasan client.
+- **Pengontrol Pengisian Daya (Charger Control)**: Manajemen ambang pengisian daya baterai & kontrol sysfs otomatis.
+- **SMS Viewer**: Membaca SMS masuk (termasuk kode OTP/2FA) langsung dari dashboard.
+- **Terminal Web (PTY)**: Terminal interaktif penuh berbasis PTY & WebSockets dengan hak akses root.
+- **Manajer File Terintegrasi**: Akses pembacaan, pengunggahan, pengeditan, dan pengunduhan file sistem.
+- **Informasi Sistem & Hardware**: Pemantauan beban CPU, penggunaan RAM, status baterai, suhu thermal, dan statistik jaringan.
 
 ---
 
-## ⚖️ Architecture & Performance Comparison
+## 🌐 Dokumentasi & Panduan Instalasi
 
-This section provides an objective comparison between traditional multi-process PHP web server environments commonly run on Android devices (e.g., using Lighttpd or Nginx with PHP-FPM) and the BFR-WEBUI-GO single-binary architecture.
+Dokumentasi lengkap panduan instalasi dapat dilihat pada folder [`docs/`](./docs/):
 
-| Feature / Metric | Traditional PHP Web Server Stack | BFR-WEBUI-GO PRO (Go Native Stack) |
-| :--- | :--- | :--- |
-| **Runtime Dependencies** | Requires Lighttpd/Nginx + PHP-FPM binaries, config files, and system libraries | Single Standalone Binary (~10MB) with embedded assets |
-| **RAM Memory Footprint** | ~40MB - 100MB+ (varies depending on web server worker pooling) | ~12MB ultra-low RAM usage (highly optimized Go runtime) |
-| **Process Lifecycle** | Multi-process supervisor daemons (web server master/workers + PHP process manager) | 1 Single Daemon Process handling logic, assets, and system interaction |
-| **Update Flow** | Typically requires phone reboot or complex webserver service restarts to refresh | Instant Restartless Update (upgrades apply seamlessly without rebooting) |
-| **UI/UX & Interactivity** | Traditional web forms (often requires full page reloads or custom ajax scripts) | Reactive Neobrutalist UI with Toast notifications, live graphs, and custom modals |
-| **Best Use Case** | Select if you require live, on-device editing of scripts/source code directly in a web directory | Select if you prioritize extreme battery efficiency, low RAM usage, instant response, and courier-grade single-binary reliability |
+- 🇮🇩 [Panduan Instalasi Bahasa Indonesia](./docs/INSTALLATION_ID.md)
+- 🇬🇧 [English Installation Guide](./docs/INSTALLATION_EN.md)
 
 ---
 
-## 📦 Installation
+## ⚙️ Konfigurasi Variabel Lingkungan (Environment Variables)
 
-1. Compile the tool or download the release archive `BFR-WEBUI-Magisk-v0.1.0.zip`.
-2. Flash the ZIP module in Magisk Manager, KernelSU, or APatch.
-3. **Restartless Daemon Upgrades**: Automatically restarts the server daemon when updated/re-flashed, meaning you do not need to reboot your phone to apply updates!
-4. Default login address: `http://127.0.0.1:8080` (or `http://<your-device-ip>:8080`) with password `bfr`.
+BFR-WEBUI-GO dapat dikustomisasi menggunakan variabel lingkungan. Pengaturan default otomatis digunakan jika variabel tidak diset.
+
+Lihat contoh lengkap di file [`env.example`](./env.example):
+
+| Variabel | Default | Deskripsi |
+|---|---|---|
+| `PORT` | `8080` | Port HTTP tempat WebUI berjalan |
+| `BFR_PASSWORD` | `bfr` | Password autentikasi login WebUI |
+| `BFR_SU_BIN` | `su` | Perintah/binary root (misal `su`, `ksu`, `apatch`) |
+| `BFR_MODULE_DIR` | `/data/adb/modules/bfr_webui_go` | Direktori tempat modul terinstall |
+| `BFR_BOX_BASE` | `/data/adb/box` | Path basis untuk modul Box |
+| `BFR_CLASH_BASE` | `/data/adb/clash` | Path basis untuk modul Clash |
+| `BFR_CLASH_API` | `http://127.0.0.1:9090` | Endpoint REST API Clash / Mihomo |
+| `BFR_SMS_DB` | *(Auto-scan)* | Path kustom database SMS SQLite |
+| `BFR_LEASES_FILE` | `/data/misc/dhcp/dnsmasq.leases` | Path file DHCP leases SoftAP |
+| `BFR_ALLOWED_DIRS` | `/sdcard,/storage,/data/adb,...` | Batas direktori yang diizinkan untuk File Manager |
 
 ---
 
-## ⚙️ Configuration (`tweaks.json`)
+## 🛠️ Kompilasi dari Source
 
-All configuration parameters and system optimization properties are isolated in `tweaks.json` in the module directory, resolving configurations dynamically at startup. By default, toggles are set to `false`, providing safe operations out-of-the-box.
+Untuk melakukan kompilasi manual targeting Android arm64:
+
+```bash
+GOOS=android GOARCH=arm64 CGO_ENABLED=0 go build -ldflags="-s -w" -o bfr_webui_go main.go
+```
 
 ---
 
-## 📜 License & Credits
+## 📄 Lisensi
 
-- Developer: **Latifan** ([GitHub](https://github.com/latifangren/BFR-WEBUI-GO))
-- Released under the MIT License.
+Proyek ini dirilis di bawah lisensi MIT.

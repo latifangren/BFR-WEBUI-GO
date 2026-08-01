@@ -7,6 +7,7 @@ import (
 	"os/exec"
 	"sync"
 
+	"bfr-webui-go/internal/config"
 	"github.com/creack/pty"
 	"github.com/gorilla/websocket"
 )
@@ -40,7 +41,7 @@ func HandleWebsocket(w http.ResponseWriter, r *http.Request) {
 	// 1. Array of shells to try with PTY
 	shellCommandFunc := func() (*exec.Cmd, bool) {
 		// Try su first
-		cmdSu := exec.Command("su")
+		cmdSu := exec.Command(config.SUBin)
 		if f, err := pty.Start(cmdSu); err == nil {
 			shellFile = f
 			cmd = cmdSu
@@ -116,7 +117,7 @@ func HandleWebsocket(w http.ResponseWriter, r *http.Request) {
 		}
 	} else {
 		// 2. SELinux blocked /dev/ptmx or /dev/pts. Fallback to standard bi-directional Pipes (SELinux Immune)
-		cmd = exec.Command("su")
+		cmd = exec.Command(config.SUBin)
 		stdinPipe, err := cmd.StdinPipe()
 		if err != nil {
 			cmd = exec.Command("/system/bin/sh", "-i")

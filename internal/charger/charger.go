@@ -11,6 +11,8 @@ import (
 	"strings"
 	"sync"
 	"time"
+
+	"bfr-webui-go/internal/config"
 )
 
 type Config struct {
@@ -63,7 +65,7 @@ var (
 )
 
 func getStoragePath() string {
-	magiskDir := "/data/adb/modules/bfr_webui_go"
+	magiskDir := config.ModuleDir
 	magiskPath := filepath.Join(magiskDir, "charger_config.json")
 	if _, err := os.Stat(magiskDir); err == nil {
 		return magiskPath
@@ -153,13 +155,13 @@ func (m *Manager) saveConfigLocked() {
 
 func fileExistsAndWritable(path string) bool {
 	// Directly check if file is writable via su test
-	cmd := exec.Command("su", "-c", fmt.Sprintf("test -w %s && echo 1 || echo 0", path))
+	cmd := exec.Command(config.SUBin, "-c", fmt.Sprintf("test -w %s && echo 1 || echo 0", path))
 	out, err := cmd.Output()
 	if err == nil && strings.TrimSpace(string(out)) == "1" {
 		return true
 	}
 	// Direct fallback using su sh syntax
-	cmd2 := exec.Command("su", "-c", fmt.Sprintf("echo 1 > /dev/null; [ -w %s ] && echo 1 || echo 0", path))
+	cmd2 := exec.Command(config.SUBin, "-c", fmt.Sprintf("echo 1 > /dev/null; [ -w %s ] && echo 1 || echo 0", path))
 	out2, err2 := cmd2.Output()
 	if err2 == nil && strings.TrimSpace(string(out2)) == "1" {
 		return true
@@ -190,7 +192,7 @@ func writeSysfs(path string, val string) error {
 	if err == nil {
 		return nil
 	}
-	cmd := exec.Command("su", "-c", fmt.Sprintf("echo %s > %s", val, path))
+	cmd := exec.Command(config.SUBin, "-c", fmt.Sprintf("echo %s > %s", val, path))
 	return cmd.Run()
 }
 
