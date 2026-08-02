@@ -66,6 +66,12 @@ func newManager() *Manager {
 	return m
 }
 
+func (m *Manager) IsEnabled() bool {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+	return m.config.Enabled
+}
+
 func GetManager() *Manager {
 	once.Do(func() {
 		globalManager = newManager()

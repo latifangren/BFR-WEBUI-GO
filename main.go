@@ -15,7 +15,7 @@ import (
 	"bfr-webui-go/internal/handlers"
 	"bfr-webui-go/internal/logger"
 	"bfr-webui-go/internal/network"
-	_ "bfr-webui-go/internal/ssh"
+	"bfr-webui-go/internal/ssh"
 	"bfr-webui-go/internal/telegram"
 	_ "bfr-webui-go/internal/vnstat"
 )
@@ -51,6 +51,15 @@ func main() {
 		if tgMgr.IsEnabled() {
 			if err := tgMgr.Start(); err != nil {
 				log.Printf("Telegram bot startup failed: %v", err)
+			}
+		}
+	}()
+
+	go func() {
+		sshMgr := ssh.GetManager()
+		if sshMgr.IsEnabled() {
+			if err := sshMgr.Start(); err != nil {
+				log.Printf("SSH daemon startup failed: %v", err)
 			}
 		}
 	}()
