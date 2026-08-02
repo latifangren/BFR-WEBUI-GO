@@ -1,6 +1,7 @@
 package ssh
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"os"
@@ -80,6 +81,7 @@ func (m *Manager) loadConfig() {
 	if err != nil {
 		return
 	}
+	data = bytes.TrimPrefix(data, []byte("\xef\xbb\xbf"))
 	var cfg Config
 	if err := json.Unmarshal(data, &cfg); err == nil {
 		m.config = cfg

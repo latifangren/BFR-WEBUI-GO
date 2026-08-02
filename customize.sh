@@ -17,6 +17,17 @@ ui_print "- Setting up execution permissions..."
 set_perm "$MODPATH/service.sh" 0 0 0755
 set_perm "$MODPATH/webui" 0 0 0755
 
+OLD_DIR="/data/adb/modules/bfr_webui_go"
+if [ -d "$OLD_DIR" ]; then
+    ui_print "- Preserving existing configuration files..."
+    for cfg in tweaks.json charger_config.json ssh_config.json telegram_config.json; do
+        if [ -f "$OLD_DIR/$cfg" ]; then
+            cp -f "$OLD_DIR/$cfg" "$MODPATH/$cfg"
+            ui_print "- Preserved: $cfg"
+        fi
+    done
+fi
+
 ui_print "- Launching WebUI dynamically..."
 # Start the newly installed binary from active MODPATH (which is modules_update during flash)
 chmod 755 "$MODPATH/webui"

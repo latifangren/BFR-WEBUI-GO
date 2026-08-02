@@ -13,6 +13,7 @@ function dashboard() {
         ScrcpyModule,
         DonationModule,
         SshModule,
+        TelegramModule,
         LogsModule,
         ModulesModule,
         LogcatModule,
@@ -33,6 +34,7 @@ function dashboard() {
                     this.fetchVnstatData();
                     this.fetchChargerConfig();
                     this.fetchSSHStatus();
+                    this.fetchTelegramStatus();
                     this.startLogsPolling();
                 }
             },
@@ -69,6 +71,7 @@ function dashboard() {
                         this.fetchVnstatData();
                         this.fetchChargerConfig();
                         this.fetchSSHStatus();
+                        this.fetchTelegramStatus();
                         this.startLogsPolling();
                     } else {
                         this.authError = data.error || 'Invalid password';

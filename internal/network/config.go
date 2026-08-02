@@ -1,6 +1,7 @@
 package network
 
 import (
+	"bytes"
 	"encoding/json"
 	"os"
 	"os/exec"
@@ -56,6 +57,7 @@ func LoadTweaks() (TweaksConfig, error) {
 		}, nil
 	}
 
+	data = bytes.TrimPrefix(data, []byte("\xef\xbb\xbf"))
 	err = json.Unmarshal(data, &cfg)
 	return cfg, err
 }

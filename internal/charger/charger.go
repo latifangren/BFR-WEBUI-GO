@@ -2,6 +2,7 @@ package charger
 
 import (
 	"bufio"
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"os"
@@ -123,6 +124,7 @@ func (m *Manager) loadConfig() {
 		}
 	}
 	if err == nil {
+		buf = bytes.TrimPrefix(buf, []byte("\xef\xbb\xbf"))
 		var cfg Config
 		if err := json.Unmarshal(buf, &cfg); err == nil {
 			if cfg.StartPercent <= 0 {

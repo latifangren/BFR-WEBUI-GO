@@ -18,6 +18,7 @@ type BackupBundle struct {
 var backupFiles = []string{
 	"charger_config.json",
 	"ssh_config.json",
+	"telegram_config.json",
 	"vnstat_data.json",
 	"tweaks.json",
 }
@@ -57,10 +58,11 @@ func ImportBackup(data []byte) error {
 	}
 
 	allowedNames := map[string]bool{
-		"charger_config.json": true,
-		"ssh_config.json":     true,
-		"vnstat_data.json":    true,
-		"tweaks.json":         true,
+		"charger_config.json":  true,
+		"ssh_config.json":      true,
+		"telegram_config.json": true,
+		"vnstat_data.json":     true,
+		"tweaks.json":          true,
 	}
 
 	destDir := config.ModuleDir

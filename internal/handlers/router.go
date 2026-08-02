@@ -148,6 +148,11 @@ func RegisterRoutes(mux *http.ServeMux, authMgr *auth.Manager) {
 	mux.HandleFunc("/api/charger/config", wrap(HandleChargerConfig, true))
 	mux.HandleFunc("/api/charger/toggle", wrap(HandleChargerToggle, true))
 
+	// Telegram URLs
+	mux.HandleFunc("/api/telegram/status", wrap(HandleTelegramStatus, true))
+	mux.HandleFunc("/api/telegram/config", wrap(HandleTelegramConfig, true))
+	mux.HandleFunc("/api/telegram/control", wrap(HandleTelegramControl, true))
+
 	// SSH URLs
 	mux.HandleFunc("/api/ssh/status", wrap(HandleSSHStatus, true))
 	mux.HandleFunc("/api/ssh/config", wrap(HandleSSHConfig, true))

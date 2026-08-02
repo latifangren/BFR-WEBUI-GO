@@ -9,6 +9,5 @@ done
 chmod 755 "$MODDIR/webui"
 "$MODDIR/webui" --apply-tweaks
 
-# Launch WebUI in background
-cd "$MODDIR" || exit 1
-./webui &
+# Launch WebUI daemon detached from service.sh session with logging
+nohup "$MODDIR/webui" > "$MODDIR/webui.log" 2>&1 &

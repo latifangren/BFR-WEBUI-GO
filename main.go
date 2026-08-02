@@ -16,6 +16,7 @@ import (
 	"bfr-webui-go/internal/logger"
 	"bfr-webui-go/internal/network"
 	_ "bfr-webui-go/internal/ssh"
+	"bfr-webui-go/internal/telegram"
 	_ "bfr-webui-go/internal/vnstat"
 )
 
@@ -44,6 +45,15 @@ func main() {
 
 	mux := http.NewServeMux()
 	handlers.RegisterRoutes(mux, authMgr)
+
+	go func() {
+		tgMgr := telegram.GetManager()
+		if tgMgr.IsEnabled() {
+			if err := tgMgr.Start(); err != nil {
+				log.Printf("Telegram bot startup failed: %v", err)
+			}
+		}
+	}()
 
 	addr := ":" + *port
 	server := &http.Server{
