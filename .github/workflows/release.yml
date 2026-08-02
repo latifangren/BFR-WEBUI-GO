@@ -19,6 +19,11 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Get Release Version
+        run: |
+          VERSION=$(grep "^version=" module.prop | cut -d'=' -f2)
+          echo "RELEASE_VERSION=${VERSION}" >> $GITHUB_ENV
+
       - name: Setup Go Environment
         uses: actions/setup-go@v5
         with:
@@ -43,21 +48,21 @@ jobs:
 
       - name: Package Magisk Module Zip
         run: |
-          zip -r BFR-WEBUI-Magisk-${{ github.ref_name }}.zip customize.sh module.prop service.sh system.prop tweaks.json env.example webui
+          zip -r BFR-WEBUI-Magisk-${{ env.RELEASE_VERSION }}.zip customize.sh module.prop service.sh system.prop tweaks.json env.example webui
 
       - name: Upload Build Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: BFR-WEBUI-Magisk-${{ github.ref_name }}
+          name: BFR-WEBUI-Magisk-${{ env.RELEASE_VERSION }}
           path: |
-            BFR-WEBUI-Magisk-${{ github.ref_name }}.zip
+            BFR-WEBUI-Magisk-${{ env.RELEASE_VERSION }}.zip
             webui
           retention-days: 7
 
   release:
     name: Publish Github Release
     needs: build
-    if: startsWith(github.ref, 'refs/tags/v')
+    if: startsWith(github.ref, 'refs/tags/v') || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -65,23 +70,28 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
+      - name: Get Release Version
+        run: |
+          VERSION=$(grep "^version=" module.prop | cut -d'=' -f2)
+          echo "RELEASE_VERSION=${VERSION}" >> $GITHUB_ENV
+
       - name: Download Build Artifacts
         uses: actions/download-artifact@v4
         with:
-          name: BFR-WEBUI-Magisk-${{ github.ref_name }}
+          name: BFR-WEBUI-Magisk-${{ env.RELEASE_VERSION }}
 
       - name: Extract Release Notes from CHANGELOG
         id: changelog
         run: |
           # Strip 'v' prefix from tag to match CHANGELOG version format (e.g. [1.0.0])
-          TAG_VER="${{ github.ref_name }}"
+          TAG_VER="${{ env.RELEASE_VERSION }}"
           RAW_VER="${TAG_VER#v}"
-          
+
           echo "Extracting release notes for version: $RAW_VER"
-          
+
           # Extract everything under the specific version header up to the next version header
           awk "/## \[$RAW_VER\]/{p=1;next} /^## \[/{p=0} p" CHANGELOG.md > release_notes.md
-          
+
           if [ ! -s release_notes.md ]; then
             echo "Warning: Version section not found or empty in CHANGELOG.md. Using fallback notes."
             echo "Release of BFR-WEBUI-GO version $TAG_VER" > release_notes.md
@@ -90,9 +100,11 @@ jobs:
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
+          tag_name: ${{ env.RELEASE_VERSION }}
+          name: BFR WEBUI GO ${{ env.RELEASE_VERSION }}
           body_path: release_notes.md
           files: |
-            BFR-WEBUI-Magisk-${{ github.ref_name }}.zip
+            BFR-WEBUI-Magisk-${{ env.RELEASE_VERSION }}.zip
             webui
           draft: false
           prerelease: false
