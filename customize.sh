@@ -16,6 +16,10 @@ ui_print "- Installing module to: $MODPATH"
 ui_print "- Setting up execution permissions..."
 set_perm "$MODPATH/service.sh" 0 0 0755
 set_perm "$MODPATH/webui" 0 0 0755
+if [ -d "$MODPATH/bin" ]; then
+    set_perm_recursive "$MODPATH/bin" 0 0 0755 0755
+    chmod -R 755 "$MODPATH/bin" 2>/dev/null
+fi
 
 OLD_DIR="/data/adb/modules/bfr_webui_go"
 if [ -d "$OLD_DIR" ]; then

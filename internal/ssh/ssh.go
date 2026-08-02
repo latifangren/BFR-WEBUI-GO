@@ -98,13 +98,21 @@ func (m *Manager) saveConfig() error {
 
 func (m *Manager) detectSshBinary() string {
 	paths := []string{
+		filepath.Join(config.ModuleDir, "bin/arm64/dropbear"),
+		filepath.Join(config.ModuleDir, "bin/dropbear"),
+		"bin/arm64/dropbear",
+		"bin/dropbear",
+		"/data/adb/modules/bfr_webui_go/bin/arm64/dropbear",
+		"/data/adb/modules/bfr_webui_go/bin/dropbear",
 		"/system/bin/dropbear",
-		"/system/bin/sshd",
+		"/product/bin/dropbear",
+		"/vendor/bin/dropbear",
 		"/data/adb/magisk/dropbear",
 		"/data/adb/apatch/dropbear",
-		"/data/data/com.termux/files/usr/bin/sshd",
-		"/data/data/com.termux/files/usr/sbin/sshd",
 		"/data/data/com.termux/files/usr/bin/dropbear",
+		"/data/data/com.termux/files/usr/bin/sshd",
+		"/system/bin/sshd",
+		"/product/bin/sshd",
 	}
 
 	for _, p := range paths {
@@ -113,8 +121,15 @@ func (m *Manager) detectSshBinary() string {
 		}
 	}
 
-	// Fallback to searching PATH
+	// Fallback to searching PATH via root shell
 	for _, bin := range []string{"dropbear", "sshd"} {
+		out, err := exec.Command(config.SUBin, "-c", "which "+bin).Output()
+		if err == nil {
+			p := strings.TrimSpace(string(out))
+			if p != "" && !strings.Contains(p, "not found") {
+				return p
+			}
+		}
 		if path, err := exec.LookPath(bin); err == nil {
 			return path
 		}
@@ -122,12 +137,34 @@ func (m *Manager) detectSshBinary() string {
 	return ""
 }
 
+func ensureDropbearHostKeys(bin string) string {
+	keyPath := "/data/ssh/dropbear_ecdsa_host_key"
+	_ = exec.Command(config.SUBin, "-c", "mkdir -p /data/ssh").Run()
+
+	checkCmd := exec.Command(config.SUBin, "-c", "test -f "+keyPath)
+	if checkCmd.Run() == nil {
+		return keyPath
+	}
+
+	dropbearkey := filepath.Join(filepath.Dir(bin), "dropbearkey")
+	if _, err := os.Stat(dropbearkey); err != nil {
+		dropbearkey = filepath.Join(config.ModuleDir, "bin/arm64/dropbearkey")
+	}
+	if _, err := os.Stat(dropbearkey); err != nil {
+		dropbearkey = "dropbearkey"
+	}
+
+	genCmd := fmt.Sprintf("%s -t ecdsa -f %s", dropbearkey, keyPath)
+	_ = exec.Command(config.SUBin, "-c", genCmd).Run()
+
+	return keyPath
+}
+
 func (m *Manager) getRunningProcessForPort(port int) (string, int) {
 	candidates := []string{"dropbear", "sshd"}
 	for _, c := range candidates {
-		// Specifically target sshd/dropbear instances bound to our custom port
-		cmd := exec.Command(config.SUBin, "-c", fmt.Sprintf("pgrep -f \"%s.*-p %d\"", c, port))
-		out, err := cmd.Output()
+		cmdStr := fmt.Sprintf("pgrep -f \"%s.*%d\"", c, port)
+		out, err := exec.Command(config.SUBin, "-c", cmdStr).Output()
 		if err == nil {
 			lines := strings.Split(strings.TrimSpace(string(out)), "\n")
 			for _, line := range lines {
@@ -206,8 +243,14 @@ func (m *Manager) Start() error {
 	var cmdStr string
 
 	if isDropbear {
-		addr := fmt.Sprintf("%s:%d", m.config.Bind, m.config.Port)
-		cmdStr = fmt.Sprintf("%s -p %s -R", bin, addr)
+		keyPath := ensureDropbearHostKeys(bin)
+		var addr string
+		if m.config.Bind == "" || m.config.Bind == "0.0.0.0" {
+			addr = fmt.Sprintf("%d", m.config.Port)
+		} else {
+			addr = fmt.Sprintf("%s:%d", m.config.Bind, m.config.Port)
+		}
+		cmdStr = fmt.Sprintf("%s -p %s -r %s -B", bin, addr, keyPath)
 	} else {
 		cmdStr = fmt.Sprintf("%s -h /data/ssh/ssh_host_rsa_key -p %d -o \"ListenAddress %s\" -o \"PasswordAuthentication yes\"", bin, m.config.Port, m.config.Bind)
 	}
