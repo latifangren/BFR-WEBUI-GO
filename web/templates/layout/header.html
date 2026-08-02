@@ -36,19 +36,204 @@
             </div>
         </div>
 
-        <!-- Navigation Tabs (Mobile) -->
+        <!-- Navigation Tabs (Mobile Category Dropdowns) -->
         <template x-if="authenticated">
-            <div class="md:hidden flex items-center overflow-x-auto px-4 py-2 border-t border-border space-x-2 custom-scrollbar">
-                <button type="button" @click="activeTab = 'overview'" :class="activeTab === 'overview' ? 'bg-blue-600 text-white' : 'text-gray-400 bg-card border border-border'" class="px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap">Overview</button>
-                <button type="button" @click="activeTab = 'network'" :class="activeTab === 'network' ? 'bg-blue-600 text-white' : 'text-gray-400 bg-card border border-border'" class="px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap">Network</button>
-                <button type="button" @click="activeTab = 'proxy'" :class="activeTab === 'proxy' ? 'bg-blue-600 text-white' : 'text-gray-400 bg-card border border-border'" class="px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap">Proxy Core</button>
-                <button type="button" @click="activeTab = 'files'; fetchFileList(currentPath)" :class="activeTab === 'files' ? 'bg-blue-600 text-white' : 'text-gray-400 bg-card border border-border'" class="px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap">Files</button>
-                <button type="button" @click="activeTab = 'terminal'; initTerminal()" :class="activeTab === 'terminal' ? 'bg-blue-600 text-white' : 'text-gray-400 bg-card border border-border'" class="px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap">Terminal</button>
-                <button type="button" @click="activeTab = 'tools'" :class="activeTab === 'tools' ? 'bg-blue-600 text-white' : 'text-gray-400 bg-card border border-border'" class="px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap">Tools</button>
-                <button type="button" @click="activeTab = 'sms'; fetchSMS()" :class="activeTab === 'sms' ? 'bg-blue-600 text-white' : 'text-gray-400 bg-card border border-border'" class="px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap">SMS Viewer</button>
-                <button type="button" @click="activeTab = 'scrcpy'" :class="activeTab === 'scrcpy' ? 'bg-blue-600 text-white' : 'text-gray-400 bg-card border border-border'" class="px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap">Remote Screen</button>
-                <button type="button" @click="activeTab = 'sysinfo'" :class="activeTab === 'sysinfo' ? 'bg-blue-600 text-white' : 'text-gray-400 bg-card border border-border'" class="px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap">System Info</button>
-                <button type="button" @click="activeTab = 'about'" :class="activeTab === 'about' ? 'bg-blue-600 text-white' : 'text-gray-400 bg-card border border-border'" class="px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap">About</button>
+            <div class="md:hidden border-t border-border/80 bg-black/60 backdrop-blur-md px-3 py-2">
+                <div class="flex items-center space-x-2 overflow-x-auto custom-scrollbar pb-1">
+                    <!-- 📊 Status Category Dropdown -->
+                    <div class="relative flex-shrink-0" x-data="{ open: false }" @click.outside="open = false">
+                        <button type="button" @click="open = !open"
+                            :class="['overview', 'sysinfo', 'logs'].includes(activeTab) ? 'bg-blue-600/30 text-blue-400 border-blue-500/50 font-bold' : 'text-gray-300 bg-card border-border hover:bg-white/5'"
+                            class="px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1 border whitespace-nowrap transition select-none">
+                            <span>📊 Status</span>
+                            <svg class="w-3 h-3 transition-transform duration-200" :class="open ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                            </svg>
+                        </button>
+                        <div x-show="open"
+                            x-transition:enter="transition ease-out duration-150"
+                            x-transition:enter-start="opacity-0 scale-95 -translate-y-1"
+                            x-transition:enter-end="opacity-100 scale-100 translate-y-0"
+                            x-transition:leave="transition ease-in duration-100"
+                            x-transition:leave-start="opacity-100 scale-100 translate-y-0"
+                            x-transition:leave-end="opacity-0 scale-95 -translate-y-1"
+                            class="absolute left-0 mt-2 w-48 rounded-xl bg-card border border-border/80 shadow-2xl p-1 z-50 backdrop-blur-xl space-y-0.5"
+                            style="display: none;">
+                            <button type="button" @click="activeTab = 'overview'; open = false"
+                                :class="activeTab === 'overview' ? 'bg-blue-600 text-white font-bold' : 'text-gray-300 hover:text-white hover:bg-white/5'"
+                                class="w-full text-left px-3 py-2 rounded-lg text-xs flex items-center justify-between transition select-none">
+                                <span>Overview</span>
+                                <span x-show="activeTab === 'overview'" class="w-1.5 h-1.5 rounded-full bg-white"></span>
+                            </button>
+                            <button type="button" @click="activeTab = 'sysinfo'; open = false"
+                                :class="activeTab === 'sysinfo' ? 'bg-blue-600 text-white font-bold' : 'text-gray-300 hover:text-white hover:bg-white/5'"
+                                class="w-full text-left px-3 py-2 rounded-lg text-xs flex items-center justify-between transition select-none">
+                                <span>System Info</span>
+                                <span x-show="activeTab === 'sysinfo'" class="w-1.5 h-1.5 rounded-full bg-white"></span>
+                            </button>
+                            <button type="button" @click="activeTab = 'logs'; fetchLogs(); open = false"
+                                :class="activeTab === 'logs' ? 'bg-blue-600 text-white font-bold' : 'text-gray-300 hover:text-white hover:bg-white/5'"
+                                class="w-full text-left px-3 py-2 rounded-lg text-xs flex items-center justify-between transition select-none">
+                                <span>System Logs</span>
+                                <span x-show="activeTab === 'logs'" class="w-1.5 h-1.5 rounded-full bg-white"></span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- ⚙️ System Category Dropdown -->
+                    <div class="relative flex-shrink-0" x-data="{ open: false }" @click.outside="open = false">
+                        <button type="button" @click="open = !open"
+                            :class="['files', 'terminal', 'tools'].includes(activeTab) ? 'bg-blue-600/30 text-blue-400 border-blue-500/50 font-bold' : 'text-gray-300 bg-card border-border hover:bg-white/5'"
+                            class="px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1 border whitespace-nowrap transition select-none">
+                            <span>⚙️ System</span>
+                            <svg class="w-3 h-3 transition-transform duration-200" :class="open ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                            </svg>
+                        </button>
+                        <div x-show="open"
+                            x-transition:enter="transition ease-out duration-150"
+                            x-transition:enter-start="opacity-0 scale-95 -translate-y-1"
+                            x-transition:enter-end="opacity-100 scale-100 translate-y-0"
+                            x-transition:leave="transition ease-in duration-100"
+                            x-transition:leave-start="opacity-100 scale-100 translate-y-0"
+                            x-transition:leave-end="opacity-0 scale-95 -translate-y-1"
+                            class="absolute left-0 mt-2 w-52 rounded-xl bg-card border border-border/80 shadow-2xl p-1 z-50 backdrop-blur-xl space-y-0.5"
+                            style="display: none;">
+                            <button type="button" @click="activeTab = 'files'; fetchFileList(currentPath); open = false"
+                                :class="activeTab === 'files' ? 'bg-blue-600 text-white font-bold' : 'text-gray-300 hover:text-white hover:bg-white/5'"
+                                class="w-full text-left px-3 py-2 rounded-lg text-xs flex items-center justify-between transition select-none">
+                                <span>File Manager</span>
+                                <span x-show="activeTab === 'files'" class="w-1.5 h-1.5 rounded-full bg-white"></span>
+                            </button>
+                            <button type="button" @click="activeTab = 'terminal'; initTerminal(); open = false"
+                                :class="activeTab === 'terminal' ? 'bg-blue-600 text-white font-bold' : 'text-gray-300 hover:text-white hover:bg-white/5'"
+                                class="w-full text-left px-3 py-2 rounded-lg text-xs flex items-center justify-between transition select-none">
+                                <span>Web Terminal</span>
+                                <span x-show="activeTab === 'terminal'" class="w-1.5 h-1.5 rounded-full bg-white"></span>
+                            </button>
+                            <button type="button" @click="activeTab = 'tools'; open = false"
+                                :class="activeTab === 'tools' ? 'bg-blue-600 text-white font-bold' : 'text-gray-300 hover:text-white hover:bg-white/5'"
+                                class="w-full text-left px-3 py-2 rounded-lg text-xs flex items-center justify-between transition select-none">
+                                <span>System Tools & Modules</span>
+                                <span x-show="activeTab === 'tools'" class="w-1.5 h-1.5 rounded-full bg-white"></span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- 🛠️ Services Category Dropdown -->
+                    <div class="relative flex-shrink-0" x-data="{ open: false }" @click.outside="open = false">
+                        <button type="button" @click="open = !open"
+                            :class="['tools', 'scrcpy'].includes(activeTab) ? 'bg-blue-600/30 text-blue-400 border-blue-500/50 font-bold' : 'text-gray-300 bg-card border-border hover:bg-white/5'"
+                            class="px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1 border whitespace-nowrap transition select-none">
+                            <span>🛠️ Services</span>
+                            <svg class="w-3 h-3 transition-transform duration-200" :class="open ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                            </svg>
+                        </button>
+                        <div x-show="open"
+                            x-transition:enter="transition ease-out duration-150"
+                            x-transition:enter-start="opacity-0 scale-95 -translate-y-1"
+                            x-transition:enter-end="opacity-100 scale-100 translate-y-0"
+                            x-transition:leave="transition ease-in duration-100"
+                            x-transition:leave-start="opacity-100 scale-100 translate-y-0"
+                            x-transition:leave-end="opacity-0 scale-95 -translate-y-1"
+                            class="absolute left-0 mt-2 w-48 rounded-xl bg-card border border-border/80 shadow-2xl p-1 z-50 backdrop-blur-xl space-y-0.5"
+                            style="display: none;">
+                            <button type="button" @click="activeTab = 'tools'; open = false"
+                                :class="activeTab === 'tools' ? 'bg-blue-600 text-white font-bold' : 'text-gray-300 hover:text-white hover:bg-white/5'"
+                                class="w-full text-left px-3 py-2 rounded-lg text-xs flex items-center justify-between transition select-none">
+                                <span>Telegram Bot</span>
+                                <span x-show="activeTab === 'tools'" class="w-1.5 h-1.5 rounded-full bg-white"></span>
+                            </button>
+                            <button type="button" @click="activeTab = 'tools'; open = false"
+                                :class="activeTab === 'tools' ? 'bg-blue-600 text-white font-bold' : 'text-gray-300 hover:text-white hover:bg-white/5'"
+                                class="w-full text-left px-3 py-2 rounded-lg text-xs flex items-center justify-between transition select-none">
+                                <span>Smart Charger</span>
+                                <span x-show="activeTab === 'tools'" class="w-1.5 h-1.5 rounded-full bg-white"></span>
+                            </button>
+                            <button type="button" @click="activeTab = 'tools'; open = false"
+                                :class="activeTab === 'tools' ? 'bg-blue-600 text-white font-bold' : 'text-gray-300 hover:text-white hover:bg-white/5'"
+                                class="w-full text-left px-3 py-2 rounded-lg text-xs flex items-center justify-between transition select-none">
+                                <span>SSH Daemon</span>
+                                <span x-show="activeTab === 'tools'" class="w-1.5 h-1.5 rounded-full bg-white"></span>
+                            </button>
+                            <button type="button" @click="activeTab = 'scrcpy'; open = false"
+                                :class="activeTab === 'scrcpy' ? 'bg-blue-600 text-white font-bold' : 'text-gray-300 hover:text-white hover:bg-white/5'"
+                                class="w-full text-left px-3 py-2 rounded-lg text-xs flex items-center justify-between transition select-none">
+                                <span>Remote Screen</span>
+                                <span x-show="activeTab === 'scrcpy'" class="w-1.5 h-1.5 rounded-full bg-white"></span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- 🌐 Network Category Dropdown -->
+                    <div class="relative flex-shrink-0" x-data="{ open: false }" @click.outside="open = false">
+                        <button type="button" @click="open = !open"
+                            :class="['network', 'proxy'].includes(activeTab) ? 'bg-blue-600/30 text-blue-400 border-blue-500/50 font-bold' : 'text-gray-300 bg-card border-border hover:bg-white/5'"
+                            class="px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1 border whitespace-nowrap transition select-none">
+                            <span>🌐 Network</span>
+                            <svg class="w-3 h-3 transition-transform duration-200" :class="open ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                            </svg>
+                        </button>
+                        <div x-show="open"
+                            x-transition:enter="transition ease-out duration-150"
+                            x-transition:enter-start="opacity-0 scale-95 -translate-y-1"
+                            x-transition:enter-end="opacity-100 scale-100 translate-y-0"
+                            x-transition:leave="transition ease-in duration-100"
+                            x-transition:leave-start="opacity-100 scale-100 translate-y-0"
+                            x-transition:leave-end="opacity-0 scale-95 -translate-y-1"
+                            class="absolute left-0 mt-2 w-48 rounded-xl bg-card border border-border/80 shadow-2xl p-1 z-50 backdrop-blur-xl space-y-0.5"
+                            style="display: none;">
+                            <button type="button" @click="activeTab = 'network'; open = false"
+                                :class="activeTab === 'network' ? 'bg-blue-600 text-white font-bold' : 'text-gray-300 hover:text-white hover:bg-white/5'"
+                                class="w-full text-left px-3 py-2 rounded-lg text-xs flex items-center justify-between transition select-none">
+                                <span>Network & Tweaks</span>
+                                <span x-show="activeTab === 'network'" class="w-1.5 h-1.5 rounded-full bg-white"></span>
+                            </button>
+                            <button type="button" @click="activeTab = 'proxy'; open = false"
+                                :class="activeTab === 'proxy' ? 'bg-blue-600 text-white font-bold' : 'text-gray-300 hover:text-white hover:bg-white/5'"
+                                class="w-full text-left px-3 py-2 rounded-lg text-xs flex items-center justify-between transition select-none">
+                                <span>Proxy Core</span>
+                                <span x-show="activeTab === 'proxy'" class="w-1.5 h-1.5 rounded-full bg-white"></span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- 📦 Extras Category Dropdown -->
+                    <div class="relative flex-shrink-0" x-data="{ open: false }" @click.outside="open = false">
+                        <button type="button" @click="open = !open"
+                            :class="['sms', 'about'].includes(activeTab) ? 'bg-blue-600/30 text-blue-400 border-blue-500/50 font-bold' : 'text-gray-300 bg-card border-border hover:bg-white/5'"
+                            class="px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1 border whitespace-nowrap transition select-none">
+                            <span>📦 Extras</span>
+                            <svg class="w-3 h-3 transition-transform duration-200" :class="open ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                            </svg>
+                        </button>
+                        <div x-show="open"
+                            x-transition:enter="transition ease-out duration-150"
+                            x-transition:enter-start="opacity-0 scale-95 -translate-y-1"
+                            x-transition:enter-end="opacity-100 scale-100 translate-y-0"
+                            x-transition:leave="transition ease-in duration-100"
+                            x-transition:leave-start="opacity-100 scale-100 translate-y-0"
+                            x-transition:leave-end="opacity-0 scale-95 -translate-y-1"
+                            class="absolute right-0 mt-2 w-48 rounded-xl bg-card border border-border/80 shadow-2xl p-1 z-50 backdrop-blur-xl space-y-0.5"
+                            style="display: none;">
+                            <button type="button" @click="activeTab = 'sms'; fetchSMS(); open = false"
+                                :class="activeTab === 'sms' ? 'bg-blue-600 text-white font-bold' : 'text-gray-300 hover:text-white hover:bg-white/5'"
+                                class="w-full text-left px-3 py-2 rounded-lg text-xs flex items-center justify-between transition select-none">
+                                <span>SMS Viewer</span>
+                                <span x-show="activeTab === 'sms'" class="w-1.5 h-1.5 rounded-full bg-white"></span>
+                            </button>
+                            <button type="button" @click="activeTab = 'about'; open = false"
+                                :class="activeTab === 'about' ? 'bg-blue-600 text-white font-bold' : 'text-gray-300 hover:text-white hover:bg-white/5'"
+                                class="w-full text-left px-3 py-2 rounded-lg text-xs flex items-center justify-between transition select-none">
+                                <span>About & Docs</span>
+                                <span x-show="activeTab === 'about'" class="w-1.5 h-1.5 rounded-full bg-white"></span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
             </div>
         </template>
     </header>

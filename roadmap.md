@@ -38,3 +38,20 @@ Dokumen ini memetakan rencana peningkatan dan pengembangan untuk panel kontrol s
 * **Rate Limiting Middleware**: Batasi jumlah percobaan login pada rute `/api/auth/login` menggunakan algoritma *token bucket* per IP klien untuk menghadang upaya serangan *brute-force* pada antarmuka hotspot publik.
 * **Optional HTTPS/TLS Support**: Dukungan opsional untuk mengaktifkan server HTTPS dengan memasukkan flag sertifikat TLS (`-cert`, `-key`) saat binary dijalankan.
 * **Sistem Audit Log**: Catat aktivitas kritis perangkat (gagal login, eksekusi root command, perubahan file sistem, reboot) secara terpusat ke `/data/adb/modules/bfr_webui_go/security_audit.log` yang persisten lintas reboot.
+
+---
+
+## 6. Fitur Unggulan Native Go (Go-Powered Extensions)
+
+### 🟢 Easy (Pengembangan Cepat & Tanpa Dependency Luar)
+* **[ ] Native Speedtest & Bandwidth Stress Tester Engine**: Modul pengujian kecepatan internet (Download, Upload, Latency, Jitter) multi-thread berbasis HTTP Go murni tanpa membutuhkan biner eksternal (`curl`/`iperf3`).
+* **[ ] Cloud Backup & Config Sync**: Pengunggahan otomatis berkas kompresi konfigurasi terenkripsi (`charger`, `ssh`, `telegram`, `tweaks`) ke server WebDAV/Cloud pribadi secara berkala.
+
+### 🟡 Medium (Integrasi Package Go Standard & Procfs)
+* **[ ] WebDAV Local Cloud / Network Drive**: Integrasi `golang.org/x/net/webdav` untuk menyajikan folder Android sebagai **Network Drive (Drive Z:)** di Windows File Explorer atau Mac Finder secara nirkabel via Wi-Fi (RAM < 5MB).
+* **[ ] Real-Time Network Packet & App Traffic Analyzer**: Penguraian statistik pemakaian kuota internet per-antarmuka jaringan (`wlan0`/`rmnet`) dan monitoring alokasi data jaringan secara real-time.
+
+---
+
+## 7. Backlog Masa Depan (Future Enhancements)
+* **[ ] Remote Device Hardware Telemetry & Thermal Graphing**: Streaming grafik sensor temperatur CPU/GPU, frekuensi per-core, dan penggunaan RAM secara live (interval 100ms) menggunakan WebSocket tanpa overhead CPU.
