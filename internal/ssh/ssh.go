@@ -143,6 +143,14 @@ func (m *Manager) detectSshBinary() string {
 	return ""
 }
 
+func ensurePasswd() {
+	_ = exec.Command(config.SUBin, "-c", "mkdir -p /data/ssh").Run()
+	// Default root SSH password is set to "bfr" ($1$bfr$1.FhM4MshhC5l.J/w4Ztq0)
+	passwdEntry := "root:$1$bfr$1.FhM4MshhC5l.J/w4Ztq0:0:0:root:/data/local/tmp:/system/bin/sh"
+	cmdStr := fmt.Sprintf("echo '%s' > /data/ssh/passwd && chmod 644 /data/ssh/passwd && mount -o bind /data/ssh/passwd /etc/passwd 2>/dev/null", passwdEntry)
+	_ = exec.Command(config.SUBin, "-c", cmdStr).Run()
+}
+
 func ensureDropbearHostKeys(bin string) string {
 	keyPath := "/data/ssh/dropbear_ecdsa_host_key"
 	_ = exec.Command(config.SUBin, "-c", "mkdir -p /data/ssh").Run()
@@ -249,6 +257,7 @@ func (m *Manager) Start() error {
 	var cmdStr string
 
 	if isDropbear {
+		ensurePasswd()
 		keyPath := ensureDropbearHostKeys(bin)
 		var addr string
 		if m.config.Bind == "" || m.config.Bind == "0.0.0.0" {
