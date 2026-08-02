@@ -227,21 +227,6 @@ func (m *Manager) saveConfigFileLocked() error {
 	return os.WriteFile(m.dataPath, data, 0644)
 }
 
-func (m *Manager) saveConfigFile() error {
-	m.mu.RLock()
-	defer m.mu.RUnlock()
-
-	dir := filepath.Dir(m.dataPath)
-	_ = os.MkdirAll(dir, 0755)
-
-	data, err := json.MarshalIndent(m.config, "", "  ")
-	if err != nil {
-		return err
-	}
-
-	return os.WriteFile(m.dataPath, data, 0644)
-}
-
 func (m *Manager) IsEnabled() bool {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
