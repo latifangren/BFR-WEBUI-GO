@@ -9,6 +9,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- **Telegram Bot Remote Management & System Alerts**:
+  - Implemented bidirectional Telegram Bot daemon (`internal/telegram/bot.go`) with `/start`, `/stats`, `/reboot`, `/tweak`, and `/cmd` commands.
+  - Added REST API endpoints (`/api/telegram/status`, `/api/telegram/config`, `/api/telegram/control`) and WebUI control card in Tools tab (`web/static/js/modules/telegram/telegram.js`).
+  - Added custom Go `net.Resolver` fallback to public DNS (`1.1.1.1:53`, `8.8.8.8:53`, `9.9.9.9:53`) to bypass Android IPv6 loopback (`[::1]:53`) DNS lookup failures.
+  - Added automated Telegram startup notifications on boot.
+- **Bundled Static Dropbear SSH Daemon**:
+  - Bundled standalone static `dropbear` and `dropbearkey` ARM64 binaries (`bin/arm64/`), removing reliance on external Termux or stock ROM SSH binaries.
+  - Added automated host key generation (`/data/ssh/dropbear_ecdsa_host_key`).
+  - Added root password authentication support (`bfr`) via automated `/data/ssh/passwd` mount bind to `/etc/passwd` with valid MD5 crypt hash and `/bin/sh` shell setup.
+  - Added full LAN binding (`0.0.0.0:2222`) support and auto-start SSH daemon on server boot if enabled.
+
+### Fixed & Improved
+- **Module Config Persistence Across OTA Updates**:
+  - Updated `customize.sh` to preserve all `*.json` configuration files (`telegram_config.json`, `ssh_config.json`, `charger_config.json`, `tweaks.json`) during Magisk/KernelSU module updates.
+  - Added UTF-8 BOM (`\xef\xbb\xbf`) prefix stripping across JSON loaders to prevent parsing errors.
+  - Fixed LAN API authentication issues by setting session cookies to `SameSite=Lax`.
+
 ## [1.1.0] - 2026-08-02
 
 ### Added
