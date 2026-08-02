@@ -5,11 +5,32 @@ const TelegramModule = {
             bot_token: "",
             allowed_chat_ids: [],
             allow_shell_commands: false,
-            notify_on_boot: false
+            notify_on_boot: false,
+            notifications: {
+                battery_guard: false,
+                battery_overheat: false,
+                ssh_status: false,
+                ip_change: false,
+                hotspot_client: false
+            }
         },
         running: false,
         bot_name: "",
         chat_ids_str: ""
+    },
+
+    updateNotificationsFromConfig(cfg) {
+        const notifs = cfg.notifications || cfg.Notifications;
+        if (notifs) {
+            if (!this.telegramData.config.notifications) {
+                this.telegramData.config.notifications = {};
+            }
+            this.telegramData.config.notifications.battery_guard = !!(notifs.battery_guard || notifs.BatteryGuard);
+            this.telegramData.config.notifications.battery_overheat = !!(notifs.battery_overheat || notifs.BatteryOverheat);
+            this.telegramData.config.notifications.ssh_status = !!(notifs.ssh_status || notifs.SSHStatus);
+            this.telegramData.config.notifications.ip_change = !!(notifs.ip_change || notifs.IPChange);
+            this.telegramData.config.notifications.hotspot_client = !!(notifs.hotspot_client || notifs.HotspotClient);
+        }
     },
 
     async fetchTelegramStatus() {
@@ -23,9 +44,7 @@ const TelegramModule = {
                 this.telegramData.bot_name = data.bot_name || data.BotName || '';
                 
                 this.telegramData.config.enabled = !!cfg.enabled;
-                if (cfg.bot_token && !this.telegramData.config.bot_token) {
-                    this.telegramData.config.bot_token = cfg.bot_token;
-                } else if (cfg.bot_token) {
+                if (cfg.bot_token) {
                     this.telegramData.config.bot_token = cfg.bot_token;
                 }
 
@@ -35,6 +54,8 @@ const TelegramModule = {
                 if (cfg.notify_on_boot !== undefined) {
                     this.telegramData.config.notify_on_boot = !!cfg.notify_on_boot;
                 }
+
+                this.updateNotificationsFromConfig(cfg);
 
                 const chatIds = cfg.allowed_chat_ids || cfg.AllowedChatIDs;
                 if (Array.isArray(chatIds) && chatIds.length > 0) {
@@ -90,6 +111,8 @@ const TelegramModule = {
                 this.telegramData.config.allow_shell_commands = !!cfg.allow_shell_commands;
                 this.telegramData.config.notify_on_boot = !!cfg.notify_on_boot;
 
+                this.updateNotificationsFromConfig(cfg);
+
                 const savedChatIds = cfg.allowed_chat_ids || cfg.AllowedChatIDs;
                 if (Array.isArray(savedChatIds) && savedChatIds.length > 0) {
                     this.telegramData.config.allowed_chat_ids = savedChatIds;
@@ -133,6 +156,8 @@ const TelegramModule = {
                 }
                 this.telegramData.config.allow_shell_commands = !!cfg.allow_shell_commands;
                 this.telegramData.config.notify_on_boot = !!cfg.notify_on_boot;
+
+                this.updateNotificationsFromConfig(cfg);
 
                 const savedChatIds = cfg.allowed_chat_ids || cfg.AllowedChatIDs;
                 if (Array.isArray(savedChatIds) && savedChatIds.length > 0) {

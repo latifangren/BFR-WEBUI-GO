@@ -6,17 +6,24 @@ import (
 	"crypto/tls"
 	"encoding/json"
 	"fmt"
+	"io"
 	"net"
 	"net/http"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
 
+	"bfr-webui-go/internal/charger"
 	"bfr-webui-go/internal/config"
+	"bfr-webui-go/internal/hotspot"
 	"bfr-webui-go/internal/logger"
+	"bfr-webui-go/internal/modules"
 	"bfr-webui-go/internal/network"
+	"bfr-webui-go/internal/proxy"
+	"bfr-webui-go/internal/ssh"
 	"bfr-webui-go/internal/sysinfo"
 )
 
@@ -58,12 +65,21 @@ func getHTTPClient(timeout time.Duration) *http.Client {
 	}
 }
 
+type NotificationConfig struct {
+	BatteryGuard    bool `json:"battery_guard"`
+	BatteryOverheat bool `json:"battery_overheat"`
+	SSHStatus       bool `json:"ssh_status"`
+	IPChange        bool `json:"ip_change"`
+	HotspotClient   bool `json:"hotspot_client"`
+}
+
 type Config struct {
-	Enabled            bool    `json:"enabled"`
-	BotToken           string  `json:"bot_token"`
-	AllowedChatIDs     []int64 `json:"allowed_chat_ids"`
-	AllowShellCommands bool    `json:"allow_shell_commands"`
-	NotifyOnBoot       bool    `json:"notify_on_boot"`
+	Enabled            bool               `json:"enabled"`
+	BotToken           string             `json:"bot_token"`
+	AllowedChatIDs     []int64            `json:"allowed_chat_ids"`
+	AllowShellCommands bool               `json:"allow_shell_commands"`
+	NotifyOnBoot       bool               `json:"notify_on_boot"`
+	Notifications      NotificationConfig `json:"notifications"`
 }
 
 type StatusResponse struct {
@@ -273,6 +289,7 @@ func (m *Manager) SaveConfig(cfg Config) (StatusResponse, error) {
 	m.config.AllowedChatIDs = cleanIDs
 	m.config.AllowShellCommands = cfg.AllowShellCommands
 	m.config.NotifyOnBoot = cfg.NotifyOnBoot
+	m.config.Notifications = cfg.Notifications
 	m.config.Enabled = oldEnabled
 
 	err := m.saveConfigFileLocked()
@@ -361,7 +378,140 @@ func (m *Manager) startDaemonLoop(ctx context.Context, token string) {
 		m.SendMessageToAllowed("🚀 *BFR WebUI Telegram Bot Started*\nDevice service is online and operational.")
 	}
 
+	go m.startNotificationWorker(ctx)
 	m.pollLoop(ctx)
+}
+
+func fetchPublicIP() (string, error) {
+	client := getHTTPClient(10 * time.Second)
+	endpoints := []string{
+		"https://api.ipify.org",
+		"https://icanhazip.com",
+		"https://ifconfig.me/ip",
+	}
+	for _, url := range endpoints {
+		resp, err := client.Get(url)
+		if err == nil {
+			body, err := io.ReadAll(resp.Body)
+			_ = resp.Body.Close()
+			if err == nil {
+				ip := strings.TrimSpace(string(body))
+				if net.ParseIP(ip) != nil {
+					return ip, nil
+				}
+			}
+		}
+	}
+	return "", fmt.Errorf("failed to fetch public IP")
+}
+
+func (m *Manager) startNotificationWorker(ctx context.Context) {
+	ticker := time.NewTicker(15 * time.Second)
+	defer ticker.Stop()
+
+	var (
+		overheatAlerted      bool
+		lastChargingDisabled *bool
+		lastSSHRunning       *bool
+		lastClientCount      int = -1
+		lastPublicIP         string
+		ipCheckCounter       int = 0
+	)
+
+	if initialIP, err := fetchPublicIP(); err == nil {
+		lastPublicIP = initialIP
+	}
+
+	for {
+		select {
+		case <-ctx.Done():
+			return
+		case <-ticker.C:
+			m.mu.RLock()
+			enabled := m.config.Enabled
+			notif := m.config.Notifications
+			m.mu.RUnlock()
+
+			if !enabled {
+				continue
+			}
+
+			// 1. Battery Overheat alert (temp > 45°C)
+			st, err := sysinfo.GetStats()
+			if err == nil {
+				if notif.BatteryOverheat {
+					if st.BatteryTemp > 45.0 {
+						if !overheatAlerted {
+							overheatAlerted = true
+							m.SendMessageToAllowed(fmt.Sprintf("⚠️ *Battery Overheat Warning!*\nTemperature: %.1f°C (Level: %d%%)", st.BatteryTemp, st.BatteryLevel))
+						}
+					} else if st.BatteryTemp <= 42.0 {
+						overheatAlerted = false
+					}
+				}
+			}
+
+			// 2. Battery Guard alert (charging disabled/enabled state change)
+			chStatus := charger.GetManager().GetStatus()
+			if lastChargingDisabled == nil {
+				val := chStatus.ChargingDisabled
+				lastChargingDisabled = &val
+			} else if *lastChargingDisabled != chStatus.ChargingDisabled {
+				*lastChargingDisabled = chStatus.ChargingDisabled
+				if notif.BatteryGuard {
+					stateStr := "Enabled"
+					if chStatus.ChargingDisabled {
+						stateStr = "Disabled / Limited"
+					}
+					m.SendMessageToAllowed(fmt.Sprintf("⚡ *Battery Guard Alert*\nCharging state changed to: *%s* (Level: %d%%)", stateStr, chStatus.CurrentLevel))
+				}
+			}
+
+			// 3. SSH Status alert
+			sshStatus := ssh.GetManager().GetStatus()
+			if lastSSHRunning == nil {
+				val := sshStatus.Running
+				lastSSHRunning = &val
+			} else if *lastSSHRunning != sshStatus.Running {
+				*lastSSHRunning = sshStatus.Running
+				if notif.SSHStatus {
+					stateStr := "Stopped"
+					if sshStatus.Running {
+						stateStr = fmt.Sprintf("Running (PID: %d, Port: %d)", sshStatus.Pid, sshStatus.Config.Port)
+					}
+					m.SendMessageToAllowed(fmt.Sprintf("🔑 *SSH Status Alert*\nSSH daemon state changed to: *%s*", stateStr))
+				}
+			}
+
+			// 4. Hotspot Client alert
+			clients, err := hotspot.GetConnectedClients()
+			if err == nil {
+				currCount := len(clients)
+				if lastClientCount == -1 {
+					lastClientCount = currCount
+				} else if lastClientCount != currCount {
+					lastClientCount = currCount
+					if notif.HotspotClient {
+						m.SendMessageToAllowed(fmt.Sprintf("📶 *Hotspot Client Alert*\nConnected clients count changed to: *%d*", currCount))
+					}
+				}
+			}
+
+			// 5. Public IP Change alert (every 5 mins = 20 * 15s ticks)
+			ipCheckCounter++
+			if ipCheckCounter >= 20 {
+				ipCheckCounter = 0
+				if notif.IPChange {
+					if currentIP, err := fetchPublicIP(); err == nil && currentIP != "" {
+						if lastPublicIP != "" && lastPublicIP != currentIP {
+							m.SendMessageToAllowed(fmt.Sprintf("🌐 *Public IP Changed*\nOld IP: `%s`\nNew IP: `%s`", lastPublicIP, currentIP))
+						}
+						lastPublicIP = currentIP
+					}
+				}
+			}
+		}
+	}
 }
 
 func (m *Manager) Stop() error {
@@ -379,6 +529,138 @@ func (m *Manager) Stop() error {
 	return nil
 }
 
+type ReplyKeyboardButton struct {
+	Text string `json:"text"`
+}
+
+type ReplyKeyboardMarkup struct {
+	Keyboard       [][]ReplyKeyboardButton `json:"keyboard"`
+	ResizeKeyboard bool                  `json:"resize_keyboard"`
+	Persistent     bool                  `json:"is_persistent"`
+}
+
+type InlineKeyboardButton struct {
+	Text         string `json:"text"`
+	CallbackData string `json:"callback_data"`
+}
+
+type InlineKeyboardMarkup struct {
+	InlineKeyboard [][]InlineKeyboardButton `json:"inline_keyboard"`
+}
+
+func getMainReplyKeyboard() ReplyKeyboardMarkup {
+	return ReplyKeyboardMarkup{
+		Keyboard: [][]ReplyKeyboardButton{
+			{{Text: "📊 Status Sistem"}, {Text: "🔋 Battery Guard"}},
+			{{Text: "🔑 Kontrol SSH"}, {Text: "🌐 Status Proxy"}},
+			{{Text: "📶 Klien Hotspot"}, {Text: "🧩 Modul Root"}},
+			{{Text: "🌐 Cek IP Publik"}, {Text: "🔄 Refresh Menu"}},
+		},
+		ResizeKeyboard: true,
+		Persistent:     true,
+	}
+}
+
+func buildChargerMessageAndKeyboard() (string, InlineKeyboardMarkup) {
+	chStatus := charger.GetManager().GetStatus()
+	st, _ := sysinfo.GetStats()
+
+	chState := "Enabled (Charging Active)"
+	if chStatus.ChargingDisabled {
+		chState = "Disabled / Limited"
+	}
+	msg := fmt.Sprintf("🔋 *Charger Control & Status*\n\n"+
+		"• *Battery Level:* %d%%\n"+
+		"• *Status:* %s\n"+
+		"• *Temperature:* %.1f°C\n"+
+		"• *Limiter Enabled:* %v\n"+
+		"• *Start / Stop Limit:* %d%% / %d%%\n"+
+		"• *Charging State:* %s\n\n"+
+		"💡 _Set limit: `/charger limit 80`_",
+		chStatus.CurrentLevel, st.BatteryStatus, st.BatteryTemp,
+		chStatus.Config.Enabled, chStatus.Config.StartPercent, chStatus.Config.StopPercent,
+		chState,
+	)
+
+	kb := InlineKeyboardMarkup{
+		InlineKeyboard: [][]InlineKeyboardButton{
+			{
+				{Text: "🔋 Limit ke 80%", CallbackData: "cb_charger_80"},
+				{Text: "⚡ Nonaktifkan Limit", CallbackData: "cb_charger_off"},
+			},
+			{
+				{Text: "🔄 Refresh Status", CallbackData: "cb_charger_refresh"},
+			},
+		},
+	}
+	return msg, kb
+}
+
+func buildSSHMessageAndKeyboard() (string, InlineKeyboardMarkup) {
+	st := ssh.GetManager().GetStatus()
+	statusStr := "Stopped 🛑"
+	btnText := "▶️ Start SSH"
+	if st.Running {
+		statusStr = fmt.Sprintf("Running 🟢 (PID: %d)", st.Pid)
+		btnText = "🛑 Stop SSH"
+	}
+	msg := fmt.Sprintf("🔑 *SSH Daemon Status*\n\n"+
+		"• *Status:* %s\n"+
+		"• *Port:* %d\n"+
+		"• *Bind Address:* %s\n"+
+		"• *Binary:* `%s`\n\n"+
+		"💡 _Commands: `/ssh start` | `/ssh stop`_",
+		statusStr, st.Config.Port, st.Config.Bind, st.BinaryPath,
+	)
+
+	kb := InlineKeyboardMarkup{
+		InlineKeyboard: [][]InlineKeyboardButton{
+			{
+				{Text: btnText, CallbackData: "cb_ssh_toggle"},
+			},
+			{
+				{Text: "🔄 Refresh Status", CallbackData: "cb_ssh_refresh"},
+			},
+		},
+	}
+	return msg, kb
+}
+
+func buildProxyMessageAndKeyboard() (string, InlineKeyboardMarkup) {
+	cores := proxy.DetectCores()
+	mode := proxy.GetMode()
+	watchdog := proxy.GetWatchdog()
+
+	var coreLines []string
+	for _, c := range cores {
+		statusStr := "Stopped 🛑"
+		if c.Running {
+			statusStr = fmt.Sprintf("Running 🟢 (PID: %d, Mem: %s)", c.PID, c.Memory)
+		}
+		coreLines = append(coreLines, fmt.Sprintf("• *%s:* %s", c.Name, statusStr))
+	}
+	if len(coreLines) == 0 {
+		coreLines = append(coreLines, "• No proxy cores detected")
+	}
+
+	msg := fmt.Sprintf("🛡️ *Proxy Status*\n\n"+
+		"%s\n"+
+		"• *Mode:* %s\n"+
+		"• *Watchdog:* %v\n\n"+
+		"💡 _Restart proxy: `/proxy restart`_",
+		strings.Join(coreLines, "\n"), mode, watchdog,
+	)
+
+	kb := InlineKeyboardMarkup{
+		InlineKeyboard: [][]InlineKeyboardButton{
+			{
+				{Text: "🔄 Restart Proxy", CallbackData: "cb_proxy_restart"},
+			},
+		},
+	}
+	return msg, kb
+}
+
 func (m *Manager) isChatAllowed(chatID int64) bool {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -393,7 +675,7 @@ func (m *Manager) isChatAllowed(chatID int64) bool {
 	return false
 }
 
-func (m *Manager) sendMessage(chatID int64, text string) {
+func (m *Manager) sendMessageFull(chatID int64, text string, replyMarkup interface{}) {
 	m.mu.RLock()
 	token := m.config.BotToken
 	m.mu.RUnlock()
@@ -407,6 +689,9 @@ func (m *Manager) sendMessage(chatID int64, text string) {
 		"chat_id":    chatID,
 		"text":       text,
 		"parse_mode": "Markdown",
+	}
+	if replyMarkup != nil {
+		payload["reply_markup"] = replyMarkup
 	}
 
 	data, err := json.Marshal(payload)
@@ -435,6 +720,83 @@ func (m *Manager) sendMessage(chatID int64, text string) {
 				}
 			}
 		}
+		_ = resp.Body.Close()
+	}
+}
+
+func (m *Manager) sendMessage(chatID int64, text string) {
+	m.sendMessageFull(chatID, text, nil)
+}
+
+func (m *Manager) editMessageText(chatID int64, messageID int64, text string, replyMarkup interface{}) {
+	m.mu.RLock()
+	token := m.config.BotToken
+	m.mu.RUnlock()
+
+	if token == "" || messageID == 0 {
+		return
+	}
+
+	reqURL := fmt.Sprintf("https://api.telegram.org/bot%s/editMessageText", token)
+	payload := map[string]interface{}{
+		"chat_id":    chatID,
+		"message_id": messageID,
+		"text":       text,
+		"parse_mode": "Markdown",
+	}
+	if replyMarkup != nil {
+		payload["reply_markup"] = replyMarkup
+	}
+
+	data, err := json.Marshal(payload)
+	if err != nil {
+		return
+	}
+
+	client := getHTTPClient(10 * time.Second)
+	req, err := http.NewRequest(http.MethodPost, reqURL, bytes.NewBuffer(data))
+	if err != nil {
+		return
+	}
+	req.Header.Set("Content-Type", "application/json")
+
+	resp, err := client.Do(req)
+	if err == nil {
+		_ = resp.Body.Close()
+	}
+}
+
+func (m *Manager) answerCallbackQuery(callbackQueryID string, text string) {
+	m.mu.RLock()
+	token := m.config.BotToken
+	m.mu.RUnlock()
+
+	if token == "" || callbackQueryID == "" {
+		return
+	}
+
+	reqURL := fmt.Sprintf("https://api.telegram.org/bot%s/answerCallbackQuery", token)
+	payload := map[string]interface{}{
+		"callback_query_id": callbackQueryID,
+	}
+	if text != "" {
+		payload["text"] = text
+	}
+
+	data, err := json.Marshal(payload)
+	if err != nil {
+		return
+	}
+
+	client := getHTTPClient(10 * time.Second)
+	req, err := http.NewRequest(http.MethodPost, reqURL, bytes.NewBuffer(data))
+	if err != nil {
+		return
+	}
+	req.Header.Set("Content-Type", "application/json")
+
+	resp, err := client.Do(req)
+	if err == nil {
 		_ = resp.Body.Close()
 	}
 }
@@ -516,6 +878,20 @@ func (m *Manager) pollLoop(ctx context.Context) {
 					Text string `json:"text"`
 					Date int64  `json:"date"`
 				} `json:"message"`
+				CallbackQuery *struct {
+					ID   string `json:"id"`
+					From *struct {
+						ID int64 `json:"id"`
+					} `json:"from"`
+					Message *struct {
+						MessageID int64 `json:"message_id"`
+						Chat      struct {
+							ID int64 `json:"id"`
+						} `json:"chat"`
+						Text string `json:"text"`
+					} `json:"message"`
+					Data string `json:"data"`
+				} `json:"callback_query"`
 			} `json:"result"`
 		}
 
@@ -534,7 +910,138 @@ func (m *Manager) pollLoop(ctx context.Context) {
 
 			if update.Message != nil && update.Message.Text != "" {
 				m.handleMessage(update.Message.Chat.ID, update.Message.Text)
+			} else if update.CallbackQuery != nil {
+				m.handleCallbackQuery(update.CallbackQuery)
 			}
+		}
+	}
+}
+
+func (m *Manager) handleCallbackQuery(cb *struct {
+	ID   string `json:"id"`
+	From *struct {
+		ID int64 `json:"id"`
+	} `json:"from"`
+	Message *struct {
+		MessageID int64 `json:"message_id"`
+		Chat      struct {
+			ID int64 `json:"id"`
+		} `json:"chat"`
+		Text string `json:"text"`
+	} `json:"message"`
+	Data string `json:"data"`
+}) {
+	if cb == nil || cb.From == nil {
+		return
+	}
+	chatID := cb.From.ID
+	if cb.Message != nil && cb.Message.Chat.ID != 0 {
+		chatID = cb.Message.Chat.ID
+	}
+
+	if !m.isChatAllowed(chatID) {
+		m.answerCallbackQuery(cb.ID, "❌ Unauthorized")
+		return
+	}
+
+	m.answerCallbackQuery(cb.ID, "")
+
+	msgID := int64(0)
+	if cb.Message != nil {
+		msgID = cb.Message.MessageID
+	}
+
+	switch cb.Data {
+	case "cb_charger_80":
+		cfg := charger.GetManager().GetStatus().Config
+		cfg.Enabled = true
+		cfg.StopPercent = 80
+		if cfg.StartPercent >= cfg.StopPercent {
+			cfg.StartPercent = 75
+		}
+		_ = charger.UpdateConfig(cfg)
+		msg, kb := buildChargerMessageAndKeyboard()
+		if msgID > 0 {
+			m.editMessageText(chatID, msgID, msg, kb)
+		} else {
+			m.sendMessageFull(chatID, msg, kb)
+		}
+
+	case "cb_charger_off":
+		cfg := charger.GetManager().GetStatus().Config
+		cfg.Enabled = false
+		_ = charger.UpdateConfig(cfg)
+		msg, kb := buildChargerMessageAndKeyboard()
+		if msgID > 0 {
+			m.editMessageText(chatID, msgID, msg, kb)
+		} else {
+			m.sendMessageFull(chatID, msg, kb)
+		}
+
+	case "cb_charger_refresh":
+		msg, kb := buildChargerMessageAndKeyboard()
+		if msgID > 0 {
+			m.editMessageText(chatID, msgID, msg, kb)
+		} else {
+			m.sendMessageFull(chatID, msg, kb)
+		}
+
+	case "cb_ssh_toggle":
+		st := ssh.GetManager().GetStatus()
+		if st.Running {
+			_ = ssh.GetManager().Stop()
+		} else {
+			_ = ssh.GetManager().Start()
+		}
+		time.Sleep(500 * time.Millisecond)
+		msg, kb := buildSSHMessageAndKeyboard()
+		if msgID > 0 {
+			m.editMessageText(chatID, msgID, msg, kb)
+		} else {
+			m.sendMessageFull(chatID, msg, kb)
+		}
+
+	case "cb_ssh_refresh":
+		msg, kb := buildSSHMessageAndKeyboard()
+		if msgID > 0 {
+			m.editMessageText(chatID, msgID, msg, kb)
+		} else {
+			m.sendMessageFull(chatID, msg, kb)
+		}
+
+	case "cb_proxy_restart":
+		if msgID > 0 {
+			m.editMessageText(chatID, msgID, "🔄 *Restarting proxy service...*", nil)
+		} else {
+			m.sendMessage(chatID, "🔄 *Restarting proxy service...*")
+		}
+		go func() {
+			err := proxy.ControlService("restart")
+			time.Sleep(1 * time.Second)
+			msg, kb := buildProxyMessageAndKeyboard()
+			if err != nil {
+				msg = fmt.Sprintf("❌ Failed to restart proxy: %v\n\n%s", err, msg)
+			}
+			m.sendMessageFull(chatID, msg, kb)
+		}()
+
+	case "cb_reboot_confirm":
+		if msgID > 0 {
+			m.editMessageText(chatID, msgID, "🔄 *Rebooting system...*", nil)
+		} else {
+			m.sendMessage(chatID, "🔄 *Rebooting system...*")
+		}
+		logger.Get().Warnf("Telegram", "Reboot confirmed from Telegram Chat ID %d", chatID)
+		go func() {
+			time.Sleep(1 * time.Second)
+			_, _ = config.ExecSuTimeout(5*time.Second, "reboot")
+		}()
+
+	case "cb_reboot_cancel":
+		if msgID > 0 {
+			m.editMessageText(chatID, msgID, "❌ Reboot dibatalkan.", nil)
+		} else {
+			m.sendMessage(chatID, "❌ Reboot dibatalkan.")
 		}
 	}
 }
@@ -547,6 +1054,26 @@ func (m *Manager) handleMessage(chatID int64, text string) {
 	}
 
 	text = strings.TrimSpace(text)
+
+	switch text {
+	case "📊 Status Sistem":
+		text = "/stats"
+	case "🔋 Battery Guard":
+		text = "/charger"
+	case "🔑 Kontrol SSH":
+		text = "/ssh"
+	case "🌐 Status Proxy":
+		text = "/proxy"
+	case "📶 Klien Hotspot":
+		text = "/hotspot"
+	case "🧩 Modul Root":
+		text = "/modules"
+	case "🌐 Cek IP Publik":
+		text = "/ip"
+	case "🔄 Refresh Menu":
+		text = "/start"
+	}
+
 	if !strings.HasPrefix(text, "/") {
 		return
 	}
@@ -558,9 +1085,131 @@ func (m *Manager) handleMessage(chatID int64, text string) {
 	}
 
 	switch cmd {
-	case "/start":
-		msg := "🤖 *BFR WebUI Telegram Bot*\n\nStatus: Online\n\n*Available Commands:*\n/stats - System diagnostics\n/reboot - Reboot device\n/tweak - Tweaks status\n/cmd <command> - Execute shell command"
+	case "/start", "/help":
+		msg := "🤖 *BFR WebUI Telegram Bot*\n\nStatus: Online\n\n*Available Commands:*\n" +
+			"/stats - System diagnostics\n" +
+			"/charger [limit N] - Battery status & limiter\n" +
+			"/ssh [start|stop] - SSH daemon control\n" +
+			"/proxy [restart] - Proxy status & restart\n" +
+			"/hotspot - Connected hotspot clients\n" +
+			"/modules - Active system modules\n" +
+			"/ip - Public IP address\n" +
+			"/tweak - Tweaks status\n" +
+			"/cmd <command> - Execute shell command\n" +
+			"/reboot - Reboot device"
+		m.sendMessageFull(chatID, msg, getMainReplyKeyboard())
+
+	case "/charger":
+		chStatus := charger.GetManager().GetStatus()
+		if len(parts) >= 2 {
+			valStr := parts[len(parts)-1]
+			if limit, err := strconv.Atoi(valStr); err == nil && limit >= 20 && limit <= 100 {
+				cfg := chStatus.Config
+				cfg.Enabled = true
+				cfg.StopPercent = limit
+				if cfg.StartPercent >= cfg.StopPercent {
+					cfg.StartPercent = cfg.StopPercent - 5
+				}
+				_ = charger.UpdateConfig(cfg)
+			}
+		}
+		msg, kb := buildChargerMessageAndKeyboard()
+		m.sendMessageFull(chatID, msg, kb)
+
+	case "/ssh":
+		if len(parts) >= 2 {
+			subCmd := strings.ToLower(parts[1])
+			if subCmd == "start" {
+				_ = ssh.GetManager().Start()
+			} else if subCmd == "stop" {
+				_ = ssh.GetManager().Stop()
+			}
+			time.Sleep(500 * time.Millisecond)
+		}
+		msg, kb := buildSSHMessageAndKeyboard()
+		m.sendMessageFull(chatID, msg, kb)
+
+	case "/proxy":
+		if len(parts) >= 2 && strings.ToLower(parts[1]) == "restart" {
+			m.sendMessage(chatID, "🔄 *Restarting proxy service...*")
+			go func() {
+				err := proxy.ControlService("restart")
+				time.Sleep(1 * time.Second)
+				msg, kb := buildProxyMessageAndKeyboard()
+				if err != nil {
+					msg = fmt.Sprintf("❌ Failed to restart proxy: %v\n\n%s", err, msg)
+				}
+				m.sendMessageFull(chatID, msg, kb)
+			}()
+			return
+		}
+		msg, kb := buildProxyMessageAndKeyboard()
+		m.sendMessageFull(chatID, msg, kb)
+
+	case "/hotspot":
+		st := hotspot.GetHotspotStatus()
+		clients, err := hotspot.GetConnectedClients()
+
+		statusStr := "Disabled 🛑"
+		if st.Enabled {
+			statusStr = "Enabled 🟢"
+		}
+
+		clientLines := []string{}
+		if err == nil && len(clients) > 0 {
+			for _, c := range clients {
+				deviceStr := c.Device
+				if deviceStr == "" {
+					deviceStr = "Unknown"
+				}
+				clientLines = append(clientLines, fmt.Sprintf("📱 *%s*\n  IP: `%s` | MAC: `%s`", deviceStr, c.IP, c.MAC))
+			}
+		} else {
+			clientLines = append(clientLines, "_No connected clients_")
+		}
+
+		msg := fmt.Sprintf("📶 *Hotspot Status*\n\n"+
+			"• *Status:* %s\n"+
+			"• *SSID:* `%s`\n"+
+			"• *Connected Clients (%d):*\n%s",
+			statusStr, st.SSID, len(clients), strings.Join(clientLines, "\n"),
+		)
 		m.sendMessage(chatID, msg)
+
+	case "/modules":
+		mods, err := modules.ListModules()
+		if err != nil {
+			m.sendMessage(chatID, fmt.Sprintf("❌ Error listing modules: %v", err))
+			return
+		}
+
+		var lines []string
+		activeCount := 0
+		for _, mod := range mods {
+			statusStr := "Disabled 🔴"
+			if mod.Enabled {
+				statusStr = "Active 🟢"
+				activeCount++
+			}
+			lines = append(lines, fmt.Sprintf("• *%s* v%s (%s)\n  ID: `%s`", mod.Name, mod.Version, statusStr, mod.ID))
+		}
+
+		if len(lines) == 0 {
+			lines = append(lines, "_No system modules found_")
+		}
+
+		msg := fmt.Sprintf("🧩 *System Modules (%d Active / %d Total)*\n\n%s",
+			activeCount, len(mods), strings.Join(lines, "\n"))
+		m.sendMessage(chatID, msg)
+
+	case "/ip":
+		m.sendMessage(chatID, "🔍 *Fetching public IP...*")
+		ip, err := fetchPublicIP()
+		if err != nil {
+			m.sendMessage(chatID, fmt.Sprintf("❌ Error fetching public IP: %v", err))
+		} else {
+			m.sendMessage(chatID, fmt.Sprintf("🌐 *Public IP Address*\n\n`%s`", ip))
+		}
 
 	case "/stats":
 		st, err := sysinfo.GetStats()
@@ -591,12 +1240,16 @@ func (m *Manager) handleMessage(chatID int64, text string) {
 		m.sendMessage(chatID, msg)
 
 	case "/reboot":
-		m.sendMessage(chatID, "🔄 *Rebooting system...*")
-		logger.Get().Warnf("Telegram", "Reboot command received from Telegram Chat ID %d", chatID)
-		go func() {
-			time.Sleep(1 * time.Second)
-			_, _ = config.ExecSuTimeout(5*time.Second, "reboot")
-		}()
+		msg := "⚠️ *Konfirmasi Reboot System*\nApakah Anda yakin ingin melakukan reboot perangkat?"
+		kb := InlineKeyboardMarkup{
+			InlineKeyboard: [][]InlineKeyboardButton{
+				{
+					{Text: "🔴 Ya, Reboot HP", CallbackData: "cb_reboot_confirm"},
+					{Text: "❌ Batal", CallbackData: "cb_reboot_cancel"},
+				},
+			},
+		}
+		m.sendMessageFull(chatID, msg, kb)
 
 	case "/tweak":
 		tweaks, err := network.LoadTweaks()

@@ -97,6 +97,31 @@
                                 <input type="checkbox" x-model="telegramData.config.notify_on_boot" class="form-checkbox h-4 w-4 text-blue-600 bg-black border-border rounded focus:ring-0" />
                                 <span class="text-gray-300">Send alert on device boot</span>
                             </label>
+
+                            <!-- Granular Notification Toggles -->
+                            <div class="border-t border-border/20 pt-3 space-y-2">
+                                <span class="text-xs font-bold text-gray-400 uppercase tracking-wider block">Granular Alert Notifications</span>
+                                <label class="flex items-center space-x-3 cursor-pointer">
+                                    <input type="checkbox" x-model="telegramData.config.notifications.battery_guard" class="form-checkbox h-4 w-4 text-blue-600 bg-black border-border rounded focus:ring-0" />
+                                    <span class="text-gray-300">Battery Guard (Limit/Charge State Alert)</span>
+                                </label>
+                                <label class="flex items-center space-x-3 cursor-pointer">
+                                    <input type="checkbox" x-model="telegramData.config.notifications.battery_overheat" class="form-checkbox h-4 w-4 text-blue-600 bg-black border-border rounded focus:ring-0" />
+                                    <span class="text-gray-300">Battery Overheat (&gt;45°C Alert)</span>
+                                </label>
+                                <label class="flex items-center space-x-3 cursor-pointer">
+                                    <input type="checkbox" x-model="telegramData.config.notifications.ssh_status" class="form-checkbox h-4 w-4 text-blue-600 bg-black border-border rounded focus:ring-0" />
+                                    <span class="text-gray-300">SSH Status Change Alert</span>
+                                </label>
+                                <label class="flex items-center space-x-3 cursor-pointer">
+                                    <input type="checkbox" x-model="telegramData.config.notifications.ip_change" class="form-checkbox h-4 w-4 text-blue-600 bg-black border-border rounded focus:ring-0" />
+                                    <span class="text-gray-300">Public IP Change Alert</span>
+                                </label>
+                                <label class="flex items-center space-x-3 cursor-pointer">
+                                    <input type="checkbox" x-model="telegramData.config.notifications.hotspot_client" class="form-checkbox h-4 w-4 text-blue-600 bg-black border-border rounded focus:ring-0" />
+                                    <span class="text-gray-300">Hotspot Connected Clients Change Alert</span>
+                                </label>
+                            </div>
                         </div>
 
                         <!-- Save Settings -->
