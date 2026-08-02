@@ -171,6 +171,14 @@ func RegisterRoutes(mux *http.ServeMux, authMgr *auth.Manager) {
 	// Backup URLs
 	mux.HandleFunc("/api/backup/export", wrap(HandleBackupExport, true))
 	mux.HandleFunc("/api/backup/import", wrap(HandleBackupImport, true))
+	mux.HandleFunc("/api/backup/cloud/config", wrap(HandleCloudBackupConfig, true))
+	mux.HandleFunc("/api/backup/cloud/sync", wrap(HandleCloudBackupSync, true))
+
+	// Speedtest URLs
+	mux.HandleFunc("/api/speedtest/start", wrap(HandleSpeedtestStart, true))
+	mux.HandleFunc("/api/speedtest/status", wrap(HandleSpeedtestStatus, true))
+	mux.HandleFunc("/api/speedtest/stop", wrap(HandleSpeedtestStop, true))
+	mux.HandleFunc("/api/speedtest/history", wrap(HandleSpeedtestHistory, true))
 
 	// SMS Viewer URLs
 	mux.HandleFunc("/api/sms/inbox", wrap(HandleSMSInbox, true))

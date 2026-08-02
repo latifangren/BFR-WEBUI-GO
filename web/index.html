@@ -66,6 +66,10 @@
 
                 {{template "tab_network.html" .}}
 
+                <template x-if="activeTab === 'speedtest'">
+                    {{template "tab_speedtest.html" .}}
+                </template>
+
                 {{template "tab_proxy.html" .}}
 
                 {{template "tab_filemanager.html" .}}
@@ -92,6 +96,8 @@
     <script src="/static/js/modules/common/common.js"></script>
     <script src="/static/js/modules/sysinfo/sysinfo.js"></script>
     <script src="/static/js/modules/network/network.js"></script>
+    <script src="/static/js/modules/speedtest/speedtest.js"></script>
+    <script src="/static/js/modules/backup/backup.js"></script>
     <script src="/static/js/modules/filemanager/filemanager.js"></script>
     <script src="/static/js/modules/proxy/proxy.js"></script>
     <script src="/static/js/modules/terminal/terminal.js"></script>

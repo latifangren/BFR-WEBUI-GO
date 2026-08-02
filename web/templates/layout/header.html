@@ -169,7 +169,7 @@
                     <!-- 🌐 Network Category Dropdown -->
                     <div class="relative flex-shrink-0" x-data="{ open: false }" @click.outside="open = false">
                         <button type="button" @click="open = !open"
-                            :class="['network', 'proxy'].includes(activeTab) ? 'bg-blue-600/30 text-blue-400 border-blue-500/50 font-bold' : 'text-gray-300 bg-card border-border hover:bg-white/5'"
+                            :class="['network', 'speedtest', 'proxy'].includes(activeTab) ? 'bg-blue-600/30 text-blue-400 border-blue-500/50 font-bold' : 'text-gray-300 bg-card border-border hover:bg-white/5'"
                             class="px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1 border whitespace-nowrap transition select-none">
                             <span>🌐 Network</span>
                             <svg class="w-3 h-3 transition-transform duration-200" :class="open ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -190,6 +190,12 @@
                                 class="w-full text-left px-3 py-2 rounded-lg text-xs flex items-center justify-between transition select-none">
                                 <span>Network & Tweaks</span>
                                 <span x-show="activeTab === 'network'" class="w-1.5 h-1.5 rounded-full bg-white"></span>
+                            </button>
+                            <button type="button" @click="activeTab = 'speedtest'; open = false"
+                                :class="activeTab === 'speedtest' ? 'bg-blue-600 text-white font-bold' : 'text-gray-300 hover:text-white hover:bg-white/5'"
+                                class="w-full text-left px-3 py-2 rounded-lg text-xs flex items-center justify-between transition select-none">
+                                <span>Speedtest Engine</span>
+                                <span x-show="activeTab === 'speedtest'" class="w-1.5 h-1.5 rounded-full bg-white"></span>
                             </button>
                             <button type="button" @click="activeTab = 'proxy'; open = false"
                                 :class="activeTab === 'proxy' ? 'bg-blue-600 text-white font-bold' : 'text-gray-300 hover:text-white hover:bg-white/5'"

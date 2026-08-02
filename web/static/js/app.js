@@ -3,6 +3,8 @@ function dashboard() {
         CommonModule,
         SysinfoModule,
         NetworkModule,
+        SpeedtestModule,
+        BackupModule,
         FilemanagerModule,
         ProxyModule,
         TerminalModule,
@@ -35,6 +37,7 @@ function dashboard() {
                     this.fetchChargerConfig();
                     this.fetchSSHStatus();
                     this.fetchTelegramStatus();
+                    this.fetchCloudConfig();
                     this.startLogsPolling();
                 }
             },
@@ -72,6 +75,7 @@ function dashboard() {
                         this.fetchChargerConfig();
                         this.fetchSSHStatus();
                         this.fetchTelegramStatus();
+                        this.fetchCloudConfig();
                         this.startLogsPolling();
                     } else {
                         this.authError = data.error || 'Invalid password';

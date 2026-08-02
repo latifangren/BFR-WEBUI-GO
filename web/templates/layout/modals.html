@@ -547,7 +547,7 @@
          x-transition:leave-start="opacity-100 scale-100"
          x-transition:leave-end="opacity-0 scale-95"
          @keydown.escape.window="showBackupModal = false">
-        <div class="bg-card border-2 border-border rounded-2xl max-w-md w-full p-6 space-y-5 shadow-2xl font-mono text-xs"
+        <div class="bg-card border-2 border-border rounded-2xl max-w-lg w-full p-6 space-y-5 shadow-2xl font-mono text-xs max-h-[90vh] overflow-y-auto custom-scrollbar"
              @click.away="showBackupModal = false">
             <div class="flex items-center justify-between border-b border-border/40 pb-3">
                 <h3 class="text-sm font-extrabold text-white uppercase tracking-wider flex items-center gap-2">
@@ -576,6 +576,69 @@
                     <button type="button" @click="importBackup()" class="w-full py-2 bg-green-600 hover:bg-green-500 text-white rounded-xl font-bold transition flex items-center justify-center gap-2 mt-2">
                         <span>📤 Restore Settings</span>
                     </button>
+                </div>
+
+                <!-- WebDAV Cloud Sync & Auto-Backup Section -->
+                <div class="bg-flat p-4 rounded-xl space-y-3 border border-border/50">
+                    <div class="flex items-center justify-between">
+                        <div class="font-extrabold text-white uppercase text-[11px] flex items-center gap-1.5">
+                            <span>☁️ WebDAV Cloud Sync</span>
+                        </div>
+                        <span class="text-[10px] font-bold px-2 py-0.5 rounded border"
+                            :class="cloudConfig.enabled ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30' : 'bg-gray-500/10 text-gray-400 border-gray-500/30'"
+                            x-text="cloudConfig.enabled ? 'Active' : 'Disabled'">
+                        </span>
+                    </div>
+                    <p class="text-[10px] text-gray-400">Sync backup configuration bundles automatically to remote WebDAV storage.</p>
+
+                    <div class="space-y-2.5 pt-1">
+                        <!-- Enable Auto-Sync Checkbox -->
+                        <label class="flex items-center gap-2 cursor-pointer select-none">
+                            <input type="checkbox" x-model="cloudConfig.enabled" class="rounded bg-black border-border text-blue-600 focus:ring-0" />
+                            <span class="text-[11px] text-gray-300 font-bold">Enable Automatic Cloud Auto-Sync</span>
+                        </label>
+
+                        <!-- WebDAV Server URL -->
+                        <div class="space-y-1">
+                            <label class="text-[10px] text-gray-400 uppercase tracking-wider font-bold">WebDAV Server URL</label>
+                            <input type="url" x-model="cloudConfig.url" placeholder="https://dav.example.com/remote.php/dav/files/user/" class="w-full bg-black border border-border rounded-xl px-3 py-2 text-xs text-white placeholder-gray-600 focus:outline-none focus:border-blue-500 transition" />
+                        </div>
+
+                        <!-- Credentials Grid -->
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                            <div class="space-y-1">
+                                <label class="text-[10px] text-gray-400 uppercase tracking-wider font-bold">Username</label>
+                                <input type="text" x-model="cloudConfig.username" placeholder="Username" class="w-full bg-black border border-border rounded-xl px-3 py-2 text-xs text-white placeholder-gray-600 focus:outline-none focus:border-blue-500 transition" />
+                            </div>
+                            <div class="space-y-1">
+                                <label class="text-[10px] text-gray-400 uppercase tracking-wider font-bold">Password</label>
+                                <input type="password" x-model="cloudConfig.password" placeholder="App Password" class="w-full bg-black border border-border rounded-xl px-3 py-2 text-xs text-white placeholder-gray-600 focus:outline-none focus:border-blue-500 transition" />
+                            </div>
+                        </div>
+
+                        <!-- Sync Interval & Last Sync Status -->
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 items-center">
+                            <div class="space-y-1">
+                                <label class="text-[10px] text-gray-400 uppercase tracking-wider font-bold">Interval (Hours)</label>
+                                <input type="number" min="1" max="168" x-model.number="cloudConfig.interval_hours" class="w-full bg-black border border-border rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-blue-500 transition" />
+                            </div>
+                            <div class="space-y-1 text-right">
+                                <div class="text-[10px] text-gray-400 uppercase tracking-wider font-bold">Last Sync</div>
+                                <div class="text-[11px] text-gray-300 font-bold truncate" x-text="cloudConfig.last_sync || 'Never'"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Cloud Action Buttons -->
+                    <div class="flex items-center gap-2 pt-2">
+                        <button type="button" @click="saveCloudConfig()" class="flex-1 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-bold transition flex items-center justify-center gap-1 text-[11px]">
+                            <span>💾 Save Cloud Settings</span>
+                        </button>
+                        <button type="button" @click="syncCloudNow()" :disabled="cloudSyncing" class="flex-1 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl font-bold transition flex items-center justify-center gap-1 text-[11px]" :class="cloudSyncing ? 'opacity-50 cursor-not-allowed' : ''">
+                            <span x-show="!cloudSyncing">🔄 Sync Now</span>
+                            <span x-show="cloudSyncing">Syncing...</span>
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
