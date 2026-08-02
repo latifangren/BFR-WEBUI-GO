@@ -17,7 +17,13 @@ func envOrDefault(key, fallback string) string {
 }
 
 // BFR_SU_BIN override for root shell invocation.
-var SUBin = envOrDefault("BFR_SU_BIN", "su")
+var SUBin = func() string {
+	defaultBin := "su"
+	if os.Getuid() == 0 {
+		defaultBin = "sh"
+	}
+	return envOrDefault("BFR_SU_BIN", defaultBin)
+}()
 
 // ExecSuContext executes a command string with root privileges using context cancellation.
 func ExecSuContext(ctx context.Context, cmdStr string) ([]byte, error) {
