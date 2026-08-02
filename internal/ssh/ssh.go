@@ -145,13 +145,11 @@ func (m *Manager) detectSshBinary() string {
 
 func ensurePasswd() {
 	_ = exec.Command(config.SUBin, "-c", "mkdir -p /data/ssh").Run()
-	// Ensure valid shells list in /etc/shells for Android
-	cmdShells := "echo '/system/bin/sh\n/bin/sh' > /data/ssh/shells && chmod 644 /data/ssh/shells && touch /etc/shells 2>/dev/null; mount -o bind /data/ssh/shells /etc/shells 2>/dev/null"
-	_ = exec.Command(config.SUBin, "-c", cmdShells).Run()
 
-	// Default root SSH password is set to "bfr" ($1$bfr$1.FhM4MshhC5l.J/w4Ztq0)
-	passwdEntry := "root:$1$bfr$1.FhM4MshhC5l.J/w4Ztq0:0:0:root:/data/local/tmp:/bin/sh"
-	cmdPasswd := fmt.Sprintf("echo '%s' > /data/ssh/passwd && chmod 644 /data/ssh/passwd && touch /etc/passwd 2>/dev/null; mount -o bind /data/ssh/passwd /etc/passwd 2>/dev/null", passwdEntry)
+	// Default root SSH password is set to "bfr" (MD5 crypt hash for "bfr" with salt "12345678")
+	// Shell /bin/sh is natively accepted by Dropbear (musl) default getusershell list.
+	passwdEntry := "root:$1$12345678$AnOalxy58Pt6NMyuN0T54.:0:0:root:/data/local/tmp:/bin/sh"
+	cmdPasswd := fmt.Sprintf("echo '%s' > /data/ssh/passwd && chmod 644 /data/ssh/passwd && mount -o bind /data/ssh/passwd /etc/passwd 2>/dev/null", passwdEntry)
 	_ = exec.Command(config.SUBin, "-c", cmdPasswd).Run()
 }
 
