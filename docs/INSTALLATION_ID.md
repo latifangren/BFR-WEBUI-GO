@@ -44,8 +44,8 @@ Jika Anda ingin memasang atau menguji binary secara manual tanpa membuat paket m
    cat << 'EOF' > /data/adb/modules/bfr_webui_go/module.prop
    id=bfr_webui_go
    name=BFR WebUI Go
-   version=v1.1.0
-   versionCode=110
+   version=v1.2.0
+   versionCode=120
    author=BFR
    description=Android System Control Panel & WebUI
    EOF
