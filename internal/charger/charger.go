@@ -17,9 +17,10 @@ import (
 )
 
 type Config struct {
-	Enabled      bool `json:"enabled"`
-	StartPercent int  `json:"start_percent"`
-	StopPercent  int  `json:"stop_percent"`
+	Enabled      bool   `json:"enabled"`
+	StartPercent int    `json:"start_percent"`
+	StopPercent  int    `json:"stop_percent"`
+	CustomPath   string `json:"custom_path"`
 }
 
 type StatusResponse struct {
@@ -45,19 +46,32 @@ var candidatePaths = []struct {
 	path string
 	typ  string
 }{
+	// Qualcomm PMIC SMB5 Main / Force FCC (Proven working on Pixel 5 / Snapdragon)
+	{"/sys/class/power_supply/main/force_main_fcc", "force_main_fcc"},
+	{"/sys/class/power_supply/main/force_main_icl", "force_main_icl"},
+	// Google Pixel 5 / Tensor / Pixel series
+	{"/sys/class/power_supply/battery/charge_limit", "charge_limit"},
+	// Standard & Qualcomm / Xiaomi / Redmi / POCO
 	{"/sys/class/power_supply/battery/charging_enabled", "charging_enabled"},
 	{"/sys/class/power_supply/battery/input_suspend", "input_suspend"},
 	{"/sys/class/power_supply/battery/charge_control_limit", "charge_control_limit"},
 	{"/sys/class/power_supply/battery/charge_control_limit_max", "charge_control_limit_max"},
-	{"/sys/class/power_supply/battery/batt_slate_mode", "batt_slate_mode"},
+	// Samsung Knox / OneUI Battery Protection
 	{"/sys/class/power_supply/battery/store_mode", "store_mode"},
+	{"/sys/class/power_supply/battery/batt_slate_mode", "batt_slate_mode"},
+	// Qualcomm PMIC SMB5 Main & USB
 	{"/sys/class/power_supply/main/charging_enabled", "charging_enabled"},
+	{"/sys/class/power_supply/main/input_suspend", "input_suspend"},
 	{"/sys/class/power_supply/bms/charging_enabled", "charging_enabled"},
-	{"/sys/class/power_supply/charger/charging_enabled", "charging_enabled"},
 	{"/sys/class/power_supply/usb/charging_enabled", "charging_enabled"},
+	{"/sys/class/power_supply/usb/input_suspend", "input_suspend"},
+	// OnePlus / OPPO / Realme / Motorola
 	{"/sys/class/power_supply/battery/mmi_charging_enable", "mmi_charging_enable"},
 	{"/sys/class/power_supply/battery/op_disable_charge", "op_disable_charge"},
 	{"/sys/class/power_supply/battery/charging_switch", "charging_switch"},
+	{"/sys/class/power_supply/battery/bd_trickle_enable", "bd_trickle_enable"},
+	// MediaTek (MTK)
+	{"/sys/class/power_supply/battery/sub_charging_enabled", "sub_charging_enabled"},
 }
 
 var (
@@ -178,6 +192,13 @@ func fileExistsAndWritable(path string) bool {
 }
 
 func (m *Manager) autoScan() {
+	if m.config.CustomPath != "" && fileExistsAndWritable(m.config.CustomPath) {
+		m.detectedPath = m.config.CustomPath
+		m.detectedType = detectTypeFromPath(m.config.CustomPath)
+		m.log(fmt.Sprintf("Using custom charging control path: %s (%s)", m.detectedPath, m.detectedType))
+		return
+	}
+
 	for _, cand := range candidatePaths {
 		if fileExistsAndWritable(cand.path) {
 			m.detectedPath = cand.path
@@ -187,6 +208,22 @@ func (m *Manager) autoScan() {
 		}
 	}
 	m.log("No writable charging control path found in sysfs scan")
+}
+
+func detectTypeFromPath(path string) string {
+	base := filepath.Base(path)
+	switch base {
+	case "force_main_fcc", "force_main_icl":
+		return base
+	case "charge_limit":
+		return "charge_limit"
+	case "charge_control_limit", "charge_control_limit_max":
+		return "charge_control_limit"
+	case "input_suspend", "op_disable_charge", "store_mode", "batt_slate_mode":
+		return base
+	default:
+		return "charging_enabled"
+	}
 }
 
 func writeSysfs(path string, val string) error {
@@ -227,10 +264,16 @@ func (m *Manager) setChargingStateLocked(disable bool) {
 
 	var enableVal, disableVal string
 	switch m.detectedType {
+	case "force_main_fcc", "force_main_icl":
+		enableVal = "1500000"
+		disableVal = "0"
+	case "charge_limit":
+		enableVal = "-1"
+		disableVal = strconv.Itoa(m.config.StopPercent)
 	case "charge_control_limit", "charge_control_limit_max":
 		enableVal = "100"
 		disableVal = strconv.Itoa(m.config.StopPercent)
-	case "input_suspend", "op_disable_charge":
+	case "input_suspend", "op_disable_charge", "store_mode", "batt_slate_mode":
 		enableVal = "0"
 		disableVal = "1"
 	default:
@@ -248,7 +291,7 @@ func (m *Manager) setChargingStateLocked(disable bool) {
 	} else {
 		m.chargingDisabled = disable
 		if disable {
-			m.log(fmt.Sprintf("Charging disabled (wrote %s to %s)", targetVal, m.detectedPath))
+			m.log(fmt.Sprintf("Charging disabled/limited (wrote %s to %s)", targetVal, m.detectedPath))
 		} else {
 			m.log(fmt.Sprintf("Charging enabled (wrote %s to %s)", targetVal, m.detectedPath))
 		}
@@ -277,13 +320,12 @@ func (m *Manager) evaluateLocked() {
 		return
 	}
 
-	// For percentage threshold kernels: write directly when enabled
-	if m.detectedType == "charge_control_limit" || m.detectedType == "charge_control_limit_max" {
+	// For percentage threshold kernels (Pixel 5 charge_limit, ROG charge_control_limit): write target percentage directly when enabled
+	if m.detectedType == "charge_limit" || m.detectedType == "charge_control_limit" || m.detectedType == "charge_control_limit_max" {
 		expectedVal := strconv.Itoa(m.config.StopPercent)
 		if !m.chargingDisabled {
 			m.setChargingStateLocked(true)
 		} else {
-			// If already set, verify we write the updated stop percent if config changed
 			_ = writeSysfs(m.detectedPath, expectedVal)
 		}
 		return
