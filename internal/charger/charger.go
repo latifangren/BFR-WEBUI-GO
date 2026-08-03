@@ -159,22 +159,17 @@ func (m *Manager) saveConfigLocked() {
 }
 
 func fileExistsAndWritable(path string) bool {
-	// Directly check if file is writable via su test
-	cmd := exec.Command(config.SUBin, "-c", fmt.Sprintf("test -w %s && echo 1 || echo 0", path))
-	out, err := cmd.Output()
-	if err == nil && strings.TrimSpace(string(out)) == "1" {
-		return true
+	if path == "" {
+		return false
 	}
-	// Direct fallback using su sh syntax
-	cmd2 := exec.Command(config.SUBin, "-c", fmt.Sprintf("echo 1 > /dev/null; [ -w %s ] && echo 1 || echo 0", path))
-	out2, err2 := cmd2.Output()
-	if err2 == nil && strings.TrimSpace(string(out2)) == "1" {
-		return true
-	}
-	// Fallback to direct os package open check
-	file, err := os.OpenFile(path, os.O_WRONLY, 0644)
+	f, err := os.OpenFile(path, os.O_WRONLY, 0666)
 	if err == nil {
-		file.Close()
+		f.Close()
+		return true
+	}
+	// Fallback check if running under root su
+	out, err := exec.Command(config.SUBin, "-c", fmt.Sprintf("test -w %s && echo 1 || echo 0", path)).Output()
+	if err == nil && strings.TrimSpace(string(out)) == "1" {
 		return true
 	}
 	return false
@@ -196,6 +191,32 @@ func (m *Manager) autoScan() {
 			return
 		}
 	}
+
+	// Dynamic sysfs fallback scanner if static candidatePaths missing
+	psDir := "/sys/class/power_supply"
+	if entries, err := os.ReadDir(psDir); err == nil {
+		keywords := []string{"charging", "suspend", "limit", "fcc", "store_mode", "switch"}
+		for _, entry := range entries {
+			subPath := filepath.Join(psDir, entry.Name())
+			if files, err := os.ReadDir(subPath); err == nil {
+				for _, f := range files {
+					name := strings.ToLower(f.Name())
+					for _, kw := range keywords {
+						if strings.Contains(name, kw) {
+							fullPath := filepath.Join(subPath, f.Name())
+							if fileExistsAndWritable(fullPath) {
+								m.detectedPath = fullPath
+								m.detectedType = detectTypeFromPath(fullPath)
+								m.log(fmt.Sprintf("Dynamic auto-scanned charging control path: %s (%s)", fullPath, m.detectedType))
+								return
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
 	m.log("No writable charging control path found in sysfs scan")
 }
 

@@ -322,6 +322,11 @@ func (m *Manager) Start() error {
 }
 
 func (m *Manager) startDaemonLoop(ctx context.Context, token string) {
+	defer func() {
+		if r := recover(); r != nil {
+			logger.Get().Errorf("Telegram", "Recovered from startDaemonLoop panic: %v", r)
+		}
+	}()
 	var botName string
 	var err error
 
@@ -386,6 +391,11 @@ func fetchPublicIP() (string, error) {
 }
 
 func (m *Manager) startNotificationWorker(ctx context.Context) {
+	defer func() {
+		if r := recover(); r != nil {
+			logger.Get().Errorf("Telegram", "Recovered from startNotificationWorker panic: %v", r)
+		}
+	}()
 	ticker := time.NewTicker(15 * time.Second)
 	defer ticker.Stop()
 
@@ -803,6 +813,11 @@ func NotifyBattery(message string) {
 }
 
 func (m *Manager) pollLoop(ctx context.Context) {
+	defer func() {
+		if r := recover(); r != nil {
+			logger.Get().Errorf("Telegram", "Recovered from pollLoop panic: %v", r)
+		}
+	}()
 	var offset int64 = 0
 	client := getHTTPClient(35 * time.Second)
 

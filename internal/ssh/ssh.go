@@ -231,6 +231,12 @@ func (m *Manager) SaveConfig(cfg Config) (StatusResponse, error) {
 }
 
 func (m *Manager) Start() error {
+	defer func() {
+		if r := recover(); r != nil {
+			logger.Get().Errorf("ssh", "Recovered from SSH Start panic: %v", r)
+		}
+	}()
+
 	m.mu.Lock()
 	defer m.mu.Unlock()
 
@@ -292,6 +298,12 @@ func (m *Manager) Start() error {
 }
 
 func (m *Manager) Stop() error {
+	defer func() {
+		if r := recover(); r != nil {
+			logger.Get().Errorf("ssh", "Recovered from SSH Stop panic: %v", r)
+		}
+	}()
+
 	m.mu.Lock()
 	defer m.mu.Unlock()
 

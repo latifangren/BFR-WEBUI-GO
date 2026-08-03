@@ -1,4 +1,4 @@
-const CACHE_NAME = 'bfr-webui-v1';
+const CACHE_NAME = 'bfr-webui-v1.2.0-b4';
 const STATIC_ASSETS = [
   '/',
   '/index.html',
@@ -52,7 +52,23 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Stale-while-revalidate / Cache-first for static assets
+  // Network-First for HTML navigation / index pages to ensure fresh UI templates
+  if (event.request.mode === 'navigate' || url.pathname === '/' || url.pathname === '/index.html') {
+    event.respondWith(
+      fetch(event.request).then((networkResponse) => {
+        if (networkResponse && networkResponse.status === 200) {
+          const responseToCache = networkResponse.clone();
+          caches.open(CACHE_NAME).then((cache) => cache.put(event.request, responseToCache));
+        }
+        return networkResponse;
+      }).catch(() => {
+        return caches.match(event.request);
+      })
+    );
+    return;
+  }
+
+  // Stale-while-revalidate for static JS/CSS assets
   event.respondWith(
     caches.match(event.request).then((cachedResponse) => {
       if (cachedResponse) {

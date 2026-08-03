@@ -143,6 +143,10 @@ var (
 	networkDetailCache   NetworkDetail
 	networkDetailCacheAt time.Time
 	networkDetailCacheMu sync.Mutex
+
+	statsCacheMu   sync.RWMutex
+	cachedStats    Stats
+	lastStatsCache time.Time
 )
 
 func init() {
@@ -152,6 +156,30 @@ func init() {
 }
 
 func GetStats() (Stats, error) {
+	statsCacheMu.RLock()
+	if !lastStatsCache.IsZero() && time.Since(lastStatsCache) < 750*time.Millisecond {
+		s := cachedStats
+		statsCacheMu.RUnlock()
+		return s, nil
+	}
+	statsCacheMu.RUnlock()
+
+	statsCacheMu.Lock()
+	defer statsCacheMu.Unlock()
+
+	if !lastStatsCache.IsZero() && time.Since(lastStatsCache) < 750*time.Millisecond {
+		return cachedStats, nil
+	}
+
+	s, err := buildStats()
+	if err == nil {
+		cachedStats = s
+		lastStatsCache = time.Now()
+	}
+	return s, err
+}
+
+func buildStats() (Stats, error) {
 	var s Stats
 
 	overallUsage, cores := getCPUStats()

@@ -103,11 +103,60 @@ func runWatchdog() {
 	}
 }
 
+func getCandidateCorePaths() []string {
+	paths := make([]string, len(possibleCores))
+	copy(paths, possibleCores)
+
+	seen := make(map[string]bool)
+	for _, p := range paths {
+		seen[p] = true
+	}
+
+	// 1. Dynamic PATH lookup
+	for _, coreName := range []string{"mihomo", "clash"} {
+		if path, err := exec.LookPath(coreName); err == nil && path != "" {
+			if !seen[path] {
+				seen[path] = true
+				paths = append(paths, path)
+			}
+		}
+	}
+
+	// 2. Scan Magisk / Root modules directory for bin/mihomo and bin/clash
+	modulesDir := "/data/adb/modules"
+	if entries, err := os.ReadDir(modulesDir); err == nil {
+		for _, entry := range entries {
+			if !entry.IsDir() {
+				continue
+			}
+			for _, coreName := range []string{"mihomo", "clash"} {
+				candPath := filepath.Join(modulesDir, entry.Name(), "bin", coreName)
+				if !seen[candPath] {
+					if _, err := os.Stat(candPath); err == nil {
+						seen[candPath] = true
+						paths = append(paths, candPath)
+					}
+				}
+			}
+		}
+	}
+
+	return paths
+}
+
 func DetectCores() []CoreInfo {
 	var list []CoreInfo
-	for _, p := range possibleCores {
+	paths := getCandidateCorePaths()
+	seenPaths := make(map[string]bool)
+
+	for _, p := range paths {
+		if seenPaths[p] {
+			continue
+		}
+		seenPaths[p] = true
+
 		name := "mihomo"
-		if strings.Contains(p, "clash") {
+		if strings.Contains(strings.ToLower(p), "clash") {
 			name = "clash"
 		}
 		info := CoreInfo{

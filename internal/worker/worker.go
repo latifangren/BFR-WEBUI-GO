@@ -2,6 +2,8 @@ package worker
 
 import (
 	"sync"
+
+	"bfr-webui-go/internal/logger"
 )
 
 type Pool struct {
@@ -23,7 +25,14 @@ func (p *Pool) start(numWorkers int) {
 			go func() {
 				for task := range p.queue {
 					if task != nil {
-						task()
+						func() {
+							defer func() {
+								if r := recover(); r != nil {
+									logger.Get().Errorf("Worker", "Recovered from background worker panic: %v", r)
+								}
+							}()
+							task()
+						}()
 					}
 				}
 			}()
@@ -39,7 +48,14 @@ func Submit(fn func()) {
 	select {
 	case globalPool.queue <- fn:
 	default:
-		// Queue full, execute in background goroutine as fallback
-		go fn()
+		// Queue full, execute in background goroutine as fallback with panic recovery
+		go func() {
+			defer func() {
+				if r := recover(); r != nil {
+					logger.Get().Errorf("Worker", "Recovered from fallback background worker panic: %v", r)
+				}
+			}()
+			fn()
+		}()
 	}
 }

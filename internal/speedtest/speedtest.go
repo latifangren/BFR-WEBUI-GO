@@ -60,6 +60,13 @@ type Manager struct {
 var (
 	globalManager *Manager
 	once          sync.Once
+
+	bufferPool = sync.Pool{
+		New: func() interface{} {
+			buf := make([]byte, 32768)
+			return &buf
+		},
+	}
 )
 
 func getSpeedtestHTTPClient(timeout time.Duration) *http.Client {
@@ -461,7 +468,9 @@ func (m *Manager) runTest(ctx context.Context) {
 		dlWg.Add(1)
 		go func(workerID int) {
 			defer dlWg.Done()
-			buf := make([]byte, 32768)
+			bufPtr := bufferPool.Get().(*[]byte)
+			defer bufferPool.Put(bufPtr)
+			buf := *bufPtr
 			urlIdx := workerID % len(downloadURLs)
 
 			for {
