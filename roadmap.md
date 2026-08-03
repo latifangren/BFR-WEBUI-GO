@@ -1,57 +1,48 @@
 # Roadmap Pengembangan BFR-WEBUI-GO
 
-Dokumen ini memetakan rencana peningkatan dan pengembangan untuk panel kontrol sistem Android `BFR-WEBUI-GO` yang terintegrasi (Magisk / KernelSU / APatch). Rencana ini berfokus pada efisiensi daya, performa, kemudahan penggunaan, dan keamanan.
+Dokumen ini memetakan rencana peningkatan dan peta jalan pengembangan (*development roadmap*) untuk panel kontrol sistem Android **BFR-WEBUI-GO** (Magisk / KernelSU / APatch).
 
 ---
 
-## 1. Performa & Efisiensi Sumber Daya
-* **[x] `sync.Pool` Memory Buffer Reuse**: Gunakan `sync.Pool` untuk pooling buffer `bytes.Buffer` atau slice byte pada penanganan upload/download file berukuran besar serta terminal WebSocket PTY untuk membatasi overhead Garbage Collector (GC) pada RAM Android rendah (2GB/3GB).
-* **[x] Direct `/proc` & `/sys` Reading**: Hindari pemanggilan subprocess `su -c cat ...` pada berkas-berkas sysfs/procfs yang sebenarnya bisa dibaca langsung tanpa permission root khusus (misal: `/proc/meminfo`, `/proc/net/dev`) menggunakan `os.ReadFile` atau pembacaan `/proc/[pid]/comm`.
-* **[x] Adaptive Frame Throttling untuk Scrcpy**: Lakukan pemantauan throughput WebSocket secara real-time pada stream Scrcpy screen capture, secara dinamis melompati frame (frame skipping) saat koneksi terdeteksi lambat atau jenuh.
+## 🌟 1. Fitur Utama Tingkat Lanjut (Proposed Go-Powered Advanced Features)
+
+Berikut adalah 5 fitur tingkat lanjut berbasis kekuatan biner native Go yang ditempatkan pada urutan teratas peta jalan pengembangan:
+
+* **[ ] 📡 Cellular Modem AT Controller & Band Locking (4G/5G)**: Interaksi langsung dengan port serial modem (`/dev/ttyUSB*`, `/dev/smd*`, `/dev/atcmd*`) untuk menampilkan metrik seluler presisi (*RSRP, RSRQ, SINR, Cell ID, Active Band*) serta fitur **Band Locking** (mengunci frekuensi LTE/5G tertentu langsung dari WebUI).
+* **[ ] 💿 Dynamic USB Gadget Emulator (ISO Mount to PC & Virtual HID Input)**: Kontrol modul USB Gadget (`configfs`) dari WebUI untuk melakukan mount file `.iso` di HP sebagai bootable USB CD-ROM / Flashdisk ke PC (DriveDroid-style) serta emulasi keyboard/mouse USB virtual nirkabel.
+* **[ ] 💬 Telegram Remote SMS OTP Auto-Forwarder & Dialer Listener**: Pemantauan database SMS SQLite sistem secara *event-driven* di latar belakang untuk mengekstrak kode OTP/token verifikasi dan meneruskannya otomatis ke Bot Telegram dalam waktu <1 detik dengan *0% wakelock* baterai.
+* **[ ] 📈 Real-Time Traffic DPI (Deep Packet Inspection) & App Bandwidth Throttler**: Penyadapan paket data per-aplikasi (`nfqueue` / raw socket) dengan tampilan grafik pemakaian kuota real-time via WebSocket serta pembatasan kecepatan (*bandwidth limiter*) per-aplikasi/IP.
+* **[ ] ⚡ Event-Driven Smart Thermal & System Governor Tuning**: Penyesuaian frekuensi/governor CPU dinamis berbasis deteksi sentuhan layar (`/dev/input/`) atau frame rate rendering (`surfaceflinger`) tanpa *polling loop* untuk menghemat baterai.
 
 ---
 
-## 2. Arsitektur & Desain Kode
-* **[x] Root Command Executor Terpusat**: Sediakan helper `ExecSuContext(ctx, cmdStr)` dengan limit timeout default (maksimal 3-5 detik) menggunakan `context.WithTimeout` untuk mencegah penumpukan proses zombie/deadlock jika perintah sistem Android tidak merespons.
-* **[x] Background Task Manager (Worker Pool)**: Implementasikan antrean tugas berbasis Go Channel untuk menangani operasi berat secara asinkron seperti kompresi/ekstraksi ZIP berukuran besar, speedtest, dan batch file operations.
-* **[x] Isolasi Tweak Konfigurasi**: Pastikan semua perubahan sysctl dan kernel tweaks terisolasi ke file JSON tweaks eksternal tanpa ada penulisan baris perintah statis di kode handler.
+## 🛠️ 2. Peta Jalan Optimasi Teknis & Performa (v1.3.0+)
+
+* **[ ] 🔴 Eliminasi Overhead Subshell Shell Root (`internal/charger/charger.go`)**: Mengganti eksekusi shell `su -c test -w` saat memindai izin charging dengan panggilan native Go `os.OpenFile` / `unix.Access` untuk menghemat ~10–20ms per pemanggilan dan mengeliminasi *context switch* CPU.
+* **[ ] 🔴 Universal Panic Recovery Middleware (`internal/worker/worker.go`)**: Menambahkan `defer recover()` pada goroutine latar belakang (`worker.go`, `bot.go`, `ssh.go`) agar kesalahan format sysfs kernel HP tidak pernah memicu *crash* biner utama.
+* **[ ] 🔴 In-Memory 750ms TTL Cache `/proc` (`internal/sysinfo/sysinfo.go`)**: Menambahkan in-memory TTL cache 750ms pada `GetStats()` untuk menghilangkan I/O berkas `/proc` berulang saat browser melakukan polling cepat.
+* **[ ] 🟡 Pemindai Sysfs Charger Dinamis (`internal/charger/charger.go`)**: Pemindaian otomatis direktori `/sys/class/power_supply/*/` berdasarkan kata kunci charging jika jalur kandidat statis tidak ditemukan.
+* **[ ] 🟡 Pencarian Dinamis Core Proxy `$PATH` & Modul (`internal/proxy/proxy.go`)**: Pencarian biner `mihomo`/`clash` secara dinamis via `exec.LookPath()` dan direktori modul Magisk/KSU.
+* **[ ] 🟡 Daur Ulang Buffer `sync.Pool` Speedtest (`internal/speedtest/speedtest.go`)**: Menggunakan `sync.Pool` buffer 32KB pada worker loop speedtest untuk menghemat alokasi *Garbage Collector* (GC).
 
 ---
 
-## 3. UI/UX & Pengalaman Developer (DX)
-* **[x] PWA (Progressive Web App) Support**: Tambahkan registrasi Service Worker (`sw.js`) dan berkas `manifest.json`. Memungkinkan pemasangan aplikasi panel kontrol ini langsung ke Android Home Screen dengan tampilan khas standalone app.
-* **[x] Global Toast Notification Engine**: Ganti alert standar menggunakan sistem notifikasi toast dinamis berbasis Alpine.js store dengan transisi visual yang mulus.
-* **[x] Embedded OpenAPI / Swagger UI**: Sediakan antarmuka dokumentasi API interaktif (Scalar UI atau Swagger UI) pada rute `/docs` untuk memudahkan integrasi script otomatisasi pihak ketiga.
+## ✅ 3. Fitur Terpasang & Catatan Rilis (v1.2.0 Completed Checklist)
+
+* **[x] Direktori Storage Persisten (`/data/adb/bfr_webui_go/data/`)**: Penyimpanan seluruh berkas konfigurasi & data di direktori khusus yang 100% aman dari terhapus saat modul di-update.
+* **[x] Enkripsi Password & API Ganti Password (`auth.json`)**: Penyimpanan password Salted SHA-256 Hash, endpoint REST `POST /api/auth/change-password`, `GET /api/auth/status`, dan badge quick-fill login adaptif.
+* **[x] Navigasi Mobile 5-Kolom Grid & Slide-Up Bottom Sheet Modal**: Desain navigasi bawah 5-kolom responsif dengan panel bottom sheet melayang (`z-[999]`).
+* **[x] Floating Navigation Toggle (`🧭 Nav`) & Mode Full-Screen Mobile**: Fitur menyembunyikan navbar bawah (`Hide ✕`) menjadi tombol floating pill ringkas untuk tampilan 100% full-screen.
+* **[x] Tabbed Settings Modal 3-Tab**: Redesain modal Settings menjadi 3 Tab ringkas (📦 **Backup & Restore**, 🔐 **Security**, ☁️ **Cloud Sync**) lengkap dengan tombol `Close ✕` footer.
+* **[x] URL Hash Tab Persistence (`#tab`) & Support Tombol Back Hardware HP**: Sinkronisasi URL fragment `#tab` sehingga refresh browser tetap di tab terakhir dan tombol *Back* fisik HP bernavigasi antar tab secara mulus.
+* **[x] Dynamic Storage Usage Bar**: Indikator persentase memori dengan segmen warna *Used (Amber)* dan *Free (Hijau)* yang terisi secara presisi.
+* **[x] Redesain Halaman Login Neo-Brutalist Glassmorphism**: Tampilan login card modern dengan badge info perangkat, toggle mata password, dan logo sosmed lokal 100% offline (Telegram, Facebook, GitHub).
+* **[x] PWA Service Worker Cache Buster (`sw.js`)**: Pembaruan tembolok `bfr-webui-v1.2.0-b4` dengan strategi *Network-First* untuk dokumen HTML.
+* **[x] Native Speedtest Engine & WebDAV Cloud Sync**: Pengujian kecepatan internet multi-thread Go murni dengan trace lokasi/ISP/Colo serta pengunggah otomatis WebDAV.
+* **[x] LuCI OpenWrt Category Dropdown Navigation (Desktop)**: Navigasi header desktop 5 kategori (**Status ▾**, **System ▾**, **Services ▾**, **Network ▾**, **Extras ▾**).
+* **[x] Universal Hardware Smart Charger Limiter**: Pemutus arus fisik Qualcomm PMIC (`force_main_fcc` 0 mA) pada Google Pixel 5 & HP Snapdragon.
+* **[x] Modul Sistem Utama**: Native Root Web Terminal (PTY), Scrcpy Screen Mirroring, SoftAP Hotspot Controller, Vnstat Bandwidth Tracker, & Live Logcat Stream.
 
 ---
 
-## 4. Fitur & Integrasi Sistem Android
-* **[x] Module Manager (Magisk / KernelSU / APatch)**: Tambahkan API `/api/modules` untuk mengelola modul root terpasang: melihat detail modul, mengaktifkan/menonaktifkan modul via berkas `disable`, serta upload file `.zip` modul untuk diinstal di latar belakang menggunakan `magisk --install-module`.
-* **[x] Live Logcat Stream**: Sediakan streaming log sistem Android secara real-time menggunakan Server-Sent Events (SSE) atau WebSocket lengkap dengan opsi pencarian kata kunci dan filter log level (Debug, Info, Warn, Error).
-* **[x] Thermal & CPU Governor Tweak**: Panel kontrol frekuensi CPU dan modul manager governor untuk mengubah mode scaling CPU secara instan (Performance, Schedutil, Powersave) langsung dari WebUI.
-* **[x] Konfigurasi Backup & Restore**: Ekspor dan impor seluruh file konfigurasi (`charger_config.json`, `ssh_config.json`, tweaks, proxy rules) menjadi satu berkas kompresi `.tar.gz` portabel (diimplementasikan via kompresi JSON bundle).
-
----
-
-## 5. Keamanan & Pengerasan Sistem (Security & Hardening)
-* **Header-Based Anti-CSRF Defense**: Wajibkan verifikasi header khusus (`X-BFR-Request: 1`) pada seluruh request modifikasi (`POST`/`PUT`/`DELETE`). Skema ini mengeliminasi celah CSRF tanpa memerlukan manajemen token sesi yang rumit di sisi server.
-* **Rate Limiting Middleware**: Batasi jumlah percobaan login pada rute `/api/auth/login` menggunakan algoritma *token bucket* per IP klien untuk menghadang upaya serangan *brute-force* pada antarmuka hotspot publik.
-* **Optional HTTPS/TLS Support**: Dukungan opsional untuk mengaktifkan server HTTPS dengan memasukkan flag sertifikat TLS (`-cert`, `-key`) saat binary dijalankan.
-* **Sistem Audit Log**: Catat aktivitas kritis perangkat (gagal login, eksekusi root command, perubahan file sistem, reboot) secara terpusat ke `/data/adb/modules/bfr_webui_go/security_audit.log` yang persisten lintas reboot.
-
----
-
-## 6. Fitur Unggulan Native Go (Go-Powered Extensions)
-
-### 🟢 Easy (Pengembangan Cepat & Tanpa Dependency Luar)
-* **[ ] Native Speedtest & Bandwidth Stress Tester Engine**: Modul pengujian kecepatan internet (Download, Upload, Latency, Jitter) multi-thread berbasis HTTP Go murni tanpa membutuhkan biner eksternal (`curl`/`iperf3`).
-* **[ ] Cloud Backup & Config Sync**: Pengunggahan otomatis berkas kompresi konfigurasi terenkripsi (`charger`, `ssh`, `telegram`, `tweaks`) ke server WebDAV/Cloud pribadi secara berkala.
-
-### 🟡 Medium (Integrasi Package Go Standard & Procfs)
-* **[ ] WebDAV Local Cloud / Network Drive**: Integrasi `golang.org/x/net/webdav` untuk menyajikan folder Android sebagai **Network Drive (Drive Z:)** di Windows File Explorer atau Mac Finder secara nirkabel via Wi-Fi (RAM < 5MB).
-* **[ ] Real-Time Network Packet & App Traffic Analyzer**: Penguraian statistik pemakaian kuota internet per-antarmuka jaringan (`wlan0`/`rmnet`) dan monitoring alokasi data jaringan secara real-time.
-
----
-
-## 7. Backlog Masa Depan (Future Enhancements)
-* **[ ] Remote Device Hardware Telemetry & Thermal Graphing**: Streaming grafik sensor temperatur CPU/GPU, frekuensi per-core, dan penggunaan RAM secara live (interval 100ms) menggunakan WebSocket tanpa overhead CPU.
+*Terakhir diperbarui: 4 Agustus 2026*
