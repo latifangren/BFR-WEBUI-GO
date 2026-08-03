@@ -39,12 +39,7 @@ var (
 )
 
 func getCloudStoragePath() string {
-	magiskDir := config.ModuleDir
-	magiskPath := filepath.Join(magiskDir, "cloud_config.json")
-	if _, err := os.Stat(magiskDir); err == nil {
-		return magiskPath
-	}
-	return "cloud_config.json"
+	return config.GetPersistentFilePath("cloud_config.json")
 }
 
 func GetCloudManager() *CloudManager {

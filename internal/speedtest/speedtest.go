@@ -11,11 +11,14 @@ import (
 	"math"
 	"net"
 	"net/http"
+	"os"
+	"path/filepath"
 	"strings"
 	"sync"
 	"sync/atomic"
 	"time"
 
+	"bfr-webui-go/internal/config"
 	"bfr-webui-go/internal/logger"
 )
 
@@ -48,6 +51,7 @@ type HistoryEntry struct {
 
 type Manager struct {
 	mu         sync.RWMutex
+	dataPath   string
 	result     SpeedtestResult
 	history    []HistoryEntry
 	cancelFunc context.CancelFunc
@@ -248,16 +252,42 @@ func fetchClientAndISPInfo(ctx context.Context, client *http.Client) (clientIP, 
 	return
 }
 
+func getStoragePath() string {
+	return config.GetPersistentFilePath("speedtest_history.json")
+}
+
 func GetManager() *Manager {
 	once.Do(func() {
 		globalManager = &Manager{
+			dataPath: getStoragePath(),
 			result: SpeedtestResult{
 				Phase: "idle",
 			},
 			history: []HistoryEntry{},
 		}
+		globalManager.loadHistory()
 	})
 	return globalManager
+}
+
+func (m *Manager) loadHistory() {
+	if data, err := os.ReadFile(m.dataPath); err == nil {
+		data = bytes.TrimPrefix(data, []byte("\xef\xbb\xbf"))
+		var hist []HistoryEntry
+		if err := json.Unmarshal(data, &hist); err == nil {
+			m.history = hist
+		}
+	}
+}
+
+func (m *Manager) saveHistoryLocked() {
+	data, err := json.MarshalIndent(m.history, "", "  ")
+	if err != nil {
+		return
+	}
+	dir := filepath.Dir(m.dataPath)
+	_ = os.MkdirAll(dir, 0755)
+	_ = os.WriteFile(m.dataPath, data, 0644)
 }
 
 func (m *Manager) GetStatus() SpeedtestResult {
@@ -612,6 +642,7 @@ UL_FINISHED:
 	if len(m.history) > 20 {
 		m.history = m.history[len(m.history)-20:]
 	}
+	m.saveHistoryLocked()
 	m.mu.Unlock()
 
 	logger.Get().Infof("speedtest", "Speedtest completed: Ping=%.1fms, Down=%.2fMbps, Up=%.2fMbps, ISP=%s, Server=%s",

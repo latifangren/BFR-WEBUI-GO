@@ -80,18 +80,7 @@ var (
 )
 
 func getStoragePath() string {
-	magiskDir := config.ModuleDir
-	magiskPath := filepath.Join(magiskDir, "charger_config.json")
-	if _, err := os.Stat(magiskDir); err == nil {
-		return magiskPath
-	}
-	if _, err := os.Stat(magiskPath); err == nil {
-		return magiskPath
-	}
-	if _, err := os.Stat("charger_config.json"); err == nil {
-		return "charger_config.json"
-	}
-	return magiskPath
+	return config.GetPersistentFilePath("charger_config.json")
 }
 
 func newManager() *Manager {

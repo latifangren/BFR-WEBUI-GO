@@ -87,6 +87,7 @@ func RegisterRoutes(mux *http.ServeMux, authMgr *auth.Manager) {
 	mux.HandleFunc("/api/auth/status", wrap(authH.Status, false))
 	mux.HandleFunc("/api/auth/login", wrap(authH.Login, false))
 	mux.HandleFunc("/api/auth/logout", wrap(authH.Logout, false))
+	mux.HandleFunc("/api/auth/change-password", wrap(authH.ChangePassword, true))
 
 	// Sysinfo URLs
 	mux.HandleFunc("/api/stats", wrap(HandleSysinfo, true))

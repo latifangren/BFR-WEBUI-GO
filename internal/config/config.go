@@ -4,6 +4,7 @@ import (
 	"context"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"strings"
 	"time"
 )
@@ -63,3 +64,48 @@ var AllowedDirs = func() []string {
 	}
 	return []string{"/sdcard", "/storage", "/data/adb", "/data/local/tmp", "/data/system"}
 }()
+
+// GetPersistentDataDir returns the target directory path for persistent application data.
+func GetPersistentDataDir() string {
+	if val := os.Getenv("BFR_DATA_DIR"); val != "" {
+		_ = os.MkdirAll(val, 0755)
+		return val
+	}
+
+	dir := "/data/adb/bfr_webui_go/data"
+	if _, err := os.Stat("/data/adb"); os.IsNotExist(err) {
+		if ModuleDir != "" {
+			dir = filepath.Join(ModuleDir, "data")
+		} else {
+			dir = "data"
+		}
+	}
+
+	_ = os.MkdirAll(dir, 0755)
+	return dir
+}
+
+// GetPersistentFilePath returns the path for a named file in the persistent data dir
+// and automatically migrates legacy config files if found.
+func GetPersistentFilePath(filename string) string {
+	targetDir := GetPersistentDataDir()
+	targetPath := filepath.Join(targetDir, filename)
+
+	if _, err := os.Stat(targetPath); os.IsNotExist(err) {
+		legacyPaths := []string{
+			filepath.Join(ModuleDir, filename),
+			filename,
+		}
+		for _, legacyPath := range legacyPaths {
+			if legacyPath == targetPath {
+				continue
+			}
+			if data, err := os.ReadFile(legacyPath); err == nil && len(data) > 0 {
+				_ = os.WriteFile(targetPath, data, 0644)
+				break
+			}
+		}
+	}
+
+	return targetPath
+}

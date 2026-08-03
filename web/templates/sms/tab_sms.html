@@ -1,7 +1,7 @@
 {{define "tab_sms.html"}}
                 <!-- TAB 7: SMS VIEWER -->
                 <div x-show="activeTab === 'sms'" class="space-y-6">
-                    <div class="bg-card border border-border rounded-2xl p-6 space-y-5">
+                    <div class="bg-card border border-border rounded-2xl p-4 sm:p-6 space-y-5 pb-24 md:pb-6">
                         <!-- Top Toolbar / Header & Search -->
                         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                             <div>
@@ -13,8 +13,8 @@
                             </div>
 
                             <!-- Search Bar -->
-                            <form @submit.prevent="fetchSMS(true)" class="flex items-center gap-2 font-mono">
-                                <div class="relative flex-1 sm:w-72">
+                            <form @submit.prevent="fetchSMS(true)" class="flex flex-wrap sm:flex-nowrap items-center gap-2 font-mono">
+                                <div class="relative flex-1 min-w-[180px] sm:w-72">
                                     <input type="text" x-model="smsSearchQuery" placeholder="Search OTP, Gojek, Grab, Bank, number..." class="w-full bg-black border border-border rounded-xl px-3 py-2 text-xs text-white placeholder-gray-500 focus:outline-none focus:border-blue-500" />
                                 </div>
                                 <button type="submit" class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-bold transition flex items-center gap-1">
@@ -28,12 +28,12 @@
 
                         <!-- Quick OTP Keyword Chips -->
                         <div class="flex items-center space-x-2 text-xs font-mono overflow-x-auto custom-scrollbar pb-1">
-                            <span class="text-gray-500 font-bold uppercase text-[10px]">Filter Presets:</span>
-                            <button type="button" @click="smsSearchQuery = 'OTP'; fetchSMS(true)" class="px-2.5 py-1 bg-black border border-border rounded-lg text-amber-400 hover:border-amber-500/50 font-mono">OTP</button>
-                            <button type="button" @click="smsSearchQuery = 'Gojek'; fetchSMS(true)" class="px-2.5 py-1 bg-black border border-border rounded-lg text-green-400 hover:border-green-500/50 font-mono">Gojek</button>
-                            <button type="button" @click="smsSearchQuery = 'Grab'; fetchSMS(true)" class="px-2.5 py-1 bg-black border border-border rounded-lg text-green-400 hover:border-green-500/50 font-mono">Grab</button>
-                            <button type="button" @click="smsSearchQuery = 'Bank'; fetchSMS(true)" class="px-2.5 py-1 bg-black border border-border rounded-lg text-blue-400 hover:border-blue-500/50 font-mono">Banking</button>
-                            <button type="button" @click="smsSearchQuery = 'kode'; fetchSMS(true)" class="px-2.5 py-1 bg-black border border-border rounded-lg text-purple-400 hover:border-purple-500/50 font-mono">Kode Verifikasi</button>
+                            <span class="text-gray-500 font-bold uppercase text-[10px] shrink-0">Filter Presets:</span>
+                            <button type="button" @click="smsSearchQuery = 'OTP'; fetchSMS(true)" class="px-2.5 py-1 bg-black border border-border rounded-lg text-amber-400 hover:border-amber-500/50 font-mono shrink-0">OTP</button>
+                            <button type="button" @click="smsSearchQuery = 'Gojek'; fetchSMS(true)" class="px-2.5 py-1 bg-black border border-border rounded-lg text-green-400 hover:border-green-500/50 font-mono shrink-0">Gojek</button>
+                            <button type="button" @click="smsSearchQuery = 'Grab'; fetchSMS(true)" class="px-2.5 py-1 bg-black border border-border rounded-lg text-green-400 hover:border-green-500/50 font-mono shrink-0">Grab</button>
+                            <button type="button" @click="smsSearchQuery = 'Bank'; fetchSMS(true)" class="px-2.5 py-1 bg-black border border-border rounded-lg text-blue-400 hover:border-blue-500/50 font-mono shrink-0">Banking</button>
+                            <button type="button" @click="smsSearchQuery = 'kode'; fetchSMS(true)" class="px-2.5 py-1 bg-black border border-border rounded-lg text-purple-400 hover:border-purple-500/50 font-mono shrink-0">Kode Verifikasi</button>
                         </div>
 
                         <!-- Loading State -->
@@ -41,41 +41,35 @@
                             Loading telephony database...
                         </div>
 
-                        <!-- Messages Table -->
-                        <div x-show="!isLoadingSms" class="bg-flat rounded-xl overflow-hidden font-mono text-xs">
-                            <table class="w-full text-left border-collapse">
-                                <thead class="bg-gray-900/60 text-gray-400 border-b border-border">
-                                    <tr>
-                                        <th class="p-3 w-36">Sender / Address</th>
-                                        <th class="p-3">Message Body</th>
-                                        <th class="p-3 w-44">Date</th>
-                                        <th class="p-3 w-20 text-center">Status</th>
-                                    </tr>
-                                </thead>
-                                <tbody class="divide-y divide-border/50 text-gray-300">
-                                    <template x-for="msg in smsList" :key="msg.id">
-                                        <tr class="hover:bg-card/50 transition">
-                                            <td class="p-3 font-bold text-white whitespace-nowrap" x-text="msg.address || 'Unknown'"></td>
-                                            <td class="p-3 leading-relaxed break-words" x-html="formatSMSBody(msg.body)"></td>
-                                            <td class="p-3 text-gray-400 text-[11px] whitespace-nowrap" x-text="formatSMSDate(msg.date)"></td>
-                                             <td class="p-3 text-center whitespace-nowrap">
-                                                 <span class="px-2 py-0.5 text-[10px] font-extrabold uppercase tracking-wider"
-                                                     :class="msg.read === 1 ? 'badge-neutral' : 'badge-info'"
-                                                     x-text="msg.read === 1 ? 'Read' : 'Unread'"></span>
-                                             </td>
-                                        </tr>
-                                    </template>
-                                    <template x-if="smsList.length === 0">
-                                        <tr>
-                                            <td colspan="4" class="p-6 text-center text-gray-500 italic">No SMS messages found matching criteria</td>
-                                        </tr>
-                                    </template>
-                                </tbody>
-                            </table>
+                        <!-- Messages List (Mobile-friendly Card Layout) -->
+                        <div x-show="!isLoadingSms" class="space-y-3 font-mono text-xs">
+                            <template x-for="msg in smsList" :key="msg.id">
+                                <div class="bg-black/60 border border-border/60 rounded-xl p-4 space-y-2.5 hover:border-blue-500/40 transition">
+                                    <!-- Top Row: Sender, Date, Status Badge -->
+                                    <div class="flex flex-wrap items-center justify-between gap-2 border-b border-border/40 pb-2">
+                                        <div class="flex items-center gap-2 min-w-0">
+                                            <span class="px-2.5 py-1 bg-blue-600/20 text-blue-400 border border-blue-500/30 rounded-lg text-xs font-bold truncate max-w-[180px]" x-text="msg.address || 'Unknown'"></span>
+                                            <span class="px-2 py-0.5 text-[10px] font-extrabold uppercase tracking-wider rounded"
+                                                :class="msg.read === 1 ? 'badge-neutral' : 'badge-info'"
+                                                x-text="msg.read === 1 ? 'Read' : 'Unread'"></span>
+                                        </div>
+                                        <div class="text-gray-400 text-[11px] font-medium" x-text="formatSMSDate(msg.date)"></div>
+                                    </div>
+
+                                    <!-- Message Body -->
+                                    <div class="text-xs text-gray-200 break-words leading-relaxed bg-black/80 p-3 rounded-xl border border-border/40 font-sans" x-html="formatSMSBody(msg.body)"></div>
+                                </div>
+                            </template>
+
+                            <template x-if="smsList.length === 0">
+                                <div class="bg-black/60 border border-border/60 rounded-xl p-8 text-center text-gray-500 italic">
+                                    No SMS messages found matching criteria
+                                </div>
+                            </template>
                         </div>
 
                         <!-- Pagination Footer -->
-                        <div class="flex items-center justify-between font-mono text-xs pt-2">
+                        <div class="flex items-center justify-between font-mono text-xs pt-2 flex-wrap gap-2">
                             <span class="text-gray-400" x-text="'Showing ' + (smsList.length > 0 ? smsOffset + 1 : 0) + ' - ' + Math.min(smsOffset + smsLimit, smsTotal) + ' of ' + smsTotal + ' messages'"></span>
                             <div class="flex items-center space-x-2">
                                 <button type="button" @click="prevSMSPage()" :disabled="smsOffset === 0" :class="smsOffset === 0 ? 'opacity-50 cursor-not-allowed bg-card' : 'bg-black hover:bg-gray-900'" class="px-3.5 py-1.5 border border-border text-gray-300 rounded-xl font-bold transition">

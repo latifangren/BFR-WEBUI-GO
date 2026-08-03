@@ -1,8 +1,18 @@
 const CommonModule = {
     authenticated: false,
     loginPassword: '',
+    showPassword: false,
+    loggingIn: false,
     authError: '',
+    isDefaultPass: true,
+    changePassData: { current_password: '', new_password: '', confirm_password: '' },
+    changePassMsg: '',
+    changePassError: '',
     activeTab: 'overview',
+    settingsTab: 'backup',
+    validTabs: ['overview', 'sysinfo', 'logs', 'files', 'terminal', 'tools', 'scrcpy', 'network', 'speedtest', 'proxy', 'sms', 'about'],
+    mobileCategory: null,
+    hideMobileNav: false,
     isDark: localStorage.getItem('theme') !== 'light',
     toasts: [],
     confirmModal: { show: false, title: 'Confirmation', message: '', onConfirm: null },
@@ -43,6 +53,45 @@ const CommonModule = {
             }
         } catch (e) {
             this.showToast('Import Error', 'Failed reading backup file', 'error');
+        }
+    },
+
+    async changePassword() {
+        this.changePassMsg = '';
+        this.changePassError = '';
+        const current_password = this.changePassData.current_password || '';
+        const new_password = this.changePassData.new_password || '';
+        const confirm_password = this.changePassData.confirm_password || '';
+
+        if (!current_password) {
+            this.changePassError = 'Password saat ini harus diisi.';
+            return;
+        }
+        if (!new_password || new_password.length < 4) {
+            this.changePassError = 'Password baru minimal 4 karakter.';
+            return;
+        }
+        if (new_password !== confirm_password) {
+            this.changePassError = 'Konfirmasi password baru tidak cocok.';
+            return;
+        }
+        try {
+            const res = await fetch('/api/auth/change-password', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ current_password, new_password })
+            });
+            const data = await res.json();
+            if (res.ok && data.success) {
+                this.isDefaultPass = false;
+                this.changePassMsg = 'Password berhasil diperbarui!';
+                this.showToast('Password Updated', 'Password akses berhasil diperbarui.', 'success');
+                this.changePassData = { current_password: '', new_password: '', confirm_password: '' };
+            } else {
+                this.changePassError = data.error || 'Gagal mengubah password.';
+            }
+        } catch (e) {
+            this.changePassError = 'Koneksi gagal. Silakan coba lagi.';
         }
     },
 

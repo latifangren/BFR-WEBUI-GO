@@ -65,18 +65,7 @@ var (
 )
 
 func getStoragePath() string {
-	magiskDir := config.ModuleDir
-	magiskPath := filepath.Join(magiskDir, "vnstat_data.json")
-	if _, err := os.Stat(magiskDir); err == nil {
-		return magiskPath
-	}
-	if _, err := os.Stat(magiskPath); err == nil {
-		return magiskPath
-	}
-	if _, err := os.Stat("vnstat_data.json"); err == nil {
-		return "vnstat_data.json"
-	}
-	return magiskPath
+	return config.GetPersistentFilePath("vnstat_data.json")
 }
 
 func newTracker() *Tracker {

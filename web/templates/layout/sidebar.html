@@ -19,7 +19,7 @@
                     x-transition:leave="transition ease-in duration-100"
                     x-transition:leave-start="opacity-100 scale-100 translate-y-0"
                     x-transition:leave-end="opacity-0 scale-95 -translate-y-1"
-                    class="absolute left-0 mt-1.5 w-48 rounded-xl bg-card border border-border/80 shadow-2xl p-1 z-50 backdrop-blur-xl space-y-0.5"
+                    class="absolute left-0 mt-1.5 w-48 rounded-xl bg-card border border-border/80 shadow-2xl p-1 z-[110] backdrop-blur-xl space-y-0.5"
                     style="display: none;">
                     <button type="button" @click="activeTab = 'overview'; open = false"
                         :class="activeTab === 'overview' ? 'bg-blue-600 text-white font-bold' : 'text-gray-300 hover:text-white hover:bg-white/5'"
@@ -59,7 +59,7 @@
                     x-transition:leave="transition ease-in duration-100"
                     x-transition:leave-start="opacity-100 scale-100 translate-y-0"
                     x-transition:leave-end="opacity-0 scale-95 -translate-y-1"
-                    class="absolute left-0 mt-1.5 w-52 rounded-xl bg-card border border-border/80 shadow-2xl p-1 z-50 backdrop-blur-xl space-y-0.5"
+                    class="absolute left-0 mt-1.5 w-52 rounded-xl bg-card border border-border/80 shadow-2xl p-1 z-[110] backdrop-blur-xl space-y-0.5"
                     style="display: none;">
                     <button type="button" @click="activeTab = 'files'; fetchFileList(currentPath); open = false"
                         :class="activeTab === 'files' ? 'bg-blue-600 text-white font-bold' : 'text-gray-300 hover:text-white hover:bg-white/5'"
@@ -99,7 +99,7 @@
                     x-transition:leave="transition ease-in duration-100"
                     x-transition:leave-start="opacity-100 scale-100 translate-y-0"
                     x-transition:leave-end="opacity-0 scale-95 -translate-y-1"
-                    class="absolute left-0 mt-1.5 w-48 rounded-xl bg-card border border-border/80 shadow-2xl p-1 z-50 backdrop-blur-xl space-y-0.5"
+                    class="absolute left-0 mt-1.5 w-48 rounded-xl bg-card border border-border/80 shadow-2xl p-1 z-[110] backdrop-blur-xl space-y-0.5"
                     style="display: none;">
                     <button type="button" @click="activeTab = 'tools'; open = false"
                         :class="activeTab === 'tools' ? 'bg-blue-600 text-white font-bold' : 'text-gray-300 hover:text-white hover:bg-white/5'"
@@ -145,7 +145,7 @@
                     x-transition:leave="transition ease-in duration-100"
                     x-transition:leave-start="opacity-100 scale-100 translate-y-0"
                     x-transition:leave-end="opacity-0 scale-95 -translate-y-1"
-                    class="absolute left-0 mt-1.5 w-48 rounded-xl bg-card border border-border/80 shadow-2xl p-1 z-50 backdrop-blur-xl space-y-0.5"
+                    class="absolute left-0 mt-1.5 w-48 rounded-xl bg-card border border-border/80 shadow-2xl p-1 z-[110] backdrop-blur-xl space-y-0.5"
                     style="display: none;">
                     <button type="button" @click="activeTab = 'network'; open = false"
                         :class="activeTab === 'network' ? 'bg-blue-600 text-white font-bold' : 'text-gray-300 hover:text-white hover:bg-white/5'"
@@ -185,7 +185,7 @@
                     x-transition:leave="transition ease-in duration-100"
                     x-transition:leave-start="opacity-100 scale-100 translate-y-0"
                     x-transition:leave-end="opacity-0 scale-95 -translate-y-1"
-                    class="absolute left-0 mt-1.5 w-48 rounded-xl bg-card border border-border/80 shadow-2xl p-1 z-50 backdrop-blur-xl space-y-0.5"
+                    class="absolute left-0 mt-1.5 w-48 rounded-xl bg-card border border-border/80 shadow-2xl p-1 z-[110] backdrop-blur-xl space-y-0.5"
                     style="display: none;">
                     <button type="button" @click="activeTab = 'sms'; fetchSMS(); open = false"
                         :class="activeTab === 'sms' ? 'bg-blue-600 text-white font-bold' : 'text-gray-300 hover:text-white hover:bg-white/5'"

@@ -19,7 +19,7 @@ const FilemanagerModule = {
     isDragging: false,
 
     // New State Variables
-    storageInfo: { total_str: '0 MB', free_str: '0 MB', used_str: '0 MB', percent: 0, mount: '/sdcard' },
+    storageInfo: { total_str: '0 MB', free_str: '0 MB', used_str: '0 MB', used_pct: 0, percent: 0, mount: '/sdcard' },
     fmClipboard: { action: null, path: '', name: '' },
     fmSearchQuery: '',
     fmSelectedPaths: [],
@@ -62,6 +62,7 @@ const FilemanagerModule = {
                     total_str: formatSize(data.total || 0),
                     free_str: formatSize(data.free || 0),
                     used_str: formatSize(data.used || 0),
+                    used_pct: data.used_pct || 0,
                     percent: Math.round(data.used_pct || 0),
                     mount: this.currentPath
                 };

@@ -537,9 +537,9 @@
         </div>
     </div>
 
-    <!-- Backup & Restore Modal Dialog -->
+    <!-- Backup & Settings Modal Dialog (3-Tab Redesign) -->
     <div x-show="showBackupModal"
-         class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm"
+         class="fixed inset-0 z-[200] flex items-center justify-center p-3 bg-black/80 backdrop-blur-md overflow-y-auto"
          x-transition:enter="transition ease-out duration-200"
          x-transition:enter-start="opacity-0 scale-95"
          x-transition:enter-end="opacity-100 scale-100"
@@ -547,102 +547,404 @@
          x-transition:leave-start="opacity-100 scale-100"
          x-transition:leave-end="opacity-0 scale-95"
          @keydown.escape.window="showBackupModal = false">
-        <div class="bg-card border-2 border-border rounded-2xl max-w-lg w-full p-6 space-y-5 shadow-2xl font-mono text-xs max-h-[90vh] overflow-y-auto custom-scrollbar"
+        <div class="bg-card border-2 border-border rounded-2xl w-[calc(100vw-1.5rem)] max-w-lg p-4 sm:p-5 space-y-4 shadow-2xl font-mono text-xs max-h-[85vh] flex flex-col box-border"
              @click.away="showBackupModal = false">
-            <div class="flex items-center justify-between border-b border-border/40 pb-3">
-                <h3 class="text-sm font-extrabold text-white uppercase tracking-wider flex items-center gap-2">
-                    <span>⚙️ Backup & Restore Config</span>
+            
+            <!-- Modal Header -->
+            <div class="flex items-center justify-between border-b border-border/40 pb-3 shrink-0">
+                <h3 class="text-sm font-extrabold text-white uppercase tracking-wider flex items-center gap-2 truncate">
+                    <span>⚙️ Settings & Backup</span>
                 </h3>
-                <button type="button" @click="showBackupModal = false" class="text-gray-400 hover:text-white font-bold text-base select-none">
+                <button type="button" @click="showBackupModal = false" class="text-gray-400 hover:text-white font-bold text-base select-none shrink-0 ml-2">
                     &#x2715;
                 </button>
             </div>
 
-            <div class="space-y-4">
-                <!-- Export Section -->
-                <div class="bg-flat p-4 rounded-xl space-y-2 border border-border/50">
-                    <div class="font-extrabold text-white uppercase text-[11px]">Export Configuration</div>
-                    <p class="text-[10px] text-gray-400">Download a full JSON bundle containing SSH, Charger, Vnstat, and Network tweaks settings.</p>
-                    <button type="button" @click="exportBackup()" class="w-full py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-bold transition flex items-center justify-center gap-2">
-                        <span>📥 Download Backup Bundle</span>
-                    </button>
-                </div>
+            <!-- 3-Tab Navigation Bar -->
+            <div class="grid grid-cols-3 gap-1 bg-black p-1 rounded-xl border border-border/60 text-xs shrink-0 select-none">
+                <button type="button" 
+                    @click="settingsTab = 'backup'" 
+                    :class="settingsTab === 'backup' ? 'bg-blue-600 text-white font-bold border-blue-500 shadow-sm' : 'text-gray-400 hover:text-white border-transparent'" 
+                    class="py-1.5 px-2 rounded-lg transition text-[11px] flex items-center justify-center gap-1 border truncate">
+                    <span>📦 Backup</span>
+                </button>
+                <button type="button" 
+                    @click="settingsTab = 'security'" 
+                    :class="settingsTab === 'security' ? 'bg-blue-600 text-white font-bold border-blue-500 shadow-sm' : 'text-gray-400 hover:text-white border-transparent'" 
+                    class="py-1.5 px-2 rounded-lg transition text-[11px] flex items-center justify-center gap-1 border truncate">
+                    <span>🔐 Security</span>
+                </button>
+                <button type="button" 
+                    @click="settingsTab = 'cloud'" 
+                    :class="settingsTab === 'cloud' ? 'bg-blue-600 text-white font-bold border-blue-500 shadow-sm' : 'text-gray-400 hover:text-white border-transparent'" 
+                    class="py-1.5 px-2 rounded-lg transition text-[11px] flex items-center justify-center gap-1 border truncate">
+                    <span>☁️ Cloud</span>
+                </button>
+            </div>
 
-                <!-- Import Section -->
-                <div class="bg-flat p-4 rounded-xl space-y-2 border border-border/50">
-                    <div class="font-extrabold text-white uppercase text-[11px]">Restore Configuration</div>
-                    <p class="text-[10px] text-gray-400">Upload a previously exported JSON backup bundle to restore module settings instantly.</p>
-                    <input id="backup-import-input" type="file" accept=".json" class="w-full text-[11px] text-gray-400 file:mr-3 file:py-1 file:px-2.5 file:rounded-lg file:border-0 file:text-[10px] file:font-bold file:bg-black file:text-white cursor-pointer" />
-                    <button type="button" @click="importBackup()" class="w-full py-2 bg-green-600 hover:bg-green-500 text-white rounded-xl font-bold transition flex items-center justify-center gap-2 mt-2">
-                        <span>📤 Restore Settings</span>
-                    </button>
-                </div>
-
-                <!-- WebDAV Cloud Sync & Auto-Backup Section -->
-                <div class="bg-flat p-4 rounded-xl space-y-3 border border-border/50">
-                    <div class="flex items-center justify-between">
-                        <div class="font-extrabold text-white uppercase text-[11px] flex items-center gap-1.5">
-                            <span>☁️ WebDAV Cloud Sync</span>
-                        </div>
-                        <span class="text-[10px] font-bold px-2 py-0.5 rounded border"
-                            :class="cloudConfig.enabled ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30' : 'bg-gray-500/10 text-gray-400 border-gray-500/30'"
-                            x-text="cloudConfig.enabled ? 'Active' : 'Disabled'">
-                        </span>
-                    </div>
-                    <p class="text-[10px] text-gray-400">Sync backup configuration bundles automatically to remote WebDAV storage.</p>
-
-                    <div class="space-y-2.5 pt-1">
-                        <!-- Enable Auto-Sync Checkbox -->
-                        <label class="flex items-center gap-2 cursor-pointer select-none">
-                            <input type="checkbox" x-model="cloudConfig.enabled" class="rounded bg-black border-border text-blue-600 focus:ring-0" />
-                            <span class="text-[11px] text-gray-300 font-bold">Enable Automatic Cloud Auto-Sync</span>
-                        </label>
-
-                        <!-- WebDAV Server URL -->
-                        <div class="space-y-1">
-                            <label class="text-[10px] text-gray-400 uppercase tracking-wider font-bold">WebDAV Server URL</label>
-                            <input type="url" x-model="cloudConfig.url" placeholder="https://dav.example.com/remote.php/dav/files/user/" class="w-full bg-black border border-border rounded-xl px-3 py-2 text-xs text-white placeholder-gray-600 focus:outline-none focus:border-blue-500 transition" />
-                        </div>
-
-                        <!-- Credentials Grid -->
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                            <div class="space-y-1">
-                                <label class="text-[10px] text-gray-400 uppercase tracking-wider font-bold">Username</label>
-                                <input type="text" x-model="cloudConfig.username" placeholder="Username" class="w-full bg-black border border-border rounded-xl px-3 py-2 text-xs text-white placeholder-gray-600 focus:outline-none focus:border-blue-500 transition" />
-                            </div>
-                            <div class="space-y-1">
-                                <label class="text-[10px] text-gray-400 uppercase tracking-wider font-bold">Password</label>
-                                <input type="password" x-model="cloudConfig.password" placeholder="App Password" class="w-full bg-black border border-border rounded-xl px-3 py-2 text-xs text-white placeholder-gray-600 focus:outline-none focus:border-blue-500 transition" />
-                            </div>
-                        </div>
-
-                        <!-- Sync Interval & Last Sync Status -->
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 items-center">
-                            <div class="space-y-1">
-                                <label class="text-[10px] text-gray-400 uppercase tracking-wider font-bold">Interval (Hours)</label>
-                                <input type="number" min="1" max="168" x-model.number="cloudConfig.interval_hours" class="w-full bg-black border border-border rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-blue-500 transition" />
-                            </div>
-                            <div class="space-y-1 text-right">
-                                <div class="text-[10px] text-gray-400 uppercase tracking-wider font-bold">Last Sync</div>
-                                <div class="text-[11px] text-gray-300 font-bold truncate" x-text="cloudConfig.last_sync || 'Never'"></div>
-                            </div>
-                        </div>
+            <!-- Scrollable Tab Content Container -->
+            <div class="flex-1 overflow-y-auto custom-scrollbar space-y-4 pr-0.5">
+                <!-- Tab 1: Backup & Restore -->
+                <div x-show="settingsTab === 'backup'" class="space-y-4 min-w-0">
+                    <!-- Export Section -->
+                    <div class="bg-flat p-3.5 sm:p-4 rounded-xl space-y-2 border border-border/50 min-w-0">
+                        <div class="font-extrabold text-white uppercase text-[11px]">Export Configuration</div>
+                        <p class="text-[10px] text-gray-400">Download a full JSON bundle containing SSH, Charger, Vnstat, and Network tweaks settings.</p>
+                        <button type="button" @click="exportBackup()" class="w-full py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-bold transition flex items-center justify-center gap-2">
+                            <span>📥 Download Backup Bundle</span>
+                        </button>
                     </div>
 
-                    <!-- Cloud Action Buttons -->
-                    <div class="flex items-center gap-2 pt-2">
-                        <button type="button" @click="saveCloudConfig()" class="flex-1 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-bold transition flex items-center justify-center gap-1 text-[11px]">
-                            <span>💾 Save Cloud Settings</span>
+                    <!-- Import Section -->
+                    <div class="bg-flat p-3.5 sm:p-4 rounded-xl space-y-2 border border-border/50 min-w-0">
+                        <div class="font-extrabold text-white uppercase text-[11px]">Restore Configuration</div>
+                        <p class="text-[10px] text-gray-400">Upload a previously exported JSON backup bundle to restore module settings instantly.</p>
+                        <input id="backup-import-input" type="file" accept=".json" class="w-full max-w-full min-w-0 box-border text-[11px] text-gray-400 file:mr-3 file:py-1 file:px-2.5 file:rounded-lg file:border-0 file:text-[10px] file:font-bold file:bg-black file:text-white cursor-pointer" />
+                        <button type="button" @click="importBackup()" class="w-full py-2 bg-green-600 hover:bg-green-500 text-white rounded-xl font-bold transition flex items-center justify-center gap-2 mt-2">
+                            <span>📤 Restore Settings</span>
                         </button>
-                        <button type="button" @click="syncCloudNow()" :disabled="cloudSyncing" class="flex-1 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl font-bold transition flex items-center justify-center gap-1 text-[11px]" :class="cloudSyncing ? 'opacity-50 cursor-not-allowed' : ''">
-                            <span x-show="!cloudSyncing">🔄 Sync Now</span>
-                            <span x-show="cloudSyncing">Syncing...</span>
-                        </button>
+                    </div>
+                </div>
+
+                <!-- Tab 2: Security & Password -->
+                <div x-show="settingsTab === 'security'" class="space-y-4 min-w-0" style="display: none;">
+                    <div class="bg-flat p-3.5 sm:p-4 rounded-xl space-y-3 border border-border/50 min-w-0">
+                        <div class="flex items-center justify-between gap-2">
+                            <div class="font-extrabold text-white uppercase text-[11px] flex items-center gap-1.5 truncate">
+                                <span>🔐 Change Access Password</span>
+                            </div>
+                            <span class="text-[10px] font-bold px-2 py-0.5 rounded border shrink-0"
+                                :class="isDefaultPass ? 'bg-amber-500/10 text-amber-400 border-amber-500/30' : 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30'"
+                                x-text="isDefaultPass ? 'Default (bfr)' : 'Custom Password'">
+                            </span>
+                        </div>
+                        <p class="text-[10px] text-gray-400">Update your BFR WebUI login password for enhanced security.</p>
+
+                        <form @submit.prevent="changePassword()" class="space-y-2.5 pt-1 min-w-0">
+                            <div class="space-y-1 min-w-0">
+                                <label for="change-curr-pwd" class="text-[10px] text-gray-400 uppercase tracking-wider font-bold block">Current Password</label>
+                                <input id="change-curr-pwd" type="password" x-model="changePassData.current_password" placeholder="Password saat ini" class="w-full max-w-full min-w-0 box-border truncate bg-black border border-border rounded-xl px-3 py-2 text-xs text-white placeholder-gray-600 focus:outline-none focus:border-blue-500 transition" required />
+                            </div>
+
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 min-w-0">
+                                <div class="space-y-1 min-w-0">
+                                    <label for="change-new-pwd" class="text-[10px] text-gray-400 uppercase tracking-wider font-bold block">New Password</label>
+                                    <input id="change-new-pwd" type="password" x-model="changePassData.new_password" placeholder="Minimal 4 karakter" class="w-full max-w-full min-w-0 box-border truncate bg-black border border-border rounded-xl px-3 py-2 text-xs text-white placeholder-gray-600 focus:outline-none focus:border-blue-500 transition" required />
+                                </div>
+                                <div class="space-y-1 min-w-0">
+                                    <label for="change-conf-pwd" class="text-[10px] text-gray-400 uppercase tracking-wider font-bold block">Confirm New Password</label>
+                                    <input id="change-conf-pwd" type="password" x-model="changePassData.confirm_password" placeholder="Ulangi password baru" class="w-full max-w-full min-w-0 box-border truncate bg-black border border-border rounded-xl px-3 py-2 text-xs text-white placeholder-gray-600 focus:outline-none focus:border-blue-500 transition" required />
+                                </div>
+                            </div>
+
+                            <!-- Error alert -->
+                            <template x-if="changePassError">
+                                <div class="p-2.5 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-[11px] font-mono flex items-center gap-1.5">
+                                    <span>⚠️</span>
+                                    <span x-text="changePassError"></span>
+                                </div>
+                            </template>
+
+                            <!-- Success message -->
+                            <template x-if="changePassMsg">
+                                <div class="p-2.5 rounded-lg bg-green-500/10 border border-green-500/20 text-green-400 text-[11px] font-mono flex items-center gap-1.5">
+                                    <span>✓</span>
+                                    <span x-text="changePassMsg"></span>
+                                </div>
+                            </template>
+
+                            <button type="submit" class="w-full py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-bold transition flex items-center justify-center gap-1 text-[11px] mt-1">
+                                <span>🔐 Update Password</span>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Tab 3: WebDAV Cloud Sync -->
+                <div x-show="settingsTab === 'cloud'" class="space-y-4 min-w-0" style="display: none;">
+                    <div class="bg-flat p-3.5 sm:p-4 rounded-xl space-y-3 border border-border/50 min-w-0">
+                        <div class="flex items-center justify-between gap-2">
+                            <div class="font-extrabold text-white uppercase text-[11px] flex items-center gap-1.5 truncate">
+                                <span>☁️ WebDAV Cloud Sync</span>
+                            </div>
+                            <span class="text-[10px] font-bold px-2 py-0.5 rounded border shrink-0"
+                                :class="cloudConfig.enabled ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30' : 'bg-gray-500/10 text-gray-400 border-gray-500/30'"
+                                x-text="cloudConfig.enabled ? 'Active' : 'Disabled'">
+                            </span>
+                        </div>
+                        <p class="text-[10px] text-gray-400">Sync backup configuration bundles automatically to remote WebDAV storage.</p>
+
+                        <div class="space-y-2.5 pt-1 min-w-0">
+                            <!-- Enable Auto-Sync Checkbox -->
+                            <label class="flex items-center gap-2 cursor-pointer select-none">
+                                <input type="checkbox" x-model="cloudConfig.enabled" class="rounded bg-black border-border text-blue-600 focus:ring-0" />
+                                <span class="text-[11px] text-gray-300 font-bold">Enable Automatic Cloud Auto-Sync</span>
+                            </label>
+
+                            <!-- WebDAV Server URL -->
+                            <div class="space-y-1 min-w-0">
+                                <label class="text-[10px] text-gray-400 uppercase tracking-wider font-bold block">WebDAV Server URL</label>
+                                <input type="url" x-model="cloudConfig.url" placeholder="https://dav.example.com/remote.php/dav/files/user/" class="w-full max-w-full min-w-0 box-border truncate bg-black border border-border rounded-xl px-3 py-2 text-xs text-white placeholder-gray-600 focus:outline-none focus:border-blue-500 transition" />
+                            </div>
+
+                            <!-- Credentials Grid -->
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 min-w-0">
+                                <div class="space-y-1 min-w-0">
+                                    <label class="text-[10px] text-gray-400 uppercase tracking-wider font-bold block">Username</label>
+                                    <input type="text" x-model="cloudConfig.username" placeholder="Username" class="w-full max-w-full min-w-0 box-border truncate bg-black border border-border rounded-xl px-3 py-2 text-xs text-white placeholder-gray-600 focus:outline-none focus:border-blue-500 transition" />
+                                </div>
+                                <div class="space-y-1 min-w-0">
+                                    <label class="text-[10px] text-gray-400 uppercase tracking-wider font-bold block">Password</label>
+                                    <input type="password" x-model="cloudConfig.password" placeholder="App Password" class="w-full max-w-full min-w-0 box-border truncate bg-black border border-border rounded-xl px-3 py-2 text-xs text-white placeholder-gray-600 focus:outline-none focus:border-blue-500 transition" />
+                                </div>
+                            </div>
+
+                            <!-- Sync Interval & Last Sync Status -->
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 items-center min-w-0">
+                                <div class="space-y-1 min-w-0">
+                                    <label class="text-[10px] text-gray-400 uppercase tracking-wider font-bold block">Interval (Hours)</label>
+                                    <input type="number" min="1" max="168" x-model.number="cloudConfig.interval_hours" class="w-full max-w-full min-w-0 box-border truncate bg-black border border-border rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-blue-500 transition" />
+                                </div>
+                                <div class="space-y-1 text-left sm:text-right min-w-0">
+                                    <div class="text-[10px] text-gray-400 uppercase tracking-wider font-bold">Last Sync</div>
+                                    <div class="text-[11px] text-gray-300 font-bold truncate" x-text="cloudConfig.last_sync || 'Never'"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Cloud Action Buttons -->
+                        <div class="flex items-center gap-2 pt-2">
+                            <button type="button" @click="saveCloudConfig()" class="flex-1 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-bold transition flex items-center justify-center gap-1 text-[11px]">
+                                <span>💾 Save Cloud Settings</span>
+                            </button>
+                            <button type="button" @click="syncCloudNow()" :disabled="cloudSyncing" class="flex-1 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl font-bold transition flex items-center justify-center gap-1 text-[11px]" :class="cloudSyncing ? 'opacity-50 cursor-not-allowed' : ''">
+                                <span x-show="!cloudSyncing">🔄 Sync Now</span>
+                                <span x-show="cloudSyncing">Syncing...</span>
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
+
+            <!-- Modal Footer (Prominent Close Button) -->
+            <div class="pt-2 border-t border-border/40 shrink-0">
+                <button type="button" @click="showBackupModal = false" class="w-full py-2 bg-black border border-border text-gray-300 hover:text-white rounded-xl font-bold transition text-xs select-none">
+                    Close ✕
+                </button>
+            </div>
         </div>
     </div>
+
+    <!-- Mobile Slide-Up Bottom Sheet Modal -->
+    <div x-show="authenticated && mobileCategory !== null"
+        x-cloak
+        class="fixed inset-0 z-[999] flex items-end justify-center md:hidden bg-black/70 backdrop-blur-md"
+        @click.self="mobileCategory = null"
+        @keydown.escape.window="mobileCategory = null">
+        
+        <div x-show="authenticated && mobileCategory !== null"
+            x-transition:enter="transition ease-out duration-300 transform"
+            x-transition:enter-start="translate-y-full opacity-0"
+            x-transition:enter-end="translate-y-0 opacity-100"
+            x-transition:leave="transition ease-in duration-200 transform"
+            x-transition:leave-start="translate-y-0 opacity-100"
+            x-transition:leave-end="translate-y-full opacity-0"
+            class="bg-card/85 backdrop-blur-2xl border border-border/80 rounded-2xl shadow-[0_-10px_35px_rgba(0,0,0,0.6)] mb-16 mx-3 w-[calc(100%-1.5rem)] max-w-lg p-4 font-mono text-xs space-y-3 max-h-[60vh] overflow-y-auto custom-scrollbar">
+                
+                <!-- Drag handle bar -->
+                <div class="w-12 h-1 rounded-full bg-gray-600/50 mx-auto my-1"></div>
+
+                <!-- Header -->
+                <div class="flex items-center justify-between border-b border-border/50 pb-2.5">
+                    <div class="flex items-center gap-2">
+                        <h3 class="text-sm font-extrabold text-white uppercase tracking-wider"
+                            x-text="mobileCategory === 'status' ? '📊 Status Category' : (mobileCategory === 'system' ? '⚙️ System Category' : (mobileCategory === 'services' ? '🛠️ Services Category' : (mobileCategory === 'network' ? '🌐 Network Category' : '⭐ Extras Category')))">
+                        </h3>
+                    </div>
+                    <button type="button" @click="mobileCategory = null" class="w-7 h-7 rounded-lg bg-black/80 border border-border flex items-center justify-center text-gray-400 hover:text-white font-bold text-xs select-none active:scale-95 transition">
+                        ✕
+                    </button>
+                </div>
+
+                <!-- Sub-menu Item Lists -->
+                <div class="space-y-2">
+                    <!-- Status Menu Items -->
+                    <template x-if="mobileCategory === 'status'">
+                        <div class="space-y-2">
+                            <button type="button" @click="activeTab = 'overview'; mobileCategory = null"
+                                :class="activeTab === 'overview' ? 'bg-blue-600/30 border-blue-500/60 text-white font-bold shadow-md shadow-blue-500/10' : 'bg-flat/60 border-border/40 text-gray-300 hover:text-white active:bg-white/10'"
+                                class="w-full text-left py-2.5 px-3.5 rounded-xl border text-xs flex items-center justify-between transition-all select-none">
+                                <div class="flex items-center gap-3">
+                                    <span class="text-base">🖥️</span>
+                                    <span>Overview</span>
+                                </div>
+                                <span x-show="activeTab === 'overview'" class="w-2 h-2 rounded-full bg-blue-400"></span>
+                            </button>
+
+                            <button type="button" @click="activeTab = 'sysinfo'; mobileCategory = null"
+                                :class="activeTab === 'sysinfo' ? 'bg-blue-600/30 border-blue-500/60 text-white font-bold shadow-md shadow-blue-500/10' : 'bg-flat/60 border-border/40 text-gray-300 hover:text-white active:bg-white/10'"
+                                class="w-full text-left py-2.5 px-3.5 rounded-xl border text-xs flex items-center justify-between transition-all select-none">
+                                <div class="flex items-center gap-3">
+                                    <span class="text-base">ℹ️</span>
+                                    <span>System Info</span>
+                                </div>
+                                <span x-show="activeTab === 'sysinfo'" class="w-2 h-2 rounded-full bg-blue-400"></span>
+                            </button>
+
+                            <button type="button" @click="activeTab = 'logs'; fetchLogs(); mobileCategory = null"
+                                :class="activeTab === 'logs' ? 'bg-blue-600/30 border-blue-500/60 text-white font-bold shadow-md shadow-blue-500/10' : 'bg-flat/60 border-border/40 text-gray-300 hover:text-white active:bg-white/10'"
+                                class="w-full text-left py-2.5 px-3.5 rounded-xl border text-xs flex items-center justify-between transition-all select-none">
+                                <div class="flex items-center gap-3">
+                                    <span class="text-base">📜</span>
+                                    <span>System Logs</span>
+                                </div>
+                                <span x-show="activeTab === 'logs'" class="w-2 h-2 rounded-full bg-blue-400"></span>
+                            </button>
+                        </div>
+                    </template>
+
+                    <!-- System Menu Items -->
+                    <template x-if="mobileCategory === 'system'">
+                        <div class="space-y-2">
+                            <button type="button" @click="activeTab = 'files'; fetchFileList(currentPath); mobileCategory = null"
+                                :class="activeTab === 'files' ? 'bg-blue-600/30 border-blue-500/60 text-white font-bold shadow-md shadow-blue-500/10' : 'bg-flat/60 border-border/40 text-gray-300 hover:text-white active:bg-white/10'"
+                                class="w-full text-left py-2.5 px-3.5 rounded-xl border text-xs flex items-center justify-between transition-all select-none">
+                                <div class="flex items-center gap-3">
+                                    <span class="text-base">📁</span>
+                                    <span>File Manager</span>
+                                </div>
+                                <span x-show="activeTab === 'files'" class="w-2 h-2 rounded-full bg-blue-400"></span>
+                            </button>
+
+                            <button type="button" @click="activeTab = 'terminal'; initTerminal(); mobileCategory = null"
+                                :class="activeTab === 'terminal' ? 'bg-blue-600/30 border-blue-500/60 text-white font-bold shadow-md shadow-blue-500/10' : 'bg-flat/60 border-border/40 text-gray-300 hover:text-white active:bg-white/10'"
+                                class="w-full text-left py-2.5 px-3.5 rounded-xl border text-xs flex items-center justify-between transition-all select-none">
+                                <div class="flex items-center gap-3">
+                                    <span class="text-base">💻</span>
+                                    <span>Web Terminal</span>
+                                </div>
+                                <span x-show="activeTab === 'terminal'" class="w-2 h-2 rounded-full bg-blue-400"></span>
+                            </button>
+
+                            <button type="button" @click="activeTab = 'tools'; mobileCategory = null"
+                                :class="activeTab === 'tools' ? 'bg-blue-600/30 border-blue-500/60 text-white font-bold shadow-md shadow-blue-500/10' : 'bg-flat/60 border-border/40 text-gray-300 hover:text-white active:bg-white/10'"
+                                class="w-full text-left py-2.5 px-3.5 rounded-xl border text-xs flex items-center justify-between transition-all select-none">
+                                <div class="flex items-center gap-3">
+                                    <span class="text-base">⚙️</span>
+                                    <span>System Tools & Modules</span>
+                                </div>
+                                <span x-show="activeTab === 'tools'" class="w-2 h-2 rounded-full bg-blue-400"></span>
+                            </button>
+                        </div>
+                    </template>
+
+                    <!-- Services Menu Items -->
+                    <template x-if="mobileCategory === 'services'">
+                        <div class="space-y-2">
+                            <button type="button" @click="activeTab = 'tools'; mobileCategory = null"
+                                :class="activeTab === 'tools' ? 'bg-blue-600/30 border-blue-500/60 text-white font-bold shadow-md shadow-blue-500/10' : 'bg-flat/60 border-border/40 text-gray-300 hover:text-white active:bg-white/10'"
+                                class="w-full text-left py-2.5 px-3.5 rounded-xl border text-xs flex items-center justify-between transition-all select-none">
+                                <div class="flex items-center gap-3">
+                                    <span class="text-base">🤖</span>
+                                    <span>Telegram Bot</span>
+                                </div>
+                                <span x-show="activeTab === 'tools'" class="w-2 h-2 rounded-full bg-blue-400"></span>
+                            </button>
+
+                            <button type="button" @click="activeTab = 'tools'; mobileCategory = null"
+                                :class="activeTab === 'tools' ? 'bg-blue-600/30 border-blue-500/60 text-white font-bold shadow-md shadow-blue-500/10' : 'bg-flat/60 border-border/40 text-gray-300 hover:text-white active:bg-white/10'"
+                                class="w-full text-left py-2.5 px-3.5 rounded-xl border text-xs flex items-center justify-between transition-all select-none">
+                                <div class="flex items-center gap-3">
+                                    <span class="text-base">⚡</span>
+                                    <span>Smart Charger</span>
+                                </div>
+                                <span x-show="activeTab === 'tools'" class="w-2 h-2 rounded-full bg-blue-400"></span>
+                            </button>
+
+                            <button type="button" @click="activeTab = 'tools'; mobileCategory = null"
+                                :class="activeTab === 'tools' ? 'bg-blue-600/30 border-blue-500/60 text-white font-bold shadow-md shadow-blue-500/10' : 'bg-flat/60 border-border/40 text-gray-300 hover:text-white active:bg-white/10'"
+                                class="w-full text-left py-2.5 px-3.5 rounded-xl border text-xs flex items-center justify-between transition-all select-none">
+                                <div class="flex items-center gap-3">
+                                    <span class="text-base">🔑</span>
+                                    <span>SSH Daemon</span>
+                                </div>
+                                <span x-show="activeTab === 'tools'" class="w-2 h-2 rounded-full bg-blue-400"></span>
+                            </button>
+
+                            <button type="button" @click="activeTab = 'scrcpy'; mobileCategory = null"
+                                :class="activeTab === 'scrcpy' ? 'bg-blue-600/30 border-blue-500/60 text-white font-bold shadow-md shadow-blue-500/10' : 'bg-flat/60 border-border/40 text-gray-300 hover:text-white active:bg-white/10'"
+                                class="w-full text-left py-2.5 px-3.5 rounded-xl border text-xs flex items-center justify-between transition-all select-none">
+                                <div class="flex items-center gap-3">
+                                    <span class="text-base">📱</span>
+                                    <span>Remote Screen</span>
+                                </div>
+                                <span x-show="activeTab === 'scrcpy'" class="w-2 h-2 rounded-full bg-blue-400"></span>
+                            </button>
+                        </div>
+                    </template>
+
+                    <!-- Network Menu Items -->
+                    <template x-if="mobileCategory === 'network'">
+                        <div class="space-y-2">
+                            <button type="button" @click="activeTab = 'network'; mobileCategory = null"
+                                :class="activeTab === 'network' ? 'bg-blue-600/30 border-blue-500/60 text-white font-bold shadow-md shadow-blue-500/10' : 'bg-flat/60 border-border/40 text-gray-300 hover:text-white active:bg-white/10'"
+                                class="w-full text-left py-2.5 px-3.5 rounded-xl border text-xs flex items-center justify-between transition-all select-none">
+                                <div class="flex items-center gap-3">
+                                    <span class="text-base">🌐</span>
+                                    <span>Network & Tweaks</span>
+                                </div>
+                                <span x-show="activeTab === 'network'" class="w-2 h-2 rounded-full bg-blue-400"></span>
+                            </button>
+
+                            <button type="button" @click="activeTab = 'speedtest'; mobileCategory = null"
+                                :class="activeTab === 'speedtest' ? 'bg-blue-600/30 border-blue-500/60 text-white font-bold shadow-md shadow-blue-500/10' : 'bg-flat/60 border-border/40 text-gray-300 hover:text-white active:bg-white/10'"
+                                class="w-full text-left py-2.5 px-3.5 rounded-xl border text-xs flex items-center justify-between transition-all select-none">
+                                <div class="flex items-center gap-3">
+                                    <span class="text-base">🚀</span>
+                                    <span>Speedtest Engine</span>
+                                </div>
+                                <span x-show="activeTab === 'speedtest'" class="w-2 h-2 rounded-full bg-blue-400"></span>
+                            </button>
+
+                            <button type="button" @click="activeTab = 'proxy'; mobileCategory = null"
+                                :class="activeTab === 'proxy' ? 'bg-blue-600/30 border-blue-500/60 text-white font-bold shadow-md shadow-blue-500/10' : 'bg-flat/60 border-border/40 text-gray-300 hover:text-white active:bg-white/10'"
+                                class="w-full text-left py-2.5 px-3.5 rounded-xl border text-xs flex items-center justify-between transition-all select-none">
+                                <div class="flex items-center gap-3">
+                                    <span class="text-base">🛡️</span>
+                                    <span>Proxy Core</span>
+                                </div>
+                                <span x-show="activeTab === 'proxy'" class="w-2 h-2 rounded-full bg-blue-400"></span>
+                            </button>
+                        </div>
+                    </template>
+
+                    <!-- Extras Menu Items -->
+                    <template x-if="mobileCategory === 'extras'">
+                        <div class="space-y-2">
+                            <button type="button" @click="activeTab = 'sms'; fetchSMS(); mobileCategory = null"
+                                :class="activeTab === 'sms' ? 'bg-blue-600/30 border-blue-500/60 text-white font-bold shadow-md shadow-blue-500/10' : 'bg-flat/60 border-border/40 text-gray-300 hover:text-white active:bg-white/10'"
+                                class="w-full text-left py-2.5 px-3.5 rounded-xl border text-xs flex items-center justify-between transition-all select-none">
+                                <div class="flex items-center gap-3">
+                                    <span class="text-base">💬</span>
+                                    <span>SMS Viewer</span>
+                                </div>
+                                <span x-show="activeTab === 'sms'" class="w-2 h-2 rounded-full bg-blue-400"></span>
+                            </button>
+
+                            <button type="button" @click="activeTab = 'about'; mobileCategory = null"
+                                :class="activeTab === 'about' ? 'bg-blue-600/30 border-blue-500/60 text-white font-bold shadow-md shadow-blue-500/10' : 'bg-flat/60 border-border/40 text-gray-300 hover:text-white active:bg-white/10'"
+                                class="w-full text-left py-2.5 px-3.5 rounded-xl border text-xs flex items-center justify-between transition-all select-none">
+                                <div class="flex items-center gap-3">
+                                    <span class="text-base">📖</span>
+                                    <span>About & Docs</span>
+                                </div>
+                                <span x-show="activeTab === 'about'" class="w-2 h-2 rounded-full bg-blue-400"></span>
+                            </button>
+                        </div>
+                    </template>
+                </div>
+            </div>
+        </div>
 
     <!-- Floating Toast Notifications System Container -->
     <div class="fixed top-4 right-4 z-50 flex flex-col gap-2.5 max-w-sm w-full pointer-events-none p-4" aria-live="polite">

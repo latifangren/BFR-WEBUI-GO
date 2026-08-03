@@ -43,12 +43,7 @@ var (
 )
 
 func getStoragePath() string {
-	magiskDir := config.ModuleDir
-	magiskPath := filepath.Join(magiskDir, "ssh_config.json")
-	if _, err := os.Stat(magiskDir); err == nil {
-		return magiskPath
-	}
-	return "ssh_config.json"
+	return config.GetPersistentFilePath("ssh_config.json")
 }
 
 func newManager() *Manager {

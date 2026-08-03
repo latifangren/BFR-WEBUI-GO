@@ -104,12 +104,7 @@ var (
 )
 
 func getStoragePath() string {
-	magiskDir := config.ModuleDir
-	if magiskDir != "" {
-		_ = os.MkdirAll(magiskDir, 0755)
-		return filepath.Join(magiskDir, "telegram_config.json")
-	}
-	return "telegram_config.json"
+	return config.GetPersistentFilePath("telegram_config.json")
 }
 
 func newManager() *Manager {

@@ -1,23 +1,23 @@
 {{define "header.html"}}
     <!-- Header -->
-    <header class="border-b border-border bg-card/80 backdrop-blur sticky top-0 z-40">
-        <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
+    <header class="border-b border-border bg-card/80 backdrop-blur sticky top-0 z-[100] w-full max-w-full">
+        <div class="max-w-7xl mx-auto px-4 py-3 flex flex-wrap sm:flex-nowrap items-center justify-between gap-2">
             <div class="flex items-center space-x-3">
-                <div class="w-9 h-9 rounded-xl bg-blue-600 flex items-center justify-center font-bold text-white shadow-lg shadow-blue-500/20">
+                <div class="w-9 h-9 rounded-xl bg-blue-600 flex items-center justify-center font-bold text-white shadow-lg shadow-blue-500/20 shrink-0">
                     B
                 </div>
-                <div>
+                <div class="min-w-0">
                     <h1 class="font-bold text-lg leading-none tracking-wide text-white flex items-center gap-2">
-                        BFR WEBUI <span class="ml-2 px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-wider shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]" style="background-color: #f59e0b !important; color: #000000 !important; border: 1.5px solid #000000 !important;">PRO</span>
+                        BFR WEBUI <span class="ml-2 px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-wider shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] select-none shrink-0" style="background-color: #f59e0b !important; color: #000000 !important; border: 1.5px solid #000000 !important;">PRO</span>
                     </h1>
-                    <p class="text-xs text-gray-400 mt-0.5" x-text="stats.model ? stats.model + ' (Android ' + stats.android_ver + ')' : 'Android System WebUI'"></p>
+                    <p class="text-xs text-gray-400 mt-0.5 truncate max-w-[200px] sm:max-w-none" x-text="stats.model ? stats.model + ' (Android ' + stats.android_ver + ')' : 'Android System WebUI'"></p>
                 </div>
             </div>
 
             <!-- Navigation Tabs (Desktop) -->
             {{template "sidebar.html" .}}
 
-            <div class="flex items-center space-x-3">
+            <div class="flex items-center space-x-2 shrink-0">
                 <button type="button" @click="toggleTheme()" class="theme-toggle px-2.5 py-1.5 text-xs font-extrabold flex items-center justify-center gap-1.5 transition-all duration-100 select-none">
                     <span x-show="isDark">🌙</span>
                     <span x-show="!isDark">☀️</span>
@@ -35,212 +35,84 @@
                 </template>
             </div>
         </div>
-
-        <!-- Navigation Tabs (Mobile Category Dropdowns) -->
-        <template x-if="authenticated">
-            <div class="md:hidden border-t border-border/80 bg-black/60 backdrop-blur-md px-3 py-2">
-                <div class="flex items-center space-x-2 overflow-x-auto custom-scrollbar pb-1">
-                    <!-- 📊 Status Category Dropdown -->
-                    <div class="relative flex-shrink-0" x-data="{ open: false }" @click.outside="open = false">
-                        <button type="button" @click="open = !open"
-                            :class="['overview', 'sysinfo', 'logs'].includes(activeTab) ? 'bg-blue-600/30 text-blue-400 border-blue-500/50 font-bold' : 'text-gray-300 bg-card border-border hover:bg-white/5'"
-                            class="px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1 border whitespace-nowrap transition select-none">
-                            <span>📊 Status</span>
-                            <svg class="w-3 h-3 transition-transform duration-200" :class="open ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-                            </svg>
-                        </button>
-                        <div x-show="open"
-                            x-transition:enter="transition ease-out duration-150"
-                            x-transition:enter-start="opacity-0 scale-95 -translate-y-1"
-                            x-transition:enter-end="opacity-100 scale-100 translate-y-0"
-                            x-transition:leave="transition ease-in duration-100"
-                            x-transition:leave-start="opacity-100 scale-100 translate-y-0"
-                            x-transition:leave-end="opacity-0 scale-95 -translate-y-1"
-                            class="absolute left-0 mt-2 w-48 rounded-xl bg-card border border-border/80 shadow-2xl p-1 z-50 backdrop-blur-xl space-y-0.5"
-                            style="display: none;">
-                            <button type="button" @click="activeTab = 'overview'; open = false"
-                                :class="activeTab === 'overview' ? 'bg-blue-600 text-white font-bold' : 'text-gray-300 hover:text-white hover:bg-white/5'"
-                                class="w-full text-left px-3 py-2 rounded-lg text-xs flex items-center justify-between transition select-none">
-                                <span>Overview</span>
-                                <span x-show="activeTab === 'overview'" class="w-1.5 h-1.5 rounded-full bg-white"></span>
-                            </button>
-                            <button type="button" @click="activeTab = 'sysinfo'; open = false"
-                                :class="activeTab === 'sysinfo' ? 'bg-blue-600 text-white font-bold' : 'text-gray-300 hover:text-white hover:bg-white/5'"
-                                class="w-full text-left px-3 py-2 rounded-lg text-xs flex items-center justify-between transition select-none">
-                                <span>System Info</span>
-                                <span x-show="activeTab === 'sysinfo'" class="w-1.5 h-1.5 rounded-full bg-white"></span>
-                            </button>
-                            <button type="button" @click="activeTab = 'logs'; fetchLogs(); open = false"
-                                :class="activeTab === 'logs' ? 'bg-blue-600 text-white font-bold' : 'text-gray-300 hover:text-white hover:bg-white/5'"
-                                class="w-full text-left px-3 py-2 rounded-lg text-xs flex items-center justify-between transition select-none">
-                                <span>System Logs</span>
-                                <span x-show="activeTab === 'logs'" class="w-1.5 h-1.5 rounded-full bg-white"></span>
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- ⚙️ System Category Dropdown -->
-                    <div class="relative flex-shrink-0" x-data="{ open: false }" @click.outside="open = false">
-                        <button type="button" @click="open = !open"
-                            :class="['files', 'terminal', 'tools'].includes(activeTab) ? 'bg-blue-600/30 text-blue-400 border-blue-500/50 font-bold' : 'text-gray-300 bg-card border-border hover:bg-white/5'"
-                            class="px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1 border whitespace-nowrap transition select-none">
-                            <span>⚙️ System</span>
-                            <svg class="w-3 h-3 transition-transform duration-200" :class="open ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-                            </svg>
-                        </button>
-                        <div x-show="open"
-                            x-transition:enter="transition ease-out duration-150"
-                            x-transition:enter-start="opacity-0 scale-95 -translate-y-1"
-                            x-transition:enter-end="opacity-100 scale-100 translate-y-0"
-                            x-transition:leave="transition ease-in duration-100"
-                            x-transition:leave-start="opacity-100 scale-100 translate-y-0"
-                            x-transition:leave-end="opacity-0 scale-95 -translate-y-1"
-                            class="absolute left-0 mt-2 w-52 rounded-xl bg-card border border-border/80 shadow-2xl p-1 z-50 backdrop-blur-xl space-y-0.5"
-                            style="display: none;">
-                            <button type="button" @click="activeTab = 'files'; fetchFileList(currentPath); open = false"
-                                :class="activeTab === 'files' ? 'bg-blue-600 text-white font-bold' : 'text-gray-300 hover:text-white hover:bg-white/5'"
-                                class="w-full text-left px-3 py-2 rounded-lg text-xs flex items-center justify-between transition select-none">
-                                <span>File Manager</span>
-                                <span x-show="activeTab === 'files'" class="w-1.5 h-1.5 rounded-full bg-white"></span>
-                            </button>
-                            <button type="button" @click="activeTab = 'terminal'; initTerminal(); open = false"
-                                :class="activeTab === 'terminal' ? 'bg-blue-600 text-white font-bold' : 'text-gray-300 hover:text-white hover:bg-white/5'"
-                                class="w-full text-left px-3 py-2 rounded-lg text-xs flex items-center justify-between transition select-none">
-                                <span>Web Terminal</span>
-                                <span x-show="activeTab === 'terminal'" class="w-1.5 h-1.5 rounded-full bg-white"></span>
-                            </button>
-                            <button type="button" @click="activeTab = 'tools'; open = false"
-                                :class="activeTab === 'tools' ? 'bg-blue-600 text-white font-bold' : 'text-gray-300 hover:text-white hover:bg-white/5'"
-                                class="w-full text-left px-3 py-2 rounded-lg text-xs flex items-center justify-between transition select-none">
-                                <span>System Tools & Modules</span>
-                                <span x-show="activeTab === 'tools'" class="w-1.5 h-1.5 rounded-full bg-white"></span>
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- 🛠️ Services Category Dropdown -->
-                    <div class="relative flex-shrink-0" x-data="{ open: false }" @click.outside="open = false">
-                        <button type="button" @click="open = !open"
-                            :class="['tools', 'scrcpy'].includes(activeTab) ? 'bg-blue-600/30 text-blue-400 border-blue-500/50 font-bold' : 'text-gray-300 bg-card border-border hover:bg-white/5'"
-                            class="px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1 border whitespace-nowrap transition select-none">
-                            <span>🛠️ Services</span>
-                            <svg class="w-3 h-3 transition-transform duration-200" :class="open ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-                            </svg>
-                        </button>
-                        <div x-show="open"
-                            x-transition:enter="transition ease-out duration-150"
-                            x-transition:enter-start="opacity-0 scale-95 -translate-y-1"
-                            x-transition:enter-end="opacity-100 scale-100 translate-y-0"
-                            x-transition:leave="transition ease-in duration-100"
-                            x-transition:leave-start="opacity-100 scale-100 translate-y-0"
-                            x-transition:leave-end="opacity-0 scale-95 -translate-y-1"
-                            class="absolute left-0 mt-2 w-48 rounded-xl bg-card border border-border/80 shadow-2xl p-1 z-50 backdrop-blur-xl space-y-0.5"
-                            style="display: none;">
-                            <button type="button" @click="activeTab = 'tools'; open = false"
-                                :class="activeTab === 'tools' ? 'bg-blue-600 text-white font-bold' : 'text-gray-300 hover:text-white hover:bg-white/5'"
-                                class="w-full text-left px-3 py-2 rounded-lg text-xs flex items-center justify-between transition select-none">
-                                <span>Telegram Bot</span>
-                                <span x-show="activeTab === 'tools'" class="w-1.5 h-1.5 rounded-full bg-white"></span>
-                            </button>
-                            <button type="button" @click="activeTab = 'tools'; open = false"
-                                :class="activeTab === 'tools' ? 'bg-blue-600 text-white font-bold' : 'text-gray-300 hover:text-white hover:bg-white/5'"
-                                class="w-full text-left px-3 py-2 rounded-lg text-xs flex items-center justify-between transition select-none">
-                                <span>Smart Charger</span>
-                                <span x-show="activeTab === 'tools'" class="w-1.5 h-1.5 rounded-full bg-white"></span>
-                            </button>
-                            <button type="button" @click="activeTab = 'tools'; open = false"
-                                :class="activeTab === 'tools' ? 'bg-blue-600 text-white font-bold' : 'text-gray-300 hover:text-white hover:bg-white/5'"
-                                class="w-full text-left px-3 py-2 rounded-lg text-xs flex items-center justify-between transition select-none">
-                                <span>SSH Daemon</span>
-                                <span x-show="activeTab === 'tools'" class="w-1.5 h-1.5 rounded-full bg-white"></span>
-                            </button>
-                            <button type="button" @click="activeTab = 'scrcpy'; open = false"
-                                :class="activeTab === 'scrcpy' ? 'bg-blue-600 text-white font-bold' : 'text-gray-300 hover:text-white hover:bg-white/5'"
-                                class="w-full text-left px-3 py-2 rounded-lg text-xs flex items-center justify-between transition select-none">
-                                <span>Remote Screen</span>
-                                <span x-show="activeTab === 'scrcpy'" class="w-1.5 h-1.5 rounded-full bg-white"></span>
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- 🌐 Network Category Dropdown -->
-                    <div class="relative flex-shrink-0" x-data="{ open: false }" @click.outside="open = false">
-                        <button type="button" @click="open = !open"
-                            :class="['network', 'speedtest', 'proxy'].includes(activeTab) ? 'bg-blue-600/30 text-blue-400 border-blue-500/50 font-bold' : 'text-gray-300 bg-card border-border hover:bg-white/5'"
-                            class="px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1 border whitespace-nowrap transition select-none">
-                            <span>🌐 Network</span>
-                            <svg class="w-3 h-3 transition-transform duration-200" :class="open ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-                            </svg>
-                        </button>
-                        <div x-show="open"
-                            x-transition:enter="transition ease-out duration-150"
-                            x-transition:enter-start="opacity-0 scale-95 -translate-y-1"
-                            x-transition:enter-end="opacity-100 scale-100 translate-y-0"
-                            x-transition:leave="transition ease-in duration-100"
-                            x-transition:leave-start="opacity-100 scale-100 translate-y-0"
-                            x-transition:leave-end="opacity-0 scale-95 -translate-y-1"
-                            class="absolute left-0 mt-2 w-48 rounded-xl bg-card border border-border/80 shadow-2xl p-1 z-50 backdrop-blur-xl space-y-0.5"
-                            style="display: none;">
-                            <button type="button" @click="activeTab = 'network'; open = false"
-                                :class="activeTab === 'network' ? 'bg-blue-600 text-white font-bold' : 'text-gray-300 hover:text-white hover:bg-white/5'"
-                                class="w-full text-left px-3 py-2 rounded-lg text-xs flex items-center justify-between transition select-none">
-                                <span>Network & Tweaks</span>
-                                <span x-show="activeTab === 'network'" class="w-1.5 h-1.5 rounded-full bg-white"></span>
-                            </button>
-                            <button type="button" @click="activeTab = 'speedtest'; open = false"
-                                :class="activeTab === 'speedtest' ? 'bg-blue-600 text-white font-bold' : 'text-gray-300 hover:text-white hover:bg-white/5'"
-                                class="w-full text-left px-3 py-2 rounded-lg text-xs flex items-center justify-between transition select-none">
-                                <span>Speedtest Engine</span>
-                                <span x-show="activeTab === 'speedtest'" class="w-1.5 h-1.5 rounded-full bg-white"></span>
-                            </button>
-                            <button type="button" @click="activeTab = 'proxy'; open = false"
-                                :class="activeTab === 'proxy' ? 'bg-blue-600 text-white font-bold' : 'text-gray-300 hover:text-white hover:bg-white/5'"
-                                class="w-full text-left px-3 py-2 rounded-lg text-xs flex items-center justify-between transition select-none">
-                                <span>Proxy Core</span>
-                                <span x-show="activeTab === 'proxy'" class="w-1.5 h-1.5 rounded-full bg-white"></span>
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- 📦 Extras Category Dropdown -->
-                    <div class="relative flex-shrink-0" x-data="{ open: false }" @click.outside="open = false">
-                        <button type="button" @click="open = !open"
-                            :class="['sms', 'about'].includes(activeTab) ? 'bg-blue-600/30 text-blue-400 border-blue-500/50 font-bold' : 'text-gray-300 bg-card border-border hover:bg-white/5'"
-                            class="px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1 border whitespace-nowrap transition select-none">
-                            <span>📦 Extras</span>
-                            <svg class="w-3 h-3 transition-transform duration-200" :class="open ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-                            </svg>
-                        </button>
-                        <div x-show="open"
-                            x-transition:enter="transition ease-out duration-150"
-                            x-transition:enter-start="opacity-0 scale-95 -translate-y-1"
-                            x-transition:enter-end="opacity-100 scale-100 translate-y-0"
-                            x-transition:leave="transition ease-in duration-100"
-                            x-transition:leave-start="opacity-100 scale-100 translate-y-0"
-                            x-transition:leave-end="opacity-0 scale-95 -translate-y-1"
-                            class="absolute right-0 mt-2 w-48 rounded-xl bg-card border border-border/80 shadow-2xl p-1 z-50 backdrop-blur-xl space-y-0.5"
-                            style="display: none;">
-                            <button type="button" @click="activeTab = 'sms'; fetchSMS(); open = false"
-                                :class="activeTab === 'sms' ? 'bg-blue-600 text-white font-bold' : 'text-gray-300 hover:text-white hover:bg-white/5'"
-                                class="w-full text-left px-3 py-2 rounded-lg text-xs flex items-center justify-between transition select-none">
-                                <span>SMS Viewer</span>
-                                <span x-show="activeTab === 'sms'" class="w-1.5 h-1.5 rounded-full bg-white"></span>
-                            </button>
-                            <button type="button" @click="activeTab = 'about'; open = false"
-                                :class="activeTab === 'about' ? 'bg-blue-600 text-white font-bold' : 'text-gray-300 hover:text-white hover:bg-white/5'"
-                                class="w-full text-left px-3 py-2 rounded-lg text-xs flex items-center justify-between transition select-none">
-                                <span>About & Docs</span>
-                                <span x-show="activeTab === 'about'" class="w-1.5 h-1.5 rounded-full bg-white"></span>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </template>
     </header>
+
+    <!-- Mobile Fixed Bottom Category Bar (5-Column Grid Layout) -->
+    <template x-if="authenticated">
+        <div x-show="!hideMobileNav"
+            x-transition:enter="transition ease-out duration-200"
+            x-transition:enter-start="opacity-0 translate-y-4"
+            x-transition:enter-end="opacity-100 translate-y-0"
+            x-transition:leave="transition ease-in duration-150"
+            x-transition:leave-start="opacity-100 translate-y-0"
+            x-transition:leave-end="opacity-0 translate-y-4"
+            class="grid grid-cols-5 w-full px-1 py-1.5 bg-card/85 backdrop-blur-xl border-t border-border/60 fixed bottom-0 left-0 right-0 z-50 md:hidden shadow-[0_-4px_20px_rgba(0,0,0,0.4)] font-mono text-xs select-none">
+            
+            <!-- Hide / Minimize Button Badge -->
+            <button type="button" 
+                @click="hideMobileNav = true; mobileCategory = null" 
+                class="absolute -top-3.5 right-3 bg-card border border-border/80 text-gray-400 hover:text-white rounded-full px-2 py-0.5 text-[9px] font-bold shadow-lg z-50 flex items-center gap-0.5 select-none active:scale-95" 
+                title="Minimize Nav Bar">
+                <span>Hide</span>
+                <span>✕</span>
+            </button>
+
+            <!-- 📊 Status Category -->
+            <button type="button"
+                @click="mobileCategory = (mobileCategory === 'status' ? null : 'status')"
+                :class="['overview', 'sysinfo', 'logs'].includes(activeTab) || mobileCategory === 'status' ? 'text-blue-400 font-bold bg-blue-600/20 border-blue-500/40 shadow-sm shadow-blue-500/10' : 'text-gray-400 hover:text-gray-200 border-transparent'"
+                class="flex flex-col items-center justify-center text-[10px] font-bold p-1 rounded-lg transition whitespace-nowrap active:scale-95 border">
+                <span class="text-base">📊</span>
+                <span class="text-[10px] mt-0.5">Status</span>
+            </button>
+
+            <!-- ⚙️ System Category -->
+            <button type="button"
+                @click="mobileCategory = (mobileCategory === 'system' ? null : 'system')"
+                :class="['files', 'terminal', 'tools'].includes(activeTab) || mobileCategory === 'system' ? 'text-blue-400 font-bold bg-blue-600/20 border-blue-500/40 shadow-sm shadow-blue-500/10' : 'text-gray-400 hover:text-gray-200 border-transparent'"
+                class="flex flex-col items-center justify-center text-[10px] font-bold p-1 rounded-lg transition whitespace-nowrap active:scale-95 border">
+                <span class="text-base">⚙️</span>
+                <span class="text-[10px] mt-0.5">System</span>
+            </button>
+
+            <!-- 🛠️ Services Category -->
+            <button type="button"
+                @click="mobileCategory = (mobileCategory === 'services' ? null : 'services')"
+                :class="['tools', 'scrcpy'].includes(activeTab) || mobileCategory === 'services' ? 'text-blue-400 font-bold bg-blue-600/20 border-blue-500/40 shadow-sm shadow-blue-500/10' : 'text-gray-400 hover:text-gray-200 border-transparent'"
+                class="flex flex-col items-center justify-center text-[10px] font-bold p-1 rounded-lg transition whitespace-nowrap active:scale-95 border">
+                <span class="text-base">🛠️</span>
+                <span class="text-[10px] mt-0.5">Services</span>
+            </button>
+
+            <!-- 🌐 Network Category -->
+            <button type="button"
+                @click="mobileCategory = (mobileCategory === 'network' ? null : 'network')"
+                :class="['network', 'speedtest', 'proxy'].includes(activeTab) || mobileCategory === 'network' ? 'text-blue-400 font-bold bg-blue-600/20 border-blue-500/40 shadow-sm shadow-blue-500/10' : 'text-gray-400 hover:text-gray-200 border-transparent'"
+                class="flex flex-col items-center justify-center text-[10px] font-bold p-1 rounded-lg transition whitespace-nowrap active:scale-95 border">
+                <span class="text-base">🌐</span>
+                <span class="text-[10px] mt-0.5">Network</span>
+            </button>
+
+            <!-- ⭐ Extras Category -->
+            <button type="button"
+                @click="mobileCategory = (mobileCategory === 'extras' ? null : 'extras')"
+                :class="['sms', 'about'].includes(activeTab) || mobileCategory === 'extras' ? 'text-blue-400 font-bold bg-blue-600/20 border-blue-500/40 shadow-sm shadow-blue-500/10' : 'text-gray-400 hover:text-gray-200 border-transparent'"
+                class="flex flex-col items-center justify-center text-[10px] font-bold p-1 rounded-lg transition whitespace-nowrap active:scale-95 border">
+                <span class="text-base">⭐</span>
+                <span class="text-[10px] mt-0.5">Extras</span>
+            </button>
+        </div>
+    </template>
+
+    <!-- Floating Pill Button when Mobile Nav is Hidden -->
+    <template x-if="authenticated">
+        <button type="button"
+            x-show="hideMobileNav"
+            @click="hideMobileNav = false"
+            x-cloak
+            class="fixed bottom-4 left-4 z-[90] md:hidden bg-card/90 backdrop-blur-xl border border-blue-500/50 rounded-full px-3.5 py-2 shadow-2xl text-xs font-bold text-blue-400 flex items-center gap-1.5 active:scale-95 transition">
+            <span>🧭 Nav</span>
+            <span class="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></span>
+        </button>
+    </template>
 {{end}}
