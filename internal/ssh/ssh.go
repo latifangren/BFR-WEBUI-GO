@@ -98,9 +98,14 @@ func (m *Manager) saveConfig() error {
 }
 
 func (m *Manager) detectSshBinary() string {
+	// Only standalone dropbear binaries or Termux OpenSSH are accepted.
+	// Stock Android /system/bin/sshd and /product/bin/sshd are vendor RIL/debug
+	// daemons that exit with error when invoked from CLI — excluded explicitly.
 	paths := []string{
 		filepath.Join(config.ModuleDir, "bin/arm64/dropbear"),
 		filepath.Join(config.ModuleDir, "bin/dropbear"),
+		"/data/adb/modules/bfr-webui/bin/arm64/dropbear",
+		"/data/adb/modules/bfr-webui/bin/dropbear",
 		"bin/arm64/dropbear",
 		"bin/dropbear",
 		"/data/adb/modules/bfr_webui_go/bin/arm64/dropbear",
@@ -110,10 +115,11 @@ func (m *Manager) detectSshBinary() string {
 		"/vendor/bin/dropbear",
 		"/data/adb/magisk/dropbear",
 		"/data/adb/apatch/dropbear",
+		"/data/local/tmp/dropbear",
+		"/data/local/tmp/bin/arm64/dropbear",
 		"/data/data/com.termux/files/usr/bin/dropbear",
+		// Termux OpenSSH is a real standalone sshd; stock Android sshd is NOT.
 		"/data/data/com.termux/files/usr/bin/sshd",
-		"/system/bin/sshd",
-		"/product/bin/sshd",
 	}
 
 	for _, p := range paths {
@@ -122,8 +128,9 @@ func (m *Manager) detectSshBinary() string {
 		}
 	}
 
-	// Fallback to searching PATH via root shell
-	for _, bin := range []string{"dropbear", "sshd"} {
+	// Fallback: search PATH via root shell — only accept dropbear (safe).
+	// Never accept 'which sshd' here because it may resolve to a stock Android daemon.
+	for _, bin := range []string{"dropbear"} {
 		out, err := exec.Command(config.SUBin, "-c", "which "+bin).Output()
 		if err == nil {
 			p := strings.TrimSpace(string(out))
@@ -169,6 +176,22 @@ func ensureDropbearHostKeys(bin string) string {
 	_ = exec.Command(config.SUBin, "-c", genCmd).Run()
 
 	return keyPath
+}
+
+// ensureOpenSSHHostKeys ensures /data/ssh/ssh_host_rsa_key exists for use with
+// Termux OpenSSH (sshd). Generates via ssh-keygen if missing.
+func ensureOpenSSHHostKeys() {
+	keyPath := "/data/ssh/ssh_host_rsa_key"
+	_ = exec.Command(config.SUBin, "-c", "mkdir -p /data/ssh").Run()
+
+	checkCmd := exec.Command(config.SUBin, "-c", "test -f "+keyPath)
+	if checkCmd.Run() == nil {
+		return // key already present
+	}
+
+	genCmd := fmt.Sprintf("ssh-keygen -t rsa -f %s -N \"\"", keyPath)
+	out, err := exec.Command(config.SUBin, "-c", genCmd).CombinedOutput()
+	logger.Get().Infof("ssh", "ensureOpenSSHHostKeys ssh-keygen out=%s err=%v", strings.TrimSpace(string(out)), err)
 }
 
 func (m *Manager) getRunningProcessForPort(port int) (string, int) {
@@ -268,25 +291,48 @@ func (m *Manager) Start() error {
 		} else {
 			addr = fmt.Sprintf("%s:%d", m.config.Bind, m.config.Port)
 		}
-		cmdStr = fmt.Sprintf("%s -p %s -r %s -B", bin, addr, keyPath)
+		cmdStr = fmt.Sprintf("%s -p %s -r %s", bin, addr, keyPath)
 	} else {
+		// Termux OpenSSH sshd — ensure RSA host key exists before calling sshd.
+		ensureOpenSSHHostKeys()
 		cmdStr = fmt.Sprintf("%s -h /data/ssh/ssh_host_rsa_key -p %d -o \"ListenAddress %s\" -o \"PasswordAuthentication yes\"", bin, m.config.Port, m.config.Bind)
 	}
 
 	// Use nohup for clean daemon detach — prevents SIGHUP kill when su exits
 	fullCmd := fmt.Sprintf("nohup %s > /dev/null 2>&1 &", cmdStr)
 	cmd := exec.Command(config.SUBin, "-c", fullCmd)
-	err := cmd.Run()
-	if err != nil {
+	if err := cmd.Run(); err != nil {
+		l := logger.Get()
+		l.Errorf("ssh", "failed to launch ssh daemon binary=%s err=%v", bin, err)
 		return fmt.Errorf("failed to launch ssh daemon: %v", err)
 	}
 
 	m.config.Enabled = true
 	_ = m.saveConfig()
 
-	// Post-start verification: wait briefly then check if daemon actually survived
-	time.Sleep(500 * time.Millisecond)
+	// Post-start verification: wait 1200ms then check if daemon actually survived
+	time.Sleep(1200 * time.Millisecond)
 	_, verifiedPid := m.getRunningProcessForPort(m.config.Port)
+	if verifiedPid == 0 {
+		// Fallback pgrep for dropbear or sshd without strict port regex
+		for _, c := range []string{"dropbear", "sshd"} {
+			out, err := exec.Command(config.SUBin, "-c", "pgrep -f "+c).Output()
+			if err == nil {
+				for _, line := range strings.Split(strings.TrimSpace(string(out)), "\n") {
+					if p, err := strconv.Atoi(strings.TrimSpace(line)); err == nil && p > 0 {
+						if checkPidRunning(p) {
+							verifiedPid = p
+							break
+						}
+					}
+				}
+			}
+			if verifiedPid > 0 {
+				break
+			}
+		}
+	}
+
 	l := logger.Get()
 	if verifiedPid == 0 {
 		l.Errorf("ssh", "daemon exited immediately after start binary=%s cmd=%s", bin, fullCmd)

@@ -17,7 +17,7 @@ if %errorlevel% neq 0 (
 
 echo 3. Packaging Magisk zip using tar.exe...
 if exist "BFR-WEBUI-Magisk-%VER%-local.zip" del "BFR-WEBUI-Magisk-%VER%-local.zip"
-tar.exe -a -c -f "BFR-WEBUI-Magisk-%VER%-local.zip" customize.sh module.prop service.sh system.prop tweaks.json env.example webui
+tar.exe -a -c -f "BFR-WEBUI-Magisk-%VER%-local.zip" customize.sh module.prop service.sh system.prop tweaks.json env.example bin webui
 if %errorlevel% neq 0 (
     echo [ERROR] Packing failed.
     del webui

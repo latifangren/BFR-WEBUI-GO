@@ -16,19 +16,14 @@ Berikut adalah 5 fitur tingkat lanjut berbasis kekuatan biner native Go yang dit
 
 ---
 
-## 🛠️ 2. Peta Jalan Optimasi Teknis & Performa (v1.3.0+)
+## ✅ 2. Fitur Terpasang & Catatan Rilis (v1.2.0 Completed Checklist)
 
-* **[ ] 🔴 Eliminasi Overhead Subshell Shell Root (`internal/charger/charger.go`)**: Mengganti eksekusi shell `su -c test -w` saat memindai izin charging dengan panggilan native Go `os.OpenFile` / `unix.Access` untuk menghemat ~10–20ms per pemanggilan dan mengeliminasi *context switch* CPU.
-* **[ ] 🔴 Universal Panic Recovery Middleware (`internal/worker/worker.go`)**: Menambahkan `defer recover()` pada goroutine latar belakang (`worker.go`, `bot.go`, `ssh.go`) agar kesalahan format sysfs kernel HP tidak pernah memicu *crash* biner utama.
-* **[ ] 🔴 In-Memory 750ms TTL Cache `/proc` (`internal/sysinfo/sysinfo.go`)**: Menambahkan in-memory TTL cache 750ms pada `GetStats()` untuk menghilangkan I/O berkas `/proc` berulang saat browser melakukan polling cepat.
-* **[ ] 🟡 Pemindai Sysfs Charger Dinamis (`internal/charger/charger.go`)**: Pemindaian otomatis direktori `/sys/class/power_supply/*/` berdasarkan kata kunci charging jika jalur kandidat statis tidak ditemukan.
-* **[ ] 🟡 Pencarian Dinamis Core Proxy `$PATH` & Modul (`internal/proxy/proxy.go`)**: Pencarian biner `mihomo`/`clash` secara dinamis via `exec.LookPath()` dan direktori modul Magisk/KSU.
-* **[ ] 🟡 Daur Ulang Buffer `sync.Pool` Speedtest (`internal/speedtest/speedtest.go`)**: Menggunakan `sync.Pool` buffer 32KB pada worker loop speedtest untuk menghemat alokasi *Garbage Collector* (GC).
-
----
-
-## ✅ 3. Fitur Terpasang & Catatan Rilis (v1.2.0 Completed Checklist)
-
+* **[x] Eliminasi Overhead Subshell Shell Root (`internal/charger/charger.go`)**: Mengganti eksekusi shell `su -c test -w` saat memindai izin charging dengan panggilan native Go `os.OpenFile` / `unix.Access` untuk menghemat ~10–20ms per pemanggilan dan mengeliminasi *context switch* CPU.
+* **[x] Universal Panic Recovery Middleware (`internal/worker/worker.go`)**: Menambahkan `defer recover()` pada goroutine latar belakang (`worker.go`, `bot.go`, `ssh.go`) agar kesalahan format sysfs kernel HP tidak pernah memicu *crash* biner utama.
+* **[x] In-Memory 750ms TTL Cache `/proc` (`internal/sysinfo/sysinfo.go`)**: Menambahkan in-memory TTL cache 750ms pada `GetStats()` untuk menghilangkan I/O berkas `/proc` berulang saat browser melakukan polling cepat.
+* **[x] Pemindai Sysfs Charger Dinamis (`internal/charger/charger.go`)**: Pemindaian otomatis direktori `/sys/class/power_supply/*/` (`autoScan()`) berdasarkan kata kunci charging jika jalur kandidat statis tidak ditemukan.
+* **[x] Pencarian Dinamis Core Proxy `$PATH` & Modul (`internal/proxy/proxy.go`)**: Pencarian biner `mihomo`/`clash` secara dinamis via `exec.LookPath()` dan direktori modul Magisk/KSU.
+* **[x] Daur Ulang Buffer `sync.Pool` Speedtest (`internal/speedtest/speedtest.go`)**: Menggunakan `sync.Pool` buffer 32KB pada worker loop speedtest untuk menghemat alokasi *Garbage Collector* (GC).
 * **[x] Direktori Storage Persisten (`/data/adb/bfr_webui_go/data/`)**: Penyimpanan seluruh berkas konfigurasi & data di direktori khusus yang 100% aman dari terhapus saat modul di-update.
 * **[x] Enkripsi Password & API Ganti Password (`auth.json`)**: Penyimpanan password Salted SHA-256 Hash, endpoint REST `POST /api/auth/change-password`, `GET /api/auth/status`, dan badge quick-fill login adaptif.
 * **[x] Navigasi Mobile 5-Kolom Grid & Slide-Up Bottom Sheet Modal**: Desain navigasi bawah 5-kolom responsif dengan panel bottom sheet melayang (`z-[999]`).

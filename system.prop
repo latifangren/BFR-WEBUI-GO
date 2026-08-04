@@ -9,8 +9,7 @@ persist.radio.data_con_rrc=1
 persist.radio.add_power_save=1
 persist.radio.snapshot_enabled=1
 persist.radio.snapshot_timer=22
-ro.telephony.default_network=9,10,22
-telephony.lteOnCdmaDevice=1
+ro.telephony.default_network=22
 
 # TCP & Network Stack Optimization
 net.tcp.buffersize.default=4096,87380,256000,4096,16384,256000
