@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"net/url"
+	"strings"
 
 	"bfr-webui-go/internal/logger"
 	"bfr-webui-go/internal/proxy"
@@ -96,6 +98,14 @@ func HandleProxyControl(w http.ResponseWriter, r *http.Request) {
 }
 
 func HandleProxyLogs(w http.ResponseWriter, r *http.Request) {
+	origin := r.Header.Get("Origin")
+	if origin != "" {
+		u, err := url.Parse(origin)
+		if err != nil || !strings.EqualFold(u.Host, r.Host) {
+			http.Error(w, "Forbidden origin", http.StatusForbidden)
+			return
+		}
+	}
 	proxy.StreamLogs(w, r)
 }
 

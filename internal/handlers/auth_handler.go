@@ -66,7 +66,17 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	token, ok := h.authMgr.Authenticate(req.Password)
+	token, ok, rateLimited := h.authMgr.Authenticate(req.Password, r.RemoteAddr)
+	if rateLimited {
+		logger.Get().Warnf("auth", "Rate limited login attempt from %s", r.RemoteAddr)
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusTooManyRequests)
+		_ = json.NewEncoder(w).Encode(map[string]interface{}{
+			"success": false,
+			"error":   "Too many failed login attempts. Please try again in 1 minute.",
+		})
+		return
+	}
 	if !ok {
 		logger.Get().Warnf("auth", "Failed login attempt from %s", r.RemoteAddr)
 		w.Header().Set("Content-Type", "application/json")

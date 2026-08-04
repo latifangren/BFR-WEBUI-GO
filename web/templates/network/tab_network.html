@@ -3,14 +3,19 @@
                 <div x-show="activeTab === 'network'" class="space-y-6">
                     <!-- Optimization Profile Switches -->
                     <div class="bg-card border border-border rounded-2xl p-6 space-y-4">
-                        <div class="flex items-center justify-between">
+                        <div class="flex items-center justify-between flex-wrap gap-2">
                             <div>
                                 <h3 class="text-sm font-bold text-white uppercase tracking-wider">Dynamic Optimizations Tweaks</h3>
                                 <p class="text-xs text-gray-400 font-mono">Turn on/off individual optimizations (saved to tweaks.json)</p>
                             </div>
-                            <button type="button" @click="saveTweakConfig()" class="px-5 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-bold transition">
-                                Apply & Save
-                            </button>
+                            <div class="flex items-center gap-2">
+                                <button type="button" @click="restoreSysctlDefaults()" class="px-4 py-2 bg-gray-800 hover:bg-gray-700 text-gray-300 hover:text-white border border-border rounded-xl text-xs font-bold transition flex items-center gap-1.5">
+                                    <span>♻️ Restore Original Sysctl Defaults</span>
+                                </button>
+                                <button type="button" @click="saveTweakConfig()" class="px-5 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-bold transition">
+                                    Apply & Save
+                                </button>
+                            </div>
                         </div>
                         <template x-if="networkData.tweaks_json">
                             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 font-mono text-xs">

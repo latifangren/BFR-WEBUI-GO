@@ -7,6 +7,7 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	"net"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -19,14 +20,22 @@ import (
 )
 
 const (
-	CookieName      = "bfr_session"
-	DefaultPassword = "bfr"
-	SessionDuration = 24 * time.Hour
+	CookieName          = "bfr_session"
+	DefaultPassword     = "bfr"
+	SessionDuration     = 24 * time.Hour
+	rateLimitMaxFails   = 5
+	rateLimitWindowSecs = 60
 )
 
 type AuthConfig struct {
 	PasswordHash string `json:"password_hash"`
 	IsDefault    bool   `json:"is_default"`
+}
+
+// ipRateLimit tracks failed login attempts per IP.
+type ipRateLimit struct {
+	failedAttempts int
+	resetAt        time.Time
 }
 
 type Manager struct {
@@ -35,6 +44,22 @@ type Manager struct {
 	passwordHash string
 	isDefault    bool
 	sessions     map[string]time.Time
+	rateLimits   map[string]*ipRateLimit
+}
+
+var globalManager *Manager
+
+func GetManager() *Manager {
+	return globalManager
+}
+
+// extractIP strips the port from a remote address string.
+func extractIP(remoteAddr string) string {
+	host, _, err := net.SplitHostPort(remoteAddr)
+	if err != nil {
+		return strings.TrimSpace(remoteAddr)
+	}
+	return strings.TrimSpace(host)
 }
 
 func HashPassword(password string, salt string) string {
@@ -63,11 +88,13 @@ func VerifyPassword(password string, stored string) bool {
 
 func NewManager(password string) *Manager {
 	m := &Manager{
-		dataPath: config.GetPersistentFilePath("auth.json"),
-		sessions: make(map[string]time.Time),
+		dataPath:   config.GetPersistentFilePath("auth.json"),
+		sessions:   make(map[string]time.Time),
+		rateLimits: make(map[string]*ipRateLimit),
 	}
 	m.loadConfig(password)
 	go m.cleanupLoop()
+	globalManager = m
 	return m
 }
 
@@ -113,9 +140,27 @@ func (m *Manager) IsDefaultPassword() bool {
 	return m.isDefault
 }
 
-func (m *Manager) Authenticate(password string) (string, bool) {
+func (m *Manager) Authenticate(password, remoteAddr string) (token string, ok bool, rateLimited bool) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
+
+	ip := extractIP(remoteAddr)
+	now := time.Now()
+
+	lim, exists := m.rateLimits[ip]
+	if exists {
+		if now.After(lim.resetAt) {
+			lim.failedAttempts = 0
+			lim.resetAt = now.Add(time.Duration(rateLimitWindowSecs) * time.Second)
+		} else if lim.failedAttempts >= rateLimitMaxFails {
+			return "", false, true
+		}
+	} else {
+		lim = &ipRateLimit{
+			resetAt: now.Add(time.Duration(rateLimitWindowSecs) * time.Second),
+		}
+		m.rateLimits[ip] = lim
+	}
 
 	valid := false
 	if m.isDefault && password == DefaultPassword {
@@ -125,15 +170,19 @@ func (m *Manager) Authenticate(password string) (string, bool) {
 	}
 
 	if !valid {
-		return "", false
+		lim.failedAttempts++
+		return "", false, false
 	}
 
-	token, err := generateToken()
+	// Reset failed attempts counter on successful login
+	delete(m.rateLimits, ip)
+
+	t, err := generateToken()
 	if err != nil {
-		return "", false
+		return "", false, false
 	}
-	m.sessions[token] = time.Now().Add(SessionDuration)
-	return token, true
+	m.sessions[t] = now.Add(SessionDuration)
+	return t, true, false
 }
 
 func (m *Manager) ChangePassword(currentPass, newPass string) error {
@@ -212,6 +261,11 @@ func (m *Manager) cleanupLoop() {
 		for token, exp := range m.sessions {
 			if now.After(exp) {
 				delete(m.sessions, token)
+			}
+		}
+		for ip, lim := range m.rateLimits {
+			if now.After(lim.resetAt) {
+				delete(m.rateLimits, ip)
 			}
 		}
 		m.mu.Unlock()

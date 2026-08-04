@@ -91,6 +91,9 @@ func getTotalRAMBytes() uint64 {
 }
 
 func ApplyAllTweaks() error {
+	// Capture initial sysctl values before any tweaks (no-op if already captured)
+	BackupSysctlDefaults()
+
 	cfg, err := LoadTweaks()
 	if err != nil {
 		return err

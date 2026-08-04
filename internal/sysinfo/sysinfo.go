@@ -299,10 +299,20 @@ func buildStats() (Stats, error) {
 	return s, nil
 }
 
-func getCPUStats() (float64, []CPUCoreStat) {
-	cpuMux.Lock()
-	defer cpuMux.Unlock()
+func readCPUCoreFreqs(coreIndices []int) map[int]float64 {
+	freqs := make(map[int]float64, len(coreIndices))
+	for _, idx := range coreIndices {
+		freqs[idx] = getCoreFreq(idx)
+	}
+	return freqs
+}
 
+type coreUsageTemp struct {
+	core  int
+	usage float64
+}
+
+func getCPUStats() (float64, []CPUCoreStat) {
 	file, err := os.Open("/proc/stat")
 	if err != nil {
 		return 0, nil
@@ -310,8 +320,10 @@ func getCPUStats() (float64, []CPUCoreStat) {
 	defer file.Close()
 
 	var overallUsage float64
-	var cores []CPUCoreStat
+	var coreUsages []coreUsageTemp
+	var coreIndices []int
 
+	cpuMux.Lock()
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
 		line := scanner.Text()
@@ -333,14 +345,23 @@ func getCPUStats() (float64, []CPUCoreStat) {
 				usage := calcCPUUsage(&lastStat, fields[1:])
 				lastCoreCPUs[coreIdx] = lastStat
 
-				freq := getCoreFreq(coreIdx)
-				cores = append(cores, CPUCoreStat{
-					Core:    coreIdx,
-					FreqMHz: freq,
-					Usage:   usage,
-				})
+				coreIndices = append(coreIndices, coreIdx)
+				coreUsages = append(coreUsages, coreUsageTemp{core: coreIdx, usage: usage})
 			}
 		}
+	}
+	cpuMux.Unlock()
+
+	// Read sysfs frequencies into a local map outside cpuMux lock to avoid I/O contention
+	freqs := readCPUCoreFreqs(coreIndices)
+
+	var cores []CPUCoreStat
+	for _, cu := range coreUsages {
+		cores = append(cores, CPUCoreStat{
+			Core:    cu.core,
+			FreqMHz: freqs[cu.core],
+			Usage:   cu.usage,
+		})
 	}
 
 	return overallUsage, cores
@@ -365,7 +386,7 @@ func calcCPUUsage(prev *cpuStat, fields []string) float64 {
 		idle += numFields[4] // iowait
 	}
 
-	if prev.total == 0 {
+	if prev.total == 0 || total < prev.total || idle < prev.idle {
 		*prev = cpuStat{idle: idle, total: total}
 		return 0
 	}

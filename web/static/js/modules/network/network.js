@@ -34,6 +34,24 @@ const NetworkModule = {
         }
     },
 
+    async restoreSysctlDefaults() {
+        try {
+            const res = await fetch('/api/network/tweaks/restore', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' }
+            });
+            const data = await res.json();
+            if (res.ok && data.success) {
+                this.showToast('Defaults Restored', 'Original sysctl defaults restored successfully!', 'success');
+                this.fetchNetworkData();
+            } else {
+                this.showToast('Restore Error', data.error || 'Failed to restore sysctl defaults', 'error');
+            }
+        } catch (e) {
+            this.showToast('Restore Error', 'Request failed', 'error');
+        }
+    },
+
     async fetchRPSConfigs() {
         try {
             const res = await fetch('/api/network/rps');

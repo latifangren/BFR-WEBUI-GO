@@ -3,10 +3,13 @@ package terminal
 import (
 	"log"
 	"net/http"
+	"net/url"
 	"os"
 	"os/exec"
+	"strings"
 	"sync"
 
+	"bfr-webui-go/internal/auth"
 	"bfr-webui-go/internal/bufferpool"
 	"bfr-webui-go/internal/config"
 	"github.com/creack/pty"
@@ -14,10 +17,33 @@ import (
 )
 
 var upgrader = websocket.Upgrader{
-	CheckOrigin: func(r *http.Request) bool { return true },
+	CheckOrigin: func(r *http.Request) bool {
+		origin := r.Header.Get("Origin")
+		if origin == "" {
+			return true
+		}
+		u, err := url.Parse(origin)
+		if err != nil {
+			return false
+		}
+		return strings.EqualFold(u.Host, r.Host)
+	},
 }
 
 func HandleWebsocket(w http.ResponseWriter, r *http.Request) {
+	// Verify session authentication token before upgrading WS
+	token := ""
+	if cookie, err := r.Cookie(auth.CookieName); err == nil && cookie.Value != "" {
+		token = cookie.Value
+	}
+	if token == "" {
+		token = r.URL.Query().Get("token")
+	}
+	if token == "" || !auth.GetManager().ValidateSession(token) {
+		http.Error(w, "Unauthorized session", http.StatusUnauthorized)
+		return
+	}
+
 	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
 		log.Printf("Terminal WS upgrade error: %v", err)

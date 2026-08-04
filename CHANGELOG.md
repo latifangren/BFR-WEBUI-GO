@@ -10,15 +10,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **Authentication IP Rate Limiting**: Implemented per-IP rate limiter in `Manager.Authenticate()` allowing a maximum of 5 failed login attempts per minute window to prevent brute-force attacks (`HTTP 429`).
+- **Sysctl Initial Defaults Backup & Restoration**: Added `BackupSysctlDefaults()` and `RestoreSysctlDefaults()` in `internal/network/tweaks.go` (`POST /api/network/tweaks/restore` and `♻️ Restore Original Sysctl Defaults` button) to restore initial pre-tune sysctl parameters and reset persistent `tweaks.json` state.
+- **Per-Core CPU Frequency & Usage Diagnostics**: Added per-core CPU frequency reading from sysfs (`scaling_cur_freq`) and real-time CPU core usage badge grid rendering in `tab_sysinfo.html`.
 
 ### Improved
-- **Backend Performance, Resilience & Dynamic Auto-Detection Optimizations**:
-  - **Subshell Elimination & Dynamic Sysfs Scanner** (`internal/charger/charger.go`): Replaced wasteful `su test -w` subshells with native Go `os.OpenFile` checks and added dynamic fallback sysfs scanner (`/sys/class/power_supply/*/`) matching keywords (`charging`, `suspend`, `limit`, `fcc`, `store_mode`, `switch`).
-  - **Universal Worker Panic Recovery** (`internal/worker/worker.go`): Added panic recovery handler to background worker pool and fallback goroutines.
-  - **In-Memory TTL Cache for `/proc` Reads** (`internal/sysinfo/sysinfo.go`): Implemented 750ms TTL in-memory cache for `GetStats()` using `sync.RWMutex` to eliminate unnecessary disk and `/proc` I/O.
-  - **Dynamic `$PATH` & Module Binary Scanner** (`internal/proxy/proxy.go`): Added dynamic `$PATH` lookup (`exec.LookPath`) and Magisk/KSU module directory scanner (`/data/adb/modules/*/bin/{mihomo,clash}`) alongside static core paths.
-  - **Speedtest Engine Buffer Recycling** (`internal/speedtest/speedtest.go`): Implemented `sync.Pool` for 32KB buffer recycling in download/upload multi-worker loops to eliminate GC allocations.
-  - **Service Panic Safety** (`internal/telegram/bot.go`, `internal/ssh/ssh.go`): Added `defer recover()` panic recovery handlers to Telegram polling, notification workers, and SSH daemon control loops.
+- **HTTP Gzip Response Compression & Asset Caching**: Added Gzip response writer middleware with lazy initialization and `Flush()` support for SSE streams, alongside `Cache-Control` static asset headers.
+- **Non-blocking Sysinfo Background Ticker & Static Hardware Caching**: Implemented 1.5s background ticker loop updating `cachedStats` with non-blocking `RLock()` reads, cached static hardware info (`wm size`, `wm density`, model, SDK/kernel versions) via `sync.Once`, and replaced `df` subprocesses with native `syscall.Statfs`.
+- **WebSocket Terminal Security & Token Verification**: Replaced presence-only cookie checks in `HandleWebsocket()` with full session token validation (`ValidateSession`) and Origin host verification (`EqualFold`).
+- **Network Tweaks Batching & Dynamic RAM TCP Buffer Scaling**: Batched all root shell executions in `ApplyAllTweaks()` into a single `su -c` command chain and scaled TCP max buffers based on physical RAM capacity (`<4GB` RAM capped at 16MB max buffer).
+- **Subshell Elimination & Dynamic Sysfs Scanner** (`internal/charger/charger.go`): Replaced wasteful `su test -w` subshells with native Go `os.OpenFile` checks and added dynamic fallback sysfs scanner (`/sys/class/power_supply/*/`) matching keywords (`charging`, `suspend`, `limit`, `fcc`, `store_mode`, `switch`).
+- **Universal Worker Panic Recovery** (`internal/worker/worker.go`): Added panic recovery handler to background worker pool and fallback goroutines.
+- **In-Memory TTL Cache for `/proc` Reads** (`internal/sysinfo/sysinfo.go`): Implemented 750ms TTL in-memory cache for `GetStats()` using `sync.RWMutex` to eliminate unnecessary disk and `/proc` I/O.
+- **Dynamic `$PATH` & Module Binary Scanner** (`internal/proxy/proxy.go`): Added dynamic `$PATH` lookup (`exec.LookPath`) and Magisk/KSU module directory scanner (`/data/adb/modules/*/bin/{mihomo,clash}`) alongside static core paths.
+- **Speedtest Engine Buffer Recycling** (`internal/speedtest/speedtest.go`): Implemented `sync.Pool` for 32KB buffer recycling in download/upload multi-worker loops to eliminate GC allocations.
+- **Service Panic Safety** (`internal/telegram/bot.go`, `internal/ssh/ssh.go`): Added `defer recover()` panic recovery handlers to Telegram polling, notification workers, and SSH daemon control loops.
 
 ## [1.2.0] - 2026-08-03
 

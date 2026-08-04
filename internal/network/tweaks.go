@@ -9,6 +9,7 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+	"sync"
 
 	"bfr-webui-go/internal/config"
 	"bfr-webui-go/internal/logger"
@@ -19,7 +20,68 @@ var (
 	reSysctlKey = regexp.MustCompile(`^[a-zA-Z0-9_.-]+$`)
 	reSysctlVal = regexp.MustCompile(`^[a-zA-Z0-9_. -]+$`)
 	reIfaceName = regexp.MustCompile(`^[a-zA-Z0-9._-]+$`)
+
+	sysctlDefaultsMu sync.Mutex
+	sysctlDefaults   map[string]string
 )
+
+var defaultTunedKeys = []string{
+	"net.core.rmem_max",
+	"net.core.wmem_max",
+	"net.core.rmem_default",
+	"net.core.wmem_default",
+	"net.core.somaxconn",
+	"net.ipv4.tcp_rmem",
+	"net.ipv4.tcp_wmem",
+	"net.ipv4.tcp_tw_reuse",
+	"net.ipv4.tcp_fin_timeout",
+	"net.ipv4.tcp_max_syn_backlog",
+	"net.ipv4.tcp_keepalive_time",
+	"net.ipv4.tcp_keepalive_intvl",
+	"net.ipv4.tcp_keepalive_probes",
+	"net.ipv4.tcp_timestamps",
+	"net.ipv4.tcp_sack",
+	"net.ipv4.tcp_window_scaling",
+	"net.core.default_qdisc",
+	"net.ipv4.tcp_congestion_control",
+}
+
+func BackupSysctlDefaults() {
+	sysctlDefaultsMu.Lock()
+	defer sysctlDefaultsMu.Unlock()
+	if sysctlDefaults != nil {
+		return
+	}
+	sysctlDefaults = make(map[string]string)
+	for _, key := range defaultTunedKeys {
+		if val, err := GetSysctl(key); err == nil && val != "" {
+			sysctlDefaults[key] = val
+		}
+	}
+}
+
+func RestoreSysctlDefaults() error {
+	sysctlDefaultsMu.Lock()
+	defer sysctlDefaultsMu.Unlock()
+	if len(sysctlDefaults) == 0 {
+		return fmt.Errorf("no sysctl defaults snapshot available")
+	}
+	var errs []string
+	for key, val := range sysctlDefaults {
+		if err := SetSysctl(key, val); err != nil {
+			errs = append(errs, fmt.Sprintf("%s: %v", key, err))
+		}
+	}
+	if len(errs) > 0 {
+		return fmt.Errorf("failed to restore sysctl defaults: %s", strings.Join(errs, "; "))
+	}
+
+	// Persistently save disabled/default state to tweaks.json
+	_ = SaveTweaks(TweaksConfig{})
+
+	logger.Get().Infof("network", "Restored initial sysctl defaults successfully")
+	return nil
+}
 
 type SysctlTweak struct {
 	Key   string `json:"key"`

@@ -166,6 +166,7 @@ func RegisterRoutes(mux *http.ServeMux, authMgr *auth.Manager) {
 
 	// Network URLs
 	mux.HandleFunc("/api/network/tweaks", wrap(HandleNetworkTweaks, true))
+	mux.HandleFunc("/api/network/tweaks/restore", wrap(HandleNetworkTweaksRestore, true))
 	mux.HandleFunc("/api/network/ping", wrap(HandlePing, true))
 	mux.HandleFunc("/api/network/dns", wrap(HandleDNS, true))
 	mux.HandleFunc("/api/network/rps", wrap(HandleRPS, true))

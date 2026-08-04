@@ -72,13 +72,13 @@
                                 </div>
                             </div>
 
-                            <!-- CPU Cores Frequency Grid -->
+                            <!-- CPU Cores Frequency & Usage Badge Grid -->
                             <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2">
-                                <template x-for="c in stats.governorInfo?.cores || []" :key="c.core">
-                                    <div class="bg-flat p-3 rounded-xl space-y-1 text-center border border-border/40">
+                                <template x-for="c in (stats.cpu_cores && stats.cpu_cores.length ? stats.cpu_cores : (stats.governorInfo?.cores || []))" :key="c.core">
+                                    <div class="bg-flat p-3 rounded-xl space-y-1 text-center border border-border/40 hover:border-blue-500/40 transition">
                                         <div class="text-[10px] text-gray-500 font-bold uppercase" x-text="'Core ' + c.core"></div>
-                                        <div class="text-xs font-extrabold text-blue-400" x-text="c.cur_freq"></div>
-                                        <div class="text-[9px] text-gray-400 uppercase" x-text="c.governor"></div>
+                                        <div class="text-xs font-extrabold text-blue-400" x-text="c.freq_mhz ? Math.round(c.freq_mhz) + ' MHz' : (c.cur_freq || '—')"></div>
+                                        <div class="text-[9px] text-gray-400 font-bold uppercase" x-text="c.usage !== undefined ? c.usage.toFixed(1) + '% Usage' : (c.governor || '')"></div>
                                     </div>
                                 </template>
                             </div>
