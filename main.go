@@ -67,7 +67,7 @@ func main() {
 	addr := ":" + *port
 	server := &http.Server{
 		Addr:    addr,
-		Handler: mux,
+		Handler: handlers.GzipMiddleware(mux),
 	}
 
 	// L-5: Graceful shutdown on SIGINT / SIGTERM.

@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"compress/gzip"
 	"html/template"
 	"io/fs"
 	"log"
@@ -10,6 +11,63 @@ import (
 	"bfr-webui-go/internal/auth"
 	"bfr-webui-go/web"
 )
+
+type gzipResponseWriter struct {
+	http.ResponseWriter
+	Writer  *gzip.Writer
+	written bool
+}
+
+func (g *gzipResponseWriter) initGzip() {
+	if !g.written {
+		g.written = true
+		g.Header().Set("Content-Encoding", "gzip")
+		g.Header().Add("Vary", "Accept-Encoding")
+		g.Writer = gzip.NewWriter(g.ResponseWriter)
+	}
+}
+
+func (g *gzipResponseWriter) WriteHeader(statusCode int) {
+	if statusCode == http.StatusNoContent || statusCode == http.StatusNotModified {
+		g.ResponseWriter.WriteHeader(statusCode)
+		return
+	}
+	g.initGzip()
+	g.ResponseWriter.WriteHeader(statusCode)
+}
+
+func (g *gzipResponseWriter) Write(b []byte) (int, error) {
+	g.initGzip()
+	return g.Writer.Write(b)
+}
+
+func (g *gzipResponseWriter) Flush() {
+	if g.Writer != nil {
+		_ = g.Writer.Flush()
+	}
+	if f, ok := g.ResponseWriter.(http.Flusher); ok {
+		f.Flush()
+	}
+}
+
+func (g *gzipResponseWriter) Close() {
+	if g.Writer != nil {
+		_ = g.Writer.Close()
+	}
+}
+
+// GzipMiddleware wraps an http.Handler to compress responses with gzip.
+func GzipMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if !strings.Contains(r.Header.Get("Accept-Encoding"), "gzip") || strings.Contains(strings.ToLower(r.Header.Get("Upgrade")), "websocket") {
+			next.ServeHTTP(w, r)
+			return
+		}
+		gzw := &gzipResponseWriter{ResponseWriter: w}
+		defer gzw.Close()
+		next.ServeHTTP(gzw, r)
+	})
+}
 
 // L-3: securityHeaders middleware sets security headers on responses.
 func securityHeaders(next http.HandlerFunc) http.HandlerFunc {
@@ -54,6 +112,9 @@ func RegisterRoutes(mux *http.ServeMux, authMgr *auth.Manager) {
 	if err == nil {
 		fileServer := http.FileServer(http.FS(subFS))
 		mux.HandleFunc("/", securityHeaders(func(w http.ResponseWriter, r *http.Request) {
+			if strings.HasPrefix(r.URL.Path, "/static/") {
+				w.Header().Set("Cache-Control", "public, max-age=86400")
+			}
 			if r.URL.Path != "/" && r.URL.Path != "/index.html" {
 				fileServer.ServeHTTP(w, r)
 				return

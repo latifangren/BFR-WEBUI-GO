@@ -40,10 +40,24 @@ const SysinfoModule = {
                 this.lastNetTx = data.net_tx;
                 this.stats = data;
             }
-            this.fetchVnstatData();
-            this.fetchChargerConfig();
-            this.fetchSSHStatus();
-            this.fetchGovernorInfo();
+            if (typeof this.fetchVnstatData === 'function' && (this.activeTab === 'network' || this.activeTab === 'overview')) {
+                this.fetchVnstatData();
+            }
+            if (typeof this.fetchChargerConfig === 'function' && (this.activeTab === 'tools' || this.activeTab === 'overview')) {
+                this.fetchChargerConfig();
+            }
+            if (typeof this.fetchSSHStatus === 'function' && (this.activeTab === 'tools' || this.activeTab === 'overview')) {
+                this.fetchSSHStatus();
+            }
+            if (this.activeTab === 'sysinfo' || this.activeTab === 'overview') {
+                this.fetchGovernorInfo();
+            }
+            if (this.activeTab === 'network' && typeof this.fetchNetworkDetail === 'function') {
+                this.fetchNetworkDetail();
+            }
+            if (this.activeTab === 'sysinfo' && typeof this.fetchTopProcesses === 'function') {
+                this.fetchTopProcesses();
+            }
         } catch (e) {}
     },
 

@@ -15,6 +15,7 @@ import (
 	"time"
 
 	"bfr-webui-go/internal/config"
+	"bfr-webui-go/internal/logger"
 )
 
 type CPUCoreStat struct {
@@ -147,36 +148,92 @@ var (
 	statsCacheMu   sync.RWMutex
 	cachedStats    Stats
 	lastStatsCache time.Time
+
+	staticInfo     staticHardwareInfo
+	staticInfoOnce sync.Once
+	monitorOnce    sync.Once
 )
+
+type staticHardwareInfo struct {
+	model         string
+	androidVer    string
+	sdkVer        string
+	securityPatch string
+	resolution    string
+	density       string
+	kernel        string
+}
+
+func getStaticHardwareInfo() staticHardwareInfo {
+	staticInfoOnce.Do(func() {
+		model := getProp("ro.product.model")
+		if model == "" {
+			model = getProp("ro.product.brand") + " " + getProp("ro.product.device")
+		}
+		staticInfo = staticHardwareInfo{
+			model:         model,
+			androidVer:    getProp("ro.build.version.release"),
+			sdkVer:        getProp("ro.build.version.sdk"),
+			securityPatch: getProp("ro.build.version.security_patch"),
+			resolution:    getScreenResolution(),
+			density:       getScreenDensity(),
+			kernel:        getKernelVersion(),
+		}
+	})
+	return staticInfo
+}
+
+func StartBackgroundMonitor() {
+	monitorOnce.Do(func() {
+		go func() {
+			defer func() {
+				if r := recover(); r != nil {
+					logger.Get().Errorf("sysinfo", "Background monitor recovered from panic: %v", r)
+				}
+			}()
+			if s, err := buildStats(); err == nil {
+				statsCacheMu.Lock()
+				cachedStats = s
+				lastStatsCache = time.Now()
+				statsCacheMu.Unlock()
+			}
+			ticker := time.NewTicker(1500 * time.Millisecond)
+			defer ticker.Stop()
+			for range ticker.C {
+				func() {
+					defer func() {
+						if r := recover(); r != nil {
+							logger.Get().Errorf("sysinfo", "Background monitor ticker loop recovered from panic: %v", r)
+						}
+					}()
+					if s, err := buildStats(); err == nil {
+						statsCacheMu.Lock()
+						cachedStats = s
+						lastStatsCache = time.Now()
+						statsCacheMu.Unlock()
+					}
+				}()
+			}
+		}()
+	})
+}
 
 func init() {
 	lastCoreCPUs = make(map[int]cpuStat)
 	getCPUStats()
-	time.Sleep(100 * time.Millisecond)
+	StartBackgroundMonitor()
 }
 
 func GetStats() (Stats, error) {
 	statsCacheMu.RLock()
-	if !lastStatsCache.IsZero() && time.Since(lastStatsCache) < 750*time.Millisecond {
+	if !lastStatsCache.IsZero() {
 		s := cachedStats
 		statsCacheMu.RUnlock()
 		return s, nil
 	}
 	statsCacheMu.RUnlock()
 
-	statsCacheMu.Lock()
-	defer statsCacheMu.Unlock()
-
-	if !lastStatsCache.IsZero() && time.Since(lastStatsCache) < 750*time.Millisecond {
-		return cachedStats, nil
-	}
-
-	s, err := buildStats()
-	if err == nil {
-		cachedStats = s
-		lastStatsCache = time.Now()
-	}
-	return s, err
+	return buildStats()
 }
 
 func buildStats() (Stats, error) {
@@ -221,19 +278,18 @@ func buildStats() (Stats, error) {
 	s.LoadAvg = getLoadAvg()
 	s.ActiveServices = getActiveServices()
 
-	s.Model = getProp("ro.product.model")
-	if s.Model == "" {
-		s.Model = getProp("ro.product.brand") + " " + getProp("ro.product.device")
-	}
-	s.AndroidVer = getProp("ro.build.version.release")
+	info := getStaticHardwareInfo()
+	s.Model = info.model
+	s.AndroidVer = info.androidVer
+	s.SDKVer = info.sdkVer
+	s.SecurityPatch = info.securityPatch
+	s.Resolution = info.resolution
+	s.Density = info.density
+	s.Kernel = info.kernel
+
 	s.SELinux = getSELinux()
-	s.SecurityPatch = getProp("ro.build.version.security_patch")
-	s.SDKVer = getProp("ro.build.version.sdk")
-	s.Resolution = getScreenResolution()
-	s.Density = getScreenDensity()
 	s.MTU = getMTU()
 	s.DefaultTTL = getDefaultTTL()
-	s.Kernel = getKernelVersion()
 	s.ServerTime = getServerTime()
 	s.LocalTime = getAndroidLocalTime()
 	s.Hostname = getHostname()
@@ -526,45 +582,6 @@ func getThermalZones() []ThermalZone {
 		}
 	}
 	return zones
-}
-
-func getDiskPartitions() []DiskPartition {
-	var disks []DiskPartition
-	targets := []string{"/data", "/system", "/sdcard"}
-
-	for _, target := range targets {
-		out := runCmdTimeout(2*time.Second, "df", "-k", target)
-		if out == "" {
-			continue
-		}
-		lines := strings.Split(strings.TrimSpace(out), "\n")
-		if len(lines) >= 2 {
-			fields := strings.Fields(lines[len(lines)-1])
-			if len(fields) >= 5 {
-				totalKb, _ := strconv.ParseUint(fields[1], 10, 64)
-				usedKb, _ := strconv.ParseUint(fields[2], 10, 64)
-				freeKb, _ := strconv.ParseUint(fields[3], 10, 64)
-
-				total := totalKb * 1024
-				used := usedKb * 1024
-				free := freeKb * 1024
-
-				var pct float64
-				if total > 0 {
-					pct = (float64(used) / float64(total)) * 100
-				}
-
-				disks = append(disks, DiskPartition{
-					Path:    target,
-					Total:   total,
-					Free:    free,
-					Used:    used,
-					UsedPct: pct,
-				})
-			}
-		}
-	}
-	return disks
 }
 
 var rePingHost = regexp.MustCompile(`^[a-zA-Z0-9.-]+$`)

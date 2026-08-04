@@ -3,10 +3,12 @@ package network
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"os"
-	"os/exec"
 	"path/filepath"
+	"strconv"
 	"strings"
+	"time"
 
 	"bfr-webui-go/internal/config"
 )
@@ -71,58 +73,94 @@ func SaveTweaks(cfg TweaksConfig) error {
 	return os.WriteFile(path, data, 0644)
 }
 
+func getTotalRAMBytes() uint64 {
+	data, err := os.ReadFile("/proc/meminfo")
+	if err != nil {
+		return 0
+	}
+	for _, line := range strings.Split(string(data), "\n") {
+		if strings.HasPrefix(line, "MemTotal:") {
+			fields := strings.Fields(line)
+			if len(fields) >= 2 {
+				kb, _ := strconv.ParseUint(fields[1], 10, 64)
+				return kb * 1024
+			}
+		}
+	}
+	return 0
+}
+
 func ApplyAllTweaks() error {
 	cfg, err := LoadTweaks()
 	if err != nil {
 		return err
 	}
 
+	var cmds []string
+
 	if cfg.SettingsGlobalTweaks {
-		_ = exec.Command(config.SUBin, "-c", "settings put global adb_enabled 1").Run()
-		_ = exec.Command(config.SUBin, "-c", "settings put global window_animation_scale 0.1").Run()
-		_ = exec.Command(config.SUBin, "-c", "settings put global transition_animation_scale 0.1").Run()
-		_ = exec.Command(config.SUBin, "-c", "settings put global animator_duration_scale 0.1").Run()
-		_ = exec.Command(config.SUBin, "-c", "settings put global gprs_detach_timer 30").Run()
+		cmds = append(cmds,
+			"settings put global adb_enabled 1",
+			"settings put global window_animation_scale 0.1",
+			"settings put global transition_animation_scale 0.1",
+			"settings put global animator_duration_scale 0.1",
+			"settings put global gprs_detach_timer 30",
+		)
 	}
 
 	if cfg.LTECarrierAggregation {
-		_ = exec.Command(config.SUBin, "-c", "settings put global lte_ca_config 1").Run()
-		_ = exec.Command(config.SUBin, "-c", "setprop gsm.lte.ca.support 1").Run()
-		_ = exec.Command(config.SUBin, "-c", "setprop persist.radio.lte_ca 1").Run()
-		_ = exec.Command(config.SUBin, "-c", "setprop vendor.radio.lte_ca 1").Run()
+		cmds = append(cmds,
+			"settings put global lte_ca_config 1",
+			"setprop gsm.lte.ca.support 1",
+			"setprop persist.radio.lte_ca 1",
+			"setprop vendor.radio.lte_ca 1",
+		)
 	}
 
 	if cfg.SysctlBuffersOpt {
-		_ = SetSysctl("net.core.rmem_max", "67108864")
-		_ = SetSysctl("net.core.wmem_max", "67108864")
-		_ = SetSysctl("net.core.rmem_default", "33554432")
-		_ = SetSysctl("net.core.wmem_default", "33554432")
-		_ = SetSysctl("net.core.somaxconn", "1024")
-		_ = SetSysctl("net.ipv4.tcp_rmem", "4096 87380 67108864")
-		_ = SetSysctl("net.ipv4.tcp_wmem", "4096 65536 67108864")
-		_ = SetSysctl("net.ipv4.tcp_tw_reuse", "1")
-		_ = SetSysctl("net.ipv4.tcp_fin_timeout", "15")
-		_ = SetSysctl("net.ipv4.tcp_max_syn_backlog", "4096")
-		_ = SetSysctl("net.ipv4.tcp_keepalive_time", "300")
-		_ = SetSysctl("net.ipv4.tcp_keepalive_intvl", "15")
-		_ = SetSysctl("net.ipv4.tcp_keepalive_probes", "5")
-		_ = SetSysctl("net.ipv4.tcp_timestamps", "1")
-		_ = SetSysctl("net.ipv4.tcp_sack", "1")
-		_ = SetSysctl("net.ipv4.tcp_window_scaling", "1")
+		totalRAM := getTotalRAMBytes()
+		maxBuf := "33554432"
+		defBuf := "16777216"
+		if totalRAM > 0 && totalRAM < 4*1024*1024*1024 { // < 4GB
+			maxBuf = "16777216"
+			defBuf = "8388608"
+		} else if totalRAM >= 4*1024*1024*1024 { // >= 4GB
+			maxBuf = "67108864"
+			defBuf = "33554432"
+		}
+		cmds = append(cmds,
+			fmt.Sprintf("sysctl -w net.core.rmem_max=\"%s\"", maxBuf),
+			fmt.Sprintf("sysctl -w net.core.wmem_max=\"%s\"", maxBuf),
+			fmt.Sprintf("sysctl -w net.core.rmem_default=\"%s\"", defBuf),
+			fmt.Sprintf("sysctl -w net.core.wmem_default=\"%s\"", defBuf),
+			"sysctl -w net.core.somaxconn=\"1024\"",
+			fmt.Sprintf("sysctl -w net.ipv4.tcp_rmem=\"4096 87380 %s\"", maxBuf),
+			fmt.Sprintf("sysctl -w net.ipv4.tcp_wmem=\"4096 65536 %s\"", maxBuf),
+			"sysctl -w net.ipv4.tcp_tw_reuse=\"1\"",
+			"sysctl -w net.ipv4.tcp_fin_timeout=\"15\"",
+			"sysctl -w net.ipv4.tcp_max_syn_backlog=\"4096\"",
+			"sysctl -w net.ipv4.tcp_keepalive_time=\"300\"",
+			"sysctl -w net.ipv4.tcp_keepalive_intvl=\"15\"",
+			"sysctl -w net.ipv4.tcp_keepalive_probes=\"5\"",
+			"sysctl -w net.ipv4.tcp_timestamps=\"1\"",
+			"sysctl -w net.ipv4.tcp_sack=\"1\"",
+			"sysctl -w net.ipv4.tcp_window_scaling=\"1\"",
+		)
 	}
 
 	if cfg.BBR2CongestionControl {
-		_ = SetSysctl("net.core.default_qdisc", "fq")
-		errBbr := SetSysctl("net.ipv4.tcp_congestion_control", "bbr2")
-		if errBbr != nil {
-			_ = SetSysctl("net.ipv4.tcp_congestion_control", "bbr")
-		}
+		cmds = append(cmds,
+			"sysctl -w net.core.default_qdisc=\"fq\"",
+			"sysctl -w net.ipv4.tcp_congestion_control=\"bbr2\" || sysctl -w net.ipv4.tcp_congestion_control=\"bbr\"",
+		)
 	}
 
-	if cfg.TTLSpoofing {
-		_ = SetTTLSpoofSDK(true, 0)
-	} else {
-		_ = SetTTLSpoofSDK(false, 0)
+	if cfg.DalvikResponsiveness {
+		cmds = append(cmds,
+			"setprop dalvik.vm.heaptargetutilization 0.75",
+			"setprop dalvik.vm.heapgrowthlimit 256m",
+			"setprop dalvik.vm.heapsize 512m",
+		)
 	}
 
 	// Apply Per-Interface tweaks
@@ -133,20 +171,25 @@ func ApplyAllTweaks() error {
 				name := ifc.Name
 				if strings.HasPrefix(name, "wlan") || strings.HasPrefix(name, "rmnet") || strings.HasPrefix(name, "eth") || strings.HasPrefix(name, "rndis") {
 					if cfg.MTUTuning {
-						_ = SetInterfaceConfig(name, 1500, 5000)
+						cmds = append(cmds, fmt.Sprintf("ip link set %s mtu 1500; ip link set %s txqueuelen 5000", name, name))
 					}
 					if cfg.PacketSteeringRPS {
-						_ = ConfigureRPS(name, "f")
+						cmds = append(cmds, fmt.Sprintf("echo f > /sys/class/net/%s/queues/rx-0/rps_cpus 2>/dev/null || true", name))
 					}
 				}
 			}
 		}
 	}
 
-	if cfg.DalvikResponsiveness {
-		_ = exec.Command(config.SUBin, "-c", "setprop dalvik.vm.heaptargetutilization 0.75").Run()
-		_ = exec.Command(config.SUBin, "-c", "setprop dalvik.vm.heapgrowthlimit 256m").Run()
-		_ = exec.Command(config.SUBin, "-c", "setprop dalvik.vm.heapsize 512m").Run()
+	if len(cmds) > 0 {
+		batchCmd := strings.Join(cmds, " ; ")
+		_, _ = config.ExecSuTimeout(10*time.Second, batchCmd)
+	}
+
+	if cfg.TTLSpoofing {
+		_ = SetTTLSpoofSDK(true, 0)
+	} else {
+		_ = SetTTLSpoofSDK(false, 0)
 	}
 
 	return nil
