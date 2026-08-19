@@ -27,6 +27,8 @@ type TunnelConfig struct {
 	CloudflareQuick   bool   `json:"cloudflare_quick"`
 	TailscaleAuthKey  string `json:"tailscale_auth_key"`
 	ZeroTierNetworkID string `json:"zerotier_network_id"`
+	NgrokAuthToken    string `json:"ngrok_auth_token"`
+	PinggyToken       string `json:"pinggy_token"`
 }
 
 type TunnelStatus struct {
@@ -56,7 +58,9 @@ var (
 	globalManager *Manager
 	once          sync.Once
 
-	reURL = regexp.MustCompile(`https://[a-zA-Z0-9-]+\.trycloudflare\.com`)
+	reURL       = regexp.MustCompile(`https://[a-zA-Z0-9-]+\.trycloudflare\.com`)
+	reNgrokURL  = regexp.MustCompile(`https://[a-zA-Z0-9-]+\.ngrok-free\.app`)
+	rePinggyURL = regexp.MustCompile(`https://[a-zA-Z0-9-]+\.pinggy\.link|https://[a-zA-Z0-9-]+\.a\.pinggy\.online`)
 )
 
 func getStoragePath() string {
@@ -146,6 +150,12 @@ func (m *Manager) SaveConfig(cfg *TunnelConfig) error {
 	return nil
 }
 
+func GetBinDir() string {
+	dir := filepath.Join(config.GetPersistentDataDir(), "bin")
+	_ = os.MkdirAll(dir, 0755)
+	return dir
+}
+
 // FindBinary searches for the tunnel binary in PATH or Magisk/KernelSU/APatch module directories.
 func FindBinary(engine string) string {
 	var names []string
@@ -156,8 +166,21 @@ func FindBinary(engine string) string {
 		names = []string{"tailscale", "tailscaled"}
 	case "zerotier":
 		names = []string{"zerotier-one", "zerotier-cli"}
+	case "ngrok":
+		names = []string{"ngrok"}
+	case "pinggy":
+		names = []string{"ssh"}
 	default:
 		return ""
+	}
+
+	// 0. Search in persistent bin dir first
+	binDir := GetBinDir()
+	for _, name := range names {
+		p := filepath.Join(binDir, name)
+		if fi, err := os.Stat(p); err == nil && !fi.IsDir() {
+			return p
+		}
 	}
 
 	// 1. Search in PATH
@@ -190,6 +213,45 @@ func FindBinary(engine string) string {
 	}
 
 	return ""
+}
+
+// DownloadBinary streams and saves a tunnel binary file into GetBinDir().
+func DownloadBinary(engine string, reader io.Reader, fileName string) (string, error) {
+	if reader == nil {
+		return "", fmt.Errorf("reader cannot be nil")
+	}
+
+	engineLower := strings.ToLower(engine)
+	targetName := ""
+	switch engineLower {
+	case "cloudflare":
+		targetName = "cloudflared"
+	case "ngrok":
+		targetName = "ngrok"
+	case "tailscale":
+		targetName = "tailscale"
+	case "zerotier":
+		targetName = "zerotier-one"
+	default:
+		targetName = filepath.Base(fileName)
+	}
+
+	targetPath := filepath.Join(GetBinDir(), targetName)
+	outFile, err := os.OpenFile(targetPath, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0755)
+	if err != nil {
+		return "", fmt.Errorf("failed creating binary target path: %w", err)
+	}
+	defer outFile.Close()
+
+	if _, err := io.Copy(outFile, reader); err != nil {
+		_ = os.Remove(targetPath)
+		return "", fmt.Errorf("failed saving binary file: %w", err)
+	}
+
+	// Grant executable permissions
+	_ = os.Chmod(targetPath, 0755)
+	logger.Get().Infof("Tunnel", "Binary %s installed successfully to %s", targetName, targetPath)
+	return targetPath, nil
 }
 
 func (m *Manager) StopTunnel() error {
@@ -333,6 +395,85 @@ func (m *Manager) StartTunnel(cfg TunnelConfig) error {
 				}
 			}
 		}
+
+	case "ngrok":
+		if cfg.NgrokAuthToken != "" {
+			_ = exec.CommandContext(ctx, binPath, "config", "add-authtoken", cfg.NgrokAuthToken).Run()
+		}
+		cmd := exec.CommandContext(ctx, binPath, "http", "8080", "--log=stdout")
+		stdout, err := cmd.StdoutPipe()
+		if err != nil {
+			cancel()
+			return fmt.Errorf("failed creating ngrok stdout pipe: %w", err)
+		}
+		stderr, err := cmd.StderrPipe()
+		if err != nil {
+			cancel()
+			return fmt.Errorf("failed creating ngrok stderr pipe: %w", err)
+		}
+
+		if err := cmd.Start(); err != nil {
+			cancel()
+			return fmt.Errorf("failed starting ngrok: %w", err)
+		}
+
+		m.cmd = cmd
+		m.active = true
+		m.log(fmt.Sprintf("Started Ngrok Tunnel (%s)", binPath))
+
+		reader := io.MultiReader(stdout, stderr)
+		go func() {
+			scanner := bufio.NewScanner(reader)
+			for scanner.Scan() {
+				line := scanner.Text()
+				if match := reNgrokURL.FindString(line); match != "" {
+					m.mu.Lock()
+					m.publicURL = match
+					m.log(fmt.Sprintf("Ngrok Public URL: %s", match))
+					m.mu.Unlock()
+				}
+			}
+		}()
+
+	case "pinggy":
+		userHost := "a.pinggy.io"
+		if cfg.PinggyToken != "" {
+			userHost = cfg.PinggyToken + "@a.pinggy.io"
+		}
+		cmd := exec.CommandContext(ctx, binPath, "-p", "443", "-R", "0:localhost:8080", "-o", "StrictHostKeyChecking=no", "-o", "ServerAliveInterval=30", userHost)
+		stdout, err := cmd.StdoutPipe()
+		if err != nil {
+			cancel()
+			return fmt.Errorf("failed creating pinggy stdout pipe: %w", err)
+		}
+		stderr, err := cmd.StderrPipe()
+		if err != nil {
+			cancel()
+			return fmt.Errorf("failed creating pinggy stderr pipe: %w", err)
+		}
+
+		if err := cmd.Start(); err != nil {
+			cancel()
+			return fmt.Errorf("failed starting Pinggy: %w", err)
+		}
+
+		m.cmd = cmd
+		m.active = true
+		m.log(fmt.Sprintf("Started Pinggy SSH Tunnel (%s)", binPath))
+
+		reader := io.MultiReader(stdout, stderr)
+		go func() {
+			scanner := bufio.NewScanner(reader)
+			for scanner.Scan() {
+				line := scanner.Text()
+				if match := rePinggyURL.FindString(line); match != "" {
+					m.mu.Lock()
+					m.publicURL = match
+					m.log(fmt.Sprintf("Pinggy Public URL: %s", match))
+					m.mu.Unlock()
+				}
+			}
+		}()
 	}
 
 	logger.Get().Infof("Tunnel", "Tunnel started successfully using engine %s", cfg.Engine)

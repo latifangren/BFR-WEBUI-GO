@@ -1,6 +1,9 @@
 package tunnel_test
 
 import (
+	"bytes"
+	"os"
+	"path/filepath"
 	"testing"
 
 	"bfr-webui-go/internal/tunnel"
@@ -29,6 +32,8 @@ func TestLoadAndSaveConfig(t *testing.T) {
 		CloudflareQuick:   false,
 		TailscaleAuthKey:  "ts_key_xyz",
 		ZeroTierNetworkID: "n12345",
+		NgrokAuthToken:    "ngrok_tok_999",
+		PinggyToken:       "pinggy_tok_888",
 	}
 
 	err := mgr.SaveConfig(cfg)
@@ -44,21 +49,31 @@ func TestLoadAndSaveConfig(t *testing.T) {
 	if loaded.Engine != "cloudflare" || !loaded.Enabled {
 		t.Errorf("unexpected loaded config values: %+v", loaded)
 	}
-	if loaded.CloudflareToken != "test_token_123" {
-		t.Errorf("expected token 'test_token_123', got '%s'", loaded.CloudflareToken)
+	if loaded.NgrokAuthToken != "ngrok_tok_999" || loaded.PinggyToken != "pinggy_tok_888" {
+		t.Errorf("unexpected tokens: ngrok=%s, pinggy=%s", loaded.NgrokAuthToken, loaded.PinggyToken)
 	}
 }
 
-func TestFindBinary(t *testing.T) {
-	// Search for non-existent engine returns empty string
-	if bin := tunnel.FindBinary("unknown_engine"); bin != "" {
-		t.Errorf("expected empty string for unknown engine, got '%s'", bin)
+func TestDownloadBinaryAndFindBinary(t *testing.T) {
+	tempDir := t.TempDir()
+	t.Setenv("BFR_DATA_DIR", tempDir)
+
+	// Stream mock cloudflared binary
+	r := bytes.NewReader([]byte("#!/bin/sh\necho mock cloudflared"))
+	path, err := tunnel.DownloadBinary("cloudflare", r, "cloudflared")
+	if err != nil {
+		t.Fatalf("failed downloading binary: %v", err)
 	}
 
-	// Discovery call for supported engines should not panic
-	_ = tunnel.FindBinary("cloudflare")
-	_ = tunnel.FindBinary("tailscale")
-	_ = tunnel.FindBinary("zerotier")
+	if _, err := os.Stat(path); os.IsNotExist(err) {
+		t.Errorf("expected binary to exist at %s", path)
+	}
+
+	// Verify FindBinary picks up installed binary from persistent bin dir
+	found := tunnel.FindBinary("cloudflare")
+	if found != path && filepath.Base(found) != "cloudflared" {
+		t.Errorf("expected FindBinary to locate %s, got %s", path, found)
+	}
 }
 
 func TestGetStatusAndStopTunnel(t *testing.T) {

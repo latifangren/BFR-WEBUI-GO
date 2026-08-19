@@ -227,6 +227,7 @@ func RegisterRoutes(mux *http.ServeMux, authMgr *auth.Manager) {
 	mux.HandleFunc("/api/tunnel/status", wrap(HandleTunnelStatus, true))
 	mux.HandleFunc("/api/tunnel/start", wrap(HandleTunnelStart, true))
 	mux.HandleFunc("/api/tunnel/stop", wrap(HandleTunnelStop, true))
+	mux.HandleFunc("/api/tunnel/upload", wrap(HandleTunnelUploadBinary, true))
 
 	// Local NAS File Server URLs
 	mux.HandleFunc("/api/nas/status", wrap(HandleNASStatus, true))

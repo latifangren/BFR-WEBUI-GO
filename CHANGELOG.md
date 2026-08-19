@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **1-Click Auto Install Daemon Binary Remote Tunnel**: Penambahan fungsi pengunduhan biner persisten ARM64 resmi (`cloudflared`, `tailscaled`, `zerotier-one`) langsung dari WebUI dengan hak akses eksekusi `0755` serta UI indikator status biner interaktif.
 - **Dedicated Remote Access Tunnel Tab (`internal/tunnel`)**: Dukungan Hybrid Tunnel (Cloudflare Quick Tunnel / Token, Tailscale, ZeroTier) dengan deteksi biner dinamis, status URL publik real-time, dan kontrol via API `/api/tunnel/*`.
 - **Dedicated Local NAS Lite & Media Share Tab (`internal/nas`)**: Native Go WebDAV & HTTP File Sharing Server dengan opsi Basic Auth, Mode Read-Only, kalkulasi kapasitas memori internal/SD Card/USB OTG, dan kontrol via API `/api/nas/*`.
 - **Telegram SMS Auto-Forwarder (OTP & Kuota)**: Pilihan auto-forward SMS masuk ke chat Telegram, perintah bot `/sms`, filter OTP-only (`\b\d{4,8}\b`), dan keyword custom filter.

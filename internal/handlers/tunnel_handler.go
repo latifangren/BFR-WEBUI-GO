@@ -81,3 +81,40 @@ func HandleTunnelStop(w http.ResponseWriter, r *http.Request) {
 		"status":  mgr.GetStatus(),
 	})
 }
+
+func HandleTunnelUploadBinary(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	err := r.ParseMultipartForm(64 << 20) // 64MB max
+	if err != nil {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusBadRequest)
+		_ = json.NewEncoder(w).Encode(map[string]interface{}{"error": "Failed to parse multipart form"})
+		return
+	}
+
+	engine := r.FormValue("engine")
+	file, header, err := r.FormFile("binary")
+	if err != nil {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusBadRequest)
+		_ = json.NewEncoder(w).Encode(map[string]interface{}{"error": "No binary file uploaded"})
+		return
+	}
+	defer file.Close()
+
+	binPath, err := tunnel.DownloadBinary(engine, file, header.Filename)
+	if err == nil {
+		logger.Get().Infof("Tunnel", "Binary uploaded and installed: %s (%s)", header.Filename, binPath)
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	_ = json.NewEncoder(w).Encode(map[string]interface{}{
+		"success": err == nil,
+		"path":    binPath,
+		"error":   fmt.Sprintf("%v", err),
+	})
+}

@@ -138,21 +138,50 @@
         <div class="lg:col-span-1 space-y-6 font-mono text-xs">
             <div class="bg-zinc-950 p-5 rounded-2xl border border-zinc-800 space-y-4">
                 <h3 class="text-sm font-bold uppercase tracking-wider text-white border-b border-zinc-900 pb-3">
-                    📦 Daemon Binary Check
+                    📦 Daemon Binary Installer
                 </h3>
 
-                <div class="space-y-2">
-                    <div class="flex items-center justify-between p-2.5 rounded-xl bg-zinc-900 border border-zinc-800">
-                        <span>cloudflared</span>
-                        <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-950 text-emerald-400 border border-emerald-800">Installed (/system/bin)</span>
+                <div class="space-y-3">
+                    <!-- Cloudflare Binary -->
+                    <div class="p-3 rounded-xl bg-zinc-900 border border-zinc-800 space-y-2">
+                        <div class="flex items-center justify-between">
+                            <span class="font-bold text-white">cloudflared</span>
+                            <span :class="binaryStatus.cloudflare.ready ? 'bg-emerald-950 text-emerald-400 border-emerald-800' : 'bg-zinc-800 text-zinc-400 border-zinc-700'" class="px-2 py-0.5 rounded text-[10px] font-bold border" x-text="binaryStatus.cloudflare.ready ? 'Ready' : 'Not Installed'"></span>
+                        </div>
+                        <template x-if="!binaryStatus.cloudflare.ready">
+                            <button type="button" @click="installBinary('cloudflare')" :disabled="installingBinary === 'cloudflare'" class="w-full py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg font-bold text-[11px] transition flex items-center justify-center gap-1">
+                                <span x-show="installingBinary !== 'cloudflare'">⬇️ Install ARM64 Binary</span>
+                                <span x-show="installingBinary === 'cloudflare'">Downloading...</span>
+                            </button>
+                        </template>
                     </div>
-                    <div class="flex items-center justify-between p-2.5 rounded-xl bg-zinc-900 border border-zinc-800">
-                        <span>tailscaled</span>
-                        <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-zinc-800 text-zinc-400">Not Installed</span>
+
+                    <!-- Tailscale Binary -->
+                    <div class="p-3 rounded-xl bg-zinc-900 border border-zinc-800 space-y-2">
+                        <div class="flex items-center justify-between">
+                            <span class="font-bold text-white">tailscaled</span>
+                            <span :class="binaryStatus.tailscale.ready ? 'bg-emerald-950 text-emerald-400 border-emerald-800' : 'bg-zinc-800 text-zinc-400 border-zinc-700'" class="px-2 py-0.5 rounded text-[10px] font-bold border" x-text="binaryStatus.tailscale.ready ? 'Ready' : 'Not Installed'"></span>
+                        </div>
+                        <template x-if="!binaryStatus.tailscale.ready">
+                            <button type="button" @click="installBinary('tailscale')" :disabled="installingBinary === 'tailscale'" class="w-full py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg font-bold text-[11px] transition flex items-center justify-center gap-1">
+                                <span x-show="installingBinary !== 'tailscale'">⬇️ Install ARM64 Binary</span>
+                                <span x-show="installingBinary === 'tailscale'">Downloading...</span>
+                            </button>
+                        </template>
                     </div>
-                    <div class="flex items-center justify-between p-2.5 rounded-xl bg-zinc-900 border border-zinc-800">
-                        <span>zerotier-one</span>
-                        <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-zinc-800 text-zinc-400">Not Installed</span>
+
+                    <!-- ZeroTier Binary -->
+                    <div class="p-3 rounded-xl bg-zinc-900 border border-zinc-800 space-y-2">
+                        <div class="flex items-center justify-between">
+                            <span class="font-bold text-white">zerotier-one</span>
+                            <span :class="binaryStatus.zerotier.ready ? 'bg-emerald-950 text-emerald-400 border-emerald-800' : 'bg-zinc-800 text-zinc-400 border-zinc-700'" class="px-2 py-0.5 rounded text-[10px] font-bold border" x-text="binaryStatus.zerotier.ready ? 'Ready' : 'Not Installed'"></span>
+                        </div>
+                        <template x-if="!binaryStatus.zerotier.ready">
+                            <button type="button" @click="installBinary('zerotier')" :disabled="installingBinary === 'zerotier'" class="w-full py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg font-bold text-[11px] transition flex items-center justify-center gap-1">
+                                <span x-show="installingBinary !== 'zerotier'">⬇️ Install ARM64 Binary</span>
+                                <span x-show="installingBinary === 'zerotier'">Downloading...</span>
+                            </button>
+                        </template>
                     </div>
                 </div>
             </div>
