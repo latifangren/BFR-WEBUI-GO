@@ -10,6 +10,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **Comprehensive Unit Test Suite**: Added 20 unit test files covering 100% of internal packages (`auth`, `charger`, `config`, `handlers`, `hotspot`, `modem`, `modules`, `network`, `power`, `qos`, `scrcpy`, `smsviewer`, `sysinfo`, `telegram`, `terminal`, `vnstat`). Fully verified with 100% pass rate and Android `arm64` cross-compilation compatibility.
+- **Dedicated QoS Bandwidth Control & Traffic Prioritization Tab (`internal/qos`)**:
+  - Implemented dedicated **QoS Control** UI tab with Neo-Brutalist / AMOLED Dark styling.
+  - Built Hybrid QoS Engine with high-precision `tc HTB/IFB` qdisc bandwidth shaper and automatic fallback to `iptables Mangle / MARK`.
+  - Added per-client bandwidth limits with quick presets (`Gaming` 5M, `Stream` 25M, `Browsing` 10M, `Strict` 2M, `Unlimited`) and custom Download/Upload Mbps caps.
+  - Implemented DSCP/TOS traffic classification for Low-Latency Gaming (ICMP/UDP) and VoIP/Streaming.
+  - Added Time-based Bandwidth Scheduler for automated peak-hours throttling.
+  - Added persistent state saving (`qos.json`) and automatic background QoS rule application during server boot in `main.go`.
+- **Dedicated Cellular Modem & Band Locking Tab (`internal/modem`)**:
+  - Implemented dedicated **Modem & Band Lock** UI tab featuring real-time signal gauges and a Neo-Brutalist AT terminal interface.
+  - Built Hybrid Multi-Engine band locking supporting Universal Android Framework (`cmd phone lte-set-band-mode`), Qualcomm Snapdragon AT Serial Direct (`/dev/smd11`, `/dev/ttyUSB*`, `/dev/atcmd*`), and Vendor Secret Code intent hooks.
+  - Built Hex Bitmask Auto-Calculator for LTE & 5G NR band combinations (`0x8000000005`, etc.) with manual Hex override and copy functionality.
+  - Built Interactive AT Command Console with live serial response stream (`OK`/`ERROR`) and built-in AT presets (`AT+CPSI?`, `AT+QENG="servingcell"`, `AT+QCAINFO`, `AT^SYSCONFIG`, `AT+EGMR=1,7,"..."`).
+  - Added real-time cellular signal metrics parser (`RSRP`, `RSRQ`, `SINR`, `RSSI`, Operator, Band, Cell ID, TAC, PCI, EARFCN).
+- **Default Network Tweaks Reset**: Updated `internal/network/tweaks.json` to disable all initial network optimization flags by default.
 - **Authentication IP Rate Limiting**: Implemented per-IP rate limiter in `Manager.Authenticate()` allowing a maximum of 5 failed login attempts per minute window to prevent brute-force attacks (`HTTP 429`).
 - **Sysctl Initial Defaults Backup & Restoration**: Added `BackupSysctlDefaults()` and `RestoreSysctlDefaults()` in `internal/network/tweaks.go` (`POST /api/network/tweaks/restore` and `♻️ Restore Original Sysctl Defaults` button) to restore initial pre-tune sysctl parameters and reset persistent `tweaks.json` state.
 - **Per-Core CPU Frequency & Usage Diagnostics**: Added per-core CPU frequency reading from sysfs (`scaling_cur_freq`) and real-time CPU core usage badge grid rendering in `tab_sysinfo.html`.
