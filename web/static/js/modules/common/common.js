@@ -10,7 +10,7 @@ const CommonModule = {
     changePassError: '',
     activeTab: 'overview',
     settingsTab: 'backup',
-    validTabs: ['overview', 'sysinfo', 'logs', 'files', 'terminal', 'tools', 'scrcpy', 'network', 'qos', 'speedtest', 'proxy', 'sms', 'about'],
+    validTabs: ['overview', 'sysinfo', 'logs', 'files', 'terminal', 'tools', 'scrcpy', 'network', 'qos', 'modem', 'speedtest', 'proxy', 'sms', 'about'],
     mobileCategory: null,
     hideMobileNav: false,
     isDark: localStorage.getItem('theme') !== 'light',

@@ -906,6 +906,16 @@
                                 <span x-show="activeTab === 'qos'" class="w-2 h-2 rounded-full bg-blue-400"></span>
                             </button>
 
+                            <button type="button" @click="activeTab = 'modem'; mobileCategory = null"
+                                :class="activeTab === 'modem' ? 'bg-blue-600/30 border-blue-500/60 text-white font-bold shadow-md shadow-blue-500/10' : 'bg-flat/60 border-border/40 text-gray-300 hover:text-white active:bg-white/10'"
+                                class="w-full text-left py-2.5 px-3.5 rounded-xl border text-xs flex items-center justify-between transition-all select-none">
+                                <div class="flex items-center gap-3">
+                                    <span class="text-base">📡</span>
+                                    <span>Modem & Band Lock</span>
+                                </div>
+                                <span x-show="activeTab === 'modem'" class="w-2 h-2 rounded-full bg-blue-400"></span>
+                            </button>
+
                             <button type="button" @click="activeTab = 'speedtest'; mobileCategory = null"
                                 :class="activeTab === 'speedtest' ? 'bg-blue-600/30 border-blue-500/60 text-white font-bold shadow-md shadow-blue-500/10' : 'bg-flat/60 border-border/40 text-gray-300 hover:text-white active:bg-white/10'"
                                 class="w-full text-left py-2.5 px-3.5 rounded-xl border text-xs flex items-center justify-between transition-all select-none">

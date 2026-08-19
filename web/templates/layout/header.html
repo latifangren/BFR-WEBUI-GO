@@ -87,7 +87,7 @@
             <!-- 🌐 Network Category -->
             <button type="button"
                 @click="mobileCategory = (mobileCategory === 'network' ? null : 'network')"
-                :class="['network', 'qos', 'speedtest', 'proxy'].includes(activeTab) || mobileCategory === 'network' ? 'text-blue-400 font-bold bg-blue-600/20 border-blue-500/40 shadow-sm shadow-blue-500/10' : 'text-gray-400 hover:text-gray-200 border-transparent'"
+                :class="['network', 'qos', 'modem', 'speedtest', 'proxy'].includes(activeTab) || mobileCategory === 'network' ? 'text-blue-400 font-bold bg-blue-600/20 border-blue-500/40 shadow-sm shadow-blue-500/10' : 'text-gray-400 hover:text-gray-200 border-transparent'"
                 class="flex flex-col items-center justify-center text-[10px] font-bold p-1 rounded-lg transition whitespace-nowrap active:scale-95 border">
                 <span class="text-base">🌐</span>
                 <span class="text-[10px] mt-0.5">Network</span>

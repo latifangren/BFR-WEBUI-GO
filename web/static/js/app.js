@@ -4,6 +4,7 @@ function dashboard() {
         SysinfoModule,
         NetworkModule,
         QoSModule,
+        ModemModule,
         SpeedtestModule,
         BackupModule,
         FilemanagerModule,

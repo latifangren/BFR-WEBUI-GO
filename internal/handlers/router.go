@@ -216,6 +216,12 @@ func RegisterRoutes(mux *http.ServeMux, authMgr *auth.Manager) {
 	mux.HandleFunc("/api/qos/apply", wrap(HandleQoSApply, true))
 	mux.HandleFunc("/api/qos/clear", wrap(HandleQoSClear, true))
 
+	// Modem / Band Control URLs
+	mux.HandleFunc("/api/modem/signal", wrap(HandleModemSignal, true))
+	mux.HandleFunc("/api/modem/bands", wrap(HandleModemBands, true))
+	mux.HandleFunc("/api/modem/at", wrap(HandleModemAT, true))
+	mux.HandleFunc("/api/modem/reset", wrap(HandleModemReset, true))
+
 	// Telegram URLs
 	mux.HandleFunc("/api/telegram/status", wrap(HandleTelegramStatus, true))
 	mux.HandleFunc("/api/telegram/config", wrap(HandleTelegramConfig, true))
