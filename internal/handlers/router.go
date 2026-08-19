@@ -202,6 +202,7 @@ func RegisterRoutes(mux *http.ServeMux, authMgr *auth.Manager) {
 	mux.HandleFunc("/api/hotspot/status", wrap(HandleHotspotStatus, true))
 	mux.HandleFunc("/api/hotspot/control", wrap(HandleHotspotControl, true))
 	mux.HandleFunc("/api/hotspot/clients", wrap(HandleHotspotClients, true))
+	mux.HandleFunc("/api/hotspot/mac-filter", wrap(HandleHotspotMACFilter, true))
 
 	// Vnstat URLs
 	mux.HandleFunc("/api/vnstat/stats", wrap(HandleVnstatStats, true))

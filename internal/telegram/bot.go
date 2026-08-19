@@ -23,6 +23,7 @@ import (
 	"bfr-webui-go/internal/modules"
 	"bfr-webui-go/internal/network"
 	"bfr-webui-go/internal/proxy"
+	"bfr-webui-go/internal/smsviewer"
 	"bfr-webui-go/internal/ssh"
 	"bfr-webui-go/internal/sysinfo"
 )
@@ -71,6 +72,7 @@ type NotificationConfig struct {
 	SSHStatus       bool `json:"ssh_status"`
 	IPChange        bool `json:"ip_change"`
 	HotspotClient   bool `json:"hotspot_client"`
+	ForwardSMS      bool `json:"forward_sms"`
 }
 
 type Config struct {
@@ -1083,6 +1085,7 @@ func (m *Manager) handleMessage(chatID int64, text string) {
 	case "/start", "/help":
 		msg := "🤖 *BFR WebUI Telegram Bot*\n\nStatus: Online\n\n*Available Commands:*\n" +
 			"/stats - System diagnostics\n" +
+			"/sms [count] - Read recent SMS inbox messages\n" +
 			"/charger [limit N] - Battery status & limiter\n" +
 			"/ssh [start|stop] - SSH daemon control\n" +
 			"/proxy [restart] - Proxy status & restart\n" +
@@ -1093,6 +1096,29 @@ func (m *Manager) handleMessage(chatID int64, text string) {
 			"/cmd <command> - Execute shell command\n" +
 			"/reboot - Reboot device"
 		m.sendMessageFull(chatID, msg, getMainReplyKeyboard())
+
+	case "/sms":
+		count := 5
+		if len(parts) >= 2 {
+			if n, err := strconv.Atoi(parts[1]); err == nil && n > 0 && n <= 20 {
+				count = n
+			}
+		}
+		resp, err := smsviewer.ReadSMSInbox(count, 0, "")
+		if err != nil || len(resp.Messages) == 0 {
+			m.sendMessage(chatID, "📥 *SMS Inbox*: Tidak ada pesan atau gagal membaca database SMS.")
+			return
+		}
+		var sb strings.Builder
+		sb.WriteString(fmt.Sprintf("📥 *Recent SMS Inbox (%d)*\n\n", len(resp.Messages)))
+		for i, sms := range resp.Messages {
+			tStr := "Unknown"
+			if sms.Date > 0 {
+				tStr = time.Unix(sms.Date, 0).Format("2006-01-02 15:04:05")
+			}
+			sb.WriteString(fmt.Sprintf("*%d. Sender:* `%s`\n🕒 *Date:* %s\n💬 *Body:* %s\n\n", i+1, sms.Address, tStr, sms.Body))
+		}
+		m.sendMessage(chatID, sb.String())
 
 	case "/charger":
 		chStatus := charger.GetManager().GetStatus()

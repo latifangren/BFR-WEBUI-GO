@@ -57,3 +57,46 @@ func HandleHotspotClients(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	_ = json.NewEncoder(w).Encode(clients)
 }
+
+func HandleHotspotMACFilter(w http.ResponseWriter, r *http.Request) {
+	if r.Method == http.MethodGet {
+		cfg, err := hotspot.LoadMACFilterConfig()
+		w.Header().Set("Content-Type", "application/json")
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			_ = json.NewEncoder(w).Encode(map[string]interface{}{"error": err.Error()})
+			return
+		}
+		status := hotspot.GetMACFilterStatus()
+		_ = json.NewEncoder(w).Encode(map[string]interface{}{
+			"config": cfg,
+			"status": status,
+		})
+		return
+	}
+
+	if r.Method == http.MethodPost {
+		var cfg hotspot.MACFilterConfig
+		if err := json.NewDecoder(r.Body).Decode(&cfg); err != nil {
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusBadRequest)
+			_ = json.NewEncoder(w).Encode(map[string]interface{}{"error": "Invalid MAC filter request payload"})
+			return
+		}
+
+		err := hotspot.ApplyMACFilter(&cfg)
+		if err == nil {
+			logger.Get().Infof("hotspot", "MAC filter updated and applied: mode=%s", cfg.Mode)
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+		_ = json.NewEncoder(w).Encode(map[string]interface{}{
+			"success": err == nil,
+			"error":   fmt.Sprintf("%v", err),
+			"status":  hotspot.GetMACFilterStatus(),
+		})
+		return
+	}
+
+	http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+}

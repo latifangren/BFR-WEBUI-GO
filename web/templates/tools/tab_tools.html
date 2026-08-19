@@ -121,6 +121,22 @@
                                     <input type="checkbox" x-model="telegramData.config.notifications.hotspot_client" class="form-checkbox h-4 w-4 text-blue-600 bg-black border-border rounded focus:ring-0" />
                                     <span class="text-gray-300">Hotspot Connected Clients Change Alert</span>
                                 </label>
+                                <label class="flex items-center space-x-3 cursor-pointer">
+                                    <input type="checkbox" x-model="telegramData.config.notifications.sms_forwarder" class="form-checkbox h-4 w-4 text-blue-600 bg-black border-border rounded focus:ring-0" />
+                                    <span class="text-gray-300 font-bold text-emerald-400">Incoming SMS Forwarder to Telegram Chat</span>
+                                </label>
+
+                                <!-- SMS Forwarder Filter Settings -->
+                                <div x-show="telegramData.config.notifications.sms_forwarder" class="mt-2 ml-7 p-3 bg-black/60 border border-border/60 rounded-xl space-y-3 font-mono text-xs">
+                                    <label class="flex items-center space-x-3 cursor-pointer">
+                                        <input type="checkbox" x-model="telegramData.config.sms_forwarder_otp_only" class="form-checkbox h-4 w-4 text-emerald-500 bg-black border-border rounded focus:ring-0" />
+                                        <span class="text-white font-bold">Forward OTP & Verification SMS Only</span>
+                                    </label>
+                                    <div>
+                                        <label class="block text-[11px] text-gray-400 mb-1">Keywords Filter (Pisahkan dengan koma):</label>
+                                        <input type="text" x-model="telegramData.config.sms_forwarder_keywords" placeholder="OTP, kode, verifikasi, kuota, sisa, paket" class="w-full bg-zinc-950 border border-border/80 rounded-lg px-2.5 py-1.5 text-xs text-emerald-400 font-mono focus:outline-none focus:border-emerald-500" />
+                                    </div>
+                                </div>
                             </div>
                         </div>
 

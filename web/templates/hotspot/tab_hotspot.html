@@ -44,12 +44,77 @@
                                                 <td class="p-3 font-semibold text-white" x-text="client.device"></td>
                                                 <td class="p-3 text-blue-400" x-text="client.ip"></td>
                                                 <td class="p-3 text-gray-400" x-text="client.mac"></td>
-                                                <td class="p-3 text-right font-semibold text-green-400" x-text="client.state"></td>
+                                                <td class="p-3 text-right">
+                                                    <div class="flex items-center justify-end gap-2">
+                                                        <span class="font-semibold text-green-400" x-text="client.state"></span>
+                                                        <button type="button" @click="blockClientMAC(client.mac, client.device)" class="px-2 py-0.5 rounded bg-red-950/80 hover:bg-red-900 border border-red-800 text-[10px] text-red-400 font-bold transition">
+                                                            Block MAC
+                                                        </button>
+                                                    </div>
+                                                </td>
                                             </tr>
                                         </template>
                                         <template x-if="hotspotClients.length === 0">
                                             <tr>
                                                 <td colspan="4" class="p-4 text-center text-gray-500 italic">No connected clients detected</td>
+                                            </tr>
+                                        </template>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <!-- Hotspot Access Control & MAC Filtering -->
+                        <div class="pt-4 border-t border-border space-y-3 font-mono">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <h4 class="text-xs font-bold text-white uppercase tracking-wider">🔒 MAC Address Filtering & Access Rules</h4>
+                                    <p class="text-[10px] text-gray-400">Izinkan (Whitelist) atau blokir (Blacklist) perangkat berdasarkan MAC address</p>
+                                </div>
+                                <div class="flex items-center gap-1 bg-black border border-border rounded-xl p-1">
+                                    <button type="button" @click="macFilterMode = 'allow'" :class="macFilterMode === 'allow' ? 'bg-emerald-600 text-white font-bold' : 'text-gray-400 hover:text-white'" class="px-2.5 py-1 rounded-lg text-[10px] uppercase transition">
+                                        Whitelist
+                                    </button>
+                                    <button type="button" @click="macFilterMode = 'deny'" :class="macFilterMode === 'deny' ? 'bg-red-600 text-white font-bold' : 'text-gray-400 hover:text-white'" class="px-2.5 py-1 rounded-lg text-[10px] uppercase transition">
+                                        Blacklist
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Input Bar -->
+                            <div class="flex gap-2">
+                                <input type="text" x-model="macAddressInput" placeholder="Masukkan MAC (contoh: AA:BB:CC:11:22:33)..." class="flex-1 bg-black border border-border rounded-xl px-3 py-1.5 text-xs text-white uppercase placeholder:normal-case focus:outline-none focus:border-blue-500">
+                                <button type="button" @click="addMacFilterRule()" class="px-3 py-1.5 bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs uppercase rounded-xl transition active:scale-95">
+                                    + Add Rule
+                                </button>
+                            </div>
+
+                            <!-- Rules Table -->
+                            <div class="bg-flat rounded-xl overflow-hidden text-xs">
+                                <table class="w-full text-left">
+                                    <thead class="bg-gray-900/50 text-gray-400 border-b border-border">
+                                        <tr>
+                                            <th class="p-2.5">MAC Address</th>
+                                            <th class="p-2.5">Label / Name</th>
+                                            <th class="p-2.5">Mode</th>
+                                            <th class="p-2.5 text-right">Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-border/50 text-gray-300">
+                                        <template x-for="(rule, idx) in macFilterList" :key="idx">
+                                            <tr class="hover:bg-card/50 transition">
+                                                <td class="p-2.5 font-bold text-white uppercase" x-text="rule.mac"></td>
+                                                <td class="p-2.5 text-gray-400" x-text="rule.name"></td>
+                                                <td class="p-2.5">
+                                                    <span :class="rule.mode === 'allow' ? 'bg-emerald-950 text-emerald-400 border-emerald-800' : 'bg-red-950 text-red-400 border-red-800'" class="px-2 py-0.5 rounded text-[9px] uppercase font-bold border" x-text="rule.mode"></span>
+                                                </td>
+                                                <td class="p-2.5 text-right">
+                                                    <button type="button" @click="removeMacFilterRule(idx)" class="text-gray-500 hover:text-red-400 transition">Remove</button>
+                                                </td>
+                                            </tr>
+                                        </template>
+                                        <template x-if="macFilterList.length === 0">
+                                            <tr>
+                                                <td colspan="4" class="p-3 text-center text-gray-500 italic">Belum ada aturan MAC Filter yang dibuat</td>
                                             </tr>
                                         </template>
                                     </tbody>

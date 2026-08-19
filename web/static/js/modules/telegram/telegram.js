@@ -11,8 +11,11 @@ const TelegramModule = {
                 battery_overheat: false,
                 ssh_status: false,
                 ip_change: false,
-                hotspot_client: false
-            }
+                hotspot_client: false,
+                sms_forwarder: false
+            },
+            sms_forwarder_otp_only: true,
+            sms_forwarder_keywords: 'OTP, kode, verifikasi, kuota, sisa, paket'
         },
         running: false,
         bot_name: "",
@@ -30,6 +33,7 @@ const TelegramModule = {
             this.telegramData.config.notifications.ssh_status = !!(notifs.ssh_status || notifs.SSHStatus);
             this.telegramData.config.notifications.ip_change = !!(notifs.ip_change || notifs.IPChange);
             this.telegramData.config.notifications.hotspot_client = !!(notifs.hotspot_client || notifs.HotspotClient);
+            this.telegramData.config.notifications.sms_forwarder = !!(notifs.sms_forwarder || notifs.SMSForwarder);
         }
     },
 
