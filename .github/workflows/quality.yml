@@ -17,7 +17,7 @@ jobs:
       - name: Setup Go Environment
         uses: actions/setup-go@v5
         with:
-          go-version: '1.24'
+          go-version: '1.25.0'
           cache: true
 
       - name: Run All Package Tests
@@ -33,11 +33,12 @@ jobs:
       - name: Setup Go Environment
         uses: actions/setup-go@v5
         with:
-          go-version: '1.24'
+          go-version: '1.25.0'
           cache: true
 
       - name: GolangCI-Lint Static Verification
         uses: golangci/golangci-lint-action@v6
         with:
-          version: v1.64.6
+          version: v1.64
+          install-mode: goinstall
           args: --timeout=5m
