@@ -527,8 +527,8 @@ type ReplyKeyboardButton struct {
 
 type ReplyKeyboardMarkup struct {
 	Keyboard       [][]ReplyKeyboardButton `json:"keyboard"`
-	ResizeKeyboard bool                  `json:"resize_keyboard"`
-	Persistent     bool                  `json:"is_persistent"`
+	ResizeKeyboard bool                    `json:"resize_keyboard"`
+	Persistent     bool                    `json:"is_persistent"`
 }
 
 type InlineKeyboardButton struct {

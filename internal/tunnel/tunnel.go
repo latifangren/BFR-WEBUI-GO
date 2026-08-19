@@ -42,15 +42,15 @@ type TunnelStatus struct {
 }
 
 type Manager struct {
-	mu          sync.RWMutex
-	dataPath    string
-	config      TunnelConfig
-	active      bool
-	publicURL   string
-	ipAddress   string
-	logs        []string
-	cmd         *exec.Cmd
-	cmdCancel   context.CancelFunc
+	mu           sync.RWMutex
+	dataPath     string
+	config       TunnelConfig
+	active       bool
+	publicURL    string
+	ipAddress    string
+	logs         []string
+	cmd          *exec.Cmd
+	cmdCancel    context.CancelFunc
 	activeEngine string
 }
 

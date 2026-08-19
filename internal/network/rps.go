@@ -14,7 +14,7 @@ import (
 
 var (
 	// N-1: Regexes for RPS interface and bitmask validation
-	reRPSIface  = regexp.MustCompile(`^[a-zA-Z0-9._-]+$`)
+	reRPSIface   = regexp.MustCompile(`^[a-zA-Z0-9._-]+$`)
 	reRPSBitmask = regexp.MustCompile(`^[0-9a-fA-F]+$`)
 )
 
