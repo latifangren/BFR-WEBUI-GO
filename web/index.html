@@ -163,6 +163,8 @@
 
                 {{template "tab_network.html" .}}
 
+                {{template "tab_qos.html" .}}
+
                 <template x-if="activeTab === 'speedtest'">
                     {{template "tab_speedtest.html" .}}
                 </template>
@@ -193,6 +195,7 @@
     <script src="/static/js/modules/common/common.js"></script>
     <script src="/static/js/modules/sysinfo/sysinfo.js"></script>
     <script src="/static/js/modules/network/network.js"></script>
+    <script src="/static/js/modules/qos/qos.js"></script>
     <script src="/static/js/modules/speedtest/speedtest.js"></script>
     <script src="/static/js/modules/backup/backup.js"></script>
     <script src="/static/js/modules/filemanager/filemanager.js"></script>

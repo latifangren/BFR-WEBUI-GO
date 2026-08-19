@@ -15,6 +15,7 @@ import (
 	"bfr-webui-go/internal/handlers"
 	"bfr-webui-go/internal/logger"
 	"bfr-webui-go/internal/network"
+	"bfr-webui-go/internal/qos"
 	"bfr-webui-go/internal/ssh"
 	"bfr-webui-go/internal/telegram"
 	_ "bfr-webui-go/internal/vnstat"
@@ -60,6 +61,15 @@ func main() {
 		if sshMgr.IsEnabled() {
 			if err := sshMgr.Start(); err != nil {
 				log.Printf("SSH daemon startup failed: %v", err)
+			}
+		}
+	}()
+
+	go func() {
+		qosMgr := qos.GetManager()
+		if cfg, err := qosMgr.LoadConfig(); err == nil && cfg.Enabled {
+			if err := qosMgr.ApplyQoS(cfg); err != nil {
+				log.Printf("QoS startup initialization failed: %v", err)
 			}
 		}
 	}()

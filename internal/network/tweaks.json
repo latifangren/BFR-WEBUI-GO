@@ -1,7 +1,7 @@
 {
-  "lte_carrier_aggregation": false,
+  "lte_carrier_aggregation": true,
   "tcp_buffer_optimization": false,
-  "bbr2_congestion_control": false,
+  "bbr2_congestion_control": true,
   "sysctl_buffers_opt": false,
   "dalvik_responsiveness": false,
   "settings_global_tweaks": false,

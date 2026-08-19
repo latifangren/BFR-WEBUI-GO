@@ -896,6 +896,16 @@
                                 <span x-show="activeTab === 'network'" class="w-2 h-2 rounded-full bg-blue-400"></span>
                             </button>
 
+                            <button type="button" @click="activeTab = 'qos'; mobileCategory = null"
+                                :class="activeTab === 'qos' ? 'bg-blue-600/30 border-blue-500/60 text-white font-bold shadow-md shadow-blue-500/10' : 'bg-flat/60 border-border/40 text-gray-300 hover:text-white active:bg-white/10'"
+                                class="w-full text-left py-2.5 px-3.5 rounded-xl border text-xs flex items-center justify-between transition-all select-none">
+                                <div class="flex items-center gap-3">
+                                    <span class="text-base">⚡</span>
+                                    <span>QoS Control</span>
+                                </div>
+                                <span x-show="activeTab === 'qos'" class="w-2 h-2 rounded-full bg-blue-400"></span>
+                            </button>
+
                             <button type="button" @click="activeTab = 'speedtest'; mobileCategory = null"
                                 :class="activeTab === 'speedtest' ? 'bg-blue-600/30 border-blue-500/60 text-white font-bold shadow-md shadow-blue-500/10' : 'bg-flat/60 border-border/40 text-gray-300 hover:text-white active:bg-white/10'"
                                 class="w-full text-left py-2.5 px-3.5 rounded-xl border text-xs flex items-center justify-between transition-all select-none">
