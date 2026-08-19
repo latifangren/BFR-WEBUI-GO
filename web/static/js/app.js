@@ -5,6 +5,8 @@ function dashboard() {
         NetworkModule,
         QoSModule,
         ModemModule,
+        TunnelModule,
+        NASModule,
         SpeedtestModule,
         BackupModule,
         FilemanagerModule,

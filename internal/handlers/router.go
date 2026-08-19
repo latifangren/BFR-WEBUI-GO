@@ -223,6 +223,16 @@ func RegisterRoutes(mux *http.ServeMux, authMgr *auth.Manager) {
 	mux.HandleFunc("/api/modem/at", wrap(HandleModemAT, true))
 	mux.HandleFunc("/api/modem/reset", wrap(HandleModemReset, true))
 
+	// Cloudflare / Remote Tunnel URLs
+	mux.HandleFunc("/api/tunnel/status", wrap(HandleTunnelStatus, true))
+	mux.HandleFunc("/api/tunnel/start", wrap(HandleTunnelStart, true))
+	mux.HandleFunc("/api/tunnel/stop", wrap(HandleTunnelStop, true))
+
+	// Local NAS File Server URLs
+	mux.HandleFunc("/api/nas/status", wrap(HandleNASStatus, true))
+	mux.HandleFunc("/api/nas/start", wrap(HandleNASStart, true))
+	mux.HandleFunc("/api/nas/stop", wrap(HandleNASStop, true))
+
 	// Telegram URLs
 	mux.HandleFunc("/api/telegram/status", wrap(HandleTelegramStatus, true))
 	mux.HandleFunc("/api/telegram/config", wrap(HandleTelegramConfig, true))

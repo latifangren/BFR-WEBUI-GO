@@ -167,6 +167,10 @@
 
                 {{template "tab_modem.html" .}}
 
+                {{template "tab_tunnel.html" .}}
+
+                {{template "tab_nas.html" .}}
+
                 <template x-if="activeTab === 'speedtest'">
                     {{template "tab_speedtest.html" .}}
                 </template>
@@ -199,6 +203,8 @@
     <script src="/static/js/modules/network/network.js"></script>
     <script src="/static/js/modules/qos/qos.js"></script>
     <script src="/static/js/modules/modem/modem.js"></script>
+    <script src="/static/js/modules/tunnel/tunnel.js"></script>
+    <script src="/static/js/modules/nas/nas.js"></script>
     <script src="/static/js/modules/speedtest/speedtest.js"></script>
     <script src="/static/js/modules/backup/backup.js"></script>
     <script src="/static/js/modules/filemanager/filemanager.js"></script>

@@ -10,6 +10,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **Dedicated Remote Access Tunnel Tab (`internal/tunnel`)**: Dukungan Hybrid Tunnel (Cloudflare Quick Tunnel / Token, Tailscale, ZeroTier) dengan deteksi biner dinamis, status URL publik real-time, dan kontrol via API `/api/tunnel/*`.
+- **Dedicated Local NAS Lite & Media Share Tab (`internal/nas`)**: Native Go WebDAV & HTTP File Sharing Server dengan opsi Basic Auth, Mode Read-Only, kalkulasi kapasitas memori internal/SD Card/USB OTG, dan kontrol via API `/api/nas/*`.
 - **Telegram SMS Auto-Forwarder (OTP & Kuota)**: Pilihan auto-forward SMS masuk ke chat Telegram, perintah bot `/sms`, filter OTP-only (`\b\d{4,8}\b`), dan keyword custom filter.
 - **Hotspot MAC Address Filtering & Access Rules**: Mode Whitelist & Blacklist menggunakan `iptables -m mac --mac-source` dengan aksi instant block dari tabel client Hotspot.
 - **Comprehensive Unit Test Suite**: Added 20 unit test files covering 100% of internal packages (`auth`, `charger`, `config`, `handlers`, `hotspot`, `modem`, `modules`, `network`, `power`, `qos`, `scrcpy`, `smsviewer`, `sysinfo`, `telegram`, `terminal`, `vnstat`). Fully verified with 100% pass rate and Android `arm64` cross-compilation compatibility.

@@ -45,7 +45,7 @@
             <!-- ⚙️ System Category -->
             <div class="relative" x-data="{ open: false }" @mouseenter="open = true" @mouseleave="open = false" @click.outside="open = false">
                 <button type="button" @click="open = !open"
-                    :class="['files', 'terminal', 'tools'].includes(activeTab) ? 'bg-blue-600/20 text-blue-400 border-blue-500/40 shadow-sm' : 'text-gray-300 hover:text-white hover:bg-white/5 border-transparent'"
+                    :class="['files', 'nas', 'terminal', 'tools'].includes(activeTab) ? 'bg-blue-600/20 text-blue-400 border-blue-500/40 shadow-sm' : 'text-gray-300 hover:text-white hover:bg-white/5 border-transparent'"
                     class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5 border select-none">
                     <span>⚙️ System</span>
                     <svg class="w-3 h-3 transition-transform duration-200" :class="open ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -66,6 +66,12 @@
                         class="w-full text-left px-3 py-2 rounded-lg text-xs transition flex items-center justify-between select-none">
                         <span>File Manager</span>
                         <span x-show="activeTab === 'files'" class="w-1.5 h-1.5 rounded-full bg-white"></span>
+                    </button>
+                    <button type="button" @click="activeTab = 'nas'; open = false"
+                        :class="activeTab === 'nas' ? 'bg-blue-600 text-white font-bold' : 'text-gray-300 hover:text-white hover:bg-white/5'"
+                        class="w-full text-left px-3 py-2 rounded-lg text-xs transition flex items-center justify-between select-none">
+                        <span>Local NAS & Media</span>
+                        <span x-show="activeTab === 'nas'" class="w-1.5 h-1.5 rounded-full bg-white"></span>
                     </button>
                     <button type="button" @click="activeTab = 'terminal'; initTerminal(); open = false"
                         :class="activeTab === 'terminal' ? 'bg-blue-600 text-white font-bold' : 'text-gray-300 hover:text-white hover:bg-white/5'"
@@ -131,7 +137,7 @@
             <!-- 🌐 Network Category -->
             <div class="relative" x-data="{ open: false }" @mouseenter="open = true" @mouseleave="open = false" @click.outside="open = false">
                 <button type="button" @click="open = !open"
-                    :class="['network', 'qos', 'modem', 'speedtest', 'proxy'].includes(activeTab) ? 'bg-blue-600/20 text-blue-400 border-blue-500/40 shadow-sm' : 'text-gray-300 hover:text-white hover:bg-white/5 border-transparent'"
+                    :class="['network', 'qos', 'modem', 'tunnel', 'speedtest', 'proxy'].includes(activeTab) ? 'bg-blue-600/20 text-blue-400 border-blue-500/40 shadow-sm' : 'text-gray-300 hover:text-white hover:bg-white/5 border-transparent'"
                     class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5 border select-none">
                     <span>🌐 Network</span>
                     <svg class="w-3 h-3 transition-transform duration-200" :class="open ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -164,6 +170,12 @@
                         class="w-full text-left px-3 py-2 rounded-lg text-xs transition flex items-center justify-between select-none">
                         <span>Modem & Band Lock</span>
                         <span x-show="activeTab === 'modem'" class="w-1.5 h-1.5 rounded-full bg-white"></span>
+                    </button>
+                    <button type="button" @click="activeTab = 'tunnel'; open = false"
+                        :class="activeTab === 'tunnel' ? 'bg-blue-600 text-white font-bold' : 'text-gray-300 hover:text-white hover:bg-white/5'"
+                        class="w-full text-left px-3 py-2 rounded-lg text-xs transition flex items-center justify-between select-none">
+                        <span>Remote Access Tunnel</span>
+                        <span x-show="activeTab === 'tunnel'" class="w-1.5 h-1.5 rounded-full bg-white"></span>
                     </button>
                     <button type="button" @click="activeTab = 'speedtest'; open = false"
                         :class="activeTab === 'speedtest' ? 'bg-blue-600 text-white font-bold' : 'text-gray-300 hover:text-white hover:bg-white/5'"

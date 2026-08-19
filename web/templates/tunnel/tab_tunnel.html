@@ -1,0 +1,162 @@
+{{define "tab_tunnel.html"}}
+<div x-show="activeTab === 'tunnel'" x-cloak class="space-y-6">
+    <!-- Header Title Section -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-zinc-950 p-5 rounded-2xl border-2 border-zinc-800 shadow-xl relative overflow-hidden">
+        <div class="absolute top-0 right-0 w-64 h-full bg-gradient-to-l from-indigo-500/10 to-transparent pointer-events-none"></div>
+        <div class="space-y-1 relative z-10">
+            <div class="flex items-center gap-2">
+                <span class="px-2.5 py-0.5 rounded text-[10px] font-black uppercase tracking-wider bg-indigo-500 text-black border border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">Zero-Trust Remote Access</span>
+                <span class="text-xs font-mono text-zinc-400">Cloudflare / Tailscale / ZeroTier</span>
+            </div>
+            <h2 class="text-xl font-extrabold tracking-wide text-white uppercase font-mono flex items-center gap-2">
+                🌐 Remote Access Tunnel Engine
+            </h2>
+            <p class="text-xs text-zinc-400 max-w-xl">
+                Akses BFR WebUI dan perangkat Android Anda secara aman dari internet global tanpa Public IP atau Port Forwarding.
+            </p>
+        </div>
+        <div class="flex items-center gap-2 relative z-10 shrink-0">
+            <button type="button" @click="fetchTunnelStatus()" class="px-3.5 py-2 rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-zinc-700 text-xs font-mono font-bold text-zinc-200 transition active:scale-95 flex items-center gap-2">
+                <svg class="w-3.5 h-3.5 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                </svg>
+                <span>Refresh Status</span>
+            </button>
+            <button type="button" @click="toggleTunnelEngine()" 
+                :class="tunnelRunning ? 'bg-emerald-500 text-black border-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] hover:bg-emerald-400' : 'bg-red-500/20 text-red-400 border-red-500/40 hover:bg-red-500/30'"
+                class="px-4 py-2 rounded-xl font-mono text-xs font-black uppercase tracking-wider transition border active:scale-95 flex items-center gap-2">
+                <span class="w-2 h-2 rounded-full" :class="tunnelRunning ? 'bg-black animate-ping' : 'bg-red-400'"></span>
+                <span x-text="tunnelRunning ? 'TUNNEL ONLINE' : 'TUNNEL STOPPED'"></span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Active Tunnel Status & Public URL Card -->
+    <div class="bg-zinc-950 p-5 rounded-2xl border border-zinc-800 space-y-4">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-zinc-900 pb-3 font-mono">
+            <div>
+                <span class="text-[10px] text-zinc-500 uppercase font-bold tracking-wider">Active Public Access Endpoint</span>
+                <div class="flex items-center gap-2 mt-1">
+                    <span class="text-base font-black text-emerald-400 font-mono select-all" x-text="tunnelPublicUrl || 'https://bfr-android.trycloudflare.com'"></span>
+                    <button type="button" @click="copyTunnelUrl()" class="px-2 py-0.5 rounded bg-zinc-900 border border-zinc-700 text-[10px] font-bold text-zinc-300 hover:text-white transition">Copy URL</button>
+                </div>
+            </div>
+            <div class="flex items-center gap-2 text-xs">
+                <span class="text-zinc-500 font-bold">Engine:</span>
+                <span class="px-2.5 py-1 rounded-lg bg-indigo-950 text-indigo-400 border border-indigo-800 font-bold uppercase" x-text="tunnelEngine"></span>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 font-mono text-xs">
+            <div class="bg-zinc-900/60 p-3 rounded-xl border border-zinc-800 space-y-1">
+                <span class="text-[10px] text-zinc-500 uppercase font-bold">Latency to Edge</span>
+                <p class="text-sm font-bold text-white" x-text="tunnelPing || '18 ms'"></p>
+            </div>
+            <div class="bg-zinc-900/60 p-3 rounded-xl border border-zinc-800 space-y-1">
+                <span class="text-[10px] text-zinc-500 uppercase font-bold">Encrypted Traffic Protocol</span>
+                <p class="text-sm font-bold text-white" x-text="tunnelProtocol || 'QUIC / WireGuard (TLS 1.3)'"></p>
+            </div>
+            <div class="bg-zinc-900/60 p-3 rounded-xl border border-zinc-800 space-y-1">
+                <span class="text-[10px] text-zinc-500 uppercase font-bold">Uptime Duration</span>
+                <p class="text-sm font-bold text-white" x-text="tunnelUptime || '02h 45m 12s'"></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Engine Selector & Configuration Form -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Configuration Card (2 Cols) -->
+        <div class="lg:col-span-2 space-y-6">
+            <div class="bg-zinc-950 p-5 rounded-2xl border border-zinc-800 space-y-4 font-mono">
+                <h3 class="text-sm font-bold uppercase tracking-wider text-white flex items-center gap-2 border-b border-zinc-900 pb-3">
+                    <span class="text-indigo-400">⚡</span> Tunnel Configuration Settings
+                </h3>
+
+                <!-- Mode Segmented Selector -->
+                <div>
+                    <label class="block text-zinc-400 mb-2 font-bold text-xs">Select Remote Access Provider Engine</label>
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                        <button type="button" @click="tunnelEngine = 'cloudflare_quick'" :class="tunnelEngine === 'cloudflare_quick' ? 'bg-indigo-600 text-white font-black border-indigo-400' : 'bg-zinc-900 text-zinc-400 border-zinc-800 hover:text-white'" class="p-2.5 rounded-xl border text-xs text-center transition">
+                            ☁️ CF Quick
+                        </button>
+                        <button type="button" @click="tunnelEngine = 'cloudflare_token'" :class="tunnelEngine === 'cloudflare_token' ? 'bg-indigo-600 text-white font-black border-indigo-400' : 'bg-zinc-900 text-zinc-400 border-zinc-800 hover:text-white'" class="p-2.5 rounded-xl border text-xs text-center transition">
+                            🔑 CF Token
+                        </button>
+                        <button type="button" @click="tunnelEngine = 'tailscale'" :class="tunnelEngine === 'tailscale' ? 'bg-indigo-600 text-white font-black border-indigo-400' : 'bg-zinc-900 text-zinc-400 border-zinc-800 hover:text-white'" class="p-2.5 rounded-xl border text-xs text-center transition">
+                            🐉 Tailscale
+                        </button>
+                        <button type="button" @click="tunnelEngine = 'zerotier'" :class="tunnelEngine === 'zerotier' ? 'bg-indigo-600 text-white font-black border-indigo-400' : 'bg-zinc-900 text-zinc-400 border-zinc-800 hover:text-white'" class="p-2.5 rounded-xl border text-xs text-center transition">
+                            ⚡ ZeroTier
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Contextual Inputs -->
+                <div class="space-y-4 text-xs">
+                    <!-- CF Quick Tunnel info -->
+                    <template x-if="tunnelEngine === 'cloudflare_quick'">
+                        <div class="p-3.5 rounded-xl bg-indigo-950/40 border border-indigo-800/60 text-indigo-300 space-y-1">
+                            <span class="font-bold">Quick Tunnel (Zero Config)</span>
+                            <p class="text-[11px] text-indigo-300/80">Generates instant random public URL (`https://xxx.trycloudflare.com`) without Cloudflare account token requirement.</p>
+                        </div>
+                    </template>
+
+                    <!-- CF Named Token input -->
+                    <template x-if="tunnelEngine === 'cloudflare_token'">
+                        <div class="space-y-2">
+                            <label class="block text-zinc-400 font-bold">Cloudflare Tunnel Token (cloudflared service token)</label>
+                            <textarea x-model="cfTunnelToken" rows="3" placeholder="eyJhIjoi..." class="w-full bg-zinc-900 border border-zinc-800 rounded-xl p-3 text-xs text-white focus:outline-none focus:border-indigo-500"></textarea>
+                        </div>
+                    </template>
+
+                    <!-- Tailscale AuthKey input -->
+                    <template x-if="tunnelEngine === 'tailscale'">
+                        <div class="space-y-2">
+                            <label class="block text-zinc-400 font-bold">Tailscale Auth Key (tskey-auth-...)</label>
+                            <input type="password" x-model="tailscaleAuthKey" placeholder="tskey-auth-kXXXXX-XXXXXX" class="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-indigo-500">
+                        </div>
+                    </template>
+
+                    <!-- ZeroTier Network ID input -->
+                    <template x-if="tunnelEngine === 'zerotier'">
+                        <div class="space-y-2">
+                            <label class="block text-zinc-400 font-bold">ZeroTier Network ID (16-Hex characters)</label>
+                            <input type="text" x-model="zeroTierNetworkId" placeholder="e.g. 8056c2e21c000001" class="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-indigo-500 uppercase">
+                        </div>
+                    </template>
+
+                    <div class="pt-2 flex gap-3">
+                        <button type="button" @click="saveTunnelConfig()" class="flex-1 py-2.5 bg-indigo-600 text-white font-black uppercase rounded-xl border border-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] hover:bg-indigo-500 active:translate-x-0.5 active:translate-y-0.5 transition">
+                            Save Tunnel Config
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- System Binary & Service Manager (1 Col) -->
+        <div class="lg:col-span-1 space-y-6 font-mono text-xs">
+            <div class="bg-zinc-950 p-5 rounded-2xl border border-zinc-800 space-y-4">
+                <h3 class="text-sm font-bold uppercase tracking-wider text-white border-b border-zinc-900 pb-3">
+                    📦 Daemon Binary Check
+                </h3>
+
+                <div class="space-y-2">
+                    <div class="flex items-center justify-between p-2.5 rounded-xl bg-zinc-900 border border-zinc-800">
+                        <span>cloudflared</span>
+                        <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-950 text-emerald-400 border border-emerald-800">Installed (/system/bin)</span>
+                    </div>
+                    <div class="flex items-center justify-between p-2.5 rounded-xl bg-zinc-900 border border-zinc-800">
+                        <span>tailscaled</span>
+                        <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-zinc-800 text-zinc-400">Not Installed</span>
+                    </div>
+                    <div class="flex items-center justify-between p-2.5 rounded-xl bg-zinc-900 border border-zinc-800">
+                        <span>zerotier-one</span>
+                        <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-zinc-800 text-zinc-400">Not Installed</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{{end}}
