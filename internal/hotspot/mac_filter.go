@@ -31,7 +31,6 @@ type MACFilterStatus struct {
 var (
 	macFilterMu   sync.RWMutex
 	currentFilter MACFilterConfig
-	filterActive  bool
 	activeRules   int
 )
 
@@ -134,7 +133,6 @@ func ClearMACFilter() error {
 
 	_, _ = config.ExecSuTimeout(5*time.Second, cmdClean)
 
-	filterActive = false
 	activeRules = 0
 	logger.Get().Infof("hotspot", "Cleared MAC filter iptables rules")
 	return nil
@@ -194,12 +192,10 @@ func ApplyMACFilter(cfg *MACFilterConfig) error {
 	execCmdStr := strings.Join(cmds, " && ")
 	out, err := config.ExecSuTimeout(5*time.Second, execCmdStr)
 	if err != nil {
-		filterActive = false
 		activeRules = 0
 		return fmt.Errorf("failed to apply iptables MAC filter rules: %v, out: %s", err, string(out))
 	}
 
-	filterActive = true
 	activeRules = rulesCount
 	logger.Get().Infof("hotspot", "Applied MAC filter rules (mode: %s, rules: %d)", cfg.Mode, rulesCount)
 	return nil
