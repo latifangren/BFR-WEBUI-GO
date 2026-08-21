@@ -3,13 +3,11 @@ gsm.lte.ca.support=1
 persist.radio.lte_ca=1
 vendor.radio.lte_ca=1
 persist.sys.cnd.iwlan.enable=1
-persist.radio.rat_on=combine
 persist.radio.data_ltd_sys_ind=1
 persist.radio.data_con_rrc=1
 persist.radio.add_power_save=1
 persist.radio.snapshot_enabled=1
 persist.radio.snapshot_timer=22
-ro.telephony.default_network=22
 
 # TCP & Network Stack Optimization
 net.tcp.buffersize.default=4096,87380,256000,4096,16384,256000
