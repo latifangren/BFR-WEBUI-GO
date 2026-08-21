@@ -1,0 +1,87 @@
+name: Cleanup Caches and Old Workflow Runs
+
+on:
+  workflow_dispatch:
+    inputs:
+      retain_runs:
+        description: 'Jumlah workflow runs terbaru yang dipertahankan'
+        required: true
+        default: '10'
+  schedule:
+    - cron: '0 0 * * 0' # Berjalan otomatis tiap hari Minggu jam 00:00 UTC
+
+jobs:
+  cleanup-cache:
+    name: Clear Action Caches
+    runs-on: ubuntu-latest
+    permissions:
+      actions: write
+    steps:
+      - name: Delete All Actions Caches
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const caches = await github.rest.actions.getActionsCacheList({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+            });
+            console.log(`Ditemukan ${caches.data.total_count} cache.`);
+            for (const c of caches.data.actions_caches) {
+              console.log(`Menghapus cache ID ${c.id} (${c.key})...`);
+              try {
+                await github.rest.actions.deleteActionsCacheByIdOfVariableTarget({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  cache_id: c.id,
+                });
+              } catch (err) {
+                console.error(`Gagal menghapus cache ${c.id}: ${err.message}`);
+              }
+            }
+
+  cleanup-runs:
+    name: Clear Old Workflow Runs (Keep 10)
+    runs-on: ubuntu-latest
+    permissions:
+      actions: write
+    steps:
+      - name: Delete Old Workflow Runs
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const retainCount = parseInt('${{ github.event.inputs.retain_runs || '10' }}', 10);
+            console.log(`Mempertahankan ${retainCount} workflow runs terbaru...`);
+
+            let allRuns = [];
+            let page = 1;
+            while (true) {
+              const res = await github.rest.actions.listWorkflowRunsForRepo({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                per_page: 100,
+                page: page,
+              });
+              if (!res.data.workflow_runs || res.data.workflow_runs.length === 0) break;
+              allRuns = allRuns.concat(res.data.workflow_runs);
+              if (res.data.workflow_runs.length < 100) break;
+              page++;
+            }
+
+            console.log(`Total workflow runs ditemukan: ${allRuns.length}`);
+            allRuns.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+
+            const runsToDelete = allRuns.slice(retainCount);
+            console.log(`Akan menghapus ${runsToDelete.length} workflow runs lama...`);
+
+            for (const run of runsToDelete) {
+              console.log(`Menghapus run ID ${run.id} (${run.name} - ${run.created_at})...`);
+              try {
+                await github.rest.actions.deleteWorkflowRun({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  run_id: run.id,
+                });
+              } catch (err) {
+                console.error(`Gagal menghapus run ${run.id}: ${err.message}`);
+              }
+            }
