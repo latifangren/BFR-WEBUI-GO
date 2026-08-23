@@ -1,7 +1,7 @@
 id=bfr_webui_go
 name=BFR WEBUI GO
-version=v1.2.0
-versionCode=120
+version=v1.2.1
+versionCode=121
 author=latifangren
 github=https://github.com/latifangren/BFR-WEBUI-GO
 description=High-performance Android System WebUI & Control Panel built in Go & Alpine.js.

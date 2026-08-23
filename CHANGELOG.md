@@ -9,10 +9,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.2.1] - 2026-08-23
+
 ### Changed
 - **Dynamic System Properties via `tweaks.json`**: Converted `system.prop` into a clean placeholder file to prevent Magisk/KernelSU from forcing static boot properties (`ro.telephony.default_network`, `dalvik.vm.*`, `net.tcp.buffersize.*`) when network tweaks are set to `false`. All optimizations are now dynamically driven 100% by `tweaks.json` & WebUI toggles.
 
 ### Added
+- **Modular UI Theme Architecture (Neobrutal vs Modern Clean)**:
+  - Added support for 2 UI design paradigms: **⚡ Neobrutal** (bold 2px borders, 4px hard offset shadows, sharp corners) and **✨ Modern Clean** (soft drop shadows, smooth `rounded-xl` corners, subtle 1px borders, glassmorphism backdrop blur).
+  - Split CSS into modular structure (`web/static/css/base.css`, `web/static/css/styles/neobrutal.css`, `web/static/css/styles/modern.css`, and `web/static/css/style.css`).
+  - Added UI Style switcher toggle in Header (`web/templates/layout/header.html`) and persistent `localStorage.setItem('uiStyle', ...)` state manager in `web/static/js/modules/common/common.js`.
+  - Added anti-FOUC inline script in `web/index.html` to prevent theme flicker on page load.
 - **1-Click Auto Install Daemon Binary Remote Tunnel**: Penambahan fungsi pengunduhan biner persisten ARM64 resmi (`cloudflared`, `tailscaled`, `zerotier-one`) langsung dari WebUI dengan hak akses eksekusi `0755` serta UI indikator status biner interaktif.
 - **Dedicated Remote Access Tunnel Tab (`internal/tunnel`)**: Dukungan Hybrid Tunnel (Cloudflare Quick Tunnel / Token, Tailscale, ZeroTier) dengan deteksi biner dinamis, status URL publik real-time, dan kontrol via API `/api/tunnel/*`.
 - **Dedicated Local NAS Lite & Media Share Tab (`internal/nas`)**: Native Go WebDAV & HTTP File Sharing Server dengan opsi Basic Auth, Mode Read-Only, kalkulasi kapasitas memori internal/SD Card/USB OTG, dan kontrol via API `/api/nas/*`.

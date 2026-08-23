@@ -1,10 +1,13 @@
-const CACHE_NAME = 'bfr-webui-v1.2.0-b5';
+const CACHE_NAME = 'bfr-webui-v1.2.1';
 const STATIC_ASSETS = [
   '/',
   '/index.html',
   '/manifest.json',
   '/static/css/tailwind.min.css',
   '/static/css/xterm.css',
+  '/static/css/base.css',
+  '/static/css/styles/neobrutal.css',
+  '/static/css/styles/modern.css',
   '/static/css/style.css',
   '/static/js/alpine.min.js',
   '/static/js/xterm.js',
