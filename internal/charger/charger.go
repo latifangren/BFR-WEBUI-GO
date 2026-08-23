@@ -150,10 +150,10 @@ func (m *Manager) saveConfigLocked() {
 	if err := os.MkdirAll(dir, 0755); err != nil {
 		m.dataPath = "charger_config.json"
 	}
-	if err := os.WriteFile(m.dataPath, buf, 0644); err != nil {
+	if err := config.WriteFileAtomic(m.dataPath, buf, 0644); err != nil {
 		if m.dataPath != "charger_config.json" {
 			m.dataPath = "charger_config.json"
-			_ = os.WriteFile(m.dataPath, buf, 0644)
+			_ = config.WriteFileAtomic(m.dataPath, buf, 0644)
 		}
 	}
 }

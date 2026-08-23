@@ -8,6 +8,7 @@ import (
 	"os/exec"
 	"strings"
 	"sync"
+	"time"
 
 	"bfr-webui-go/internal/auth"
 	"bfr-webui-go/internal/bufferpool"
@@ -49,20 +50,63 @@ func HandleWebsocket(w http.ResponseWriter, r *http.Request) {
 		log.Printf("Terminal WS upgrade error: %v", err)
 		return
 	}
-	defer conn.Close()
 
-	// M-10: limit incoming message size to 512 KB to prevent memory exhaustion.
+	const (
+		writeWait  = 10 * time.Second
+		pongWait   = 60 * time.Second
+		pingPeriod = (pongWait * 9) / 10
+	)
+
 	conn.SetReadLimit(512 * 1024)
+	_ = conn.SetReadDeadline(time.Now().Add(pongWait))
+	conn.SetPongHandler(func(string) error {
+		_ = conn.SetReadDeadline(time.Now().Add(pongWait))
+		return nil
+	})
 
 	var writeMux sync.Mutex
 	writeWS := func(data []byte) error {
 		writeMux.Lock()
 		defer writeMux.Unlock()
+		_ = conn.SetWriteDeadline(time.Now().Add(writeWait))
 		return conn.WriteMessage(websocket.TextMessage, data)
 	}
 
+	stopPing := make(chan struct{})
+	go func() {
+		ticker := time.NewTicker(pingPeriod)
+		defer ticker.Stop()
+		for {
+			select {
+			case <-ticker.C:
+				writeMux.Lock()
+				_ = conn.SetWriteDeadline(time.Now().Add(writeWait))
+				err := conn.WriteMessage(websocket.PingMessage, nil)
+				writeMux.Unlock()
+				if err != nil {
+					conn.Close()
+					return
+				}
+			case <-stopPing:
+				return
+			}
+		}
+	}()
+
 	var cmd *exec.Cmd
 	var shellFile *os.File
+
+	defer func() {
+		close(stopPing)
+		conn.Close()
+		if shellFile != nil {
+			_ = shellFile.Close()
+		}
+		if cmd != nil && cmd.Process != nil {
+			_ = cmd.Process.Kill()
+			_ = cmd.Wait()
+		}
+	}()
 	var usePty bool
 
 	// 1. Array of shells to try with PTY

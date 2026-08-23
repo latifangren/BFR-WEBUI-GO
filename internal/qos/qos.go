@@ -141,10 +141,10 @@ func (m *Manager) SaveConfig(cfg *QoSConfig) error {
 		m.dataPath = "qos.json"
 	}
 
-	if err := os.WriteFile(m.dataPath, buf, 0644); err != nil {
+	if err := config.WriteFileAtomic(m.dataPath, buf, 0644); err != nil {
 		if m.dataPath != "qos.json" {
 			m.dataPath = "qos.json"
-			_ = os.WriteFile(m.dataPath, buf, 0644)
+			_ = config.WriteFileAtomic(m.dataPath, buf, 0644)
 		}
 		return err
 	}

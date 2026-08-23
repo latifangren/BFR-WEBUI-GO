@@ -133,10 +133,10 @@ func (t *Tracker) saveLocked() {
 	if err := os.MkdirAll(dir, 0755); err != nil {
 		t.dataPath = "vnstat_data.json"
 	}
-	if err := os.WriteFile(t.dataPath, buf, 0644); err != nil {
+	if err := config.WriteFileAtomic(t.dataPath, buf, 0644); err != nil {
 		if t.dataPath != "vnstat_data.json" {
 			t.dataPath = "vnstat_data.json"
-			_ = os.WriteFile(t.dataPath, buf, 0644)
+			_ = config.WriteFileAtomic(t.dataPath, buf, 0644)
 		}
 	}
 }

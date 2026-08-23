@@ -19,8 +19,9 @@
                     x-transition:leave="transition ease-in duration-100"
                     x-transition:leave-start="opacity-100 scale-100 translate-y-0"
                     x-transition:leave-end="opacity-0 scale-95 -translate-y-1"
-                    class="absolute left-0 mt-1.5 w-48 rounded-xl bg-card border border-border/80 shadow-2xl p-1 z-[110] backdrop-blur-xl space-y-0.5"
+                    class="absolute left-0 top-full pt-1 z-[110]"
                     style="display: none;">
+                    <div class="w-48 rounded-xl bg-card border border-border/80 shadow-2xl p-1 backdrop-blur-xl space-y-0.5 max-h-[calc(100vh-80px)] overflow-y-auto custom-scrollbar nav-dropdown">
                     <button type="button" @click="activeTab = 'overview'; open = false"
                         :class="activeTab === 'overview' ? 'bg-blue-600 text-white font-bold' : 'text-gray-300 hover:text-white hover:bg-white/5'"
                         class="w-full text-left px-3 py-2 rounded-lg text-xs transition flex items-center justify-between select-none">
@@ -39,6 +40,7 @@
                         <span>System Logs</span>
                         <span x-show="activeTab === 'logs'" class="w-1.5 h-1.5 rounded-full bg-white"></span>
                     </button>
+                    </div>
                 </div>
             </div>
 
@@ -59,8 +61,9 @@
                     x-transition:leave="transition ease-in duration-100"
                     x-transition:leave-start="opacity-100 scale-100 translate-y-0"
                     x-transition:leave-end="opacity-0 scale-95 -translate-y-1"
-                    class="absolute left-0 mt-1.5 w-52 rounded-xl bg-card border border-border/80 shadow-2xl p-1 z-[110] backdrop-blur-xl space-y-0.5"
+                    class="absolute left-0 top-full pt-1 z-[110]"
                     style="display: none;">
+                    <div class="w-52 rounded-xl bg-card border border-border/80 shadow-2xl p-1 backdrop-blur-xl space-y-0.5 max-h-[calc(100vh-80px)] overflow-y-auto custom-scrollbar nav-dropdown">
                     <button type="button" @click="activeTab = 'files'; fetchFileList(currentPath); open = false"
                         :class="activeTab === 'files' ? 'bg-blue-600 text-white font-bold' : 'text-gray-300 hover:text-white hover:bg-white/5'"
                         class="w-full text-left px-3 py-2 rounded-lg text-xs transition flex items-center justify-between select-none">
@@ -85,6 +88,7 @@
                         <span>System Tools & Modules</span>
                         <span x-show="activeTab === 'tools'" class="w-1.5 h-1.5 rounded-full bg-white"></span>
                     </button>
+                    </div>
                 </div>
             </div>
 
@@ -105,8 +109,9 @@
                     x-transition:leave="transition ease-in duration-100"
                     x-transition:leave-start="opacity-100 scale-100 translate-y-0"
                     x-transition:leave-end="opacity-0 scale-95 -translate-y-1"
-                    class="absolute left-0 mt-1.5 w-48 rounded-xl bg-card border border-border/80 shadow-2xl p-1 z-[110] backdrop-blur-xl space-y-0.5"
+                    class="absolute left-0 top-full pt-1 z-[110]"
                     style="display: none;">
+                    <div class="w-48 rounded-xl bg-card border border-border/80 shadow-2xl p-1 backdrop-blur-xl space-y-0.5 max-h-[calc(100vh-80px)] overflow-y-auto custom-scrollbar nav-dropdown">
                     <button type="button" @click="activeTab = 'tools'; open = false"
                         :class="activeTab === 'tools' ? 'bg-blue-600 text-white font-bold' : 'text-gray-300 hover:text-white hover:bg-white/5'"
                         class="w-full text-left px-3 py-2 rounded-lg text-xs transition flex items-center justify-between select-none">
@@ -131,6 +136,7 @@
                         <span>Remote Screen</span>
                         <span x-show="activeTab === 'scrcpy'" class="w-1.5 h-1.5 rounded-full bg-white"></span>
                     </button>
+                    </div>
                 </div>
             </div>
 
@@ -151,8 +157,9 @@
                     x-transition:leave="transition ease-in duration-100"
                     x-transition:leave-start="opacity-100 scale-100 translate-y-0"
                     x-transition:leave-end="opacity-0 scale-95 -translate-y-1"
-                    class="absolute left-0 mt-1.5 w-52 rounded-xl bg-card border border-border/80 shadow-2xl p-1 z-[110] backdrop-blur-xl space-y-0.5"
+                    class="absolute left-0 top-full pt-1 z-[110]"
                     style="display: none;">
+                    <div class="w-52 rounded-xl bg-card border border-border/80 shadow-2xl p-1 backdrop-blur-xl space-y-0.5 max-h-[calc(100vh-80px)] overflow-y-auto custom-scrollbar nav-dropdown">
                     <button type="button" @click="activeTab = 'network'; open = false"
                         :class="activeTab === 'network' ? 'bg-blue-600 text-white font-bold' : 'text-gray-300 hover:text-white hover:bg-white/5'"
                         class="w-full text-left px-3 py-2 rounded-lg text-xs transition flex items-center justify-between select-none">
@@ -189,6 +196,7 @@
                         <span>Proxy Core</span>
                         <span x-show="activeTab === 'proxy'" class="w-1.5 h-1.5 rounded-full bg-white"></span>
                     </button>
+                    </div>
                 </div>
             </div>
 
@@ -209,8 +217,9 @@
                     x-transition:leave="transition ease-in duration-100"
                     x-transition:leave-start="opacity-100 scale-100 translate-y-0"
                     x-transition:leave-end="opacity-0 scale-95 -translate-y-1"
-                    class="absolute left-0 mt-1.5 w-48 rounded-xl bg-card border border-border/80 shadow-2xl p-1 z-[110] backdrop-blur-xl space-y-0.5"
+                    class="absolute left-0 top-full pt-1 z-[110]"
                     style="display: none;">
+                    <div class="w-48 rounded-xl bg-card border border-border/80 shadow-2xl p-1 backdrop-blur-xl space-y-0.5 max-h-[calc(100vh-80px)] overflow-y-auto custom-scrollbar nav-dropdown">
                     <button type="button" @click="activeTab = 'sms'; fetchSMS(); open = false"
                         :class="activeTab === 'sms' ? 'bg-blue-600 text-white font-bold' : 'text-gray-300 hover:text-white hover:bg-white/5'"
                         class="w-full text-left px-3 py-2 rounded-lg text-xs transition flex items-center justify-between select-none">
@@ -223,6 +232,7 @@
                         <span>About & Docs</span>
                         <span x-show="activeTab === 'about'" class="w-1.5 h-1.5 rounded-full bg-white"></span>
                     </button>
+                    </div>
                 </div>
             </div>
         </nav>

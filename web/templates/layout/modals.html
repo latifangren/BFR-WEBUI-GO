@@ -623,17 +623,17 @@
                         <form @submit.prevent="changePassword()" class="space-y-2.5 pt-1 min-w-0">
                             <div class="space-y-1 min-w-0">
                                 <label for="change-curr-pwd" class="text-[10px] text-gray-400 uppercase tracking-wider font-bold block">Current Password</label>
-                                <input id="change-curr-pwd" type="password" x-model="changePassData.current_password" placeholder="Password saat ini" class="w-full max-w-full min-w-0 box-border truncate bg-black border border-border rounded-xl px-3 py-2 text-xs text-white placeholder-gray-600 focus:outline-none focus:border-blue-500 transition" required />
+                                <input id="change-curr-pwd" type="password" x-model="changePassData.current_password" placeholder="Current password" class="w-full max-w-full min-w-0 box-border truncate bg-black border border-border rounded-xl px-3 py-2 text-xs text-white placeholder-gray-600 focus:outline-none focus:border-blue-500 transition" required />
                             </div>
 
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 min-w-0">
                                 <div class="space-y-1 min-w-0">
                                     <label for="change-new-pwd" class="text-[10px] text-gray-400 uppercase tracking-wider font-bold block">New Password</label>
-                                    <input id="change-new-pwd" type="password" x-model="changePassData.new_password" placeholder="Minimal 4 karakter" class="w-full max-w-full min-w-0 box-border truncate bg-black border border-border rounded-xl px-3 py-2 text-xs text-white placeholder-gray-600 focus:outline-none focus:border-blue-500 transition" required />
+                                    <input id="change-new-pwd" type="password" x-model="changePassData.new_password" placeholder="At least 4 characters" class="w-full max-w-full min-w-0 box-border truncate bg-black border border-border rounded-xl px-3 py-2 text-xs text-white placeholder-gray-600 focus:outline-none focus:border-blue-500 transition" required />
                                 </div>
                                 <div class="space-y-1 min-w-0">
                                     <label for="change-conf-pwd" class="text-[10px] text-gray-400 uppercase tracking-wider font-bold block">Confirm New Password</label>
-                                    <input id="change-conf-pwd" type="password" x-model="changePassData.confirm_password" placeholder="Ulangi password baru" class="w-full max-w-full min-w-0 box-border truncate bg-black border border-border rounded-xl px-3 py-2 text-xs text-white placeholder-gray-600 focus:outline-none focus:border-blue-500 transition" required />
+                                    <input id="change-conf-pwd" type="password" x-model="changePassData.confirm_password" placeholder="Repeat new password" class="w-full max-w-full min-w-0 box-border truncate bg-black border border-border rounded-xl px-3 py-2 text-xs text-white placeholder-gray-600 focus:outline-none focus:border-blue-500 transition" required />
                                 </div>
                             </div>
 
@@ -1007,5 +1007,176 @@
                 </button>
             </div>
         </template>
+    </div>
+
+    <!-- Appearance & Theme Options Modal (Option 3) -->
+    <div x-show="showAppearanceModal" x-cloak class="fixed inset-0 z-[120] flex items-center justify-center bg-black/80 backdrop-blur-md p-4 animate-fade-in" @click.self="showAppearanceModal = false">
+        <div class="bg-card border border-border rounded-3xl p-6 max-w-xl w-full space-y-6 shadow-2xl overflow-hidden relative">
+            <div class="flex items-center justify-between border-b border-border pb-4">
+                <div class="flex items-center gap-2">
+                    <span class="text-lg">🎨</span>
+                    <div>
+                        <h3 class="text-base font-extrabold text-white">Appearance & Theme Options</h3>
+                        <p class="text-xs text-gray-400">Customize WebUI style paradigm and color theme presets</p>
+                    </div>
+                </div>
+                <button type="button" @click="showAppearanceModal = false" class="text-gray-400 hover:text-white p-1 rounded-lg text-lg font-bold select-none">&times;</button>
+            </div>
+
+            <div class="space-y-5 max-h-[75vh] overflow-y-auto custom-scrollbar pr-1">
+                <!-- Section 1: UI Style Paradigm -->
+                <div class="space-y-2">
+                    <label class="text-xs font-bold text-gray-300 uppercase tracking-wider block font-mono">1. UI Paradigm & Style</label>
+                    <div class="grid grid-cols-2 gap-3">
+                        <button type="button" @click="setUIStyle('neobrutal')"
+                            :class="uiStyle === 'neobrutal' ? 'border-blue-500 bg-blue-500/10 text-white font-bold ring-2 ring-blue-500/30' : 'border-border bg-card-sub text-gray-400 hover:text-gray-200'"
+                            class="p-3.5 rounded-2xl border text-left transition relative flex flex-col justify-between space-y-2">
+                            <div class="flex items-center justify-between">
+                                <span class="text-xs font-black">⚡ Neobrutalism</span>
+                                <span x-show="uiStyle === 'neobrutal'" class="w-2 h-2 rounded-full bg-blue-500"></span>
+                            </div>
+                            <p class="text-[10px] text-gray-400 leading-tight">Bold 2px borders, 4px sharp offset shadows, retro industrial style.</p>
+                        </button>
+
+                        <button type="button" @click="setUIStyle('modern')"
+                            :class="uiStyle === 'modern' ? 'border-blue-500 bg-blue-500/10 text-white font-bold ring-2 ring-blue-500/30' : 'border-border bg-card-sub text-gray-400 hover:text-gray-200'"
+                            class="p-3.5 rounded-2xl border text-left transition relative flex flex-col justify-between space-y-2">
+                            <div class="flex items-center justify-between">
+                                <span class="text-xs font-black">✨ Modern Clean</span>
+                                <span x-show="uiStyle === 'modern'" class="w-2 h-2 rounded-full bg-blue-500"></span>
+                            </div>
+                            <p class="text-[10px] text-gray-400 leading-tight">Rounded 16px corners, smooth glassmorphism, subtle 1px borders.</p>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Section 2: Color Theme Presets -->
+                <div class="space-y-2">
+                    <label class="text-xs font-bold text-gray-300 uppercase tracking-wider block font-mono">2. Color Theme Presets</label>
+                    <div class="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
+                        <!-- Dark -->
+                        <button type="button" @click="setColorTheme('dark')"
+                            :class="colorTheme === 'dark' ? 'border-purple-500 bg-purple-500/10 text-white ring-2 ring-purple-500/30' : 'border-border bg-card-sub text-gray-300 hover:text-white'"
+                            class="p-2.5 rounded-xl border text-left transition flex items-center justify-between gap-2">
+                            <div class="flex items-center gap-2 min-w-0">
+                                <div class="flex items-center -space-x-1 shrink-0">
+                                    <span class="w-3.5 h-3.5 rounded-full bg-[#090d16] border border-gray-700"></span>
+                                    <span class="w-3.5 h-3.5 rounded-full bg-[#7c3aed]"></span>
+                                </div>
+                                <span class="text-xs font-bold truncate">🌙 Dark</span>
+                            </div>
+                            <span x-show="colorTheme === 'dark'" class="text-xs text-purple-400 font-bold">✓</span>
+                        </button>
+
+                        <!-- Light -->
+                        <button type="button" @click="setColorTheme('light')"
+                            :class="colorTheme === 'light' ? 'border-blue-500 bg-blue-500/10 text-white ring-2 ring-blue-500/30' : 'border-border bg-card-sub text-gray-300 hover:text-white'"
+                            class="p-2.5 rounded-xl border text-left transition flex items-center justify-between gap-2">
+                            <div class="flex items-center gap-2 min-w-0">
+                                <div class="flex items-center -space-x-1 shrink-0">
+                                    <span class="w-3.5 h-3.5 rounded-full bg-[#f4f6fa] border border-gray-400"></span>
+                                    <span class="w-3.5 h-3.5 rounded-full bg-[#2563eb]"></span>
+                                </div>
+                                <span class="text-xs font-bold truncate">☀️ Light</span>
+                            </div>
+                            <span x-show="colorTheme === 'light'" class="text-xs text-blue-400 font-bold">✓</span>
+                        </button>
+
+                        <!-- Dracula -->
+                        <button type="button" @click="setColorTheme('dracula')"
+                            :class="colorTheme === 'dracula' ? 'border-pink-500 bg-pink-500/10 text-white ring-2 ring-pink-500/30' : 'border-border bg-card-sub text-gray-300 hover:text-white'"
+                            class="p-2.5 rounded-xl border text-left transition flex items-center justify-between gap-2">
+                            <div class="flex items-center gap-2 min-w-0">
+                                <div class="flex items-center -space-x-1 shrink-0">
+                                    <span class="w-3.5 h-3.5 rounded-full bg-[#282a36] border border-gray-600"></span>
+                                    <span class="w-3.5 h-3.5 rounded-full bg-[#bd93f9]"></span>
+                                </div>
+                                <span class="text-xs font-bold truncate">🧛 Dracula</span>
+                            </div>
+                            <span x-show="colorTheme === 'dracula'" class="text-xs text-pink-400 font-bold">✓</span>
+                        </button>
+
+                        <!-- Nord -->
+                        <button type="button" @click="setColorTheme('nord')"
+                            :class="colorTheme === 'nord' ? 'border-cyan-500 bg-cyan-500/10 text-white ring-2 ring-cyan-500/30' : 'border-border bg-card-sub text-gray-300 hover:text-white'"
+                            class="p-2.5 rounded-xl border text-left transition flex items-center justify-between gap-2">
+                            <div class="flex items-center gap-2 min-w-0">
+                                <div class="flex items-center -space-x-1 shrink-0">
+                                    <span class="w-3.5 h-3.5 rounded-full bg-[#2e3440] border border-gray-600"></span>
+                                    <span class="w-3.5 h-3.5 rounded-full bg-[#88c0d0]"></span>
+                                </div>
+                                <span class="text-xs font-bold truncate">❄️ Nord</span>
+                            </div>
+                            <span x-show="colorTheme === 'nord'" class="text-xs text-cyan-400 font-bold">✓</span>
+                        </button>
+
+                        <!-- Cyberpunk -->
+                        <button type="button" @click="setColorTheme('cyberpunk')"
+                            :class="colorTheme === 'cyberpunk' ? 'border-yellow-500 bg-yellow-500/10 text-white ring-2 ring-yellow-500/30' : 'border-border bg-card-sub text-gray-300 hover:text-white'"
+                            class="p-2.5 rounded-xl border text-left transition flex items-center justify-between gap-2">
+                            <div class="flex items-center gap-2 min-w-0">
+                                <div class="flex items-center -space-x-1 shrink-0">
+                                    <span class="w-3.5 h-3.5 rounded-full bg-[#0d0f18] border border-gray-700"></span>
+                                    <span class="w-3.5 h-3.5 rounded-full bg-[#facc15]"></span>
+                                </div>
+                                <span class="text-xs font-bold truncate">🤖 Cyberpunk</span>
+                            </div>
+                            <span x-show="colorTheme === 'cyberpunk'" class="text-xs text-yellow-400 font-bold">✓</span>
+                        </button>
+
+                        <!-- Emerald -->
+                        <button type="button" @click="setColorTheme('emerald')"
+                            :class="colorTheme === 'emerald' ? 'border-emerald-500 bg-emerald-500/10 text-white ring-2 ring-emerald-500/30' : 'border-border bg-card-sub text-gray-300 hover:text-white'"
+                            class="p-2.5 rounded-xl border text-left transition flex items-center justify-between gap-2">
+                            <div class="flex items-center gap-2 min-w-0">
+                                <div class="flex items-center -space-x-1 shrink-0">
+                                    <span class="w-3.5 h-3.5 rounded-full bg-[#064e3b] border border-gray-600"></span>
+                                    <span class="w-3.5 h-3.5 rounded-full bg-[#10b981]"></span>
+                                </div>
+                                <span class="text-xs font-bold truncate">🌲 Emerald</span>
+                            </div>
+                            <span x-show="colorTheme === 'emerald'" class="text-xs text-emerald-400 font-bold">✓</span>
+                        </button>
+
+                        <!-- Sunset -->
+                        <button type="button" @click="setColorTheme('sunset')"
+                            :class="colorTheme === 'sunset' ? 'border-orange-500 bg-orange-500/10 text-white ring-2 ring-orange-500/30' : 'border-border bg-card-sub text-gray-300 hover:text-white'"
+                            class="p-2.5 rounded-xl border text-left transition flex items-center justify-between gap-2">
+                            <div class="flex items-center gap-2 min-w-0">
+                                <div class="flex items-center -space-x-1 shrink-0">
+                                    <span class="w-3.5 h-3.5 rounded-full bg-[#1f1329] border border-gray-600"></span>
+                                    <span class="w-3.5 h-3.5 rounded-full bg-[#f97316]"></span>
+                                </div>
+                                <span class="text-xs font-bold truncate">🌅 Sunset</span>
+                            </div>
+                            <span x-show="colorTheme === 'sunset'" class="text-xs text-orange-400 font-bold">✓</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Seksi 3: Live Component Preview Box -->
+                <div class="space-y-2 pt-1 border-t border-border">
+                    <label class="text-xs font-bold text-gray-300 uppercase tracking-wider block font-mono">3. Live Component Preview</label>
+                    <div class="bg-card p-4 rounded-2xl border border-border space-y-3 shadow-inner">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-bold text-white flex items-center gap-2">
+                                <span class="w-2.5 h-2.5 rounded-full" style="background-color: var(--neo-accent);"></span>
+                                Live Sample Card
+                            </span>
+                            <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider text-white" style="background-color: var(--neo-accent);">ACTIVE BADGE</span>
+                        </div>
+                        <p class="text-xs text-gray-400">Real-time visual preview of buttons, badges, inputs, and container styles based on the selected theme preset.</p>
+                        <div class="flex items-center gap-2 pt-1">
+                            <button type="button" class="px-3 py-1.5 text-xs font-bold text-white rounded-xl shadow transition" style="background-color: var(--neo-accent);">Primary Button</button>
+                            <button type="button" class="px-3 py-1.5 text-xs font-medium text-gray-300 bg-black/40 border border-border rounded-xl">Secondary</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex justify-end pt-2 border-t border-border">
+                <button type="button" @click="showAppearanceModal = false" class="px-5 py-2 text-xs font-bold text-white rounded-xl transition" style="background-color: var(--neo-accent);">Done</button>
+            </div>
+        </div>
     </div>
 {{end}}

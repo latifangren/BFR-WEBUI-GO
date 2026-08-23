@@ -104,9 +104,9 @@ func SaveMACFilterConfig(cfg *MACFilterConfig) error {
 		dataPath = "hotspot_mac_filter.json"
 	}
 
-	if err := os.WriteFile(dataPath, buf, 0644); err != nil {
+	if err := config.WriteFileAtomic(dataPath, buf, 0644); err != nil {
 		if dataPath != "hotspot_mac_filter.json" {
-			_ = os.WriteFile("hotspot_mac_filter.json", buf, 0644)
+			_ = config.WriteFileAtomic("hotspot_mac_filter.json", buf, 0644)
 		}
 		return err
 	}

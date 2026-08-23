@@ -7,6 +7,8 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+
+	"bfr-webui-go/internal/bufferpool"
 )
 
 func CompressZip(srcPaths []string, destZipPath string) error {
@@ -78,7 +80,9 @@ func CompressZip(srcPaths []string, destZipPath string) error {
 			}
 			defer file.Close()
 
-			_, err = io.Copy(writer, file)
+			buf := bufferpool.GetBytes(32768)
+				defer bufferpool.PutBytes(buf)
+				_, err = io.CopyBuffer(writer, file, buf)
 			return err
 		})
 
@@ -138,7 +142,9 @@ func ExtractZip(zipPath, destDir string) error {
 			return err
 		}
 
-		_, copyErr := io.Copy(outFile, rc)
+		buf := bufferpool.GetBytes(32768)
+			_, copyErr := io.CopyBuffer(outFile, rc, buf)
+			bufferpool.PutBytes(buf)
 		outFile.Close()
 		rc.Close()
 

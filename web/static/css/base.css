@@ -1,17 +1,9 @@
 /* Base CSS Variables, Resets, Badges, Utilities, and Component Base Styles */
 
-:root {
-  --neo-bg: #f4f6fa;
-  --neo-card: #ffffff;
-  --neo-card-sub: #f8fafc;
-  --neo-text: #0f172a;
-  --neo-muted: #64748b;
-  --neo-border: #0f172a;
-  --neo-accent: #5c3bf5;
-  --neo-shadow: #0f172a;
-}
-
-.dark {
+/* Color Presets (Default Dark, Light, Dracula, Nord, Cyberpunk, Emerald, Sunset) */
+:root,
+[data-theme="dark"],
+.dark:not([data-theme]) {
   --neo-bg: #090d16;
   --neo-card: #131927;
   --neo-card-sub: #1e293b;
@@ -20,6 +12,73 @@
   --neo-border: #334155;
   --neo-accent: #7c3aed;
   --neo-shadow: #1e293b;
+}
+
+[data-theme="light"],
+.light:not([data-theme]) {
+  --neo-bg: #f4f6fa;
+  --neo-card: #ffffff;
+  --neo-card-sub: #f8fafc;
+  --neo-text: #0f172a;
+  --neo-muted: #64748b;
+  --neo-border: #cbd5e1;
+  --neo-accent: #2563eb;
+  --neo-shadow: #0f172a;
+}
+
+[data-theme="dracula"] {
+  --neo-bg: #1e1f29;
+  --neo-card: #282a36;
+  --neo-card-sub: #44475a;
+  --neo-text: #f8f8f2;
+  --neo-muted: #6272a4;
+  --neo-border: #44475a;
+  --neo-accent: #bd93f9;
+  --neo-shadow: #191a21;
+}
+
+[data-theme="nord"] {
+  --neo-bg: #242933;
+  --neo-card: #2e3440;
+  --neo-card-sub: #3b4252;
+  --neo-text: #eceff4;
+  --neo-muted: #d8dee9;
+  --neo-border: #434c5e;
+  --neo-accent: #88c0d0;
+  --neo-shadow: #1b1f27;
+}
+
+[data-theme="cyberpunk"] {
+  --neo-bg: #0d0f18;
+  --neo-card: #181b28;
+  --neo-card-sub: #222638;
+  --neo-text: #fff066;
+  --neo-muted: #a3a7c2;
+  --neo-border: #facc15;
+  --neo-accent: #facc15;
+  --neo-shadow: #facc15;
+}
+
+[data-theme="emerald"] {
+  --neo-bg: #042f2e;
+  --neo-card: #064e3b;
+  --neo-card-sub: #0f766e;
+  --neo-text: #ecfdf5;
+  --neo-muted: #6ee7b7;
+  --neo-border: #115e59;
+  --neo-accent: #10b981;
+  --neo-shadow: #022c22;
+}
+
+[data-theme="sunset"] {
+  --neo-bg: #120b18;
+  --neo-card: #1f1329;
+  --neo-card-sub: #2d1b3a;
+  --neo-text: #fed7aa;
+  --neo-muted: #fb923c;
+  --neo-border: #4c1d95;
+  --neo-accent: #f97316;
+  --neo-shadow: #0a050e;
 }
 
 /* Base resets & Alpine cloak */
@@ -199,3 +258,24 @@ textarea.bg-black {
   from { opacity: 0; transform: translateY(4px); }
   to { opacity: 1; transform: translateY(0); }
 }
+
+/* Stacking Context & Z-Index Governance (Fixes Tailwind static min build gaps) */
+header {
+  position: sticky;
+  top: 0;
+  z-index: 1000 !important;
+}
+
+nav div.absolute {
+  z-index: 1050 !important;
+}
+
+.z-60, .z-\[60\] { z-index: 60 !important; }
+.z-70, .z-\[70\] { z-index: 70 !important; }
+.z-80, .z-\[80\] { z-index: 80 !important; }
+.z-90, .z-\[90\] { z-index: 90 !important; }
+.z-100, .z-\[100\] { z-index: 100 !important; }
+.z-110, .z-\[110\] { z-index: 110 !important; }
+.z-120, .z-\[120\] { z-index: 120 !important; }
+.z-200, .z-\[200\] { z-index: 200 !important; }
+.z-999, .z-\[999\] { z-index: 999 !important; }

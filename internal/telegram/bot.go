@@ -221,7 +221,7 @@ func (m *Manager) saveConfigFileLocked() error {
 		return err
 	}
 
-	return os.WriteFile(m.dataPath, data, 0644)
+	return config.WriteFileAtomic(m.dataPath, data, 0644)
 }
 
 func (m *Manager) IsEnabled() bool {

@@ -5,7 +5,7 @@
         <div class="absolute top-0 right-0 w-64 h-full bg-gradient-to-l from-emerald-500/10 to-transparent pointer-events-none"></div>
         <div class="space-y-1 relative z-10">
             <div class="flex items-center gap-2">
-                <span class="px-2.5 py-0.5 rounded text-[10px] font-black uppercase tracking-wider bg-emerald-500 text-black border border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">SQM / CAKE Engine</span>
+                <span class="px-2.5 py-0.5 rounded text-[10px] font-black uppercase tracking-wider bg-emerald-500/20 text-emerald-400 border border-emerald-500/40">SQM / CAKE Engine</span>
                 <span class="text-xs font-mono text-zinc-400">Kernel Traffic Control</span>
             </div>
             <h2 class="text-xl font-extrabold tracking-wide text-white uppercase font-mono flex items-center gap-2">
@@ -23,9 +23,9 @@
                 <span>Refresh Status</span>
             </button>
             <button type="button" @click="toggleQoSEngine()" 
-                :class="qosEnabled ? 'bg-emerald-500 text-black border-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] hover:bg-emerald-400' : 'bg-red-500/20 text-red-400 border-red-500/40 hover:bg-red-500/30'"
+                :class="qosEnabled ? 'bg-emerald-500 text-slate-950 font-bold border-emerald-600 shadow-md hover:bg-emerald-400' : 'bg-red-500/20 text-red-400 border-red-500/40 hover:bg-red-500/30'"
                 class="px-4 py-2 rounded-xl font-mono text-xs font-black uppercase tracking-wider transition border active:scale-95 flex items-center gap-2">
-                <span class="w-2 h-2 rounded-full" :class="qosEnabled ? 'bg-black animate-ping' : 'bg-red-400'"></span>
+                <span class="w-2 h-2 rounded-full" :class="qosEnabled ? 'bg-slate-950 animate-ping' : 'bg-red-400'"></span>
                 <span x-text="qosEnabled ? 'QoS ACTIVE' : 'QoS DISABLED'"></span>
             </button>
         </div>

@@ -18,15 +18,9 @@
             {{template "sidebar.html" .}}
 
             <div class="flex items-center space-x-2 shrink-0">
-                <button type="button" @click="toggleUIStyle()" class="style-toggle px-2.5 py-1.5 text-xs font-extrabold flex items-center justify-center gap-1.5 transition-all duration-100 select-none" :title="'UI Style: ' + (uiStyle === 'neobrutal' ? 'Neobrutal' : 'Modern Clean')">
-                    <span x-show="uiStyle === 'neobrutal'">⚡</span>
-                    <span x-show="uiStyle === 'modern'">✨</span>
-                    <span x-text="uiStyle === 'neobrutal' ? 'Neobrutal' : 'Modern'"></span>
-                </button>
-                <button type="button" @click="toggleTheme()" class="theme-toggle px-2.5 py-1.5 text-xs font-extrabold flex items-center justify-center gap-1.5 transition-all duration-100 select-none">
-                    <span x-show="isDark">🌙</span>
-                    <span x-show="!isDark">☀️</span>
-                    <span x-text="isDark ? 'Dark' : 'Light'"></span>
+                <button type="button" @click="showAppearanceModal = true" class="style-toggle px-3 py-1.5 text-xs font-extrabold flex items-center justify-center gap-1.5 transition-all duration-100 select-none" title="Appearance & Theme Customization">
+                    <span>🎨</span>
+                    <span class="hidden sm:inline">Appearance</span>
                 </button>
                 <template x-if="authenticated">
                     <button type="button" @click="showBackupModal = true" class="px-2.5 py-1.5 text-xs font-extrabold text-gray-300 hover:text-white bg-flat border border-border/60 rounded-xl transition select-none" title="Backup & Settings">

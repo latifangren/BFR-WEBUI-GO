@@ -40,32 +40,118 @@
   border-color: var(--neo-border) !important;
 }
 
+/* Badges rounded pill override for Modern Clean */
+[data-ui-style="modern"] .badge-active,
+[data-ui-style="modern"] .badge-inactive,
+[data-ui-style="modern"] .badge-stopped,
+[data-ui-style="modern"] .badge-disabled,
+[data-ui-style="modern"] .badge-neutral,
+[data-ui-style="modern"] .badge-info,
+[data-ui-style="modern"] .badge-warning {
+  border-radius: 9999px !important;
+  padding-left: 0.75rem !important;
+  padding-right: 0.75rem !important;
+}
+
+/* Buttons */
 [data-ui-style="modern"] button,
 [data-ui-style="modern"] .btn {
-  background-color: var(--neo-card) !important;
-  color: var(--neo-text) !important;
-  border: 1px solid var(--neo-border) !important;
-  border-radius: 12px !important;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.06) !important;
-  font-weight: 600 !important;
-  text-transform: none !important;
-  letter-spacing: normal !important;
-  transition: all 0.15s ease !important;
+  background-color: var(--neo-card);
+  color: var(--neo-text);
+  border: 1px solid var(--neo-border);
+  border-radius: 12px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.06);
+  font-weight: 600;
+  text-transform: none;
+  letter-spacing: normal;
+  transition: all 0.15s ease;
 }
 
 [data-ui-style="modern"] button:hover,
 [data-ui-style="modern"] .btn:hover {
-  background-color: var(--neo-card-sub) !important;
-  transform: translateY(-1px) !important;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
+  background-color: var(--neo-card-sub);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 [data-ui-style="modern"] button:active,
 [data-ui-style="modern"] .btn:active {
-  transform: translateY(0) scale(0.98) !important;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05) !important;
+  transform: translateY(0) scale(0.98);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
 }
 
+/* Specific button color overrides in Modern Clean */
+[data-ui-style="modern"] button.bg-blue-600,
+[data-ui-style="modern"] .btn.bg-blue-600 {
+  background-color: #2563eb !important;
+  color: #ffffff !important;
+  border-color: #3b82f6 !important;
+}
+
+[data-ui-style="modern"] button.bg-emerald-500,
+[data-ui-style="modern"] .btn.bg-emerald-500 {
+  background-color: #10b981 !important;
+  color: #064e3b !important;
+  border-color: #059669 !important;
+}
+
+[data-ui-style="modern"] button.bg-red-500,
+[data-ui-style="modern"] .btn.bg-red-500 {
+  background-color: #ef4444 !important;
+  color: #ffffff !important;
+  border-color: #dc2626 !important;
+}
+
+/* Nav Bar & Category Trigger Buttons Fix in Modern Clean */
+[data-ui-style="modern"] nav > div > button,
+[data-ui-style="modern"] nav > div > button:hover {
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+/* Nav Dropdown Submenu Reset in Modern Clean */
+[data-ui-style="modern"] nav div.absolute {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+  z-index: 1050 !important;
+}
+
+[data-ui-style="modern"] nav .nav-dropdown {
+  background-color: var(--neo-card) !important;
+  border: 1px solid var(--neo-border) !important;
+  box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.4) !important;
+  border-radius: 12px !important;
+  backdrop-filter: blur(12px) !important;
+  scrollbar-width: thin;
+  position: relative !important;
+  z-index: 1060 !important;
+}
+
+[data-ui-style="modern"] nav div.absolute button {
+  background-color: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  border-radius: 8px !important;
+  transform: none !important;
+  color: var(--neo-text) !important;
+  margin: 0 !important;
+}
+
+[data-ui-style="modern"] nav div.absolute button:hover {
+  background-color: var(--neo-card-sub) !important;
+  border: none !important;
+  box-shadow: none !important;
+  transform: none !important;
+}
+
+[data-ui-style="modern"] nav div.absolute button.bg-blue-600 {
+  background-color: #2563eb !important;
+  color: #ffffff !important;
+}
+
+/* Inputs & Form Controls */
 [data-ui-style="modern"] input,
 [data-ui-style="modern"] select,
 [data-ui-style="modern"] textarea {
@@ -86,6 +172,7 @@
   box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.2) !important;
 }
 
+/* Header Action Buttons */
 [data-ui-style="modern"] header button.theme-toggle,
 [data-ui-style="modern"] header button.style-toggle {
   background-color: var(--neo-card) !important;
@@ -110,4 +197,15 @@
 [data-ui-style="modern"] header button.style-toggle:active {
   transform: translateY(0) scale(0.98) !important;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05) !important;
+}
+
+/* Table styling in Modern Clean */
+[data-ui-style="modern"] table th {
+  border-bottom: 1px solid var(--neo-border) !important;
+  font-weight: 600 !important;
+  color: var(--neo-muted) !important;
+}
+
+[data-ui-style="modern"] table td {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
 }

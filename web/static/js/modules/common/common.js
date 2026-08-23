@@ -14,6 +14,7 @@ const CommonModule = {
     mobileCategory: null,
     hideMobileNav: false,
     isDark: localStorage.getItem('theme') !== 'light',
+    colorTheme: localStorage.getItem('colorTheme') || (localStorage.getItem('theme') === 'light' ? 'light' : 'dark'),
     uiStyle: localStorage.getItem('uiStyle') || 'neobrutal',
     toasts: [],
     confirmModal: { show: false, title: 'Confirmation', message: '', onConfirm: null },
@@ -21,6 +22,7 @@ const CommonModule = {
     showBatteryModal: false,
     showNetworkModal: false,
     showBackupModal: false,
+    showAppearanceModal: false,
 
     async exportBackup() {
         try {
@@ -65,15 +67,15 @@ const CommonModule = {
         const confirm_password = this.changePassData.confirm_password || '';
 
         if (!current_password) {
-            this.changePassError = 'Password saat ini harus diisi.';
+            this.changePassError = 'Current password is required.';
             return;
         }
         if (!new_password || new_password.length < 4) {
-            this.changePassError = 'Password baru minimal 4 karakter.';
+            this.changePassError = 'New password must be at least 4 characters long.';
             return;
         }
         if (new_password !== confirm_password) {
-            this.changePassError = 'Konfirmasi password baru tidak cocok.';
+            this.changePassError = 'New password confirmation does not match.';
             return;
         }
         try {
@@ -85,30 +87,47 @@ const CommonModule = {
             const data = await res.json();
             if (res.ok && data.success) {
                 this.isDefaultPass = false;
-                this.changePassMsg = 'Password berhasil diperbarui!';
-                this.showToast('Password Updated', 'Password akses berhasil diperbarui.', 'success');
+                this.changePassMsg = 'Password successfully updated!';
+                this.showToast('Password Updated', 'Access password has been updated successfully.', 'success');
                 this.changePassData = { current_password: '', new_password: '', confirm_password: '' };
             } else {
-                this.changePassError = data.error || 'Gagal mengubah password.';
+                this.changePassError = data.error || 'Failed to update password.';
             }
         } catch (e) {
-            this.changePassError = 'Koneksi gagal. Silakan coba lagi.';
+            this.changePassError = 'Connection error. Please try again.';
         }
+    },
+
+    setColorTheme(theme) {
+        this.colorTheme = theme;
+        localStorage.setItem('colorTheme', theme);
+        if (theme === 'light') {
+            this.isDark = false;
+            localStorage.setItem('theme', 'light');
+        } else {
+            this.isDark = true;
+            localStorage.setItem('theme', 'dark');
+        }
+        this.applyTheme();
     },
 
     toggleTheme() {
         this.isDark = !this.isDark;
-        localStorage.setItem('theme', this.isDark ? 'dark' : 'light');
-        this.applyTheme();
+        const newTheme = this.isDark ? 'dark' : 'light';
+        this.setColorTheme(newTheme);
     },
 
     applyTheme() {
-        if (this.isDark) {
-            document.documentElement.classList.add('dark');
-            document.documentElement.classList.remove('light');
-        } else {
+        const theme = this.colorTheme || 'dark';
+        document.documentElement.setAttribute('data-theme', theme);
+        if (theme === 'light') {
             document.documentElement.classList.add('light');
             document.documentElement.classList.remove('dark');
+            this.isDark = false;
+        } else {
+            document.documentElement.classList.add('dark');
+            document.documentElement.classList.remove('light');
+            this.isDark = true;
         }
     },
 

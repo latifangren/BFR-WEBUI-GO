@@ -70,7 +70,7 @@ func SaveTweaks(cfg TweaksConfig) error {
 	if err != nil {
 		return err
 	}
-	return os.WriteFile(path, data, 0644)
+	return config.WriteFileAtomic(path, data, 0644)
 }
 
 func getTotalRAMBytes() uint64 {

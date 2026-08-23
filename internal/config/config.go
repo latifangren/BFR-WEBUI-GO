@@ -101,11 +101,53 @@ func GetPersistentFilePath(filename string) string {
 				continue
 			}
 			if data, err := os.ReadFile(legacyPath); err == nil && len(data) > 0 {
-				_ = os.WriteFile(targetPath, data, 0644)
+				_ = WriteFileAtomic(targetPath, data, 0644)
 				break
 			}
 		}
 	}
 
 	return targetPath
+}
+
+// WriteFileAtomic writes data to a file atomically by writing to a temporary file in the same directory,
+// syncing it to disk, and renaming it to the target filename to prevent corrupted files during sudden reboots.
+func WriteFileAtomic(filename string, data []byte, perm os.FileMode) error {
+	dir := filepath.Dir(filename)
+	if err := os.MkdirAll(dir, 0755); err != nil {
+		return err
+	}
+
+	tmpFile, err := os.CreateTemp(dir, ".tmp-*")
+	if err != nil {
+		return err
+	}
+	tmpName := tmpFile.Name()
+
+	cleanup := func() {
+		_ = tmpFile.Close()
+		_ = os.Remove(tmpName)
+	}
+
+	if _, err := tmpFile.Write(data); err != nil {
+		cleanup()
+		return err
+	}
+
+	if err := tmpFile.Sync(); err != nil {
+		cleanup()
+		return err
+	}
+
+	if err := tmpFile.Close(); err != nil {
+		_ = os.Remove(tmpName)
+		return err
+	}
+
+	if err := os.Chmod(tmpName, perm); err != nil {
+		_ = os.Remove(tmpName)
+		return err
+	}
+
+	return os.Rename(tmpName, filename)
 }

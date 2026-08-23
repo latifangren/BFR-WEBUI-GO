@@ -141,9 +141,9 @@ func (m *Manager) SaveConfig(cfg *NASConfig) error {
 		m.dataPath = "nas.json"
 	}
 
-	if err := os.WriteFile(m.dataPath, buf, 0644); err != nil {
+	if err := config.WriteFileAtomic(m.dataPath, buf, 0644); err != nil {
 		if m.dataPath != "nas.json" {
-			_ = os.WriteFile("nas.json", buf, 0644)
+			_ = config.WriteFileAtomic("nas.json", buf, 0644)
 		}
 		return err
 	}

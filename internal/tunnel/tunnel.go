@@ -140,9 +140,9 @@ func (m *Manager) SaveConfig(cfg *TunnelConfig) error {
 		m.dataPath = "tunnel.json"
 	}
 
-	if err := os.WriteFile(m.dataPath, buf, 0644); err != nil {
+	if err := config.WriteFileAtomic(m.dataPath, buf, 0644); err != nil {
 		if m.dataPath != "tunnel.json" {
-			_ = os.WriteFile("tunnel.json", buf, 0644)
+			_ = config.WriteFileAtomic("tunnel.json", buf, 0644)
 		}
 		return err
 	}
