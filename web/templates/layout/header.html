@@ -18,6 +18,11 @@
             {{template "sidebar.html" .}}
 
             <div class="flex items-center space-x-2 shrink-0">
+                <button type="button" @click="toggleUIStyle()" class="style-toggle px-2.5 py-1.5 text-xs font-extrabold flex items-center justify-center gap-1.5 transition-all duration-100 select-none" :title="'UI Style: ' + (uiStyle === 'neobrutal' ? 'Neobrutal' : 'Modern Clean')">
+                    <span x-show="uiStyle === 'neobrutal'">⚡</span>
+                    <span x-show="uiStyle === 'modern'">✨</span>
+                    <span x-text="uiStyle === 'neobrutal' ? 'Neobrutal' : 'Modern'"></span>
+                </button>
                 <button type="button" @click="toggleTheme()" class="theme-toggle px-2.5 py-1.5 text-xs font-extrabold flex items-center justify-center gap-1.5 transition-all duration-100 select-none">
                     <span x-show="isDark">🌙</span>
                     <span x-show="!isDark">☀️</span>

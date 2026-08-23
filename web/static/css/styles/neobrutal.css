@@ -1,0 +1,119 @@
+/* Neobrutalist Theme Presentation Override */
+
+[data-ui-style="neobrutal"] body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  background-image: radial-gradient(var(--neo-border) 1px, transparent 1px);
+  background-size: 24px 24px;
+  opacity: 0.03;
+  pointer-events: none;
+  z-index: 10;
+}
+
+[data-ui-style="neobrutal"] .bg-card {
+  background-color: var(--neo-card) !important;
+  border: 2px solid var(--neo-border) !important;
+  box-shadow: 4px 4px 0px 0px var(--neo-shadow) !important;
+  border-radius: 4px !important;
+  transition: transform 0.15s cubic-bezier(0.32, 0.72, 0, 1), box-shadow 0.15s cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+[data-ui-style="neobrutal"] .fixed div.bg-card {
+  box-shadow: 8px 8px 0px 0px var(--neo-shadow) !important;
+}
+
+[data-ui-style="neobrutal"] .bg-black {
+  background-color: var(--neo-card-sub) !important;
+  border: 2px solid var(--neo-border) !important;
+  border-radius: 4px !important;
+}
+
+[data-ui-style="neobrutal"] .border {
+  border: 2px solid var(--neo-border) !important;
+}
+
+[data-ui-style="neobrutal"] .border-b {
+  border-bottom: 2px solid var(--neo-border) !important;
+}
+
+[data-ui-style="neobrutal"] .border-t {
+  border-top: 2px solid var(--neo-border) !important;
+}
+
+[data-ui-style="neobrutal"] .border-border {
+  border-color: var(--neo-border) !important;
+}
+
+[data-ui-style="neobrutal"] button,
+[data-ui-style="neobrutal"] .btn {
+  background-color: var(--neo-card) !important;
+  color: var(--neo-text) !important;
+  border: 2px solid var(--neo-border) !important;
+  border-radius: 4px !important;
+  box-shadow: 4px 4px 0px 0px var(--neo-shadow) !important;
+  font-weight: 700 !important;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  transition: transform 0.1s cubic-bezier(0.32, 0.72, 0, 1), box-shadow 0.1s cubic-bezier(0.32, 0.72, 0, 1), background-color 0.1s ease !important;
+}
+
+[data-ui-style="neobrutal"] button:hover,
+[data-ui-style="neobrutal"] .btn:hover {
+  background-color: var(--neo-card-sub) !important;
+  transform: translate(-1px, -1px);
+  box-shadow: 5px 5px 0px 0px var(--neo-shadow) !important;
+}
+
+[data-ui-style="neobrutal"] button:active,
+[data-ui-style="neobrutal"] .btn:active {
+  transform: translate(2px, 2px) !important;
+  box-shadow: 2px 2px 0px 0px var(--neo-shadow) !important;
+}
+
+[data-ui-style="neobrutal"] input,
+[data-ui-style="neobrutal"] select,
+[data-ui-style="neobrutal"] textarea {
+  background-color: var(--neo-card-sub) !important;
+  color: var(--neo-text) !important;
+  border: 2px solid var(--neo-border) !important;
+  border-radius: 4px !important;
+  box-shadow: 2px 2px 0px 0px var(--neo-shadow) !important;
+  font-family: inherit;
+}
+
+[data-ui-style="neobrutal"] input:focus,
+[data-ui-style="neobrutal"] select:focus,
+[data-ui-style="neobrutal"] textarea:focus {
+  outline: none !important;
+  border-color: var(--neo-accent) !important;
+  box-shadow: 3px 3px 0px 0px var(--neo-accent) !important;
+}
+
+[data-ui-style="neobrutal"] header button.theme-toggle,
+[data-ui-style="neobrutal"] header button.style-toggle {
+  background-color: var(--neo-card) !important;
+  color: var(--neo-text) !important;
+  border-radius: 4px !important;
+  border: 2px solid var(--neo-border) !important;
+  box-shadow: 4px 4px 0px 0px var(--neo-shadow) !important;
+  font-weight: 700 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.05em !important;
+  transition: transform 0.1s ease, box-shadow 0.1s ease, background-color 0.1s ease !important;
+}
+
+[data-ui-style="neobrutal"] header button.theme-toggle:hover,
+[data-ui-style="neobrutal"] header button.style-toggle:hover {
+  background-color: var(--neo-card-sub) !important;
+  transform: translate(-1px, -1px) !important;
+  box-shadow: 5px 5px 0px 0px var(--neo-shadow) !important;
+}
+
+[data-ui-style="neobrutal"] header button.theme-toggle:active,
+[data-ui-style="neobrutal"] header button.style-toggle:active {
+  transform: translate(2px, 2px) !important;
+  box-shadow: 2px 2px 0px 0px var(--neo-shadow) !important;
+}

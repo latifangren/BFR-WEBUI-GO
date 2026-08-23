@@ -14,6 +14,7 @@ const CommonModule = {
     mobileCategory: null,
     hideMobileNav: false,
     isDark: localStorage.getItem('theme') !== 'light',
+    uiStyle: localStorage.getItem('uiStyle') || 'neobrutal',
     toasts: [],
     confirmModal: { show: false, title: 'Confirmation', message: '', onConfirm: null },
     modal: { show: false, action: '', actionName: '' },
@@ -109,6 +110,23 @@ const CommonModule = {
             document.documentElement.classList.add('light');
             document.documentElement.classList.remove('dark');
         }
+    },
+
+    toggleUIStyle() {
+        this.uiStyle = this.uiStyle === 'neobrutal' ? 'modern' : 'neobrutal';
+        localStorage.setItem('uiStyle', this.uiStyle);
+        this.applyUIStyle();
+    },
+
+    setUIStyle(style) {
+        this.uiStyle = style;
+        localStorage.setItem('uiStyle', style);
+        this.applyUIStyle();
+    },
+
+    applyUIStyle() {
+        const style = this.uiStyle || 'neobrutal';
+        document.documentElement.setAttribute('data-ui-style', style);
     },
 
     showToast(title, message, type = 'info', duration = 3000) {

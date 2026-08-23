@@ -27,6 +27,7 @@ function dashboard() {
             // Authenticated root orchestration flow
             async init() {
                 this.applyTheme();
+                this.applyUIStyle();
                 this.initShortcuts();
                 await this.checkAuth();
                 this.initHashNavigation();

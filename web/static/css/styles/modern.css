@@ -1,0 +1,113 @@
+/* Modern Clean Theme Presentation Override */
+
+[data-ui-style="modern"] body {
+  background-color: var(--neo-bg);
+  color: var(--neo-text);
+}
+
+[data-ui-style="modern"] .bg-card {
+  background-color: var(--neo-card) !important;
+  border: 1px solid var(--neo-border) !important;
+  box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.12), 0 4px 10px -2px rgba(0, 0, 0, 0.05) !important;
+  border-radius: 16px !important;
+  backdrop-filter: blur(12px) !important;
+  transition: transform 0.2s ease, box-shadow 0.2s ease !important;
+}
+
+[data-ui-style="modern"] .fixed div.bg-card {
+  box-shadow: 0 20px 50px -10px rgba(0, 0, 0, 0.4) !important;
+}
+
+[data-ui-style="modern"] .bg-black {
+  background-color: var(--neo-card-sub) !important;
+  border: 1px solid var(--neo-border) !important;
+  border-radius: 12px !important;
+}
+
+[data-ui-style="modern"] .border {
+  border: 1px solid var(--neo-border) !important;
+}
+
+[data-ui-style="modern"] .border-b {
+  border-bottom: 1px solid var(--neo-border) !important;
+}
+
+[data-ui-style="modern"] .border-t {
+  border-top: 1px solid var(--neo-border) !important;
+}
+
+[data-ui-style="modern"] .border-border {
+  border-color: var(--neo-border) !important;
+}
+
+[data-ui-style="modern"] button,
+[data-ui-style="modern"] .btn {
+  background-color: var(--neo-card) !important;
+  color: var(--neo-text) !important;
+  border: 1px solid var(--neo-border) !important;
+  border-radius: 12px !important;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.06) !important;
+  font-weight: 600 !important;
+  text-transform: none !important;
+  letter-spacing: normal !important;
+  transition: all 0.15s ease !important;
+}
+
+[data-ui-style="modern"] button:hover,
+[data-ui-style="modern"] .btn:hover {
+  background-color: var(--neo-card-sub) !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
+}
+
+[data-ui-style="modern"] button:active,
+[data-ui-style="modern"] .btn:active {
+  transform: translateY(0) scale(0.98) !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05) !important;
+}
+
+[data-ui-style="modern"] input,
+[data-ui-style="modern"] select,
+[data-ui-style="modern"] textarea {
+  background-color: var(--neo-card-sub) !important;
+  color: var(--neo-text) !important;
+  border: 1px solid var(--neo-border) !important;
+  border-radius: 12px !important;
+  box-shadow: none !important;
+  font-family: inherit;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease !important;
+}
+
+[data-ui-style="modern"] input:focus,
+[data-ui-style="modern"] select:focus,
+[data-ui-style="modern"] textarea:focus {
+  outline: none !important;
+  border-color: var(--neo-accent) !important;
+  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.2) !important;
+}
+
+[data-ui-style="modern"] header button.theme-toggle,
+[data-ui-style="modern"] header button.style-toggle {
+  background-color: var(--neo-card) !important;
+  color: var(--neo-text) !important;
+  border-radius: 12px !important;
+  border: 1px solid var(--neo-border) !important;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.06) !important;
+  font-weight: 600 !important;
+  text-transform: none !important;
+  letter-spacing: normal !important;
+  transition: all 0.15s ease !important;
+}
+
+[data-ui-style="modern"] header button.theme-toggle:hover,
+[data-ui-style="modern"] header button.style-toggle:hover {
+  background-color: var(--neo-card-sub) !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
+}
+
+[data-ui-style="modern"] header button.theme-toggle:active,
+[data-ui-style="modern"] header button.style-toggle:active {
+  transform: translateY(0) scale(0.98) !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05) !important;
+}

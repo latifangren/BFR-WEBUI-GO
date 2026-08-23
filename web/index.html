@@ -12,6 +12,8 @@
             document.documentElement.classList.add('dark');
             document.documentElement.classList.remove('light');
         }
+        const uiStyle = localStorage.getItem('uiStyle') || 'neobrutal';
+        document.documentElement.setAttribute('data-ui-style', uiStyle);
     </script>
     <link rel="stylesheet" href="/static/css/tailwind.min.css" />
     <link rel="stylesheet" href="/static/css/xterm.css" />
