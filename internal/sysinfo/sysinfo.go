@@ -80,6 +80,10 @@ type Stats struct {
 	BatteryTemp    float64         `json:"battery_temp"`
 	BatteryDetail  DetailedBattery `json:"battery_detail"`
 	Thermals       []ThermalZone   `json:"thermals"`
+	DiskTotal      uint64          `json:"disk_total"`
+	DiskFree       uint64          `json:"disk_free"`
+	DiskUsed       uint64          `json:"disk_used"`
+	DiskUsedPct    float64         `json:"disk_used_pct"`
 	Disks          []DiskPartition `json:"disks"`
 	Model          string          `json:"model"`
 	AndroidVer     string          `json:"android_ver"`
@@ -274,6 +278,14 @@ func buildStats() (Stats, error) {
 	}
 
 	s.Disks = getDiskPartitions()
+	for _, d := range s.Disks {
+		if d.Path == "/data" || s.DiskTotal == 0 {
+			s.DiskTotal = d.Total
+			s.DiskFree = d.Free
+			s.DiskUsed = d.Used
+			s.DiskUsedPct = d.UsedPct
+		}
+	}
 
 	s.LoadAvg = getLoadAvg()
 	s.ActiveServices = getActiveServices()

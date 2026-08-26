@@ -57,13 +57,13 @@
                         <div class="bg-card border border-border rounded-2xl p-5 flex flex-col justify-between">
                             <div class="flex items-center justify-between text-gray-400 mb-3">
                                 <span class="text-xs font-bold uppercase tracking-wider">Storage</span>
-                                <span class="text-xs font-mono text-emerald-400" x-text="formatBytes(stats.disk_used) + ' / ' + formatBytes(stats.disk_total)"></span>
+                                <span class="text-xs font-mono text-emerald-400" x-text="formatBytes(stats.disk_used !== undefined ? stats.disk_used : (stats.disks && stats.disks[0] ? stats.disks[0].used : 0)) + ' / ' + formatBytes(stats.disk_total !== undefined ? stats.disk_total : (stats.disks && stats.disks[0] ? stats.disks[0].total : 0))"></span>
                             </div>
                             <div class="flex items-baseline space-x-2">
-                                <span class="text-4xl font-extrabold text-white" x-text="stats.disk_used_pct ? stats.disk_used_pct.toFixed(1) + '%' : '0%'"></span>
+                                <span class="text-4xl font-extrabold text-white" x-text="(stats.disk_used_pct !== undefined ? stats.disk_used_pct : (stats.disks && stats.disks[0] ? stats.disks[0].used_pct : 0)).toFixed(1) + '%'"></span>
                             </div>
                             <div class="w-full bg-flat rounded-full h-2 mt-4 overflow-hidden">
-                                <div class="bg-emerald-500 h-2 rounded-full transition-all duration-500" :style="'width: ' + (stats.disk_used_pct || 0) + '%'"></div>
+                                <div class="bg-emerald-500 h-2 rounded-full transition-all duration-500" :style="'width: ' + (stats.disk_used_pct !== undefined ? stats.disk_used_pct : (stats.disks && stats.disks[0] ? stats.disks[0].used_pct : 0)) + '%'"></div>
                             </div>
                         </div>
 
