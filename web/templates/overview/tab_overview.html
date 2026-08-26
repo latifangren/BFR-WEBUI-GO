@@ -1,117 +1,122 @@
 {{define "tab_overview.html"}}
-                <!-- TAB 1: OVERVIEW -->
-                <div x-show="activeTab === 'overview'" class="space-y-6">
-                    <!-- Stat Gauges -->
-                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
-                        <!-- CPU Gauge (Clickable to open per-core modal) -->
-                        <div @click="showCpuModal = true" class="bg-card border border-border hover:border-blue-500/50 rounded-2xl p-5 flex flex-col justify-between cursor-pointer transition group shadow-sm hover:shadow-blue-500/10">
-                            <div class="flex items-center justify-between text-gray-400 mb-3">
-                                <div class="flex items-center space-x-1.5">
-                                    <span class="text-xs font-bold uppercase tracking-wider group-hover:text-blue-400 transition">CPU Load</span>
-                                    <span class="text-[9px] font-mono text-blue-400 bg-blue-500/10 border border-blue-500/20 px-1.5 py-0.5 rounded font-bold">Cores ↗</span>
-                                </div>
-                                <div class="flex items-center space-x-1.5 font-mono text-[10px]">
-                                    <span class="text-blue-400" x-text="stats.cpu_cores ? stats.cpu_cores.length + ' Cores' : ''"></span>
-                                    <template x-if="stats.cpu_temp > 0">
-                                        <span class="text-amber-400 font-bold bg-amber-500/10 border border-amber-500/20 px-1.5 py-0.5 rounded" x-text="stats.cpu_temp.toFixed(1) + '°C'"></span>
-                                    </template>
-                                </div>
-                            </div>
-                            <div class="flex items-baseline justify-between select-none">
-                                <span class="text-4xl font-extrabold text-white" x-text="stats.cpu_usage ? stats.cpu_usage.toFixed(1) + '%' : '0%'"></span>
-                                <template x-if="stats.load_avg">
-                                    <div class="flex flex-col text-[9px] font-mono text-cyan-400 text-right leading-tight">
-                                        <span>1m: <span class="font-extrabold text-white" x-text="stats.load_avg.load1.toFixed(2)"></span></span>
-                                        <span>5m: <span class="font-extrabold text-white" x-text="stats.load_avg.load5.toFixed(2)"></span></span>
-                                        <span>15m: <span class="font-extrabold text-white" x-text="stats.load_avg.load15.toFixed(2)"></span></span>
-                                    </div>
-                                </template>
-                            </div>
-                            <div class="w-full bg-flat rounded-full h-2 mt-4 overflow-hidden">
-                                <div class="bg-blue-500 h-2 rounded-full transition-all duration-500" :style="'width: ' + (stats.cpu_usage || 0) + '%'"></div>
-                            </div>
-                        </div>
-
-                        <!-- RAM Gauge -->
-                        <div class="bg-card border border-border rounded-2xl p-5 flex flex-col justify-between">
-                            <div class="flex items-center justify-between text-gray-400 mb-3">
-                                <span class="text-xs font-bold uppercase tracking-wider">RAM Usage</span>
-                                <span class="text-xs font-mono text-purple-400" x-text="formatBytes(stats.mem_used) + ' / ' + formatBytes(stats.mem_total)"></span>
-                            </div>
-                            <div class="flex items-baseline space-x-2">
-                                <span class="text-4xl font-extrabold text-white" x-text="stats.mem_used_pct ? stats.mem_used_pct.toFixed(1) + '%' : '0%'"></span>
-                            </div>
-                            <!-- Swap/ZRAM box inline info -->
-                            <template x-if="stats.swap_total > 0">
-                                <div class="text-[9px] font-mono text-gray-400 tracking-wider flex justify-between mt-2">
-                                    <span>SWAP/ZRAM:</span>
-                                    <span class="text-purple-300 font-bold" x-text="formatBytes(stats.swap_used) + ' / ' + formatBytes(stats.swap_total) + ' (' + stats.swap_used_pct.toFixed(1) + '%)'"></span>
-                                </div>
-                            </template>
-                            <div class="w-full bg-flat rounded-full h-2 mt-2 overflow-hidden">
-                                <div class="bg-purple-500 h-2 rounded-full transition-all duration-500" :style="'width: ' + (stats.mem_used_pct || 0) + '%'"></div>
-                            </div>
-                        </div>
-
-                        <!-- Internal Storage Gauge -->
-                        <div class="bg-card border border-border rounded-2xl p-5 flex flex-col justify-between">
-                            <div class="flex items-center justify-between text-gray-400 mb-3">
-                                <span class="text-xs font-bold uppercase tracking-wider">Storage</span>
-                                <span class="text-xs font-mono text-emerald-400" x-text="formatBytes(stats.disk_used !== undefined ? stats.disk_used : (stats.disks && stats.disks[0] ? stats.disks[0].used : 0)) + ' / ' + formatBytes(stats.disk_total !== undefined ? stats.disk_total : (stats.disks && stats.disks[0] ? stats.disks[0].total : 0))"></span>
-                            </div>
-                            <div class="flex items-baseline space-x-2">
-                                <span class="text-4xl font-extrabold text-white" x-text="(stats.disk_used_pct !== undefined ? stats.disk_used_pct : (stats.disks && stats.disks[0] ? stats.disks[0].used_pct : 0)).toFixed(1) + '%'"></span>
-                            </div>
-                            <div class="w-full bg-flat rounded-full h-2 mt-4 overflow-hidden">
-                                <div class="bg-emerald-500 h-2 rounded-full transition-all duration-500" :style="'width: ' + (stats.disk_used_pct !== undefined ? stats.disk_used_pct : (stats.disks && stats.disks[0] ? stats.disks[0].used_pct : 0)) + '%'"></div>
-                            </div>
-                        </div>
-
-                        <!-- Battery Gauge (Clickable modal) -->
-                        <div @click="showBatteryModal = true" class="bg-card border border-border hover:border-amber-500/50 rounded-2xl p-5 flex flex-col justify-between cursor-pointer transition group shadow-sm hover:shadow-amber-500/10">
-                            <div class="flex items-center justify-between text-gray-400 mb-3">
-                                <div class="flex items-center space-x-1.5">
-                                    <span class="text-xs font-bold uppercase tracking-wider group-hover:text-amber-400 transition">Battery</span>
-                                    <span class="text-[9px] font-mono text-amber-400 bg-amber-500/10 border border-amber-500/20 px-1.5 py-0.5 rounded font-bold">Details ↗</span>
-                                </div>
-                                <div class="flex items-center space-x-1 font-mono text-[10px]">
-                                    <span class="text-amber-400 font-bold" x-text="stats.battery_level + '%'"></span>
-                                    <template x-if="stats.battery_status">
-                                        <span class="text-gray-400" x-text="'(' + stats.battery_status + ')'"></span>
-                                    </template>
-                                </div>
-                            </div>
-                            <div class="flex items-baseline justify-between select-none">
-                                <span class="text-4xl font-extrabold text-white" x-text="stats.battery_level + '%'"></span>
-                                <template x-if="stats.battery_temp > 0">
-                                    <div class="text-[10px] font-mono text-amber-400 text-right">
-                                        <span class="font-bold" x-text="stats.battery_temp.toFixed(1) + '°C'"></span>
-                                    </div>
-                                </template>
-                            </div>
-                            <div class="w-full bg-flat rounded-full h-2 mt-4 overflow-hidden">
-                                <div class="bg-amber-500 h-2 rounded-full transition-all duration-500" :style="'width: ' + (stats.battery_level || 0) + '%'"></div>
-                            </div>
-                        </div>
-
-                        <!-- Network Gauge (Clickable modal) -->
-                        <div @click="showNetworkModal = true" class="bg-card border border-border hover:border-cyan-500/50 rounded-2xl p-5 flex flex-col justify-between cursor-pointer transition group shadow-sm hover:shadow-cyan-500/10">
-                            <div class="flex items-center justify-between text-gray-400 mb-3">
-                                <div class="flex items-center space-x-1.5 shrink-0">
-                                    <span class="text-xs font-bold uppercase tracking-wider group-hover:text-cyan-400 transition">Network</span>
-                                    <span class="text-[9px] font-mono text-cyan-400 bg-cyan-500/10 border border-cyan-500/20 px-1.5 py-0.5 rounded font-bold whitespace-nowrap">Details ↗</span>
-                                </div>
-                                <span class="text-xs font-mono text-cyan-400" x-text="stats.network_detail?.roaming && stats.network_detail.roaming !== 'No' && stats.network_detail.roaming !== '' ? '🔗 Roaming' : '📶'"></span>
-                            </div>
-                            <div class="flex flex-col select-none">
-                                <span class="text-2xl font-bold text-white font-mono truncate" x-text="primaryNetworkIP()"></span>
-                                <span class="text-xs text-gray-400 font-mono mt-1 truncate" x-text="networkCardSubtext()"></span>
-                            </div>
-                            <div class="w-full bg-flat rounded-full h-2 mt-4 overflow-hidden">
-                                <div class="bg-cyan-500 h-2 rounded-full transition-all duration-500" style="width: 100%"></div>
-                            </div>
-                        </div>
+<!-- TAB 1: OVERVIEW -->
+<div x-show="activeTab === 'overview'" class="space-y-6">
+    <!-- Stat Gauges (5-Card Sleek Bento Grid) -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+        <!-- CPU Gauge (Clickable to open per-core modal) -->
+        <div @click="showCpuModal = true" class="bg-card border border-border hover:border-blue-500/50 rounded-2xl p-5 flex flex-col justify-between cursor-pointer transition group shadow-sm hover:shadow-blue-500/10">
+            <div class="flex items-center justify-between text-gray-400 mb-3">
+                <div class="flex items-center space-x-1">
+                    <span class="text-xs font-bold uppercase tracking-wider group-hover:text-blue-400 transition">CPU Load</span>
+                    <span class="text-xs text-blue-400/80 group-hover:text-blue-400 font-bold transition">↗</span>
+                </div>
+                <div class="flex items-center space-x-1.5 font-mono text-[10px]">
+                    <span class="text-blue-400 font-bold" x-text="stats.cpu_cores ? stats.cpu_cores.length + ' Cores' : ''"></span>
+                    <template x-if="stats.cpu_temp > 0">
+                        <span class="text-amber-400 font-bold bg-amber-500/10 border border-amber-500/20 px-1.5 py-0.5 rounded" x-text="stats.cpu_temp.toFixed(1) + '°C'"></span>
+                    </template>
+                </div>
+            </div>
+            <div class="flex items-baseline justify-between select-none">
+                <span class="text-4xl font-extrabold text-white" x-text="stats.cpu_usage ? stats.cpu_usage.toFixed(1) + '%' : '0%'"></span>
+                <template x-if="stats.load_avg">
+                    <div class="flex flex-col text-[9px] font-mono text-cyan-400 text-right leading-tight">
+                        <span>1m: <span class="font-extrabold text-white" x-text="stats.load_avg.load1.toFixed(2)"></span></span>
+                        <span>5m: <span class="font-extrabold text-white" x-text="stats.load_avg.load5.toFixed(2)"></span></span>
+                        <span>15m: <span class="font-extrabold text-white" x-text="stats.load_avg.load15.toFixed(2)"></span></span>
                     </div>
+                </template>
+            </div>
+            <div class="w-full bg-flat rounded-full h-2 mt-4 overflow-hidden">
+                <div class="bg-blue-500 h-2 rounded-full transition-all duration-500" :style="'width: ' + (stats.cpu_usage || 0) + '%'"></div>
+            </div>
+        </div>
+
+        <!-- RAM Gauge -->
+        <div class="bg-card border border-border rounded-2xl p-5 flex flex-col justify-between">
+            <div class="flex items-center justify-between text-gray-400 mb-3">
+                <span class="text-xs font-bold uppercase tracking-wider">RAM Usage</span>
+                <span class="text-xs font-mono text-purple-400 font-bold" x-text="formatBytes(stats.mem_used) + ' / ' + formatBytes(stats.mem_total)"></span>
+            </div>
+            <div class="flex items-baseline space-x-2">
+                <span class="text-4xl font-extrabold text-white" x-text="stats.mem_used_pct ? stats.mem_used_pct.toFixed(1) + '%' : '0%'"></span>
+            </div>
+            <!-- Swap/ZRAM box inline info -->
+            <template x-if="stats.swap_total > 0">
+                <div class="text-[9px] font-mono text-gray-400 tracking-wider flex justify-between mt-2">
+                    <span>SWAP/ZRAM:</span>
+                    <span class="text-purple-300 font-bold" x-text="formatBytes(stats.swap_used) + ' / ' + formatBytes(stats.swap_total) + ' (' + stats.swap_used_pct.toFixed(1) + '%)'"></span>
+                </div>
+            </template>
+            <div class="w-full bg-flat rounded-full h-2 mt-2 overflow-hidden">
+                <div class="bg-purple-500 h-2 rounded-full transition-all duration-500" :style="'width: ' + (stats.mem_used_pct || 0) + '%'"></div>
+            </div>
+        </div>
+
+        <!-- Internal Storage Gauge -->
+        <div class="bg-card border border-border rounded-2xl p-5 flex flex-col justify-between">
+            <div class="flex items-center justify-between text-gray-400 mb-3">
+                <span class="text-xs font-bold uppercase tracking-wider">Storage</span>
+                <span class="text-xs font-mono text-emerald-400 font-bold" x-text="formatBytes(stats.disk_used !== undefined ? stats.disk_used : (stats.disks && stats.disks[0] ? stats.disks[0].used : 0)) + ' / ' + formatBytes(stats.disk_total !== undefined ? stats.disk_total : (stats.disks && stats.disks[0] ? stats.disks[0].total : 0))"></span>
+            </div>
+            <div class="flex items-baseline space-x-2">
+                <span class="text-4xl font-extrabold text-white" x-text="(stats.disk_used_pct !== undefined ? stats.disk_used_pct : (stats.disks && stats.disks[0] ? stats.disks[0].used_pct : 0)).toFixed(1) + '%'"></span>
+            </div>
+            <div class="w-full bg-flat rounded-full h-2 mt-4 overflow-hidden">
+                <div class="bg-emerald-500 h-2 rounded-full transition-all duration-500" :style="'width: ' + (stats.disk_used_pct !== undefined ? stats.disk_used_pct : (stats.disks && stats.disks[0] ? stats.disks[0].used_pct : 0)) + '%'"></div>
+            </div>
+        </div>
+
+        <!-- Battery Gauge (Clickable modal) -->
+        <div @click="showBatteryModal = true" class="bg-card border border-border hover:border-green-500/50 rounded-2xl p-5 flex flex-col justify-between cursor-pointer transition group shadow-sm hover:shadow-green-500/10">
+            <div class="flex items-center justify-between text-gray-400 mb-3">
+                <div class="flex items-center space-x-1">
+                    <span class="text-xs font-bold uppercase tracking-wider group-hover:text-green-400 transition">Battery</span>
+                    <span class="text-xs text-green-400/80 group-hover:text-green-400 font-bold transition">↗</span>
+                </div>
+                <div class="flex items-center space-x-1 font-mono text-[10px]">
+                    <span class="font-bold text-green-400" x-text="stats.battery_status ? stats.battery_status : (stats.battery_level + '%')"></span>
+                </div>
+            </div>
+            <div class="flex items-baseline justify-between select-none">
+                <span class="text-4xl font-extrabold text-white" x-text="stats.battery_level + '%'"></span>
+                <template x-if="stats.battery_temp > 0">
+                    <div class="text-[10px] font-mono text-amber-400 text-right">
+                        <span class="font-bold" x-text="stats.battery_temp.toFixed(1) + '°C'"></span>
+                    </div>
+                </template>
+            </div>
+            <div class="w-full bg-flat rounded-full h-2 mt-4 overflow-hidden">
+                <div class="h-2 rounded-full transition-all duration-500" :class="(stats.battery_status && stats.battery_status.toLowerCase().includes('charging')) ? 'bg-green-500' : 'bg-amber-500'" :style="'width: ' + (stats.battery_level || 0) + '%'"></div>
+            </div>
+        </div>
+
+        <!-- Network Gauge (Clickable modal) -->
+        <div @click="showNetworkModal = true" class="bg-card border border-border hover:border-cyan-500/50 rounded-2xl p-5 flex flex-col justify-between cursor-pointer transition group shadow-sm hover:shadow-cyan-500/10">
+            <div class="flex items-center justify-between text-gray-400 mb-3">
+                <div class="flex items-center space-x-1">
+                    <span class="text-xs font-bold uppercase tracking-wider group-hover:text-cyan-400 transition">Network</span>
+                    <span class="text-xs text-cyan-400/80 group-hover:text-cyan-400 font-bold transition">↗</span>
+                </div>
+                <span class="text-xs font-mono text-cyan-400" x-text="stats.network_detail?.roaming && stats.network_detail.roaming !== 'No' && stats.network_detail.roaming !== '' ? '🔗 Roaming' : '📶'"></span>
+            </div>
+            <div class="flex flex-col select-none">
+                <span class="text-2xl font-bold text-white font-mono truncate" x-text="primaryNetworkIP()"></span>
+                <span class="text-xs text-gray-400 font-mono mt-1 truncate" x-text="networkCardSubtext()"></span>
+            </div>
+            <div class="w-full bg-flat rounded-full h-2 mt-4 overflow-hidden">
+                <div class="bg-cyan-500 h-2 rounded-full transition-all duration-500" style="width: 100%"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Uptime & System Info Footer Strip -->
+    <div class="text-center font-mono text-[11px] text-gray-400 tracking-wider select-none py-1">
+        <span class="text-gray-500">Uptime:</span>
+        <span class="text-white font-bold" x-text="formatUptime(stats.uptime) || '—'"></span>
+        <span class="text-gray-600 mx-2">•</span>
+        <span class="text-gray-400 font-bold" x-text="stats.model ? stats.model + (stats.android_ver ? ' (Android ' + stats.android_ver + ')' : '') : 'Android System'"></span>
+    </div>
 
                     <!-- Custom App Dashboard Shortcuts (CasaOS Style) -->
                     <div class="bg-card border border-border rounded-2xl p-6 space-y-4 shadow-2xl">
