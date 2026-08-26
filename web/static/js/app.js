@@ -40,6 +40,7 @@ function dashboard() {
                     this.fetchHotspotClients();
                     this.fetchRPSConfigs();
                     this.fetchVnstatData();
+                    this.fetchShortcuts();
                     this.fetchChargerConfig();
                     this.fetchSSHStatus();
                     this.fetchTelegramStatus();
@@ -83,6 +84,8 @@ function dashboard() {
                     this.initTerminal();
                 } else if (tab === 'sms' && typeof this.fetchSMS === 'function') {
                     this.fetchSMS();
+                } else if (tab === 'vnstat' && typeof this.fetchVnstatData === 'function') {
+                    this.fetchVnstatData();
                 } else if (tab === 'modem' && typeof this.fetchModemSignal === 'function') {
                     this.fetchModemSignal();
                     if (typeof this.loadBandConfig === 'function') this.loadBandConfig();

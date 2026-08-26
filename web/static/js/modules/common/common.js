@@ -10,7 +10,7 @@ const CommonModule = {
     changePassError: '',
     activeTab: 'overview',
     settingsTab: 'backup',
-    validTabs: ['overview', 'sysinfo', 'logs', 'files', 'terminal', 'tools', 'scrcpy', 'network', 'qos', 'modem', 'tunnel', 'nas', 'speedtest', 'proxy', 'sms', 'about'],
+    validTabs: ['overview', 'sysinfo', 'logs', 'files', 'terminal', 'tools', 'scrcpy', 'network', 'vnstat', 'qos', 'modem', 'tunnel', 'nas', 'speedtest', 'proxy', 'sms', 'about'],
     mobileCategory: null,
     hideMobileNav: false,
     isDark: localStorage.getItem('theme') !== 'light',
@@ -20,9 +20,13 @@ const CommonModule = {
     confirmModal: { show: false, title: 'Confirmation', message: '', onConfirm: null },
     modal: { show: false, action: '', actionName: '' },
     showBatteryModal: false,
+    showCpuModal: false,
     showNetworkModal: false,
     showBackupModal: false,
     showAppearanceModal: false,
+    shortcuts: [],
+    showAddShortcutModal: false,
+    shortcutForm: { id: '', title: '', url: '', icon_url: '' },
 
     async exportBackup() {
         try {
@@ -184,6 +188,81 @@ const CommonModule = {
                         body: JSON.stringify({ action: action })
                     });
                 } catch (e) {}
+            }
+        );
+    },
+
+    async fetchShortcuts() {
+        try {
+            const res = await fetch('/api/shortcuts/list');
+            if (res.ok) {
+                this.shortcuts = await res.json() || [];
+            }
+        } catch (e) {
+            this.shortcuts = [];
+        }
+    },
+
+    openAddShortcutModal() {
+        this.shortcutForm = { id: '', title: '', url: '', icon_url: '' };
+        this.showAddShortcutModal = true;
+    },
+
+    openEditShortcutModal(item) {
+        this.shortcutForm = {
+            id: item.id || '',
+            title: item.title || '',
+            url: item.url || '',
+            icon_url: item.icon_url || ''
+        };
+        this.showAddShortcutModal = true;
+    },
+
+    async saveShortcutItem() {
+        if (!this.shortcutForm.title || !this.shortcutForm.url) {
+            this.showToast('Validation Error', 'Title and URL are required.', 'error');
+            return;
+        }
+        try {
+            const res = await fetch('/api/shortcuts/save', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(this.shortcutForm)
+            });
+            const data = await res.json();
+            if (res.ok && data.success) {
+                this.showToast('Shortcut Saved', 'Dashboard link updated successfully.', 'success');
+                this.showAddShortcutModal = false;
+                await this.fetchShortcuts();
+            } else {
+                this.showToast('Save Error', data.error || 'Failed to save shortcut.', 'error');
+            }
+        } catch (e) {
+            this.showToast('Save Error', 'Network error occurred.', 'error');
+        }
+    },
+
+    async deleteShortcutItem(id) {
+        this.showConfirm(
+            'Delete Shortcut',
+            'Are you sure you want to remove this application shortcut?',
+            async () => {
+                try {
+                    const res = await fetch('/api/shortcuts/delete', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ id })
+                    });
+                    const data = await res.json();
+                    if (res.ok && data.success) {
+                        this.showToast('Shortcut Deleted', 'Shortcut removed from dashboard.', 'success');
+                        await this.fetchShortcuts();
+                    } else {
+                        this.showToast('Delete Error', data.error || 'Failed to delete shortcut.', 'error');
+                    }
+                } catch (e) {
+                    this.showToast('Delete Error', 'Network error occurred.', 'error');
+                }
             }
         );
     }

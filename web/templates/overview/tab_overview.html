@@ -3,10 +3,13 @@
                 <div x-show="activeTab === 'overview'" class="space-y-6">
                     <!-- Stat Gauges -->
                     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                        <!-- CPU Gauge -->
-                        <div class="bg-card border border-border rounded-2xl p-5 flex flex-col justify-between">
+                        <!-- CPU Gauge (Clickable to open per-core modal) -->
+                        <div @click="showCpuModal = true" class="bg-card border border-border hover:border-blue-500/50 rounded-2xl p-5 flex flex-col justify-between cursor-pointer transition group shadow-sm hover:shadow-blue-500/10">
                             <div class="flex items-center justify-between text-gray-400 mb-3">
-                                <span class="text-xs font-bold uppercase tracking-wider">CPU Load</span>
+                                <div class="flex items-center space-x-1.5">
+                                    <span class="text-xs font-bold uppercase tracking-wider group-hover:text-blue-400 transition">CPU Load</span>
+                                    <span class="text-[9px] font-mono text-blue-400 bg-blue-500/10 border border-blue-500/20 px-1.5 py-0.5 rounded font-bold">Cores ↗</span>
+                                </div>
                                 <div class="flex items-center space-x-1.5 font-mono text-[10px]">
                                     <span class="text-blue-400" x-text="stats.cpu_cores ? stats.cpu_cores.length + ' Cores' : ''"></span>
                                     <template x-if="stats.cpu_temp > 0">
@@ -50,60 +53,101 @@
                             </div>
                         </div>
 
-                        <!-- Battery Gauge -->
-                        <div @click="showBatteryModal = true" class="bg-card border border-border rounded-2xl p-5 flex flex-col justify-between cursor-pointer hover:bg-card/80 hover:border-green-500/40 transition-all duration-200 group">
+                        <!-- Internal Storage Gauge -->
+                        <div class="bg-card border border-border rounded-2xl p-5 flex flex-col justify-between">
                             <div class="flex items-center justify-between text-gray-400 mb-3">
-                                <span class="text-xs font-bold uppercase tracking-wider">Battery</span>
-                                <span class="text-xs font-mono text-green-400" x-text="stats.battery_detail ? stats.battery_detail.status : ''"></span>
+                                <span class="text-xs font-bold uppercase tracking-wider">Storage</span>
+                                <span class="text-xs font-mono text-emerald-400" x-text="formatBytes(stats.disk_used) + ' / ' + formatBytes(stats.disk_total)"></span>
                             </div>
-                            <div class="flex items-baseline justify-between">
-                                <span class="text-4xl font-extrabold text-white" x-text="stats.battery_level >= 0 ? stats.battery_level + '%' : 'N/A'"></span>
-                                <span class="text-xs text-gray-400 font-mono" x-text="stats.battery_temp ? stats.battery_temp.toFixed(1) + '°C' : ''"></span>
+                            <div class="flex items-baseline space-x-2">
+                                <span class="text-4xl font-extrabold text-white" x-text="stats.disk_used_pct ? stats.disk_used_pct.toFixed(1) + '%' : '0%'"></span>
                             </div>
                             <div class="w-full bg-flat rounded-full h-2 mt-4 overflow-hidden">
-                                <div class="bg-green-500 h-2 rounded-full transition-all duration-500" :style="'width: ' + (stats.battery_level || 0) + '%'"></div>
+                                <div class="bg-emerald-500 h-2 rounded-full transition-all duration-500" :style="'width: ' + (stats.disk_used_pct || 0) + '%'"></div>
                             </div>
                         </div>
 
-                        <!-- Network Detail -->
-                        <div @click="showNetworkModal = true" class="bg-card border border-border rounded-2xl p-5 flex flex-col justify-between cursor-pointer hover:bg-card/80 hover:border-cyan-500/40 transition-all duration-200 group">
+                        <!-- Battery Gauge (Clickable modal) -->
+                        <div @click="showBatteryModal = true" class="bg-card border border-border hover:border-amber-500/50 rounded-2xl p-5 flex flex-col justify-between cursor-pointer transition group shadow-sm hover:shadow-amber-500/10">
                             <div class="flex items-center justify-between text-gray-400 mb-3">
-                                <span class="text-xs font-bold uppercase tracking-wider">Network</span>
-                                <span class="text-xs font-mono text-cyan-400" x-text="stats.network_detail?.roaming && stats.network_detail.roaming !== 'No' && stats.network_detail.roaming !== '' ? '🔗 Roaming' : '📶'"></span>
+                                <div class="flex items-center space-x-1.5">
+                                    <span class="text-xs font-bold uppercase tracking-wider group-hover:text-amber-400 transition">Battery</span>
+                                    <span class="text-[9px] font-mono text-amber-400 bg-amber-500/10 border border-amber-500/20 px-1.5 py-0.5 rounded font-bold">Details ↗</span>
+                                </div>
+                                <div class="flex items-center space-x-1 font-mono text-[10px]">
+                                    <span class="text-amber-400 font-bold" x-text="stats.battery_level + '%'"></span>
+                                    <template x-if="stats.battery_status">
+                                        <span class="text-gray-400" x-text="'(' + stats.battery_status + ')'"></span>
+                                    </template>
+                                </div>
                             </div>
-                            <div class="flex flex-col">
-                                <span class="text-2xl font-bold text-white font-mono truncate" x-text="primaryNetworkIP()"></span>
-                                <span class="text-xs text-gray-400 font-mono mt-1 truncate" x-text="networkCardSubtext()"></span>
-                            </div>
-                            <div class="w-full bg-flat rounded-full h-2 mt-4 overflow-hidden">
-                                <div class="bg-cyan-500 h-2 rounded-full transition-all duration-500" style="width: 100%"></div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Uptime & Model row -->
-                    <div class="text-center font-mono text-[11px] text-gray-400 tracking-wider">
-                        <span class="text-gray-500">Uptime:</span>
-                        <span class="text-gray-300 font-bold" x-text="formatUptime(stats.uptime) || '—'"></span>
-                        <span class="text-gray-600 mx-1.5">•</span>
-                        <span class="text-gray-500" x-text="stats.model || 'Android'"></span>
-                    </div>
-
-                    <!-- CPU Core Frequencies -->
-                    <template x-if="stats.cpu_cores && stats.cpu_cores.length > 0">
-                        <div class="bg-card border border-border rounded-2xl p-6 space-y-4">
-                            <h3 class="text-sm font-bold text-white uppercase tracking-wider">Per-Core Frequencies & Load</h3>
-                            <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-3">
-                                <template x-for="core in stats.cpu_cores" :key="core.core">
-                                    <div class="bg-flat p-3 rounded-xl text-center space-y-1">
-                                        <div class="text-[10px] uppercase font-bold text-gray-500" x-text="'Core ' + core.core"></div>
-                                        <div class="text-sm font-extrabold text-blue-400 font-mono" x-text="core.freq_mhz > 0 ? core.freq_mhz.toFixed(0) + ' MHz' : 'Idle'"></div>
-                                        <div class="text-xs text-gray-300 font-mono" x-text="core.usage.toFixed(0) + '%'"></div>
+                            <div class="flex items-baseline justify-between select-none">
+                                <span class="text-4xl font-extrabold text-white" x-text="stats.battery_level + '%'"></span>
+                                <template x-if="stats.battery_temp > 0">
+                                    <div class="text-[10px] font-mono text-amber-400 text-right">
+                                        <span class="font-bold" x-text="stats.battery_temp.toFixed(1) + '°C'"></span>
                                     </div>
                                 </template>
                             </div>
+                            <div class="w-full bg-flat rounded-full h-2 mt-4 overflow-hidden">
+                                <div class="bg-amber-500 h-2 rounded-full transition-all duration-500" :style="'width: ' + (stats.battery_level || 0) + '%'"></div>
+                            </div>
                         </div>
-                    </template>
+                    </div>
+
+                    <!-- Custom App Dashboard Shortcuts (CasaOS Style) -->
+                    <div class="bg-card border border-border rounded-2xl p-6 space-y-4 shadow-2xl">
+                        <div class="flex items-center justify-between border-b border-border/40 pb-3">
+                            <div>
+                                <h3 class="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2">
+                                    <span>🚀 Application Dashboard Shortcuts</span>
+                                </h3>
+                                <p class="text-xs text-gray-400 font-mono mt-0.5">Quick launcher for local services & external URLs</p>
+                            </div>
+                            <button type="button" @click="openAddShortcutModal()" class="px-3.5 py-1.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-lg shadow-blue-500/20 active:scale-95 select-none">
+                                <span>+ Add External Link</span>
+                            </button>
+                        </div>
+
+                        <!-- Grid of Shortcuts -->
+                        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
+                            <template x-for="item in shortcuts" :key="item.id">
+                                <div class="bg-black/80 hover:bg-black border border-border/80 hover:border-blue-500/50 rounded-xl p-3.5 flex flex-col justify-between transition group relative shadow-md">
+                                    <!-- Action options menu (Edit / Delete) -->
+                                    <div class="absolute top-2 right-2 flex items-center space-x-1 opacity-0 group-hover:opacity-100 transition z-10">
+                                        <button type="button" @click.stop="openEditShortcutModal(item)" class="p-1 text-gray-400 hover:text-blue-400 text-[10px] bg-card border border-border rounded-md select-none" title="Edit Shortcut">✏️</button>
+                                        <button type="button" @click.stop="deleteShortcutItem(item.id)" class="p-1 text-gray-400 hover:text-red-400 text-[10px] bg-card border border-border rounded-md select-none" title="Delete Shortcut">🗑️</button>
+                                    </div>
+
+                                    <a :href="item.url" target="_blank" rel="noopener noreferrer" class="flex flex-col items-center text-center space-y-2.5 pt-1 select-none">
+                                        <!-- Custom Icon or Fallback App Icon -->
+                                        <template x-if="item.icon_url">
+                                            <img :src="item.icon_url" :alt="item.title" class="w-10 h-10 object-contain rounded-lg shadow-md group-hover:scale-105 transition" />
+                                        </template>
+                                        <template x-if="!item.icon_url">
+                                            <div class="w-10 h-10 rounded-xl bg-blue-600/20 border border-blue-500/40 flex items-center justify-center text-blue-400 font-extrabold text-lg shadow-inner group-hover:scale-105 transition">
+                                                🌐
+                                            </div>
+                                        </template>
+
+                                        <div class="w-full">
+                                            <div class="text-xs font-bold text-white group-hover:text-blue-400 transition truncate" x-text="item.title"></div>
+                                            <div class="text-[9px] text-gray-500 font-mono truncate mt-0.5" x-text="item.url"></div>
+                                        </div>
+                                    </a>
+                                </div>
+                            </template>
+
+                            <!-- Empty State Card -->
+                            <template x-if="!shortcuts || shortcuts.length === 0">
+                                <div class="col-span-full py-8 text-center bg-black/40 border border-dashed border-border/60 rounded-xl space-y-2 select-none">
+                                    <div class="text-2xl">🔗</div>
+                                    <div class="text-xs font-bold text-gray-300">No application shortcuts added yet</div>
+                                    <p class="text-[10px] text-gray-500 font-mono">Click "+ Add External Link" above to customize your dashboard links.</p>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
 
                     <!-- Active Services Status List (eZ Monitor Style) -->
                     <template x-if="stats.active_services && stats.active_services.length > 0">
@@ -116,132 +160,17 @@
                                             <div class="text-xs font-bold text-white" x-text="service.name"></div>
                                             <div class="text-[10px] text-gray-500" x-text="service.detail"></div>
                                         </div>
-                                         <div>
-                                             <span class="px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-wider"
-                                                 :class="service.running ? 'badge-active' : 'badge-inactive'"
-                                                 x-text="service.running ? 'Active' : 'Stopped'">
-                                             </span>
-                                         </div>
+                                        <div>
+                                            <span class="px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-wider"
+                                                :class="service.running ? 'badge-active' : 'badge-inactive'"
+                                                x-text="service.running ? 'Active' : 'Stopped'">
+                                            </span>
+                                        </div>
                                     </div>
                                 </template>
                             </div>
                         </div>
                     </template>
-
-                    <!-- Bandwidth & Quota Monitor (vnstat) -->
-                    <div class="bg-card border border-border rounded-2xl p-6 space-y-5">
-                        <div class="flex items-center justify-between flex-wrap gap-2">
-                            <div>
-                                <h3 class="text-sm font-bold text-white uppercase tracking-wider font-mono flex items-center gap-2">
-                                    <span>Bandwidth & Quota Monitor</span>
-                                    <span class="text-[10px] px-2 py-0.5 font-mono badge-info">vnstat</span>
-                                </h3>
-                                <p class="text-xs text-gray-400 font-mono">Persistent daily & monthly network traffic statistics</p>
-                            </div>
-                            <div class="flex items-center space-x-2">
-                                <button type="button" @click="fetchVnstatData()" class="px-3 py-1.5 bg-black hover:bg-gray-900 border border-border text-xs text-gray-300 hover:text-white rounded-xl font-mono font-semibold transition">
-                                    Refresh
-                                </button>
-                                 <button type="button" @click="showConfirm('Reset Traffic Stats', 'Are you sure you want to reset all daily and monthly bandwidth usage data? This action cannot be undone.', () => resetVnstatData())" class="px-3 py-1.5 bg-red-600/20 hover:bg-red-600/30 text-red-400 border border-red-500/30 rounded-xl text-xs font-mono font-bold transition">
-                                    Reset Stats
-                                </button>
-                            </div>
-                        </div>
-
-                        <!-- Summary Cards Grid -->
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <!-- Today's Usage Card -->
-                            <div class="bg-flat rounded-xl p-4 space-y-3">
-                                <div class="flex items-center justify-between text-xs font-mono border-b border-border/60 pb-2">
-                                    <span class="font-bold text-gray-300 uppercase">Today's Usage</span>
-                                    <span class="text-blue-400 font-extrabold" x-text="formatBytes(vnstatData?.daily?.total?.total || 0)"></span>
-                                </div>
-                                <div class="grid grid-cols-3 gap-2 text-center font-mono">
-                                    <div class="bg-card/50 p-2.5 rounded-lg">
-                                        <div class="text-[10px] text-gray-500 uppercase font-bold">Download</div>
-                                        <div class="text-xs font-bold text-green-400 mt-1" x-text="formatBytes(vnstatData?.daily?.total?.rx_bytes || 0)"></div>
-                                    </div>
-                                    <div class="bg-card/50 p-2.5 rounded-lg">
-                                        <div class="text-[10px] text-gray-500 uppercase font-bold">Upload</div>
-                                        <div class="text-xs font-bold text-purple-400 mt-1" x-text="formatBytes(vnstatData?.daily?.total?.tx_bytes || 0)"></div>
-                                    </div>
-                                    <div class="bg-card/50 p-2.5 rounded-lg">
-                                        <div class="text-[10px] text-gray-500 uppercase font-bold">Total</div>
-                                        <div class="text-xs font-extrabold text-white mt-1" x-text="formatBytes(vnstatData?.daily?.total?.total || 0)"></div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- This Month's Usage Card -->
-                            <div class="bg-flat rounded-xl p-4 space-y-3">
-                                <div class="flex items-center justify-between text-xs font-mono border-b border-border/60 pb-2">
-                                    <span class="font-bold text-gray-300 uppercase">This Month's Usage</span>
-                                    <span class="text-amber-400 font-extrabold" x-text="formatBytes(vnstatData?.monthly?.total?.total || 0)"></span>
-                                </div>
-                                <div class="grid grid-cols-3 gap-2 text-center font-mono">
-                                    <div class="bg-card/50 p-2.5 rounded-lg">
-                                        <div class="text-[10px] text-gray-500 uppercase font-bold">Download</div>
-                                        <div class="text-xs font-bold text-green-400 mt-1" x-text="formatBytes(vnstatData?.monthly?.total?.rx_bytes || 0)"></div>
-                                    </div>
-                                    <div class="bg-card/50 p-2.5 rounded-lg">
-                                        <div class="text-[10px] text-gray-500 uppercase font-bold">Upload</div>
-                                        <div class="text-xs font-bold text-purple-400 mt-1" x-text="formatBytes(vnstatData?.monthly?.total?.tx_bytes || 0)"></div>
-                                    </div>
-                                    <div class="bg-card/50 p-2.5 rounded-lg">
-                                        <div class="text-[10px] text-gray-550 uppercase font-bold">Total</div>
-                                        <div class="text-xs font-extrabold text-white mt-1" x-text="formatBytes(vnstatData?.monthly?.total?.total || 0)"></div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Per-Interface Traffic Table -->
-                        <div class="space-y-2 font-mono">
-                            <div class="text-xs font-bold text-gray-400 uppercase tracking-wider">Interface Statistics (WLAN vs LTE Mobile Data)</div>
-                            <div class="bg-flat rounded-xl overflow-hidden text-xs">
-                                <table class="w-full text-left border-collapse">
-                                    <thead class="bg-gray-900/60 text-gray-400 border-b border-border">
-                                        <tr>
-                                            <th class="p-3">Interface</th>
-                                            <th class="p-3">Type</th>
-                                            <th class="p-3">Today (DL / UL)</th>
-                                            <th class="p-3">Month (DL / UL)</th>
-                                            <th class="p-3 text-right">Total Month</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody class="divide-y divide-border/50 text-gray-300">
-                                        <template x-for="item in getVnstatInterfaceList()" :key="item.name">
-                                            <tr class="hover:bg-card/50 transition">
-                                                <td class="p-3 font-bold text-white font-mono" x-text="item.name"></td>
-                                                 <td class="p-3">
-                                                     <span class="px-2 py-0.5 text-[10px] font-extrabold uppercase tracking-wider"
-                                                         :class="item.type.includes('WLAN') ? 'badge-info' : (item.type.includes('LTE') ? 'badge-active' : 'badge-neutral')"
-                                                         x-text="item.type">
-                                                     </span>
-                                                 </td>
-                                                <td class="p-3">
-                                                     <span class="text-green-400 font-semibold" x-text="formatBytes(item.dailyRx)"></span>
-                                                     <span class="text-gray-500"> / </span>
-                                                     <span class="text-purple-400 font-semibold" x-text="formatBytes(item.dailyTx)"></span>
-                                                </td>
-                                                <td class="p-3">
-                                                     <span class="text-green-400 font-semibold" x-text="formatBytes(item.monthlyRx)"></span>
-                                                     <span class="text-gray-500"> / </span>
-                                                     <span class="text-purple-400 font-semibold" x-text="formatBytes(item.monthlyTx)"></span>
-                                                </td>
-                                                <td class="p-3 text-right font-extrabold text-white" x-text="formatBytes(item.monthlyTotal)"></td>
-                                            </tr>
-                                        </template>
-                                        <template x-if="getVnstatInterfaceList().length === 0">
-                                            <tr>
-                                                <td colspan="5" class="p-4 text-center text-gray-500 italic">No interface activity recorded yet</td>
-                                            </tr>
-                                        </template>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
 
                     <!-- Quick Power Actions -->
                     <div class="bg-card border border-border rounded-2xl p-6 space-y-4">

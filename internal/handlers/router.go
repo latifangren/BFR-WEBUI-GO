@@ -208,6 +208,11 @@ func RegisterRoutes(mux *http.ServeMux, authMgr *auth.Manager) {
 	mux.HandleFunc("/api/vnstat/stats", wrap(HandleVnstatStats, true))
 	mux.HandleFunc("/api/vnstat/reset", wrap(HandleVnstatReset, true))
 
+	// Custom App Shortcuts URLs
+	mux.HandleFunc("/api/shortcuts/list", wrap(HandleShortcutsList, true))
+	mux.HandleFunc("/api/shortcuts/save", wrap(HandleShortcutsSave, true))
+	mux.HandleFunc("/api/shortcuts/delete", wrap(HandleShortcutsDelete, true))
+
 	// Smart Charger URLs
 	mux.HandleFunc("/api/charger/config", wrap(HandleChargerConfig, true))
 	mux.HandleFunc("/api/charger/toggle", wrap(HandleChargerToggle, true))

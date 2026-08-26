@@ -906,6 +906,16 @@
                                 <span x-show="activeTab === 'network'" class="w-2 h-2 rounded-full bg-blue-400"></span>
                             </button>
 
+                            <button type="button" @click="activeTab = 'vnstat'; fetchVnstat(); mobileCategory = null"
+                                :class="activeTab === 'vnstat' ? 'bg-blue-600/30 border-blue-500/60 text-white font-bold shadow-md shadow-blue-500/10' : 'bg-flat/60 border-border/40 text-gray-300 hover:text-white active:bg-white/10'"
+                                class="w-full text-left py-2.5 px-3.5 rounded-xl border text-xs flex items-center justify-between transition-all select-none">
+                                <div class="flex items-center gap-3">
+                                    <span class="text-base">📊</span>
+                                    <span>VnStat (Bandwidth)</span>
+                                </div>
+                                <span x-show="activeTab === 'vnstat'" class="w-2 h-2 rounded-full bg-blue-400"></span>
+                            </button>
+
                             <button type="button" @click="activeTab = 'qos'; mobileCategory = null"
                                 :class="activeTab === 'qos' ? 'bg-blue-600/30 border-blue-500/60 text-white font-bold shadow-md shadow-blue-500/10' : 'bg-flat/60 border-border/40 text-gray-300 hover:text-white active:bg-white/10'"
                                 class="w-full text-left py-2.5 px-3.5 rounded-xl border text-xs flex items-center justify-between transition-all select-none">
@@ -1177,6 +1187,118 @@
             <div class="flex justify-end pt-2 border-t border-border">
                 <button type="button" @click="showAppearanceModal = false" class="px-5 py-2 text-xs font-bold text-white rounded-xl transition" style="background-color: var(--neo-accent);">Done</button>
             </div>
+        </div>
+    </div>
+    <!-- ══════════════════════════════════════════════════════ -->
+    <!--  CPU CORES FREQUENCIES & LOAD POPUP MODAL             -->
+    <!-- ══════════════════════════════════════════════════════ -->
+    <div x-show="showCpuModal" x-cloak
+         class="fixed inset-0 z-[120] flex items-center justify-center bg-black/80 backdrop-blur-md p-4 font-mono animate-fade-in"
+         @keydown.escape.window="showCpuModal = false"
+         @click.self="showCpuModal = false">
+        <div class="bg-card border-2 border-border rounded-2xl p-6 max-w-xl w-full space-y-5 shadow-[8px_8px_0px_0px_var(--neo-shadow)] max-h-[85vh] overflow-y-auto custom-scrollbar">
+            <!-- Header -->
+            <div class="flex items-center justify-between border-b-2 border-border pb-4">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-blue-500/10 border-2 border-blue-500/30 flex items-center justify-center text-blue-400 text-lg font-bold">
+                        ⚡
+                    </div>
+                    <div>
+                        <h3 class="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2">
+                            <span>Per-Core CPU Load & Frequencies</span>
+                        </h3>
+                        <p class="text-[10px] text-gray-400 mt-0.5" x-text="stats.model ? stats.model + ' (' + (stats.cpu_cores ? stats.cpu_cores.length : 0) + ' Cores)' : 'Real-time CPU Monitoring'"></p>
+                    </div>
+                </div>
+                <button type="button" @click="showCpuModal = false"
+                        class="w-8 h-8 rounded-lg bg-black border border-border flex items-center justify-center text-gray-400 hover:text-white hover:border-red-500/40 transition-all text-xs font-bold select-none">
+                    ✕
+                </button>
+            </div>
+
+            <!-- Overview summary strip -->
+            <div class="grid grid-cols-3 gap-2 text-center text-xs">
+                <div class="bg-black p-3 rounded-xl border border-border/60">
+                    <div class="text-[10px] text-gray-500 uppercase font-bold">Total Usage</div>
+                    <div class="text-white font-extrabold text-sm mt-0.5" x-text="stats.cpu_usage ? stats.cpu_usage.toFixed(1) + '%' : '0%'"></div>
+                </div>
+                <div class="bg-black p-3 rounded-xl border border-border/60">
+                    <div class="text-[10px] text-gray-500 uppercase font-bold">Active Cores</div>
+                    <div class="text-blue-400 font-extrabold text-sm mt-0.5" x-text="stats.cpu_cores ? stats.cpu_cores.length + ' Cores' : '0'"></div>
+                </div>
+                <div class="bg-black p-3 rounded-xl border border-border/60">
+                    <div class="text-[10px] text-gray-500 uppercase font-bold">CPU Temp</div>
+                    <div class="text-amber-400 font-extrabold text-sm mt-0.5" x-text="stats.cpu_temp > 0 ? stats.cpu_temp.toFixed(1) + '°C' : 'N/A'"></div>
+                </div>
+            </div>
+
+            <!-- Cores Grid List -->
+            <div class="space-y-2.5">
+                <div class="text-[10px] text-gray-400 uppercase tracking-wider font-bold">Detailed Core Breakdown</div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                    <template x-for="(core, index) in stats.cpu_cores" :key="index">
+                        <div class="bg-black border border-border/60 rounded-xl p-3 space-y-2">
+                            <div class="flex items-center justify-between text-xs">
+                                <span class="font-bold text-white" x-text="'Core ' + index"></span>
+                                <div class="flex items-center space-x-2 text-[10px]">
+                                    <span class="text-blue-400 font-mono" x-text="core.freq ? core.freq + ' MHz' : 'N/A'"></span>
+                                    <span class="font-bold font-mono text-white" x-text="core.usage ? core.usage.toFixed(0) + '%' : '0%'"></span>
+                                </div>
+                            </div>
+                            <div class="w-full bg-flat rounded-full h-1.5 overflow-hidden">
+                                <div class="bg-blue-500 h-1.5 rounded-full transition-all duration-300" :style="'width: ' + (core.usage || 0) + '%'"></div>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+            </div>
+
+            <!-- Footer close -->
+            <button type="button" @click="showCpuModal = false" class="w-full bg-black hover:bg-gray-900 border border-border py-2.5 rounded-xl text-xs font-bold text-gray-300 hover:text-white transition-all uppercase tracking-wider">
+                Close
+            </button>
+        </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════ -->
+    <!--  ADD / EDIT EXTERNAL LINK SHORTCUT MODAL              -->
+    <!-- ══════════════════════════════════════════════════════ -->
+    <div x-show="showAddShortcutModal" x-cloak
+         class="fixed inset-0 z-[120] flex items-center justify-center bg-black/80 backdrop-blur-md p-4 font-mono animate-fade-in"
+         @keydown.escape.window="showAddShortcutModal = false"
+         @click.self="showAddShortcutModal = false">
+        <div class="bg-card border-2 border-border rounded-2xl p-6 max-w-md w-full space-y-4 shadow-[8px_8px_0px_0px_var(--neo-shadow)]">
+            <div class="flex items-center justify-between border-b border-border/40 pb-3">
+                <h3 class="text-xs font-extrabold text-white uppercase tracking-wider flex items-center gap-2">
+                    <span>🔗 <span x-text="shortcutForm.id ? 'Edit External Link' : 'Add External Link'"></span></span>
+                </h3>
+                <button type="button" @click="showAddShortcutModal = false" class="text-gray-400 hover:text-white font-bold text-sm">✕</button>
+            </div>
+
+            <form @submit.prevent="saveShortcutItem()" class="space-y-3 text-xs">
+                <div class="space-y-1">
+                    <label class="text-[10px] text-gray-400 uppercase font-bold block">Link URL *</label>
+                    <input type="url" x-model="shortcutForm.url" placeholder="http://192.168.1.1:9090 or https://example.com" class="w-full bg-black border border-border rounded-xl px-3 py-2 text-xs text-white placeholder-gray-600 focus:outline-none focus:border-blue-500 transition" required />
+                </div>
+
+                <div class="space-y-1">
+                    <label class="text-[10px] text-gray-400 uppercase font-bold block">Title *</label>
+                    <input type="text" x-model="shortcutForm.title" placeholder="Title of the external link (e.g. Clash WebUI)" class="w-full bg-black border border-border rounded-xl px-3 py-2 text-xs text-white placeholder-gray-600 focus:outline-none focus:border-blue-500 transition" required />
+                </div>
+
+                <div class="space-y-1">
+                    <label class="text-[10px] text-gray-400 uppercase font-bold block">Icon URL (Optional)</label>
+                    <input type="url" x-model="shortcutForm.icon_url" placeholder="Your custom icon URL (PNG/SVG)" class="w-full bg-black border border-border rounded-xl px-3 py-2 text-xs text-white placeholder-gray-600 focus:outline-none focus:border-blue-500 transition" />
+                    <p class="text-[9px] text-gray-500">Leave blank to use default application icon.</p>
+                </div>
+
+                <div class="flex justify-end space-x-2 pt-2">
+                    <button type="button" @click="showAddShortcutModal = false" class="px-4 py-2 bg-black border border-border text-gray-300 rounded-xl text-xs font-semibold">Cancel</button>
+                    <button type="submit" class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-bold transition">
+                        <span x-text="shortcutForm.id ? 'Save Changes' : 'Add Link'"></span>
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
 {{end}}

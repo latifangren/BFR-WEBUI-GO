@@ -5,6 +5,10 @@ const VnstatModule = {
     },
     showVnstatResetModal: false,
 
+    async fetchVnstat() {
+        return await this.fetchVnstatData();
+    },
+
     async fetchVnstatData() {
         try {
             const res = await fetch('/api/vnstat/stats');
