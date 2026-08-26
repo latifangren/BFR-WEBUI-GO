@@ -2,7 +2,7 @@
                 <!-- TAB 1: OVERVIEW -->
                 <div x-show="activeTab === 'overview'" class="space-y-6">
                     <!-- Stat Gauges -->
-                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
                         <!-- CPU Gauge (Clickable to open per-core modal) -->
                         <div @click="showCpuModal = true" class="bg-card border border-border hover:border-blue-500/50 rounded-2xl p-5 flex flex-col justify-between cursor-pointer transition group shadow-sm hover:shadow-blue-500/10">
                             <div class="flex items-center justify-between text-gray-400 mb-3">
@@ -91,6 +91,24 @@
                             </div>
                             <div class="w-full bg-flat rounded-full h-2 mt-4 overflow-hidden">
                                 <div class="bg-amber-500 h-2 rounded-full transition-all duration-500" :style="'width: ' + (stats.battery_level || 0) + '%'"></div>
+                            </div>
+                        </div>
+
+                        <!-- Network Gauge (Clickable modal) -->
+                        <div @click="showNetworkModal = true" class="bg-card border border-border hover:border-cyan-500/50 rounded-2xl p-5 flex flex-col justify-between cursor-pointer transition group shadow-sm hover:shadow-cyan-500/10">
+                            <div class="flex items-center justify-between text-gray-400 mb-3">
+                                <div class="flex items-center space-x-1.5 shrink-0">
+                                    <span class="text-xs font-bold uppercase tracking-wider group-hover:text-cyan-400 transition">Network</span>
+                                    <span class="text-[9px] font-mono text-cyan-400 bg-cyan-500/10 border border-cyan-500/20 px-1.5 py-0.5 rounded font-bold whitespace-nowrap">Details ↗</span>
+                                </div>
+                                <span class="text-xs font-mono text-cyan-400" x-text="stats.network_detail?.roaming && stats.network_detail.roaming !== 'No' && stats.network_detail.roaming !== '' ? '🔗 Roaming' : '📶'"></span>
+                            </div>
+                            <div class="flex flex-col select-none">
+                                <span class="text-2xl font-bold text-white font-mono truncate" x-text="primaryNetworkIP()"></span>
+                                <span class="text-xs text-gray-400 font-mono mt-1 truncate" x-text="networkCardSubtext()"></span>
+                            </div>
+                            <div class="w-full bg-flat rounded-full h-2 mt-4 overflow-hidden">
+                                <div class="bg-cyan-500 h-2 rounded-full transition-all duration-500" style="width: 100%"></div>
                             </div>
                         </div>
                     </div>

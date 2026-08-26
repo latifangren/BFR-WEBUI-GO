@@ -32,20 +32,20 @@
                             <div class="bg-black border border-border rounded-xl p-5 space-y-3">
                                 <div class="flex items-center justify-between text-xs font-bold text-gray-400 uppercase tracking-wider border-b border-border/40 pb-2">
                                     <span>Today's Usage</span>
-                                    <span class="text-green-400 text-sm font-extrabold" x-text="formatBytes(vnstatData.today_rx + vnstatData.today_tx)">0 B</span>
+                                    <span class="text-green-400 text-sm font-extrabold" x-text="formatBytes((vnstatData?.daily?.total?.rx_bytes || 0) + (vnstatData?.daily?.total?.tx_bytes || 0))">0 B</span>
                                 </div>
                                 <div class="grid grid-cols-3 gap-2 text-center text-xs">
                                     <div class="bg-flat p-2.5 rounded-lg border border-border/40">
                                         <div class="text-[10px] text-gray-500 uppercase font-bold">Download</div>
-                                        <div class="text-green-400 font-bold mt-1 truncate" x-text="formatBytes(vnstatData.today_rx)">0 B</div>
+                                        <div class="text-green-400 font-bold mt-1 truncate" x-text="formatBytes(vnstatData?.daily?.total?.rx_bytes || 0)">0 B</div>
                                     </div>
                                     <div class="bg-flat p-2.5 rounded-lg border border-border/40">
                                         <div class="text-[10px] text-gray-500 uppercase font-bold">Upload</div>
-                                        <div class="text-blue-400 font-bold mt-1 truncate" x-text="formatBytes(vnstatData.today_tx)">0 B</div>
+                                        <div class="text-blue-400 font-bold mt-1 truncate" x-text="formatBytes(vnstatData?.daily?.total?.tx_bytes || 0)">0 B</div>
                                     </div>
                                     <div class="bg-flat p-2.5 rounded-lg border border-border/40">
                                         <div class="text-[10px] text-gray-500 uppercase font-bold">Total</div>
-                                        <div class="text-white font-bold mt-1 truncate" x-text="formatBytes(vnstatData.today_rx + vnstatData.today_tx)">0 B</div>
+                                        <div class="text-white font-bold mt-1 truncate" x-text="formatBytes((vnstatData?.daily?.total?.rx_bytes || 0) + (vnstatData?.daily?.total?.tx_bytes || 0))">0 B</div>
                                     </div>
                                 </div>
                             </div>
@@ -54,20 +54,20 @@
                             <div class="bg-black border border-border rounded-xl p-5 space-y-3">
                                 <div class="flex items-center justify-between text-xs font-bold text-gray-400 uppercase tracking-wider border-b border-border/40 pb-2">
                                     <span>This Month's Usage</span>
-                                    <span class="text-purple-400 text-sm font-extrabold" x-text="formatBytes(vnstatData.month_rx + vnstatData.month_tx)">0 B</span>
+                                    <span class="text-purple-400 text-sm font-extrabold" x-text="formatBytes((vnstatData?.monthly?.total?.rx_bytes || 0) + (vnstatData?.monthly?.total?.tx_bytes || 0))">0 B</span>
                                 </div>
                                 <div class="grid grid-cols-3 gap-2 text-center text-xs">
                                     <div class="bg-flat p-2.5 rounded-lg border border-border/40">
                                         <div class="text-[10px] text-gray-500 uppercase font-bold">Download</div>
-                                        <div class="text-green-400 font-bold mt-1 truncate" x-text="formatBytes(vnstatData.month_rx)">0 B</div>
+                                        <div class="text-green-400 font-bold mt-1 truncate" x-text="formatBytes(vnstatData?.monthly?.total?.rx_bytes || 0)">0 B</div>
                                     </div>
                                     <div class="bg-flat p-2.5 rounded-lg border border-border/40">
                                         <div class="text-[10px] text-gray-500 uppercase font-bold">Upload</div>
-                                        <div class="text-blue-400 font-bold mt-1 truncate" x-text="formatBytes(vnstatData.month_tx)">0 B</div>
+                                        <div class="text-blue-400 font-bold mt-1 truncate" x-text="formatBytes(vnstatData?.monthly?.total?.tx_bytes || 0)">0 B</div>
                                     </div>
                                     <div class="bg-flat p-2.5 rounded-lg border border-border/40">
                                         <div class="text-[10px] text-gray-500 uppercase font-bold">Total</div>
-                                        <div class="text-white font-bold mt-1 truncate" x-text="formatBytes(vnstatData.month_rx + vnstatData.month_tx)">0 B</div>
+                                        <div class="text-white font-bold mt-1 truncate" x-text="formatBytes((vnstatData?.monthly?.total?.rx_bytes || 0) + (vnstatData?.monthly?.total?.tx_bytes || 0))">0 B</div>
                                     </div>
                                 </div>
                             </div>
