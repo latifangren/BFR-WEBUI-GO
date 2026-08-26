@@ -13,10 +13,12 @@ const FilemanagerModule = {
     showFileModal: false,
     showRenameModal: false,
     fileManagerShortcuts: [],
-    showAddShortcutModal: false,
+    showAddFmShortcutModal: false,
     newShortcutName: '',
     newShortcutPath: '',
     isDragging: false,
+    historyStack: [],
+    historyIndex: -1,
 
     // New State Variables
     storageInfo: { total_str: '0 MB', free_str: '0 MB', used_str: '0 MB', used_pct: 0, percent: 0, mount: '/sdcard' },
@@ -70,13 +72,23 @@ const FilemanagerModule = {
         } catch (e) {}
     },
 
-    async fetchFileList(path) {
+    async fetchFileList(path, isHistoryAction = false) {
         try {
             this.fmClearSelection();
             const res = await fetch('/api/files/list?path=' + encodeURIComponent(path || ''));
             if (res.ok) {
                 const data = await res.json();
-                this.currentPath = data.path;
+                const newPath = data.path;
+
+                if (!isHistoryAction) {
+                    if (this.historyIndex < 0 || this.historyStack[this.historyIndex] !== newPath) {
+                        this.historyStack = this.historyStack.slice(0, this.historyIndex + 1);
+                        this.historyStack.push(newPath);
+                        this.historyIndex = this.historyStack.length - 1;
+                    }
+                }
+
+                this.currentPath = newPath;
                 let files = data.files || [];
                 if (this.currentPath !== '/') {
                     const parent = this.getParentPath(this.currentPath);
@@ -93,6 +105,30 @@ const FilemanagerModule = {
                 this.fetchStorageInfo();
             }
         } catch (e) {}
+    },
+
+    canGoBack() {
+        return this.historyIndex > 0;
+    },
+
+    canGoForward() {
+        return this.historyIndex >= 0 && this.historyIndex < this.historyStack.length - 1;
+    },
+
+    goBack() {
+        if (this.canGoBack()) {
+            this.historyIndex--;
+            const targetPath = this.historyStack[this.historyIndex];
+            this.fetchFileList(targetPath, true);
+        }
+    },
+
+    goForward() {
+        if (this.canGoForward()) {
+            this.historyIndex++;
+            const targetPath = this.historyStack[this.historyIndex];
+            this.fetchFileList(targetPath, true);
+        }
     },
 
     navigateBreadcrumb(index) {
@@ -659,6 +695,12 @@ const FilemanagerModule = {
         if (saved) {
             try {
                 this.fileManagerShortcuts = JSON.parse(saved);
+                const defaults = this.getDefaultShortcuts();
+                defaults.forEach(def => {
+                    if (!this.fileManagerShortcuts.some(sc => sc.path === def.path)) {
+                        this.fileManagerShortcuts.unshift(def);
+                    }
+                });
             } catch(e) {
                 this.fileManagerShortcuts = this.getDefaultShortcuts();
             }
@@ -670,6 +712,8 @@ const FilemanagerModule = {
 
     getDefaultShortcuts() {
         return [
+            { name: "Root (/)", path: "/" },
+            { name: "/data", path: "/data" },
             { name: "/sdcard", path: "/sdcard" },
             { name: "/data/adb", path: "/data/adb" },
             { name: "/modules", path: "/data/adb/modules" }
@@ -687,16 +731,16 @@ const FilemanagerModule = {
         localStorage.setItem('fileManagerShortcuts', JSON.stringify(this.fileManagerShortcuts));
     },
 
-    openAddShortcutModal() {
+    openAddFmShortcutModal() {
         this.newShortcutName = '';
-        this.newShortcutPath = '';
-        this.showAddShortcutModal = true;
+        this.newShortcutPath = this.currentPath || '/';
+        this.showAddFmShortcutModal = true;
     },
 
-    saveShortcut() {
+    saveFmShortcut() {
         if (this.newShortcutName && this.newShortcutPath) {
             this.addShortcut(this.newShortcutName.trim(), this.newShortcutPath.trim());
-            this.showAddShortcutModal = false;
+            this.showAddFmShortcutModal = false;
         }
     }
 };

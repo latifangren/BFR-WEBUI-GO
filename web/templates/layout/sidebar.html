@@ -47,7 +47,7 @@
             <!-- ⚙️ System Category -->
             <div class="relative" x-data="{ open: false }" @mouseenter="open = true" @mouseleave="open = false" @click.outside="open = false">
                 <button type="button" @click="open = !open"
-                    :class="['files', 'nas', 'terminal', 'tools'].includes(activeTab) ? 'bg-blue-600/20 text-blue-400 border-blue-500/40 shadow-sm' : 'text-gray-300 hover:text-white hover:bg-white/5 border-transparent'"
+                    :class="['files', 'nas', 'terminal', 'hotspot', 'charger', 'modules', 'tools'].includes(activeTab) ? 'bg-blue-600/20 text-blue-400 border-blue-500/40 shadow-sm' : 'text-gray-300 hover:text-white hover:bg-white/5 border-transparent'"
                     class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5 border select-none">
                     <span>⚙️ System</span>
                     <svg class="w-3 h-3 transition-transform duration-200" :class="open ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -82,11 +82,23 @@
                         <span>Web Terminal</span>
                         <span x-show="activeTab === 'terminal'" class="w-1.5 h-1.5 rounded-full bg-white"></span>
                     </button>
-                    <button type="button" @click="activeTab = 'tools'; open = false"
-                        :class="activeTab === 'tools' ? 'bg-blue-600 text-white font-bold' : 'text-gray-300 hover:text-white hover:bg-white/5'"
+                    <button type="button" @click="activeTab = 'hotspot'; open = false"
+                        :class="activeTab === 'hotspot' ? 'bg-blue-600 text-white font-bold' : 'text-gray-300 hover:text-white hover:bg-white/5'"
                         class="w-full text-left px-3 py-2 rounded-lg text-xs transition flex items-center justify-between select-none">
-                        <span>System Tools & Modules</span>
-                        <span x-show="activeTab === 'tools'" class="w-1.5 h-1.5 rounded-full bg-white"></span>
+                        <span>Wi-Fi Hotspot</span>
+                        <span x-show="activeTab === 'hotspot'" class="w-1.5 h-1.5 rounded-full bg-white"></span>
+                    </button>
+                    <button type="button" @click="activeTab = 'charger'; open = false"
+                        :class="activeTab === 'charger' ? 'bg-blue-600 text-white font-bold' : 'text-gray-300 hover:text-white hover:bg-white/5'"
+                        class="w-full text-left px-3 py-2 rounded-lg text-xs transition flex items-center justify-between select-none">
+                        <span>Smart Charger</span>
+                        <span x-show="activeTab === 'charger'" class="w-1.5 h-1.5 rounded-full bg-white"></span>
+                    </button>
+                    <button type="button" @click="activeTab = 'modules'; open = false"
+                        :class="activeTab === 'modules' || activeTab === 'tools' ? 'bg-blue-600 text-white font-bold' : 'text-gray-300 hover:text-white hover:bg-white/5'"
+                        class="w-full text-left px-3 py-2 rounded-lg text-xs transition flex items-center justify-between select-none">
+                        <span>System Modules</span>
+                        <span x-show="activeTab === 'modules' || activeTab === 'tools'" class="w-1.5 h-1.5 rounded-full bg-white"></span>
                     </button>
                     </div>
                 </div>
@@ -95,7 +107,7 @@
             <!-- 🛠️ Services Category -->
             <div class="relative" x-data="{ open: false }" @mouseenter="open = true" @mouseleave="open = false" @click.outside="open = false">
                 <button type="button" @click="open = !open"
-                    :class="['tools', 'scrcpy'].includes(activeTab) ? 'bg-blue-600/20 text-blue-400 border-blue-500/40 shadow-sm' : 'text-gray-300 hover:text-white hover:bg-white/5 border-transparent'"
+                    :class="['telegram', 'ssh', 'scrcpy'].includes(activeTab) ? 'bg-blue-600/20 text-blue-400 border-blue-500/40 shadow-sm' : 'text-gray-300 hover:text-white hover:bg-white/5 border-transparent'"
                     class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5 border select-none">
                     <span>🛠️ Services</span>
                     <svg class="w-3 h-3 transition-transform duration-200" :class="open ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -112,23 +124,17 @@
                     class="absolute left-0 top-full pt-1 z-[110]"
                     style="display: none;">
                     <div class="w-48 rounded-xl bg-card border border-border/80 shadow-2xl p-1 backdrop-blur-xl space-y-0.5 max-h-[calc(100vh-80px)] overflow-y-auto custom-scrollbar nav-dropdown">
-                    <button type="button" @click="activeTab = 'tools'; open = false"
-                        :class="activeTab === 'tools' ? 'bg-blue-600 text-white font-bold' : 'text-gray-300 hover:text-white hover:bg-white/5'"
+                    <button type="button" @click="activeTab = 'telegram'; fetchTelegramStatus(); open = false"
+                        :class="activeTab === 'telegram' ? 'bg-blue-600 text-white font-bold' : 'text-gray-300 hover:text-white hover:bg-white/5'"
                         class="w-full text-left px-3 py-2 rounded-lg text-xs transition flex items-center justify-between select-none">
                         <span>Telegram Bot</span>
-                        <span x-show="activeTab === 'tools'" class="w-1.5 h-1.5 rounded-full bg-white"></span>
+                        <span x-show="activeTab === 'telegram'" class="w-1.5 h-1.5 rounded-full bg-white"></span>
                     </button>
-                    <button type="button" @click="activeTab = 'tools'; open = false"
-                        :class="activeTab === 'tools' ? 'bg-blue-600 text-white font-bold' : 'text-gray-300 hover:text-white hover:bg-white/5'"
-                        class="w-full text-left px-3 py-2 rounded-lg text-xs transition flex items-center justify-between select-none">
-                        <span>Smart Charger</span>
-                        <span x-show="activeTab === 'tools'" class="w-1.5 h-1.5 rounded-full bg-white"></span>
-                    </button>
-                    <button type="button" @click="activeTab = 'tools'; open = false"
-                        :class="activeTab === 'tools' ? 'bg-blue-600 text-white font-bold' : 'text-gray-300 hover:text-white hover:bg-white/5'"
+                    <button type="button" @click="activeTab = 'ssh'; fetchSSHStatus(); open = false"
+                        :class="activeTab === 'ssh' ? 'bg-blue-600 text-white font-bold' : 'text-gray-300 hover:text-white hover:bg-white/5'"
                         class="w-full text-left px-3 py-2 rounded-lg text-xs transition flex items-center justify-between select-none">
                         <span>SSH Daemon</span>
-                        <span x-show="activeTab === 'tools'" class="w-1.5 h-1.5 rounded-full bg-white"></span>
+                        <span x-show="activeTab === 'ssh'" class="w-1.5 h-1.5 rounded-full bg-white"></span>
                     </button>
                     <button type="button" @click="activeTab = 'scrcpy'; open = false"
                         :class="activeTab === 'scrcpy' ? 'bg-blue-600 text-white font-bold' : 'text-gray-300 hover:text-white hover:bg-white/5'"

@@ -48,15 +48,36 @@
                         <!--  TOP TOOLBAR & BREADCRUMBS                 -->
                         <!-- ══════════════════════════════════════════  -->
                         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 max-w-full overflow-hidden">
-                            <!-- Breadcrumb Path -->
-                            <div class="flex items-center space-x-1 overflow-x-auto text-xs font-mono bg-black border border-border px-3 py-2 rounded-xl custom-scrollbar flex-1 min-w-0 max-w-full">
-                                <span @click="fetchFileList('/')" class="text-blue-500 hover:underline cursor-pointer font-semibold shrink-0">root</span>
-                                <template x-for="(segment, idx) in currentPathSegments" :key="idx">
-                                    <div class="flex items-center space-x-1 shrink-0">
-                                        <span class="text-gray-600">/</span>
-                                        <span @click="navigateBreadcrumb(idx)" class="text-blue-500 hover:underline cursor-pointer font-semibold" x-text="segment"></span>
-                                    </div>
-                                </template>
+                            <!-- Breadcrumb & History Navigation -->
+                            <div class="flex items-center gap-2 flex-1 min-w-0 max-w-full">
+                                <!-- Back & Forward Buttons -->
+                                <div class="inline-flex items-center rounded-xl bg-black border border-border p-1 shrink-0 gap-0.5">
+                                    <button type="button" @click="goBack()" :disabled="!canGoBack()"
+                                            :class="canGoBack() ? 'text-gray-200 hover:bg-gray-800 hover:text-white cursor-pointer' : 'text-gray-600 opacity-40 cursor-not-allowed'"
+                                            class="p-1.5 rounded-lg transition text-xs flex items-center justify-center" title="Go Back">
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/>
+                                        </svg>
+                                    </button>
+                                    <button type="button" @click="goForward()" :disabled="!canGoForward()"
+                                            :class="canGoForward() ? 'text-gray-200 hover:bg-gray-800 hover:text-white cursor-pointer' : 'text-gray-600 opacity-40 cursor-not-allowed'"
+                                            class="p-1.5 rounded-lg transition text-xs flex items-center justify-center" title="Go Forward">
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/>
+                                        </svg>
+                                    </button>
+                                </div>
+
+                                <!-- Breadcrumb Path -->
+                                <div class="flex items-center space-x-1 overflow-x-auto text-xs font-mono bg-black border border-border px-3 py-2 rounded-xl custom-scrollbar flex-1 min-w-0 max-w-full">
+                                    <span @click="fetchFileList('/')" class="text-blue-500 hover:underline cursor-pointer font-semibold shrink-0">root</span>
+                                    <template x-for="(segment, idx) in currentPathSegments" :key="idx">
+                                        <div class="flex items-center space-x-1 shrink-0">
+                                            <span class="text-gray-600">/</span>
+                                            <span @click="navigateBreadcrumb(idx)" class="text-blue-500 hover:underline cursor-pointer font-semibold" x-text="segment"></span>
+                                        </div>
+                                    </template>
+                                </div>
                             </div>
 
                             <!-- Create & Upload Actions -->
@@ -84,7 +105,7 @@
                                     <span @click="removeShortcut(index)" class="text-red-500 hover:text-red-650 cursor-pointer font-extrabold text-[12px] ml-0.5" title="Remove bookmark">×</span>
                                 </div>
                             </template>
-                            <button type="button" @click="openAddShortcutModal()" class="px-2.5 py-1.5 bg-blue-600/10 hover:bg-blue-600/20 text-blue-500 border border-blue-500/30 rounded-xl text-[10px] font-bold transition flex items-center gap-0.5 uppercase tracking-wide">
+                            <button type="button" @click="openAddFmShortcutModal()" class="px-2.5 py-1.5 bg-blue-600/10 hover:bg-blue-600/20 text-blue-500 border border-blue-500/30 rounded-xl text-[10px] font-bold transition flex items-center gap-0.5 uppercase tracking-wide">
                                 + Add Shortcut
                             </button>
                         </div>

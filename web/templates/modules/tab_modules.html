@@ -1,0 +1,98 @@
+{{define "tab_modules.html"}}
+<!-- TAB: MAGISK & ROOT SYSTEM MODULES -->
+<div x-show="activeTab === 'modules'" class="space-y-6">
+    <!-- Magisk & Root Modules -->
+    <div class="bg-card border border-border rounded-2xl p-6 space-y-5" x-init="fetchModules()">
+        <div class="flex items-center justify-between flex-wrap gap-2">
+            <div>
+                <h3 class="text-sm font-bold text-white uppercase tracking-wider font-mono flex items-center gap-2">
+                    <span>Magisk / KSU / APatch Modules</span>
+                    <span class="text-[10px] px-2 py-0.5 font-bold font-mono tracking-wider uppercase bg-blue-500/10 text-blue-400 border border-blue-500/20 rounded" x-text="modulesList.length + ' Installed'"></span>
+                </h3>
+                <p class="text-xs text-gray-400 font-mono">Systemless root modules manager</p>
+            </div>
+            <div class="flex items-center space-x-2 font-mono">
+                <button type="button" @click="fetchModules()" class="px-3.5 py-1.5 bg-flat hover:bg-black text-gray-200 border border-border rounded-xl text-xs font-bold transition">Refresh</button>
+            </div>
+        </div>
+
+        <!-- Flash Module Dropzone -->
+        <div class="bg-flat p-4 rounded-xl border border-dashed border-border/60 font-mono text-xs space-y-3">
+            <div class="flex items-center justify-between">
+                <span class="text-xs font-bold text-white uppercase tracking-wider">Flash Module Package (.zip)</span>
+                <span class="text-[10px] text-gray-400">Magisk / KSU / APatch Compatible</span>
+            </div>
+            <div class="flex items-center gap-2">
+                <input id="module-zip-input" type="file" accept=".zip" class="w-full text-xs text-gray-400 file:mr-4 file:py-1.5 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-blue-600 file:text-white hover:file:bg-blue-500 cursor-pointer" />
+                <button type="button" @click="installModule()" class="px-4 py-1.5 bg-green-600 hover:bg-green-500 text-white rounded-xl text-xs font-bold shrink-0 transition">
+                    Flash Zip
+                </button>
+            </div>
+        </div>
+
+        <!-- Installed Modules Grid -->
+        <div class="space-y-3">
+            <template x-if="modulesLoading">
+                <div class="text-xs font-mono text-gray-400 text-center py-4">Loading installed modules...</div>
+            </template>
+            <template x-if="!modulesLoading && modulesList.length === 0">
+                <div class="text-xs font-mono text-gray-500 text-center py-4">No root modules detected in /data/adb/modules.</div>
+            </template>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <template x-for="mod in modulesList" :key="mod.id">
+                    <div class="bg-flat p-4 rounded-xl border border-border/50 space-y-2 font-mono flex flex-col justify-between">
+                        <div>
+                            <div class="flex items-center justify-between gap-2">
+                                <h4 class="text-xs font-extrabold text-white truncate" x-text="mod.name"></h4>
+                                <button type="button"
+                                        @click="toggleModule(mod.id, !mod.enabled)"
+                                        :class="mod.enabled ? 'bg-green-600/20 text-green-400 border-green-500/30' : 'bg-red-600/20 text-red-400 border-red-500/30'"
+                                        class="px-2.5 py-0.5 rounded text-[10px] font-bold uppercase border transition shrink-0"
+                                        x-text="mod.enabled ? 'Enabled' : 'Disabled'">
+                                </button>
+                            </div>
+                            <div class="text-[10px] text-blue-400 mt-0.5" x-text="'v' + mod.version + (mod.author ? ' by ' + mod.author : '')"></div>
+                            <p class="text-[11px] text-gray-400 line-clamp-2 mt-1.5" x-text="mod.description || 'No description available.'"></p>
+                        </div>
+                        <div class="text-[9px] text-gray-500 truncate pt-2 border-t border-border/20" x-text="'ID: ' + mod.id"></div>
+                    </div>
+                </template>
+            </div>
+        </div>
+    </div>
+
+    <!-- Disk Partitions -->
+    <div class="bg-card border border-border rounded-2xl p-6 space-y-4">
+        <h3 class="text-sm font-bold text-white uppercase tracking-wider font-mono">Storage & Disk Partitions</h3>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <template x-for="disk in stats.disks || []" :key="disk.path">
+                <div class="bg-flat rounded-xl p-4 space-y-2">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-bold text-white font-mono" x-text="disk.path"></span>
+                        <span class="text-xs font-mono text-blue-400" x-text="disk.used_pct.toFixed(1) + '%'"></span>
+                    </div>
+                    <div class="text-[10px] text-gray-400 font-mono" x-text="formatBytes(disk.used) + ' / ' + formatBytes(disk.total)"></div>
+                    <div class="w-full bg-card rounded-full h-1.5 overflow-hidden">
+                        <div class="bg-blue-500 h-1.5 rounded-full" :style="'width: ' + disk.used_pct + '%'"></div>
+                    </div>
+                </div>
+            </template>
+        </div>
+    </div>
+
+    <!-- Thermal Sensors -->
+    <template x-if="stats.thermals && stats.thermals.length > 0">
+        <div class="bg-card border border-border rounded-2xl p-6 space-y-4">
+            <h3 class="text-sm font-bold text-white uppercase tracking-wider font-mono">Thermal Zones (°C)</h3>
+            <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-3">
+                <template x-for="t in stats.thermals" :key="t.name">
+                    <div class="bg-flat p-3 rounded-xl text-center space-y-1">
+                        <div class="text-[10px] font-mono text-gray-400 truncate" x-text="t.name"></div>
+                        <div class="text-sm font-bold font-mono" :class="t.temp > 70 ? 'text-red-400' : 'text-green-400'" x-text="t.temp.toFixed(1) + '°C'"></div>
+                    </div>
+                </template>
+            </div>
+        </div>
+    </template>
+</div>
+{{end}}

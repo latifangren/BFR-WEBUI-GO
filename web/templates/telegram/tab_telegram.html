@@ -1,0 +1,94 @@
+{{define "tab_telegram.html"}}
+<!-- TAB: TELEGRAM BOT MANAGER -->
+<div x-show="activeTab === 'telegram'" class="space-y-6">
+    <div class="bg-card border border-border rounded-2xl p-6 space-y-5" x-init="fetchTelegramStatus()">
+        <div class="flex items-center justify-between flex-wrap gap-2">
+            <div>
+                <h3 class="text-sm font-bold text-white uppercase tracking-wider font-mono flex items-center gap-2">
+                    <span>Telegram Bot Manager</span>
+                    <span class="text-[10px] px-2 py-0.5 font-bold font-mono tracking-wider uppercase"
+                        :class="telegramData.running ? 'badge-active' : 'badge-inactive'"
+                        x-text="telegramData.running ? (telegramData.bot_name ? '@' + telegramData.bot_name : 'Running') : 'Stopped'"></span>
+                </h3>
+                <p class="text-xs text-gray-400 font-mono">Telegram bot notification and remote control service</p>
+            </div>
+            <div class="flex items-center space-x-2 font-mono">
+                <button type="button" @click="controlTelegram('start')" class="px-3.5 py-1.5 bg-green-600 hover:bg-green-500 text-white rounded-xl text-xs font-bold transition">Start</button>
+                <button type="button" @click="controlTelegram('stop')" class="px-3.5 py-1.5 bg-red-600 hover:bg-red-500 text-white rounded-xl text-xs font-bold transition">Stop</button>
+            </div>
+        </div>
+
+        <!-- Config Parameters -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 font-mono text-xs">
+            <div class="space-y-1">
+                <label for="tg-token" class="text-xs text-gray-400">Bot Token</label>
+                <input id="tg-token" type="password" x-model="telegramData.config.bot_token" class="w-full bg-black border border-border rounded-xl px-3 py-2 text-xs text-white font-bold" placeholder="e.g. 123456789:ABCdef..." />
+            </div>
+            <div class="space-y-1">
+                <label for="tg-chat-ids" class="text-xs text-gray-400">Allowed Chat IDs</label>
+                <input id="tg-chat-ids" type="text" x-model="telegramData.chat_ids_str" class="w-full bg-black border border-border rounded-xl px-3 py-2 text-xs text-white font-bold" placeholder="e.g. 12345678, 98765432" />
+            </div>
+        </div>
+
+        <!-- Toggles -->
+        <div class="space-y-3 font-mono text-xs pt-2">
+            <label class="flex items-center space-x-3 cursor-pointer">
+                <input type="checkbox" x-model="telegramData.config.allow_shell_commands" class="form-checkbox h-4 w-4 text-blue-600 bg-black border-border rounded focus:ring-0" />
+                <span class="text-gray-300">Allow root shell command execution (/cmd)</span>
+            </label>
+            <label class="flex items-center space-x-3 cursor-pointer">
+                <input type="checkbox" x-model="telegramData.config.notify_on_boot" class="form-checkbox h-4 w-4 text-blue-600 bg-black border-border rounded focus:ring-0" />
+                <span class="text-gray-300">Send alert on device boot</span>
+            </label>
+
+            <!-- Granular Notification Toggles -->
+            <div class="border-t border-border/20 pt-3 space-y-2">
+                <span class="text-xs font-bold text-gray-400 uppercase tracking-wider block">Granular Alert Notifications</span>
+                <label class="flex items-center space-x-3 cursor-pointer">
+                    <input type="checkbox" x-model="telegramData.config.notifications.battery_guard" class="form-checkbox h-4 w-4 text-blue-600 bg-black border-border rounded focus:ring-0" />
+                    <span class="text-gray-300">Battery Guard (Limit/Charge State Alert)</span>
+                </label>
+                <label class="flex items-center space-x-3 cursor-pointer">
+                    <input type="checkbox" x-model="telegramData.config.notifications.battery_overheat" class="form-checkbox h-4 w-4 text-blue-600 bg-black border-border rounded focus:ring-0" />
+                    <span class="text-gray-300">Battery Overheat (&gt;45°C Alert)</span>
+                </label>
+                <label class="flex items-center space-x-3 cursor-pointer">
+                    <input type="checkbox" x-model="telegramData.config.notifications.ssh_status" class="form-checkbox h-4 w-4 text-blue-600 bg-black border-border rounded focus:ring-0" />
+                    <span class="text-gray-300">SSH Status Change Alert</span>
+                </label>
+                <label class="flex items-center space-x-3 cursor-pointer">
+                    <input type="checkbox" x-model="telegramData.config.notifications.ip_change" class="form-checkbox h-4 w-4 text-blue-600 bg-black border-border rounded focus:ring-0" />
+                    <span class="text-gray-300">Public IP Change Alert</span>
+                </label>
+                <label class="flex items-center space-x-3 cursor-pointer">
+                    <input type="checkbox" x-model="telegramData.config.notifications.hotspot_client" class="form-checkbox h-4 w-4 text-blue-600 bg-black border-border rounded focus:ring-0" />
+                    <span class="text-gray-300">Hotspot Connected Clients Change Alert</span>
+                </label>
+                <label class="flex items-center space-x-3 cursor-pointer">
+                    <input type="checkbox" x-model="telegramData.config.notifications.sms_forwarder" class="form-checkbox h-4 w-4 text-blue-600 bg-black border-border rounded focus:ring-0" />
+                    <span class="text-gray-300 font-bold text-emerald-400">Incoming SMS Forwarder to Telegram Chat</span>
+                </label>
+
+                <!-- SMS Forwarder Filter Settings -->
+                <div x-show="telegramData.config.notifications.sms_forwarder" class="mt-2 ml-7 p-3 bg-black/60 border border-border/60 rounded-xl space-y-3 font-mono text-xs">
+                    <label class="flex items-center space-x-3 cursor-pointer">
+                        <input type="checkbox" x-model="telegramData.config.sms_forwarder_otp_only" class="form-checkbox h-4 w-4 text-emerald-500 bg-black border-border rounded focus:ring-0" />
+                        <span class="text-white font-bold">Forward OTP & Verification SMS Only</span>
+                    </label>
+                    <div>
+                        <label class="block text-[11px] text-gray-400 mb-1">Keywords Filter (Pisahkan dengan koma):</label>
+                        <input type="text" x-model="telegramData.config.sms_forwarder_keywords" placeholder="OTP, kode, verifikasi, kuota, sisa, paket" class="w-full bg-zinc-950 border border-border/80 rounded-lg px-2.5 py-1.5 text-xs text-emerald-400 font-mono focus:outline-none focus:border-emerald-500" />
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Save Settings -->
+        <div class="flex items-center justify-end border-t border-border/20 pt-4 font-mono">
+            <button type="button" @click="saveTelegramConfig()" class="px-4 py-1.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-bold transition">
+                Save Settings
+            </button>
+        </div>
+    </div>
+</div>
+{{end}}

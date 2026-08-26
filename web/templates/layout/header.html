@@ -68,7 +68,7 @@
             <!-- ⚙️ System Category -->
             <button type="button"
                 @click="mobileCategory = (mobileCategory === 'system' ? null : 'system')"
-                :class="['files', 'nas', 'terminal', 'tools'].includes(activeTab) || mobileCategory === 'system' ? 'text-blue-400 font-bold bg-blue-600/20 border-blue-500/40 shadow-sm shadow-blue-500/10' : 'text-gray-400 hover:text-gray-200 border-transparent'"
+                :class="['files', 'nas', 'terminal', 'hotspot', 'charger', 'modules', 'tools'].includes(activeTab) || mobileCategory === 'system' ? 'text-blue-400 font-bold bg-blue-600/20 border-blue-500/40 shadow-sm shadow-blue-500/10' : 'text-gray-400 hover:text-gray-200 border-transparent'"
                 class="flex flex-col items-center justify-center text-[10px] font-bold p-1 rounded-lg transition whitespace-nowrap active:scale-95 border">
                 <span class="text-base">⚙️</span>
                 <span class="text-[10px] mt-0.5">System</span>
@@ -77,7 +77,7 @@
             <!-- 🛠️ Services Category -->
             <button type="button"
                 @click="mobileCategory = (mobileCategory === 'services' ? null : 'services')"
-                :class="['tools', 'scrcpy'].includes(activeTab) || mobileCategory === 'services' ? 'text-blue-400 font-bold bg-blue-600/20 border-blue-500/40 shadow-sm shadow-blue-500/10' : 'text-gray-400 hover:text-gray-200 border-transparent'"
+                :class="['telegram', 'ssh', 'scrcpy'].includes(activeTab) || mobileCategory === 'services' ? 'text-blue-400 font-bold bg-blue-600/20 border-blue-500/40 shadow-sm shadow-blue-500/10' : 'text-gray-400 hover:text-gray-200 border-transparent'"
                 class="flex flex-col items-center justify-center text-[10px] font-bold p-1 rounded-lg transition whitespace-nowrap active:scale-95 border">
                 <span class="text-base">🛠️</span>
                 <span class="text-[10px] mt-0.5">Services</span>

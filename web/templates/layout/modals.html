@@ -65,23 +65,54 @@
         </div>
     </div>
 
-    <!-- Add Shortcut Modal -->
-    <div x-show="showAddShortcutModal" x-cloak class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 font-mono animate-fade-in">
+    <!-- Add File Manager Path Shortcut Modal -->
+    <div x-show="showAddFmShortcutModal" x-cloak class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 font-mono animate-fade-in">
         <div class="bg-card border border-border rounded-2xl p-6 max-w-md w-full space-y-4 shadow-2xl">
-            <h3 class="text-sm font-bold text-white uppercase tracking-wider">Add Custom Shortcut</h3>
+            <h3 class="text-sm font-bold text-white uppercase tracking-wider">Add Folder Shortcut</h3>
             <div class="space-y-3">
                 <div class="space-y-1">
                     <label for="sc-name" class="text-xs text-gray-400">Shortcut Name</label>
-                    <input id="sc-name" type="text" x-model="newShortcutName" class="w-full bg-black border border-border rounded-xl px-3 py-2 text-xs text-white" placeholder="e.g. Modules" />
+                    <input id="sc-name" type="text" x-model="newShortcutName" class="w-full bg-black border border-border rounded-xl px-3 py-2 text-xs text-white" placeholder="e.g. Data Folder" />
                 </div>
                 <div class="space-y-1">
                     <label for="sc-path" class="text-xs text-gray-400">Target Path</label>
-                    <input id="sc-path" type="text" x-model="newShortcutPath" class="w-full bg-black border border-border rounded-xl px-3 py-2 text-xs text-white" placeholder="e.g. /data/adb/modules" />
+                    <input id="sc-path" type="text" x-model="newShortcutPath" class="w-full bg-black border border-border rounded-xl px-3 py-2 text-xs text-white" placeholder="e.g. /data" />
+                </div>
+            </div>
+            <div class="flex justify-end space-x-3 pt-2">
+                <button type="button" @click="showAddFmShortcutModal = false" class="px-4 py-2 bg-black border border-border text-gray-300 rounded-xl text-xs font-semibold">Cancel</button>
+                <button type="button" @click="saveFmShortcut()" class="px-4 py-2 bg-blue-600 text-white rounded-xl text-xs font-bold">Add Shortcut</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add CasaOS Dashboard App Shortcut Modal -->
+    <div x-show="showAddShortcutModal" x-cloak class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 font-mono animate-fade-in">
+        <div class="bg-card border border-border rounded-2xl p-6 max-w-md w-full space-y-4 shadow-2xl">
+            <div class="flex items-center justify-between border-b border-border pb-3">
+                <h3 class="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2">
+                    <span>🔗 <span x-text="shortcutForm.id ? 'Edit Application Link' : 'Add External Link'"></span></span>
+                </h3>
+                <button type="button" @click="showAddShortcutModal = false" class="text-gray-400 hover:text-white font-bold">&#x2715;</button>
+            </div>
+            <div class="space-y-3">
+                <div class="space-y-1">
+                    <label for="app-sc-title" class="text-xs text-gray-400">Title *</label>
+                    <input id="app-sc-title" type="text" x-model="shortcutForm.title" class="w-full bg-black border border-border rounded-xl px-3 py-2 text-xs text-white" placeholder="Title of external link (e.g. Clash WebUI)" required />
+                </div>
+                <div class="space-y-1">
+                    <label for="app-sc-url" class="text-xs text-gray-400">Link URL *</label>
+                    <input id="app-sc-url" type="url" x-model="shortcutForm.url" class="w-full bg-black border border-border rounded-xl px-3 py-2 text-xs text-white font-mono" placeholder="http://192.168.1.1:9090 or https://example.com" required />
+                </div>
+                <div class="space-y-1">
+                    <label for="app-sc-icon" class="text-xs text-gray-400">Icon URL (Optional)</label>
+                    <input id="app-sc-icon" type="text" x-model="shortcutForm.icon_url" class="w-full bg-black border border-border rounded-xl px-3 py-2 text-xs text-white font-mono" placeholder="Your custom icon URL (PNG/SVG)" />
+                    <p class="text-[10px] text-gray-500">Leave blank to use default application icon.</p>
                 </div>
             </div>
             <div class="flex justify-end space-x-3 pt-2">
                 <button type="button" @click="showAddShortcutModal = false" class="px-4 py-2 bg-black border border-border text-gray-300 rounded-xl text-xs font-semibold">Cancel</button>
-                <button type="button" @click="saveShortcut()" class="px-4 py-2 bg-blue-600 text-white rounded-xl text-xs font-bold">Add Shortcut</button>
+                <button type="button" @click="saveShortcutItem()" class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-bold transition" x-text="shortcutForm.id ? 'Save Changes' : 'Add Link'"></button>
             </div>
         </div>
     </div>

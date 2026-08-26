@@ -62,7 +62,7 @@ var AllowedDirs = func() []string {
 		}
 		return parts
 	}
-	return []string{"/sdcard", "/storage", "/data/adb", "/data/local/tmp", "/data/system"}
+	return []string{"/", "/sdcard", "/storage", "/data", "/data/adb", "/data/local/tmp", "/data/system"}
 }()
 
 // GetPersistentDataDir returns the target directory path for persistent application data.

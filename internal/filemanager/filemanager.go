@@ -60,8 +60,17 @@ func SanitizePath(userPath string) (string, error) {
 			evalBase = target
 		}
 
-		if evalPath == cleanBase || strings.HasPrefix(evalPath, cleanBase+"/") ||
-			evalPath == evalBase || strings.HasPrefix(evalPath, evalBase+"/") {
+		cleanBasePrefix := cleanBase
+		if !strings.HasSuffix(cleanBasePrefix, "/") {
+			cleanBasePrefix += "/"
+		}
+		evalBasePrefix := evalBase
+		if !strings.HasSuffix(evalBasePrefix, "/") {
+			evalBasePrefix += "/"
+		}
+
+		if evalPath == cleanBase || strings.HasPrefix(evalPath, cleanBasePrefix) ||
+			evalPath == evalBase || strings.HasPrefix(evalPath, evalBasePrefix) {
 			return evalPath, nil
 		}
 	}
@@ -130,12 +139,11 @@ func ReadFile(filePath string) (string, error) {
 	if info.Size() > MaxReadFileSize {
 		return "", fmt.Errorf("file size exceeds limit of 5MB")
 	}
-
-	data, err := os.ReadFile(cleanPath)
+	content, err := os.ReadFile(cleanPath)
 	if err != nil {
 		return "", err
 	}
-	return string(data), nil
+	return string(content), nil
 }
 
 func SaveFile(filePath string, content string) error {

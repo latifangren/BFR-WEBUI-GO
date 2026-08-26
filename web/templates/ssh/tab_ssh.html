@@ -1,0 +1,56 @@
+{{define "tab_ssh.html"}}
+<!-- TAB: SSH DAEMON MANAGER -->
+<div x-show="activeTab === 'ssh'" class="space-y-6">
+    <div class="bg-card border border-border rounded-2xl p-6 space-y-5">
+        <div class="flex items-center justify-between flex-wrap gap-2">
+            <div>
+                <h3 class="text-sm font-bold text-white uppercase tracking-wider font-mono flex items-center gap-2">
+                    <span>SSH Daemon Manager</span>
+                    <span class="text-[10px] px-2 py-0.5 font-bold font-mono tracking-wider uppercase"
+                        :class="sshData.running ? 'badge-active' : 'badge-inactive'"
+                        x-text="sshData.running ? 'PID ' + sshData.pid : 'Stopped'"></span>
+                </h3>
+                <p class="text-xs text-gray-400 font-mono">Remote shell service controller</p>
+            </div>
+            <div class="flex items-center space-x-2 font-mono">
+                <button type="button" @click="controlSSH('start')" class="px-3.5 py-1.5 bg-green-600 hover:bg-green-500 text-white rounded-xl text-xs font-bold transition">Start</button>
+                <button type="button" @click="controlSSH('stop')" class="px-3.5 py-1.5 bg-red-600 hover:bg-red-500 text-white rounded-xl text-xs font-bold transition">Stop</button>
+            </div>
+        </div>
+
+        <!-- Config Parameters -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 font-mono text-xs">
+            <div class="space-y-1">
+                <label for="ssh-bind" class="text-xs text-gray-400">Bind Address</label>
+                <select id="ssh-bind" x-model="sshData.config.bind" class="w-full bg-black border border-border rounded-xl px-3 py-2 text-xs text-white font-bold">
+                    <option value="127.0.0.1">Local Only (127.0.0.1)</option>
+                    <option value="0.0.0.0">LAN / WAN (0.0.0.0)</option>
+                </select>
+            </div>
+            <div class="space-y-1">
+                <label for="ssh-port" class="text-xs text-gray-400">Listen Port</label>
+                <input id="ssh-port" type="number" min="1" max="65535" x-model.number="sshData.config.port" class="w-full bg-black border border-border rounded-xl px-3 py-2 text-xs text-white font-bold" />
+            </div>
+        </div>
+
+        <!-- Save Settings -->
+        <div class="flex items-center justify-between border-t border-border/20 pt-4 font-mono">
+            <div class="text-[10px] text-gray-500 truncate max-w-sm" x-text="sshData.binaryPath ? 'Binary: ' + sshData.binaryPath : 'No SSH binary detected!'"></div>
+            <button type="button" @click="saveSSHConfig()" class="px-4 py-1.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-bold transition">
+                Save Settings
+            </button>
+        </div>
+
+        <!-- Snippet Helper -->
+        <div class="bg-flat p-4 rounded-xl font-mono text-xs space-y-2">
+            <div class="text-[10px] text-gray-500 uppercase font-bold tracking-wider">Quick Connect SSH Snippet</div>
+            <div class="flex items-center justify-between bg-black border border-border/30 rounded-lg p-2.5">
+                <code class="text-green-400 select-all" x-text="'ssh root@' + (networkData.interfaces?.find(i => i.name.startsWith('wlan') || i.name.startsWith('rmnet'))?.ips?.[0]?.split('/')?.[0] || '[device_ip]') + ' -p ' + sshData.config.port"></code>
+                <button type="button" @click="navigator.clipboard.writeText('ssh root@' + (networkData.interfaces?.find(i => i.name.startsWith('wlan') || i.name.startsWith('rmnet'))?.ips?.[0]?.split('/')?.[0] || '127.0.0.1') + ' -p ' + sshData.config.port); showToast('SSH Helper', 'SSH connect command copied to clipboard!', 'success')" class="text-[10px] text-blue-400 hover:underline">
+                    Copy
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{{end}}

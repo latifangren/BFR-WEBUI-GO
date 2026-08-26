@@ -86,6 +86,17 @@ function dashboard() {
                     this.fetchSMS();
                 } else if (tab === 'vnstat' && typeof this.fetchVnstatData === 'function') {
                     this.fetchVnstatData();
+                } else if (tab === 'charger' && typeof this.fetchChargerConfig === 'function') {
+                    this.fetchChargerConfig();
+                } else if (tab === 'hotspot' && typeof this.fetchHotspotStatus === 'function') {
+                    this.fetchHotspotStatus();
+                    if (typeof this.fetchHotspotClients === 'function') this.fetchHotspotClients();
+                } else if (tab === 'modules' && typeof this.fetchModules === 'function') {
+                    this.fetchModules();
+                } else if (tab === 'ssh' && typeof this.fetchSSHStatus === 'function') {
+                    this.fetchSSHStatus();
+                } else if (tab === 'telegram' && typeof this.fetchTelegramStatus === 'function') {
+                    this.fetchTelegramStatus();
                 } else if (tab === 'modem' && typeof this.fetchModemSignal === 'function') {
                     this.fetchModemSignal();
                     if (typeof this.loadBandConfig === 'function') this.loadBandConfig();

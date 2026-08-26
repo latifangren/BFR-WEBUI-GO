@@ -154,6 +154,30 @@ body {
   color: var(--neo-accent);
 }
 
+.bg-emerald-500 {
+  background-color: #10b981 !important;
+}
+
+.bg-cyan-500 {
+  background-color: #06b6d4 !important;
+}
+
+.text-emerald-400 {
+  color: #34d399;
+}
+
+.text-cyan-400 {
+  color: #22d3ee;
+}
+
+.border-emerald-500\/50 {
+  border-color: rgba(16, 185, 129, 0.5);
+}
+
+.border-cyan-500\/50 {
+  border-color: rgba(6, 182, 212, 0.5);
+}
+
 /* Navigation button overrides */
 nav button,
 header button {

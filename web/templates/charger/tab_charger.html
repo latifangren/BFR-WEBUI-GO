@@ -1,87 +1,89 @@
 {{define "tab_charger.html"}}
-                    <!-- Smart Charger Limit Control -->
-                    <div class="bg-card border border-border rounded-2xl p-6 space-y-5">
-                        <div class="flex items-center justify-between flex-wrap gap-2">
-                            <div>
-                                <h3 class="text-sm font-bold text-white uppercase tracking-wider font-mono flex items-center gap-2">
-                                    <span>Smart Charger Limit Control</span>
-                                    <span class="text-[10px] px-2 py-0.5 font-bold font-mono tracking-wider uppercase bg-amber-500/20 text-amber-400 border border-amber-500/30 rounded-md">EXPERIMENTAL</span>
-                                    <span class="text-[10px] px-2 py-0.5 font-bold font-mono tracking-wider uppercase"
-                                        :class="chargerConfig.config?.enabled ? 'badge-active' : 'badge-inactive'"
-                                        x-text="chargerConfig.config?.enabled ? 'Active' : 'Disabled'"></span>
-                                </h3>
-                                <p class="text-xs text-gray-400 font-mono">Battery lifespan protection via sysfs auto-scanner (Kernel Hardware Dependent)</p>
-                            </div>
-                            <div class="flex items-center space-x-2 font-mono">
-                                <label for="charger-enabled-check" class="sr-only">Toggle Smart Charger Limiter</label>
-                                <div class="flex items-center space-x-2 bg-flat px-3 py-1.5 rounded-xl transition">
-                                    <input id="charger-enabled-check" type="checkbox" x-model="chargerConfig.config.enabled" @change="saveChargerConfig()" class="w-4 h-4 accent-blue-500 cursor-pointer" />
-                                    <span class="text-xs text-white font-bold" x-text="chargerConfig.config?.enabled ? 'Limiter ON' : 'Limiter OFF'"></span>
-                                </div>
-                            </div>
-                        </div>
+<!-- TAB: SMART CHARGER CONTROL -->
+<div x-show="activeTab === 'charger'" class="space-y-6">
+    <div class="bg-card border border-border rounded-2xl p-6 space-y-5">
+        <div class="flex items-center justify-between flex-wrap gap-2">
+            <div>
+                <h3 class="text-sm font-bold text-white uppercase tracking-wider font-mono flex items-center gap-2">
+                    <span>Smart Charger Limit Control</span>
+                    <span class="text-[10px] px-2 py-0.5 font-bold font-mono tracking-wider uppercase bg-amber-500/20 text-amber-400 border border-amber-500/30 rounded-md">EXPERIMENTAL</span>
+                    <span class="text-[10px] px-2 py-0.5 font-bold font-mono tracking-wider uppercase"
+                        :class="chargerConfig.config?.enabled ? 'badge-active' : 'badge-inactive'"
+                        x-text="chargerConfig.config?.enabled ? 'Active' : 'Disabled'"></span>
+                </h3>
+                <p class="text-xs text-gray-400 font-mono">Battery lifespan protection via sysfs auto-scanner (Kernel Hardware Dependent)</p>
+            </div>
+            <div class="flex items-center space-x-2 font-mono">
+                <label for="charger-enabled-check" class="sr-only">Toggle Smart Charger Limiter</label>
+                <div class="flex items-center space-x-2 bg-flat px-3 py-1.5 rounded-xl transition">
+                    <input id="charger-enabled-check" type="checkbox" x-model="chargerConfig.config.enabled" @change="saveChargerConfig()" class="w-4 h-4 accent-blue-500 cursor-pointer" />
+                    <span class="text-xs text-white font-bold" x-text="chargerConfig.config?.enabled ? 'Limiter ON' : 'Limiter OFF'"></span>
+                </div>
+            </div>
+        </div>
 
-                        <!-- Auto-Detected Path Status Badge & Current Battery Level -->
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 font-mono text-xs">
-                            <div class="bg-flat rounded-xl p-3.5 space-y-1">
-                                <div class="text-[10px] text-gray-500 uppercase font-bold">Auto-Detected Control Path</div>
-                                <div class="text-xs font-bold text-blue-400 truncate" x-text="chargerConfig.detected_path || 'No compatible sysfs node found!'"></div>
-                                <template x-if="chargerConfig.detected_type">
-                                    <div class="text-[10px] text-gray-400" x-text="'Type: ' + chargerConfig.detected_type"></div>
-                                </template>
-                            </div>
-                            <div class="bg-flat rounded-xl p-3.5 space-y-1">
-                                <div class="text-[10px] text-gray-500 uppercase font-bold">Charging Switch Status</div>
-                                <div class="flex items-center justify-between">
-                                    <span class="text-xs font-bold" :class="chargerConfig.charging_disabled ? 'text-amber-400' : 'text-green-400'"
-                                        x-text="chargerConfig.charging_disabled ? 'PAUSED (Battery Guard Active)' : 'CHARGING ALLOWED'">
-                                    </span>
-                                    <span class="text-xs text-white font-extrabold" x-text="chargerConfig.current_level >= 0 ? chargerConfig.current_level + '%' : ''"></span>
-                                </div>
-                            </div>
-                        </div>
+        <!-- Auto-Detected Path Status Badge & Current Battery Level -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 font-mono text-xs">
+            <div class="bg-flat rounded-xl p-3.5 space-y-1">
+                <div class="text-[10px] text-gray-500 uppercase font-bold">Auto-Detected Control Path</div>
+                <div class="text-xs font-bold text-blue-400 truncate" x-text="chargerConfig.detected_path || 'No compatible sysfs node found!'"></div>
+                <template x-if="chargerConfig.detected_type">
+                    <div class="text-[10px] text-gray-400" x-text="'Type: ' + chargerConfig.detected_type"></div>
+                </template>
+            </div>
+            <div class="bg-flat rounded-xl p-3.5 space-y-1">
+                <div class="text-[10px] text-gray-500 uppercase font-bold">Charging Switch Status</div>
+                <div class="flex items-center justify-between">
+                    <span class="text-xs font-bold" :class="chargerConfig.charging_disabled ? 'text-amber-400' : 'text-green-400'"
+                        x-text="chargerConfig.charging_disabled ? 'PAUSED (Battery Guard Active)' : 'CHARGING ALLOWED'">
+                    </span>
+                    <span class="text-xs text-white font-extrabold" x-text="chargerConfig.current_level >= 0 ? chargerConfig.current_level + '%' : ''"></span>
+                </div>
+            </div>
+        </div>
 
-                        <!-- Threshold & Custom Path Settings -->
-                        <div class="bg-flat rounded-xl p-4 space-y-4 font-mono">
-                            <div class="flex items-center justify-between">
-                                <span class="text-xs font-bold text-gray-300 uppercase tracking-wider">Limiter Settings</span>
-                                <button type="button" @click="saveChargerConfig()" class="px-4 py-1.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-bold transition">
-                                    Save Settings
-                                </button>
-                            </div>
-                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                <div class="space-y-1">
-                                    <label for="charger-start-pct" class="text-xs text-gray-400">Resume Charging Below (Start %)</label>
-                                    <input id="charger-start-pct" type="number" min="5" max="95" x-model.number="chargerConfig.config.start_percent" class="w-full bg-card border border-border rounded-xl px-3 py-2 text-xs text-white font-bold" />
-                                </div>
-                                <div class="space-y-1">
-                                    <label for="charger-stop-pct" class="text-xs text-gray-400">Pause Charging Above (Stop %)</label>
-                                    <input id="charger-stop-pct" type="number" min="10" max="100" x-model.number="chargerConfig.config.stop_percent" class="w-full bg-card border border-border rounded-xl px-3 py-2 text-xs text-white font-bold" />
-                                </div>
-                            </div>
-                            <div class="space-y-1 pt-2 border-t border-border/50">
-                                <label for="charger-custom-path" class="text-xs text-gray-400 flex items-center justify-between">
-                                    <span>Custom Sysfs Path (Optional Override)</span>
-                                    <span class="text-[10px] text-gray-500">e.g. /sys/class/power_supply/battery/charge_limit</span>
-                                </label>
-                                <input id="charger-custom-path" type="text" placeholder="Leave empty for auto-scan" x-model="chargerConfig.config.custom_path" class="w-full bg-card border border-border rounded-xl px-3 py-2 text-xs text-white font-bold font-mono placeholder:text-gray-600" />
-                            </div>
-                        </div>
+        <!-- Threshold & Custom Path Settings -->
+        <div class="bg-flat rounded-xl p-4 space-y-4 font-mono">
+            <div class="flex items-center justify-between">
+                <span class="text-xs font-bold text-gray-300 uppercase tracking-wider">Limiter Settings</span>
+                <button type="button" @click="saveChargerConfig()" class="px-4 py-1.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-bold transition">
+                    Save Settings
+                </button>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div class="space-y-1">
+                    <label for="charger-start-pct" class="text-xs text-gray-400">Resume Charging Below (Start %)</label>
+                    <input id="charger-start-pct" type="number" min="5" max="95" x-model.number="chargerConfig.config.start_percent" class="w-full bg-card border border-border rounded-xl px-3 py-2 text-xs text-white font-bold" />
+                </div>
+                <div class="space-y-1">
+                    <label for="charger-stop-pct" class="text-xs text-gray-400">Pause Charging Above (Stop %)</label>
+                    <input id="charger-stop-pct" type="number" min="10" max="100" x-model.number="chargerConfig.config.stop_percent" class="w-full bg-card border border-border rounded-xl px-3 py-2 text-xs text-white font-bold" />
+                </div>
+            </div>
+            <div class="space-y-1 pt-2 border-t border-border/50">
+                <label for="charger-custom-path" class="text-xs text-gray-400 flex items-center justify-between">
+                    <span>Custom Sysfs Path (Optional Override)</span>
+                    <span class="text-[10px] text-gray-500">e.g. /sys/class/power_supply/battery/charge_limit</span>
+                </label>
+                <input id="charger-custom-path" type="text" placeholder="Leave empty for auto-scan" x-model="chargerConfig.config.custom_path" class="w-full bg-card border border-border rounded-xl px-3 py-2 text-xs text-white font-bold font-mono placeholder:text-gray-600" />
+            </div>
+        </div>
 
-                        <!-- Real-time Controller Logs -->
-                        <div class="space-y-2 font-mono">
-                            <div class="flex items-center justify-between">
-                                <span class="text-xs font-bold text-gray-400 uppercase tracking-wider">Controller Activity Logs</span>
-                                <button type="button" @click="fetchChargerConfig()" class="text-[10px] text-blue-400 hover:underline">Refresh</button>
-                            </div>
-                            <div class="bg-flat p-3 h-36 overflow-y-auto font-mono text-[11px] text-gray-300 space-y-1 custom-scrollbar">
-                                <template x-for="log in (chargerConfig.logs || [])" :key="log">
-                                    <div x-text="log" class="whitespace-pre-wrap"></div>
-                                </template>
-                                <template x-if="!chargerConfig.logs || chargerConfig.logs.length === 0">
-                                    <div class="text-gray-500 italic text-center py-4">No controller events recorded yet</div>
-                                </template>
-                            </div>
-                        </div>
-                    </div>
+        <!-- Real-time Controller Logs -->
+        <div class="space-y-2 font-mono">
+            <div class="flex items-center justify-between">
+                <span class="text-xs font-bold text-gray-400 uppercase tracking-wider">Controller Activity Logs</span>
+                <button type="button" @click="fetchChargerConfig()" class="text-[10px] text-blue-400 hover:underline">Refresh</button>
+            </div>
+            <div class="bg-flat p-3 h-36 overflow-y-auto font-mono text-[11px] text-gray-300 space-y-1 custom-scrollbar">
+                <template x-for="log in (chargerConfig.logs || [])" :key="log">
+                    <div x-text="log" class="whitespace-pre-wrap"></div>
+                </template>
+                <template x-if="!chargerConfig.logs || chargerConfig.logs.length === 0">
+                    <div class="text-gray-500 italic text-center py-4">No controller events recorded yet</div>
+                </template>
+            </div>
+        </div>
+    </div>
+</div>
 {{end}}

@@ -18,6 +18,7 @@ Thumbs.db
 .vscode/
 
 bfr-webui-go-android
+build/
 /.tmp
 /.opencode
 /openspec
