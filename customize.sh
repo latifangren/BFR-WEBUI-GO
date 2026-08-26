@@ -38,4 +38,4 @@ chmod 755 "$MODPATH/webui"
 "$MODPATH"/webui &
 
 ui_print "- Server started in background."
-ui_print "- Web Panel URL: http://127.0.0.1:8080 or http://[your-ip-address]:8080"
+ui_print "- Web Panel URL: http://127.0.0.1:80 or http://[your-ip-address]:80"

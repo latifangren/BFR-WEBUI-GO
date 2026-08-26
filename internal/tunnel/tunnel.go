@@ -307,7 +307,7 @@ func (m *Manager) StartTunnel(cfg TunnelConfig) error {
 		if cfg.CloudflareToken != "" && !cfg.CloudflareQuick {
 			args = []string{"tunnel", "run", "--token", cfg.CloudflareToken}
 		} else {
-			args = []string{"tunnel", "--url", "http://localhost:8080"}
+			args = []string{"tunnel", "--url", "http://localhost:80"}
 		}
 
 		cmd := exec.CommandContext(ctx, binPath, args...)
@@ -400,7 +400,7 @@ func (m *Manager) StartTunnel(cfg TunnelConfig) error {
 		if cfg.NgrokAuthToken != "" {
 			_ = exec.CommandContext(ctx, binPath, "config", "add-authtoken", cfg.NgrokAuthToken).Run()
 		}
-		cmd := exec.CommandContext(ctx, binPath, "http", "8080", "--log=stdout")
+		cmd := exec.CommandContext(ctx, binPath, "http", "80", "--log=stdout")
 		stdout, err := cmd.StdoutPipe()
 		if err != nil {
 			cancel()
@@ -440,7 +440,7 @@ func (m *Manager) StartTunnel(cfg TunnelConfig) error {
 		if cfg.PinggyToken != "" {
 			userHost = cfg.PinggyToken + "@a.pinggy.io"
 		}
-		cmd := exec.CommandContext(ctx, binPath, "-p", "443", "-R", "0:localhost:8080", "-o", "StrictHostKeyChecking=no", "-o", "ServerAliveInterval=30", userHost)
+		cmd := exec.CommandContext(ctx, binPath, "-p", "443", "-R", "0:localhost:80", "-o", "StrictHostKeyChecking=no", "-o", "ServerAliveInterval=30", userHost)
 		stdout, err := cmd.StdoutPipe()
 		if err != nil {
 			cancel()

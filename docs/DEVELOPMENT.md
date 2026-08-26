@@ -32,7 +32,7 @@ You can also compile and run the binary locally on your desktop operating system
 ```bash
 go run main.go
 ```
-The server will start at `http://localhost:8080` using default fallback values.
+The server will start at `http://localhost:80` using default fallback values.
 
 ---
 

@@ -31,6 +31,14 @@ type SignalInfo struct {
 	CellID      string `json:"cell_id"`
 	TAC         string `json:"tac"`
 	PCI         string `json:"pci"`
+	EARFCN      int    `json:"earfcn"`
+	Bandwidth   string `json:"bandwidth"`
+	QualityRSRP string `json:"quality_rsrp"`
+	QualityRSRQ string `json:"quality_rsrq"`
+	QualitySINR string `json:"quality_sinr"`
+	RSRPPct     int    `json:"rsrp_pct"`
+	RSRQPct     int    `json:"rsrq_pct"`
+	SINRPct     int    `json:"sinr_pct"`
 }
 
 type BandConfig struct {
@@ -198,6 +206,66 @@ func ExecuteATCommand(cmd string) ATResponse {
 	return resp
 }
 
+// CalculateSignalMetrics populates signal percentages and quality rating strings.
+func CalculateSignalMetrics(sig *SignalInfo) {
+	if sig.RSRP != -999 {
+		if sig.RSRP >= -85 {
+			sig.QualityRSRP = "Excellent"
+			sig.RSRPPct = 100
+		} else if sig.RSRP >= -95 {
+			sig.QualityRSRP = "Good"
+			sig.RSRPPct = 75
+		} else if sig.RSRP >= -105 {
+			sig.QualityRSRP = "Fair"
+			sig.RSRPPct = 50
+		} else {
+			sig.QualityRSRP = "Poor"
+			sig.RSRPPct = 25
+		}
+	} else {
+		sig.QualityRSRP = "Unknown"
+		sig.RSRPPct = 0
+	}
+
+	if sig.RSRQ != -999 {
+		if sig.RSRQ >= -10 {
+			sig.QualityRSRQ = "Excellent"
+			sig.RSRQPct = 100
+		} else if sig.RSRQ >= -15 {
+			sig.QualityRSRQ = "Good"
+			sig.RSRQPct = 75
+		} else if sig.RSRQ >= -19 {
+			sig.QualityRSRQ = "Fair"
+			sig.RSRQPct = 50
+		} else {
+			sig.QualityRSRQ = "Poor"
+			sig.RSRQPct = 25
+		}
+	} else {
+		sig.QualityRSRQ = "Unknown"
+		sig.RSRQPct = 0
+	}
+
+	if sig.SINR != -999 {
+		if sig.SINR >= 20 {
+			sig.QualitySINR = "High Speed"
+			sig.SINRPct = 100
+		} else if sig.SINR >= 13 {
+			sig.QualitySINR = "Good"
+			sig.SINRPct = 75
+		} else if sig.SINR >= 0 {
+			sig.QualitySINR = "Fair"
+			sig.SINRPct = 50
+		} else {
+			sig.QualitySINR = "Poor"
+			sig.SINRPct = 25
+		}
+	} else {
+		sig.QualitySINR = "Unknown"
+		sig.SINRPct = 0
+	}
+}
+
 // GetSignalInfo parses telephony registry dumpsys or AT commands to construct a SignalInfo struct.
 func GetSignalInfo() (SignalInfo, error) {
 	sig := SignalInfo{
@@ -211,56 +279,166 @@ func GetSignalInfo() (SignalInfo, error) {
 		CellID:      "Unknown",
 		TAC:         "Unknown",
 		PCI:         "Unknown",
+		Bandwidth:   "Unknown",
 	}
 
-	out, err := exec.Command(config.SUBin, "-c", "dumpsys telephony.registry 2>/dev/null | grep -E 'mSignalStrength|mServiceState|mCellIdentity' | head -n 30").Output()
+	out, err := exec.Command(config.SUBin, "-c", "dumpsys telephony.registry 2>/dev/null | grep -E 'mSignalStrength|mServiceState|mCellIdentity|mOperatorAlpha|mAlphaLong|mAlphaShort|mPci|mCi|mTac|mEarfcn|mLteBandwidth' | head -n 60").Output()
 	if err == nil && len(out) > 0 {
 		lines := strings.Split(string(out), "\n")
 		for _, line := range lines {
 			line = strings.TrimSpace(line)
+
+			// Signal metrics
 			if strings.Contains(line, "rsrp=") || strings.Contains(line, "rsrp:") {
-				sig.RSRP = extractIntFromLine(line, "rsrp")
+				if val := extractIntFromLine(line, "rsrp"); val != -999 && val != 2147483647 {
+					sig.RSRP = val
+				}
 			}
 			if strings.Contains(line, "rsrq=") || strings.Contains(line, "rsrq:") {
-				sig.RSRQ = extractIntFromLine(line, "rsrq")
+				if val := extractIntFromLine(line, "rsrq"); val != -999 && val != 2147483647 {
+					sig.RSRQ = val
+				}
 			}
 			if strings.Contains(line, "rssi=") || strings.Contains(line, "rssi:") {
-				sig.RSSI = extractIntFromLine(line, "rssi")
+				if val := extractIntFromLine(line, "rssi"); val != -999 && val != 2147483647 {
+					sig.RSSI = val
+				}
 			}
-			if strings.Contains(line, "mOperatorAlphaLong=") {
-				parts := strings.Split(line, "mOperatorAlphaLong=")
+			if strings.Contains(line, "rssnr=") || strings.Contains(line, "snr=") || strings.Contains(line, "sinr=") {
+				if val := extractIntFromLine(line, "rssnr"); val != -999 && val != 2147483647 {
+					sig.SINR = val
+				} else if val := extractIntFromLine(line, "snr"); val != -999 && val != 2147483647 {
+					sig.SINR = val
+				} else if val := extractIntFromLine(line, "sinr"); val != -999 && val != 2147483647 {
+					sig.SINR = val
+				}
+			}
+
+			// Operator name parsing
+			if strings.Contains(line, "mOperatorAlphaLong=") || strings.Contains(line, "mAlphaLong=") {
+				op := extractStringValue(line)
+				if op != "" && op != "null" && op != "Unknown" {
+					sig.Operator = op
+				}
+			} else if sig.Operator == "Unknown" && (strings.Contains(line, "mOperatorAlphaShort=") || strings.Contains(line, "mAlphaShort=")) {
+				op := extractStringValue(line)
+				if op != "" && op != "null" && op != "Unknown" {
+					sig.Operator = op
+				}
+			}
+
+			// Cell details
+			if strings.Contains(line, "mCi=") || strings.Contains(line, "cellId=") {
+				if ci := extractIntFromLine(line, "mCi"); ci != -999 && ci != 2147483647 {
+					sig.CellID = fmt.Sprintf("%d", ci)
+				} else if ci := extractIntFromLine(line, "cellId"); ci != -999 && ci != 2147483647 {
+					sig.CellID = fmt.Sprintf("%d", ci)
+				}
+			}
+			if strings.Contains(line, "mPci=") || strings.Contains(line, "pci=") {
+				if pci := extractIntFromLine(line, "mPci"); pci != -999 && pci != 2147483647 {
+					sig.PCI = fmt.Sprintf("%d", pci)
+				} else if pci := extractIntFromLine(line, "pci"); pci != -999 && pci != 2147483647 {
+					sig.PCI = fmt.Sprintf("%d", pci)
+				}
+			}
+			if strings.Contains(line, "mTac=") || strings.Contains(line, "tac=") {
+				if tac := extractIntFromLine(line, "mTac"); tac != -999 && tac != 2147483647 {
+					sig.TAC = fmt.Sprintf("%d", tac)
+				} else if tac := extractIntFromLine(line, "tac"); tac != -999 && tac != 2147483647 {
+					sig.TAC = fmt.Sprintf("%d", tac)
+				}
+			}
+			if strings.Contains(line, "mEarfcn=") || strings.Contains(line, "earfcn=") {
+				if earfcn := extractIntFromLine(line, "mEarfcn"); earfcn != -999 && earfcn != 2147483647 {
+					sig.EARFCN = earfcn
+				} else if earfcn := extractIntFromLine(line, "earfcn"); earfcn != -999 && earfcn != 2147483647 {
+					sig.EARFCN = earfcn
+				}
+			}
+			if strings.Contains(line, "mLteBandwidth=") || strings.Contains(line, "mBandwidth=") {
+				if bw := extractIntFromLine(line, "mLteBandwidth"); bw != -999 && bw > 0 {
+					sig.Bandwidth = fmt.Sprintf("%d MHz", bw/1000)
+				} else if bw := extractIntFromLine(line, "mBandwidth"); bw != -999 && bw > 0 {
+					sig.Bandwidth = fmt.Sprintf("%d MHz", bw)
+				}
+			}
+			if strings.Contains(line, "mBand=") || strings.Contains(line, "mBands=") {
+				parts := strings.Split(line, "=")
 				if len(parts) > 1 {
-					op := strings.Trim(strings.Fields(parts[1])[0], "\",")
-					if op != "" && op != "null" {
-						sig.Operator = op
+					bStr := strings.Trim(strings.Fields(parts[1])[0], "\",[]")
+					if bStr != "" && bStr != "null" && bStr != "0" {
+						sig.Band = "B" + bStr
 					}
 				}
 			}
-			if strings.Contains(line, "mBand=") || strings.Contains(line, "mBandwidth=") {
-				parts := strings.Split(line, "mBand=")
-				if len(parts) > 1 {
-					sig.Band = strings.Trim(strings.Fields(parts[1])[0], "\",")
-				}
-			}
-		}
-		return sig, nil
-	}
-
-	// AT command fallback for Qualcomm signal information
-	atResp := ExecuteATCommand("AT+CSQ")
-	if atResp.Success {
-		fields := strings.Split(atResp.Response, ":")
-		if len(fields) > 1 {
-			vals := strings.Split(strings.TrimSpace(fields[1]), ",")
-			if len(vals) > 0 {
-				if csq, err := strconv.Atoi(strings.TrimSpace(vals[0])); err == nil && csq != 99 {
-					sig.RSSI = -113 + (csq * 2)
-				}
-			}
 		}
 	}
 
+	// AT command fallback for Operator & Signal Info if unknown
+	if sig.Operator == "Unknown" || sig.RSRP == -999 {
+		if cops := ExecuteATCommand("AT+COPS?"); cops.Success {
+			re := regexp.MustCompile(`"([^"]+)"`)
+			matches := re.FindStringSubmatch(cops.Response)
+			if len(matches) > 1 && matches[1] != "" {
+				sig.Operator = matches[1]
+			}
+		}
+
+		if qeng := ExecuteATCommand("AT+QENG=\"servingcell\""); qeng.Success {
+			// Parse Qualcomm QENG: +QENG: "servingcell","NOCONN","LTE","FDD",510,11,123456,142,1800,3,5,5,1A,-85,-10,-60,15,22
+			parts := strings.Split(qeng.Response, ",")
+			if len(parts) >= 15 {
+				if pci, err := strconv.Atoi(strings.TrimSpace(parts[7])); err == nil {
+					sig.PCI = fmt.Sprintf("%d", pci)
+				}
+				if earfcn, err := strconv.Atoi(strings.TrimSpace(parts[8])); err == nil {
+					sig.EARFCN = earfcn
+				}
+				if rsrp, err := strconv.Atoi(strings.TrimSpace(parts[13])); err == nil {
+					sig.RSRP = rsrp
+				}
+				if rsrq, err := strconv.Atoi(strings.TrimSpace(parts[14])); err == nil {
+					sig.RSRQ = rsrq
+				}
+				if len(parts) >= 17 {
+					if sinr, err := strconv.Atoi(strings.TrimSpace(parts[16])); err == nil {
+						sig.SINR = sinr
+					}
+				}
+			}
+		}
+
+		if sig.RSRP == -999 {
+			if csq := ExecuteATCommand("AT+CSQ"); csq.Success {
+				fields := strings.Split(csq.Response, ":")
+				if len(fields) > 1 {
+					vals := strings.Split(strings.TrimSpace(fields[1]), ",")
+					if len(vals) > 0 {
+						if val, err := strconv.Atoi(strings.TrimSpace(vals[0])); err == nil && val != 99 {
+							sig.RSSI = -113 + (val * 2)
+							sig.RSRP = sig.RSSI - 15
+						}
+					}
+				}
+			}
+		}
+	}
+
+	CalculateSignalMetrics(&sig)
 	return sig, nil
+}
+
+func extractStringValue(line string) string {
+	parts := strings.Split(line, "=")
+	if len(parts) > 1 {
+		val := strings.Trim(strings.Fields(parts[1])[0], "\",;")
+		val = strings.TrimSpace(val)
+		if val != "" && val != "null" && val != "Unknown" {
+			return val
+		}
+	}
+	return ""
 }
 
 func extractIntFromLine(line, key string) int {
@@ -351,55 +529,51 @@ func (m *Manager) ApplyBandLock(cfg BandConfig) error {
 		hexMask = BandsToHexBitmask(cfg.LTEBands)
 	}
 
-	switch cfg.Engine {
-	case "qualcomm_at":
-		// Format 1: Qualcomm AT+QNWPREFCFG band lock
-		var lteJoin []string
-		for _, b := range cfg.LTEBands {
-			lteJoin = append(lteJoin, fmt.Sprintf("%d", b))
-		}
-		bandStr := strings.Join(lteJoin, ":")
-
-		atCmd := fmt.Sprintf("AT+QNWPREFCFG=\"lte_band\",%s", bandStr)
-		resp := ExecuteATCommand(atCmd)
-		if !resp.Success {
-			// Fallback Format 2: NV write / SYSCONFIG
-			resp = ExecuteATCommand(fmt.Sprintf("AT^SYSCONFIG=14,2,2,4,%s", hexMask))
-			if !resp.Success {
-				logger.Get().Warnf("Modem", "Qualcomm AT band lock fallback attempted: %s", resp.Response)
-			}
-		}
-		logger.Get().Infof("Modem", "Applied Qualcomm AT Band Lock (mask: %s)", hexMask)
-
-	case "universal", "intent":
-		// Android Radio CMD framework locking
-		var cmds []string
-
-		// Set preferred network mode
-		ratVal := "9" // LTE / GSM / WCDMA auto
-		switch cfg.PreferredRAT {
-		case "5g_only":
-			ratVal = "26" // NR 5G Only
-		case "4g_only":
-			ratVal = "11" // LTE Only
-		case "3g_only":
-			ratVal = "2" // WCDMA Only
-		}
-
-		cmds = append(cmds, fmt.Sprintf("cmd phone set-preferred-network-type %s 2>/dev/null || true", ratVal))
-
-		// Apply LTE band mode bitmask if provided
-		if len(cfg.LTEBands) > 0 {
-			cmds = append(cmds, fmt.Sprintf("cmd phone lte-set-band-mode %s 2>/dev/null || true", hexMask))
-		}
-
-		execCmdStr := strings.Join(cmds, " && ")
-		out, err := config.ExecSuTimeout(5*time.Second, execCmdStr)
-		if err != nil {
-			logger.Get().Warnf("Modem", "Universal band lock executed with out: %s", string(out))
-		}
-		logger.Get().Infof("Modem", "Applied Universal Band Lock (RAT: %s, mask: %s)", cfg.PreferredRAT, hexMask)
+	var lteJoin []string
+	for _, b := range cfg.LTEBands {
+		lteJoin = append(lteJoin, fmt.Sprintf("%d", b))
 	}
+	bandStr := strings.Join(lteJoin, ":")
+
+	// Attempt Qualcomm AT Command direct band lock
+	if bandStr != "" {
+		_ = ExecuteATCommand(fmt.Sprintf("AT+QNWPREFCFG=\"lte_band\",%s", bandStr))
+		_ = ExecuteATCommand(fmt.Sprintf("AT^SYSCONFIG=14,2,2,4,%s", hexMask))
+	}
+
+	// Determine Android radio network mode value
+	ratVal := "9" // Hybrid/Auto default
+	switch cfg.PreferredRAT {
+	case "5g_only":
+		ratVal = "26" // NR 5G Only
+	case "4g_only", "lte_only":
+		ratVal = "11" // LTE Only
+	case "3g_only":
+		ratVal = "2" // WCDMA Only
+	}
+
+	// Apply settings & network modes (supports Android 9 through Android 16)
+	var cmds []string
+	cmds = append(cmds, fmt.Sprintf("settings put global preferred_network_mode %s 2>/dev/null || true", ratVal))
+	cmds = append(cmds, fmt.Sprintf("settings put global preferred_network_mode1 %s 2>/dev/null || true", ratVal))
+	cmds = append(cmds, fmt.Sprintf("settings put global preferred_network_mode2 %s 2>/dev/null || true", ratVal))
+	cmds = append(cmds, fmt.Sprintf("cmd phone set-preferred-network-type %s 2>/dev/null || true", ratVal))
+
+	if len(cfg.LTEBands) > 0 {
+		cmds = append(cmds, fmt.Sprintf("cmd phone lte-set-band-mode %s 2>/dev/null || true", hexMask))
+	}
+
+	// Airplane Mode Cycle to force radio stack to tear down and re-register on target band
+	cmds = append(cmds, "settings put global airplane_mode_on 1 && am broadcast -a android.intent.action.AIRPLANE_MODE --ez state true >/dev/null 2>&1")
+	cmds = append(cmds, "sleep 1")
+	cmds = append(cmds, "settings put global airplane_mode_on 0 && am broadcast -a android.intent.action.AIRPLANE_MODE --ez state false >/dev/null 2>&1")
+
+	execCmdStr := strings.Join(cmds, " && ")
+	out, err := config.ExecSuTimeout(8*time.Second, execCmdStr)
+	if err != nil {
+		logger.Get().Warnf("Modem", "Band lock execution notice (out: %s)", string(out))
+	}
+	logger.Get().Infof("Modem", "Applied Band Lock (RAT: %s, Bands: %s, mask: %s)", cfg.PreferredRAT, bandStr, hexMask)
 
 	return nil
 }

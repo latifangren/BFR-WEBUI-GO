@@ -9,7 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [1.2.1] - 2026-08-23
+## [1.2.1] - 2026-08-26
+
+### Changed
+- **Default HTTP Server Port Change**: Changed default WebUI server HTTP bind port from `8080` to `80` across server flag fallbacks, sysinfo checkers, tunnel forwarders, shell setup scripts, and system documentation.
 
 ### Fixed
 - **Navbar Dropdown Submenu Stacking Context in Modern Clean Style**: Fixed desktop navigation category dropdown submenu clipping where main content cards overlay dropdown menus due to missing z-index rules in precompiled Tailwind build. Added CSS z-index governance rules in `base.css` (`header` at `z-index: 1000`, `nav div.absolute` at `z-index: 1050`, `.nav-dropdown` at `z-index: 1060`) and static utility classes `.z-60` to `.z-999`.
@@ -18,6 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **English Translation Standardization**: Standardized all UI texts, modal dialogs, and error messages to English.
 
 ### Added
+- **Modem Signal Quality Metrics & Percentage Calculations**: Added EARFCN parsing, signal percentages (`RSRPPct`, `RSRQPct`, `SINRPct`), and quality rating indicators (`QualityRSRP`, `QualityRSRQ`, `QualitySINR`) to cellular modem status engine.
 - **Multi-Preset Color Theme Architecture & Appearance Options Modal**: Added support for 7 preset color themes (**Dark**, **Light**, **Dracula**, **Nord**, **Cyberpunk**, **Emerald**, **Sunset**) managed via `data-theme="..."` CSS variables on `<html>`. Replaced separate theme/style buttons in Header with a unified **🎨 Appearance** modal dialog featuring real-time component previews.
 - **Dynamic System Properties via `tweaks.json`**: Converted `system.prop` into a clean placeholder file to prevent Magisk/KernelSU from forcing static boot properties (`ro.telephony.default_network`, `dalvik.vm.*`, `net.tcp.buffersize.*`) when network tweaks are set to `false`. All optimizations are now dynamically driven 100% by `tweaks.json` & WebUI toggles.
 

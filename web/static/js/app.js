@@ -44,6 +44,7 @@ function dashboard() {
                     this.fetchSSHStatus();
                     this.fetchTelegramStatus();
                     this.fetchCloudConfig();
+                    if (typeof this.initModem === 'function') this.initModem();
                     this.startLogsPolling();
                 }
             },
@@ -82,6 +83,9 @@ function dashboard() {
                     this.initTerminal();
                 } else if (tab === 'sms' && typeof this.fetchSMS === 'function') {
                     this.fetchSMS();
+                } else if (tab === 'modem' && typeof this.fetchModemSignal === 'function') {
+                    this.fetchModemSignal();
+                    if (typeof this.loadBandConfig === 'function') this.loadBandConfig();
                 }
             },
 

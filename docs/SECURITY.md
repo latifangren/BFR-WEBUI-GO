@@ -40,7 +40,7 @@ Because **BFR-WEBUI-GO** runs as a root process on Android devices via Magisk / 
    export BFR_PASSWORD="YourStrongCustomPasswordHere"
    ```
 2. **Bind to Private Networks**:
-   Avoid exposing port `8080` to public untrusted Wi-Fi networks unless protected by a secure local firewall or VPN.
+   Avoid exposing port `80` to public untrusted Wi-Fi networks unless protected by a secure local firewall or VPN.
 
 ---
 

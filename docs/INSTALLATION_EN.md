@@ -78,11 +78,11 @@ If you wish to test or install the binary manually without wrapping it into a zi
 2. Open any web browser (Chrome, Kiwi, Firefox, etc.) on your Android device or another device on the same local network.
 3. Access the URL:
    ```text
-   http://localhost:8080
+   http://localhost:80
    ```
    *Or from another device in the same local network:*
    ```text
-   http://<YOUR_ANDROID_IP>:8080
+   http://<YOUR_ANDROID_IP>:80
    ```
 4. Enter the default password on login:
    ```text
@@ -98,7 +98,7 @@ You can override default password, ports, or paths by setting **Environment Vari
 Example adding a custom password inside `/data/adb/modules/bfr_webui_go/service.sh`:
 
 ```bash
-export PORT=8080
+export PORT=80
 export BFR_PASSWORD="YourSuperSecurePassword123"
 export BFR_SU_BIN="ksu"  # if using KernelSU root manager
 $MODDIR/bfr_webui_go > /dev/null 2>&1 &

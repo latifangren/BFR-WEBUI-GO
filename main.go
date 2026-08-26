@@ -24,7 +24,7 @@ import (
 func main() {
 	logger.SetupGlobalLogHook()
 
-	port := flag.String("port", "8080", "HTTP server port")
+	port := flag.String("port", "80", "HTTP server port")
 	applyTweaks := flag.Bool("apply-tweaks", false, "Apply all optimized network tweaks and exit")
 	flag.Parse()
 

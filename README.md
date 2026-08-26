@@ -66,7 +66,7 @@ See[`env.example`](./env.example) for baseline templates:
 
 | Variable | Default Value | Description |
 |---|---|---|
-| `PORT` | `8080` | HTTP WebUI server bind port |
+| `PORT` | `80` | HTTP WebUI server bind port |
 | `BFR_PASSWORD` | `bfr` | Sign-in access password |
 | `BFR_SU_BIN` | `su` | Root executor binary binary (e.g. `su`, `ksu`, `apatch`) |
 | `BFR_MODULE_DIR` | `/data/adb/modules/bfr_webui_go` | Base module install path |

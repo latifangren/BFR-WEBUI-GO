@@ -89,7 +89,7 @@ func TestManager_CustomPassword(t *testing.T) {
 
 func TestManager_RateLimiting(t *testing.T) {
 	m, _ := setupTestAuthManager(t, "secret")
-	remoteAddr := "10.0.0.1:8080"
+	remoteAddr := "10.0.0.1:80"
 
 	// 5 failed attempts
 	for i := 0; i < 5; i++ {
@@ -112,7 +112,7 @@ func TestManager_RateLimiting(t *testing.T) {
 	}
 
 	// Different IP should not be rate limited
-	_, okOther, rateLimitedOther := m.Authenticate("secret", "10.0.0.2:8080")
+	_, okOther, rateLimitedOther := m.Authenticate("secret", "10.0.0.2:80")
 	if !okOther || rateLimitedOther {
 		t.Errorf("different IP should authenticate successfully and not be rate limited")
 	}

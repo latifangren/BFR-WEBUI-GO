@@ -109,6 +109,26 @@ func TestLoadAndSaveConfig(t *testing.T) {
 	}
 }
 
+func TestCalculateSignalMetrics(t *testing.T) {
+	sig := modem.SignalInfo{
+		RSRP: -80,
+		RSRQ: -8,
+		SINR: 25,
+	}
+
+	modem.CalculateSignalMetrics(&sig)
+
+	if sig.QualityRSRP != "Excellent" || sig.RSRPPct != 100 {
+		t.Errorf("expected Excellent RSRP metrics, got quality=%s pct=%d", sig.QualityRSRP, sig.RSRPPct)
+	}
+	if sig.QualityRSRQ != "Excellent" || sig.RSRQPct != 100 {
+		t.Errorf("expected Excellent RSRQ metrics, got quality=%s pct=%d", sig.QualityRSRQ, sig.RSRQPct)
+	}
+	if sig.QualitySINR != "High Speed" || sig.SINRPct != 100 {
+		t.Errorf("expected High Speed SINR metrics, got quality=%s pct=%d", sig.QualitySINR, sig.SINRPct)
+	}
+}
+
 func TestApplyAndResetBandLock(t *testing.T) {
 	tempDir := t.TempDir()
 	t.Setenv("BFR_DATA_DIR", tempDir)

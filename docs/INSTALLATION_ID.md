@@ -78,11 +78,11 @@ Jika Anda ingin memasang atau menguji binary secara manual tanpa membuat paket m
 2. Buka browser (Chrome, Kiwi, Firefox, dll) di perangkat Android Anda atau perangkat lain di jaringan lokal yang sama.
 3. Masuk ke URL:
    ```text
-   http://localhost:8080
+   http://localhost:80
    ```
    *Atau dari perangkat lain di Wi-Fi yang sama:*
    ```text
-   http://<IP_ANDROID_ANDA>:8080
+   http://<IP_ANDROID_ANDA>:80
    ```
 4. Masukkan password default saat login:
    ```text
@@ -98,7 +98,7 @@ Anda dapat merubah password, port, atau path default dengan menyetel **Environme
 Contoh menambahkan password kustom di `/data/adb/modules/bfr_webui_go/service.sh`:
 
 ```bash
-export PORT=8080
+export PORT=80
 export BFR_PASSWORD="PasswordSangatAman123"
 export BFR_SU_BIN="ksu"  # jika menggunakan KernelSU
 $MODDIR/bfr_webui_go > /dev/null 2>&1 &

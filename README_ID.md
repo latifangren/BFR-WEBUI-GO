@@ -67,7 +67,7 @@ Templat acuan lengkap dapat dilihat di berkas [`env.example`](./env.example):
 
 | Variabel | Nilai Bawaan | Deskripsi |
 |---|---|---|
-| `PORT` | `8080` | Port HTTP layanan WebUI |
+| `PORT` | `80` | Port HTTP layanan WebUI |
 | `BFR_PASSWORD` | `bfr` | Kata sandi masuk WebUI |
 | `BFR_SU_BIN` | `su` | Jalur biner root executor (seperti `su`, `ksu`, `apatch`) |
 | `BFR_MODULE_DIR` | `/data/adb/modules/bfr_webui_go` | Direktori instalasi modul |

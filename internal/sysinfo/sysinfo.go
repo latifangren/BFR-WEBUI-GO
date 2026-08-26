@@ -744,7 +744,7 @@ func getActiveServices() []ServiceStatus {
 		checkService("Clash Core", "clash", 9090, "mihomo", "clash"),
 		checkService("SSH Daemon", "ssh", 22, "sshd", "dropbear"),
 		checkService("ADB Wireless", "adb", 5555, "adbd"),
-		checkService("Web UI Server", "webui", 8080),
+		checkService("Web UI Server", "webui", 80),
 	}
 }
 

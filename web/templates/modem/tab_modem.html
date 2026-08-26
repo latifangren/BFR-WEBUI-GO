@@ -29,21 +29,21 @@
         </div>
     </div>
 
-    <!-- Signal Quality Metrics Grid (RSRP, RSRQ, SINR, CQI) -->
+    <!-- Signal Quality Metrics Grid (RSRP, RSRQ, SINR, Tower Info) -->
     <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
         <!-- RSRP Metric -->
         <div class="bg-zinc-950 p-4 rounded-2xl border border-zinc-800 flex flex-col justify-between">
             <div class="flex justify-between items-center">
                 <span class="text-[10px] font-mono font-bold uppercase tracking-wider text-zinc-500">RSRP (Power)</span>
-                <span class="text-[10px] font-mono font-bold text-emerald-400">Excellent</span>
+                <span class="text-[10px] font-mono font-bold" :class="rsrpPct >= 75 ? 'text-emerald-400' : (rsrpPct >= 50 ? 'text-amber-400' : 'text-red-400')" x-text="qualityRSRP || 'Good'"></span>
             </div>
             <div class="mt-2 flex items-baseline gap-2">
-                <span class="text-2xl font-black font-mono text-white" x-text="signalRSRP || '-85'"></span>
+                <span class="text-2xl font-black font-mono text-white" x-text="signalRSRP || '-99'"></span>
                 <span class="text-xs font-mono text-zinc-400">dBm</span>
             </div>
             <!-- Progress indicator -->
             <div class="w-full bg-zinc-900 h-1.5 rounded-full mt-3 overflow-hidden">
-                <div class="bg-emerald-500 h-full rounded-full" style="width: 80%"></div>
+                <div class="h-full rounded-full transition-all duration-300" :class="rsrpPct >= 75 ? 'bg-emerald-500' : (rsrpPct >= 50 ? 'bg-amber-500' : 'bg-red-500')" :style="'width: ' + (rsrpPct || 50) + '%'"></div>
             </div>
         </div>
 
@@ -51,14 +51,14 @@
         <div class="bg-zinc-950 p-4 rounded-2xl border border-zinc-800 flex flex-col justify-between">
             <div class="flex justify-between items-center">
                 <span class="text-[10px] font-mono font-bold uppercase tracking-wider text-zinc-500">RSRQ (Quality)</span>
-                <span class="text-[10px] font-mono font-bold text-emerald-400">Good</span>
+                <span class="text-[10px] font-mono font-bold" :class="rsrqPct >= 75 ? 'text-emerald-400' : (rsrqPct >= 50 ? 'text-amber-400' : 'text-red-400')" x-text="qualityRSRQ || 'Good'"></span>
             </div>
             <div class="mt-2 flex items-baseline gap-2">
-                <span class="text-2xl font-black font-mono text-white" x-text="signalRSRQ || '-10'"></span>
+                <span class="text-2xl font-black font-mono text-white" x-text="signalRSRQ || '-12'"></span>
                 <span class="text-xs font-mono text-zinc-400">dB</span>
             </div>
             <div class="w-full bg-zinc-900 h-1.5 rounded-full mt-3 overflow-hidden">
-                <div class="bg-emerald-400 h-full rounded-full" style="width: 75%"></div>
+                <div class="h-full rounded-full transition-all duration-300" :class="rsrqPct >= 75 ? 'bg-emerald-400' : (rsrqPct >= 50 ? 'bg-amber-400' : 'bg-red-400')" :style="'width: ' + (rsrqPct || 50) + '%'"></div>
             </div>
         </div>
 
@@ -66,14 +66,14 @@
         <div class="bg-zinc-950 p-4 rounded-2xl border border-zinc-800 flex flex-col justify-between">
             <div class="flex justify-between items-center">
                 <span class="text-[10px] font-mono font-bold uppercase tracking-wider text-zinc-500">SINR (Signal/Noise)</span>
-                <span class="text-[10px] font-mono font-bold text-sky-400">High Speed</span>
+                <span class="text-[10px] font-mono font-bold" :class="sinrPct >= 75 ? 'text-sky-400' : (sinrPct >= 50 ? 'text-amber-400' : 'text-red-400')" x-text="qualitySINR || 'Good'"></span>
             </div>
             <div class="mt-2 flex items-baseline gap-2">
-                <span class="text-2xl font-black font-mono text-white" x-text="signalSINR || '22'"></span>
+                <span class="text-2xl font-black font-mono text-white" x-text="signalSINR || '15'"></span>
                 <span class="text-xs font-mono text-zinc-400">dB</span>
             </div>
             <div class="w-full bg-zinc-900 h-1.5 rounded-full mt-3 overflow-hidden">
-                <div class="bg-sky-400 h-full rounded-full" style="width: 85%"></div>
+                <div class="h-full rounded-full transition-all duration-300" :class="sinrPct >= 75 ? 'bg-sky-400' : (sinrPct >= 50 ? 'bg-amber-400' : 'bg-red-400')" :style="'width: ' + (sinrPct || 50) + '%'"></div>
             </div>
         </div>
 
@@ -81,12 +81,12 @@
         <div class="bg-zinc-950 p-4 rounded-2xl border border-zinc-800 flex flex-col justify-between">
             <span class="text-[10px] font-mono font-bold uppercase tracking-wider text-zinc-500">Connected Tower</span>
             <div class="mt-2">
-                <span class="text-base font-black font-mono text-white block truncate" x-text="carrierName || 'Telkomsel SELULAR'"></span>
-                <span class="text-xs font-mono text-blue-400 font-bold" x-text="'Cell ID: ' + (cellID || '2489102')"></span>
+                <span class="text-base font-black font-mono text-white block truncate" x-text="carrierName || 'Searching...'"></span>
+                <span class="text-xs font-mono text-blue-400 font-bold" x-text="'Cell ID: ' + cellID + (earfcnVal && earfcnVal !== '-' ? ' (EARFCN: ' + earfcnVal + ')' : '')"></span>
             </div>
             <div class="mt-3 pt-2 border-t border-zinc-900 flex justify-between text-[11px] font-mono">
                 <span class="text-zinc-500">PCI / Bandwidth:</span>
-                <span class="text-zinc-300 font-bold" x-text="(pciVal || '142') + ' / 20 MHz'"></span>
+                <span class="text-zinc-300 font-bold" x-text="pciVal + ' / ' + bandwidthVal"></span>
             </div>
         </div>
     </div>
@@ -98,37 +98,98 @@
             <!-- LTE / 5G Band Locking Card -->
             <div class="bg-zinc-950 p-5 rounded-2xl border border-zinc-800 space-y-4">
                 <h3 class="text-sm font-bold uppercase tracking-wider font-mono text-white flex items-center gap-2 border-b border-zinc-900 pb-3">
-                    <span class="text-blue-400">🔒</span> LTE Band Lock
+                    <span class="text-blue-400">🔒</span> LTE / 5G Band Lock
                 </h3>
 
                 <div class="space-y-3 font-mono text-xs">
-                    <p class="text-[11px] text-zinc-400">Pilih frekuensi LTE yang ingin dikunci di modem:</p>
+                    <p class="text-[11px] text-zinc-400">Pilih frekuensi LTE & 5G yang ingin dikunci di modem:</p>
 
-                    <div class="grid grid-cols-2 gap-2">
-                        <label class="p-2.5 rounded-xl bg-zinc-900 border border-zinc-800 flex items-center justify-between cursor-pointer hover:border-blue-500/50 transition">
-                            <span class="text-white font-bold">B1 (2100 MHz)</span>
-                            <input type="checkbox" value="B1" x-model="selectedBands" class="rounded bg-zinc-950 border-zinc-700 text-blue-500 focus:ring-0">
-                        </label>
-                        <label class="p-2.5 rounded-xl bg-zinc-900 border border-zinc-800 flex items-center justify-between cursor-pointer hover:border-blue-500/50 transition">
-                            <span class="text-white font-bold">B3 (1800 MHz)</span>
-                            <input type="checkbox" value="B3" x-model="selectedBands" class="rounded bg-zinc-950 border-zinc-700 text-blue-500 focus:ring-0">
-                        </label>
-                        <label class="p-2.5 rounded-xl bg-zinc-900 border border-zinc-800 flex items-center justify-between cursor-pointer hover:border-blue-500/50 transition">
-                            <span class="text-white font-bold">B5 (850 MHz)</span>
-                            <input type="checkbox" value="B5" x-model="selectedBands" class="rounded bg-zinc-950 border-zinc-700 text-blue-500 focus:ring-0">
-                        </label>
-                        <label class="p-2.5 rounded-xl bg-zinc-900 border border-zinc-800 flex items-center justify-between cursor-pointer hover:border-blue-500/50 transition">
-                            <span class="text-white font-bold">B8 (900 MHz)</span>
-                            <input type="checkbox" value="B8" x-model="selectedBands" class="rounded bg-zinc-950 border-zinc-700 text-blue-500 focus:ring-0">
-                        </label>
-                        <label class="p-2.5 rounded-xl bg-zinc-900 border border-zinc-800 flex items-center justify-between cursor-pointer hover:border-blue-500/50 transition">
-                            <span class="text-white font-bold">B40 (2300 MHz)</span>
-                            <input type="checkbox" value="B40" x-model="selectedBands" class="rounded bg-zinc-950 border-zinc-700 text-blue-500 focus:ring-0">
-                        </label>
-                        <label class="p-2.5 rounded-xl bg-zinc-900 border border-zinc-800 flex items-center justify-between cursor-pointer hover:border-blue-500/50 transition">
-                            <span class="text-white font-bold">NR n78 (5G)</span>
-                            <input type="checkbox" value="n78" x-model="selectedBands" class="rounded bg-zinc-950 border-zinc-700 text-blue-500 focus:ring-0">
-                        </label>
+                    <div class="space-y-2">
+                        <span class="text-[10px] font-mono font-bold uppercase tracking-wider text-blue-400 block">LTE / 4G Frequency Bands</span>
+                        <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                            <label class="p-2 rounded-xl bg-zinc-900 border border-zinc-800 flex items-center justify-between cursor-pointer hover:border-blue-500/50 transition">
+                                <span class="text-white font-bold text-[11px]">B1 (2100 MHz)</span>
+                                <input type="checkbox" value="B1" x-model="selectedBands" class="rounded bg-zinc-950 border-zinc-700 text-blue-500 focus:ring-0">
+                            </label>
+                            <label class="p-2 rounded-xl bg-zinc-900 border border-zinc-800 flex items-center justify-between cursor-pointer hover:border-blue-500/50 transition">
+                                <span class="text-white font-bold text-[11px]">B3 (1800 MHz)</span>
+                                <input type="checkbox" value="B3" x-model="selectedBands" class="rounded bg-zinc-950 border-zinc-700 text-blue-500 focus:ring-0">
+                            </label>
+                            <label class="p-2 rounded-xl bg-zinc-900 border border-zinc-800 flex items-center justify-between cursor-pointer hover:border-blue-500/50 transition">
+                                <span class="text-white font-bold text-[11px]">B5 (850 MHz)</span>
+                                <input type="checkbox" value="B5" x-model="selectedBands" class="rounded bg-zinc-950 border-zinc-700 text-blue-500 focus:ring-0">
+                            </label>
+                            <label class="p-2 rounded-xl bg-zinc-900 border border-zinc-800 flex items-center justify-between cursor-pointer hover:border-blue-500/50 transition">
+                                <span class="text-white font-bold text-[11px]">B7 (2600 MHz)</span>
+                                <input type="checkbox" value="B7" x-model="selectedBands" class="rounded bg-zinc-950 border-zinc-700 text-blue-500 focus:ring-0">
+                            </label>
+                            <label class="p-2 rounded-xl bg-zinc-900 border border-zinc-800 flex items-center justify-between cursor-pointer hover:border-blue-500/50 transition">
+                                <span class="text-white font-bold text-[11px]">B8 (900 MHz)</span>
+                                <input type="checkbox" value="B8" x-model="selectedBands" class="rounded bg-zinc-950 border-zinc-700 text-blue-500 focus:ring-0">
+                            </label>
+                            <label class="p-2 rounded-xl bg-zinc-900 border border-zinc-800 flex items-center justify-between cursor-pointer hover:border-blue-500/50 transition">
+                                <span class="text-white font-bold text-[11px]">B20 (800 MHz)</span>
+                                <input type="checkbox" value="B20" x-model="selectedBands" class="rounded bg-zinc-950 border-zinc-700 text-blue-500 focus:ring-0">
+                            </label>
+                            <label class="p-2 rounded-xl bg-zinc-900 border border-zinc-800 flex items-center justify-between cursor-pointer hover:border-blue-500/50 transition">
+                                <span class="text-white font-bold text-[11px]">B28 (700 MHz)</span>
+                                <input type="checkbox" value="B28" x-model="selectedBands" class="rounded bg-zinc-950 border-zinc-700 text-blue-500 focus:ring-0">
+                            </label>
+                            <label class="p-2 rounded-xl bg-zinc-900 border border-zinc-800 flex items-center justify-between cursor-pointer hover:border-blue-500/50 transition">
+                                <span class="text-white font-bold text-[11px]">B38 (2600 TDD)</span>
+                                <input type="checkbox" value="B38" x-model="selectedBands" class="rounded bg-zinc-950 border-zinc-700 text-blue-500 focus:ring-0">
+                            </label>
+                            <label class="p-2 rounded-xl bg-zinc-900 border border-zinc-800 flex items-center justify-between cursor-pointer hover:border-blue-500/50 transition">
+                                <span class="text-white font-bold text-[11px]">B40 (2300 TDD)</span>
+                                <input type="checkbox" value="B40" x-model="selectedBands" class="rounded bg-zinc-950 border-zinc-700 text-blue-500 focus:ring-0">
+                            </label>
+                            <label class="p-2 rounded-xl bg-zinc-900 border border-zinc-800 flex items-center justify-between cursor-pointer hover:border-blue-500/50 transition">
+                                <span class="text-white font-bold text-[11px]">B41 (2500 TDD)</span>
+                                <input type="checkbox" value="B41" x-model="selectedBands" class="rounded bg-zinc-950 border-zinc-700 text-blue-500 focus:ring-0">
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="space-y-2 pt-2">
+                        <span class="text-[10px] font-mono font-bold uppercase tracking-wider text-emerald-400 block">5G NR Frequency Bands (SA / NSA)</span>
+                        <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                            <label class="p-2 rounded-xl bg-zinc-900 border border-zinc-800 flex items-center justify-between cursor-pointer hover:border-emerald-500/50 transition">
+                                <span class="text-white font-bold text-[11px]">NR n1 (2100 MHz)</span>
+                                <input type="checkbox" value="n1" x-model="selectedBands" class="rounded bg-zinc-950 border-zinc-700 text-emerald-500 focus:ring-0">
+                            </label>
+                            <label class="p-2 rounded-xl bg-zinc-900 border border-zinc-800 flex items-center justify-between cursor-pointer hover:border-emerald-500/50 transition">
+                                <span class="text-white font-bold text-[11px]">NR n3 (1800 MHz)</span>
+                                <input type="checkbox" value="n3" x-model="selectedBands" class="rounded bg-zinc-950 border-zinc-700 text-emerald-500 focus:ring-0">
+                            </label>
+                            <label class="p-2 rounded-xl bg-zinc-900 border border-zinc-800 flex items-center justify-between cursor-pointer hover:border-emerald-500/50 transition">
+                                <span class="text-white font-bold text-[11px]">NR n5 (850 MHz)</span>
+                                <input type="checkbox" value="n5" x-model="selectedBands" class="rounded bg-zinc-950 border-zinc-700 text-emerald-500 focus:ring-0">
+                            </label>
+                            <label class="p-2 rounded-xl bg-zinc-900 border border-zinc-800 flex items-center justify-between cursor-pointer hover:border-emerald-500/50 transition">
+                                <span class="text-white font-bold text-[11px]">NR n8 (900 MHz)</span>
+                                <input type="checkbox" value="n8" x-model="selectedBands" class="rounded bg-zinc-950 border-zinc-700 text-emerald-500 focus:ring-0">
+                            </label>
+                            <label class="p-2 rounded-xl bg-zinc-900 border border-zinc-800 flex items-center justify-between cursor-pointer hover:border-emerald-500/50 transition">
+                                <span class="text-white font-bold text-[11px]">NR n28 (700 MHz)</span>
+                                <input type="checkbox" value="n28" x-model="selectedBands" class="rounded bg-zinc-950 border-zinc-700 text-emerald-500 focus:ring-0">
+                            </label>
+                            <label class="p-2 rounded-xl bg-zinc-900 border border-zinc-800 flex items-center justify-between cursor-pointer hover:border-emerald-500/50 transition">
+                                <span class="text-white font-bold text-[11px]">NR n40 (2300 TDD)</span>
+                                <input type="checkbox" value="n40" x-model="selectedBands" class="rounded bg-zinc-950 border-zinc-700 text-emerald-500 focus:ring-0">
+                            </label>
+                            <label class="p-2 rounded-xl bg-zinc-900 border border-zinc-800 flex items-center justify-between cursor-pointer hover:border-emerald-500/50 transition">
+                                <span class="text-white font-bold text-[11px]">NR n41 (2500 TDD)</span>
+                                <input type="checkbox" value="n41" x-model="selectedBands" class="rounded bg-zinc-950 border-zinc-700 text-emerald-500 focus:ring-0">
+                            </label>
+                            <label class="p-2 rounded-xl bg-zinc-900 border border-zinc-800 flex items-center justify-between cursor-pointer hover:border-emerald-500/50 transition">
+                                <span class="text-white font-bold text-[11px]">NR n77 (3700 MHz)</span>
+                                <input type="checkbox" value="n77" x-model="selectedBands" class="rounded bg-zinc-950 border-zinc-700 text-emerald-500 focus:ring-0">
+                            </label>
+                            <label class="p-2 rounded-xl bg-zinc-900 border border-zinc-800 flex items-center justify-between cursor-pointer hover:border-emerald-500/50 transition">
+                                <span class="text-white font-bold text-[11px]">NR n78 (3500 MHz)</span>
+                                <input type="checkbox" value="n78" x-model="selectedBands" class="rounded bg-zinc-950 border-zinc-700 text-emerald-500 focus:ring-0">
+                            </label>
+                        </div>
                     </div>
 
                     <div class="pt-2 flex gap-2">
@@ -152,14 +213,14 @@
                     <div>
                         <label class="block text-zinc-400 mb-1 font-bold">Preferred Network Mode</label>
                         <select x-model="preferredMode" class="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-3 py-2 text-zinc-200 focus:border-blue-500 focus:outline-none">
-                            <option value="lte_only">LTE / 4G Only (Recommended)</option>
-                            <option value="nr_lte">5G NR / LTE Auto</option>
-                            <option value="nr_only">5G SA Only</option>
-                            <option value="auto">Auto (LTE/3G/2G Fallback)</option>
+                            <option value="4g_only">LTE / 4G Only (Recommended)</option>
+                            <option value="5g_only">5G SA Only</option>
+                            <option value="hybrid">Hybrid (LTE / 5G / 3G Auto)</option>
+                            <option value="3g_only">3G Only</option>
                         </select>
                     </div>
 
-                    <button type="button" @click="applyNetworkMode()" class="w-full py-2.5 bg-zinc-900 hover:bg-zinc-800 text-blue-400 border border-zinc-700 font-bold uppercase rounded-xl transition active:scale-95">
+                    <button type="button" @click="applyBandLock()" class="w-full py-2.5 bg-zinc-900 hover:bg-zinc-800 text-blue-400 border border-zinc-700 font-bold uppercase rounded-xl transition active:scale-95">
                         Set Network Mode
                     </button>
                 </div>
@@ -177,6 +238,7 @@
                     <div class="flex items-center gap-2">
                         <button type="button" @click="sendATCommand('AT+CSQ')" class="px-2.5 py-1 rounded bg-zinc-900 border border-zinc-800 text-[10px] font-mono font-bold text-zinc-300 hover:text-white">AT+CSQ</button>
                         <button type="button" @click="sendATCommand('AT+COPS?')" class="px-2.5 py-1 rounded bg-zinc-900 border border-zinc-800 text-[10px] font-mono font-bold text-zinc-300 hover:text-white">AT+COPS?</button>
+                        <button type="button" @click="sendATCommand('AT+QENG=\&quot;servingcell\&quot;')" class="px-2.5 py-1 rounded bg-zinc-900 border border-zinc-800 text-[10px] font-mono font-bold text-zinc-300 hover:text-white">+QENG</button>
                         <button type="button" @click="sendATCommand('ATI')" class="px-2.5 py-1 rounded bg-zinc-900 border border-zinc-800 text-[10px] font-mono font-bold text-zinc-300 hover:text-white">ATI</button>
                     </div>
                 </div>
