@@ -12,13 +12,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [1.2.2] - 2026-09-09
 
 ### Added
+- **Tri-Engine Customization Matrix**: Integrated Navigation Layout Engine (`topbar` vs `sidebar`), UI Style Paradigm Engine (`neobrutal` vs `modern`), and Color Palette Engine (8 presets) into a unified 3D Appearance Studio (`AppearanceModal.svelte`).
+- **Modular Navigation Engine (`docs/MODULAR_NAVIGATION_PLAN.md`)**:
+  - **Classic Top Bar (Full-Width)**: Desktop header category pills with hover flyouts and 100% full-width content cards; mobile 5-column bottom navigation with touch-friendly upward popovers.
+  - **Modern Sidebar**: Desktop collapsible accordion groups per category (Core, Network, System, Tools) with state memory and pulsing active-tab dot indicators; mobile clean slide-over drawer without duplicate bars.
+- **Dedicated Hero Login Stage (`LoginCard.svelte`)**: Restored full visual and functional parity with the legacy WebUI, featuring glowing squircle 'B' monogram, amber `PRO` badge, dynamic device model & Android version telemetry, password visibility toggle (eye icon), 1-tap `Quick Access: Default: bfr (Tap to fill)` auto-fill button, pre-login Appearance Studio access, and `CONNECT & COMMUNITY` footer with direct Telegram, Facebook, and GitHub links.
 - **Svelte 5 + Vite + TypeScript Frontend Rewrite**: Complete modern rewrite of the WebUI frontend replacing legacy Alpine.js with Svelte 5 Runes (`$state`, `$derived`, `$props`), full TypeScript strict typing, and modular component hierarchy (`frontend/src/`).
 - **Embedded Single-Binary Distribution (`frontend/embed.go`)**: Go `embed.FS` integration compiling the Vite production bundle (`frontend/dist`) directly into the single Go binary (~10-12MB), maintaining 100% offline-ready Magisk / KernelSU / APatch module operation.
 - **Reactive Navigation & Layout Architecture**: Client-side tab navigation (`stores/navigation.svelte.ts`) with hash routing, category grouping (System, Network, Services, Connectivity, Diagnostics, About), desktop sidebar, and mobile drawer.
 - **Integrated xterm.js Web Terminal**: Native interactive PTY terminal (`TabTerminal.svelte`) over WebSocket with auto-reconnect, dynamic resize fitting, theme synchronisation, and quick-command bar.
 - **Scrcpy Web Stream Mirroring**: Canvas-based H.264 video rendering and touch event forwarding (`TabScrcpy.svelte`) for low-latency Android screen control.
 - **Real-Time Telemetry Streaming**: Optimized WebSocket bridge for continuous hardware sensor updates (CPU per-core stats, memory, thermals, network rates).
-- **Neo-Brutalist Responsive Theme System**: AMOLED dark and light modes with tactile borders, responsive layout grids, and customizable theme settings.
+- **Dual-Style Theme System**: AMOLED dark, light, and 6 additional palettes (Dracula, Nord, Cyberpunk, Emerald, Sunset, Dark Navy) with instant Neobrutalism and Modern Clean style switching.
 
 ### Changed
 - **Modern Build Toolchain**: Transitioned from loose static assets to Vite + Svelte 5 + Tailwind CSS + pnpm build pipeline with strict compilation verification (`svelte-check` and `tsc`).
@@ -27,8 +32,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Charger Limitation Controller**: Updated UI to handle unified PMIC hardware status and battery protection threshold toggling.
 
 ### Fixed
+- **Silent Failure on API Error Responses**: Corrected client-side handling where `{ success: false }` was silently ignored instead of throwing proper error feedback.
+- **Connection Teardown & Lifecycle Leaks**: Added proper disposal for WebSocket subscriptions, debounce timers (`onDestroy`), and xterm instances during tab navigation transitions.
 - **API Endpoint & Contract Mismatches**: Resolved payload discrepancies across Proxy, Charger, VnStat, and Modem modules identified in cross-layer audit.
-- **Connection Teardown & Lifecycle Leaks**: Added proper disposal for WebSocket subscriptions, timers, and xterm instances during tab navigation transitions.
+
+---
+
+## [1.2.1] - 2026-08-26
 
 ### Added
 - **CasaOS-Style Application Dashboard Shortcuts**: Added persistent external application link launcher on Overview tab supporting custom titles, URLs, and icons backed by `shortcuts.json` storage surviving Magisk module updates.

@@ -19,6 +19,7 @@
   import { navigationStore } from '../../stores/navigation.svelte'
   import type { ThemeMode, UIStyle } from '../../types/common'
   import AppearanceModal from './AppearanceModal.svelte'
+  import TopNav from './TopNav.svelte'
 
   const themeOptions: { id: ThemeMode; label: string }[] = [
     { id: 'dark', label: 'Dark' },
@@ -78,18 +79,20 @@
   <div class="max-w-7xl mx-auto px-4 h-14 flex items-center justify-between gap-2">
     <!-- Left: Mobile Menu Toggle & Title -->
     <div class="flex items-center gap-3">
-      <button
-        type="button"
-        class="md:hidden p-1.5 rounded border border-border text-foreground hover:bg-card-sub cursor-pointer"
-        onclick={() => navigationStore.toggleSidebar()}
-        aria-label="Toggle navigation"
-      >
-        {#if navigationStore.sidebarOpen}
-          <X class="w-5 h-5" />
-        {:else}
-          <Menu class="w-5 h-5" />
-        {/if}
-      </button>
+      {#if navigationStore.layout === 'sidebar'}
+        <button
+          type="button"
+          class="md:hidden p-1.5 rounded border border-border text-foreground hover:bg-card-sub cursor-pointer"
+          onclick={() => navigationStore.toggleSidebar()}
+          aria-label="Toggle navigation"
+        >
+          {#if navigationStore.sidebarOpen}
+            <X class="w-5 h-5" />
+          {:else}
+            <Menu class="w-5 h-5" />
+          {/if}
+        </button>
+      {/if}
 
       <div class="flex items-center gap-2">
         <div class="w-7 h-7 bg-accent text-accent-text flex items-center justify-center font-mono font-black text-sm rounded border border-border">
@@ -105,6 +108,11 @@
         </div>
       </div>
     </div>
+
+    <!-- Center Left: TopNav Bar (Desktop, only in topbar layout mode) -->
+    {#if navigationStore.layout === 'topbar'}
+      <TopNav />
+    {/if}
 
     <!-- Center: Quick Telemetry Pills (Progressive Responsive Display) -->
     <div class="hidden sm:flex items-center gap-2 font-mono text-xs">

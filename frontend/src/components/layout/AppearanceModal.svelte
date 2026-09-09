@@ -8,8 +8,15 @@
     Cpu,
     BatteryCharging,
     Sliders,
+    LayoutGrid,
+    PanelLeft,
   } from '@lucide/svelte'
   import { themeStore } from '../../stores/theme.svelte'
+  import {
+    navigationStore,
+    NAV_LAYOUT_REGISTRY,
+    type NavLayoutId,
+  } from '../../stores/navigation.svelte'
   import type { ThemeMode, UIStyle } from '../../types/common'
 
   interface Props {
@@ -175,12 +182,83 @@
         </button>
       </div>
 
-      <!-- Section 1: UI Paradigm (Neobrutal vs Modern) -->
+      <!-- Section 1: Navigation Style Selector -->
+      <div class="space-y-3">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-bold uppercase text-muted tracking-wider flex items-center gap-1.5">
+            <LayoutGrid class="w-3.5 h-3.5 text-accent" />
+            1. Navigation Layout
+          </span>
+          <span class="text-[11px] text-muted">Choose desktop header flyout or left sidebar rail</span>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <!-- Option 1: Classic Top Bar -->
+          <button
+            type="button"
+            class="text-left p-4 rounded border-2 transition-all cursor-pointer relative flex flex-col justify-between {navigationStore.layout === 'topbar' ? 'border-accent bg-card-sub shadow-[4px_4px_0px_0px_var(--neo-accent)]' : 'border-border bg-card hover:border-accent/50'}"
+            onclick={() => navigationStore.setLayout('topbar')}
+          >
+            <div>
+              <div class="flex items-center justify-between mb-1.5">
+                <div class="flex items-center gap-2">
+                  <LayoutGrid class="w-4 h-4 text-accent" />
+                  <span class="text-xs font-bold uppercase text-foreground">Classic Top Bar</span>
+                </div>
+                {#if navigationStore.layout === 'topbar'}
+                  <span class="w-5 h-5 rounded-full bg-accent text-accent-text flex items-center justify-center text-xs font-black">
+                    <Check class="w-3 h-3" />
+                  </span>
+                {/if}
+              </div>
+              <p class="text-[11px] text-muted leading-relaxed">
+                Desktop header flyout dropdowns with 100% full-width cards; mobile bottom popovers.
+              </p>
+            </div>
+
+            <div class="mt-3 pt-2 border-t border-border flex items-center justify-between">
+              <span class="text-[9px] uppercase font-bold text-muted">Layout Mode</span>
+              <span class="text-[10px] font-bold {navigationStore.layout === 'topbar' ? 'text-accent' : 'text-muted'}">FULL WIDTH</span>
+            </div>
+          </button>
+
+          <!-- Option 2: Modern Sidebar -->
+          <button
+            type="button"
+            class="text-left p-4 rounded border-2 transition-all cursor-pointer relative flex flex-col justify-between {navigationStore.layout === 'sidebar' ? 'border-accent bg-card-sub shadow-[4px_4px_0px_0px_var(--neo-accent)]' : 'border-border bg-card hover:border-accent/50'}"
+            onclick={() => navigationStore.setLayout('sidebar')}
+          >
+            <div>
+              <div class="flex items-center justify-between mb-1.5">
+                <div class="flex items-center gap-2">
+                  <PanelLeft class="w-4 h-4 text-accent" />
+                  <span class="text-xs font-bold uppercase text-foreground">Modern Sidebar</span>
+                </div>
+                {#if navigationStore.layout === 'sidebar'}
+                  <span class="w-5 h-5 rounded-full bg-accent text-accent-text flex items-center justify-center text-xs font-black">
+                    <Check class="w-3 h-3" />
+                  </span>
+                {/if}
+              </div>
+              <p class="text-[11px] text-muted leading-relaxed">
+                Desktop collapsible accordion sidebar rail; mobile clean slide-over drawer.
+              </p>
+            </div>
+
+            <div class="mt-3 pt-2 border-t border-border flex items-center justify-between">
+              <span class="text-[9px] uppercase font-bold text-muted">Layout Mode</span>
+              <span class="text-[10px] font-bold {navigationStore.layout === 'sidebar' ? 'text-accent' : 'text-muted'}">RAIL ACCORDION</span>
+            </div>
+          </button>
+        </div>
+      </div>
+
+      <!-- Section 2: UI Paradigm (Neobrutal vs Modern) -->
       <div class="space-y-3">
         <div class="flex items-center justify-between">
           <span class="text-xs font-bold uppercase text-muted tracking-wider flex items-center gap-1.5">
             <Layers class="w-3.5 h-3.5 text-accent" />
-            UI Paradigm Style
+            2. UI Paradigm Style
           </span>
           <span class="text-[11px] text-muted">Select visual grammar</span>
         </div>
@@ -238,12 +316,12 @@
         </div>
       </div>
 
-      <!-- Section 2: Color Themes (8 Palettes) -->
+      <!-- Section 3: Color Themes (8 Palettes) -->
       <div class="space-y-3">
         <div class="flex items-center justify-between">
           <span class="text-xs font-bold uppercase text-muted tracking-wider flex items-center gap-1.5">
             <Sliders class="w-3.5 h-3.5 text-accent" />
-            Color Palettes (8 Themes)
+            3. Color Palettes (8 Themes)
           </span>
           <span class="text-[11px] text-muted">Real-time dynamic CSS tokens</span>
         </div>

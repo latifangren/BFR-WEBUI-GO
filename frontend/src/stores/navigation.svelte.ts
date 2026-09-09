@@ -5,6 +5,44 @@ export interface TabItem {
   category: 'core' | 'system' | 'network' | 'tools'
 }
 
+export type NavLayoutId = 'topbar' | 'sidebar'
+
+export interface NavLayoutConfig {
+  id: NavLayoutId
+  label: string
+  description: string
+  icon: string
+}
+
+export const NAV_LAYOUT_REGISTRY: Record<NavLayoutId, NavLayoutConfig> = {
+  topbar: {
+    id: 'topbar',
+    label: 'Classic Top Bar',
+    description: 'Desktop header flyout dropdowns with 100% full-width cards; mobile bottom popovers.',
+    icon: 'LayoutGrid',
+  },
+  sidebar: {
+    id: 'sidebar',
+    label: 'Modern Sidebar',
+    description: 'Desktop collapsible accordion sidebar rail; mobile clean slide-over drawer.',
+    icon: 'PanelLeft',
+  },
+}
+
+export interface NavCategoryGroup {
+  id: 'core' | 'network' | 'system' | 'tools'
+  label: string
+  icon: string
+  tabs: string[]
+}
+
+export const NAV_CATEGORIES: NavCategoryGroup[] = [
+  { id: 'core', label: 'Core', icon: 'LayoutDashboard', tabs: ['overview', 'sysinfo', 'about'] },
+  { id: 'network', label: 'Network', icon: 'Network', tabs: ['network', 'hotspot', 'proxy', 'modem', 'sms', 'qos', 'vnstat', 'tunnel'] },
+  { id: 'system', label: 'System', icon: 'Cpu', tabs: ['power', 'charger', 'modules'] },
+  { id: 'tools', label: 'Tools', icon: 'Wrench', tabs: ['terminal', 'ssh', 'scrcpy', 'files', 'logs', 'nas', 'speedtest', 'tools', 'telegram'] },
+]
+
 export const AVAILABLE_TABS: TabItem[] = [
   { id: 'overview', label: 'Overview', icon: 'LayoutDashboard', category: 'core' },
   { id: 'sysinfo', label: 'Sysinfo', icon: 'Cpu', category: 'core' },
@@ -34,6 +72,7 @@ export const AVAILABLE_TABS: TabItem[] = [
 class NavigationStore {
   activeTab = $state<string>('sysinfo') // Default to sysinfo for PoC
   sidebarOpen = $state<boolean>(false)
+  layout = $state<NavLayoutId>('topbar')
 
   constructor() {
     if (typeof window !== 'undefined') {
@@ -49,6 +88,30 @@ class NavigationStore {
         }
       })
     }
+
+    if (typeof localStorage !== 'undefined') {
+      const savedLayout = localStorage.getItem('navLayout') as NavLayoutId
+      if (savedLayout && (savedLayout === 'topbar' || savedLayout === 'sidebar')) {
+        this.layout = savedLayout
+      }
+    }
+  }
+
+  setLayout(layout: NavLayoutId) {
+    if (layout !== 'topbar' && layout !== 'sidebar') return
+    this.layout = layout
+    if (typeof localStorage !== 'undefined') {
+      localStorage.setItem('navLayout', layout)
+    }
+  }
+
+  get currentCategory(): 'core' | 'network' | 'system' | 'tools' {
+    const current = AVAILABLE_TABS.find((t) => t.id === this.activeTab)
+    return current ? current.category : 'core'
+  }
+
+  getTabsForCategory(catId: 'core' | 'network' | 'system' | 'tools'): TabItem[] {
+    return AVAILABLE_TABS.filter((t) => t.category === catId)
   }
 
   setTab(tabId: string) {
@@ -59,8 +122,16 @@ class NavigationStore {
     }
   }
 
+  setActiveTab(tabId: string) {
+    this.setTab(tabId)
+  }
+
   toggleSidebar() {
     this.sidebarOpen = !this.sidebarOpen
+  }
+
+  closeSidebar() {
+    this.sidebarOpen = false
   }
 }
 
