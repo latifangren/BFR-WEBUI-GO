@@ -74,10 +74,17 @@
     try {
       isTestingDelay = true
       const res = await api.post<Record<string, number>>('/api/proxy/delay')
-      if (res) delayResults = res
-      toastStore.success('Latency test completed.')
+      if (res && typeof res === 'object') {
+        delayResults = res
+        toastStore.success('Latency test completed.')
+      }
     } catch (err: unknown) {
-      toastStore.error(err instanceof Error ? err.message : 'Latency test failed')
+      const errMsg = err instanceof Error ? err.message : String(err)
+      if (errMsg.includes('404') || errMsg.includes('Not Found')) {
+        toastStore.info('Proxy delay is monitored directly via external controller dashboard (port 9090).')
+      } else {
+        toastStore.error(errMsg || 'Latency test failed')
+      }
     } finally {
       isTestingDelay = false
     }

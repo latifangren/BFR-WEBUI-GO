@@ -13,6 +13,7 @@
   } from '@lucide/svelte'
   import { api } from '../../../api/client'
   import { toastStore } from '../../../stores/toast.svelte'
+  import { WebSocketClient } from '../../../ws/socket'
   import type { LogEntry, LogResponse } from '../../../types/logs'
   import Card from '../../ui/Card.svelte'
   import Button from '../../ui/Button.svelte'
@@ -35,7 +36,7 @@
   let logcatSearch = $state('')
   let autoScroll = $state(true)
   let logcatContainer: HTMLDivElement | null = $state(null)
-  let logcatWs: WebSocket | null = null
+  let logcatClient: WebSocketClient | null = null
 
   onMount(() => {
     fetchDaemonLogs()
@@ -76,28 +77,24 @@
 
   // Live Logcat Stream Handling
   function startLogcatStream() {
-    if (logcatWs && (logcatWs.readyState === WebSocket.OPEN || logcatWs.readyState === WebSocket.CONNECTING)) {
+    if (logcatClient && logcatClient.readyState === WebSocket.OPEN) {
       return
     }
 
-    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:'
-    const host = window.location.host
-    const url = `${protocol}//${host}/api/logs/logcat/stream`
-
-    try {
-      logcatWs = new WebSocket(url)
-      logcatWs.onopen = () => {
+    logcatClient = new WebSocketClient({
+      path: '/api/logs/logcat/stream',
+      autoReconnect: true,
+      onOpen: () => {
         isLogcatStreaming = true
         logcatLines = [...logcatLines, '[+] Connected to Android Logcat Kernel Pipe']
-      }
-
-      logcatWs.onmessage = (e) => {
-        if (typeof e.data === 'string') {
-          const split = e.data.split('\n').filter((l) => l.trim() !== '')
-          // Cap buffer at 1000 lines to prevent Android memory exhaustion
+      },
+      onMessage: (data) => {
+        if (typeof data === 'string') {
+          const split = data.split('\n').filter((l) => l.trim() !== '')
+          // Cap buffer at 500 lines to prevent Android memory exhaustion
           const next = [...logcatLines, ...split]
-          if (next.length > 1000) {
-            logcatLines = next.slice(next.length - 1000)
+          if (next.length > 500) {
+            logcatLines = next.slice(next.length - 500)
           } else {
             logcatLines = next
           }
@@ -110,28 +107,22 @@
             }, 50)
           }
         }
-      }
-
-      logcatWs.onclose = () => {
+      },
+      onClose: () => {
         isLogcatStreaming = false
-      }
-
-      logcatWs.onerror = () => {
+      },
+      onError: () => {
         isLogcatStreaming = false
-      }
-    } catch {
-      isLogcatStreaming = false
-    }
+      },
+    })
+
+    logcatClient.connect()
   }
 
   function stopLogcatStream() {
-    if (logcatWs) {
-      logcatWs.onopen = null
-      logcatWs.onclose = null
-      logcatWs.onerror = null
-      logcatWs.onmessage = null
-      logcatWs.close()
-      logcatWs = null
+    if (logcatClient) {
+      logcatClient.disconnect()
+      logcatClient = null
     }
     isLogcatStreaming = false
   }

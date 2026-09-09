@@ -12,7 +12,7 @@
   } from '@lucide/svelte'
   import { api } from '../../../api/client'
   import { toastStore } from '../../../stores/toast.svelte'
-  import type { HotspotStatus, ConnectedClient } from '../../../types/network'
+  import type { HotspotStatus, ConnectedClient, MACFilterResponse } from '../../../types/hotspot'
   import Card from '../../ui/Card.svelte'
   import Button from '../../ui/Button.svelte'
   import Badge from '../../ui/Badge.svelte'
@@ -28,7 +28,8 @@
 
   // MAC Filter
   let macFilterMode = $state<'disabled' | 'blacklist' | 'whitelist'>('disabled')
-  let macFilterList = $state<string[]>([])
+  let blockedList = $state<string[]>([])
+  let allowedList = $state<string[]>([])
   let newMAC = $state('')
 
   onMount(async () => {
@@ -46,9 +47,10 @@
       clients = Array.isArray(c) ? c : []
 
       try {
-        const filter = await api.get<{ mode?: 'disabled' | 'blacklist' | 'whitelist'; list?: string[] }>('/api/hotspot/mac-filter')
-        if (filter.mode) macFilterMode = filter.mode
-        if (filter.list) macFilterList = filter.list
+        const res = await api.get<MACFilterResponse>('/api/hotspot/mac-filter')
+        macFilterMode = res.config?.mode || 'disabled'
+        blockedList = res.config?.blocked_macs || []
+        allowedList = res.config?.allowed_macs || []
       } catch {
         // Ignored if unconfigured
       }
@@ -96,30 +98,48 @@
     }
   }
 
-  async function addMACRule() {
-    if (!newMAC) return
-    const macClean = newMAC.trim().toUpperCase()
-    if (macFilterList.includes(macClean)) return
-
+  async function saveMACFilter(mode = macFilterMode, bList = blockedList, aList = allowedList) {
     try {
-      const nextList = [...macFilterList, macClean]
-      await api.post('/api/hotspot/mac-filter', { mode: macFilterMode, list: nextList })
-      macFilterList = nextList
-      newMAC = ''
-      toastStore.success(`Rule for ${macClean} added.`)
+      await api.post('/api/hotspot/mac-filter', {
+        mode,
+        blocked_macs: bList,
+        allowed_macs: aList,
+      })
+      macFilterMode = mode
+      blockedList = bList
+      allowedList = aList
+      toastStore.success('MAC filter configuration updated.')
     } catch (err: unknown) {
-      toastStore.error(err instanceof Error ? err.message : 'Failed to add MAC rule')
+      toastStore.error(err instanceof Error ? err.message : 'Failed to update MAC filter')
     }
   }
 
-  async function removeMACRule(mac: string) {
-    try {
-      const nextList = macFilterList.filter((m) => m !== mac)
-      await api.post('/api/hotspot/mac-filter', { mode: macFilterMode, list: nextList })
-      macFilterList = nextList
-      toastStore.success(`Rule for ${mac} removed.`)
-    } catch (err: unknown) {
-      toastStore.error(err instanceof Error ? err.message : 'Failed to remove MAC rule')
+  async function setFilterMode(mode: 'disabled' | 'blacklist' | 'whitelist') {
+    await saveMACFilter(mode, blockedList, allowedList)
+  }
+
+  async function addMACRule() {
+    if (!newMAC) return
+    const macClean = newMAC.trim().toUpperCase()
+    if (macFilterMode === 'whitelist') {
+      if (allowedList.includes(macClean)) return
+      const nextList = [...allowedList, macClean]
+      await saveMACFilter(macFilterMode, blockedList, nextList)
+    } else {
+      if (blockedList.includes(macClean)) return
+      const nextList = [...blockedList, macClean]
+      await saveMACFilter(macFilterMode, nextList, allowedList)
+    }
+    newMAC = ''
+  }
+
+  async function removeMACRule(mac: string, type: 'blocked' | 'allowed') {
+    if (type === 'allowed') {
+      const nextList = allowedList.filter((m) => m !== mac)
+      await saveMACFilter(macFilterMode, blockedList, nextList)
+    } else {
+      const nextList = blockedList.filter((m) => m !== mac)
+      await saveMACFilter(macFilterMode, nextList, allowedList)
     }
   }
 </script>
@@ -260,6 +280,21 @@
   <!-- MAC Filter Security -->
   <Card title="MAC Filtering & Access Control" subtitle="Allow or restrict clients by hardware MAC">
     <div class="space-y-4 font-mono text-xs">
+      <!-- Mode Selection Tabs -->
+      <div class="flex items-center gap-2 pb-2 border-b border-border">
+        <span class="text-muted uppercase font-bold mr-1">Filter Mode:</span>
+        {#each (['disabled', 'blacklist', 'whitelist'] as const) as mode}
+          <button
+            type="button"
+            class="px-3 py-1 text-xs uppercase font-bold rounded border transition-colors cursor-pointer {macFilterMode === mode ? 'bg-accent text-accent-text border-accent' : 'bg-card-sub border-border text-foreground hover:border-accent'}"
+            onclick={() => setFilterMode(mode)}
+          >
+            {mode}
+          </button>
+        {/each}
+      </div>
+
+      <!-- Add MAC Input -->
       <div class="flex items-center gap-2">
         <Input
           placeholder="AA:BB:CC:DD:EE:FF"
@@ -272,26 +307,78 @@
           onclick={addMACRule}
         >
           <Plus class="w-3.5 h-3.5 mr-1.5" />
-          <span>Add MAC</span>
+          <span>Add to {macFilterMode === 'whitelist' ? 'Whitelist' : 'Blacklist'}</span>
         </Button>
       </div>
 
-      {#if macFilterList.length > 0}
-        <div class="space-y-1.5 pt-2 border-t border-border">
-          {#each macFilterList as mac}
-            <div class="flex items-center justify-between p-2.5 bg-card-sub border border-border rounded">
-              <span class="font-bold text-foreground">{mac}</span>
-              <button
-                type="button"
-                class="text-red-400 hover:text-red-300 cursor-pointer"
-                onclick={() => removeMACRule(mac)}
-              >
-                <Trash2 class="w-3.5 h-3.5" />
-              </button>
+      <!-- List Display -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
+        <!-- Blocked MACs -->
+        <div class="space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="font-bold text-red-400 uppercase text-[11px]">
+              Blocked MACs ({blockedList.length})
+            </span>
+            {#if macFilterMode === 'blacklist'}
+              <Badge variant="danger">Active Enforcement</Badge>
+            {/if}
+          </div>
+          {#if blockedList.length === 0}
+            <div class="p-3 text-center text-muted bg-card-sub border border-border rounded text-[11px]">
+              No blocked MAC addresses.
             </div>
-          {/each}
+          {:else}
+            <div class="space-y-1.5 max-h-48 overflow-y-auto">
+              {#each blockedList as mac}
+                <div class="flex items-center justify-between p-2 bg-card-sub border border-border rounded">
+                  <span class="font-bold text-foreground">{mac}</span>
+                  <button
+                    type="button"
+                    class="text-red-400 hover:text-red-300 cursor-pointer"
+                    onclick={() => removeMACRule(mac, 'blocked')}
+                    title="Remove rule"
+                  >
+                    <Trash2 class="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              {/each}
+            </div>
+          {/if}
         </div>
-      {/if}
+
+        <!-- Allowed MACs -->
+        <div class="space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="font-bold text-emerald-400 uppercase text-[11px]">
+              Allowed MACs ({allowedList.length})
+            </span>
+            {#if macFilterMode === 'whitelist'}
+              <Badge variant="success">Active Enforcement</Badge>
+            {/if}
+          </div>
+          {#if allowedList.length === 0}
+            <div class="p-3 text-center text-muted bg-card-sub border border-border rounded text-[11px]">
+              No allowed MAC addresses.
+            </div>
+          {:else}
+            <div class="space-y-1.5 max-h-48 overflow-y-auto">
+              {#each allowedList as mac}
+                <div class="flex items-center justify-between p-2 bg-card-sub border border-border rounded">
+                  <span class="font-bold text-foreground">{mac}</span>
+                  <button
+                    type="button"
+                    class="text-red-400 hover:text-red-300 cursor-pointer"
+                    onclick={() => removeMACRule(mac, 'allowed')}
+                    title="Remove rule"
+                  >
+                    <Trash2 class="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              {/each}
+            </div>
+          {/if}
+        </div>
+      </div>
     </div>
   </Card>
 </div>

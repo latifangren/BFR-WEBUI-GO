@@ -77,13 +77,30 @@
     }
   }
 
+  async function controlBot(action: 'start' | 'stop' | 'restart') {
+    try {
+      isLoading = true
+      await api.post('/api/telegram/control', { action })
+      toastStore.success(`Telegram bot ${action}ed successfully.`)
+      await fetchTelegram()
+    } catch (err: unknown) {
+      toastStore.error(err instanceof Error ? err.message : `Failed to ${action} bot`)
+    } finally {
+      isLoading = false
+    }
+  }
+
   async function sendTestMessage() {
     try {
       isTesting = true
-      await api.post('/api/telegram/control', { action: 'test' })
-      toastStore.success('Test message sent to Telegram chat.')
+      // Backend control handler accepts only 'start', 'stop', 'restart'.
+      // Triggering 'restart' dispatches an immediate test greeting alert to configured chat.
+      await api.post('/api/telegram/control', { action: 'restart' })
+      toastStore.success('Telegram bot restarted and test alert dispatched to allowed chat.')
+      await fetchTelegram()
     } catch (err: unknown) {
-      toastStore.error(err instanceof Error ? err.message : 'Failed to send test message')
+      const errMsg = err instanceof Error ? err.message : String(err)
+      toastStore.error(errMsg || 'Failed to send test message')
     } finally {
       isTesting = false
     }
@@ -134,15 +151,25 @@
       class="lg:col-span-2"
     >
       {#snippet action()}
-        <Button
-          variant="primary"
-          size="sm"
-          disabled={isSaving}
-          onclick={saveConfig}
-        >
-          <Check class="w-3.5 h-3.5 mr-1" />
-          <span>Save Config</span>
-        </Button>
+        <div class="flex items-center gap-2">
+          <Button
+            variant={status.running ? 'danger' : 'secondary'}
+            size="sm"
+            disabled={isLoading || !config.bot_token}
+            onclick={() => controlBot(status.running ? 'stop' : 'start')}
+          >
+            <span>{status.running ? 'Stop Bot' : 'Start Bot'}</span>
+          </Button>
+          <Button
+            variant="primary"
+            size="sm"
+            disabled={isSaving}
+            onclick={saveConfig}
+          >
+            <Check class="w-3.5 h-3.5 mr-1" />
+            <span>Save Config</span>
+          </Button>
+        </div>
       {/snippet}
 
       <div class="space-y-4 font-mono text-xs">

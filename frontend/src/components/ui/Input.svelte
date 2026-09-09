@@ -40,7 +40,7 @@
     {disabled}
     {oninput}
     {onchange}
-    class="w-full bg-card-sub border border-border rounded px-3 py-2 text-sm font-mono text-foreground placeholder:text-muted focus:outline-none focus:border-accent disabled:opacity-50 transition-colors {className}"
+    class="neo-input w-full bg-card-sub border border-border rounded px-3 py-2 text-sm font-mono text-foreground placeholder:text-muted focus:outline-none focus:border-accent disabled:opacity-50 transition-colors {className}"
   />
   {#if error}
     <p class="text-xs text-red-500 font-mono">{error}</p>

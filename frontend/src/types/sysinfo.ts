@@ -74,6 +74,7 @@ export interface SysinfoStats {
   swap_used_pct: number
   load_avg: LoadAverage
   active_services: ServiceStatus[]
+  services?: Record<string, { status?: string; running?: boolean; name?: string }>
   uptime: number
   battery_level: number
   battery_status: string
@@ -87,6 +88,7 @@ export interface SysinfoStats {
   disks: DiskPartition[]
   model: string
   android_ver: string
+  android_version?: string
   selinux: string
   security_patch: string
   sdk_ver: string

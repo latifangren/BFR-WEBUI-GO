@@ -19,6 +19,8 @@
   interface TunnelConfig {
     engine: 'cloudflare' | 'frp' | 'zerotier'
     token?: string
+    cloudflare_token?: string
+    zerotier_network_id?: string
     server?: string
     local_port?: number
   }
@@ -46,8 +48,16 @@
   async function fetchTunnel() {
     try {
       isLoading = true
-      const res = await api.get<{ config?: TunnelConfig; status?: TunnelStatus }>('/api/tunnel/status')
-      if (res?.config) config = { ...config, ...res.config }
+      const res = await api.get<{ config?: TunnelConfig & { cloudflare_token?: string; zerotier_network_id?: string }; status?: TunnelStatus }>('/api/tunnel/status')
+      if (res?.config) {
+        config = { ...config, ...res.config }
+        if (res.config.cloudflare_token && !config.token) {
+          config.token = res.config.cloudflare_token
+        }
+        if (res.config.zerotier_network_id && config.engine === 'zerotier' && !config.token) {
+          config.token = res.config.zerotier_network_id
+        }
+      }
       if (res?.status) status = { ...status, ...res.status }
     } catch {
       // Ignored
@@ -59,7 +69,12 @@
   async function startTunnel() {
     try {
       isToggling = true
-      await api.post('/api/tunnel/start', config)
+      const payload: Record<string, unknown> = {
+        ...config,
+        cloudflare_token: config.engine === 'cloudflare' ? (config.cloudflare_token || config.token) : undefined,
+        zerotier_network_id: config.engine === 'zerotier' ? config.token : undefined,
+      }
+      await api.post('/api/tunnel/start', payload)
       status.running = true
       toastStore.success(`Tunnel (${config.engine}) started successfully.`)
     } catch (err: unknown) {

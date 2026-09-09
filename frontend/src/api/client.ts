@@ -31,6 +31,10 @@ export async function request<T>(endpoint: string, options: RequestInit = {}): P
   })
 
   if (!response.ok) {
+    if (response.status === 401 && typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('bfr:unauthorized'))
+    }
+
     let errorData: unknown
     try {
       errorData = await response.json()
@@ -49,9 +53,23 @@ export async function request<T>(endpoint: string, options: RequestInit = {}): P
 
   const contentType = response.headers.get('content-type')
   if (contentType && contentType.includes('application/json')) {
-    return (await response.json()) as T
+    const data = await response.json()
+    // Guard against silent failures where backend returns HTTP 200 with { success: false, error: "..." }
+    if (
+      typeof data === 'object' &&
+      data !== null &&
+      'success' in data &&
+      (data as { success: boolean }).success === false
+    ) {
+      const errMsg = String(
+        (data as { error?: unknown }).error ||
+          (data as { message?: unknown }).message ||
+          'Operation failed'
+      )
+      throw new ApiError(errMsg, response.status, data)
+    }
+    return data as T
   }
-
   return (await response.text()) as unknown as T
 }
 

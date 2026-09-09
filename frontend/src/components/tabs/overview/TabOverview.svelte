@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { onMount, onDestroy } from 'svelte'
+  import { onMount } from 'svelte'
   import {
     Cpu,
     HardDrive,
@@ -11,20 +11,131 @@
     Shield,
     Zap,
     ArrowRight,
+    Plus,
+    ExternalLink,
+    Globe,
+    Trash2,
+    Edit3,
+    Thermometer,
+    Clock,
   } from '@lucide/svelte'
   import { sysinfoStore } from '../../../stores/sysinfo.svelte'
   import { navigationStore } from '../../../stores/navigation.svelte'
+  import { api } from '../../../api/client'
   import Card from '../../ui/Card.svelte'
-  import Badge from '../../ui/Badge.svelte'
   import Button from '../../ui/Button.svelte'
+  import Modal from '../../ui/Modal.svelte'
+  import Input from '../../ui/Input.svelte'
+
+  interface ShortcutItem {
+    id: string
+    title?: string
+    name?: string
+    url: string
+    icon_url?: string
+    icon?: string
+    category?: string
+    description?: string
+    created_at?: number
+  }
+
+  // Telemetry Modals State
+  let showCpuModal = $state(false)
+  let showBatteryModal = $state(false)
+
+  // Shortcuts State
+  let shortcuts = $state<ShortcutItem[]>([])
+  let isLoadingShortcuts = $state(false)
+  let showAddShortcutModal = $state(false)
+  let shortcutForm = $state({
+    id: '',
+    title: '',
+    url: '',
+    icon_url: '',
+    description: '',
+  })
 
   onMount(() => {
-    sysinfoStore.startPolling(2000)
+    fetchShortcuts()
   })
 
-  onDestroy(() => {
-    sysinfoStore.stopPolling()
-  })
+  async function fetchShortcuts() {
+    try {
+      isLoadingShortcuts = true
+      const res = await api.get<ShortcutItem[] | { shortcuts: ShortcutItem[] }>('/api/shortcuts/list')
+      if (Array.isArray(res)) {
+        shortcuts = res
+      } else if (res && Array.isArray((res as { shortcuts: ShortcutItem[] }).shortcuts)) {
+        shortcuts = (res as { shortcuts: ShortcutItem[] }).shortcuts
+      } else {
+        shortcuts = []
+      }
+    } catch (e) {
+      console.error('Failed to fetch shortcuts:', e)
+    } finally {
+      isLoadingShortcuts = false
+    }
+  }
+
+  function openAddModal() {
+    shortcutForm = { id: '', title: '', url: '', icon_url: '', description: '' }
+    showAddShortcutModal = true
+  }
+
+  function openEditModal(item: ShortcutItem, e: MouseEvent) {
+    e.stopPropagation()
+    e.preventDefault()
+    shortcutForm = {
+      id: item.id,
+      title: item.title || item.name || '',
+      url: item.url,
+      icon_url: item.icon_url || item.icon || '',
+      description: item.description || '',
+    }
+    showAddShortcutModal = true
+  }
+
+  async function saveShortcut() {
+    if (!shortcutForm.title.trim() || !shortcutForm.url.trim()) return
+    try {
+      let targetUrl = shortcutForm.url.trim()
+      if (!/^https?:\/\//i.test(targetUrl)) {
+        targetUrl = 'http://' + targetUrl
+      }
+      const payload = {
+        id: shortcutForm.id || undefined,
+        title: shortcutForm.title.trim(),
+        url: targetUrl,
+        icon_url: shortcutForm.icon_url.trim(),
+      }
+      const res = await api.post<{ success: boolean; shortcuts: ShortcutItem[] }>('/api/shortcuts/save', payload)
+      if (res && Array.isArray(res.shortcuts)) {
+        shortcuts = res.shortcuts
+      } else {
+        await fetchShortcuts()
+      }
+      showAddShortcutModal = false
+      shortcutForm = { id: '', title: '', url: '', icon_url: '', description: '' }
+    } catch (e) {
+      console.error('Failed to save shortcut:', e)
+    }
+  }
+
+  async function deleteShortcut(id: string, e: MouseEvent) {
+    e.stopPropagation()
+    e.preventDefault()
+    if (!confirm('Are you sure you want to delete this shortcut?')) return
+    try {
+      const res = await api.post<{ success: boolean; shortcuts: ShortcutItem[] }>('/api/shortcuts/delete', { id })
+      if (res && Array.isArray(res.shortcuts)) {
+        shortcuts = res.shortcuts
+      } else {
+        await fetchShortcuts()
+      }
+    } catch (e) {
+      console.error('Failed to delete shortcut:', e)
+    }
+  }
 
   function formatBytes(bytes: number): string {
     if (!bytes || bytes === 0) return '0 B'
@@ -46,21 +157,45 @@
     return parts.join(' ')
   }
 
+  function formatUrlDomain(urlStr: string): string {
+    try {
+      const parsed = new URL(urlStr)
+      return parsed.host || urlStr
+    } catch {
+      return urlStr.replace(/^https?:\/\//i, '').split('/')[0] || urlStr
+    }
+  }
+
+  function isImageUrl(val?: string): boolean {
+    if (!val) return false
+    return /^https?:\/\//i.test(val) || /^data:image/i.test(val) || /\.(png|jpe?g|svg|webp|ico)(\?.*)?$/i.test(val)
+  }
+
+  function isEmoji(val?: string): boolean {
+    if (!val) return false
+    const trimmed = val.trim()
+    return trimmed.length <= 4 && !/^[a-zA-Z0-9_\-\.]+$/.test(trimmed)
+  }
+
   const stats = $derived(sysinfoStore.stats)
 </script>
 
 <div class="space-y-6">
   <!-- Bento Quick Gauges (5 Cards) -->
   <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
-    <!-- CPU Gauge -->
+    <!-- CPU Gauge (Interactive: Click for Core & Thermal details) -->
     <!-- svelte-ignore a11y_click_events_have_key_events -->
     <!-- svelte-ignore a11y_no_static_element_interactions -->
     <div
-      class="neo-card bg-card p-4 rounded flex flex-col justify-between cursor-pointer hover:border-accent transition-colors"
-      onclick={() => navigationStore.setTab('sysinfo')}
+      class="neo-card bg-card p-4 rounded flex flex-col justify-between cursor-pointer hover:border-accent transition-colors group select-none"
+      onclick={() => (showCpuModal = true)}
+      title="Click to inspect CPU Cores, Frequencies & Thermal sensors"
     >
       <div class="flex items-center justify-between text-muted mb-2 font-mono text-xs">
-        <span class="font-bold uppercase tracking-wider">CPU Load</span>
+        <span class="font-bold uppercase tracking-wider group-hover:text-accent transition-colors flex items-center gap-1">
+          CPU Load
+          <span class="text-[10px] text-accent font-mono opacity-80">↗</span>
+        </span>
         <Cpu class="w-4 h-4 text-accent" />
       </div>
       <div class="flex items-baseline justify-between">
@@ -85,12 +220,13 @@
     <!-- svelte-ignore a11y_click_events_have_key_events -->
     <!-- svelte-ignore a11y_no_static_element_interactions -->
     <div
-      class="neo-card bg-card p-4 rounded flex flex-col justify-between cursor-pointer hover:border-accent transition-colors"
+      class="neo-card bg-card p-4 rounded flex flex-col justify-between cursor-pointer hover:border-accent transition-colors select-none"
       onclick={() => navigationStore.setTab('sysinfo')}
+      title="Click to open full System & RAM information"
     >
       <div class="flex items-center justify-between text-muted mb-2 font-mono text-xs">
-        <span class="font-bold uppercase tracking-wider">RAM Usage</span>
-        <Activity class="w-4 h-4 text-purple-400" />
+        <span class="font-bold uppercase tracking-wider">Memory</span>
+        <HardDrive class="w-4 h-4 text-purple-400" />
       </div>
       <div class="flex items-baseline justify-between">
         <span class="text-2xl font-black font-mono text-foreground">
@@ -112,8 +248,9 @@
     <!-- svelte-ignore a11y_click_events_have_key_events -->
     <!-- svelte-ignore a11y_no_static_element_interactions -->
     <div
-      class="neo-card bg-card p-4 rounded flex flex-col justify-between cursor-pointer hover:border-accent transition-colors"
-      onclick={() => navigationStore.setTab('sysinfo')}
+      class="neo-card bg-card p-4 rounded flex flex-col justify-between cursor-pointer hover:border-accent transition-colors select-none"
+      onclick={() => navigationStore.setTab('files')}
+      title="Click to open File Manager"
     >
       <div class="flex items-center justify-between text-muted mb-2 font-mono text-xs">
         <span class="font-bold uppercase tracking-wider">Storage</span>
@@ -135,17 +272,21 @@
       </div>
     </div>
 
-    <!-- Battery Gauge -->
+    <!-- Battery Gauge (Interactive: Click for Voltage, Current & Health) -->
     <!-- svelte-ignore a11y_click_events_have_key_events -->
     <!-- svelte-ignore a11y_no_static_element_interactions -->
     <div
-      class="neo-card bg-card p-4 rounded flex flex-col justify-between cursor-pointer hover:border-accent transition-colors"
-      onclick={() => navigationStore.setTab('charger')}
+      class="neo-card bg-card p-4 rounded flex flex-col justify-between cursor-pointer hover:border-accent transition-colors group select-none"
+      onclick={() => (showBatteryModal = true)}
+      title="Click to view Battery Voltage, Current & Health diagnostics"
     >
       <div class="flex items-center justify-between text-muted mb-2 font-mono text-xs">
-        <span class="font-bold uppercase tracking-wider">Battery</span>
+        <span class="font-bold uppercase tracking-wider group-hover:text-accent transition-colors flex items-center gap-1">
+          Battery
+          <span class="text-[10px] text-accent font-mono opacity-80">↗</span>
+        </span>
         {#if stats?.battery_status === 'Charging'}
-          <BatteryCharging class="w-4 h-4 text-emerald-400" />
+          <BatteryCharging class="w-4 h-4 text-emerald-400 animate-pulse" />
         {:else}
           <Battery class="w-4 h-4 text-emerald-400" />
         {/if}
@@ -167,7 +308,7 @@
     </div>
 
     <!-- Uptime Gauge -->
-    <div class="neo-card bg-card p-4 rounded flex flex-col justify-between font-mono">
+    <div class="neo-card bg-card p-4 rounded flex flex-col justify-between font-mono select-none">
       <div class="flex items-center justify-between text-muted mb-2 text-xs">
         <span class="font-bold uppercase tracking-wider">Uptime</span>
         <Zap class="w-4 h-4 text-cyan-400" />
@@ -182,6 +323,103 @@
       </div>
     </div>
   </div>
+
+  <!-- Application Shortcuts (CasaOS Style) -->
+  <Card title="Application Shortcuts">
+    {#snippet action()}
+      <Button
+        variant="secondary"
+        size="sm"
+        onclick={openAddModal}
+        title="Add new application shortcut"
+      >
+        <Plus class="w-3.5 h-3.5 mr-1" />
+        <span>Add Shortcut</span>
+      </Button>
+    {/snippet}
+
+    {#if isLoadingShortcuts && shortcuts.length === 0}
+      <div class="p-8 text-center text-xs font-mono text-muted">
+        <Activity class="w-5 h-5 animate-spin mx-auto mb-2 text-accent" />
+        Loading application shortcuts...
+      </div>
+    {:else if shortcuts.length === 0}
+      <div class="p-6 text-center border-2 border-dashed border-border rounded-lg space-y-3 font-mono">
+        <div class="w-10 h-10 rounded-full bg-card-sub border border-border flex items-center justify-center mx-auto text-muted">
+          <Globe class="w-5 h-5 text-accent" />
+        </div>
+        <div>
+          <h4 class="text-xs font-bold uppercase text-foreground">No Shortcuts Configured</h4>
+          <p class="text-[11px] text-muted max-w-sm mx-auto mt-1">
+            Pin shortcuts to external services or web dashboards like Clash, AdGuard Home, OpenWrt, Portainer, or local network IPs.
+          </p>
+        </div>
+        <Button variant="primary" size="sm" onclick={openAddModal}>
+          <Plus class="w-3.5 h-3.5 mr-1" />
+          <span>Add First Shortcut</span>
+        </Button>
+      </div>
+    {:else}
+      <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 font-mono">
+        {#each shortcuts as item}
+          <div class="neo-card bg-card p-3 rounded flex flex-col justify-between items-center text-center relative group hover:border-accent transition-all h-36">
+            <!-- Edit / Delete Floating Controls -->
+            <div class="absolute top-1.5 right-1.5 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity bg-card-sub/90 rounded p-0.5 border border-border z-10 shadow-sm">
+              <button
+                type="button"
+                class="p-1 text-muted hover:text-foreground cursor-pointer transition-colors"
+                title="Edit Shortcut"
+                onclick={(e) => openEditModal(item, e)}
+              >
+                <Edit3 class="w-3 h-3" />
+              </button>
+              <button
+                type="button"
+                class="p-1 text-muted hover:text-red-400 cursor-pointer transition-colors"
+                title="Delete Shortcut"
+                onclick={(e) => deleteShortcut(item.id, e)}
+              >
+                <Trash2 class="w-3 h-3" />
+              </button>
+            </div>
+
+            <!-- Clickable Link Surface -->
+            <a
+              href={item.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="flex flex-col items-center justify-center flex-1 w-full gap-2 cursor-pointer pt-1"
+            >
+              {#if isImageUrl(item.icon_url || item.icon)}
+                <img
+                  src={item.icon_url || item.icon}
+                  alt={item.title || item.name}
+                  class="w-10 h-10 object-contain rounded p-1 bg-card-sub border border-border"
+                />
+              {:else if isEmoji(item.icon_url || item.icon)}
+                <div class="w-10 h-10 rounded bg-card-sub border border-border flex items-center justify-center text-xl">
+                  {item.icon_url || item.icon}
+                </div>
+              {:else}
+                <div class="w-10 h-10 rounded bg-card-sub border border-border flex items-center justify-center text-accent">
+                  <Globe class="w-5 h-5" />
+                </div>
+              {/if}
+
+              <div class="w-full">
+                <span class="text-xs font-bold text-foreground truncate block group-hover:text-accent transition-colors">
+                  {item.title || item.name || 'Shortcut'}
+                </span>
+                <span class="text-[10px] text-muted truncate block">
+                  {formatUrlDomain(item.url)}
+                </span>
+              </div>
+            </a>
+          </div>
+        {/each}
+      </div>
+    {/if}
+  </Card>
 
   <!-- Quick Action Jump Cards -->
   <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -229,8 +467,8 @@
           <Shield class="w-5 h-5" />
         </div>
         <div>
-          <h4 class="font-mono font-bold text-xs uppercase text-foreground">Clash / Mihomo</h4>
-          <p class="text-[11px] font-mono text-muted">Proxy core & routing</p>
+          <h4 class="font-mono font-bold text-xs uppercase text-foreground">Clash Core</h4>
+          <p class="text-[11px] font-mono text-muted">Routing & Rules</p>
         </div>
       </div>
       <ArrowRight class="w-4 h-4 text-muted group-hover:text-foreground transition-colors" />
@@ -275,11 +513,280 @@
       </div>
 
       <div class="bg-card-sub border border-border p-3 rounded space-y-1">
-        <span class="text-[10px] text-muted uppercase font-bold">Active Daemons</span>
-        <p class="font-bold text-emerald-400">
-          {stats?.active_services?.filter((s) => s.running).length || 0} Running
-        </p>
+        <span class="text-[10px] text-muted uppercase font-bold">SELinux Mode</span>
+        <p class="font-bold text-foreground capitalize">{stats?.selinux || 'Enforcing'}</p>
       </div>
     </div>
   </Card>
 </div>
+
+<!-- CPU Detail Telemetry Modal -->
+<Modal
+  open={showCpuModal}
+  title="CPU Architecture & Per-Core Telemetry"
+  onclose={() => (showCpuModal = false)}
+  class="!max-w-2xl"
+>
+  <div class="space-y-4 font-mono text-xs">
+    <!-- Summary Header Cards -->
+    <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+      <div class="p-2.5 rounded bg-card-sub border border-border space-y-1">
+        <span class="text-[10px] text-muted uppercase font-bold block">Overall Load</span>
+        <span class="text-lg font-black text-accent">{stats ? stats.cpu_usage.toFixed(1) : 0}%</span>
+      </div>
+      <div class="p-2.5 rounded bg-card-sub border border-border space-y-1">
+        <span class="text-[10px] text-muted uppercase font-bold block">CPU Temp</span>
+        <span class="text-lg font-black text-amber-400">{stats?.cpu_temp ? stats.cpu_temp.toFixed(1) + '°C' : 'N/A'}</span>
+      </div>
+      <div class="p-2.5 rounded bg-card-sub border border-border space-y-1">
+        <span class="text-[10px] text-muted uppercase font-bold block">Governor</span>
+        <span class="text-xs font-bold text-foreground truncate block">{stats?.governor || 'schedutil'}</span>
+      </div>
+      <div class="p-2.5 rounded bg-card-sub border border-border space-y-1">
+        <span class="text-[10px] text-muted uppercase font-bold block">Chipset / SoC</span>
+        <span class="text-xs font-bold text-foreground truncate block">{stats?.soc || 'ARM64'}</span>
+      </div>
+    </div>
+
+    <!-- Load Average Strip -->
+    {#if stats?.load_avg}
+      <div class="p-2.5 rounded bg-card-sub border border-border flex items-center justify-between flex-wrap gap-2 text-[11px]">
+        <span class="text-muted font-bold uppercase text-[10px]">Load Average:</span>
+        <div class="flex items-center gap-3">
+          <span>1m: <strong class="text-foreground">{stats.load_avg.one.toFixed(2)}</strong></span>
+          <span>5m: <strong class="text-foreground">{stats.load_avg.five.toFixed(2)}</strong></span>
+          <span>15m: <strong class="text-foreground">{stats.load_avg.fifteen.toFixed(2)}</strong></span>
+        </div>
+      </div>
+    {/if}
+
+    <!-- Per Core Frequency & Usage Grid -->
+    <div class="space-y-2">
+      <div class="flex items-center justify-between text-[11px] font-bold uppercase text-muted">
+        <span>Active CPU Cores ({stats?.cpu_cores?.length || 0})</span>
+        <span>Frequency & Load</span>
+      </div>
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+        {#each stats?.cpu_cores || [] as core}
+          <div class="p-2 rounded bg-card-sub border border-border space-y-1.5">
+            <div class="flex items-center justify-between">
+              <span class="font-bold text-accent">Core #{core.core}</span>
+              <span class="text-[10px] text-muted font-bold">{(core.freq_mhz / 1000).toFixed(2)} GHz</span>
+            </div>
+            <div class="w-full bg-card border border-border h-1.5 rounded overflow-hidden">
+              <div
+                class="h-full bg-accent transition-all duration-300"
+                style="width: {Math.min(core.usage, 100)}%"
+              ></div>
+            </div>
+            <div class="flex items-center justify-between text-[10px] text-muted">
+              <span>{core.freq_mhz} MHz</span>
+              <span class="text-foreground font-bold">{core.usage.toFixed(0)}%</span>
+            </div>
+          </div>
+        {/each}
+      </div>
+    </div>
+
+    <!-- Thermal Sensors / Zones -->
+    {#if stats?.thermals && stats.thermals.length > 0}
+      <div class="space-y-2">
+        <span class="text-[11px] font-bold uppercase text-muted block">Thermal Sensors</span>
+        <div class="grid grid-cols-2 sm:grid-cols-3 gap-2 max-h-36 overflow-y-auto pr-1">
+          {#each stats.thermals as tz}
+            <div class="p-2 rounded bg-card-sub border border-border flex items-center justify-between">
+              <span class="text-[10px] text-muted truncate max-w-[120px]">{tz.name}</span>
+              <span class="text-[11px] font-bold {tz.temp > 65 ? 'text-red-400' : tz.temp > 50 ? 'text-amber-400' : 'text-emerald-400'}">
+                {tz.temp.toFixed(1)}°C
+              </span>
+            </div>
+          {/each}
+        </div>
+      </div>
+    {/if}
+  </div>
+
+  {#snippet footer()}
+    <Button
+      variant="secondary"
+      size="sm"
+      onclick={() => {
+        showCpuModal = false
+        navigationStore.setTab('sysinfo')
+      }}
+    >
+      <span>Open Sysinfo Tab</span>
+      <ArrowRight class="w-3.5 h-3.5 ml-1" />
+    </Button>
+    <Button variant="primary" size="sm" onclick={() => (showCpuModal = false)}>
+      <span>Close</span>
+    </Button>
+  {/snippet}
+</Modal>
+
+<!-- Battery Detail Telemetry Modal -->
+<Modal
+  open={showBatteryModal}
+  title="Battery Diagnostics & Health"
+  onclose={() => (showBatteryModal = false)}
+  class="!max-w-xl"
+>
+  <div class="space-y-4 font-mono text-xs">
+    <!-- State Banner -->
+    <div class="p-4 rounded bg-card-sub border border-border flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-12 h-12 rounded bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 flex items-center justify-center">
+          {#if stats?.battery_status === 'Charging'}
+            <BatteryCharging class="w-7 h-7 animate-pulse" />
+          {:else}
+            <Battery class="w-7 h-7" />
+          {/if}
+        </div>
+        <div>
+          <div class="text-xl font-black text-foreground">{stats ? stats.battery_level : 0}%</div>
+          <p class="text-[11px] text-muted">
+            Status: <span class="text-emerald-400 font-bold">{stats?.battery_status || 'Discharging'}</span>
+          </p>
+        </div>
+      </div>
+      <div class="text-right">
+        <span class="text-[10px] text-muted uppercase font-bold block">Health Condition</span>
+        <span class="text-xs font-bold text-emerald-400 uppercase">
+          {stats?.battery_detail?.health || 'Good'}
+        </span>
+      </div>
+    </div>
+
+    <!-- Battery Metrics Grid -->
+    <div class="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
+      <div class="p-2.5 rounded bg-card-sub border border-border space-y-1">
+        <span class="text-[10px] text-muted uppercase font-bold block">Voltage</span>
+        <span class="text-sm font-bold text-foreground">
+          {stats?.battery_detail?.voltage_mv ? (stats.battery_detail.voltage_mv / 1000).toFixed(3) + ' V' : 'N/A'}
+        </span>
+      </div>
+
+      <div class="p-2.5 rounded bg-card-sub border border-border space-y-1">
+        <span class="text-[10px] text-muted uppercase font-bold block">Current Flow</span>
+        <span class="text-sm font-bold {stats?.battery_detail?.current_now && stats.battery_detail.current_now < 0 ? 'text-amber-400' : 'text-emerald-400'}">
+          {stats?.battery_detail?.current_now !== undefined ? stats.battery_detail.current_now + ' mA' : 'N/A'}
+        </span>
+      </div>
+
+      <div class="p-2.5 rounded bg-card-sub border border-border space-y-1">
+        <span class="text-[10px] text-muted uppercase font-bold block">Battery Temp</span>
+        <span class="text-sm font-bold {stats?.battery_temp && stats.battery_temp > 42 ? 'text-red-400' : 'text-amber-400'}">
+          {stats?.battery_temp ? stats.battery_temp.toFixed(1) + ' °C' : 'N/A'}
+        </span>
+      </div>
+
+      <div class="p-2.5 rounded bg-card-sub border border-border space-y-1">
+        <span class="text-[10px] text-muted uppercase font-bold block">Technology</span>
+        <span class="text-sm font-bold text-foreground">
+          {stats?.battery_detail?.technology || 'Li-poly'}
+        </span>
+      </div>
+
+      <div class="p-2.5 rounded bg-card-sub border border-border space-y-1">
+        <span class="text-[10px] text-muted uppercase font-bold block">Capacity</span>
+        <span class="text-sm font-bold text-foreground">
+          {stats?.battery_detail?.capacity || stats?.battery_level || 0}%
+        </span>
+      </div>
+
+      <div class="p-2.5 rounded bg-card-sub border border-border space-y-1">
+        <span class="text-[10px] text-muted uppercase font-bold block">Full Charge Max</span>
+        <span class="text-sm font-bold text-foreground">
+          {stats?.battery_detail?.charge_full ? stats.battery_detail.charge_full + ' mAh' : 'N/A'}
+        </span>
+      </div>
+    </div>
+
+    <!-- Battery Saver / Charging Limit Note -->
+    <div class="p-3 rounded bg-card-sub border border-border/80 flex items-start gap-2.5">
+      <Zap class="w-4 h-4 text-accent shrink-0 mt-0.5" />
+      <p class="text-[11px] text-muted leading-relaxed">
+        BFR-WEBUI includes a hardware charging limitation controller (stop charging at 80% to protect against battery swelling during 24/7 router deployment).
+      </p>
+    </div>
+  </div>
+
+  {#snippet footer()}
+    <Button
+      variant="secondary"
+      size="sm"
+      onclick={() => {
+        showBatteryModal = false
+        navigationStore.setTab('charger')
+      }}
+    >
+      <span>Charging Limit Controls</span>
+      <ArrowRight class="w-3.5 h-3.5 ml-1" />
+    </Button>
+    <Button variant="primary" size="sm" onclick={() => (showBatteryModal = false)}>
+      <span>Close</span>
+    </Button>
+  {/snippet}
+</Modal>
+
+<!-- Add / Edit Shortcut Modal -->
+<Modal
+  open={showAddShortcutModal}
+  title={shortcutForm.id ? 'Edit Shortcut' : 'Add App Shortcut'}
+  onclose={() => (showAddShortcutModal = false)}
+  class="!max-w-md"
+>
+  <form onsubmit={(e) => { e.preventDefault(); saveShortcut(); }} class="space-y-3 font-mono text-xs">
+    <Input
+      label="Application Name"
+      placeholder="e.g. Clash Web, AdGuard, OpenWrt"
+      bind:value={shortcutForm.title}
+    />
+
+    <Input
+      label="Target URL"
+      placeholder="http://192.168.43.1:9090 or https://..."
+      bind:value={shortcutForm.url}
+    />
+
+    <Input
+      label="Icon (Emoji or Image URL)"
+      placeholder="e.g. 🌐, 🚀, 🛡️, ⚙️ or https://.../icon.png"
+      bind:value={shortcutForm.icon_url}
+    />
+
+    <!-- Quick Emoji Presets -->
+    <div class="space-y-1">
+      <span class="text-[10px] font-bold text-muted uppercase block">Quick Icon Presets</span>
+      <div class="flex items-center gap-1.5 flex-wrap">
+        {#each ['🌐', '🛡️', '⚙️', '📊', '📡', '🚀', '⚡', '💻', '📁', '🏠'] as emoji}
+          <button
+            type="button"
+            class="w-7 h-7 rounded bg-card-sub border border-border hover:border-accent flex items-center justify-center text-sm cursor-pointer transition-colors"
+            onclick={() => (shortcutForm.icon_url = emoji)}
+          >
+            {emoji}
+          </button>
+        {/each}
+      </div>
+    </div>
+  </form>
+
+  {#snippet footer()}
+    <Button
+      variant="secondary"
+      size="sm"
+      onclick={() => (showAddShortcutModal = false)}
+    >
+      Cancel
+    </Button>
+    <Button
+      variant="primary"
+      size="sm"
+      disabled={!shortcutForm.title.trim() || !shortcutForm.url.trim()}
+      onclick={saveShortcut}
+    >
+      {shortcutForm.id ? 'Save Changes' : 'Add Shortcut'}
+    </Button>
+  {/snippet}
+</Modal>

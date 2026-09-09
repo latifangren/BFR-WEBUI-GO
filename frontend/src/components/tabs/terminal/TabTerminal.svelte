@@ -4,6 +4,7 @@
   import { FitAddon } from '@xterm/addon-fit'
   import '@xterm/xterm/css/xterm.css'
   import { Terminal, RefreshCw, Maximize2, Trash2 } from '@lucide/svelte'
+  import { WebSocketClient } from '../../../ws/socket'
   import Card from '../../ui/Card.svelte'
   import Button from '../../ui/Button.svelte'
   import Badge from '../../ui/Badge.svelte'
@@ -11,7 +12,7 @@
   let terminalContainer: HTMLDivElement | null = $state(null)
   let term: XTerminal | null = null
   let fitAddon: FitAddon | null = null
-  let ws: WebSocket | null = null
+  let wsClient: WebSocketClient | null = null
   let isConnected = $state(false)
   let isConnecting = $state(false)
 
@@ -20,9 +21,7 @@
     connectWebSocket()
 
     const handleResize = () => {
-      if (fitAddon && term) {
-        fitAddon.fit()
-      }
+      handleFitAndResize()
     }
     window.addEventListener('resize', handleResize)
 
@@ -36,14 +35,16 @@
     cleanup()
   })
 
+  function handleFitAndResize() {
+    if (fitAddon && term) {
+      fitAddon.fit()
+    }
+  }
+
   function cleanup() {
-    if (ws) {
-      ws.onopen = null
-      ws.onclose = null
-      ws.onerror = null
-      ws.onmessage = null
-      ws.close()
-      ws = null
+    if (wsClient) {
+      wsClient.disconnect()
+      wsClient = null
     }
     if (term) {
       term.dispose()
@@ -85,62 +86,54 @@
     term.open(terminalContainer)
 
     setTimeout(() => {
-      fitAddon?.fit()
+      handleFitAndResize()
     }, 100)
 
     term.onData((data) => {
-      if (ws && ws.readyState === WebSocket.OPEN) {
-        ws.send(data)
+      if (wsClient && wsClient.readyState === WebSocket.OPEN) {
+        wsClient.send(data)
       }
     })
   }
 
   function connectWebSocket() {
-    if (ws && (ws.readyState === WebSocket.OPEN || ws.readyState === WebSocket.CONNECTING)) {
+    if (wsClient && wsClient.readyState === WebSocket.OPEN) {
       return
     }
 
     isConnecting = true
-    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:'
-    const host = window.location.host
-    const url = `${protocol}//${host}/api/terminal/ws`
 
-    try {
-      ws = new WebSocket(url)
-      ws.binaryType = 'blob'
-
-      ws.onopen = () => {
+    wsClient = new WebSocketClient({
+      path: '/api/terminal/ws',
+      autoReconnect: true,
+      binaryType: 'arraybuffer',
+      onOpen: () => {
         isConnected = true
         isConnecting = false
         term?.write('\r\n\x1b[32m[+] Interactive Root Terminal Connected\x1b[0m\r\n\r\n')
-        fitAddon?.fit()
-      }
-
-      ws.onmessage = async (event) => {
-        if (typeof event.data === 'string') {
-          term?.write(event.data)
-        } else if (event.data instanceof Blob) {
-          const text = await event.data.text()
-          term?.write(text)
-        } else if (event.data instanceof ArrayBuffer) {
+        handleFitAndResize()
+      },
+      onMessage: (data: string | Blob | ArrayBuffer) => {
+        if (typeof data === 'string') {
+          term?.write(data)
+        } else if (data instanceof ArrayBuffer) {
           const decoder = new TextDecoder()
-          term?.write(decoder.decode(event.data))
+          term?.write(decoder.decode(data))
+        } else if (data instanceof Blob) {
+          data.text().then((text) => term?.write(text))
         }
-      }
-
-      ws.onerror = () => {
+      },
+      onError: () => {
         term?.write('\r\n\x1b[31m[-] WebSocket Error\x1b[0m\r\n')
-      }
-
-      ws.onclose = () => {
+      },
+      onClose: () => {
         isConnected = false
         isConnecting = false
-        term?.write('\r\n\x1b[33m[*] Terminal Session Closed. Reconnecting...\x1b[0m\r\n')
-      }
-    } catch {
-      isConnecting = false
-      isConnected = false
-    }
+        term?.write('\r\n\x1b[33m[*] Terminal Session Closed.\x1b[0m\r\n')
+      },
+    })
+
+    wsClient.connect()
   }
 
   function reconnect() {

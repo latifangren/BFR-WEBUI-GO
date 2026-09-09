@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { onMount, onDestroy } from 'svelte'
+  import { onMount } from 'svelte'
   import {
     Cpu,
     Battery,
@@ -7,19 +7,62 @@
     Thermometer,
     RefreshCw,
     ShieldAlert,
+    Sliders,
+    Check,
+    Activity,
   } from '@lucide/svelte'
   import { sysinfoStore } from '../../../stores/sysinfo.svelte'
+  import { toastStore } from '../../../stores/toast.svelte'
+  import { api } from '../../../api/client'
   import Card from '../../ui/Card.svelte'
   import Badge from '../../ui/Badge.svelte'
   import Button from '../../ui/Button.svelte'
 
+  interface GovernorData {
+    current: string
+    available: string[]
+    cores?: { core: number; governor: string; cur_freq: string }[]
+  }
+
+  let governorData = $state<GovernorData>({ current: '', available: [] })
+  let selectedGovernor = $state('')
+  let isUpdatingGovernor = $state(false)
+
   onMount(() => {
-    sysinfoStore.startPolling(2000)
+    fetchGovernor()
   })
 
-  onDestroy(() => {
-    sysinfoStore.stopPolling()
-  })
+  async function fetchGovernor() {
+    try {
+      const res = await api.get<GovernorData>('/api/sysinfo/governor')
+      if (res) {
+        governorData = res
+        selectedGovernor = res.current || ''
+      }
+    } catch {
+      // Ignored
+    }
+  }
+
+  async function applyGovernor() {
+    if (!selectedGovernor) return
+    try {
+      isUpdatingGovernor = true
+      const res = await api.post<{ success: boolean; error?: string }>('/api/sysinfo/governor', {
+        governor: selectedGovernor,
+      })
+      if (res && res.success) {
+        governorData.current = selectedGovernor
+        toastStore.success(`CPU Governor successfully changed to ${selectedGovernor}`)
+      } else {
+        toastStore.error(res?.error || 'Failed to update CPU Governor')
+      }
+    } catch (err: unknown) {
+      toastStore.error(err instanceof Error ? err.message : 'Error updating governor')
+    } finally {
+      isUpdatingGovernor = false
+    }
+  }
 
   function formatBytes(bytes: number): string {
     if (!bytes || bytes === 0) return '0 B'
@@ -277,6 +320,90 @@
               ></div>
             </div>
           </div>
+        </div>
+      </Card>
+    </div>
+
+    <!-- CPU Scaling Governor & Thermal Summary -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <!-- CPU Scaling Governor -->
+      <Card title="CPU Scaling Governor Policy">
+        <div class="space-y-4 font-mono text-xs">
+          <div class="flex items-center justify-between">
+            <span class="text-muted">Active Governor Policy</span>
+            <span class="px-2 py-0.5 rounded bg-accent/15 text-accent font-bold uppercase text-[10px] border border-accent/30 flex items-center gap-1">
+              <Check class="w-3 h-3" />
+              {governorData.current || stats.governor || 'schedutil'}
+            </span>
+          </div>
+
+          <div class="space-y-1.5">
+            <label for="governor-select" class="text-[10px] uppercase font-bold text-muted block">
+              Available Governors
+            </label>
+            <div class="flex items-center gap-2">
+              <select
+                id="governor-select"
+                bind:value={selectedGovernor}
+                class="neo-input flex-1 bg-card-sub border border-border rounded px-3 py-2 text-xs font-mono text-foreground focus:outline-none focus:border-accent"
+              >
+                {#if governorData.available.length === 0}
+                  <option value="schedutil">schedutil (Energy-Aware EAS)</option>
+                  <option value="performance">performance (Max Clock)</option>
+                  <option value="powersave">powersave (Battery Saver)</option>
+                  <option value="conservative">conservative</option>
+                {:else}
+                  {#each governorData.available as gov}
+                    <option value={gov}>{gov} {gov === (governorData.current || stats.governor) ? '(Active)' : ''}</option>
+                  {/each}
+                {/if}
+              </select>
+
+              <Button
+                variant="primary"
+                size="sm"
+                disabled={isUpdatingGovernor || selectedGovernor === (governorData.current || stats.governor)}
+                onclick={applyGovernor}
+              >
+                {isUpdatingGovernor ? 'Applying...' : 'Apply'}
+              </Button>
+            </div>
+          </div>
+
+          <p class="text-[10px] text-muted leading-relaxed">
+            * <strong>schedutil</strong>: Dynamic Energy-Aware Scheduling.<br />
+            * <strong>performance</strong>: Locks CPU to maximum frequency for lowest latency.<br />
+            * <strong>powersave</strong>: Limits CPU clock to preserve battery and reduce heat.
+          </p>
+        </div>
+      </Card>
+
+      <!-- Thermal Sensors Monitor -->
+      <Card title="Thermal Sensors Telemetry">
+        <div class="space-y-3 font-mono text-xs">
+          <div class="flex items-center justify-between">
+            <span class="text-muted">Primary SoC Temp</span>
+            <span class="font-bold text-sm {stats.cpu_temp > 65 ? 'text-red-400' : stats.cpu_temp > 50 ? 'text-amber-400' : 'text-emerald-400'}">
+              {stats.cpu_temp ? stats.cpu_temp.toFixed(1) + '°C' : 'N/A'}
+            </span>
+          </div>
+
+          {#if stats.thermals && stats.thermals.length > 0}
+            <div class="grid grid-cols-2 gap-2 max-h-40 overflow-y-auto pr-1">
+              {#each stats.thermals as tz}
+                <div class="p-2 rounded bg-card-sub border border-border flex items-center justify-between">
+                  <span class="text-[10px] text-muted truncate max-w-[120px]">{tz.name}</span>
+                  <span class="text-[11px] font-bold {tz.temp > 65 ? 'text-red-400' : tz.temp > 50 ? 'text-amber-400' : 'text-emerald-400'}">
+                    {tz.temp.toFixed(1)}°C
+                  </span>
+                </div>
+              {/each}
+            </div>
+          {:else}
+            <div class="p-4 text-center text-[11px] text-muted bg-card-sub rounded border border-border">
+              Standard thermal zones active.
+            </div>
+          {/if}
         </div>
       </Card>
     </div>

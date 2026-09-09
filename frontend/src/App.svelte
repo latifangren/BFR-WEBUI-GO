@@ -3,6 +3,7 @@
   import { Lock, Construction } from '@lucide/svelte'
   import Header from './components/layout/Header.svelte'
   import Sidebar from './components/layout/Sidebar.svelte'
+  import BottomNav from './components/layout/BottomNav.svelte'
   import TabOverview from './components/tabs/overview/TabOverview.svelte'
   import TabSysinfo from './components/tabs/sysinfo/TabSysinfo.svelte'
   import TabNetwork from './components/tabs/network/TabNetwork.svelte'
@@ -23,6 +24,9 @@
   import TabTools from './components/tabs/tools/TabTools.svelte'
   import TabTelegram from './components/tabs/telegram/TabTelegram.svelte'
   import TabAbout from './components/tabs/about/TabAbout.svelte'
+  import TabSSH from './components/tabs/ssh/TabSSH.svelte'
+  import TabModules from './components/tabs/modules/TabModules.svelte'
+  import TabSMS from './components/tabs/sms/TabSMS.svelte'
   import ToastContainer from './components/ui/ToastContainer.svelte'
   import Modal from './components/ui/Modal.svelte'
   import Input from './components/ui/Input.svelte'
@@ -30,11 +34,18 @@
   import Card from './components/ui/Card.svelte'
   import { authStore } from './stores/auth.svelte'
   import { navigationStore, AVAILABLE_TABS } from './stores/navigation.svelte'
+  import { sysinfoStore } from './stores/sysinfo.svelte'
 
   let password = $state('')
 
   onMount(() => {
     authStore.checkStatus()
+    sysinfoStore.init()
+  })
+
+  $effect(() => {
+    const isFocused = navigationStore.activeTab === 'overview' || navigationStore.activeTab === 'sysinfo'
+    sysinfoStore.setTelemetryFocus(isFocused)
   })
 
   async function handleLogin(e: SubmitEvent) {
@@ -61,7 +72,7 @@
     <Sidebar />
 
     <!-- Main Content Area -->
-    <main class="flex-1 min-w-0 px-4 py-6 md:px-6 space-y-6 overflow-x-hidden">
+    <main class="flex-1 min-w-0 px-4 pt-4 pb-20 md:py-6 md:px-6 space-y-6 overflow-x-hidden">
       {#if navigationStore.activeTab === 'overview'}
         <TabOverview />
       {:else if navigationStore.activeTab === 'sysinfo'}
@@ -100,6 +111,12 @@
         <TabTools />
       {:else if navigationStore.activeTab === 'telegram'}
         <TabTelegram />
+      {:else if navigationStore.activeTab === 'ssh'}
+        <TabSSH />
+      {:else if navigationStore.activeTab === 'modules'}
+        <TabModules />
+      {:else if navigationStore.activeTab === 'sms'}
+        <TabSMS />
       {:else if navigationStore.activeTab === 'about'}
         <TabAbout />
       {:else}
@@ -111,6 +128,9 @@
 
   <!-- Global Toast Notifications -->
   <ToastContainer />
+
+  <!-- Mobile Bottom Navigation Bar (md:hidden) -->
+  <BottomNav />
 
   <!-- Auth Modal (Blocking if unauthenticated) -->
   {#if !authStore.authenticated}

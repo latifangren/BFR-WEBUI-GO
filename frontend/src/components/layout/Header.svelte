@@ -9,23 +9,59 @@
     BatteryCharging,
     Thermometer,
     Sparkles,
+    Palette,
+    Cpu,
+    Clock,
   } from '@lucide/svelte'
   import { themeStore } from '../../stores/theme.svelte'
   import { authStore } from '../../stores/auth.svelte'
   import { sysinfoStore } from '../../stores/sysinfo.svelte'
   import { navigationStore } from '../../stores/navigation.svelte'
   import type { ThemeMode, UIStyle } from '../../types/common'
+  import AppearanceModal from './AppearanceModal.svelte'
 
   const themeOptions: { id: ThemeMode; label: string }[] = [
     { id: 'dark', label: 'Dark' },
     { id: 'amoled', label: 'AMOLED' },
     { id: 'light', label: 'Light' },
-    { id: 'cyberpunk', label: 'Cyberpunk' },
     { id: 'dracula', label: 'Dracula' },
     { id: 'nord', label: 'Nord' },
+    { id: 'cyberpunk', label: 'Cyberpunk' },
+    { id: 'emerald', label: 'Emerald' },
+    { id: 'sunset', label: 'Sunset' },
   ]
 
   let showThemeDropdown = $state(false)
+  let showAppearanceModal = $state(false)
+
+  const freeRamText = $derived.by(() => {
+    const stats = sysinfoStore.stats
+    if (!stats) return ''
+    const freeBytes = stats.mem_available || stats.mem_free
+    if (!freeBytes) {
+      if (stats.mem_used_pct !== undefined) {
+        return `RAM: ${(100 - stats.mem_used_pct).toFixed(0)}% Free`
+      }
+      return ''
+    }
+    const gb = freeBytes / (1024 * 1024 * 1024)
+    if (gb >= 1) return `RAM: ${gb.toFixed(1)} GB Free`
+    const mb = freeBytes / (1024 * 1024)
+    return `RAM: ${mb.toFixed(0)} MB Free`
+  })
+
+  const uptimeText = $derived.by(() => {
+    const seconds = sysinfoStore.stats?.uptime
+    if (!seconds || seconds <= 0) return ''
+    const d = Math.floor(seconds / (3600 * 24))
+    const h = Math.floor((seconds % (3600 * 24)) / 3600)
+    const m = Math.floor((seconds % 3600) / 60)
+    const parts: string[] = []
+    if (d > 0) parts.push(`${d}d`)
+    if (h > 0) parts.push(`${h}h`)
+    if (parts.length === 0 || (d === 0 && m > 0)) parts.push(`${m}m`)
+    return parts.join(' ')
+  })
 
   function handleThemeSelect(theme: ThemeMode) {
     themeStore.setTheme(theme)
@@ -70,12 +106,16 @@
       </div>
     </div>
 
-    <!-- Center: Quick Telemetry Pills (Visible on sm+) -->
+    <!-- Center: Quick Telemetry Pills (Progressive Responsive Display) -->
     <div class="hidden sm:flex items-center gap-2 font-mono text-xs">
+      <!-- Battery Pill (sm+) -->
       {#if sysinfoStore.stats && sysinfoStore.stats.battery_level !== undefined}
-        <div class="flex items-center gap-1.5 px-2 py-1 rounded bg-card-sub border border-border text-foreground">
+        <div
+          class="flex items-center gap-1.5 px-2 py-1 rounded bg-card-sub border border-border text-foreground select-none"
+          title="Battery: {sysinfoStore.stats.battery_level}% ({sysinfoStore.stats.battery_status || 'Discharging'})"
+        >
           {#if sysinfoStore.stats.battery_status === 'Charging'}
-            <BatteryCharging class="w-3.5 h-3.5 text-emerald-400" />
+            <BatteryCharging class="w-3.5 h-3.5 text-emerald-400 animate-pulse" />
           {:else}
             <Battery class="w-3.5 h-3.5 text-muted" />
           {/if}
@@ -83,17 +123,54 @@
         </div>
       {/if}
 
+      <!-- CPU Temp Pill (sm+) -->
       {#if sysinfoStore.stats?.cpu_temp}
-        <div class="flex items-center gap-1.5 px-2 py-1 rounded bg-card-sub border border-border text-foreground">
+        <div
+          class="flex items-center gap-1.5 px-2 py-1 rounded bg-card-sub border border-border text-foreground select-none"
+          title="CPU Temperature"
+        >
           <Thermometer class="w-3.5 h-3.5 text-amber-400" />
           <span>{sysinfoStore.stats.cpu_temp.toFixed(1)}°C</span>
+        </div>
+      {/if}
+
+      <!-- Free RAM Pill (md+) -->
+      {#if freeRamText}
+        <div
+          class="hidden md:flex items-center gap-1.5 px-2 py-1 rounded bg-card-sub border border-border text-foreground select-none"
+          title="Available Physical RAM"
+        >
+          <Cpu class="w-3.5 h-3.5 text-accent" />
+          <span>{freeRamText}</span>
+        </div>
+      {/if}
+
+      <!-- Uptime Pill (lg+) -->
+      {#if uptimeText}
+        <div
+          class="hidden lg:flex items-center gap-1.5 px-2 py-1 rounded bg-card-sub border border-border text-foreground select-none"
+          title="System Uptime"
+        >
+          <Clock class="w-3.5 h-3.5 text-blue-400" />
+          <span>Up: {uptimeText}</span>
         </div>
       {/if}
     </div>
 
     <!-- Right: Theme, Style, and Auth Actions -->
     <div class="flex items-center gap-2">
-      <!-- UI Style Toggle (Neobrutal / Modern) -->
+      <!-- Appearance Studio Button -->
+      <button
+        type="button"
+        class="flex items-center gap-1.5 px-2.5 py-1 text-xs font-mono font-bold rounded bg-card-sub border border-border text-foreground hover:border-accent cursor-pointer transition-colors"
+        onclick={() => (showAppearanceModal = true)}
+        title="Appearance Studio (Theme & Style)"
+      >
+        <Palette class="w-3.5 h-3.5 text-accent" />
+        <span class="hidden sm:inline uppercase text-[11px]">Theme</span>
+      </button>
+
+      <!-- UI Style Quick Toggle (Neobrutal / Modern) -->
       <button
         type="button"
         class="hidden sm:flex items-center gap-1.5 px-2.5 py-1 text-xs font-mono font-bold rounded bg-card-sub border border-border text-foreground hover:border-accent cursor-pointer transition-colors"
@@ -158,3 +235,8 @@
     </div>
   </div>
 </header>
+
+<AppearanceModal
+  open={showAppearanceModal}
+  onclose={() => (showAppearanceModal = false)}
+/>

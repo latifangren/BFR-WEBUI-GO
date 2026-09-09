@@ -8,23 +8,22 @@ export interface FileEntry {
 }
 
 export interface FileListResponse {
-  current_path: string
+  path: string
+  current_path?: string
   files: FileEntry[]
 }
 
-export interface FileSavePayload {
+export interface FileReadResponse {
   path: string
   content: string
 }
 
-export interface FileRenamePayload {
-  old_path: string
-  new_path: string
-}
-
-export interface FileCopyMovePayload {
-  src: string
-  dst: string
+export interface FileStorageInfo {
+  total: number
+  used: number
+  free: number
+  used_pct: number
+  mount?: string
 }
 
 export interface FilePermissionsPayload {
@@ -35,10 +34,36 @@ export interface FilePermissionsPayload {
 
 export interface FileCompressPayload {
   paths: string[]
-  dest_zip: string
+  dest_zip?: string
+  destination?: string
 }
 
 export interface FileExtractPayload {
-  zip_path: string
-  dest_dir: string
+  path?: string
+  zip_path?: string
+  destination?: string
+  dest_dir?: string
+}
+
+export interface FileCopyMovePayload {
+  src: string
+  dst: string
+}
+
+export interface FileBatchPayload {
+  action: 'delete' | 'copy' | 'move'
+  items?: string[]
+  paths?: string[]
+  destination?: string
+  dest_dir?: string
+}
+
+export interface FileSavePayload {
+  path: string
+  content: string
+}
+
+export interface FileRenamePayload {
+  old_path: string
+  new_path: string
 }

@@ -7,6 +7,14 @@ class AuthStore {
   isLoading = $state<boolean>(false)
   loginError = $state<string | null>(null)
 
+  constructor() {
+    if (typeof window !== 'undefined') {
+      window.addEventListener('bfr:unauthorized', () => {
+        this.authenticated = false
+      })
+    }
+  }
+
   async checkStatus(): Promise<void> {
     try {
       this.isLoading = true

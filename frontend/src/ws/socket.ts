@@ -9,7 +9,7 @@ export interface WebSocketClientOptions {
   onOpen?: (event: Event) => void
   onClose?: (event: CloseEvent) => void
   onError?: (event: Event) => void
-  onMessage?: (data: string | ArrayBuffer) => void
+  onMessage?: (data: string | ArrayBuffer | Blob) => void
 }
 
 export class WebSocketClient {
@@ -94,6 +94,10 @@ export class WebSocketClient {
       this.ws.close()
       this.ws = null
     }
+  }
+
+  public disconnect() {
+    this.close()
   }
 
   private scheduleReconnect() {

@@ -1,5 +1,6 @@
 /* Neo-Brutalist & Theme Tokens */
 
+/* 1. Dark (Navy Slate Tech) */
 :root,
 [data-theme="dark"],
 .dark:not([data-theme]) {
@@ -9,9 +10,9 @@
   --neo-text: #f8fafc;
   --neo-muted: #94a3b8;
   --neo-border: #2a3449;
-  --neo-accent: #3b82f6;
+  --neo-accent: #7c3aed;
   --neo-accent-text: #ffffff;
-  --neo-shadow: #000000;
+  --neo-shadow: #1e293b;
   --neo-badge-bg: #1e293b;
   --neo-badge-text: #38bdf8;
   --neo-success: #10b981;
@@ -20,28 +21,12 @@
   --neo-info: #06b6d4;
 }
 
-[data-theme="amoled"] {
-  --neo-bg: #000000;
-  --neo-card: #0a0a0a;
-  --neo-card-sub: #141414;
-  --neo-text: #f8fafc;
-  --neo-muted: #888888;
-  --neo-border: #262626;
-  --neo-accent: #3b82f6;
-  --neo-accent-text: #ffffff;
-  --neo-shadow: #000000;
-  --neo-badge-bg: #171717;
-  --neo-badge-text: #60a5fa;
-  --neo-success: #10b981;
-  --neo-warning: #f59e0b;
-  --neo-danger: #ef4444;
-  --neo-info: #06b6d4;
-}
-
-[data-theme="light"] {
-  --neo-bg: #f8fafc;
+/* 2. Light (High-Contrast Clean) */
+[data-theme="light"],
+.light:not([data-theme]) {
+  --neo-bg: #f4f6fa;
   --neo-card: #ffffff;
-  --neo-card-sub: #f1f5f9;
+  --neo-card-sub: #f8fafc;
   --neo-text: #0f172a;
   --neo-muted: #64748b;
   --neo-border: #cbd5e1;
@@ -56,15 +41,35 @@
   --neo-info: #0891b2;
 }
 
+/* 3. AMOLED (Pitch Black & Charcoal Elevation) */
+[data-theme="amoled"] {
+  --neo-bg: #000000;
+  --neo-card: #0a0a0a;
+  --neo-card-sub: #141414;
+  --neo-text: #f8fafc;
+  --neo-muted: #888888;
+  --neo-border: #262626;
+  --neo-accent: #10b981;
+  --neo-accent-text: #000000;
+  --neo-shadow: #1c1c1c; /* Distinct shadow elevation on pure black bg */
+  --neo-badge-bg: #141414;
+  --neo-badge-text: #34d399;
+  --neo-success: #10b981;
+  --neo-warning: #f59e0b;
+  --neo-danger: #ef4444;
+  --neo-info: #06b6d4;
+}
+
+/* 4. Dracula (Vampire Purple) */
 [data-theme="dracula"] {
-  --neo-bg: #282a36;
-  --neo-card: #343746;
+  --neo-bg: #1e1f29;
+  --neo-card: #282a36;
   --neo-card-sub: #44475a;
   --neo-text: #f8f8f2;
   --neo-muted: #6272a4;
   --neo-border: #44475a;
   --neo-accent: #bd93f9;
-  --neo-accent-text: #282a36;
+  --neo-accent-text: #1e1f29;
   --neo-shadow: #191a21;
   --neo-badge-bg: #44475a;
   --neo-badge-text: #ff79c6;
@@ -74,70 +79,173 @@
   --neo-info: #8be9fd;
 }
 
+/* 5. Nord (Arctic Frost) */
 [data-theme="nord"] {
-  --neo-bg: #2e3440;
-  --neo-card: #3b4252;
-  --neo-card-sub: #434c5e;
+  --neo-bg: #242933;
+  --neo-card: #2e3440;
+  --neo-card-sub: #3b4252;
   --neo-text: #eceff4;
   --neo-muted: #d8dee9;
-  --neo-border: #4c566a;
+  --neo-border: #434c5e;
   --neo-accent: #88c0d0;
-  --neo-accent-text: #2e3440;
-  --neo-shadow: #1e222a;
-  --neo-badge-bg: #434c5e;
-  --neo-badge-text: #81a1c1;
+  --neo-accent-text: #242933;
+  --neo-shadow: #1b1f27;
+  --neo-badge-bg: #3b4252;
+  --neo-badge-text: #88c0d0;
   --neo-success: #a3be8c;
   --neo-warning: #ebcb8b;
   --neo-danger: #bf616a;
   --neo-info: #8fbcbb;
 }
 
+/* 6. Cyberpunk (High-Voltage Neon Yellow/Black) */
 [data-theme="cyberpunk"] {
-  --neo-bg: #0b0d19;
-  --neo-card: #151928;
-  --neo-card-sub: #1e2338;
-  --neo-text: #00ffcc;
-  --neo-muted: #7982a9;
-  --neo-border: #ff0055;
-  --neo-accent: #ffe600;
+  --neo-bg: #0d0f18;
+  --neo-card: #181b28;
+  --neo-card-sub: #222638;
+  --neo-text: #fff066;
+  --neo-muted: #a3a7c2;
+  --neo-border: #facc15;
+  --neo-accent: #facc15;
   --neo-accent-text: #000000;
-  --neo-shadow: #ff0055;
-  --neo-badge-bg: #1e2338;
-  --neo-badge-text: #ffe600;
+  --neo-shadow: #facc15;
+  --neo-badge-bg: #222638;
+  --neo-badge-text: #facc15;
   --neo-success: #00ff66;
-  --neo-warning: #ffaa00;
+  --neo-warning: #facc15;
   --neo-danger: #ff0055;
-  --neo-info: #00ccff;
+  --neo-info: #00e5ff;
 }
 
-/* UI Style Variants */
+/* 7. Emerald (Matrix Deep Green) */
+[data-theme="emerald"] {
+  --neo-bg: #042f2e;
+  --neo-card: #064e3b;
+  --neo-card-sub: #065f46;
+  --neo-text: #ecfdf5;
+  --neo-muted: #6ee7b7;
+  --neo-border: #115e59;
+  --neo-accent: #10b981;
+  --neo-accent-text: #022c22;
+  --neo-shadow: #022c22;
+  --neo-badge-bg: #065f46;
+  --neo-badge-text: #a7f3d0;
+  --neo-success: #34d399;
+  --neo-warning: #fbbf24;
+  --neo-danger: #f87171;
+  --neo-info: #38bdf8;
+}
+
+/* 8. Sunset (Retro Warm Neon) */
+[data-theme="sunset"] {
+  --neo-bg: #120b18;
+  --neo-card: #1f1329;
+  --neo-card-sub: #2e1a3d;
+  --neo-text: #fed7aa;
+  --neo-muted: #fb923c;
+  --neo-border: #4c1d95;
+  --neo-accent: #f97316;
+  --neo-accent-text: #120b18;
+  --neo-shadow: #0a050e;
+  --neo-badge-bg: #2e1a3d;
+  --neo-badge-text: #fdba74;
+  --neo-success: #10b981;
+  --neo-warning: #f59e0b;
+  --neo-danger: #ef4444;
+  --neo-info: #06b6d4;
+}
+
+/* ========================================================= */
+/* UI Style Paradigm: Neo-Brutalist                          */
+/* ========================================================= */
+
+/* Micro-dots background texture */
+[data-ui-style="neobrutal"] body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  background-image: radial-gradient(var(--neo-border) 1px, transparent 1px);
+  background-size: 24px 24px;
+  opacity: 0.04;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Neo-Brutalist Light Mode High-Contrast Override */
+[data-ui-style="neobrutal"][data-theme="light"],
+[data-ui-style="neobrutal"] [data-theme="light"] {
+  --neo-border: #0f172a;
+  --neo-shadow: #0f172a;
+}
+
 [data-ui-style="neobrutal"] .neo-card {
-  border: 2px solid var(--neo-border);
-  box-shadow: 4px 4px 0px 0px var(--neo-shadow);
-  border-radius: 8px;
+  border: 2px solid var(--neo-border) !important;
+  box-shadow: 4px 4px 0px 0px var(--neo-shadow) !important;
+  border-radius: 4px !important;
+  transition: transform 0.15s cubic-bezier(0.32, 0.72, 0, 1), box-shadow 0.15s cubic-bezier(0.32, 0.72, 0, 1);
 }
 
 [data-ui-style="neobrutal"] .neo-button {
-  border: 2px solid var(--neo-border);
-  box-shadow: 3px 3px 0px 0px var(--neo-shadow);
-  border-radius: 6px;
-  font-weight: 700;
-  transition: all 0.1s ease;
+  border: 2px solid var(--neo-border) !important;
+  box-shadow: 3px 3px 0px 0px var(--neo-shadow) !important;
+  border-radius: 4px !important;
+  font-weight: 700 !important;
+  transition: transform 0.1s cubic-bezier(0.32, 0.72, 0, 1), box-shadow 0.1s cubic-bezier(0.32, 0.72, 0, 1), background-color 0.1s ease !important;
 }
 
-[data-ui-style="neobrutal"] .neo-button:active {
-  transform: translate(2px, 2px);
-  box-shadow: 1px 1px 0px 0px var(--neo-shadow);
+[data-ui-style="neobrutal"] .neo-button:hover:not(:disabled) {
+  transform: translate(-1px, -1px);
+  box-shadow: 4px 4px 0px 0px var(--neo-shadow) !important;
 }
+
+[data-ui-style="neobrutal"] .neo-button:active:not(:disabled) {
+  transform: translate(2px, 2px) !important;
+  box-shadow: 1px 1px 0px 0px var(--neo-shadow) !important;
+}
+
+[data-ui-style="neobrutal"] .neo-input,
+[data-ui-style="neobrutal"] input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+[data-ui-style="neobrutal"] select,
+[data-ui-style="neobrutal"] textarea {
+  border: 2px solid var(--neo-border) !important;
+  border-radius: 4px !important;
+}
+
+/* ========================================================= */
+/* UI Style Paradigm: Modern Clean                           */
+/* ========================================================= */
 
 [data-ui-style="modern"] .neo-card {
-  border: 1px solid var(--neo-border);
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
-  border-radius: 16px;
+  border: 1px solid var(--neo-border) !important;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.15), 0 4px 10px -2px rgba(0, 0, 0, 0.05) !important;
+  border-radius: 16px !important;
+  backdrop-filter: blur(12px);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 [data-ui-style="modern"] .neo-button {
-  border: 1px solid var(--neo-border);
-  border-radius: 10px;
-  transition: all 0.2s ease;
+  border: 1px solid var(--neo-border) !important;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1) !important;
+  border-radius: 12px !important;
+  transition: all 0.2s ease !important;
+}
+
+[data-ui-style="modern"] .neo-button:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+}
+
+[data-ui-style="modern"] .neo-button:active:not(:disabled) {
+  transform: scale(0.98) !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1) !important;
+}
+
+[data-ui-style="modern"] .neo-input,
+[data-ui-style="modern"] input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+[data-ui-style="modern"] select,
+[data-ui-style="modern"] textarea {
+  border: 1px solid var(--neo-border) !important;
+  border-radius: 10px !important;
 }

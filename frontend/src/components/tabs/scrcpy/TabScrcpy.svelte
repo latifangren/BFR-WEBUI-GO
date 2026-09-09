@@ -18,6 +18,7 @@
   import Button from '../../ui/Button.svelte'
   import Badge from '../../ui/Badge.svelte'
   import Input from '../../ui/Input.svelte'
+  import { WebSocketClient } from '../../../ws/socket'
 
   let isMirroring = $state(false)
   let fps = $state(0)
@@ -25,7 +26,7 @@
   let textInput = $state('')
   let screenImgEl: HTMLImageElement | null = $state(null)
 
-  let ws: WebSocket | null = null
+  let wsClient: WebSocketClient | null = null
   let lastFrameTime = 0
   let swipeStart: { x: number; y: number; time: number } | null = null
 
@@ -40,74 +41,73 @@
   })
 
   function startMirroring() {
-    if (ws && (ws.readyState === WebSocket.OPEN || ws.readyState === WebSocket.CONNECTING)) {
+    if (wsClient && wsClient.readyState === WebSocket.OPEN) {
       return
     }
 
-    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:'
-    const host = window.location.host
-    const url = `${protocol}//${host}/api/scrcpy/ws`
+    stopMirroring()
 
     try {
-      ws = new WebSocket(url)
-      ws.binaryType = 'blob'
+      wsClient = new WebSocketClient({
+        path: '/api/scrcpy/ws',
+        autoReconnect: false,
+        binaryType: 'blob',
+        onOpen: () => {
+          isMirroring = true
+          lastFrameTime = Date.now()
+        },
+        onMessage: (data) => {
+          if (data instanceof Blob) {
+            const now = Date.now()
+            if (lastFrameTime > 0) {
+              const delta = now - lastFrameTime
+              if (delta > 0) {
+                fps = Math.round(1000 / delta)
+              }
+            }
+            lastFrameTime = now
 
-      ws.onopen = () => {
-        isMirroring = true
-        lastFrameTime = Date.now()
-      }
-
-      ws.onmessage = (event) => {
-        if (event.data instanceof Blob) {
-          const now = Date.now()
-          if (lastFrameTime > 0) {
-            const delta = now - lastFrameTime
-            if (delta > 0) {
-              fps = Math.round(1000 / delta)
+            const oldUrl = currentImgUrl
+            currentImgUrl = URL.createObjectURL(data)
+            if (oldUrl) {
+              URL.revokeObjectURL(oldUrl)
             }
           }
-          lastFrameTime = now
+        },
+        onClose: () => {
+          stopMirroring()
+        },
+        onError: () => {
+          stopMirroring()
+        },
+      })
 
-          const oldUrl = currentImgUrl
-          currentImgUrl = URL.createObjectURL(event.data)
-          if (oldUrl) {
-            URL.revokeObjectURL(oldUrl)
-          }
-        }
-      }
-
-      ws.onclose = () => {
-        stopMirroring()
-      }
-
-      ws.onerror = () => {
-        stopMirroring()
-      }
+      wsClient.connect()
     } catch {
       stopMirroring()
     }
   }
 
   function stopMirroring() {
-    if (ws) {
-      ws.onopen = null
-      ws.onclose = null
-      ws.onerror = null
-      ws.onmessage = null
-      ws.close()
-      ws = null
+    if (wsClient) {
+      wsClient.disconnect()
+      wsClient = null
     }
     if (currentImgUrl) {
       URL.revokeObjectURL(currentImgUrl)
       currentImgUrl = ''
     }
+    if (screenImgEl) {
+      screenImgEl.src = ''
+    }
     isMirroring = false
     fps = 0
+    swipeStart = null
   }
 
   function sendEvent(evt: Record<string, unknown>) {
-    if (ws && ws.readyState === WebSocket.OPEN) {
-      ws.send(JSON.stringify(evt))
+    if (wsClient && wsClient.readyState === WebSocket.OPEN) {
+      wsClient.send(JSON.stringify(evt))
     }
   }
 

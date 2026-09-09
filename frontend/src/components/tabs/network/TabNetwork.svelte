@@ -13,20 +13,23 @@
   } from '@lucide/svelte'
   import { api } from '../../../api/client'
   import { toastStore } from '../../../stores/toast.svelte'
+  import type { TweaksConfig } from '../../../types/network'
   import Card from '../../ui/Card.svelte'
   import Button from '../../ui/Button.svelte'
   import Badge from '../../ui/Badge.svelte'
   import Input from '../../ui/Input.svelte'
 
   // Tweaks state
-  let tweaks = $state<Record<string, boolean>>({
-    tcp_bbr_enabled: true,
-    low_latency_mode: true,
-    fastopen_enabled: true,
+  let tweaks = $state<TweaksConfig>({
+    lte_carrier_aggregation: false,
+    tcp_buffer_optimization: true,
+    bbr2_congestion_control: true,
+    sysctl_buffers_opt: true,
+    dalvik_responsiveness: true,
+    settings_global_tweaks: false,
+    ttl_spoofing: false,
     packet_steering_rps: false,
     mtu_tuning: false,
-    ipv6_disable: false,
-    buffer_tuning: true,
   })
   let isLoadingTweaks = $state(false)
 
@@ -61,14 +64,17 @@
   async function fetchNetworkData() {
     try {
       isLoadingTweaks = true
-      const tweaksRes = await api.get<Record<string, unknown>>('/api/network/tweaks')
-      if (typeof tweaksRes === 'object' && tweaksRes !== null) {
-        Object.keys(tweaksRes).forEach((key) => {
-          if (typeof tweaksRes[key] === 'boolean') {
-            tweaks[key] = tweaksRes[key] as boolean
-          }
-        })
+      const tweaksRes = await api.get<{
+        tweaks_json?: TweaksConfig
+        active_dns1?: string
+        active_dns2?: string
+        preset_dns?: Record<string, { primary: string; secondary: string }>
+      }>('/api/network/tweaks')
+      if (tweaksRes?.tweaks_json && typeof tweaksRes.tweaks_json === 'object') {
+        tweaks = { ...tweaks, ...tweaksRes.tweaks_json }
       }
+      if (tweaksRes?.active_dns1) activeDNS1 = tweaksRes.active_dns1
+      if (tweaksRes?.active_dns2) activeDNS2 = tweaksRes.active_dns2
     } catch {
       // Keep defaults if endpoint is stubbed
     } finally {
@@ -88,8 +94,8 @@
 
     try {
       const dnsRes = await api.get<{ primary?: string; secondary?: string; dns1?: string; dns2?: string }>('/api/network/dns')
-      if (dnsRes.primary || dnsRes.dns1) activeDNS1 = dnsRes.primary || dnsRes.dns1 || '1.1.1.1'
-      if (dnsRes.secondary || dnsRes.dns2) activeDNS2 = dnsRes.secondary || dnsRes.dns2 || '1.0.0.1'
+      if (dnsRes.primary || dnsRes.dns1) activeDNS1 = dnsRes.primary || dnsRes.dns1 || activeDNS1
+      if (dnsRes.secondary || dnsRes.dns2) activeDNS2 = dnsRes.secondary || dnsRes.dns2 || activeDNS2
     } catch {
       // Ignored
     }
@@ -111,6 +117,17 @@
     try {
       isLoadingTweaks = true
       await api.post('/api/network/tweaks/restore')
+      tweaks = {
+        lte_carrier_aggregation: false,
+        tcp_buffer_optimization: true,
+        bbr2_congestion_control: true,
+        sysctl_buffers_opt: true,
+        dalvik_responsiveness: true,
+        settings_global_tweaks: false,
+        ttl_spoofing: false,
+        packet_steering_rps: false,
+        mtu_tuning: false,
+      }
       await fetchNetworkData()
       toastStore.success('Restored sysctl parameters to original defaults.')
     } catch (err: unknown) {
@@ -220,32 +237,64 @@
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 font-mono text-xs">
       <label class="flex items-center justify-between p-3 bg-card-sub border border-border rounded cursor-pointer hover:border-accent transition-colors">
         <div>
-          <span class="font-bold text-foreground block">TCP BBR Congestion</span>
-          <span class="text-[10px] text-muted">Bottleneck Bandwidth and RTT</span>
+          <span class="font-bold text-foreground block">BBR2 Congestion Control</span>
+          <span class="text-[10px] text-muted">Optimize TCP throughput & RTT</span>
         </div>
-        <input type="checkbox" bind:checked={tweaks.tcp_bbr_enabled} class="w-4 h-4 accent-accent" />
+        <input type="checkbox" bind:checked={tweaks.bbr2_congestion_control} class="w-4 h-4 accent-accent" />
       </label>
 
       <label class="flex items-center justify-between p-3 bg-card-sub border border-border rounded cursor-pointer hover:border-accent transition-colors">
         <div>
-          <span class="font-bold text-foreground block">Low Latency Mode</span>
-          <span class="text-[10px] text-muted">Aggressive ACK & TCP nodelay</span>
+          <span class="font-bold text-foreground block">TCP Buffer Optimization</span>
+          <span class="text-[10px] text-muted">High-bandwidth buffer caps</span>
         </div>
-        <input type="checkbox" bind:checked={tweaks.low_latency_mode} class="w-4 h-4 accent-accent" />
+        <input type="checkbox" bind:checked={tweaks.tcp_buffer_optimization} class="w-4 h-4 accent-accent" />
       </label>
 
       <label class="flex items-center justify-between p-3 bg-card-sub border border-border rounded cursor-pointer hover:border-accent transition-colors">
         <div>
-          <span class="font-bold text-foreground block">TCP Fast Open (TFO)</span>
-          <span class="text-[10px] text-muted">Reduce SYN roundtrip latency</span>
+          <span class="font-bold text-foreground block">Sysctl Buffers Opt</span>
+          <span class="text-[10px] text-muted">Kernel rmem/wmem socket tuning</span>
         </div>
-        <input type="checkbox" bind:checked={tweaks.fastopen_enabled} class="w-4 h-4 accent-accent" />
+        <input type="checkbox" bind:checked={tweaks.sysctl_buffers_opt} class="w-4 h-4 accent-accent" />
+      </label>
+
+      <label class="flex items-center justify-between p-3 bg-card-sub border border-border rounded cursor-pointer hover:border-accent transition-colors">
+        <div>
+          <span class="font-bold text-foreground block">LTE Carrier Aggregation</span>
+          <span class="text-[10px] text-muted">Force 4G+ CA band aggregation</span>
+        </div>
+        <input type="checkbox" bind:checked={tweaks.lte_carrier_aggregation} class="w-4 h-4 accent-accent" />
+      </label>
+
+      <label class="flex items-center justify-between p-3 bg-card-sub border border-border rounded cursor-pointer hover:border-accent transition-colors">
+        <div>
+          <span class="font-bold text-foreground block">Dalvik Responsiveness</span>
+          <span class="text-[10px] text-muted">Android runtime responsiveness</span>
+        </div>
+        <input type="checkbox" bind:checked={tweaks.dalvik_responsiveness} class="w-4 h-4 accent-accent" />
+      </label>
+
+      <label class="flex items-center justify-between p-3 bg-card-sub border border-border rounded cursor-pointer hover:border-accent transition-colors">
+        <div>
+          <span class="font-bold text-foreground block">Settings Global Tweaks</span>
+          <span class="text-[10px] text-muted">Android settings.global tweaks</span>
+        </div>
+        <input type="checkbox" bind:checked={tweaks.settings_global_tweaks} class="w-4 h-4 accent-accent" />
+      </label>
+
+      <label class="flex items-center justify-between p-3 bg-card-sub border border-border rounded cursor-pointer hover:border-accent transition-colors">
+        <div>
+          <span class="font-bold text-foreground block">TTL Spoofing</span>
+          <span class="text-[10px] text-muted">Bypass hotspot tethering limits</span>
+        </div>
+        <input type="checkbox" bind:checked={tweaks.ttl_spoofing} class="w-4 h-4 accent-accent" />
       </label>
 
       <label class="flex items-center justify-between p-3 bg-card-sub border border-border rounded cursor-pointer hover:border-accent transition-colors">
         <div>
           <span class="font-bold text-foreground block">RPS Packet Steering</span>
-          <span class="text-[10px] text-muted">Distribute packet processing</span>
+          <span class="text-[10px] text-muted">Distribute packet processing across CPU cores</span>
         </div>
         <input type="checkbox" bind:checked={tweaks.packet_steering_rps} class="w-4 h-4 accent-accent" />
       </label>
@@ -253,25 +302,9 @@
       <label class="flex items-center justify-between p-3 bg-card-sub border border-border rounded cursor-pointer hover:border-accent transition-colors">
         <div>
           <span class="font-bold text-foreground block">Interface MTU Tuning</span>
-          <span class="text-[10px] text-muted">Optimize MSS and MTU</span>
+          <span class="text-[10px] text-muted">Optimal MSS & MTU sizing</span>
         </div>
         <input type="checkbox" bind:checked={tweaks.mtu_tuning} class="w-4 h-4 accent-accent" />
-      </label>
-
-      <label class="flex items-center justify-between p-3 bg-card-sub border border-border rounded cursor-pointer hover:border-accent transition-colors">
-        <div>
-          <span class="font-bold text-foreground block">Disable IPv6</span>
-          <span class="text-[10px] text-muted">Prevent IPv6 leak / routing loops</span>
-        </div>
-        <input type="checkbox" bind:checked={tweaks.ipv6_disable} class="w-4 h-4 accent-accent" />
-      </label>
-
-      <label class="flex items-center justify-between p-3 bg-card-sub border border-border rounded cursor-pointer hover:border-accent transition-colors">
-        <div>
-          <span class="font-bold text-foreground block">Kernel Buffer Tuning</span>
-          <span class="text-[10px] text-muted">Increase wmem and rmem caps</span>
-        </div>
-        <input type="checkbox" bind:checked={tweaks.buffer_tuning} class="w-4 h-4 accent-accent" />
       </label>
     </div>
   </Card>

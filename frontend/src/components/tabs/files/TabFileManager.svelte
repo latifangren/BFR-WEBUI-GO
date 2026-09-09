@@ -14,10 +14,22 @@
     Save,
     X,
     File,
+    Search,
+    HardDrive,
+    Shield,
+    FileArchive,
+    Copy,
+    FolderInput,
+    Check,
   } from '@lucide/svelte'
   import { api } from '../../../api/client'
   import { toastStore } from '../../../stores/toast.svelte'
-  import type { FileEntry, FileListResponse } from '../../../types/files'
+  import type {
+    FileEntry,
+    FileListResponse,
+    FileReadResponse,
+    FileStorageInfo,
+  } from '../../../types/files'
   import Card from '../../ui/Card.svelte'
   import Button from '../../ui/Button.svelte'
   import Badge from '../../ui/Badge.svelte'
@@ -27,6 +39,12 @@
   let currentPath = $state('/sdcard')
   let files = $state<FileEntry[]>([])
   let isLoading = $state(false)
+  let storageInfo = $state<FileStorageInfo | null>(null)
+
+  // Search State
+  let searchQuery = $state('')
+  let isSearching = $state(false)
+  let searchResults = $state<FileEntry[] | null>(null)
 
   // Editor Modal
   let editorOpen = $state(false)
@@ -48,20 +66,52 @@
   let deleteModalOpen = $state(false)
   let deleteTarget = $state<FileEntry | null>(null)
 
+  // Permissions Modal (Chmod)
+  let permModalOpen = $state(false)
+  let permTarget = $state<FileEntry | null>(null)
+  let permMode = $state('0755')
+
+  // Compress Modal (ZIP)
+  let compressModalOpen = $state(false)
+  let compressTarget = $state<FileEntry | null>(null)
+  let compressDestName = $state('')
+
+  // Extract Modal (Unzip)
+  let extractModalOpen = $state(false)
+  let extractTarget = $state<FileEntry | null>(null)
+  let extractDestDir = $state('')
+
+  // Copy & Move Modal
+  let copyMoveModalOpen = $state(false)
+  let copyMoveTarget = $state<FileEntry | null>(null)
+  let copyMoveAction = $state<'copy' | 'move'>('copy')
+  let copyMoveDest = $state('')
+
   // File Upload
   let uploadInputEl: HTMLInputElement | null = $state(null)
   let isUploading = $state(false)
 
   onMount(async () => {
     await navigateTo(currentPath)
+    await fetchStorageInfo()
   })
+
+  async function fetchStorageInfo() {
+    try {
+      const res = await api.get<FileStorageInfo>('/api/files/storage')
+      if (res) storageInfo = res
+    } catch {
+      // Ignored if storage query unsupported
+    }
+  }
 
   async function navigateTo(path: string) {
     try {
       isLoading = true
       const res = await api.get<FileListResponse>(`/api/files/list?path=${encodeURIComponent(path)}`)
-      currentPath = res.current_path || path
+      currentPath = res.path || res.current_path || path
       files = Array.isArray(res.files) ? res.files : []
+      searchResults = null
     } catch (err: unknown) {
       toastStore.error(err instanceof Error ? err.message : 'Failed to list directory')
     } finally {
@@ -85,15 +135,47 @@
     return `${(bytes / Math.pow(k, i)).toFixed(1)} ${sizes[i]}`
   }
 
+  function isArchive(file: FileEntry): boolean {
+    if (file.is_dir) return false
+    const n = file.name.toLowerCase()
+    return n.endsWith('.zip') || n.endsWith('.tar.gz') || n.endsWith('.tgz') || n.endsWith('.tar')
+  }
+
+  // --- Search ---
+  async function runSearch() {
+    if (!searchQuery.trim()) {
+      searchResults = null
+      return
+    }
+    try {
+      isSearching = true
+      const res = await api.get<{ files?: FileEntry[] }>(
+        `/api/files/search?path=${encodeURIComponent(currentPath)}&query=${encodeURIComponent(searchQuery.trim())}`
+      )
+      searchResults = Array.isArray(res.files) ? res.files : []
+      toastStore.success(`Found ${searchResults.length} matches for "${searchQuery}"`)
+    } catch (err: unknown) {
+      toastStore.error(err instanceof Error ? err.message : 'Search failed')
+    } finally {
+      isSearching = false
+    }
+  }
+
+  function clearSearch() {
+    searchQuery = ''
+    searchResults = null
+  }
+
+  // --- Text File Reading & Editing ---
   async function openEditor(file: FileEntry) {
     try {
       isLoading = true
       editorFilePath = file.path
-      const text = await api.get<string>(`/api/files/download?path=${encodeURIComponent(file.path)}`)
-      editorContent = typeof text === 'string' ? text : JSON.stringify(text, null, 2)
+      const res = await api.get<FileReadResponse>(`/api/files/read?path=${encodeURIComponent(file.path)}`)
+      editorContent = res.content || ''
       editorOpen = true
     } catch (err: unknown) {
-      toastStore.error(err instanceof Error ? err.message : 'Failed to load file content')
+      toastStore.error(err instanceof Error ? err.message : 'Failed to read file content')
     } finally {
       isLoading = false
     }
@@ -116,24 +198,28 @@
     }
   }
 
+  // --- Creation ---
   async function handleCreate() {
     if (!createName) return
-    const targetPath = `${currentPath.replace(/\/$/, '')}/${createName}`
+    const newPath = `${currentPath.replace(/\/+$/, '')}/${createName}`
+
     try {
       if (createType === 'file') {
-        await api.post('/api/files/create', { path: targetPath })
+        await api.post('/api/files/create', { path: newPath })
       } else {
-        await api.post('/api/files/mkdir', { path: targetPath })
+        await api.post('/api/files/mkdir', { path: newPath })
       }
-      toastStore.success(`${createType === 'file' ? 'File' : 'Folder'} created.`)
+      toastStore.success(`Created ${createType} successfully.`)
       createModalOpen = false
       createName = ''
       await navigateTo(currentPath)
+      await fetchStorageInfo()
     } catch (err: unknown) {
-      toastStore.error(err instanceof Error ? err.message : 'Failed to create item')
+      toastStore.error(err instanceof Error ? err.message : `Failed to create ${createType}`)
     }
   }
 
+  // --- Rename ---
   function startRename(file: FileEntry) {
     renameTarget = file
     newFileName = file.name
@@ -142,8 +228,8 @@
 
   async function handleRename() {
     if (!renameTarget || !newFileName) return
-    const parent = renameTarget.path.substring(0, renameTarget.path.lastIndexOf('/'))
-    const newPath = `${parent}/${newFileName}`
+    const newPath = `${currentPath.replace(/\/+$/, '')}/${newFileName}`
+
     try {
       await api.post('/api/files/rename', {
         old_path: renameTarget.path,
@@ -158,6 +244,7 @@
     }
   }
 
+  // --- Delete ---
   function startDelete(file: FileEntry) {
     deleteTarget = file
     deleteModalOpen = true
@@ -171,11 +258,13 @@
       deleteModalOpen = false
       deleteTarget = null
       await navigateTo(currentPath)
+      await fetchStorageInfo()
     } catch (err: unknown) {
       toastStore.error(err instanceof Error ? err.message : 'Failed to delete item')
     }
   }
 
+  // --- Upload & Download ---
   async function handleUpload(e: Event) {
     const target = e.target as HTMLInputElement
     if (!target.files || target.files.length === 0) return
@@ -190,6 +279,7 @@
       toastStore.success(`Uploaded ${file.name} successfully.`)
       if (uploadInputEl) uploadInputEl.value = ''
       await navigateTo(currentPath)
+      await fetchStorageInfo()
     } catch (err: unknown) {
       toastStore.error(err instanceof Error ? err.message : 'Upload failed')
     } finally {
@@ -206,6 +296,108 @@
     document.body.removeChild(link)
   }
 
+  // --- Permissions (Chmod) ---
+  function startPermissions(file: FileEntry) {
+    permTarget = file
+    permMode = file.permissions ? file.permissions.slice(-4) : file.is_dir ? '0755' : '0644'
+    permModalOpen = true
+  }
+
+  async function handlePermissions() {
+    if (!permTarget) return
+    try {
+      await api.post('/api/files/permissions', {
+        path: permTarget.path,
+        mode: permMode,
+      })
+      toastStore.success(`Permissions for ${permTarget.name} set to ${permMode}.`)
+      permModalOpen = false
+      permTarget = null
+      await navigateTo(currentPath)
+    } catch (err: unknown) {
+      toastStore.error(err instanceof Error ? err.message : 'Failed to update permissions')
+    }
+  }
+
+  // --- Compress (ZIP) ---
+  function startCompress(file: FileEntry) {
+    compressTarget = file
+    compressDestName = `${file.name}.zip`
+    compressModalOpen = true
+  }
+
+  async function handleCompress() {
+    if (!compressTarget) return
+    try {
+      const destZip = `${currentPath.replace(/\/+$/, '')}/${compressDestName}`
+      await api.post('/api/files/compress', {
+        paths: [compressTarget.path],
+        dest_zip: destZip,
+        destination: destZip,
+      })
+      toastStore.success(`Archive "${compressDestName}" created.`)
+      compressModalOpen = false
+      compressTarget = null
+      await navigateTo(currentPath)
+      await fetchStorageInfo()
+    } catch (err: unknown) {
+      toastStore.error(err instanceof Error ? err.message : 'Failed to compress item')
+    }
+  }
+
+  // --- Extract (Unzip) ---
+  function startExtract(file: FileEntry) {
+    extractTarget = file
+    extractDestDir = currentPath
+    extractModalOpen = true
+  }
+
+  async function handleExtract() {
+    if (!extractTarget) return
+    try {
+      await api.post('/api/files/extract', {
+        path: extractTarget.path,
+        zip_path: extractTarget.path,
+        destination: extractDestDir,
+        dest_dir: extractDestDir,
+      })
+      toastStore.success(`Extracted "${extractTarget.name}" to ${extractDestDir}.`)
+      extractModalOpen = false
+      extractTarget = null
+      await navigateTo(currentPath)
+      await fetchStorageInfo()
+    } catch (err: unknown) {
+      toastStore.error(err instanceof Error ? err.message : 'Failed to extract archive')
+    }
+  }
+
+  // --- Copy & Move ---
+  function startCopyMove(file: FileEntry, action: 'copy' | 'move') {
+    copyMoveTarget = file
+    copyMoveAction = action
+    copyMoveDest = currentPath
+    copyMoveModalOpen = true
+  }
+
+  async function handleCopyMove() {
+    if (!copyMoveTarget) return
+    try {
+      const dst = `${copyMoveDest.replace(/\/+$/, '')}/${copyMoveTarget.name}`
+      const endpoint = copyMoveAction === 'copy' ? '/api/files/copy' : '/api/files/move'
+      await api.post(endpoint, {
+        src: copyMoveTarget.path,
+        dst,
+      })
+      toastStore.success(`${copyMoveAction === 'copy' ? 'Copied' : 'Moved'} to ${copyMoveDest} successfully.`)
+      copyMoveModalOpen = false
+      copyMoveTarget = null
+      await navigateTo(currentPath)
+      await fetchStorageInfo()
+    } catch (err: unknown) {
+      toastStore.error(err instanceof Error ? err.message : `Failed to ${copyMoveAction} item`)
+    }
+  }
+
   const breadcrumbs = $derived(
     currentPath
       .split('/')
@@ -215,6 +407,8 @@
         path: '/' + arr.slice(0, idx + 1).join('/'),
       }))
   )
+
+  const displayedFiles = $derived(searchResults !== null ? searchResults : files)
 </script>
 
 <div class="space-y-4">
@@ -289,53 +483,129 @@
     </div>
   </div>
 
-  <!-- Breadcrumb Path Navigator -->
-  <div class="p-2.5 bg-card border-2 border-border shadow-neobrutal-sm rounded flex items-center gap-1.5 font-mono text-xs overflow-x-auto">
-    <button
-      type="button"
-      class="text-accent hover:underline font-bold shrink-0 cursor-pointer"
-      onclick={() => navigateTo('/')}
-    >
-      /
-    </button>
-    {#each breadcrumbs as bc}
-      <span class="text-muted shrink-0">/</span>
+  <!-- Storage Capacity Banner -->
+  {#if storageInfo}
+    <div class="p-3 bg-card-sub border-2 border-border shadow-neobrutal-sm rounded font-mono text-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+      <div class="flex items-center gap-2">
+        <HardDrive class="w-4 h-4 text-accent shrink-0" />
+        <div>
+          <span class="font-bold text-foreground">Storage Mount: {storageInfo.mount || currentPath}</span>
+          <span class="text-muted text-[11px] block sm:inline sm:ml-2">
+            ({formatBytes(storageInfo.used)} used of {formatBytes(storageInfo.total)})
+          </span>
+        </div>
+      </div>
+      <div class="flex items-center gap-3">
+        <div class="w-32 sm:w-44 bg-card border border-border rounded-full h-2.5 overflow-hidden">
+          <div
+            class="bg-accent h-full rounded-full transition-all"
+            style="width: {Math.min(100, Math.max(0, storageInfo.used_pct || 0))}%;"
+          ></div>
+        </div>
+        <span class="font-bold text-accent text-[11px] whitespace-nowrap">
+          {(storageInfo.used_pct || 0).toFixed(1)}% ({formatBytes(storageInfo.free)} free)
+        </span>
+      </div>
+    </div>
+  {/if}
+
+  <!-- Breadcrumb Path Navigator & Search Row -->
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-2">
+    <!-- Breadcrumbs -->
+    <div class="md:col-span-2 p-2.5 bg-card border-2 border-border shadow-neobrutal-sm rounded flex items-center gap-1.5 font-mono text-xs overflow-x-auto">
       <button
         type="button"
-        class="text-foreground hover:text-accent hover:underline shrink-0 cursor-pointer font-bold"
-        onclick={() => navigateTo(bc.path)}
+        class="text-accent hover:underline font-bold shrink-0 cursor-pointer"
+        onclick={() => navigateTo('/')}
       >
-        {bc.name}
+        /
       </button>
-    {/each}
+      {#each breadcrumbs as bc}
+        <span class="text-muted shrink-0">/</span>
+        <button
+          type="button"
+          class="text-foreground hover:text-accent truncate cursor-pointer {bc.path === currentPath ? 'font-bold text-accent' : ''}"
+          onclick={() => navigateTo(bc.path)}
+        >
+          {bc.name}
+        </button>
+      {/each}
+    </div>
+
+    <!-- Search Input -->
+    <div class="flex items-center gap-1.5">
+      <div class="relative flex-1">
+        <Input
+          placeholder="Search current folder..."
+          bind:value={searchQuery}
+          onchange={runSearch}
+        />
+      </div>
+      <Button
+        variant="secondary"
+        size="md"
+        disabled={isSearching}
+        onclick={runSearch}
+        title="Search"
+      >
+        <Search class="w-3.5 h-3.5 {isSearching ? 'animate-spin' : ''}" />
+      </Button>
+      {#if searchResults !== null}
+        <Button
+          variant="outline"
+          size="md"
+          onclick={clearSearch}
+          title="Clear search"
+        >
+          <X class="w-3.5 h-3.5 text-red-400" />
+        </Button>
+      {/if}
+    </div>
   </div>
 
-  <!-- File Table -->
-  <Card class="overflow-hidden p-0">
+  <!-- Search Filter Active Banner -->
+  {#if searchResults !== null}
+    <div class="p-2.5 bg-card-sub border border-border rounded flex items-center justify-between font-mono text-xs text-foreground">
+      <span>
+        Showing search results for <strong class="text-accent">"{searchQuery}"</strong> ({searchResults.length} matches)
+      </span>
+      <button
+        type="button"
+        class="text-xs text-muted hover:text-red-400 cursor-pointer flex items-center gap-1"
+        onclick={clearSearch}
+      >
+        <X class="w-3 h-3" />
+        <span>Clear</span>
+      </button>
+    </div>
+  {/if}
+
+  <!-- Files Table Container -->
+  <Card class="p-0 overflow-hidden font-mono text-xs">
     {#if isLoading && files.length === 0}
-      <div class="p-12 text-center font-mono text-xs text-muted">
+      <div class="p-12 text-center text-muted">
         <RefreshCw class="w-6 h-6 animate-spin mx-auto mb-2 text-accent" />
-        Reading filesystem directory...
+        Loading filesystem entries...
       </div>
-    {:else if files.length === 0}
-      <div class="p-12 text-center font-mono text-xs text-muted">
-        <FolderOpen class="w-8 h-8 mx-auto mb-2 opacity-40 text-accent" />
-        Directory is empty.
+    {:else if displayedFiles.length === 0}
+      <div class="p-12 text-center text-muted">
+        <FolderOpen class="w-6 h-6 mx-auto mb-2 opacity-50" />
+        {searchResults !== null ? 'No files match your search query.' : 'This directory is empty.'}
       </div>
     {:else}
       <div class="overflow-x-auto">
-        <table class="w-full text-left font-mono text-xs">
+        <table class="w-full text-left">
           <thead>
-            <tr class="border-b border-border bg-card-sub text-muted uppercase text-[10px]">
+            <tr class="border-b-2 border-border text-muted uppercase text-[10px] bg-card-sub">
               <th class="py-2.5 px-3">Name</th>
-              <th class="py-2.5 px-3">Size</th>
-              <th class="py-2.5 px-3 hidden sm:table-cell">Perms</th>
-              <th class="py-2.5 px-3 hidden md:table-cell">Modified</th>
+              <th class="py-2.5 px-3 w-24">Size</th>
+              <th class="py-2.5 px-3 w-28 hidden sm:table-cell">Perms</th>
+              <th class="py-2.5 px-3 w-36 hidden md:table-cell">Modified</th>
               <th class="py-2.5 px-3 text-right">Actions</th>
             </tr>
           </thead>
           <tbody class="divide-y divide-border">
-            {#each files as file}
+            {#each displayedFiles as file (file.path)}
               <tr class="hover:bg-card-sub/60 transition-colors">
                 <!-- Name & Icon -->
                 <td class="py-2.5 px-3">
@@ -354,7 +624,11 @@
                       class="flex items-center gap-2 text-foreground hover:text-accent cursor-pointer truncate max-w-xs sm:max-w-md text-left"
                       onclick={() => openEditor(file)}
                     >
-                      <FileText class="w-4 h-4 text-muted shrink-0" />
+                      {#if isArchive(file)}
+                        <FileArchive class="w-4 h-4 text-amber-400 shrink-0" />
+                      {:else}
+                        <FileText class="w-4 h-4 text-muted shrink-0" />
+                      {/if}
                       <span class="truncate">{file.name}</span>
                     </button>
                   {/if}
@@ -367,7 +641,14 @@
 
                 <!-- Perms -->
                 <td class="py-2.5 px-3 text-muted hidden sm:table-cell text-[11px]">
-                  {file.permissions || '0644'}
+                  <button
+                    type="button"
+                    class="hover:text-accent hover:underline cursor-pointer"
+                    onclick={() => startPermissions(file)}
+                    title="Change permissions"
+                  >
+                    {file.permissions || (file.is_dir ? '0755' : '0644')}
+                  </button>
                 </td>
 
                 <!-- Modified Time -->
@@ -378,37 +659,93 @@
                 <!-- Actions -->
                 <td class="py-2.5 px-3 text-right">
                   <div class="flex items-center justify-end gap-1">
+                    <!-- Extract Archive -->
+                    {#if isArchive(file)}
+                      <button
+                        type="button"
+                        class="p-1 rounded hover:bg-card text-muted hover:text-amber-400 transition-colors cursor-pointer"
+                        onclick={() => startExtract(file)}
+                        title="Extract Archive"
+                        aria-label="Extract Archive"
+                      >
+                        <FileArchive class="w-3.5 h-3.5" />
+                      </button>
+                    {/if}
+
+                    <!-- Compress Item -->
+                    <button
+                      type="button"
+                      class="p-1 rounded hover:bg-card text-muted hover:text-blue-400 transition-colors cursor-pointer"
+                      onclick={() => startCompress(file)}
+                      title="Compress into ZIP"
+                      aria-label="Compress"
+                    >
+                      <FolderInput class="w-3.5 h-3.5" />
+                    </button>
+
+                    <!-- Copy Item -->
+                    <button
+                      type="button"
+                      class="p-1 rounded hover:bg-card text-muted hover:text-purple-400 transition-colors cursor-pointer"
+                      onclick={() => startCopyMove(file, 'copy')}
+                      title="Copy"
+                      aria-label="Copy"
+                    >
+                      <Copy class="w-3.5 h-3.5" />
+                    </button>
+
+                    <!-- Download File -->
                     {#if !file.is_dir}
                       <button
                         type="button"
-                        class="p-1 rounded hover:bg-card text-muted hover:text-accent cursor-pointer"
-                        onclick={() => openEditor(file)}
-                        title="Edit text"
-                      >
-                        <Edit2 class="w-3.5 h-3.5" />
-                      </button>
-                      <button
-                        type="button"
-                        class="p-1 rounded hover:bg-card text-muted hover:text-emerald-400 cursor-pointer"
+                        class="p-1 rounded hover:bg-card text-muted hover:text-accent transition-colors cursor-pointer"
                         onclick={() => downloadFile(file)}
                         title="Download"
+                        aria-label="Download"
                       >
                         <Download class="w-3.5 h-3.5" />
                       </button>
+
+                      <button
+                        type="button"
+                        class="p-1 rounded hover:bg-card text-muted hover:text-accent transition-colors cursor-pointer"
+                        onclick={() => openEditor(file)}
+                        title="Edit text"
+                        aria-label="Edit"
+                      >
+                        <Edit2 class="w-3.5 h-3.5" />
+                      </button>
                     {/if}
+
+                    <!-- Chmod Permissions -->
                     <button
                       type="button"
-                      class="p-1 rounded hover:bg-card text-muted hover:text-blue-400 cursor-pointer"
+                      class="p-1 rounded hover:bg-card text-muted hover:text-amber-400 transition-colors cursor-pointer"
+                      onclick={() => startPermissions(file)}
+                      title="Permissions (Chmod)"
+                      aria-label="Permissions"
+                    >
+                      <Shield class="w-3.5 h-3.5" />
+                    </button>
+
+                    <!-- Rename Item -->
+                    <button
+                      type="button"
+                      class="p-1 rounded hover:bg-card text-muted hover:text-foreground transition-colors cursor-pointer"
                       onclick={() => startRename(file)}
                       title="Rename"
+                      aria-label="Rename"
                     >
-                      <File class="w-3.5 h-3.5" />
+                      <Edit2 class="w-3.5 h-3.5" />
                     </button>
+
+                    <!-- Delete Item -->
                     <button
                       type="button"
-                      class="p-1 rounded hover:bg-card text-muted hover:text-red-400 cursor-pointer"
+                      class="p-1 rounded hover:bg-card text-muted hover:text-red-400 transition-colors cursor-pointer"
                       onclick={() => startDelete(file)}
                       title="Delete"
+                      aria-label="Delete"
                     >
                       <Trash2 class="w-3.5 h-3.5" />
                     </button>
@@ -422,38 +759,40 @@
     {/if}
   </Card>
 
-  <!-- In-Browser Text Editor Modal -->
+  <!-- Text File Editor Modal -->
   {#if editorOpen}
     <Modal
       open={true}
       title={`Editing: ${editorFilePath}`}
-      class="max-w-3xl"
+      class="max-w-4xl"
       onclose={() => (editorOpen = false)}
     >
       <div class="space-y-4 font-mono text-xs">
         <textarea
           bind:value={editorContent}
           rows="18"
-          class="w-full bg-[#090d16] text-foreground border border-border rounded p-3 text-xs font-mono focus:outline-none focus:border-accent resize-y"
+          class="w-full bg-card-sub border-2 border-border rounded p-3 font-mono text-xs text-foreground focus:outline-none focus:border-accent resize-y"
+          placeholder="File is empty"
         ></textarea>
 
-        <div class="flex items-center justify-end gap-2 border-t border-border pt-3">
-          <Button
-            variant="ghost"
-            size="md"
-            onclick={() => (editorOpen = false)}
-          >
-            Cancel
-          </Button>
-          <Button
-            variant="primary"
-            size="md"
-            disabled={isSavingFile}
-            onclick={saveFileContent}
-          >
-            <Save class="w-3.5 h-3.5 mr-1.5" />
-            <span>{isSavingFile ? 'Saving...' : 'Save File'}</span>
-          </Button>
+        <div class="flex items-center justify-between pt-2 border-t border-border">
+          <span class="text-muted text-[11px] truncate max-w-sm">
+            {editorFilePath}
+          </span>
+          <div class="flex items-center gap-2">
+            <Button variant="ghost" size="md" onclick={() => (editorOpen = false)}>
+              Cancel
+            </Button>
+            <Button
+              variant="primary"
+              size="md"
+              disabled={isSavingFile}
+              onclick={saveFileContent}
+            >
+              <Save class="w-3.5 h-3.5 mr-1.5" />
+              <span>{isSavingFile ? 'Saving...' : 'Save File'}</span>
+            </Button>
+          </div>
         </div>
       </div>
     </Modal>
@@ -500,7 +839,7 @@
           <Button variant="ghost" size="md" onclick={() => (renameModalOpen = false)}>
             Cancel
           </Button>
-          <Button type="submit" variant="primary" size="md" disabled={!newFileName}>
+          <Button type="submit" variant="primary" size="md" disabled={!newFileName || newFileName === renameTarget.name}>
             Rename
           </Button>
         </div>
@@ -512,26 +851,143 @@
   {#if deleteModalOpen && deleteTarget}
     <Modal
       open={true}
-      title="Confirm Delete"
+      title="Confirm Deletion"
       onclose={() => (deleteModalOpen = false)}
     >
       <div class="space-y-4 font-mono text-xs">
-        <p class="text-foreground">
-          Are you sure you want to permanently delete
-          <span class="font-bold text-red-400 font-mono">
+        <p class="text-foreground leading-relaxed">
+          Are you sure you want to permanently delete:
+          <span class="font-bold text-red-400 block mt-1 break-all">
             {deleteTarget.path}
           </span>
-          ?
         </p>
+
         <div class="flex justify-end gap-2 pt-2 border-t border-border">
           <Button variant="ghost" size="md" onclick={() => (deleteModalOpen = false)}>
             Cancel
           </Button>
           <Button variant="danger" size="md" onclick={handleDelete}>
-            Delete
+            <Trash2 class="w-3.5 h-3.5 mr-1" />
+            <span>Delete Permanently</span>
           </Button>
         </div>
       </div>
+    </Modal>
+  {/if}
+
+  <!-- Permissions Modal (Chmod) -->
+  {#if permModalOpen && permTarget}
+    <Modal
+      open={true}
+      title={`Permissions (Chmod): ${permTarget.name}`}
+      onclose={() => (permModalOpen = false)}
+    >
+      <form onsubmit={(e) => { e.preventDefault(); handlePermissions() }} class="space-y-4 font-mono text-xs">
+        <Input
+          label="Octal Mode (e.g. 0755, 0644, 0777)"
+          placeholder="0755"
+          bind:value={permMode}
+        />
+        <p class="text-[11px] text-muted">
+          Standard Linux octal permission mode applied directly to filesystem inode.
+        </p>
+        <div class="flex justify-end gap-2 pt-2 border-t border-border">
+          <Button variant="ghost" size="md" onclick={() => (permModalOpen = false)}>
+            Cancel
+          </Button>
+          <Button type="submit" variant="primary" size="md" disabled={!permMode}>
+            <Check class="w-3.5 h-3.5 mr-1" />
+            <span>Apply Chmod</span>
+          </Button>
+        </div>
+      </form>
+    </Modal>
+  {/if}
+
+  <!-- Compress Modal (ZIP) -->
+  {#if compressModalOpen && compressTarget}
+    <Modal
+      open={true}
+      title={`Compress: ${compressTarget.name}`}
+      onclose={() => (compressModalOpen = false)}
+    >
+      <form onsubmit={(e) => { e.preventDefault(); handleCompress() }} class="space-y-4 font-mono text-xs">
+        <Input
+          label="Archive ZIP File Name"
+          placeholder="archive.zip"
+          bind:value={compressDestName}
+        />
+        <div class="flex justify-end gap-2 pt-2 border-t border-border">
+          <Button variant="ghost" size="md" onclick={() => (compressModalOpen = false)}>
+            Cancel
+          </Button>
+          <Button type="submit" variant="primary" size="md" disabled={!compressDestName}>
+            <FolderInput class="w-3.5 h-3.5 mr-1" />
+            <span>Create ZIP</span>
+          </Button>
+        </div>
+      </form>
+    </Modal>
+  {/if}
+
+  <!-- Extract Modal (Unzip) -->
+  {#if extractModalOpen && extractTarget}
+    <Modal
+      open={true}
+      title={`Extract Archive: ${extractTarget.name}`}
+      onclose={() => (extractModalOpen = false)}
+    >
+      <form onsubmit={(e) => { e.preventDefault(); handleExtract() }} class="space-y-4 font-mono text-xs">
+        <Input
+          label="Destination Folder"
+          placeholder="/sdcard/extracted"
+          bind:value={extractDestDir}
+        />
+        <div class="flex justify-end gap-2 pt-2 border-t border-border">
+          <Button variant="ghost" size="md" onclick={() => (extractModalOpen = false)}>
+            Cancel
+          </Button>
+          <Button type="submit" variant="primary" size="md" disabled={!extractDestDir}>
+            <FileArchive class="w-3.5 h-3.5 mr-1" />
+            <span>Extract Files</span>
+          </Button>
+        </div>
+      </form>
+    </Modal>
+  {/if}
+
+  <!-- Copy & Move Modal -->
+  {#if copyMoveModalOpen && copyMoveTarget}
+    <Modal
+      open={true}
+      title={`${copyMoveAction === 'copy' ? 'Copy' : 'Move'}: ${copyMoveTarget.name}`}
+      onclose={() => (copyMoveModalOpen = false)}
+    >
+      <form onsubmit={(e) => { e.preventDefault(); handleCopyMove() }} class="space-y-4 font-mono text-xs">
+        <div class="p-2.5 bg-card-sub border border-border rounded flex items-center justify-between">
+          <span class="text-muted">Target Item:</span>
+          <span class="font-bold text-foreground">{copyMoveTarget.name}</span>
+        </div>
+        <Input
+          label="Destination Directory"
+          placeholder="/sdcard/download"
+          bind:value={copyMoveDest}
+        />
+        <div class="flex justify-end gap-2 pt-2 border-t border-border">
+          <Button variant="ghost" size="md" onclick={() => (copyMoveModalOpen = false)}>
+            Cancel
+          </Button>
+          <Button type="submit" variant="primary" size="md" disabled={!copyMoveDest}>
+            {#if copyMoveAction === 'copy'}
+              <Copy class="w-3.5 h-3.5 mr-1" />
+              <span>Copy Here</span>
+            {:else}
+              <FolderInput class="w-3.5 h-3.5 mr-1" />
+              <span>Move Here</span>
+            {/if}
+          </Button>
+        </div>
+      </form>
     </Modal>
   {/if}
 </div>

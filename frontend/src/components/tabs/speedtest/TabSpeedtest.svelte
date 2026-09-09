@@ -8,6 +8,7 @@
     ArrowUp,
     Activity,
     Server,
+    RefreshCw,
   } from '@lucide/svelte'
   import { api } from '../../../api/client'
   import { toastStore } from '../../../stores/toast.svelte'
@@ -28,6 +29,17 @@
     error?: string
   }
 
+  interface SpeedtestHistoryItem {
+    timestamp: string
+    ping: number
+    jitter?: number
+    download: number
+    upload: number
+    client_ip?: string
+    isp?: string
+    server_name?: string
+  }
+
   let result = $state<SpeedtestData>({
     ping_ms: 0,
     jitter_ms: 0,
@@ -38,14 +50,31 @@
     running: false,
   })
 
+  let history = $state<SpeedtestHistoryItem[]>([])
+  let isLoadingHistory = $state(false)
   let pollTimer: ReturnType<typeof setInterval> | null = null
 
   onMount(() => {
     fetchStatus()
+    fetchHistory()
     return () => {
       stopPolling()
     }
   })
+
+  async function fetchHistory() {
+    try {
+      isLoadingHistory = true
+      const res = await api.get<SpeedtestHistoryItem[]>('/api/speedtest/history')
+      if (Array.isArray(res)) {
+        history = res
+      }
+    } catch {
+      // Ignored
+    } finally {
+      isLoadingHistory = false
+    }
+  }
 
   onDestroy(() => {
     stopPolling()
@@ -70,8 +99,14 @@
 
   async function fetchStatus() {
     try {
+      const prevRunning = result.running
       const res = await api.get<SpeedtestData>('/api/speedtest/status')
-      if (res) result = res
+      if (res) {
+        result = res
+        if (prevRunning && !res.running) {
+          fetchHistory()
+        }
+      }
     } catch {
       // Ignored
     }
@@ -199,4 +234,94 @@
       </div>
     </Card>
   {/if}
+
+  <!-- Speedtest History Section -->
+  <Card title="Speedtest History & Diagnostics">
+    {#snippet action()}
+      <Button
+        variant="secondary"
+        size="sm"
+        disabled={isLoadingHistory}
+        onclick={fetchHistory}
+      >
+        <RefreshCw class="w-3.5 h-3.5 mr-1 {isLoadingHistory ? 'animate-spin' : ''}" />
+        <span>Refresh</span>
+      </Button>
+    {/snippet}
+
+    {#if isLoadingHistory && history.length === 0}
+      <div class="p-8 text-center font-mono text-xs text-muted">
+        <Activity class="w-5 h-5 animate-spin mx-auto mb-2 text-accent" />
+        Loading historical speedtest records...
+      </div>
+    {:else if history.length === 0}
+      <div class="p-8 text-center font-mono text-xs text-muted border-2 border-dashed border-border rounded-lg">
+        <Zap class="w-6 h-6 mx-auto mb-2 text-accent opacity-50" />
+        No speedtest history records found. Run your first speedtest above!
+      </div>
+    {:else}
+      <!-- Responsive Table for sm+ -->
+      <div class="hidden sm:block overflow-x-auto">
+        <table class="w-full text-left font-mono text-xs border-collapse">
+          <thead>
+            <tr class="border-b border-border text-muted uppercase text-[10px]">
+              <th class="pb-2.5 font-bold">Timestamp</th>
+              <th class="pb-2.5 font-bold">Server / Node</th>
+              <th class="pb-2.5 font-bold text-right">Ping</th>
+              <th class="pb-2.5 font-bold text-right">Download</th>
+              <th class="pb-2.5 font-bold text-right">Upload</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-border/60">
+            {#each history as item}
+              <tr class="hover:bg-card-sub transition-colors">
+                <td class="py-2.5 text-foreground">{item.timestamp}</td>
+                <td class="py-2.5 text-muted">
+                  <span class="text-foreground font-bold">{item.server_name || 'Automatic'}</span>
+                  {#if item.isp}
+                    <span class="text-[10px] block opacity-75">{item.isp}</span>
+                  {/if}
+                </td>
+                <td class="py-2.5 text-right text-foreground font-bold">
+                  {item.ping ? item.ping.toFixed(1) : '0'} ms
+                </td>
+                <td class="py-2.5 text-right font-black text-accent">
+                  {item.download ? item.download.toFixed(1) : '0'} Mbps
+                </td>
+                <td class="py-2.5 text-right font-black text-purple-400">
+                  {item.upload ? item.upload.toFixed(1) : '0'} Mbps
+                </td>
+              </tr>
+            {/each}
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Card View for mobile screens -->
+      <div class="sm:hidden space-y-2.5 font-mono text-xs">
+        {#each history as item}
+          <div class="p-3 rounded bg-card-sub border border-border space-y-2">
+            <div class="flex items-center justify-between">
+              <span class="text-[10px] text-muted">{item.timestamp}</span>
+              <span class="text-[10px] font-bold text-foreground">{item.server_name || 'Speedtest'}</span>
+            </div>
+            <div class="grid grid-cols-3 gap-1 pt-1 border-t border-border/60 text-center">
+              <div>
+                <span class="text-[9px] text-muted block uppercase font-bold">Ping</span>
+                <span class="font-bold text-foreground">{item.ping ? item.ping.toFixed(0) : '0'} ms</span>
+              </div>
+              <div>
+                <span class="text-[9px] text-muted block uppercase font-bold">Down</span>
+                <span class="font-black text-accent">{item.download ? item.download.toFixed(1) : '0'} M</span>
+              </div>
+              <div>
+                <span class="text-[9px] text-muted block uppercase font-bold">Up</span>
+                <span class="font-black text-purple-400">{item.upload ? item.upload.toFixed(1) : '0'} M</span>
+              </div>
+            </div>
+          </div>
+        {/each}
+      </div>
+    {/if}
+  </Card>
 </div>

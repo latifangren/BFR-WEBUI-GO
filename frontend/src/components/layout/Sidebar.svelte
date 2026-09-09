@@ -21,6 +21,8 @@
     Send,
     Info,
     X,
+    MessageSquare,
+    Box,
   } from '@lucide/svelte'
   import { navigationStore, AVAILABLE_TABS, type TabItem } from '../../stores/navigation.svelte'
 
@@ -33,9 +35,12 @@
     hotspot: Wifi,
     proxy: Shield,
     modem: Radio,
+    sms: MessageSquare,
     power: Power,
     charger: BatteryCharging,
+    modules: Box,
     terminal: Terminal,
+    ssh: Terminal,
     scrcpy: Smartphone,
     files: FolderOpen,
     logs: FileText,

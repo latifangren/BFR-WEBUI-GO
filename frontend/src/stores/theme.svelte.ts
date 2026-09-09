@@ -1,18 +1,50 @@
 import type { ThemeMode, UIStyle } from '../types/common'
 
+const VALID_THEMES: ThemeMode[] = [
+  'dark',
+  'light',
+  'amoled',
+  'dracula',
+  'nord',
+  'cyberpunk',
+  'emerald',
+  'sunset',
+]
+
+const VALID_STYLES: UIStyle[] = ['neobrutal', 'modern']
+
 class ThemeStore {
   currentTheme = $state<ThemeMode>('dark')
   currentStyle = $state<UIStyle>('neobrutal')
+  showAppearanceModal = $state<boolean>(false)
 
   constructor() {
     if (typeof window !== 'undefined') {
-      const savedTheme = (localStorage.getItem('colorTheme') ||
-        (localStorage.getItem('theme') === 'light' ? 'light' : 'dark')) as ThemeMode
-      const savedStyle = (localStorage.getItem('uiStyle') || 'neobrutal') as UIStyle
+      const storedTheme = localStorage.getItem('colorTheme') || localStorage.getItem('theme')
+      const initialTheme = (
+        VALID_THEMES.includes(storedTheme as ThemeMode)
+          ? storedTheme
+          : storedTheme === 'light'
+            ? 'light'
+            : 'dark'
+      ) as ThemeMode
 
-      this.setTheme(savedTheme)
-      this.setStyle(savedStyle)
+      const storedStyle = localStorage.getItem('uiStyle')
+      const initialStyle = (
+        VALID_STYLES.includes(storedStyle as UIStyle) ? storedStyle : 'neobrutal'
+      ) as UIStyle
+
+      this.setTheme(initialTheme)
+      this.setStyle(initialStyle)
     }
+  }
+
+  openAppearanceModal() {
+    this.showAppearanceModal = true
+  }
+
+  closeAppearanceModal() {
+    this.showAppearanceModal = false
   }
 
   setTheme(theme: ThemeMode) {
@@ -48,3 +80,4 @@ class ThemeStore {
 }
 
 export const themeStore = new ThemeStore()
+
