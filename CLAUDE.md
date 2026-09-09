@@ -1,7 +1,7 @@
 # CLAUDE.md - Project Rules & Guidelines for Claude Code
 
 ## 1. Project Overview
-`BFR-WEBUI-GO` is an ultra-lightweight, 100% offline-ready Android System Control Panel & WebUI designed to run as a Magisk / KernelSU / APatch module. It is written in modular Go and uses Alpine.js + Tailwind CSS for the frontend, all embedded inside a single binary (~10MB) with a tiny memory footprint.
+`BFR-WEBUI-GO` is an ultra-lightweight, 100% offline-ready Android System Control Panel & WebUI designed to run as a Magisk / KernelSU / APatch module. It is written in modular Go and uses Svelte 5 + TypeScript + Tailwind CSS for the frontend, all embedded inside a single binary (~10-12MB) with a tiny memory footprint.
 
 ---
 
@@ -30,7 +30,7 @@
 - `internal/tunnel/`: Persistent ARM64 daemon remote access tunnel (`cloudflared`, `tailscaled`, `zerotier-one`).
 - `internal/vnstat/`: Vnstat bandwidth logging and analysis wrapper.
 - `internal/worker/`: Periodic background task scheduler and cron events.
-- `web/`: Frontend resources (`index.html`, `templates/`, `static/css/`, `static/js/`).
+- `frontend/`: Modern Svelte 5 Single Page Application (embedded via `frontend/embed.go`).
 
 ---
 

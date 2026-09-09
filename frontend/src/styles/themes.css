@@ -1,0 +1,143 @@
+/* Neo-Brutalist & Theme Tokens */
+
+:root,
+[data-theme="dark"],
+.dark:not([data-theme]) {
+  --neo-bg: #090d16;
+  --neo-card: #131927;
+  --neo-card-sub: #1e293b;
+  --neo-text: #f8fafc;
+  --neo-muted: #94a3b8;
+  --neo-border: #2a3449;
+  --neo-accent: #3b82f6;
+  --neo-accent-text: #ffffff;
+  --neo-shadow: #000000;
+  --neo-badge-bg: #1e293b;
+  --neo-badge-text: #38bdf8;
+  --neo-success: #10b981;
+  --neo-warning: #f59e0b;
+  --neo-danger: #ef4444;
+  --neo-info: #06b6d4;
+}
+
+[data-theme="amoled"] {
+  --neo-bg: #000000;
+  --neo-card: #0a0a0a;
+  --neo-card-sub: #141414;
+  --neo-text: #f8fafc;
+  --neo-muted: #888888;
+  --neo-border: #262626;
+  --neo-accent: #3b82f6;
+  --neo-accent-text: #ffffff;
+  --neo-shadow: #000000;
+  --neo-badge-bg: #171717;
+  --neo-badge-text: #60a5fa;
+  --neo-success: #10b981;
+  --neo-warning: #f59e0b;
+  --neo-danger: #ef4444;
+  --neo-info: #06b6d4;
+}
+
+[data-theme="light"] {
+  --neo-bg: #f8fafc;
+  --neo-card: #ffffff;
+  --neo-card-sub: #f1f5f9;
+  --neo-text: #0f172a;
+  --neo-muted: #64748b;
+  --neo-border: #cbd5e1;
+  --neo-accent: #2563eb;
+  --neo-accent-text: #ffffff;
+  --neo-shadow: #94a3b8;
+  --neo-badge-bg: #e2e8f0;
+  --neo-badge-text: #1e40af;
+  --neo-success: #059669;
+  --neo-warning: #d97706;
+  --neo-danger: #dc2626;
+  --neo-info: #0891b2;
+}
+
+[data-theme="dracula"] {
+  --neo-bg: #282a36;
+  --neo-card: #343746;
+  --neo-card-sub: #44475a;
+  --neo-text: #f8f8f2;
+  --neo-muted: #6272a4;
+  --neo-border: #44475a;
+  --neo-accent: #bd93f9;
+  --neo-accent-text: #282a36;
+  --neo-shadow: #191a21;
+  --neo-badge-bg: #44475a;
+  --neo-badge-text: #ff79c6;
+  --neo-success: #50fa7b;
+  --neo-warning: #f1fa8c;
+  --neo-danger: #ff5555;
+  --neo-info: #8be9fd;
+}
+
+[data-theme="nord"] {
+  --neo-bg: #2e3440;
+  --neo-card: #3b4252;
+  --neo-card-sub: #434c5e;
+  --neo-text: #eceff4;
+  --neo-muted: #d8dee9;
+  --neo-border: #4c566a;
+  --neo-accent: #88c0d0;
+  --neo-accent-text: #2e3440;
+  --neo-shadow: #1e222a;
+  --neo-badge-bg: #434c5e;
+  --neo-badge-text: #81a1c1;
+  --neo-success: #a3be8c;
+  --neo-warning: #ebcb8b;
+  --neo-danger: #bf616a;
+  --neo-info: #8fbcbb;
+}
+
+[data-theme="cyberpunk"] {
+  --neo-bg: #0b0d19;
+  --neo-card: #151928;
+  --neo-card-sub: #1e2338;
+  --neo-text: #00ffcc;
+  --neo-muted: #7982a9;
+  --neo-border: #ff0055;
+  --neo-accent: #ffe600;
+  --neo-accent-text: #000000;
+  --neo-shadow: #ff0055;
+  --neo-badge-bg: #1e2338;
+  --neo-badge-text: #ffe600;
+  --neo-success: #00ff66;
+  --neo-warning: #ffaa00;
+  --neo-danger: #ff0055;
+  --neo-info: #00ccff;
+}
+
+/* UI Style Variants */
+[data-ui-style="neobrutal"] .neo-card {
+  border: 2px solid var(--neo-border);
+  box-shadow: 4px 4px 0px 0px var(--neo-shadow);
+  border-radius: 8px;
+}
+
+[data-ui-style="neobrutal"] .neo-button {
+  border: 2px solid var(--neo-border);
+  box-shadow: 3px 3px 0px 0px var(--neo-shadow);
+  border-radius: 6px;
+  font-weight: 700;
+  transition: all 0.1s ease;
+}
+
+[data-ui-style="neobrutal"] .neo-button:active {
+  transform: translate(2px, 2px);
+  box-shadow: 1px 1px 0px 0px var(--neo-shadow);
+}
+
+[data-ui-style="modern"] .neo-card {
+  border: 1px solid var(--neo-border);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+  border-radius: 16px;
+}
+
+[data-ui-style="modern"] .neo-button {
+  border: 1px solid var(--neo-border);
+  border-radius: 10px;
+  transition: all 0.2s ease;
+}

@@ -1,7 +1,7 @@
 # BFR-WEBUI-GO
 
-> **Ultra-Lightweight Android System Control Panel & WebUI**  
-> Specially designed as a 100% offline-ready Magisk / KernelSU / APatch module. Built with a modular Go backend, Alpine.js, and a LuCI OpenWrt Bootstrap-style Category Dropdown AMOLED dark interface.
+> **Ultra-Lightweight Android System Control Panel & WebUI**
+> Specially designed as a 100% offline-ready Magisk / KernelSU / APatch module. Built with a modular Go backend, Svelte 5 + Vite + TypeScript frontend, and a LuCI OpenWrt Bootstrap-style Category Navigation AMOLED dark interface.
 
 ---
 
@@ -82,7 +82,14 @@ See[`env.example`](./env.example) for baseline templates:
 To compile the target binary for Android ARM64 environments manually:
 
 ```bash
-GOOS=android GOARCH=arm64 CGO_ENABLED=0 go build -ldflags="-s -w" -o webui main.go
+# 1. Build Frontend Distribution (Vite + Svelte 5)
+cd frontend
+pnpm install
+pnpm build
+cd ..
+
+# 2. Compile Go Binary with Embedded Assets for Android ARM64
+GOOS=android GOARCH=arm64 CGO_ENABLED=0 go build -ldflags="-s -w" -o webui .
 ```
 
 ---

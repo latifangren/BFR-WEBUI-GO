@@ -8,23 +8,23 @@ This document provides a comprehensive, exact specification of the UI/UX archite
 
 ## 1. Design Architecture Overview
 
-`BFR-WEBUI-GO` features a **100% offline-ready, dual-paradigm modular UI system**. The styling engine is built on top of precompiled **Tailwind CSS**, enhanced with custom CSS variable tokens, Alpine.js dynamic state binding, and custom CSS presentation layers.
+`BFR-WEBUI-GO` features a **100% offline-ready, dual-paradigm modular UI system**. The styling engine is built on top of **Tailwind CSS** integrated into the **Svelte 5** frontend architecture, enhanced with custom CSS variable tokens, reactive runes (`$state`), and component-level theme isolation.
 
 ### Key Visual Principles
 - **Dual Design Paradigms**: Instant switching between **⚡ Neobrutalism** (retro industrial, bold offset shadows) and **✨ Modern Clean** (glassmorphic, rounded-xl corners, smooth drop shadows).
-- **Preset Color Theme Engine**: 7 color palettes bound dynamically to `[data-theme="..."]` CSS variables on `<html>`.
-- **Anti-FOUC (Flash of Unstyled Content) Engine**: Inline `<head>` script reading `localStorage` state before DOM rendering.
-- **Adaptive Layout**: Desktop category dropdowns (`z-1050`) and mobile 5-column bottom navigation bar with a slide-up bottom sheet sub-menu (`z-999`).
+- **Preset Color Theme Engine**: 7 color palettes bound dynamically to `[data-theme="..."]` CSS variables on `<html>` managed by `theme.svelte.ts`.
+- **Anti-FOUC (Flash of Unstyled Content) Engine**: Inline `<head>` script in `frontend/index.html` reading `localStorage` state before DOM rendering.
+- **Adaptive Layout**: Desktop responsive sidebar / category navigation and mobile drawer / bottom navigation bar.
 
 ```
-web/static/css/
-├── base.css            # Base tokens, theme variables, resets, badges, z-index rules
+frontend/src/
 ├── styles/
-│   ├── neobrutal.css   # Neobrutal design paradigm overrides (2px border, 4px shadow)
-│   └── modern.css      # Modern Clean design paradigm overrides (rounded-2xl, glassmorphism)
-├── style.css           # Consolidator importing base.css + paradigm styles
-├── tailwind.min.css    # Precompiled Tailwind CSS utility classes
-└── xterm.css           # Terminal component styling
+│   └── app.css         # Tailwind directives, base tokens, Neo-Brutalist utility classes
+├── stores/
+│   └── theme.svelte.ts # Reactive theme switcher (light/dark AMOLED mode)
+└── components/
+    ├── layout/         # Header, Sidebar, BottomNav, Toast
+    └── ui/             # Reusable primitives (Card, Button, Badge, Modal, Input)
 ```
 
 ---

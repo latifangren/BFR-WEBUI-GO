@@ -1,4 +1,4 @@
-const CACHE_NAME = 'bfr-webui-v1.2.1';
+const CACHE_NAME = 'bfr-webui-v1.2.2';
 const STATIC_ASSETS = [
   '/',
   '/index.html',

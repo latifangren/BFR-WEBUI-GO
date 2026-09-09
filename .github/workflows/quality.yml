@@ -7,12 +7,61 @@ on:
     branches: [ main, dev ]
 
 jobs:
+  frontend:
+    name: Frontend Check & Build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'pnpm'
+          cache-dependency-path: frontend/pnpm-lock.yaml
+
+      - name: Install Frontend Dependencies
+        working-directory: frontend
+        run: pnpm install --frozen-lockfile
+
+      - name: Type & Svelte Check
+        working-directory: frontend
+        run: pnpm check
+
+      - name: Build Frontend Distribution
+        working-directory: frontend
+        run: pnpm build
+
   test:
     name: Run Unit Tests
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'pnpm'
+          cache-dependency-path: frontend/pnpm-lock.yaml
+
+      - name: Build Frontend Assets
+        working-directory: frontend
+        run: |
+          pnpm install --frozen-lockfile
+          pnpm build
 
       - name: Setup Go Environment
         uses: actions/setup-go@v5
@@ -29,6 +78,24 @@ jobs:
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'pnpm'
+          cache-dependency-path: frontend/pnpm-lock.yaml
+
+      - name: Build Frontend Assets
+        working-directory: frontend
+        run: |
+          pnpm install --frozen-lockfile
+          pnpm build
 
       - name: Setup Go Environment
         uses: actions/setup-go@v5

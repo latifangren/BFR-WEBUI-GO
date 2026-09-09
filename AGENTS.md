@@ -1,7 +1,7 @@
 # Project-Specific Routing & Codebase Rules
 
 ## 1. Project Overview
-`BFR-WEBUI_GO` is an ultra-lightweight, 100% offline-ready Android System Control Panel & WebUI designed to run as a Magisk / KernelSU / APatch module. It is written in modular Go and uses Alpine.js + Tailwind CSS for the frontend, all embedded inside a single binary (~10MB) with a tiny memory footprint.
+`BFR-WEBUI_GO` is an ultra-lightweight, 100% offline-ready Android System Control Panel & WebUI designed to run as a Magisk / KernelSU / APatch module. It is written in modular Go and uses Svelte 5 + TypeScript + Tailwind CSS for the frontend, all embedded inside a single binary (~10-12MB) with a tiny memory footprint.
 
 ## 2. Codebase Structure
 - `main.go`: Entry point, command line flags, server setup.
@@ -22,7 +22,7 @@
 - `internal/terminal/`: WebSocket interactive PTY terminal.
 - `internal/vnstat/`: Vnstat bandwidth logging and analysis wrapper.
 - `internal/worker/`: Periodic background task scheduler and cron events.
-- `web/`: Frontend resources (index.html, embedded assets).
+- `frontend/`: Modern Svelte 5 Single Page Application (embedded via `frontend/embed.go`).
 
 ## 3. Strict Routing & Verification Rules
 - **No Direct UI Over-Editing**: The frontend uses a carefully calibrated Neo-Brutalist (AMOLED/Light) style. Follow the designer instructions strictly.

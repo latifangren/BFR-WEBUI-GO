@@ -2,14 +2,13 @@ package handlers
 
 import (
 	"compress/gzip"
-	"html/template"
 	"io/fs"
 	"log"
 	"net/http"
 	"strings"
 
+	"bfr-webui-go/frontend"
 	"bfr-webui-go/internal/auth"
-	"bfr-webui-go/web"
 )
 
 type gzipResponseWriter struct {
@@ -92,43 +91,37 @@ func maxBodySize(next http.HandlerFunc) http.HandlerFunc {
 }
 
 func RegisterRoutes(mux *http.ServeMux, authMgr *auth.Manager) {
-	var htmlFiles []string
-	_ = fs.WalkDir(web.Files, ".", func(path string, d fs.DirEntry, err error) error {
-		if err != nil {
-			return nil
-		}
-		if !d.IsDir() && strings.HasSuffix(path, ".html") {
-			htmlFiles = append(htmlFiles, path)
-		}
-		return nil
-	})
-
-	tmpl, tmplErr := template.New("index.html").ParseFS(web.Files, htmlFiles...)
-	if tmplErr != nil {
-		log.Fatalf("Template parse error: %v", tmplErr)
+	distFS, err := frontend.GetFS()
+	if err != nil {
+		log.Fatalf("Failed to initialize frontend filesystem: %v", err)
 	}
 
-	subFS, err := fs.Sub(web.Files, ".")
-	if err == nil {
-		fileServer := http.FileServer(http.FS(subFS))
-		mux.HandleFunc("/", securityHeaders(func(w http.ResponseWriter, r *http.Request) {
-			if strings.HasPrefix(r.URL.Path, "/static/") {
-				w.Header().Set("Cache-Control", "public, max-age=86400")
-			}
-			if r.URL.Path != "/" && r.URL.Path != "/index.html" {
+	indexHTML, err := fs.ReadFile(distFS, "index.html")
+	if err != nil {
+		log.Fatalf("Failed to read embedded frontend index.html: %v", err)
+	}
+
+	fileServer := http.FileServer(http.FS(distFS))
+
+	// SPA Route Handler: Serve static assets if file exists, otherwise serve index.html with no-cache
+	mux.HandleFunc("/", securityHeaders(func(w http.ResponseWriter, r *http.Request) {
+		reqPath := strings.TrimPrefix(r.URL.Path, "/")
+		if reqPath != "" && reqPath != "index.html" {
+			if f, err := distFS.Open(reqPath); err == nil {
+				_ = f.Close()
+				if strings.HasPrefix(r.URL.Path, "/assets/") {
+					w.Header().Set("Cache-Control", "public, max-age=31536000, immutable")
+				}
 				fileServer.ServeHTTP(w, r)
 				return
 			}
-			if tmpl != nil {
-				w.Header().Set("Content-Type", "text/html; charset=utf-8")
-				if err := tmpl.Execute(w, nil); err != nil {
-					http.Error(w, err.Error(), http.StatusInternalServerError)
-				}
-				return
-			}
-			fileServer.ServeHTTP(w, r)
-		}))
-	}
+		}
+
+		w.Header().Set("Content-Type", "text/html; charset=utf-8")
+		w.Header().Set("Cache-Control", "no-cache")
+		w.WriteHeader(http.StatusOK)
+		_, _ = w.Write(indexHTML)
+	}))
 
 	authH := NewAuthHandler(authMgr)
 	termH := NewTerminalHandler(authMgr)

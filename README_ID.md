@@ -1,7 +1,7 @@
 # BFR-WEBUI-GO
 
-> **Panel Kontrol Sistem Android & WebUI Ultra-Ringan**  
-> Didesain khusus sebagai modul Magisk / KernelSU / APatch yang 100% offline-ready. Ditulis dalam bahasa Go modular yang tangguh, memanfaatkan Alpine.js pada frontend, serta dibalut antarmuka navigasi Kategori Dropdown ala LuCI OpenWrt Bootstrap bertema gelap AMOLED Neo-Brutalist menggunakan Tailwind CSS.
+> **Panel Kontrol Sistem Android & WebUI Ultra-Ringan**
+> Didesain khusus sebagai modul Magisk / KernelSU / APatch yang 100% offline-ready. Ditulis dalam bahasa Go modular yang tangguh, memanfaatkan Svelte 5 + Vite + TypeScript pada frontend, serta dibalut antarmuka navigasi Kategori ala LuCI OpenWrt bertema gelap AMOLED Neo-Brutalist menggunakan Tailwind CSS.
 
 ---
 
@@ -78,12 +78,19 @@ Templat acuan lengkap dapat dilihat di berkas [`env.example`](./env.example):
 
 ---
 
-## 🛠️ Melakukan Kompilasi Manual
+## 🛠️ Kompilasi Dari Source Code
 
-Untuk membangun biner target Android ARM64 secara manual dari source code:
+Untuk mengompilasi biner target arsitektur Android ARM64 secara manual:
 
 ```bash
-GOOS=android GOARCH=arm64 CGO_ENABLED=0 go build -ldflags="-s -w" -o webui main.go
+# 1. Build Distribusi Frontend (Vite + Svelte 5)
+cd frontend
+pnpm install
+pnpm build
+cd ..
+
+# 2. Kompilasi Biner Go dengan Aset Embedded untuk Android ARM64
+GOOS=android GOARCH=arm64 CGO_ENABLED=0 go build -ldflags="-s -w" -o webui .
 ```
 
 ---

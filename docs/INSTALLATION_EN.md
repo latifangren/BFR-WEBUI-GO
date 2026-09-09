@@ -44,9 +44,9 @@ If you wish to test or install the binary manually without wrapping it into a zi
    cat << 'EOF' > /data/adb/modules/bfr_webui_go/module.prop
    id=bfr_webui_go
    name=BFR WebUI Go
-   version=v1.2.0
-   versionCode=120
-   author=BFR
+   version=v1.2.2
+   versionCode=122
+   author=latifangren
    description=Android System Control Panel & WebUI
    EOF
    ```
