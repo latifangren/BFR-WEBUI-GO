@@ -155,6 +155,42 @@
   --neo-info: #06b6d4;
 }
 
+/* 9. Retro Deck (Pastel Ice Neobrutalism) */
+[data-theme='retro'] {
+  --color-bg: #daf0fc;
+  --color-card: #ffffff;
+  --color-card-sub: #f0f7fc;
+  --color-border: #000000;
+  --color-border-sub: #000000;
+  --color-accent: #c8f5d0;
+  --color-accent-text: #000000;
+  --color-foreground: #111827;
+  --color-muted: #111827;
+
+  --neo-bg: #daf0fc;
+  --neo-card: #ffffff;
+  --neo-card-sub: #f0f7fc;
+  --neo-border: #000000;
+  --neo-text: #111827;
+  --neo-muted: #111827;
+  --neo-accent: #c8f5d0;
+  --neo-accent-text: #000000;
+  --neo-shadow: #000000;
+  --neo-badge-bg: #e2daf9;
+  --neo-badge-text: #000000;
+  --neo-success: #16a34a;
+  --neo-warning: #ca8a04;
+  --neo-danger: #dc2626;
+  --neo-info: #0284c7;
+
+  /* Pastel Palette Extensions */
+  --color-mint: #c8f5d0;
+  --color-lavender: #e2daf9;
+  --color-peach: #ffd5cc;
+  --color-butter: #fff0a3;
+  --color-ice: #c2e7ff;
+}
+
 /* ========================================================= */
 /* UI Style Paradigm: Neo-Brutalist                          */
 /* ========================================================= */
@@ -248,4 +284,217 @@
 [data-ui-style="modern"] textarea {
   border: 1px solid var(--neo-border) !important;
   border-radius: 10px !important;
+}
+
+/* ========================================================= */
+/* Tactile Mechanical Button Utility                         */
+/* ========================================================= */
+
+.neo-btn {
+  transition: all 0.1s cubic-bezier(0.4, 0, 0.2, 1);
+  user-select: none;
+}
+
+.neo-btn:active,
+.neo-btn:not(:disabled):active {
+  transform: translate(2px, 2px);
+  box-shadow: 0px 0px 0px var(--neo-shadow, #000000) !important;
+}
+
+/* ========================================================= */
+/* Retro Deck Strict High-Contrast & Solid Surface Rules     */
+/* ========================================================= */
+
+[data-theme='retro'] .text-muted {
+  color: #111827 !important;
+  font-weight: 600 !important;
+}
+
+[data-theme='retro'] .text-muted:hover {
+  color: #000000 !important;
+}
+
+/* Eliminate semi-transparent background bleeding in Retro theme */
+[data-theme='retro'] .bg-card:not([class*='neo-tone-']),
+[data-theme='retro'] .neo-card:not([class*='neo-tone-']),
+[data-theme='retro'] .bg-card\/80,
+[data-theme='retro'] .bg-card\/90,
+[data-theme='retro'] .bg-card\/95,
+[data-theme='retro'] .bg-card-sub:not([class*='neo-tone-']),
+[data-theme='retro'] .bg-card-sub\/80 {
+  background-color: #ffffff !important;
+  opacity: 1 !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+/* Solid borders and shadows for all cards and popovers in Retro */
+[data-theme='retro'] .neo-card,
+[data-theme='retro'] .border-border,
+[data-theme='retro'] .border-border\/80,
+[data-theme='retro'] .border-border\/60 {
+  border-color: #000000 !important;
+}
+
+/* Navigation TopBar flyouts & Mobile Popover in Retro */
+[data-theme='retro'] header,
+[data-theme='retro'] nav {
+  background-color: #ffffff !important;
+  border-color: #000000 !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+[data-theme='retro'][data-ui-style="neobrutal"] .neo-card,
+[data-theme='retro'] [data-ui-style="neobrutal"] .neo-card,
+[data-theme='retro'] .neo-card {
+  box-shadow: 3px 3px 0px 0px #000000 !important;
+}
+
+/* ========================================================= */
+/* Multi-Tone Pastel Neobrutalism Utilities & Icon Box       */
+/* ========================================================= */
+
+.neo-icon-box {
+  background-color: var(--neo-card-sub);
+  border: 1px solid var(--neo-border);
+  border-radius: 8px;
+  padding: 0.35rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+[data-theme='retro'] .neo-icon-box {
+  background-color: #ffffff !important;
+  border: 2px solid #000000 !important;
+  border-radius: 8px !important;
+  color: #000000 !important;
+  box-shadow: 1.5px 1.5px 0px #000000 !important;
+  padding: 0.35rem !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+/* Tone styles for Retro Deck */
+[data-theme='retro'] .neo-tone-ice,
+[data-theme='retro'] .neo-card.neo-tone-ice {
+  background-color: #c2e7ff !important;
+  color: #000000 !important;
+  border-color: #000000 !important;
+}
+
+[data-theme='retro'] .neo-tone-lavender,
+[data-theme='retro'] .neo-card.neo-tone-lavender {
+  background-color: #e2daf9 !important;
+  color: #000000 !important;
+  border-color: #000000 !important;
+}
+
+[data-theme='retro'] .neo-tone-peach,
+[data-theme='retro'] .neo-card.neo-tone-peach {
+  background-color: #ffd5cc !important;
+  color: #000000 !important;
+  border-color: #000000 !important;
+}
+
+[data-theme='retro'] .neo-tone-mint,
+[data-theme='retro'] .neo-card.neo-tone-mint {
+  background-color: #c8f5d0 !important;
+  color: #000000 !important;
+  border-color: #000000 !important;
+}
+
+[data-theme='retro'] .neo-tone-butter,
+[data-theme='retro'] .neo-card.neo-tone-butter {
+  background-color: #fff0a3 !important;
+  color: #000000 !important;
+  border-color: #000000 !important;
+}
+
+/* Ensure text and labels inside these tone cards in retro theme are crisp black #000000 */
+[data-theme='retro'] .neo-tone-ice *,
+[data-theme='retro'] .neo-tone-lavender *,
+[data-theme='retro'] .neo-tone-peach *,
+[data-theme='retro'] .neo-tone-mint *,
+[data-theme='retro'] .neo-tone-butter * {
+  color: #000000 !important;
+}
+
+/* Tone inner card elements in retro */
+[data-theme='retro'] [class*='neo-tone-'] .bg-card-sub {
+  background-color: rgba(0, 0, 0, 0.08) !important;
+  border-color: #000000 !important;
+}
+
+[data-theme='retro'] [class*='neo-tone-'] .bg-accent,
+[data-theme='retro'] [class*='neo-tone-'] .bg-purple-500,
+[data-theme='retro'] [class*='neo-tone-'] .bg-blue-500,
+[data-theme='retro'] [class*='neo-tone-'] .bg-emerald-500 {
+  background-color: #000000 !important;
+}
+
+/* Sparklines inside tone cards in retro theme get black stroke */
+[data-theme='retro'] .neo-tone-ice svg path[stroke],
+[data-theme='retro'] .neo-tone-lavender svg path[stroke],
+[data-theme='retro'] .neo-tone-peach svg path[stroke],
+[data-theme='retro'] .neo-tone-mint svg path[stroke],
+[data-theme='retro'] .neo-tone-butter svg path[stroke] {
+  stroke: #000000 !important;
+  stroke-width: 2px !important;
+}
+
+/* Non-retro themes: Keep card backgrounds dark, but gently tint the border */
+:not([data-theme='retro']) .neo-tone-ice {
+  border-color: rgba(96, 165, 250, 0.4) !important;
+}
+
+:not([data-theme='retro']) .neo-tone-lavender {
+  border-color: rgba(192, 132, 252, 0.4) !important;
+}
+
+:not([data-theme='retro']) .neo-tone-peach {
+  border-color: rgba(251, 146, 60, 0.4) !important;
+}
+
+:not([data-theme='retro']) .neo-tone-mint {
+  border-color: rgba(52, 211, 153, 0.4) !important;
+}
+
+:not([data-theme='retro']) .neo-tone-butter {
+  border-color: rgba(250, 204, 21, 0.4) !important;
+}
+
+/* Retro theme sidebar deck styling */
+[data-theme='retro'] aside {
+  background-color: #daf0fc !important;
+  border-color: #000000 !important;
+}
+
+[data-theme='retro'] aside .bg-card {
+  background-color: #daf0fc !important;
+  border-color: #000000 !important;
+}
+
+[data-theme='retro'] aside button:not(.bg-accent):not([aria-expanded]) {
+  background-color: #ffffff !important;
+  border: 2px solid #000000 !important;
+  box-shadow: 2px 2px 0px #000000 !important;
+  color: #000000 !important;
+  font-weight: 700 !important;
+}
+
+[data-theme='retro'] aside button:not(.bg-accent):not([aria-expanded]):hover {
+  background-color: #f0f7fc !important;
+  transform: translate(-1px, -1px);
+  box-shadow: 3px 3px 0px #000000 !important;
+}
+
+[data-theme='retro'] aside button.bg-accent {
+  background-color: #c8f5d0 !important;
+  border: 2px solid #000000 !important;
+  box-shadow: 2px 2px 0px #000000 !important;
+  color: #000000 !important;
+  font-weight: 800 !important;
 }

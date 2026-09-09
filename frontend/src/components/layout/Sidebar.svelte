@@ -65,6 +65,15 @@
     { key: 'tools', label: 'Tools & Utilities', icon: Wrench },
   ] as const
 
+  const BADGE_COLOR_MAP: Record<string, string> = {
+    mint: 'bg-[#c8f5d0] text-black',
+    peach: 'bg-[#ffd5cc] text-black',
+    ice: 'bg-[#c2e7ff] text-black',
+    yellow: 'bg-[#fff0a3] text-black',
+    lavender: 'bg-[#e2daf9] text-black',
+    amber: 'bg-[#f59e0b] text-black',
+  }
+
   const DEFAULT_ACCORDIONS: Record<string, boolean> = {
     core: true,
     network: true,
@@ -214,7 +223,17 @@
                   <IconComponent class="w-4 h-4 shrink-0 {isActive ? '' : 'text-muted'}" />
                 {/if}
                 <span class="truncate">{tab.label}</span>
-                {#if isActive}
+                {#if tab.badge}
+                  {#if themeStore.currentStyle === 'neobrutal'}
+                    <span class="border border-black shadow-[1px_1px_0px_#000] px-1.5 py-0.2 rounded text-[9px] font-mono font-black uppercase tracking-wider ml-auto shrink-0 select-none {BADGE_COLOR_MAP[tab.badgeColor || 'mint'] || 'bg-[#c8f5d0] text-black'}">
+                      {tab.badge}
+                    </span>
+                  {:else}
+                    <span class="bg-accent/15 text-accent border border-accent/30 px-1.5 py-0.2 rounded text-[9px] font-mono font-bold uppercase tracking-wider ml-auto shrink-0 select-none">
+                      {tab.badge}
+                    </span>
+                  {/if}
+                {:else if isActive}
                   <span class="ml-auto w-1.5 h-1.5 rounded-full bg-white shrink-0"></span>
                 {/if}
               </button>

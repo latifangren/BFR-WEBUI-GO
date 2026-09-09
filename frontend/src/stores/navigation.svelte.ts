@@ -1,8 +1,12 @@
+export type BadgeColor = 'mint' | 'peach' | 'ice' | 'yellow' | 'lavender' | 'amber'
+
 export interface TabItem {
   id: string
   label: string
   icon: string
   category: 'core' | 'system' | 'network' | 'tools'
+  badge?: string
+  badgeColor?: BadgeColor
 }
 
 export type NavLayoutId = 'topbar' | 'sidebar'
@@ -44,29 +48,29 @@ export const NAV_CATEGORIES: NavCategoryGroup[] = [
 ]
 
 export const AVAILABLE_TABS: TabItem[] = [
-  { id: 'overview', label: 'Overview', icon: 'LayoutDashboard', category: 'core' },
-  { id: 'sysinfo', label: 'Sysinfo', icon: 'Cpu', category: 'core' },
-  { id: 'network', label: 'Network', icon: 'Network', category: 'network' },
-  { id: 'hotspot', label: 'Hotspot', icon: 'Wifi', category: 'network' },
-  { id: 'proxy', label: 'Proxy', icon: 'Shield', category: 'network' },
-  { id: 'modem', label: 'Modem', icon: 'Radio', category: 'network' },
-  { id: 'sms', label: 'SMS', icon: 'MessageSquare', category: 'network' },
-  { id: 'power', label: 'Power', icon: 'Power', category: 'system' },
-  { id: 'charger', label: 'Charger', icon: 'BatteryCharging', category: 'system' },
-  { id: 'modules', label: 'Modules', icon: 'Box', category: 'system' },
-  { id: 'terminal', label: 'Terminal', icon: 'Terminal', category: 'tools' },
-  { id: 'ssh', label: 'SSH', icon: 'Terminal', category: 'tools' },
-  { id: 'scrcpy', label: 'Scrcpy', icon: 'Smartphone', category: 'tools' },
-  { id: 'files', label: 'Files', icon: 'FolderOpen', category: 'tools' },
-  { id: 'logs', label: 'Logs', icon: 'FileText', category: 'tools' },
-  { id: 'qos', label: 'QoS', icon: 'Gauge', category: 'network' },
-  { id: 'vnstat', label: 'Vnstat', icon: 'Activity', category: 'network' },
-  { id: 'nas', label: 'NAS', icon: 'HardDrive', category: 'tools' },
-  { id: 'tunnel', label: 'Tunnel', icon: 'Globe', category: 'network' },
-  { id: 'speedtest', label: 'Speedtest', icon: 'Zap', category: 'tools' },
-  { id: 'tools', label: 'Tools', icon: 'Wrench', category: 'tools' },
-  { id: 'telegram', label: 'Telegram', icon: 'Send', category: 'tools' },
-  { id: 'about', label: 'About', icon: 'Info', category: 'core' },
+  { id: 'overview', label: 'Overview', icon: 'LayoutDashboard', category: 'core', badge: 'PRO', badgeColor: 'amber' },
+  { id: 'sysinfo', label: 'Sysinfo', icon: 'Cpu', category: 'core', badge: 'CORE', badgeColor: 'mint' },
+  { id: 'network', label: 'Network', icon: 'Network', category: 'network', badge: 'NET', badgeColor: 'ice' },
+  { id: 'hotspot', label: 'Hotspot', icon: 'Wifi', category: 'network', badge: 'WIFI', badgeColor: 'mint' },
+  { id: 'proxy', label: 'Proxy', icon: 'Shield', category: 'network', badge: 'CLASH', badgeColor: 'lavender' },
+  { id: 'modem', label: 'Modem', icon: 'Radio', category: 'network', badge: 'LTE', badgeColor: 'ice' },
+  { id: 'sms', label: 'SMS', icon: 'MessageSquare', category: 'network', badge: 'SMS', badgeColor: 'peach' },
+  { id: 'power', label: 'Power', icon: 'Power', category: 'system', badge: 'PWR', badgeColor: 'peach' },
+  { id: 'charger', label: 'Charger', icon: 'BatteryCharging', category: 'system', badge: 'BATT', badgeColor: 'mint' },
+  { id: 'modules', label: 'Modules', icon: 'Box', category: 'system', badge: 'ROOT', badgeColor: 'yellow' },
+  { id: 'terminal', label: 'Terminal', icon: 'Terminal', category: 'tools', badge: 'PTY', badgeColor: 'peach' },
+  { id: 'ssh', label: 'SSH', icon: 'Terminal', category: 'tools', badge: 'SSH', badgeColor: 'peach' },
+  { id: 'scrcpy', label: 'Scrcpy', icon: 'Smartphone', category: 'tools', badge: 'LIVE', badgeColor: 'mint' },
+  { id: 'files', label: 'Files', icon: 'FolderOpen', category: 'tools', badge: 'FS', badgeColor: 'yellow' },
+  { id: 'logs', label: 'Logs', icon: 'FileText', category: 'tools', badge: 'LOGS', badgeColor: 'ice' },
+  { id: 'qos', label: 'QoS', icon: 'Gauge', category: 'network', badge: 'QOS', badgeColor: 'lavender' },
+  { id: 'vnstat', label: 'Vnstat', icon: 'Activity', category: 'network', badge: 'STATS', badgeColor: 'mint' },
+  { id: 'nas', label: 'NAS', icon: 'HardDrive', category: 'tools', badge: 'NAS', badgeColor: 'ice' },
+  { id: 'tunnel', label: 'Tunnel', icon: 'Globe', category: 'network', badge: 'WAN', badgeColor: 'yellow' },
+  { id: 'speedtest', label: 'Speedtest', icon: 'Zap', category: 'tools', badge: 'TEST', badgeColor: 'mint' },
+  { id: 'tools', label: 'Tools', icon: 'Wrench', category: 'tools', badge: 'SYS', badgeColor: 'lavender' },
+  { id: 'telegram', label: 'Telegram', icon: 'Send', category: 'tools', badge: 'BOT', badgeColor: 'ice' },
+  { id: 'about', label: 'About', icon: 'Info', category: 'core', badge: 'INFO', badgeColor: 'mint' },
 ]
 
 class NavigationStore {

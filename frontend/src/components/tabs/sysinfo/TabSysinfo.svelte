@@ -17,6 +17,7 @@
   import Card from '../../ui/Card.svelte'
   import Badge from '../../ui/Badge.svelte'
   import Button from '../../ui/Button.svelte'
+  import SparklineWave from '../../ui/SparklineWave.svelte'
 
   interface GovernorData {
     current: string
@@ -130,8 +131,13 @@
       <!-- Device Specs Bento Box -->
       <Card
         title="Device Specifications & Hardware Info"
-        class="lg:col-span-2"
+        class="lg:col-span-2 neo-tone-ice"
       >
+        {#snippet action()}
+          <div class="neo-icon-box">
+            <Cpu class="w-4 h-4 text-accent" />
+          </div>
+        {/snippet}
         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 font-mono text-xs">
           <div class="bg-card-sub border border-border p-3 rounded space-y-1">
             <span class="text-[10px] text-muted uppercase font-bold">Device Model</span>
@@ -178,7 +184,16 @@
       </Card>
 
       <!-- Battery & Power State -->
-      <Card title="Battery & Power Subsystem">
+      <Card title="Battery & Power Subsystem" class="neo-tone-peach">
+        {#snippet action()}
+          <div class="neo-icon-box">
+            {#if stats.battery_status === 'Charging'}
+              <BatteryCharging class="w-4 h-4 text-emerald-400 animate-pulse" />
+            {:else}
+              <Battery class="w-4 h-4 text-muted" />
+            {/if}
+          </div>
+        {/snippet}
         <div class="space-y-4 font-mono text-xs">
           <div class="flex items-center justify-between">
             <span class="text-muted">Charge Level</span>
@@ -199,6 +214,7 @@
               style="width: {stats.battery_level}%"
             ></div>
           </div>
+          <SparklineWave value={stats.battery_level} color="var(--color-mint, #34d399)" height={26} class="mt-1" />
 
           <div class="grid grid-cols-2 gap-2 pt-2 border-t border-border">
             <div>
@@ -229,7 +245,12 @@
     <!-- Grid 2: CPU, Thermals & Memory -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
       <!-- CPU & Per-Core Telemetry -->
-      <Card title="CPU Core Activity & Thermals">
+      <Card title="CPU Core Activity & Thermals" class="neo-tone-mint">
+        {#snippet action()}
+          <div class="neo-icon-box">
+            <Cpu class="w-4 h-4 text-accent" />
+          </div>
+        {/snippet}
         <div class="space-y-4 font-mono text-xs">
           <!-- Overall CPU Usage -->
           <div class="flex items-center justify-between">
@@ -251,6 +272,7 @@
               style="width: {Math.min(stats.cpu_usage, 100)}%"
             ></div>
           </div>
+          <SparklineWave value={stats.cpu_usage} color="var(--color-mint, var(--neo-accent, #3b82f6))" height={26} class="mt-1" />
 
           <!-- Per Core Grid -->
           {#if stats.cpu_cores && stats.cpu_cores.length > 0}
@@ -283,7 +305,12 @@
       </Card>
 
       <!-- Memory & Swap Utilization -->
-      <Card title="RAM & Swap Memory">
+      <Card title="RAM & Swap Memory" class="neo-tone-lavender">
+        {#snippet action()}
+          <div class="neo-icon-box">
+            <Activity class="w-4 h-4 text-purple-400" />
+          </div>
+        {/snippet}
         <div class="space-y-5 font-mono text-xs">
           <!-- Physical RAM -->
           <div class="space-y-2">
@@ -299,6 +326,7 @@
                 style="width: {Math.min(stats.mem_used_pct, 100)}%"
               ></div>
             </div>
+            <SparklineWave value={stats.mem_used_pct} color="var(--color-lavender, #c084fc)" height={26} class="mt-1" />
             <div class="flex items-center justify-between text-[10px] text-muted">
               <span>Free: {formatBytes(stats.mem_free)}</span>
               <span>Available: {formatBytes(stats.mem_available)}</span>

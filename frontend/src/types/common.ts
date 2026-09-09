@@ -1,4 +1,4 @@
-export type ThemeMode = 'dark' | 'light' | 'amoled' | 'dracula' | 'nord' | 'cyberpunk' | 'emerald' | 'sunset'
+export type ThemeMode = 'dark' | 'amoled' | 'light' | 'dracula' | 'nord' | 'cyberpunk' | 'emerald' | 'sunset' | 'retro'
 export type UIStyle = 'neobrutal' | 'modern'
 
 export interface ApiResponse<T = unknown> {

@@ -59,6 +59,15 @@
     about: Info,
   }
 
+  const BADGE_COLOR_MAP: Record<string, string> = {
+    mint: 'bg-[#c8f5d0] text-black',
+    peach: 'bg-[#ffd5cc] text-black',
+    ice: 'bg-[#c2e7ff] text-black',
+    yellow: 'bg-[#fff0a3] text-black',
+    lavender: 'bg-[#e2daf9] text-black',
+    amber: 'bg-[#f59e0b] text-black',
+  }
+
   const categoryIcons: Record<string, typeof Cpu> = {
     core: LayoutDashboard,
     network: Network,
@@ -179,13 +188,25 @@
                 onclick={() => selectTab(tab.id)}
                 role="menuitem"
               >
-                <div class="flex items-center gap-2.5 truncate">
-                  <TabIcon class="w-3.5 h-3.5 shrink-0 {isTabActive ? '' : 'text-accent'}" />
+                <div class="flex items-center gap-2 min-w-0">
+                  <TabIcon class="w-3.5 h-3.5 shrink-0 {isTabActive ? 'text-accent-text' : 'text-muted'}" />
                   <span class="truncate">{tab.label}</span>
                 </div>
-                {#if isTabActive}
-                  <span class="w-1.5 h-1.5 rounded-full bg-white shrink-0 ml-2"></span>
-                {/if}
+                <div class="flex items-center gap-2 shrink-0 ml-2">
+                  {#if tab.badge}
+                    {#if themeStore.currentStyle === 'neobrutal'}
+                      <span class="border border-black shadow-[1px_1px_0px_#000] px-1.5 py-0.2 rounded text-[9px] font-mono font-black uppercase tracking-wider select-none {BADGE_COLOR_MAP[tab.badgeColor || 'mint'] || 'bg-[#c8f5d0] text-black'}">
+                        {tab.badge}
+                      </span>
+                    {:else}
+                      <span class="bg-accent/15 text-accent border border-accent/30 px-1.5 py-0.2 rounded text-[9px] font-mono font-bold uppercase tracking-wider select-none">
+                        {tab.badge}
+                      </span>
+                    {/if}
+                  {:else if isTabActive}
+                    <span class="w-1.5 h-1.5 rounded-full bg-accent-text shrink-0"></span>
+                  {/if}
+                </div>
               </button>
             {/each}
           </div>

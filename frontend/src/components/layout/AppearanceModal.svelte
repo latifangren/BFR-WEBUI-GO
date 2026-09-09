@@ -125,6 +125,16 @@
       accent: '#f97316',
       text: '#fed7aa',
     },
+    {
+      id: 'retro',
+      name: 'Retro Deck',
+      tagline: 'Pastel ice canvas & tactile black borders',
+      bg: '#daf0fc',
+      card: '#ffffff',
+      border: '#000000',
+      accent: '#c8f5d0',
+      text: '#111827',
+    },
   ]
 
   function handleKeydown(e: KeyboardEvent) {

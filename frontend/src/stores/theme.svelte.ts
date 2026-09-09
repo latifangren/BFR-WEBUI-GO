@@ -2,13 +2,14 @@ import type { ThemeMode, UIStyle } from '../types/common'
 
 const VALID_THEMES: ThemeMode[] = [
   'dark',
-  'light',
   'amoled',
+  'light',
   'dracula',
   'nord',
   'cyberpunk',
   'emerald',
   'sunset',
+  'retro',
 ]
 
 const VALID_STYLES: UIStyle[] = ['neobrutal', 'modern']

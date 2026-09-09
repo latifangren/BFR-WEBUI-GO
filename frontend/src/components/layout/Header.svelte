@@ -30,6 +30,7 @@
     { id: 'cyberpunk', label: 'Cyberpunk' },
     { id: 'emerald', label: 'Emerald' },
     { id: 'sunset', label: 'Sunset' },
+    { id: 'retro', label: 'Retro Deck' },
   ]
 
   let showThemeDropdown = $state(false)

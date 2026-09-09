@@ -26,6 +26,8 @@
   import Button from '../../ui/Button.svelte'
   import Modal from '../../ui/Modal.svelte'
   import Input from '../../ui/Input.svelte'
+  import SparklineWave from '../../ui/SparklineWave.svelte'
+  import NoticeBanner from '../../common/NoticeBanner.svelte'
 
   interface ShortcutItem {
     id: string
@@ -181,146 +183,178 @@
 </script>
 
 <div class="space-y-6">
+  <!-- Retro System Notice Banner -->
+  <NoticeBanner
+    title="KERNEL SUPERVISOR ONLINE"
+    message={`Connected to Android root subsystem (${stats?.model || 'Android Device'} • Linux ${stats?.kernel || 'Kernel'}). Hardware telemetry & telemetry sensors active.`}
+    icon="bulb"
+  />
+
   <!-- Bento Quick Gauges (5 Cards) -->
   <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
     <!-- CPU Gauge (Interactive: Click for Core & Thermal details) -->
     <!-- svelte-ignore a11y_click_events_have_key_events -->
     <!-- svelte-ignore a11y_no_static_element_interactions -->
     <div
-      class="neo-card bg-card p-4 rounded flex flex-col justify-between cursor-pointer hover:border-accent transition-colors group select-none"
+      class="neo-card neo-tone-ice bg-card p-4 rounded flex flex-col justify-between cursor-pointer hover:border-accent transition-colors group select-none overflow-hidden"
       onclick={() => (showCpuModal = true)}
       title="Click to inspect CPU Cores, Frequencies & Thermal sensors"
     >
-      <div class="flex items-center justify-between text-muted mb-2 font-mono text-xs">
-        <span class="font-bold uppercase tracking-wider group-hover:text-accent transition-colors flex items-center gap-1">
-          CPU Load
-          <span class="text-[10px] text-accent font-mono opacity-80">↗</span>
-        </span>
-        <Cpu class="w-4 h-4 text-accent" />
-      </div>
-      <div class="flex items-baseline justify-between">
-        <span class="text-2xl font-black font-mono text-foreground">
-          {stats ? stats.cpu_usage.toFixed(0) : '0'}%
-        </span>
-        {#if stats?.cpu_temp}
-          <span class="text-xs font-mono text-amber-400 font-bold">
-            {stats.cpu_temp.toFixed(0)}°C
+      <div>
+        <div class="flex items-center justify-between text-muted mb-2 font-mono text-xs">
+          <span class="font-bold uppercase tracking-wider group-hover:text-accent transition-colors flex items-center gap-1">
+            CPU Load
+            <span class="text-[10px] text-accent font-mono opacity-80">↗</span>
           </span>
-        {/if}
+          <div class="neo-icon-box">
+            <Cpu class="w-4 h-4 text-accent" />
+          </div>
+        </div>
+        <div class="flex items-baseline justify-between">
+          <span class="text-2xl font-black font-mono text-foreground">
+            {stats ? stats.cpu_usage.toFixed(0) : '0'}%
+          </span>
+          {#if stats?.cpu_temp}
+            <span class="text-xs font-mono text-amber-400 font-bold">
+              {stats.cpu_temp.toFixed(0)}°C
+            </span>
+          {/if}
+        </div>
+        <div class="w-full bg-card-sub border border-border h-1.5 rounded overflow-hidden mt-3">
+          <div
+            class="h-full bg-accent transition-all duration-300"
+            style="width: {stats ? Math.min(stats.cpu_usage, 100) : 0}%"
+          ></div>
+        </div>
       </div>
-      <div class="w-full bg-card-sub border border-border h-1.5 rounded overflow-hidden mt-3">
-        <div
-          class="h-full bg-accent transition-all duration-300"
-          style="width: {stats ? Math.min(stats.cpu_usage, 100) : 0}%"
-        ></div>
-      </div>
+      <SparklineWave value={stats ? stats.cpu_usage : 0} color="var(--color-mint, var(--neo-accent, #3b82f6))" height={26} class="mt-2" />
     </div>
 
     <!-- RAM Gauge -->
     <!-- svelte-ignore a11y_click_events_have_key_events -->
     <!-- svelte-ignore a11y_no_static_element_interactions -->
     <div
-      class="neo-card bg-card p-4 rounded flex flex-col justify-between cursor-pointer hover:border-accent transition-colors select-none"
+      class="neo-card neo-tone-lavender bg-card p-4 rounded flex flex-col justify-between cursor-pointer hover:border-accent transition-colors select-none overflow-hidden"
       onclick={() => navigationStore.setTab('sysinfo')}
       title="Click to open full System & RAM information"
     >
-      <div class="flex items-center justify-between text-muted mb-2 font-mono text-xs">
-        <span class="font-bold uppercase tracking-wider">Memory</span>
-        <HardDrive class="w-4 h-4 text-purple-400" />
+      <div>
+        <div class="flex items-center justify-between text-muted mb-2 font-mono text-xs">
+          <span class="font-bold uppercase tracking-wider">Memory</span>
+          <div class="neo-icon-box">
+            <HardDrive class="w-4 h-4 text-purple-400" />
+          </div>
+        </div>
+        <div class="flex items-baseline justify-between">
+          <span class="text-2xl font-black font-mono text-foreground">
+            {stats ? stats.mem_used_pct.toFixed(0) : '0'}%
+          </span>
+          <span class="text-xs font-mono text-muted">
+            {stats ? formatBytes(stats.mem_used) : '0 B'}
+          </span>
+        </div>
+        <div class="w-full bg-card-sub border border-border h-1.5 rounded overflow-hidden mt-3">
+          <div
+            class="h-full bg-purple-500 transition-all duration-300"
+            style="width: {stats ? Math.min(stats.mem_used_pct, 100) : 0}%"
+          ></div>
+        </div>
       </div>
-      <div class="flex items-baseline justify-between">
-        <span class="text-2xl font-black font-mono text-foreground">
-          {stats ? stats.mem_used_pct.toFixed(0) : '0'}%
-        </span>
-        <span class="text-xs font-mono text-muted">
-          {stats ? formatBytes(stats.mem_used) : '0 B'}
-        </span>
-      </div>
-      <div class="w-full bg-card-sub border border-border h-1.5 rounded overflow-hidden mt-3">
-        <div
-          class="h-full bg-purple-500 transition-all duration-300"
-          style="width: {stats ? Math.min(stats.mem_used_pct, 100) : 0}%"
-        ></div>
-      </div>
+      <SparklineWave value={stats ? stats.mem_used_pct : 0} color="var(--color-lavender, #c084fc)" height={26} class="mt-2" />
     </div>
 
     <!-- Storage Gauge -->
     <!-- svelte-ignore a11y_click_events_have_key_events -->
     <!-- svelte-ignore a11y_no_static_element_interactions -->
     <div
-      class="neo-card bg-card p-4 rounded flex flex-col justify-between cursor-pointer hover:border-accent transition-colors select-none"
+      class="neo-card neo-tone-mint bg-card p-4 rounded flex flex-col justify-between cursor-pointer hover:border-accent transition-colors select-none overflow-hidden"
       onclick={() => navigationStore.setTab('files')}
       title="Click to open File Manager"
     >
-      <div class="flex items-center justify-between text-muted mb-2 font-mono text-xs">
-        <span class="font-bold uppercase tracking-wider">Storage</span>
-        <HardDrive class="w-4 h-4 text-blue-400" />
+      <div>
+        <div class="flex items-center justify-between text-muted mb-2 font-mono text-xs">
+          <span class="font-bold uppercase tracking-wider">Storage</span>
+          <div class="neo-icon-box">
+            <HardDrive class="w-4 h-4 text-blue-400" />
+          </div>
+        </div>
+        <div class="flex items-baseline justify-between">
+          <span class="text-2xl font-black font-mono text-foreground">
+            {stats ? stats.disk_used_pct.toFixed(0) : '0'}%
+          </span>
+          <span class="text-xs font-mono text-muted">
+            {stats ? formatBytes(stats.disk_used) : '0 B'}
+          </span>
+        </div>
+        <div class="w-full bg-card-sub border border-border h-1.5 rounded overflow-hidden mt-3">
+          <div
+            class="h-full bg-blue-500 transition-all duration-300"
+            style="width: {stats ? Math.min(stats.disk_used_pct, 100) : 0}%"
+          ></div>
+        </div>
       </div>
-      <div class="flex items-baseline justify-between">
-        <span class="text-2xl font-black font-mono text-foreground">
-          {stats ? stats.disk_used_pct.toFixed(0) : '0'}%
-        </span>
-        <span class="text-xs font-mono text-muted">
-          {stats ? formatBytes(stats.disk_used) : '0 B'}
-        </span>
-      </div>
-      <div class="w-full bg-card-sub border border-border h-1.5 rounded overflow-hidden mt-3">
-        <div
-          class="h-full bg-blue-500 transition-all duration-300"
-          style="width: {stats ? Math.min(stats.disk_used_pct, 100) : 0}%"
-        ></div>
-      </div>
+      <SparklineWave value={stats ? stats.disk_used_pct : 0} color="var(--color-ice, #60a5fa)" height={26} class="mt-2" />
     </div>
 
     <!-- Battery Gauge (Interactive: Click for Voltage, Current & Health) -->
     <!-- svelte-ignore a11y_click_events_have_key_events -->
     <!-- svelte-ignore a11y_no_static_element_interactions -->
     <div
-      class="neo-card bg-card p-4 rounded flex flex-col justify-between cursor-pointer hover:border-accent transition-colors group select-none"
+      class="neo-card neo-tone-peach bg-card p-4 rounded flex flex-col justify-between cursor-pointer hover:border-accent transition-colors group select-none overflow-hidden"
       onclick={() => (showBatteryModal = true)}
       title="Click to view Battery Voltage, Current & Health diagnostics"
     >
-      <div class="flex items-center justify-between text-muted mb-2 font-mono text-xs">
-        <span class="font-bold uppercase tracking-wider group-hover:text-accent transition-colors flex items-center gap-1">
-          Battery
-          <span class="text-[10px] text-accent font-mono opacity-80">↗</span>
-        </span>
-        {#if stats?.battery_status === 'Charging'}
-          <BatteryCharging class="w-4 h-4 text-emerald-400 animate-pulse" />
-        {:else}
-          <Battery class="w-4 h-4 text-emerald-400" />
-        {/if}
+      <div>
+        <div class="flex items-center justify-between text-muted mb-2 font-mono text-xs">
+          <span class="font-bold uppercase tracking-wider group-hover:text-accent transition-colors flex items-center gap-1">
+            Battery
+            <span class="text-[10px] text-accent font-mono opacity-80">↗</span>
+          </span>
+          <div class="neo-icon-box">
+            {#if stats?.battery_status === 'Charging'}
+              <BatteryCharging class="w-4 h-4 text-emerald-400 animate-pulse" />
+            {:else}
+              <Battery class="w-4 h-4 text-emerald-400" />
+            {/if}
+          </div>
+        </div>
+        <div class="flex items-baseline justify-between">
+          <span class="text-2xl font-black font-mono text-foreground">
+            {stats ? stats.battery_level : '0'}%
+          </span>
+          <span class="text-xs font-mono text-emerald-400 font-bold">
+            {stats?.battery_status || 'OK'}
+          </span>
+        </div>
+        <div class="w-full bg-card-sub border border-border h-1.5 rounded overflow-hidden mt-3">
+          <div
+            class="h-full bg-emerald-500 transition-all duration-300"
+            style="width: {stats ? stats.battery_level : 0}%"
+          ></div>
+        </div>
       </div>
-      <div class="flex items-baseline justify-between">
-        <span class="text-2xl font-black font-mono text-foreground">
-          {stats ? stats.battery_level : '0'}%
-        </span>
-        <span class="text-xs font-mono text-emerald-400 font-bold">
-          {stats?.battery_status || 'OK'}
-        </span>
-      </div>
-      <div class="w-full bg-card-sub border border-border h-1.5 rounded overflow-hidden mt-3">
-        <div
-          class="h-full bg-emerald-500 transition-all duration-300"
-          style="width: {stats ? stats.battery_level : 0}%"
-        ></div>
-      </div>
+      <SparklineWave value={stats ? stats.battery_level : 0} color="var(--color-mint, #34d399)" height={26} class="mt-2" />
     </div>
 
     <!-- Uptime Gauge -->
-    <div class="neo-card bg-card p-4 rounded flex flex-col justify-between font-mono select-none">
-      <div class="flex items-center justify-between text-muted mb-2 text-xs">
-        <span class="font-bold uppercase tracking-wider">Uptime</span>
-        <Zap class="w-4 h-4 text-cyan-400" />
+    <div class="neo-card neo-tone-butter bg-card p-4 rounded flex flex-col justify-between font-mono select-none overflow-hidden">
+      <div>
+        <div class="flex items-center justify-between text-muted mb-2 text-xs">
+          <span class="font-bold uppercase tracking-wider">Uptime</span>
+          <div class="neo-icon-box">
+            <Zap class="w-4 h-4 text-cyan-400" />
+          </div>
+        </div>
+        <div class="flex items-baseline justify-between">
+          <span class="text-xl font-black text-foreground">
+            {stats ? formatUptime(stats.uptime) : '0m'}
+          </span>
+        </div>
+        <div class="text-[10px] text-muted mt-3 truncate">
+          Kernel: {stats ? stats.kernel : 'Linux'}
+        </div>
       </div>
-      <div class="flex items-baseline justify-between">
-        <span class="text-xl font-black text-foreground">
-          {stats ? formatUptime(stats.uptime) : '0m'}
-        </span>
-      </div>
-      <div class="text-[10px] text-muted mt-3 truncate">
-        Kernel: {stats ? stats.kernel : 'Linux'}
-      </div>
+      <SparklineWave value={stats ? Math.min((stats.uptime / (3600 * 24 * 7)) * 100, 100) : 50} color="var(--color-butter, #eab308)" height={26} class="mt-2" />
     </div>
   </div>
 
