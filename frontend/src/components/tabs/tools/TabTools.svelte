@@ -14,6 +14,7 @@
     FileText,
     ShieldCheck,
     AlertCircle,
+    KeyRound,
   } from '@lucide/svelte'
   import { api } from '../../../api/client'
   import { toastStore } from '../../../stores/toast.svelte'
@@ -22,6 +23,7 @@
   import Badge from '../../ui/Badge.svelte'
   import Modal from '../../ui/Modal.svelte'
   import Input from '../../ui/Input.svelte'
+  import ChangePasswordModal from '../../modals/ChangePasswordModal.svelte'
 
   interface ModuleInfo {
     id: string
@@ -50,6 +52,7 @@
   // Backup & Cloud Sync State
   let showImportModal = $state(false)
   let showCloudModal = $state(false)
+  let showPasswordModal = $state(false)
   let importJsonText = $state('')
   let isImporting = $state(false)
   let isSavingCloud = $state(false)
@@ -247,6 +250,29 @@
       </Button>
     </div>
   </div>
+
+  <!-- Security & Authentication Card -->
+  <Card title="Security & Authentication" subtitle="Manage root WebUI access credentials">
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-3.5 bg-card-sub border border-border rounded font-mono text-xs">
+      <div class="flex items-center gap-3">
+        <div class="p-2.5 rounded bg-card border border-border text-accent">
+          <KeyRound class="w-5 h-5" />
+        </div>
+        <div>
+          <span class="font-bold text-foreground text-sm block">Admin WebUI Password</span>
+          <span class="text-[11px] text-muted">Update administrative authentication password for this device.</span>
+        </div>
+      </div>
+      <Button
+        variant="primary"
+        size="sm"
+        onclick={() => (showPasswordModal = true)}
+      >
+        <KeyRound class="w-3.5 h-3.5 mr-1.5" />
+        <span>Change Admin Password</span>
+      </Button>
+    </div>
+  </Card>
 
   <!-- Backup & Cloud Synchronization Status Card -->
   <Card title="Configuration Backup & Cloud Synchronization">
@@ -515,3 +541,5 @@
     </Button>
   {/snippet}
 </Modal>
+
+<ChangePasswordModal bind:open={showPasswordModal} />

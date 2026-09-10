@@ -82,7 +82,7 @@ func securityHeaders(next http.HandlerFunc) http.HandlerFunc {
 func maxBodySize(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		if r.Method == http.MethodPost || r.Method == http.MethodPut || r.Method == http.MethodPatch {
-			if r.URL.Path != "/api/files/upload" && r.URL.Path != "/api/modules/install" {
+			if r.URL.Path != "/api/files/upload" && r.URL.Path != "/api/modules/install" && r.URL.Path != "/api/tunnel/upload" {
 				r.Body = http.MaxBytesReader(w, r.Body, 1<<20) // 1MB limit
 			}
 		}

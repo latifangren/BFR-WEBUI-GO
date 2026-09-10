@@ -21,6 +21,7 @@
     Copy,
     FolderInput,
     Check,
+    AlertTriangle,
   } from '@lucide/svelte'
   import { api } from '../../../api/client'
   import { toastStore } from '../../../stores/toast.svelte'
@@ -91,6 +92,180 @@
   let uploadInputEl: HTMLInputElement | null = $state(null)
   let isUploading = $state(false)
 
+  // Multi-Select & Batch Toolbar State
+  let selectedPaths = $state<string[]>([])
+  let batchDeleteModalOpen = $state(false)
+  let batchCopyModalOpen = $state(false)
+  let copyDest = $state('')
+  let batchMoveModalOpen = $state(false)
+  let moveDest = $state('')
+  let batchCompressModalOpen = $state(false)
+  let batchCompressName = $state('')
+  let isBatchProcessing = $state(false)
+
+  let isCopyDestSameDir = $derived(
+    copyDest.trim().replace(/\/+$/, '') === currentPath.replace(/\/+$/, '')
+  )
+  let isMoveDestSameDir = $derived(
+    moveDest.trim().replace(/\/+$/, '') === currentPath.replace(/\/+$/, '')
+  )
+
+  let displayedFiles = $derived(
+    searchResults !== null ? searchResults : files
+  )
+
+  let allSelected = $derived(
+    displayedFiles.length > 0 && displayedFiles.every((f) => selectedPaths.includes(f.path))
+  )
+
+  function toggleSelectAll() {
+    if (allSelected) {
+      selectedPaths = []
+    } else {
+      selectedPaths = displayedFiles.map((f) => f.path)
+    }
+  }
+
+  function toggleSelectPath(path: string) {
+    if (selectedPaths.includes(path)) {
+      selectedPaths = selectedPaths.filter((p) => p !== path)
+    } else {
+      selectedPaths = [...selectedPaths, path]
+    }
+  }
+
+  function deselectAll() {
+    selectedPaths = []
+  }
+
+  function openBatchCopy() {
+    copyDest = currentPath
+    batchCopyModalOpen = true
+  }
+
+  function openBatchMove() {
+    moveDest = currentPath
+    batchMoveModalOpen = true
+  }
+
+  function openBatchCompress() {
+    const today = new Date().toISOString().slice(0, 10)
+    batchCompressName = `archive_${today}.zip`
+    batchCompressModalOpen = true
+  }
+
+  async function handleBatchDelete() {
+    if (selectedPaths.length === 0) return
+    try {
+      isBatchProcessing = true
+      const res = await api.post<{ success: boolean; error?: string }>('/api/files/batch', {
+        action: 'delete',
+        paths: selectedPaths,
+      })
+      if (res && res.success) {
+        toastStore.success(`Deleted ${selectedPaths.length} items successfully.`)
+        batchDeleteModalOpen = false
+        selectedPaths = []
+        await navigateTo(currentPath)
+        await fetchStorageInfo()
+      } else {
+        toastStore.error(res?.error || 'Batch delete failed')
+      }
+    } catch (err: unknown) {
+      toastStore.error(err instanceof Error ? err.message : 'Batch delete error')
+    } finally {
+      isBatchProcessing = false
+    }
+  }
+
+  async function handleBatchCopy() {
+    if (selectedPaths.length === 0) return
+    if (isCopyDestSameDir) {
+      toastStore.error('Destination cannot be the current directory')
+      return
+    }
+    try {
+      isBatchProcessing = true
+      const res = await api.post<{ success: boolean; error?: string }>('/api/files/batch', {
+        action: 'copy',
+        paths: selectedPaths,
+        dest_dir: copyDest,
+      })
+      if (res && res.success) {
+        toastStore.success(`Copied ${selectedPaths.length} items to ${copyDest}.`)
+        batchCopyModalOpen = false
+        selectedPaths = []
+        await navigateTo(currentPath)
+        await fetchStorageInfo()
+      } else {
+        toastStore.error(res?.error || 'Batch copy failed')
+      }
+    } catch (err: unknown) {
+      toastStore.error(err instanceof Error ? err.message : 'Batch copy error')
+    } finally {
+      isBatchProcessing = false
+    }
+  }
+
+  async function handleBatchMove() {
+    if (selectedPaths.length === 0) return
+    if (isMoveDestSameDir) {
+      toastStore.error('Items are already in this directory')
+      return
+    }
+    try {
+      isBatchProcessing = true
+      const res = await api.post<{ success: boolean; error?: string }>('/api/files/batch', {
+        action: 'move',
+        paths: selectedPaths,
+        dest_dir: moveDest,
+      })
+      if (res && res.success) {
+        toastStore.success(`Moved ${selectedPaths.length} items to ${moveDest}.`)
+        batchMoveModalOpen = false
+        selectedPaths = []
+        await navigateTo(currentPath)
+        await fetchStorageInfo()
+      } else {
+        toastStore.error(res?.error || 'Batch move failed')
+      }
+    } catch (err: unknown) {
+      toastStore.error(err instanceof Error ? err.message : 'Batch move error')
+    } finally {
+      isBatchProcessing = false
+    }
+  }
+
+  async function handleBatchCompress() {
+    if (selectedPaths.length === 0) return
+    let name = batchCompressName.trim()
+    if (!name) name = 'archive.zip'
+    if (!name.endsWith('.zip')) name += '.zip'
+
+    try {
+      isBatchProcessing = true
+      const zipDest = `${currentPath.replace(/\/+$/, '')}/${name}`
+      const res = await api.post<{ success: boolean; error?: string }>('/api/files/compress', {
+        paths: selectedPaths,
+        dest_zip: zipDest,
+        destination: zipDest,
+      })
+      if (res && res.success) {
+        toastStore.success(`Compressed ${selectedPaths.length} items to ${name}.`)
+        batchCompressModalOpen = false
+        selectedPaths = []
+        await navigateTo(currentPath)
+        await fetchStorageInfo()
+      } else {
+        toastStore.error(res?.error || 'Batch compress failed')
+      }
+    } catch (err: unknown) {
+      toastStore.error(err instanceof Error ? err.message : 'Batch compress error')
+    } finally {
+      isBatchProcessing = false
+    }
+  }
+
   onMount(async () => {
     await navigateTo(currentPath)
     await fetchStorageInfo()
@@ -112,6 +287,7 @@
       currentPath = res.path || res.current_path || path
       files = Array.isArray(res.files) ? res.files : []
       searchResults = null
+      selectedPaths = []
     } catch (err: unknown) {
       toastStore.error(err instanceof Error ? err.message : 'Failed to list directory')
     } finally {
@@ -145,10 +321,12 @@
   async function runSearch() {
     if (!searchQuery.trim()) {
       searchResults = null
+      selectedPaths = []
       return
     }
     try {
       isSearching = true
+      selectedPaths = []
       const res = await api.get<{ files?: FileEntry[] }>(
         `/api/files/search?path=${encodeURIComponent(currentPath)}&query=${encodeURIComponent(searchQuery.trim())}`
       )
@@ -164,6 +342,7 @@
   function clearSearch() {
     searchQuery = ''
     searchResults = null
+    selectedPaths = []
   }
 
   // --- Text File Reading & Editing ---
@@ -407,8 +586,6 @@
         path: '/' + arr.slice(0, idx + 1).join('/'),
       }))
   )
-
-  const displayedFiles = $derived(searchResults !== null ? searchResults : files)
 </script>
 
 <div class="space-y-4">
@@ -597,6 +774,15 @@
         <table class="w-full text-left">
           <thead>
             <tr class="border-b-2 border-border text-muted uppercase text-[10px] bg-card-sub">
+              <th class="py-2.5 px-3 w-10 text-center">
+                <input
+                  type="checkbox"
+                  checked={allSelected}
+                  onchange={toggleSelectAll}
+                  class="w-4 h-4 accent-accent rounded cursor-pointer"
+                  title={allSelected ? 'Deselect All' : 'Select All'}
+                />
+              </th>
               <th class="py-2.5 px-3">Name</th>
               <th class="py-2.5 px-3 w-24">Size</th>
               <th class="py-2.5 px-3 w-28 hidden sm:table-cell">Perms</th>
@@ -606,7 +792,16 @@
           </thead>
           <tbody class="divide-y divide-border">
             {#each displayedFiles as file (file.path)}
-              <tr class="hover:bg-card-sub/60 transition-colors">
+              {@const isSelected = selectedPaths.includes(file.path)}
+              <tr class="transition-colors {isSelected ? 'bg-accent/15' : 'hover:bg-card-sub/60'}">
+                <td class="py-2.5 px-3 w-10 text-center">
+                  <input
+                    type="checkbox"
+                    checked={isSelected}
+                    onchange={() => toggleSelectPath(file.path)}
+                    class="w-4 h-4 accent-accent rounded cursor-pointer"
+                  />
+                </td>
                 <!-- Name & Icon -->
                 <td class="py-2.5 px-3">
                   {#if file.is_dir}
@@ -985,6 +1180,240 @@
               <FolderInput class="w-3.5 h-3.5 mr-1" />
               <span>Move Here</span>
             {/if}
+          </Button>
+        </div>
+      </form>
+    </Modal>
+  {/if}
+
+  <!-- Batch Action Toolbar -->
+  {#if selectedPaths.length > 0}
+    <div
+      class="fixed bottom-5 left-4 right-4 sm:left-auto sm:right-6 z-40 max-w-2xl bg-black/90 backdrop-blur-md border-2 border-border shadow-neobrutal p-3 rounded-lg flex flex-wrap items-center justify-between gap-3 font-mono text-xs animate-in fade-in slide-in-from-bottom-3"
+    >
+      <div class="flex items-center gap-2.5">
+        <span class="px-2.5 py-1 bg-accent text-accent-text font-black rounded text-xs shadow-neobrutal-sm">
+          {selectedPaths.length} selected
+        </span>
+        <Button variant="ghost" size="sm" onclick={deselectAll}>
+          <X class="w-3.5 h-3.5 mr-1" />
+          <span>Deselect All</span>
+        </Button>
+      </div>
+
+      <div class="flex flex-wrap items-center gap-2">
+        <Button
+          variant="secondary"
+          size="sm"
+          disabled={isBatchProcessing}
+          onclick={openBatchCopy}
+        >
+          <Copy class="w-3.5 h-3.5 mr-1" />
+          <span>Batch Copy</span>
+        </Button>
+
+        <Button
+          variant="secondary"
+          size="sm"
+          disabled={isBatchProcessing}
+          onclick={openBatchMove}
+        >
+          <FolderInput class="w-3.5 h-3.5 mr-1" />
+          <span>Batch Move</span>
+        </Button>
+
+        <Button
+          variant="secondary"
+          size="sm"
+          disabled={isBatchProcessing}
+          onclick={openBatchCompress}
+        >
+          <FileArchive class="w-3.5 h-3.5 mr-1 text-accent" />
+          <span>Batch Compress</span>
+        </Button>
+
+        <Button
+          variant="danger"
+          size="sm"
+          disabled={isBatchProcessing}
+          onclick={() => (batchDeleteModalOpen = true)}
+        >
+          <Trash2 class="w-3.5 h-3.5 mr-1" />
+          <span>Batch Delete</span>
+        </Button>
+      </div>
+    </div>
+  {/if}
+
+  <!-- Batch Delete Modal -->
+  {#if batchDeleteModalOpen}
+    <Modal
+      open={true}
+      title={`Batch Delete (${selectedPaths.length} items)`}
+      onclose={() => (batchDeleteModalOpen = false)}
+    >
+      <div class="space-y-4 font-mono text-xs">
+        <div class="p-3 bg-red-950/30 border border-red-800 rounded text-red-200 space-y-1">
+          <p class="font-bold text-red-400">Permanently delete selected files & directories?</p>
+          <p class="text-[11px] text-red-300/80">
+            This operation cannot be undone. All selected files and folder contents will be permanently deleted from the Android filesystem.
+          </p>
+        </div>
+
+        <div class="max-h-40 overflow-y-auto bg-card-sub border border-border rounded p-2.5 space-y-1">
+          {#each selectedPaths.slice(0, 10) as p}
+            <div class="text-muted truncate text-[11px]">• {p}</div>
+          {/each}
+          {#if selectedPaths.length > 10}
+            <div class="text-accent font-bold pt-1 text-[11px]">...and {selectedPaths.length - 10} more items</div>
+          {/if}
+        </div>
+
+        <div class="flex justify-end gap-2 pt-2 border-t border-border">
+          <Button variant="ghost" size="sm" onclick={() => (batchDeleteModalOpen = false)}>
+            Cancel
+          </Button>
+          <Button
+            variant="danger"
+            size="sm"
+            disabled={isBatchProcessing}
+            onclick={handleBatchDelete}
+          >
+            <Trash2 class="w-3.5 h-3.5 mr-1" />
+            <span>{isBatchProcessing ? 'Deleting...' : `Delete ${selectedPaths.length} Items`}</span>
+          </Button>
+        </div>
+      </div>
+    </Modal>
+  {/if}
+
+  <!-- Batch Copy Modal -->
+  {#if batchCopyModalOpen}
+    <Modal
+      open={true}
+      title={`Batch Copy (${selectedPaths.length} items)`}
+      onclose={() => (batchCopyModalOpen = false)}
+    >
+      <form onsubmit={(e) => { e.preventDefault(); handleBatchCopy() }} class="space-y-4 font-mono text-xs">
+        <Input
+          label="Destination Folder (dest_dir)"
+          placeholder="/sdcard/download"
+          bind:value={copyDest}
+        />
+        {#if isCopyDestSameDir}
+          <p class="text-[11px] text-amber-500 font-bold">
+            Destination cannot be the current directory
+          </p>
+        {/if}
+        <div class="max-h-36 overflow-y-auto bg-card-sub border border-border rounded p-2.5 space-y-1 text-muted">
+          <span class="text-[10px] uppercase font-bold text-foreground block mb-1">Selected Items:</span>
+          {#each selectedPaths.slice(0, 6) as p}
+            <div class="truncate text-[11px]">• {p}</div>
+          {/each}
+          {#if selectedPaths.length > 6}
+            <div class="text-accent text-[11px] font-bold">...and {selectedPaths.length - 6} more items</div>
+          {/if}
+        </div>
+
+        <div class="flex justify-end gap-2 pt-2 border-t border-border">
+          <Button variant="ghost" size="sm" onclick={() => (batchCopyModalOpen = false)}>
+            Cancel
+          </Button>
+          <Button
+            type="submit"
+            variant="primary"
+            size="sm"
+            disabled={isBatchProcessing || !copyDest.trim() || isCopyDestSameDir}
+          >
+            <Copy class="w-3.5 h-3.5 mr-1" />
+            <span>{isBatchProcessing ? 'Copying...' : 'Copy Items Here'}</span>
+          </Button>
+        </div>
+      </form>
+    </Modal>
+  {/if}
+
+  <!-- Batch Move Modal -->
+  {#if batchMoveModalOpen}
+    <Modal
+      open={true}
+      title={`Batch Move (${selectedPaths.length} items)`}
+      onclose={() => (batchMoveModalOpen = false)}
+    >
+      <form onsubmit={(e) => { e.preventDefault(); handleBatchMove() }} class="space-y-4 font-mono text-xs">
+        <Input
+          label="Destination Folder (dest_dir)"
+          placeholder="/sdcard/download"
+          bind:value={moveDest}
+        />
+        {#if isMoveDestSameDir}
+          <p class="text-[11px] text-amber-500 font-bold">
+            Items are already in this directory
+          </p>
+        {/if}
+        <div class="max-h-36 overflow-y-auto bg-card-sub border border-border rounded p-2.5 space-y-1 text-muted">
+          <span class="text-[10px] uppercase font-bold text-foreground block mb-1">Selected Items:</span>
+          {#each selectedPaths.slice(0, 6) as p}
+            <div class="truncate text-[11px]">• {p}</div>
+          {/each}
+          {#if selectedPaths.length > 6}
+            <div class="text-accent text-[11px] font-bold">...and {selectedPaths.length - 6} more items</div>
+          {/if}
+        </div>
+
+        <div class="flex justify-end gap-2 pt-2 border-t border-border">
+          <Button variant="ghost" size="sm" onclick={() => (batchMoveModalOpen = false)}>
+            Cancel
+          </Button>
+          <Button
+            type="submit"
+            variant="primary"
+            size="sm"
+            disabled={isBatchProcessing || !moveDest.trim() || isMoveDestSameDir}
+          >
+            <FolderInput class="w-3.5 h-3.5 mr-1" />
+            <span>{isBatchProcessing ? 'Moving...' : 'Move Items Here'}</span>
+          </Button>
+        </div>
+      </form>
+    </Modal>
+  {/if}
+
+  <!-- Batch Compress Modal -->
+  {#if batchCompressModalOpen}
+    <Modal
+      open={true}
+      title={`Batch Compress (${selectedPaths.length} items)`}
+      onclose={() => (batchCompressModalOpen = false)}
+    >
+      <form onsubmit={(e) => { e.preventDefault(); handleBatchCompress() }} class="space-y-4 font-mono text-xs">
+        <Input
+          label="Archive Name (ZIP)"
+          placeholder="archive.zip"
+          bind:value={batchCompressName}
+        />
+        <div class="max-h-36 overflow-y-auto bg-card-sub border border-border rounded p-2.5 space-y-1 text-muted">
+          <span class="text-[10px] uppercase font-bold text-foreground block mb-1">Items to Compress:</span>
+          {#each selectedPaths.slice(0, 6) as p}
+            <div class="truncate text-[11px]">• {p}</div>
+          {/each}
+          {#if selectedPaths.length > 6}
+            <div class="text-accent text-[11px] font-bold">...and {selectedPaths.length - 6} more items</div>
+          {/if}
+        </div>
+
+        <div class="flex justify-end gap-2 pt-2 border-t border-border">
+          <Button variant="ghost" size="sm" onclick={() => (batchCompressModalOpen = false)}>
+            Cancel
+          </Button>
+          <Button
+            type="submit"
+            variant="primary"
+            size="sm"
+            disabled={isBatchProcessing || !batchCompressName.trim()}
+          >
+            <FileArchive class="w-3.5 h-3.5 mr-1 text-accent" />
+            <span>{isBatchProcessing ? 'Compressing...' : 'Compress Items'}</span>
           </Button>
         </div>
       </form>

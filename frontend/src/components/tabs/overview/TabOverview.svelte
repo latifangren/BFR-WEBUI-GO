@@ -18,12 +18,15 @@
     Edit3,
     Thermometer,
     Clock,
+    Network,
+    Radio,
   } from '@lucide/svelte'
   import { sysinfoStore } from '../../../stores/sysinfo.svelte'
   import { navigationStore } from '../../../stores/navigation.svelte'
   import { api } from '../../../api/client'
   import Card from '../../ui/Card.svelte'
   import Button from '../../ui/Button.svelte'
+  import Badge from '../../ui/Badge.svelte'
   import Modal from '../../ui/Modal.svelte'
   import Input from '../../ui/Input.svelte'
   import SparklineWave from '../../ui/SparklineWave.svelte'
@@ -44,6 +47,7 @@
   // Telemetry Modals State
   let showCpuModal = $state(false)
   let showBatteryModal = $state(false)
+  let showNetworkModal = $state(false)
 
   // Shortcuts State
   let shortcuts = $state<ShortcutItem[]>([])
@@ -457,22 +461,38 @@
 
   <!-- Quick Action Jump Cards -->
   <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-    <button
-      type="button"
-      class="neo-button bg-card hover:bg-card-sub p-4 rounded border-2 border-border text-left flex items-center justify-between cursor-pointer group"
-      onclick={() => navigationStore.setTab('network')}
+    <!-- Network & Traffic Telemetry Card (Interactive) -->
+    <!-- svelte-ignore a11y_click_events_have_key_events -->
+    <!-- svelte-ignore a11y_no_static_element_interactions -->
+    <div
+      class="neo-button bg-card hover:bg-card-sub p-4 rounded border-2 border-border text-left flex items-center justify-between cursor-pointer hover:border-accent group select-none transition-colors"
+      onclick={() => (showNetworkModal = true)}
+      title="Click to inspect Network Interface & Telemetry"
+      role="button"
+      tabindex="0"
     >
       <div class="flex items-center gap-3">
         <div class="p-2.5 rounded bg-card-sub border border-border text-accent group-hover:scale-105 transition-transform">
           <Activity class="w-5 h-5" />
         </div>
         <div>
-          <h4 class="font-mono font-bold text-xs uppercase text-foreground">Network & DNS</h4>
-          <p class="text-[11px] font-mono text-muted">DNS, TTL & sysctl</p>
+          <h4 class="font-mono font-bold text-xs uppercase text-foreground flex items-center gap-1 group-hover:text-accent transition-colors">
+            Network & Traffic
+            <span class="text-[10px] text-accent font-mono opacity-80">↗</span>
+          </h4>
+          <p class="text-[11px] font-mono text-muted truncate max-w-[150px] sm:max-w-[180px]">
+            {#if stats?.net_rx || stats?.net_tx}
+              ↓ {formatBytes(stats.net_rx || 0)} ↑ {formatBytes(stats.net_tx || 0)}
+            {:else if stats?.network_detail?.ip_addresses?.[0]}
+              {stats.network_detail.ip_addresses[0]}
+            {:else}
+              DNS, TTL & sysctl
+            {/if}
+          </p>
         </div>
       </div>
       <ArrowRight class="w-4 h-4 text-muted group-hover:text-foreground transition-colors" />
-    </button>
+    </div>
 
     <button
       type="button"
@@ -760,6 +780,177 @@
     <Button variant="primary" size="sm" onclick={() => (showBatteryModal = false)}>
       <span>Close</span>
     </Button>
+  {/snippet}
+</Modal>
+
+<!-- Network Detail Telemetry Modal -->
+<Modal
+  open={showNetworkModal}
+  title="Network Interface & Telemetry"
+  onclose={() => (showNetworkModal = false)}
+  class="!max-w-2xl"
+>
+  <div class="space-y-4 font-mono text-xs">
+    <!-- Active Interface & Traffic Header -->
+    <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+      <div class="p-2.5 rounded bg-card-sub border border-border space-y-1">
+        <span class="text-[10px] text-muted uppercase font-bold block">Active Interface</span>
+        <span class="text-sm font-black text-accent truncate block">
+          {stats?.network?.interface || stats?.network_detail?.interface || (stats?.network_detail?.wifi_ssid ? 'wlan0' : 'rmnet0')}
+        </span>
+      </div>
+
+      <div class="p-2.5 rounded bg-card-sub border border-border space-y-1">
+        <span class="text-[10px] text-muted uppercase font-bold block">Network Mode</span>
+        <span class="text-sm font-bold text-emerald-400 truncate block">
+          {stats?.network_detail?.sim_slots?.[0]?.network_type || (stats?.network_detail?.wifi_ssid ? 'Wi-Fi 802.11' : 'Cellular LTE/5G')}
+        </span>
+      </div>
+
+      <div class="p-2.5 rounded bg-card-sub border border-border space-y-1">
+        <span class="text-[10px] text-muted uppercase font-bold block">Total Download</span>
+        <span class="text-sm font-black text-foreground truncate block">
+          {formatBytes(stats?.net_rx || 0)}
+        </span>
+      </div>
+
+      <div class="p-2.5 rounded bg-card-sub border border-border space-y-1">
+        <span class="text-[10px] text-muted uppercase font-bold block">Total Upload</span>
+        <span class="text-sm font-black text-foreground truncate block">
+          {formatBytes(stats?.net_tx || 0)}
+        </span>
+      </div>
+    </div>
+
+    <!-- IP Addresses & Gateway Details -->
+    <div class="p-3 bg-card-sub border border-border rounded space-y-2">
+      <div class="flex items-center justify-between border-b border-border/70 pb-1.5">
+        <span class="font-bold text-foreground uppercase tracking-wider text-[11px]">IP & Routing Configuration</span>
+        <Badge variant="info">IPv4 / IPv6</Badge>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px]">
+        <div class="flex items-center justify-between p-2 rounded bg-card border border-border">
+          <span class="text-muted">Primary IPv4:</span>
+          <span class="font-bold text-accent select-text">
+            {stats?.network_detail?.ip_addresses?.find((ip) => ip.includes('.')) || stats?.network_detail?.ip || '192.168.43.1'}
+          </span>
+        </div>
+
+        <div class="flex items-center justify-between p-2 rounded bg-card border border-border">
+          <span class="text-muted">Default Gateway:</span>
+          <span class="font-bold text-foreground select-text">
+            {stats?.network_detail?.gateway || '192.168.43.1'}
+          </span>
+        </div>
+
+        <div class="flex items-center justify-between p-2 rounded bg-card border border-border">
+          <span class="text-muted">Subnet Mask:</span>
+          <span class="font-bold text-foreground select-text">
+            255.255.255.0 (/24)
+          </span>
+        </div>
+
+        <div class="flex items-center justify-between p-2 rounded bg-card border border-border">
+          <span class="text-muted">System MTU:</span>
+          <span class="font-bold text-foreground select-text">
+            {stats?.mtu || '1500'}
+          </span>
+        </div>
+      </div>
+
+      <!-- IPv6 if present -->
+      {#if stats?.network_detail?.ip_addresses?.some((ip) => ip.includes(':'))}
+        <div class="p-2 rounded bg-card border border-border flex flex-col sm:flex-row sm:items-center justify-between gap-1 text-[10px]">
+          <span class="text-muted">IPv6 Global/Link:</span>
+          <span class="font-mono text-cyan-400 font-bold select-text break-all">
+            {stats.network_detail.ip_addresses.filter((ip) => ip.includes(':')).join(', ')}
+          </span>
+        </div>
+      {/if}
+    </div>
+
+    <!-- DNS & Carrier / Wi-Fi Strip -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+      <!-- DNS Resolvers -->
+      <div class="p-3 bg-card-sub border border-border rounded space-y-2">
+        <div class="flex items-center justify-between border-b border-border/70 pb-1.5">
+          <span class="font-bold text-foreground uppercase tracking-wider text-[11px]">DNS Resolvers</span>
+          <span class="text-[10px] text-muted">Port 53 / 1053</span>
+        </div>
+        <div class="space-y-1.5 text-[11px]">
+          <div class="flex items-center justify-between">
+            <span class="text-muted">Primary DNS:</span>
+            <span class="font-bold text-emerald-400 select-text">{stats?.network_detail?.dns1 || stats?.network_detail?.dns?.[0] || '1.1.1.1'}</span>
+          </div>
+          <div class="flex items-center justify-between">
+            <span class="text-muted">Secondary DNS:</span>
+            <span class="font-bold text-emerald-400 select-text">{stats?.network_detail?.dns2 || stats?.network_detail?.dns?.[1] || '1.0.0.1'}</span>
+          </div>
+          <div class="flex items-center justify-between">
+            <span class="text-muted">Default TTL:</span>
+            <span class="font-bold text-accent">{stats?.default_ttl || '64'}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Wi-Fi / Cellular Connection -->
+      <div class="p-3 bg-card-sub border border-border rounded space-y-2">
+        <div class="flex items-center justify-between border-b border-border/70 pb-1.5">
+          <span class="font-bold text-foreground uppercase tracking-wider text-[11px]">Wireless Connection</span>
+          <Badge variant="default">{stats?.network_detail?.wifi_ssid ? 'Wi-Fi' : 'Mobile Data'}</Badge>
+        </div>
+        <div class="space-y-1.5 text-[11px]">
+          {#if stats?.network_detail?.wifi_ssid}
+            <div class="flex items-center justify-between">
+              <span class="text-muted">SSID:</span>
+              <span class="font-bold text-accent">{stats.network_detail.wifi_ssid}</span>
+            </div>
+            <div class="flex items-center justify-between">
+              <span class="text-muted">Signal:</span>
+              <span class="font-bold text-foreground">{stats.network_detail.wifi_signal || `${stats.network_detail.wifi_rssi || -60} dBm`}</span>
+            </div>
+          {:else}
+            <div class="flex items-center justify-between">
+              <span class="text-muted">Carrier:</span>
+              <span class="font-bold text-accent">{stats?.network_detail?.sim_slots?.[0]?.operator || 'Active Operator'}</span>
+            </div>
+            <div class="flex items-center justify-between">
+              <span class="text-muted">Radio Mode:</span>
+              <span class="font-bold text-foreground">{stats?.network_detail?.sim_slots?.[0]?.network_type || '4G LTE-A / 5G'}</span>
+            </div>
+          {/if}
+          <div class="flex items-center justify-between">
+            <span class="text-muted">Connected Clients:</span>
+            <span class="font-bold text-cyan-400">{stats?.network_detail?.hotspot_clients ?? 0} devices</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  {#snippet footer()}
+    <div class="flex items-center justify-between w-full">
+      <Button
+        variant="outline"
+        size="sm"
+        onclick={() => {
+          showNetworkModal = false
+          navigationStore.setTab('network')
+        }}
+      >
+        <ArrowRight class="w-3.5 h-3.5 mr-1" />
+        <span>Open Network Tuning</span>
+      </Button>
+
+      <Button
+        variant="primary"
+        size="sm"
+        onclick={() => (showNetworkModal = false)}
+      >
+        Close
+      </Button>
+    </div>
   {/snippet}
 </Modal>
 

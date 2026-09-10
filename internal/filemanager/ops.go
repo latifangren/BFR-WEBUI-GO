@@ -86,6 +86,10 @@ func CopyPath(src, dst string) error {
 		return err
 	}
 
+	if cleanSrc == cleanDst {
+		return fmt.Errorf("source and destination are identical: %s", src)
+	}
+
 	info, err := os.Stat(cleanSrc)
 	if err != nil {
 		return err
@@ -95,6 +99,10 @@ func CopyPath(src, dst string) error {
 		return copyDirRecursive(cleanSrc, cleanDst)
 	}
 	return copyFileSingle(cleanSrc, cleanDst)
+}
+
+func CopyItem(src, dst string) error {
+	return CopyPath(src, dst)
 }
 
 func copyFileSingle(src, dst string) error {
@@ -165,6 +173,10 @@ func MovePath(src, dst string) error {
 		return err
 	}
 
+	if cleanSrc == cleanDst {
+		return fmt.Errorf("source and destination are identical: %s", src)
+	}
+
 	err = os.Rename(cleanSrc, cleanDst)
 	if err == nil {
 		return nil
@@ -175,6 +187,10 @@ func MovePath(src, dst string) error {
 		return fmt.Errorf("move failed (copy fallback error): %w", err)
 	}
 	return DeletePath(cleanSrc)
+}
+
+func MoveItem(src, dst string) error {
+	return MovePath(src, dst)
 }
 
 func BatchDelete(paths []string) error {
@@ -190,16 +206,30 @@ func BatchDelete(paths []string) error {
 	return nil
 }
 
-func BatchCopy(srcs []string, destDir string) error {
+func BatchCopy(paths []string, destDir string) error {
 	cleanDest, err := SanitizePath(destDir)
 	if err != nil {
 		return err
 	}
 
 	var errs []string
-	for _, src := range srcs {
+	for _, src := range paths {
 		target := filepath.Join(cleanDest, filepath.Base(src))
-		if err := CopyPath(src, target); err != nil {
+		cleanSrc, err := SanitizePath(src)
+		if err != nil {
+			errs = append(errs, fmt.Sprintf("%s: %v", src, err))
+			continue
+		}
+		cleanTarget, err := SanitizePath(target)
+		if err != nil {
+			errs = append(errs, fmt.Sprintf("%s: %v", target, err))
+			continue
+		}
+		if cleanSrc == cleanTarget {
+			errs = append(errs, fmt.Sprintf("%s: source and destination are identical: %s", src, target))
+			continue
+		}
+		if err := CopyPath(cleanSrc, cleanTarget); err != nil {
 			errs = append(errs, fmt.Sprintf("%s: %v", src, err))
 		}
 	}
@@ -209,16 +239,30 @@ func BatchCopy(srcs []string, destDir string) error {
 	return nil
 }
 
-func BatchMove(srcs []string, destDir string) error {
+func BatchMove(paths []string, destDir string) error {
 	cleanDest, err := SanitizePath(destDir)
 	if err != nil {
 		return err
 	}
 
 	var errs []string
-	for _, src := range srcs {
+	for _, src := range paths {
 		target := filepath.Join(cleanDest, filepath.Base(src))
-		if err := MovePath(src, target); err != nil {
+		cleanSrc, err := SanitizePath(src)
+		if err != nil {
+			errs = append(errs, fmt.Sprintf("%s: %v", src, err))
+			continue
+		}
+		cleanTarget, err := SanitizePath(target)
+		if err != nil {
+			errs = append(errs, fmt.Sprintf("%s: %v", target, err))
+			continue
+		}
+		if cleanSrc == cleanTarget {
+			errs = append(errs, fmt.Sprintf("%s: source and destination are identical: %s", src, target))
+			continue
+		}
+		if err := MovePath(cleanSrc, cleanTarget); err != nil {
 			errs = append(errs, fmt.Sprintf("%s: %v", src, err))
 		}
 	}

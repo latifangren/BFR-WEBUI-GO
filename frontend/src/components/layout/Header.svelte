@@ -12,6 +12,7 @@
     Palette,
     Cpu,
     Clock,
+    KeyRound,
   } from '@lucide/svelte'
   import { themeStore } from '../../stores/theme.svelte'
   import { authStore } from '../../stores/auth.svelte'
@@ -19,6 +20,7 @@
   import { navigationStore } from '../../stores/navigation.svelte'
   import type { ThemeMode, UIStyle } from '../../types/common'
   import AppearanceModal from './AppearanceModal.svelte'
+  import ChangePasswordModal from '../modals/ChangePasswordModal.svelte'
   import TopNav from './TopNav.svelte'
 
   const themeOptions: { id: ThemeMode; label: string }[] = [
@@ -35,6 +37,7 @@
 
   let showThemeDropdown = $state(false)
   let showAppearanceModal = $state(false)
+  let showChangePasswordModal = $state(false)
 
   const freeRamText = $derived.by(() => {
     const stats = sysinfoStore.stats
@@ -229,6 +232,19 @@
         {/if}
       </div>
 
+      <!-- Change Password Button -->
+      {#if authStore.authenticated}
+        <button
+          type="button"
+          class="p-1.5 rounded bg-card-sub border border-border text-muted hover:text-accent hover:border-accent cursor-pointer transition-colors"
+          onclick={() => (showChangePasswordModal = true)}
+          title="Change Admin Password"
+          aria-label="Change Admin Password"
+        >
+          <KeyRound class="w-4 h-4" />
+        </button>
+      {/if}
+
       <!-- Logout Button (if authenticated) -->
       {#if authStore.authenticated}
         <button
@@ -248,4 +264,8 @@
 <AppearanceModal
   open={showAppearanceModal}
   onclose={() => (showAppearanceModal = false)}
+/>
+<ChangePasswordModal
+  open={showChangePasswordModal}
+  onclose={() => (showChangePasswordModal = false)}
 />

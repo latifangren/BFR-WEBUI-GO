@@ -10,10 +10,11 @@
     Check,
     Radio,
     Search,
+    Cpu,
   } from '@lucide/svelte'
   import { api } from '../../../api/client'
   import { toastStore } from '../../../stores/toast.svelte'
-  import type { TweaksConfig } from '../../../types/network'
+  import type { TweaksConfig, RPSConfig } from '../../../types/network'
   import Card from '../../ui/Card.svelte'
   import Button from '../../ui/Button.svelte'
   import Badge from '../../ui/Badge.svelte'
@@ -57,6 +58,12 @@
   let pingResult = $state<string | null>(null)
   let isPinging = $state(false)
 
+  // RPS (Receive Packet Steering) state
+  let rpsConfigs = $state<RPSConfig[]>([])
+  let isLoadingRPS = $state(false)
+  let isApplyingRPS = $state<Record<string, boolean>>({})
+  let editedBitmasks = $state<Record<string, string>>({})
+
   onMount(async () => {
     await fetchNetworkData()
   })
@@ -99,6 +106,55 @@
     } catch {
       // Ignored
     }
+
+    await fetchRPSConfigs()
+  }
+
+  async function fetchRPSConfigs() {
+    try {
+      isLoadingRPS = true
+      const res = await api.get<{ configs: RPSConfig[]; error?: string }>('/api/network/rps')
+      if (res && Array.isArray(res.configs)) {
+        rpsConfigs = res.configs
+        const masks: Record<string, string> = {}
+        for (const c of res.configs) {
+          masks[c.interface] = c.bitmask || 'f'
+        }
+        editedBitmasks = masks
+      }
+    } catch {
+      // Ignored
+    } finally {
+      isLoadingRPS = false
+    }
+  }
+
+  async function applyRPS(iface: string) {
+    try {
+      isApplyingRPS[iface] = true
+      const bitmask = editedBitmasks[iface] || 'f'
+      const res = await api.post<{ success: boolean; error?: string }>('/api/network/rps', {
+        interface: iface,
+        bitmask,
+      })
+      if (res && res.success) {
+        toastStore.success(`RPS applied to ${iface} with bitmask ${bitmask}`)
+        const idx = rpsConfigs.findIndex((c) => c.interface === iface)
+        if (idx !== -1) {
+          rpsConfigs[idx].bitmask = bitmask
+        }
+      } else {
+        toastStore.error(res?.error || `Failed to apply RPS for ${iface}`)
+      }
+    } catch (err: unknown) {
+      toastStore.error(err instanceof Error ? err.message : 'Failed to apply RPS')
+    } finally {
+      isApplyingRPS[iface] = false
+    }
+  }
+
+  function setBitmaskPreset(iface: string, val: string) {
+    editedBitmasks[iface] = val
   }
 
   async function saveTweaks() {
@@ -117,19 +173,8 @@
     try {
       isLoadingTweaks = true
       await api.post('/api/network/tweaks/restore')
-      tweaks = {
-        lte_carrier_aggregation: false,
-        tcp_buffer_optimization: true,
-        bbr2_congestion_control: true,
-        sysctl_buffers_opt: true,
-        dalvik_responsiveness: true,
-        settings_global_tweaks: false,
-        ttl_spoofing: false,
-        packet_steering_rps: false,
-        mtu_tuning: false,
-      }
+      toastStore.success('Network settings restored to module defaults.')
       await fetchNetworkData()
-      toastStore.success('Restored sysctl parameters to original defaults.')
     } catch (err: unknown) {
       toastStore.error(err instanceof Error ? err.message : 'Failed to restore defaults')
     } finally {
@@ -137,30 +182,29 @@
     }
   }
 
-  async function applyTTL(val: string) {
+  async function applyTTL(ttl: string) {
     try {
       isApplyingTTL = true
-      selectedTTL = val
-      const ttlNum = parseInt(val, 10) || 64
-      await api.post('/api/network/ttl', { enable: true, ttl: ttlNum })
-      currentTTL = val
-      toastStore.success(`TTL set to ${val}`)
+      selectedTTL = ttl
+      await api.post('/api/network/ttl', { enable: true, ttl: parseInt(ttl, 10) })
+      currentTTL = ttl
+      toastStore.success(`TTL set to ${ttl}. Hotspot traffic spoofed.`)
     } catch (err: unknown) {
-      toastStore.error(err instanceof Error ? err.message : 'Failed to set TTL')
+      toastStore.error(err instanceof Error ? err.message : 'Failed to apply TTL')
     } finally {
       isApplyingTTL = false
     }
   }
 
-  async function setDNS(p: string, s: string) {
+  async function setDNS(primary: string, secondary: string) {
     try {
       isApplyingDNS = true
-      await api.post('/api/network/dns', { primary: p, secondary: s })
-      activeDNS1 = p
-      activeDNS2 = s
-      toastStore.success(`DNS set to ${p} / ${s}`)
+      await api.post('/api/network/dns', { primary, secondary })
+      activeDNS1 = primary
+      activeDNS2 = secondary
+      toastStore.success(`DNS updated to ${primary} / ${secondary}`)
     } catch (err: unknown) {
-      toastStore.error(err instanceof Error ? err.message : 'Failed to set DNS')
+      toastStore.error(err instanceof Error ? err.message : 'Failed to apply DNS')
     } finally {
       isApplyingDNS = false
     }
@@ -170,14 +214,17 @@
     if (!pingHost) return
     try {
       isPinging = true
-      pingResult = null
-      const res = await api.post<{ output?: string; latency_ms?: number }>('/api/network/ping', { host: pingHost })
-      if (res.output) {
+      pingResult = 'Sending ICMP ping requests...'
+      const res = await api.post<{ output?: string; latency_ms?: number }>('/api/network/ping', {
+        host: pingHost,
+        count: 4,
+      })
+      if (res && res.output) {
         pingResult = res.output
-      } else if (res.latency_ms !== undefined) {
-        pingResult = `Host: ${pingHost}\nLatency: ${res.latency_ms} ms`
+      } else if (res && res.latency_ms !== undefined) {
+        pingResult = `Host: ${pingHost}\nLatency: ${res.latency_ms} ms\nStatus: Reachable`
       } else {
-        pingResult = JSON.stringify(res, null, 2)
+        pingResult = `Host: ${pingHost}\nStatus: Responded successfully.`
       }
     } catch (err: unknown) {
       pingResult = err instanceof Error ? `Ping error: ${err.message}` : 'Ping failed'
@@ -200,10 +247,10 @@
       <Button
         variant="secondary"
         size="sm"
-        disabled={isLoadingTweaks}
+        disabled={isLoadingTweaks || isLoadingRPS}
         onclick={fetchNetworkData}
       >
-        <RefreshCw class="w-3.5 h-3.5 mr-1.5 {isLoadingTweaks ? 'animate-spin' : ''}" />
+        <RefreshCw class="w-3.5 h-3.5 mr-1.5 {(isLoadingTweaks || isLoadingRPS) ? 'animate-spin' : ''}" />
         <span>Refresh</span>
       </Button>
     </div>
@@ -228,8 +275,8 @@
           disabled={isLoadingTweaks}
           onclick={saveTweaks}
         >
-          <Check class="w-3 h-3 mr-1.5" />
-          <span>Apply</span>
+          <Check class="w-3.5 h-3.5 mr-1.5" />
+          <span>Save Changes</span>
         </Button>
       </div>
     {/snippet}
@@ -237,48 +284,48 @@
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 font-mono text-xs">
       <label class="flex items-center justify-between p-3 bg-card-sub border border-border rounded cursor-pointer hover:border-accent transition-colors">
         <div>
-          <span class="font-bold text-foreground block">BBR2 Congestion Control</span>
-          <span class="text-[10px] text-muted">Optimize TCP throughput & RTT</span>
-        </div>
-        <input type="checkbox" bind:checked={tweaks.bbr2_congestion_control} class="w-4 h-4 accent-accent" />
-      </label>
-
-      <label class="flex items-center justify-between p-3 bg-card-sub border border-border rounded cursor-pointer hover:border-accent transition-colors">
-        <div>
-          <span class="font-bold text-foreground block">TCP Buffer Optimization</span>
-          <span class="text-[10px] text-muted">High-bandwidth buffer caps</span>
-        </div>
-        <input type="checkbox" bind:checked={tweaks.tcp_buffer_optimization} class="w-4 h-4 accent-accent" />
-      </label>
-
-      <label class="flex items-center justify-between p-3 bg-card-sub border border-border rounded cursor-pointer hover:border-accent transition-colors">
-        <div>
-          <span class="font-bold text-foreground block">Sysctl Buffers Opt</span>
-          <span class="text-[10px] text-muted">Kernel rmem/wmem socket tuning</span>
-        </div>
-        <input type="checkbox" bind:checked={tweaks.sysctl_buffers_opt} class="w-4 h-4 accent-accent" />
-      </label>
-
-      <label class="flex items-center justify-between p-3 bg-card-sub border border-border rounded cursor-pointer hover:border-accent transition-colors">
-        <div>
-          <span class="font-bold text-foreground block">LTE Carrier Aggregation</span>
-          <span class="text-[10px] text-muted">Force 4G+ CA band aggregation</span>
+          <span class="font-bold text-foreground block">Carrier Aggregation</span>
+          <span class="text-[10px] text-muted">LTE-A CA Band Lock</span>
         </div>
         <input type="checkbox" bind:checked={tweaks.lte_carrier_aggregation} class="w-4 h-4 accent-accent" />
       </label>
 
       <label class="flex items-center justify-between p-3 bg-card-sub border border-border rounded cursor-pointer hover:border-accent transition-colors">
         <div>
+          <span class="font-bold text-foreground block">TCP Buffer Optimization</span>
+          <span class="text-[10px] text-muted">Auto-scale tcp wmem/rmem</span>
+        </div>
+        <input type="checkbox" bind:checked={tweaks.tcp_buffer_optimization} class="w-4 h-4 accent-accent" />
+      </label>
+
+      <label class="flex items-center justify-between p-3 bg-card-sub border border-border rounded cursor-pointer hover:border-accent transition-colors">
+        <div>
+          <span class="font-bold text-foreground block">BBR / BBR2 Congestion</span>
+          <span class="text-[10px] text-muted">High throughput, low bufferbloat</span>
+        </div>
+        <input type="checkbox" bind:checked={tweaks.bbr2_congestion_control} class="w-4 h-4 accent-accent" />
+      </label>
+
+      <label class="flex items-center justify-between p-3 bg-card-sub border border-border rounded cursor-pointer hover:border-accent transition-colors">
+        <div>
+          <span class="font-bold text-foreground block">Core Kernel Buffers</span>
+          <span class="text-[10px] text-muted">rmem_max & wmem_max tuning</span>
+        </div>
+        <input type="checkbox" bind:checked={tweaks.sysctl_buffers_opt} class="w-4 h-4 accent-accent" />
+      </label>
+
+      <label class="flex items-center justify-between p-3 bg-card-sub border border-border rounded cursor-pointer hover:border-accent transition-colors">
+        <div>
           <span class="font-bold text-foreground block">Dalvik Responsiveness</span>
-          <span class="text-[10px] text-muted">Android runtime responsiveness</span>
+          <span class="text-[10px] text-muted">VM dirty ratios & latency reduction</span>
         </div>
         <input type="checkbox" bind:checked={tweaks.dalvik_responsiveness} class="w-4 h-4 accent-accent" />
       </label>
 
       <label class="flex items-center justify-between p-3 bg-card-sub border border-border rounded cursor-pointer hover:border-accent transition-colors">
         <div>
-          <span class="font-bold text-foreground block">Settings Global Tweaks</span>
-          <span class="text-[10px] text-muted">Android settings.global tweaks</span>
+          <span class="font-bold text-foreground block">Android Settings Tweaks</span>
+          <span class="text-[10px] text-muted">Disable mobile data throttling</span>
         </div>
         <input type="checkbox" bind:checked={tweaks.settings_global_tweaks} class="w-4 h-4 accent-accent" />
       </label>
@@ -286,7 +333,7 @@
       <label class="flex items-center justify-between p-3 bg-card-sub border border-border rounded cursor-pointer hover:border-accent transition-colors">
         <div>
           <span class="font-bold text-foreground block">TTL Spoofing</span>
-          <span class="text-[10px] text-muted">Bypass hotspot tethering limits</span>
+          <span class="text-[10px] text-muted">Bypass operator tether restrictions</span>
         </div>
         <input type="checkbox" bind:checked={tweaks.ttl_spoofing} class="w-4 h-4 accent-accent" />
       </label>
@@ -345,56 +392,52 @@
               onclick={() => applyTTL('128')}
             >
               <div class="text-sm font-black">128</div>
-              <div class="text-[10px] text-muted">Windows Target</div>
+              <div class="text-[10px] text-muted">Windows PC</div>
             </button>
           </div>
         </div>
 
-        <div class="flex items-center gap-2 pt-2 border-t border-border">
-          <Input
-            type="number"
-            placeholder="Custom TTL (e.g. 65)"
-            bind:value={selectedTTL}
-          />
+        <div class="pt-2 border-t border-border flex items-center gap-2">
+          <Input placeholder="Custom TTL (e.g. 65)" bind:value={selectedTTL} />
           <Button
-            variant="primary"
+            variant="secondary"
             size="md"
             disabled={isApplyingTTL || !selectedTTL}
             onclick={() => applyTTL(selectedTTL)}
           >
-            Apply
+            <Zap class="w-3.5 h-3.5 mr-1 text-amber-400" />
+            <span>Apply</span>
           </Button>
         </div>
       </div>
     </Card>
 
-    <!-- DNS Resolver Card -->
-    <Card title="DNS Resolver Switcher" subtitle="System-wide upstream DNS routing">
+    <!-- DNS Presets Card -->
+    <Card title="DNS Presets & Configuration" subtitle="Override system resolver to prevent ISP DNS hijacking">
       <div class="space-y-4 font-mono text-xs">
         <div class="flex items-center justify-between p-3 bg-card-sub border border-border rounded">
           <span class="text-muted uppercase font-bold">Active DNS:</span>
-          <span class="text-xs font-bold text-accent truncate max-w-[200px]">
-            {activeDNS1} / {activeDNS2}
-          </span>
+          <span class="text-sm font-black text-accent">{activeDNS1} / {activeDNS2}</span>
         </div>
 
         <div>
-          <span class="text-[10px] text-muted uppercase font-bold block mb-2">Upstream Presets</span>
+          <span class="text-[10px] text-muted uppercase font-bold block mb-2">Popular Secure Resolvers</span>
           <div class="grid grid-cols-2 gap-2">
             {#each dnsPresets as preset}
               <button
                 type="button"
-                class="neo-button p-2.5 rounded border border-border bg-card-sub hover:border-accent text-left cursor-pointer transition-colors {activeDNS1 === preset.p ? 'border-accent bg-accent/10' : ''}"
+                class="neo-button p-2 text-left rounded border border-border bg-card-sub hover:border-accent cursor-pointer {activeDNS1 === preset.p ? 'border-accent bg-accent/10 text-accent font-bold' : 'text-foreground'}"
                 onclick={() => setDNS(preset.p, preset.s)}
               >
-                <div class="font-bold text-foreground text-xs">{preset.name}</div>
-                <div class="text-[10px] text-muted">{preset.p} / {preset.s}</div>
+                <div class="font-bold">{preset.name}</div>
+                <div class="text-[10px] text-muted mt-0.5">{preset.p}</div>
               </button>
             {/each}
           </div>
         </div>
 
-        <div class="space-y-2 pt-2 border-t border-border">
+        <div class="pt-2 border-t border-border space-y-2">
+          <span class="text-[10px] text-muted uppercase font-bold block">Custom DNS Addresses</span>
           <div class="grid grid-cols-2 gap-2">
             <Input placeholder="Primary (e.g. 1.1.1.1)" bind:value={customDNS1} />
             <Input placeholder="Secondary (e.g. 1.0.0.1)" bind:value={customDNS2} />
@@ -412,6 +455,113 @@
       </div>
     </Card>
   </div>
+
+  <!-- Receive Packet Steering (RPS) Card -->
+  <Card title="Receive Packet Steering (RPS)" subtitle="Distribute network packet interrupts across CPU cores to maximize throughput">
+    {#snippet action()}
+      <Button
+        variant="outline"
+        size="sm"
+        disabled={isLoadingRPS}
+        onclick={fetchRPSConfigs}
+      >
+        <RefreshCw class="w-3 h-3 mr-1.5 {isLoadingRPS ? 'animate-spin' : ''}" />
+        <span>Scan RPS</span>
+      </Button>
+    {/snippet}
+
+    <div class="space-y-4 font-mono text-xs">
+      <div class="flex items-start gap-3 p-3 bg-card-sub border border-border rounded text-muted">
+        <Cpu class="w-4 h-4 text-accent shrink-0 mt-0.5" />
+        <div class="space-y-1">
+          <p class="text-foreground font-bold">Multi-Core Network Interrupt Steering</p>
+          <p class="text-[11px] leading-relaxed">
+            RPS routes incoming network traffic packet queues (<code class="text-accent">rx-*</code>) to specific CPU cores via hexadecimal bitmask. Distributing packet processing prevents single-core thermal saturation and boosts high-throughput cellular/Wi-Fi transfers.
+          </p>
+        </div>
+      </div>
+
+      {#if isLoadingRPS && rpsConfigs.length === 0}
+        <div class="p-8 text-center text-muted">
+          <RefreshCw class="w-5 h-5 animate-spin mx-auto mb-2 text-accent" />
+          <span>Scanning network interfaces for RPS queues...</span>
+        </div>
+      {:else if rpsConfigs.length === 0}
+        <div class="p-6 text-center text-muted bg-card-sub border border-border rounded">
+          <Cpu class="w-6 h-6 mx-auto mb-2 text-muted opacity-40" />
+          <p class="font-bold text-foreground">No RPS-Capable Queues Detected</p>
+          <p class="text-[11px] mt-0.5">Active network interfaces on this device do not expose multi-core rps_cpus queues.</p>
+        </div>
+      {:else}
+        <div class="space-y-3">
+          {#each rpsConfigs as item}
+            <div class="p-3.5 bg-card-sub border-2 border-border rounded-md space-y-3 font-mono text-xs">
+              <div class="flex flex-wrap items-center justify-between gap-2 border-b border-border pb-2.5">
+                <div class="flex items-center gap-2">
+                  <span class="font-bold text-sm text-foreground uppercase tracking-wide">{item.interface}</span>
+                  <Badge variant="default">Current Mask: {item.bitmask || '0'}</Badge>
+                </div>
+                <div class="text-[11px] text-muted">
+                  Target Mask: <span class="font-bold text-accent">{editedBitmasks[item.interface] || item.bitmask || 'f'}</span>
+                </div>
+              </div>
+
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4 items-center">
+                <!-- CPU Core Bitmask Presets -->
+                <div>
+                  <span class="text-[10px] text-muted uppercase font-bold block mb-1.5">CPU Core Presets</span>
+                  <div class="flex flex-wrap gap-1.5">
+                    {#each [
+                      { label: 'Quad (f)', val: 'f', desc: 'Cores 0-3' },
+                      { label: 'Octa (ff)', val: 'ff', desc: 'Cores 0-7' },
+                      { label: 'Dual (3)', val: '3', desc: 'Cores 0-1' },
+                      { label: 'Single (1)', val: '1', desc: 'Core 0' },
+                      { label: 'Disabled (0)', val: '0', desc: 'Disable RPS' }
+                    ] as p}
+                      <button
+                        type="button"
+                        class="px-2 py-1 text-[11px] font-bold rounded border transition-all cursor-pointer {editedBitmasks[item.interface] === p.val ? 'bg-accent text-accent-text border-border shadow-neobrutal-sm font-black' : 'bg-card text-muted hover:text-foreground border-border'}"
+                        onclick={() => setBitmaskPreset(item.interface, p.val)}
+                        title={p.desc}
+                      >
+                        {p.label}
+                      </button>
+                    {/each}
+                  </div>
+                </div>
+
+                <!-- Custom Bitmask & Apply Button -->
+                <div class="flex items-end gap-2">
+                  <div class="flex-1">
+                    <label for={`rps-${item.interface}`} class="text-[10px] text-muted uppercase font-bold block mb-1.5">
+                      Hexadecimal Mask
+                    </label>
+                    <input
+                      id={`rps-${item.interface}`}
+                      type="text"
+                      bind:value={editedBitmasks[item.interface]}
+                      placeholder="e.g. f, ff, 3"
+                      class="neo-input w-full bg-card border border-border rounded px-3 py-1.5 text-xs font-mono text-foreground focus:outline-none focus:border-accent"
+                    />
+                  </div>
+
+                  <Button
+                    variant="primary"
+                    size="sm"
+                    disabled={isApplyingRPS[item.interface] || !editedBitmasks[item.interface]}
+                    onclick={() => applyRPS(item.interface)}
+                  >
+                    <Zap class="w-3.5 h-3.5 mr-1 text-amber-400 {isApplyingRPS[item.interface] ? 'animate-bounce' : ''}" />
+                    <span>{isApplyingRPS[item.interface] ? 'Applying...' : 'Apply RPS'}</span>
+                  </Button>
+                </div>
+              </div>
+            </div>
+          {/each}
+        </div>
+      {/if}
+    </div>
+  </Card>
 
   <!-- Network Ping Diagnostic -->
   <Card title="Ping Diagnostics" subtitle="Test network latency and reachability">

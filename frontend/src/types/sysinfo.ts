@@ -42,13 +42,27 @@ export interface ServiceStatus {
 }
 
 export interface NetworkDetail {
-  interface: string
-  ip: string
-  mac: string
-  rx_bytes: number
-  tx_bytes: number
-  rx_rate: number
-  tx_rate: number
+  interface?: string
+  ip?: string
+  mac?: string
+  rx_bytes?: number
+  tx_bytes?: number
+  rx_rate?: number
+  tx_rate?: number
+  ip_addresses?: string[]
+  gateway?: string
+  dns?: string[]
+  dns1?: string
+  dns2?: string
+  wifi_ssid?: string
+  wifi_signal?: string
+  wifi_signal_dbm?: string
+  wifi_rssi?: number
+  wifi_full_info?: string
+  mcc_mnc?: string[]
+  roaming?: string
+  hotspot_clients?: number
+  sim_slots?: SIMSlot[]
 }
 
 export interface SIMSlot {
@@ -56,7 +70,11 @@ export interface SIMSlot {
   operator: string
   network_type: string
   signal_strength: number
-  imei: string
+  imei?: string
+  rsrp?: string
+  rsrq?: string
+  sinr?: string
+  signal_status?: string
 }
 
 export interface SysinfoStats {
@@ -99,4 +117,8 @@ export interface SysinfoStats {
   kernel: string
   soc: string
   governor: string
+  net_rx?: number
+  net_tx?: number
+  network_detail?: NetworkDetail
+  network?: NetworkDetail
 }

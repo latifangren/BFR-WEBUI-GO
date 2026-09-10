@@ -8,6 +8,7 @@
     ExternalLink,
     Shield,
     Check,
+    Upload,
   } from '@lucide/svelte'
   import { api } from '../../../api/client'
   import { toastStore } from '../../../stores/toast.svelte'
@@ -94,6 +95,49 @@
       toastStore.error(err instanceof Error ? err.message : 'Failed to stop tunnel')
     } finally {
       isToggling = false
+    }
+  }
+
+  // Binary Upload State
+  let uploadEngine = $state<'cloudflare' | 'zerotier'>('cloudflare')
+  let selectedBinaryFile = $state<File | null>(null)
+  let isUploadingBinary = $state(false)
+  let binaryFileInputEl: HTMLInputElement | null = $state(null)
+
+  function handleFileSelect(e: Event) {
+    const input = e.target as HTMLInputElement
+    if (input.files && input.files[0]) {
+      selectedBinaryFile = input.files[0]
+    }
+  }
+
+  async function uploadBinary() {
+    if (!selectedBinaryFile) {
+      toastStore.warning('Please select a binary file first.')
+      return
+    }
+    try {
+      isUploadingBinary = true
+      const formData = new FormData()
+      formData.append('engine', uploadEngine)
+      formData.append('binary', selectedBinaryFile)
+
+      const res = await api.post<{ success: boolean; path?: string; error?: string }>(
+        '/api/tunnel/upload',
+        formData
+      )
+
+      if (res && res.success) {
+        toastStore.success(`Binary for ${uploadEngine} installed successfully to ${res.path || 'system'}`)
+        selectedBinaryFile = null
+        if (binaryFileInputEl) binaryFileInputEl.value = ''
+      } else {
+        toastStore.error(res?.error || 'Failed to upload binary')
+      }
+    } catch (err: unknown) {
+      toastStore.error(err instanceof Error ? err.message : 'Binary upload failed')
+    } finally {
+      isUploadingBinary = false
     }
   }
 </script>
@@ -240,4 +284,71 @@
       </div>
     </Card>
   </div>
+
+  <!-- Engine Binary Management Card -->
+  <Card
+    title="Engine Binary Management"
+    subtitle="Upload custom ARM64 or x86 executable binary for cloudflared / zerotier-one"
+  >
+    <div class="space-y-4 font-mono text-xs">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <!-- Engine selection -->
+        <div class="space-y-2">
+          <span class="text-[10px] text-muted uppercase font-bold block">Target Tunnel Engine</span>
+          <div class="grid grid-cols-2 gap-2">
+            <button
+              type="button"
+              class="neo-button p-2.5 rounded border transition-all text-center cursor-pointer {uploadEngine === 'cloudflare' ? 'border-accent bg-accent/15 text-accent font-bold shadow-neobrutal-sm' : 'border-border bg-card-sub text-muted hover:text-foreground'}"
+              onclick={() => (uploadEngine = 'cloudflare')}
+            >
+              <div class="font-bold text-xs">Cloudflare</div>
+              <div class="text-[10px] text-muted">cloudflared</div>
+            </button>
+
+            <button
+              type="button"
+              class="neo-button p-2.5 rounded border transition-all text-center cursor-pointer {uploadEngine === 'zerotier' ? 'border-accent bg-accent/15 text-accent font-bold shadow-neobrutal-sm' : 'border-border bg-card-sub text-muted hover:text-foreground'}"
+              onclick={() => (uploadEngine = 'zerotier')}
+            >
+              <div class="font-bold text-xs">ZeroTier</div>
+              <div class="text-[10px] text-muted">zerotier-one</div>
+            </button>
+          </div>
+        </div>
+
+        <!-- File selection & Upload -->
+        <div class="space-y-2">
+          <span class="text-[10px] text-muted uppercase font-bold block">Select Executable Binary</span>
+          <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+            <label class="flex-1 neo-button bg-card-sub border border-dashed border-border hover:border-accent p-2.5 rounded cursor-pointer text-center truncate select-none">
+              <span class="text-xs text-foreground truncate">
+                {selectedBinaryFile ? selectedBinaryFile.name : 'Choose executable binary file...'}
+              </span>
+              <input
+                type="file"
+                bind:this={binaryFileInputEl}
+                onchange={handleFileSelect}
+                class="hidden"
+              />
+            </label>
+
+            <Button
+              variant="primary"
+              size="md"
+              disabled={isUploadingBinary || !selectedBinaryFile}
+              onclick={uploadBinary}
+            >
+              <Upload class="w-3.5 h-3.5 mr-1 {isUploadingBinary ? 'animate-bounce' : ''}" />
+              <span>{isUploadingBinary ? 'Uploading...' : 'Upload Binary'}</span>
+            </Button>
+          </div>
+        </div>
+      </div>
+
+      <div class="p-3 bg-card-sub border border-border rounded flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-muted text-[11px]">
+        <span>Binaries are saved to the module bin directory with executable (<code class="text-accent font-bold">0755</code>) permissions.</span>
+        <Badge variant="default">ARM64 / ARMv7</Badge>
+      </div>
+    </div>
+  </Card>
 </div>

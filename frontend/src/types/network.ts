@@ -79,3 +79,8 @@ export interface NetworkTweaksStatus {
   active_dns1?: string
   active_dns2?: string
 }
+
+export interface RPSConfig {
+  interface: string
+  bitmask: string
+}
