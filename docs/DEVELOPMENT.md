@@ -108,3 +108,24 @@ go test -v ./...
 # Android ARM64 compilation verification
 GOOS=android GOARCH=arm64 CGO_ENABLED=0 go build -ldflags="-s -w" -o webui .
 ```
+
+---
+
+## 📲 Rapid Device Testing (ADB Hot-Replace)
+
+For developers testing on rooted Android hardware over ADB without rebooting:
+
+```powershell
+# 1. Cross-compile Android binary
+$env:CGO_ENABLED="0"; $env:GOOS="android"; $env:GOARCH="arm64"; go build -ldflags="-s -w" -o webui .
+
+# 2. Push to temporary directory
+adb push webui /data/local/tmp/webui
+
+# 3. Replace running module binary and restart daemon instantly
+adb shell "su -c 'pkill -9 -f webui; sleep 1; cp /data/local/tmp/webui /data/adb/modules/bfr_webui_go/webui; chmod 755 /data/adb/modules/bfr_webui_go/webui; chown root:root /data/adb/modules/bfr_webui_go/webui; rm -f /data/local/tmp/webui; nohup /data/adb/modules/bfr_webui_go/webui > /data/adb/modules/bfr_webui_go/webui.log 2>&1 &'"
+
+# 4. Forward port to host machine
+adb forward tcp:8080 tcp:80
+```
+Browse to `http://localhost:8080` to verify live updates instantly.

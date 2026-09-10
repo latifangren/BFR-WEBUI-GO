@@ -8,11 +8,22 @@ Dokumen ini memetakan rencana peningkatan dan peta jalan pengembangan (*developm
 
 Berikut adalah 5 fitur tingkat lanjut berbasis kekuatan biner native Go yang ditempatkan pada urutan teratas peta jalan pengembangan:
 
-* **[ ] 📡 Cellular Modem AT Controller & Band Locking (4G/5G)**: Interaksi langsung dengan port serial modem (`/dev/ttyUSB*`, `/dev/smd*`, `/dev/atcmd*`) untuk menampilkan metrik seluler presisi (*RSRP, RSRQ, SINR, Cell ID, Active Band*) serta fitur **Band Locking** (mengunci frekuensi LTE/5G tertentu langsung dari WebUI).
+* **[x] 📡 Cellular Modem AT Controller & Band Locking (4G/5G)**: Interaksi langsung dengan port serial modem (`/dev/ttyUSB*`, `/dev/smd*`, `/dev/atcmd*`) untuk menampilkan metrik seluler presisi (*RSRP, RSRQ, SINR, Cell ID, Active Band*) serta fitur **Band Locking** (mengunci frekuensi LTE/5G tertentu langsung dari WebUI).
 * **[ ] 💿 Dynamic USB Gadget Emulator (ISO Mount to PC & Virtual HID Input)**: Kontrol modul USB Gadget (`configfs`) dari WebUI untuk melakukan mount file `.iso` di HP sebagai bootable USB CD-ROM / Flashdisk ke PC (DriveDroid-style) serta emulasi keyboard/mouse USB virtual nirkabel.
-* **[ ] 💬 Telegram Remote SMS OTP Auto-Forwarder & Dialer Listener**: Pemantauan database SMS SQLite sistem secara *event-driven* di latar belakang untuk mengekstrak kode OTP/token verifikasi dan meneruskannya otomatis ke Bot Telegram dalam waktu <1 detik dengan *0% wakelock* baterai.
+* **[x] 💬 Telegram Remote SMS OTP Auto-Forwarder & Dialer Listener**: Pemantauan database SMS SQLite sistem secara *event-driven* di latar belakang untuk mengekstrak kode OTP/token verifikasi dan meneruskannya otomatis ke Bot Telegram dalam waktu <1 detik dengan *0% wakelock* baterai.
 * **[ ] 📈 Real-Time Traffic DPI (Deep Packet Inspection) & App Bandwidth Throttler**: Penyadapan paket data per-aplikasi (`nfqueue` / raw socket) dengan tampilan grafik pemakaian kuota real-time via WebSocket serta pembatasan kecepatan (*bandwidth limiter*) per-aplikasi/IP.
 * **[ ] ⚡ Event-Driven Smart Thermal & System Governor Tuning**: Penyesuaian frekuensi/governor CPU dinamis berbasis deteksi sentuhan layar (`/dev/input/`) atau frame rate rendering (`surfaceflinger`) tanpa *polling loop* untuk menghemat baterai.
+
+---
+
+## 🌟 2. Fitur Selesai pada Rilis v1.2.2 (Completed in v1.2.2)
+
+* **[x] Rewrite Penuh Frontend Svelte 5 + Runes**: Mengganti Alpine.js dengan arsitektur Svelte 5 (`$state`, `$derived`, `$props`), TypeScript ketat, dan bundling Vite yang tertanam via Go `embed.FS`.
+* **[x] Modular Dual-Pane File Manager (Dual Commander)**: Arsitektur 7 subkomponen terisolasi (`frontend/src/components/tabs/files/`), transfer instan silang antar-panel, bilah pintasan Bookmarks (preset + kustom `localStorage`), dan dropzone upload seret & lepas (*Drag & Drop*).
+* **[x] Matriks Kustomisasi Tampilan & Appearance Studio Kompak**: Dukungan 9 tema palet warna (termasuk *Retro Deck*), 2 style paradigma (Neobrutalisme & Modern Clean), serta 2 tata letak navigasi (Classic Top Bar & Modern Sidebar) dengan dialog terpadu yang ringkas.
+* **[x] Telemetri Resource Daemon Root**: Pemantauan langsung konsumsi CPU (ternormalisasi multi-core), RAM RSS (MB/KB), dan PID pada kartu *Root Daemon Services* via `/proc/[pid]/statm` tanpa fork subproses.
+* **[x] Restorasi Komprehensif Tab About**: Branding BFR PRO, showcase 5 fitur kunci modul Magisk, serta Hub Donasi QRIS interaktif dengan konfirmasi langsung Telegram & Facebook.
+* **[x] Resolusi Mismatch API Backend-Frontend**: Penyelarasan kontrak data di seluruh tab (NAS, Tunnel, Telegram, Logs, Network) dan normalisasi error anti-nil.
 
 ---
 

@@ -65,28 +65,45 @@ BFR-WEBUI-GO/
         ├── App.svelte           # Root application shell & router view
         ├── main.ts              # Frontend mounting entry point
         │
+        ├── assets/              # Aset Statis Frontend (qris.jpg, dll)
+        │
         ├── api/                 # API Client layer
         │   └── client.ts        # Typed fetch client dengan interceptor & auth handler
         │
         ├── components/          # Komponen Svelte 5 Berbasis Kategori
-        │   ├── layout/          # Header, Sidebar, BottomNav, Toasts
+        │   ├── layout/          # Header, Sidebar, BottomNav, Toasts, AppearanceModal
         │   ├── ui/              # Komponen Reusable (Card, Button, Badge, Modal, Input)
         │   └── tabs/            # Tab Views:
         │       ├── overview/    # Tab Overview & CasaOS Application Shortcuts
-        │       ├── system/      # Tab System Info, Hardware Sensors, CPU Cores
+        │       ├── sysinfo/     # Tab System Info, Hardware Sensors, CPU Cores, Root Daemons
         │       ├── network/     # Tab Network Tweaks, DNS, TTL, MTU, Interfaces
         │       ├── vnstat/      # Tab Vnstat Bandwidth Accounting & Quota
         │       ├── proxy/       # Tab Clash/Mihomo Proxy Controller
         │       ├── modem/       # Tab Cellular Modem, Bands, & Signal Metrics
         │       ├── hotspot/     # Tab SoftAP Hotspot & Client Filtering
-        │       ├── filemanager/ # Tab File Manager, Storage Bar, File Operations
+        │       ├── files/       # Modular Dual-Pane File Manager
+        │       │   ├── types.ts            # Kontrak interface data murni
+        │       │   ├── paneState.svelte.ts # Svelte 5 Runes State Manager per-panel
+        │       │   ├── BookmarksBar.svelte # Quick-jump preset & pin kustom localStorage
+        │       │   ├── FileDropzone.svelte # Overlay drag & drop upload terpadu
+        │       │   ├── FileTable.svelte    # Tabel file responsif & aksi baris
+        │       │   ├── FileModals.svelte   # Konsolidasi 12 modal dialog terpusat
+        │       │   ├── FilePane.svelte     # Kontainer panel mandiri (breadcrumbs, toolbar)
+        │       │   └── TabFileManager.svelte # Koordinator Single/Dual Pane & mobile tab switcher
         │       ├── terminal/    # Tab Web Terminal PTY xterm.js
         │       ├── scrcpy/      # Tab Android Screen Mirroring & Controls
         │       ├── charger/     # Tab Battery Charging Limiter & PMIC Controller
         │       ├── ssh/         # Tab Dropbear SSH Server Manager
         │       ├── sms/         # Tab SMS Inbox Reader & AT Commands
-        │       ├── logs/        # Tab System Logs & Live Event Stream
-        │       └── about/       # Tab Informasi Versi v1.2.2 & Donasi
+        │       ├── nas/         # Tab LAN Web Share & NAS File Server
+        │       ├── tunnel/      # Tab Cloudflare / Cloudflared Tunnel
+        │       ├── logs/        # Tab Live Daemon Logs & Logcat Stream
+        │       ├── modules/     # Tab Magisk / KernelSU Module Manager Resmi
+        │       ├── tools/       # Tab Peralatan Sistem & Snapshot Backup
+        │       ├── telegram/    # Tab Bot Telegram Remote Management
+        │       ├── speedtest/   # Tab Native Multi-Thread Speedtest
+        │       ├── qos/         # Tab Smart Bandwidth Limiter & SQM CAKE
+        │       └── about/       # Tab About, Key Features, & Donasi QRIS (Universal Themes)
         │
         ├── stores/              # Svelte 5 Rune Reactive Stores
         │   ├── auth.svelte.ts   # State otentikasi sesi & token

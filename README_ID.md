@@ -1,100 +1,122 @@
 # BFR-WEBUI-GO
 
-> **Panel Kontrol Sistem Android & WebUI Ultra-Ringan**
-> Didesain khusus sebagai modul Magisk / KernelSU / APatch yang 100% offline-ready. Ditulis dalam bahasa Go modular yang tangguh, memanfaatkan Svelte 5 + Vite + TypeScript pada frontend, serta dibalut antarmuka navigasi Kategori ala LuCI OpenWrt bertema gelap AMOLED Neo-Brutalist menggunakan Tailwind CSS.
+> **Panel Kontrol Sistem Android & WebUI Ultra-Ringan Berkinerja Tinggi**  
+> Didesain khusus sebagai modul Magisk / KernelSU / APatch yang 100% offline-ready. Dibangun menggunakan backend Go native modular dan frontend modern Svelte 5 + TypeScript + Tailwind CSS yang tertanam langsung ke dalam satu binary mandiri (~10-12MB).
 
 ---
 
-## 📊 Konsumsi Resource Riil di Android
+## 📊 Konsumsi Resource Riil di Android (Pixel 5 ARM64)
 
-Hasil pengukuran empiris langsung pada hardware Android target (Pixel 5 ARM64):
+Hasil pengukuran empiris langsung pada hardware Android target:
 
-| Parameter Resource | Nilai Penggunaan Riil | Catatan Efisiensi |
+| Parameter Resource | Nilai Pengukuran | Keunggulan Arsitektur |
 | :--- | :--- | :--- |
-| **Ukuran Biner di Disk** | **21 MB** | **100% Standalone** (Biner Go tunggal terkompilasi, 0 dependency Python/NodeJS) |
-| **RAM Physical RSS (Total)** | **~30.8 MB** | **Sangat Hemat** (Berjalan mulus di HP Android RAM 2GB/3GB) |
-| **RAM Dedicated (Private PSS)** | **~11.4 MB** | Konsumsi memori sangat bersih & minim |
-| **Penggunaan CPU (Idle)** | **0.0% CPU** | Beban CPU 0% di latar belakang |
-| **Penggunaan Swap Memory** | **0 KB** | 0% pengikisan memori flash internal |
+| **Ukuran Biner di Disk** | **~16 MB** | **100% Standalone** (Biner Go tunggal terkompilasi, tanpa dependensi runtime Python/Node.js) |
+| **RAM Fisik RSS** | **~21 MB** | **Sangat Efisien** (Berjalan mulus di HP Android low-end RAM 2GB/3GB) |
+| **RAM Khusus (Private PSS)**| **~11 MB** | Jejak memori privat sangat rendah |
+| **Penggunaan CPU (Idle)** | **0.0% - 0.2%** | Beban CPU 0% di latar belakang, tanpa polling berlebih |
+| **Penggunaan Swap / Storage**| **0 KB** | Nol pengikisan memori flash, melindungi masa pakai eMMC/UFS |
 
 ---
 
-## ⚡ Fitur Utama
+## ⚡ Fitur Unggulan
 
-- **Offline-Ready & Sangat Ringan**: Berjalan sebagai biner mandiri terkompilasi statis dengan konsumsi RAM yang sangat minim (~11MB PSS / ~30MB RSS).
-- **Navigasi Kategori Dropdown Ala LuCI OpenWrt**: Antarmuka navigasi header baru berbasis 5 kategori dropdown (**Status ▾**, **System ▾**, **Services ▾**, **Network ▾**, **Extras ▾**) menghemat ruang hingga 60%.
-- **Engine Speedtest Native (Trace Ala Ookla)**: Benchmark latensi & bandwidth multi-thread Go HTTP (Download/Upload/Ping/Jitter) lengkap dengan detail IP Public Klien, Nama Operator/ISP, Lokasi, dan Server Data Center (Kode IATA Colo).
-- **WebDAV Cloud Backup & Auto-Sync**: Sinkronisasi otomatis latar belakang paket berkas terkompresi `.tar.gz` (`charger`, `ssh`, `telegram`, `tweaks`) ke server WebDAV cloud pribadi.
-- **Telegram Bot Remote Management & Interactive Keyboards**:
-  - Penuh kontrol jarak jauh via perintah `/start`, `/stats`, `/charger`, `/ssh`, `/proxy`, `/hotspot`, `/modules`, `/ip`, dan `/reboot`.
-  - Menu tombol Reply Keyboard persisten 4 baris & Inline Action buttons interaktif untuk eksekusi 1-klik tanpa ketik manual.
-  - Sakelar toggle notifikasi granular untuk battery guard, overheat alert (>45°C), status SSH, perubahan IP Publik, dan koneksi klien hotspot.
-- **Bundled Static Dropbear SSH Daemon**: Biner statis `dropbear` ARM64 terintegrasi dengan pembuat host key otomatis, autentikasi kata sandi root (`bfr`), dan dukungan LAN penuh (`0.0.0.0:2222`).
-- **Universal Hardware Smart Charger Limiter**: Auto-scanner sysfs multi-vendor dengan pemutus arus fisik Qualcomm PMIC (`force_main_fcc` 0 mA) serta dukungan custom path override.
-- **Model Keamanan Ketat**: Sanitasi parameter input yang aman, proteksi celah CSRF dengan verifikasi Header Kustom, pembatasan laju IP (Rate Limiting), serta keamanan sesi SameSite Lax.
-- **Pengontrol Core Proxy**: Manajemen penuh daemon Clash / Mihomo. Mendukung pertukaran mode proxy secara real-time (Rule, Global, Direct, Script) serta pemantauan log langsung via WebSockets.
-- **Kustomisasi Optimasi Jaringan Android**:
-  - Konfigurasi Sysctl dinamis (TCP Congestion BBRv2, alokasi memori buffer, dan parameter inti stack TCP).
-  - Pengalihan DNS kustom terenkripsi/port standar via injeksi iptables DNAT.
-  - Opsi penyamaran (spoofing) TTL & Hop Limit untuk IPv4 dan IPv6.
-  - Tuning otomatis Receive Packet Steering (RPS) per interface untuk memaksimalkan jaringan seluler.
-  - Pengendali dinamis nilai MTU dan panjang transmisi antrean antarmuka (TxQueueLen).
-- **Manajer Modul Magisk / KernelSU / APatch**: Panel visual untuk melihat daftar modul terpasang, detail metadata (`module.prop`), menonaktifkan/mengaktifkan modul (via trigger file `disable`), serta instalasi/flash modul baru langsung melalui pengunggahan file `.zip`.
-- **Governor CPU & Pemantau Suhu**: Grafik beban frekuensi per-core CPU, info thermal zone perangkat, serta pemilih governor dinamis (Performance, Schedutil, Powersave).
-- **Logcat Android Real-Time**: Aliran baris log sistem Android langsung via koneksi WebSocket dengan filter level log (Debug, Info, Warn, Error) dan kolom pencarian dinamis.
-- **Cadangan & Pulihkan Konfigurasi**: Ekspor unduhan 1-klik dan impor (restore) seluruh file konfigurasi sistem (tweak, smart charger, clash rules, SSH) dalam bentuk berkas paket data terenkripsi aman.
-- **Kontrol SoftAP & Hotspot**: Kustomisasi hotspot Wi-Fi, pemantauan status client terhubung (tabel DHCP/ARP leases), dan opsi blokir perangkat.
-- **Web Terminal Root (PTY)**: Konsol interaktif shell root penuh langsung pada browser yang ditenagai oleh pty Go dan WebSockets.
-- **Manajer File Tangguh**: Operasi manajemen file lengkap (baca, tulis, salin, potong-tempel clipboard, modifikasi perizinan `chmod`/`chown` rekursif, pencarian cepat, serta pengarsip ZIP aman dari eksploitasi ZipSlip).
-- **Dukungan PWA**: Antarmuka web dapat dipasang di Home Screen perangkat dengan Service Worker offline caching.
+### 📁 File Manager Modular Dual-Pane (Dual Commander)
+- **Tampilan Split Dual-Pane**: Tampilan dua panel berdampingan (side-by-side) pada desktop/tablet, dan tab pill switcher responsif (`[ Panel A | Panel B ]`) pada layar HP.
+- **Transfer Silang Cepat**: Tombol instan `Copy to Other Pane` dan `Move to Other Pane` yang ditenagai endpoint batch `/api/files/batch` dengan proteksi fallback lintas partisi (*cross-device link*).
+- **Quick Bookmarks Bar**: Preset folder sistem Android & Magisk bawaan (`/`, `/sdcard`, `/data/adb`, `/data/adb/modules`, `/data/local/tmp`) serta dukungan pin bookmark kustom yang tersimpan di `localStorage`.
+- **Upload Drag & Drop**: Overlay dropzone layar penuh yang otomatis mendeteksi seretan file dan mengunggah langsung ke direktori aktif.
+- **Peralatan Berkas Lengkap**: Editor kode monospasi, preset izin chmod oktal (`0755`, `0644`, `0777`), kompresi dan ekstraksi ZIP/TAR.
 
----
+### 🎨 Matriks Kustomisasi (Appearance Studio)
+- **Appearance Studio Ringkas**: Modal pengaturan tampilan yang kompak dan minimalis tanpa ruang berlebih.
+- **9 Palet Warna Pilihan**: `Dark Navy`, `Pure AMOLED`, `Clean Light`, `Dracula`, `Nordic Frost`, `Cyberpunk 2077`, `Matrix Emerald`, `Retro Sunset`, dan **`Retro Deck`** (warna pastel ice dengan border berkarakter).
+- **2 Gaya Paradigma Visual**:
+  - **Neobrutalism**: Border tegas 2px, bayangan offset mekanis, sudut 4px, dan badge taktil.
+  - **Modern Clean**: Border halus 1px, lekukan membulat lembut, dan bayangan ambient.
+- **2 Tata Letak Navigasi**:
+  - **Classic Top Bar**: Header pills kategori dengan dropdown flyout di desktop; bilah navigasi 5-kolom di HP dengan popover ramah sentuhan.
+  - **Modern Sidebar**: Accordion drawer yang dapat diciutkan (Core, Network, System, Tools) di desktop; slide-over drawer di HP.
 
-## 🌐 Dokumentasi Lengkap
+### 🚀 Optimasi Kernel & Sistem
+- **BBR2 TCP Congestion Control**: Kontrol kongesti otomatis untuk jaringan nirkabel latensi rendah dan bandwidth tinggi.
+- **System Optimizer Tweaks**: Tuning sysctl kernel permanen, TCP FastOpen, alokasi batas antrean, dan spoofing TTL cerdas (kompatibel Android 11+).
+- **Dynamic Hardware Charge Limiter**: Pemindai sysfs otomatis dengan pemutus arus Qualcomm PMIC (`force_main_fcc` 0 mA) untuk menjaga keawetan baterai.
+- **Telemetri Resource Root Daemon**: Pelacakan riil PID, persentase CPU ternormalisasi multi-core, dan konsumsi RAM (MB/KB) untuk `webui`, `mihomo`, `dropbear`, dan `adbd`.
 
-Panduan langkah demi langkah cara pemasangan, opsi kustomisasi, serta penggunaan terdokumentasi dalam dua bahasa:
+### 🌐 Jaringan & Konektivitas
+- **Modem Seluler & Penguncian Band**: Penguncian frekuensi multi-engine via AT serial Qualcomm (`/dev/smd11`, `/dev/ttyUSB*`), `cmd phone`, dan kode rahasia. Metrik sinyal instan RSRP, RSRQ, SINR, dan EARFCN.
+- **Kontroler Core Proxy**: Pengelola daemon Clash / Mihomo dengan log live streaming, editor konfigurasi, watchdog, dan pergantian mode rule/global/direct.
+- **Pencatatan Kuota VnStat**: Pengukur bandwidth real-time, grafik konsumsi harian/bulanan, dan monitor batas kuota siklus tagihan.
+- **Terminal Web & Scrcpy Screen Mirroring**: Root terminal interaktif berbasis WebSocket (`xterm.js`) dan mirroring layar H.264 latensi rendah dengan kontrol gestur sentuh.
 
-- 🇬🇧 [English Installation & Operation Guide](./docs/INSTALLATION_EN.md)
-- 🇮🇩 [Panduan Instalasi Bahasa Indonesia](./docs/INSTALLATION_ID.md)
-
----
-
-## ⚙️ Variabel Lingkungan (Environment Overrides)
-
-BFR-WEBUI-GO dapat dikustomisasi sepenuhnya via variabel lingkungan. Pengaturan bawaan di bawah ini akan digunakan secara otomatis jika variabel tidak diset.
-
-Templat acuan lengkap dapat dilihat di berkas [`env.example`](./env.example):
-
-| Variabel | Nilai Bawaan | Deskripsi |
-|---|---|---|
-| `PORT` | `80` | Port HTTP layanan WebUI |
-| `BFR_PASSWORD` | `bfr` | Kata sandi masuk WebUI |
-| `BFR_SU_BIN` | `su` | Jalur biner root executor (seperti `su`, `ksu`, `apatch`) |
-| `BFR_MODULE_DIR` | `/data/adb/modules/bfr_webui_go` | Direktori instalasi modul |
-| `BFR_BOX_BASE` | `/data/adb/box` | Jalur basis framework Box/Proxy |
-| `BFR_CLASH_API` | `http://127.0.0.1:9090` | Endpoint pengontrol API Clash |
-| `BFR_LEASES_FILE` | `/data/misc/dhcp/dnsmasq.leases`| Berkas riwayat sewa DHCP SoftAP |
-| `BFR_ALLOWED_DIRS` | `/sdcard,/storage,/data/adb...` | Batasan folder kerja FileManager |
+### 🤖 Manajemen Jarak Jauh & Sinkronisasi Cloud
+- **Bot Telegram Interaktif**: Perintah kendali jarak jauh (`/stats`, `/charger`, `/ssh`, `/proxy`, `/reboot`), menu keyboard 4 baris, dan notifikasi keamanan otomatis (overheat, baterai, pergantian IP, login SSH).
+- **Backup Cloud WebDAV**: Kompresi otomatis dan sinkronisasi berkas konfigurasi (`charger`, `ssh`, `telegram`, `tweaks`) ke server cloud WebDAV pribadi.
+- **Dropbear SSH Terintegrasi**: Daemon static ARM64 bawaan dengan pembuatan kunci host otomatis dan autentikasi root (`bfr`).
+- **Pusat Dukungan & Donasi**: Barcode pembayaran QRIS (`qris.jpg`) dan konfirmasi donatur instan via Telegram dan Facebook developer.
 
 ---
 
-## 🛠️ Kompilasi Dari Source Code
+## 🛠️ Arsitektur & Tech Stack
 
-Untuk mengompilasi biner target arsitektur Android ARM64 secara manual:
-
-```bash
-# 1. Build Distribusi Frontend (Vite + Svelte 5)
-cd frontend
-pnpm install
-pnpm build
-cd ..
-
-# 2. Kompilasi Biner Go dengan Aset Embedded untuk Android ARM64
-GOOS=android GOARCH=arm64 CGO_ENABLED=0 go build -ldflags="-s -w" -o webui .
+```
+Arsitektur BFR-WEBUI-GO
+├── Frontend (Embedded SPA dalam biner Go tunggal)
+│   ├── Svelte 5 (Runes: $state, $derived, $props)
+│   ├── TypeScript (Pengetikan ketat di semua modul)
+│   ├── Tailwind CSS (Token Desain Neobrutalism & Modern)
+│   └── Vite (Pipeline bundling aset produksi)
+│
+└── Backend (Modul Go Native)
+    ├── Go 1.22+ (Konkurensi native & beban memori sangat hemat)
+    ├── Standard Library HTTP Mux & Middleware (Gzip, CSRF, Rate Limiter)
+    ├── Kontroler Subsistem (charger, network, proxy, terminal, vnstat, modem)
+    └── Runtime Modul Magisk / KernelSU / APatch (/data/adb/modules/bfr_webui_go)
 ```
 
 ---
 
-## 📄 Lisensi
+## 📦 Kompilasi & Pembuatan Paket
 
-Proyek ini menggunakan lisensi resmi MIT.
+### Prasyarat
+- **Go**: Versi 1.22 atau lebih baru
+- **Node.js & pnpm/npm**: Node.js 18+
+
+### Membuat Paket ZIP Modul Magisk
+Pada Windows:
+```powershell
+.\build_zip.bat
+```
+Pada Linux / macOS:
+```bash
+chmod +x build.sh
+./build.sh
+```
+Paket ZIP modul Magisk (`BFR-WEBUI-Magisk-v1.2.2-local.zip`) akan dihasilkan di root proyek, siap diflash melalui Magisk, KernelSU, atau APatch manager.
+
+### Kompilasi Biner Standalone (Cross-Compile)
+Untuk mengompilasi biner Android ARM64 langsung:
+```powershell
+cd frontend
+npm run build
+cd ..
+$env:CGO_ENABLED="0"; $env:GOOS="android"; $env:GOARCH="arm64"; go build -ldflags "-s -w" -o webui .
+```
+
+---
+
+## 🔒 Arsitektur Keamanan
+
+- **Autentikasi Sesi**: Berbasis cookie dengan proteksi `HttpOnly`, `SameSite=Lax`, dan token CSRF double-submit.
+- **Proteksi Brute-Force**: Pembatas laju IP mengunci maksimal 5 kali percobaan gagal per menit (`HTTP 429`).
+- **Sanitasi Jalur Input**: Validasi ketat terhadap path traversal pada operasi berkas (`CleanPath` & isolasi `AllowedDirs`).
+- **Pengiriman Media yang Mulus**: Pengecualian media kompresi pada middleware Gzip untuk mencegah galat `Content-Length`.
+
+---
+
+## 📄 Lisensi & Pembuat
+
+- **Pengembang / Pemelihara**: [latifangren](https://github.com/latifangren)
+- **Lisensi**: MIT Open Source License
+- **Repositori Proyek**: [https://github.com/latifangren/BFR-WEBUI-GO](https://github.com/latifangren/BFR-WEBUI-GO)

@@ -69,6 +69,30 @@ SwapFree:        1000000 kB
 	}
 
 	if len(data) == 0 {
-		t.Errorf("expected non-empty meminfo content")
+		t.Errorf("expected non-empty mock data")
+	}
+}
+
+func TestActiveServices_WebUI(t *testing.T) {
+	stats, err := sysinfo.GetStats()
+	if err != nil {
+		t.Fatalf("GetStats failed: %v", err)
+	}
+
+	var webuiFound bool
+	for _, svc := range stats.ActiveServices {
+		if svc.Key == "webui" {
+			webuiFound = true
+			if !svc.Running {
+				t.Errorf("expected webui service to be running")
+			}
+			if svc.PID != os.Getpid() {
+				t.Errorf("expected webui PID %d, got %d", os.Getpid(), svc.PID)
+			}
+			break
+		}
+	}
+	if !webuiFound {
+		t.Errorf("expected webui service in ActiveServices list")
 	}
 }

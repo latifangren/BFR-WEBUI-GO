@@ -4,11 +4,13 @@ import (
 	"bufio"
 	"context"
 	"fmt"
+	"math"
 	"net"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"regexp"
+	"runtime"
 	"strconv"
 	"strings"
 	"sync"
@@ -53,10 +55,13 @@ type LoadAverage struct {
 }
 
 type ServiceStatus struct {
-	Name    string `json:"name"`
-	Key     string `json:"key"`
-	Running bool   `json:"running"`
-	Detail  string `json:"detail"`
+	Name    string  `json:"name"`
+	Key     string  `json:"key"`
+	Running bool    `json:"running"`
+	Detail  string  `json:"detail"`
+	PID     int     `json:"pid,omitempty"`
+	CPU     float64 `json:"cpu,omitempty"`
+	RAM     float64 `json:"ram,omitempty"` // dalam MB (RSS)
 }
 
 type Stats struct {
@@ -713,41 +718,168 @@ func findPID(name string) (int, bool) {
 	return 0, false
 }
 
+func getProcessMemoryMB(pid int) float64 {
+	if pid <= 0 {
+		return 0
+	}
+	data, err := os.ReadFile(fmt.Sprintf("/proc/%d/statm", pid))
+	if err != nil {
+		return 0
+	}
+	fields := strings.Fields(string(data))
+	if len(fields) < 2 {
+		return 0
+	}
+	residentPages, err := strconv.ParseUint(fields[1], 10, 64)
+	if err != nil {
+		return 0
+	}
+	pageSize := uint64(os.Getpagesize())
+	if pageSize == 0 {
+		pageSize = 4096
+	}
+	ramMB := float64(residentPages*pageSize) / (1024 * 1024)
+	if ramMB > 0 && ramMB < 0.1 {
+		return math.Round(ramMB*100) / 100
+	}
+	return math.Round(ramMB*10) / 10
+}
+
+type pidCPUSample struct {
+	totalTicks uint64
+	timestamp  time.Time
+}
+
+var (
+	pidCPUMu    sync.RWMutex
+	pidCPUCache = make(map[int]pidCPUSample)
+)
+
+func getProcessCPU(pid int) float64 {
+	if pid <= 0 {
+		return 0
+	}
+	data, err := os.ReadFile(fmt.Sprintf("/proc/%d/stat", pid))
+	if err != nil {
+		return 0
+	}
+	content := string(data)
+	lastParen := strings.LastIndex(content, ")")
+	if lastParen == -1 || lastParen+2 >= len(content) {
+		return 0
+	}
+	rest := strings.Fields(content[lastParen+2:])
+	if len(rest) <= 19 {
+		return 0
+	}
+
+	utime, err1 := strconv.ParseUint(rest[11], 10, 64)
+	stime, err2 := strconv.ParseUint(rest[12], 10, 64)
+	if err1 != nil || err2 != nil {
+		return 0
+	}
+
+	totalTicks := utime + stime
+	hertz := 100.0
+	now := time.Now()
+
+	numCores := float64(runtime.NumCPU())
+	if numCores <= 0 {
+		numCores = 1
+	}
+
+	pidCPUMu.Lock()
+	prev, hasPrev := pidCPUCache[pid]
+	pidCPUCache[pid] = pidCPUSample{totalTicks: totalTicks, timestamp: now}
+	pidCPUMu.Unlock()
+
+	var cpu float64
+	if hasPrev && now.Sub(prev.timestamp).Seconds() >= 0.4 && totalTicks >= prev.totalTicks {
+		deltaTicks := totalTicks - prev.totalTicks
+		deltaSec := now.Sub(prev.timestamp).Seconds()
+		if deltaSec > 0 {
+			rawCPU := (float64(deltaTicks) / hertz) / deltaSec * 100.0
+			cpu = rawCPU / numCores
+		}
+	} else if !hasPrev {
+		cpu = 0.0
+	}
+
+	if cpu < 0 {
+		cpu = 0
+	} else if cpu > 100 {
+		cpu = 100
+	}
+	return math.Round(cpu*10) / 10
+}
+
 func checkService(name, key string, port int, processNames ...string) ServiceStatus {
 	running := false
-	if port > 0 {
-		conn, err := net.DialTimeout("tcp", fmt.Sprintf("127.0.0.1:%d", port), 50*time.Millisecond)
-		if err == nil {
-			conn.Close()
-			running = true
-		}
-	}
-	if !running && len(processNames) > 0 {
-		for _, proc := range processNames {
-			if _, ok := findPID(proc); ok {
+	pid := 0
+
+	if key == "webui" {
+		pid = os.Getpid()
+		running = true
+	} else {
+		if port > 0 {
+			conn, err := net.DialTimeout("tcp", fmt.Sprintf("127.0.0.1:%d", port), 50*time.Millisecond)
+			if err == nil {
+				conn.Close()
 				running = true
-				break
-			}
-			out, err := exec.Command("pidof", proc).Output()
-			if err == nil && len(strings.TrimSpace(string(out))) > 0 {
-				running = true
-				break
 			}
 		}
+		if len(processNames) > 0 {
+			for _, proc := range processNames {
+				if foundPID, ok := findPID(proc); ok {
+					pid = foundPID
+					running = true
+					break
+				}
+				out, err := exec.Command("pidof", proc).Output()
+				if err == nil {
+					fields := strings.Fields(strings.TrimSpace(string(out)))
+					if len(fields) > 0 {
+						if p, errConv := strconv.Atoi(fields[0]); errConv == nil && p > 0 {
+							pid = p
+							running = true
+							break
+						}
+					}
+				}
+			}
+		}
+		if running && pid == 0 && len(processNames) > 0 {
+			for _, proc := range processNames {
+				if foundPID, ok := findPID(proc); ok {
+					pid = foundPID
+					break
+				}
+			}
+		}
 	}
+
 	detail := "Off"
+	var cpu, ram float64
 	if running {
 		if port > 0 {
 			detail = fmt.Sprintf("Running (Port %d)", port)
 		} else {
 			detail = "Running"
 		}
+		if pid > 0 {
+			ram = getProcessMemoryMB(pid)
+			cpu = getProcessCPU(pid)
+		}
 	}
+
 	return ServiceStatus{
 		Name:    name,
 		Key:     key,
 		Running: running,
 		Detail:  detail,
+		PID:     pid,
+		CPU:     cpu,
+		RAM:     ram,
 	}
 }
 

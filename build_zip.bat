@@ -7,7 +7,18 @@ echo 1. Reading version from module.prop...
 set VER=local
 for /f "tokens=2 delims==" %%i in ('findstr "^version=" module.prop') do set VER=%%i
 
-echo 2. Building Go binary for Android ARM64 (webui)...
+echo 2. Compiling frontend production bundle (Svelte 5 + Vite)...
+cd frontend
+call npm run build
+if %errorlevel% neq 0 (
+    echo [ERROR] Frontend build failed.
+    cd ..
+    pause
+    exit /b %errorlevel%
+)
+cd ..
+
+echo 3. Building Go binary for Android ARM64 (webui)...
 go build -ldflags "-s -w" -o webui .
 if %errorlevel% neq 0 (
     echo [ERROR] Go build failed.
@@ -15,9 +26,9 @@ if %errorlevel% neq 0 (
     exit /b %errorlevel%
 )
 
-echo 3. Packaging Magisk zip using tar.exe...
+echo 4. Packaging Magisk zip using tar.exe...
 if exist "BFR-WEBUI-Magisk-%VER%-local.zip" del "BFR-WEBUI-Magisk-%VER%-local.zip"
-tar.exe -a -c -f "BFR-WEBUI-Magisk-%VER%-local.zip" customize.sh module.prop service.sh system.prop tweaks.json env.example bin webui
+tar.exe -a -c -f "BFR-WEBUI-Magisk-%VER%-local.zip" customize.sh module.prop service.sh system.prop tweaks.json update.json env.example bin webui
 if %errorlevel% neq 0 (
     echo [ERROR] Packing failed.
     del webui
@@ -25,7 +36,7 @@ if %errorlevel% neq 0 (
     exit /b %errorlevel%
 )
 
-echo 4. Cleaning up temporary binary...
+echo 5. Cleaning up temporary binary...
 del webui
 
 echo [SUCCESS] BFR-WEBUI-Magisk-%VER%-local.zip created successfully!

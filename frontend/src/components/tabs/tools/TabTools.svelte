@@ -15,24 +15,17 @@
     ShieldCheck,
     AlertCircle,
     KeyRound,
+    ArrowRight,
   } from '@lucide/svelte'
   import { api } from '../../../api/client'
   import { toastStore } from '../../../stores/toast.svelte'
+  import { navigationStore } from '../../../stores/navigation.svelte'
   import Card from '../../ui/Card.svelte'
   import Button from '../../ui/Button.svelte'
   import Badge from '../../ui/Badge.svelte'
   import Modal from '../../ui/Modal.svelte'
   import Input from '../../ui/Input.svelte'
   import ChangePasswordModal from '../../modals/ChangePasswordModal.svelte'
-
-  interface ModuleInfo {
-    id: string
-    name: string
-    version: string
-    author: string
-    description: string
-    enabled: boolean
-  }
 
   interface CloudConfig {
     enabled: boolean
@@ -44,10 +37,7 @@
     last_sync?: string
   }
 
-  // Modules State
-  let modulesList = $state<ModuleInfo[]>([])
   let isLoading = $state(false)
-  let isToggling = $state<string | null>(null)
 
   // Backup & Cloud Sync State
   let showImportModal = $state(false)
@@ -68,36 +58,8 @@
   })
 
   onMount(async () => {
-    await Promise.all([fetchModules(), fetchCloudConfig()])
+    await fetchCloudConfig()
   })
-
-  async function fetchModules() {
-    try {
-      isLoading = true
-      const res = await api.get<{ modules: ModuleInfo[] }>('/api/modules')
-      if (res?.modules && Array.isArray(res.modules)) {
-        modulesList = res.modules
-      }
-    } catch {
-      // Ignored
-    } finally {
-      isLoading = false
-    }
-  }
-
-  async function toggleModule(mod: ModuleInfo) {
-    try {
-      isToggling = mod.id
-      const nextEnable = !mod.enabled
-      await api.post('/api/modules/toggle', { id: mod.id, enable: nextEnable })
-      mod.enabled = nextEnable
-      toastStore.success(`Module ${mod.name} ${nextEnable ? 'enabled' : 'disabled'}. Reboot to take effect.`)
-    } catch (err: unknown) {
-      toastStore.error(err instanceof Error ? err.message : 'Failed to toggle module')
-    } finally {
-      isToggling = null
-    }
-  }
 
   async function fetchCloudConfig() {
     try {
@@ -243,7 +205,7 @@
         variant="secondary"
         size="sm"
         disabled={isLoading}
-        onclick={fetchModules}
+        onclick={fetchCloudConfig}
       >
         <RefreshCw class="w-3.5 h-3.5 mr-1.5 {isLoading ? 'animate-spin' : ''}" />
         <span>Refresh</span>
@@ -348,52 +310,33 @@
     </div>
   </Card>
 
-  <!-- Root Modules List -->
+  <!-- Root Modules Quick Navigation Card -->
   <Card
-    title="Installed Magisk / KernelSU Modules"
-    subtitle="Manage systemless root extensions located in /data/adb/modules"
+    title="Root Modules"
+    subtitle="Manage Magisk / KernelSU extensions"
     tone="butter"
   >
-    {#if isLoading && modulesList.length === 0}
-      <div class="p-8 text-center font-mono text-xs text-muted">
-        <RefreshCw class="w-5 h-5 animate-spin mx-auto mb-2 text-accent" />
-        Scanning /data/adb/modules...
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-3.5 bg-card-sub border border-border rounded font-mono text-xs">
+      <div class="flex items-center gap-3">
+        <div class="p-2.5 rounded bg-card border border-border text-accent">
+          <Layers class="w-5 h-5" />
+        </div>
+        <div>
+          <span class="font-bold text-foreground text-sm block">Systemless Module Overlays</span>
+          <span class="text-[11px] text-muted">
+            Inspect, toggle, or flash modules in the dedicated Modules control center.
+          </span>
+        </div>
       </div>
-    {:else if modulesList.length === 0}
-      <div class="p-8 text-center font-mono text-xs text-muted">
-        <Layers class="w-6 h-6 mx-auto mb-2 opacity-40 text-accent" />
-        No active root modules detected.
-      </div>
-    {:else}
-      <div class="space-y-3 font-mono">
-        {#each modulesList as mod}
-          <div class="bg-card-sub border border-border p-4 rounded flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:border-accent transition-colors">
-            <div class="space-y-1">
-              <div class="flex items-center gap-2">
-                <span class="font-bold text-sm text-foreground">{mod.name || mod.id}</span>
-                <span class="text-[10px] text-muted">v{mod.version}</span>
-                <Badge variant={mod.enabled ? 'success' : 'default'}>
-                  {mod.enabled ? 'Enabled' : 'Disabled'}
-                </Badge>
-              </div>
-              <p class="text-muted text-[11px] leading-relaxed">{mod.description}</p>
-              <div class="text-[10px] text-gray-500">Author: {mod.author}</div>
-            </div>
-
-            <div class="shrink-0">
-              <Button
-                variant={mod.enabled ? 'outline' : 'primary'}
-                size="sm"
-                disabled={isToggling === mod.id}
-                onclick={() => toggleModule(mod)}
-              >
-                {mod.enabled ? 'Disable Module' : 'Enable Module'}
-              </Button>
-            </div>
-          </div>
-        {/each}
-      </div>
-    {/if}
+      <Button
+        variant="primary"
+        size="sm"
+        onclick={() => navigationStore.setTab('modules')}
+      >
+        <span>Open Modules</span>
+        <ArrowRight class="w-3.5 h-3.5 ml-1.5" />
+      </Button>
+    </div>
   </Card>
 </div>
 

@@ -10,6 +10,7 @@
     class?: string
     oninput?: (e: Event) => void
     onchange?: (e: Event) => void
+    onkeydown?: (e: KeyboardEvent) => void
   }
 
   let {
@@ -23,6 +24,7 @@
     class: className = '',
     oninput,
     onchange,
+    onkeydown,
   }: Props = $props()
 </script>
 
@@ -40,6 +42,7 @@
     {disabled}
     {oninput}
     {onchange}
+    {onkeydown}
     class="neo-input w-full bg-card-sub border border-border rounded px-3 py-2 text-sm font-mono text-foreground placeholder:text-muted focus:outline-none focus:border-accent disabled:opacity-50 transition-colors {className}"
   />
   {#if error}

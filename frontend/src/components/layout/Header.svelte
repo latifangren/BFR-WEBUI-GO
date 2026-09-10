@@ -2,13 +2,10 @@
   import {
     Menu,
     X,
-    Sun,
-    Moon,
     LogOut,
     Battery,
     BatteryCharging,
     Thermometer,
-    Sparkles,
     Palette,
     Cpu,
     Clock,
@@ -18,24 +15,10 @@
   import { authStore } from '../../stores/auth.svelte'
   import { sysinfoStore } from '../../stores/sysinfo.svelte'
   import { navigationStore } from '../../stores/navigation.svelte'
-  import type { ThemeMode, UIStyle } from '../../types/common'
   import AppearanceModal from './AppearanceModal.svelte'
   import ChangePasswordModal from '../modals/ChangePasswordModal.svelte'
   import TopNav from './TopNav.svelte'
 
-  const themeOptions: { id: ThemeMode; label: string }[] = [
-    { id: 'dark', label: 'Dark' },
-    { id: 'amoled', label: 'AMOLED' },
-    { id: 'light', label: 'Light' },
-    { id: 'dracula', label: 'Dracula' },
-    { id: 'nord', label: 'Nord' },
-    { id: 'cyberpunk', label: 'Cyberpunk' },
-    { id: 'emerald', label: 'Emerald' },
-    { id: 'sunset', label: 'Sunset' },
-    { id: 'retro', label: 'Retro Deck' },
-  ]
-
-  let showThemeDropdown = $state(false)
   let showAppearanceModal = $state(false)
   let showChangePasswordModal = $state(false)
 
@@ -67,16 +50,6 @@
     if (parts.length === 0 || (d === 0 && m > 0)) parts.push(`${m}m`)
     return parts.join(' ')
   })
-
-  function handleThemeSelect(theme: ThemeMode) {
-    themeStore.setTheme(theme)
-    showThemeDropdown = false
-  }
-
-  function toggleUIStyle() {
-    const nextStyle: UIStyle = themeStore.currentStyle === 'neobrutal' ? 'modern' : 'neobrutal'
-    themeStore.setStyle(nextStyle)
-  }
 </script>
 
 <header class="sticky top-0 z-40 bg-card border-b-2 border-border shadow-neobrutal-sm">
@@ -181,56 +154,6 @@
         <Palette class="w-3.5 h-3.5 text-accent" />
         <span class="hidden sm:inline uppercase text-[11px]">Theme</span>
       </button>
-
-      <!-- UI Style Quick Toggle (Neobrutal / Modern) -->
-      <button
-        type="button"
-        class="hidden sm:flex items-center gap-1.5 px-2.5 py-1 text-xs font-mono font-bold rounded bg-card-sub border border-border text-foreground hover:border-accent cursor-pointer transition-colors"
-        onclick={toggleUIStyle}
-        title="Toggle UI Style"
-      >
-        <Sparkles class="w-3.5 h-3.5 text-accent" />
-        <span class="uppercase text-[11px]">{themeStore.currentStyle}</span>
-      </button>
-
-      <!-- Theme Dropdown -->
-      <div class="relative">
-        <button
-          type="button"
-          class="p-1.5 rounded bg-card-sub border border-border text-foreground hover:border-accent cursor-pointer"
-          onclick={() => (showThemeDropdown = !showThemeDropdown)}
-          aria-label="Select theme"
-        >
-          {#if themeStore.currentTheme === 'light'}
-            <Sun class="w-4 h-4 text-amber-400" />
-          {:else}
-            <Moon class="w-4 h-4 text-blue-400" />
-          {/if}
-        </button>
-
-        {#if showThemeDropdown}
-          <!-- svelte-ignore a11y_click_events_have_key_events -->
-          <!-- svelte-ignore a11y_no_static_element_interactions -->
-          <div
-            class="fixed inset-0 z-40"
-            onclick={() => (showThemeDropdown = false)}
-          ></div>
-          <div class="absolute right-0 mt-2 w-36 bg-card border-2 border-border shadow-neobrutal rounded p-1 z-50 font-mono text-xs space-y-0.5">
-            {#each themeOptions as opt}
-              <button
-                type="button"
-                class="w-full text-left px-2.5 py-1.5 rounded hover:bg-card-sub flex items-center justify-between cursor-pointer {themeStore.currentTheme === opt.id ? 'font-bold text-accent' : 'text-foreground'}"
-                onclick={() => handleThemeSelect(opt.id)}
-              >
-                <span>{opt.label}</span>
-                {#if themeStore.currentTheme === opt.id}
-                  <span class="w-1.5 h-1.5 rounded-full bg-accent"></span>
-                {/if}
-              </button>
-            {/each}
-          </div>
-        {/if}
-      </div>
 
       <!-- Change Password Button -->
       {#if authStore.authenticated}

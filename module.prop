@@ -5,3 +5,4 @@ versionCode=122
 author=latifangren
 github=https://github.com/latifangren/BFR-WEBUI-GO
 description=High-performance Android System WebUI & Control Panel built in Go & Svelte 5.
+updateJson=https://raw.githubusercontent.com/latifangren/BFR-WEBUI-GO/main/update.json

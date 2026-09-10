@@ -12,7 +12,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [1.2.2] - 2026-09-09
 
 ### Added
-- **Tri-Engine Customization Matrix**: Integrated Navigation Layout Engine (`topbar` vs `sidebar`), UI Style Paradigm Engine (`neobrutal` vs `modern`), and Color Palette Engine (8 presets) into a unified 3D Appearance Studio (`AppearanceModal.svelte`).
+- **Modular File Manager Architecture & Dual Pane / Dual Commander (`frontend/src/components/tabs/files/`)**:
+  - Refactored monolithic File Manager into 7 isolated Svelte 5 Runes modules (`types.ts`, `paneState.svelte.ts`, `BookmarksBar.svelte`, `FileDropzone.svelte`, `FileTable.svelte`, `FileModals.svelte`, `FilePane.svelte`).
+  - Implemented Dual Pane / Dual Commander mode with responsive layout (side-by-side 2-column on desktop/tablet, touch-friendly tab pill switcher `[ Panel A | Panel B ]` on mobile).
+  - Implemented one-click cross-pane file transfer (`Copy to Other Pane` and `Move to Other Pane`) leveraging `/api/files/batch`.
+  - Added Quick Bookmarks Bar with Android/Magisk system presets (`/`, `/sdcard`, `/data/adb`, `/data/adb/modules`, `/data/local/tmp`) and persistent user custom bookmarks via `localStorage`.
+  - Implemented drag-and-drop file upload overlay dropzone (`FileDropzone.svelte`) with instant multi-file upload.
+- **Root Daemon Services Resource Telemetry (`internal/sysinfo/sysinfo.go` & `TabSysinfo.svelte`)**:
+  - Added real-time PID, normalized multi-core CPU utilization percentage, and resident RAM usage (MB/KB) tracking via direct `/proc/[pid]/statm` and `/proc/[pid]/stat` inspection without subprocess overhead.
+  - Formatted ultra-lightweight daemon memory gracefully (e.g. Dropbear SSH displaying `51 KB` instead of truncating to `0 MB`).
+- **Comprehensive Tab About Restoration (`TabAbout.svelte`)**:
+  - Restored BFR WEBUI PRO branding hero with dynamic specifications grid.
+  - Restored Magisk Module Key Features showcase grid (BBR2, Tweaks, Dynamic Charging Limiter, SMS OTP Scanner, Web Terminal & Scrcpy).
+  - Restored Support & Donation Hub with high-resolution QRIS payment showcase (`qris.jpg`) and interactive donor confirmation form with direct Telegram and Facebook integration.
+- **Tri-Engine Customization Matrix & Compact Appearance Studio**: Integrated Navigation Layout Engine (`topbar` vs `sidebar`), UI Style Paradigm Engine (`neobrutal` vs `modern`), and 9 Color Palettes (including **Retro Deck**) into a compact, minimalist Appearance Studio (`AppearanceModal.svelte`).
 - **Modular Navigation Engine (`docs/MODULAR_NAVIGATION_PLAN.md`)**:
   - **Classic Top Bar (Full-Width)**: Desktop header category pills with hover flyouts and 100% full-width content cards; mobile 5-column bottom navigation with touch-friendly upward popovers.
   - **Modern Sidebar**: Desktop collapsible accordion groups per category (Core, Network, System, Tools) with state memory and pulsing active-tab dot indicators; mobile clean slide-over drawer without duplicate bars.
@@ -32,6 +45,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Charger Limitation Controller**: Updated UI to handle unified PMIC hardware status and battery protection threshold toggling.
 
 ### Fixed
+- **Backend-Frontend API Contract Mismatches**:
+  - **Tab NAS**: Resolved status field mismatch (`active` vs `running`), ensuring server state and input controls reflect accurately.
+  - **Tab Tunnel**: Resolved status field mismatch (`active` vs `running`), restoring instant public URL and provider status detection.
+  - **Tab Telegram**: Added flexible parsing for `chat_id` string/number into `allowed_chat_ids: []int64`, supported empty string `""` reset, and flattened config response.
+  - **Tab Logs**: Supported both `time` and `timestamp` fields, eliminating empty dashes in the daemon logs table and widening column to `w-36`.
+  - **Tab Network**: Populated active DNS (`primary`/`secondary`) and dynamic TTL spoofing status (`current_ttl`).
+  - **Anti-Nil String Error Normalization**: Replaced `fmt.Sprintf("%v", err)` returning `"<nil>"` with `errString(err)` helper returning JSON `null` when operations succeed.
+  - **Dynamic TTL Spoofing Detection on Android 11+**: Updated `GetTTLSpoofStatus()` in `tweaks.go` to dynamically inspect `-j TTL --ttl-set` via `iptables -t mangle -S POSTROUTING` (compatible with TTL 65).
+  - **Static Media Gzip Content-Length Mismatch**: Fixed broken QRIS image loading caused by GzipMiddleware preserving uncompressed `Content-Length` headers; stripped header on compression and bypassed gzip for media files (`.jpg`, `.png`, `.webp`, `.svg`, `.zip`) and SSE logs.
+- **Header Top Bar & Appearance Modal Simplification**:
+  - Removed redundant style toggle and theme dropdown buttons from top bar, unifying controls into a single `[ 🎨 Theme ]` button (Option 1).
+  - Streamlined `AppearanceModal.svelte` by eliminating the redundant Live Preview Sandbox, converting options to compact segmented toggles, and fitting within standard viewports without heavy scrolling.
+- **Tab Tools Redundancy Removal**:
+  - Eliminated duplicate Magisk / KernelSU modules table from `TabTools.svelte`, replacing it with an elegant direct shortcut to `Core ➔ Modules`.
+- **Overview Telemetry Capacity Display**:
+  - Enhanced Storage and Memory (RAM) cards in `TabOverview.svelte` to display full capacity metrics (`used / total` and `free`).
 - **Silent Failure on API Error Responses**: Corrected client-side handling where `{ success: false }` was silently ignored instead of throwing proper error feedback.
 - **Connection Teardown & Lifecycle Leaks**: Added proper disposal for WebSocket subscriptions, debounce timers (`onDestroy`), and xterm instances during tab navigation transitions.
 - **API Endpoint & Contract Mismatches**: Resolved payload discrepancies across Proxy, Charger, VnStat, and Modem modules identified in cross-layer audit.

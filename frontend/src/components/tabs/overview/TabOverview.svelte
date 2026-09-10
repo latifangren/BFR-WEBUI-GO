@@ -253,9 +253,14 @@
           <span class="text-2xl font-black font-mono text-foreground">
             {stats ? stats.mem_used_pct.toFixed(0) : '0'}%
           </span>
-          <span class="text-xs font-mono text-muted">
-            {stats ? formatBytes(stats.mem_used) : '0 B'}
-          </span>
+          <div class="text-right font-mono">
+            <div class="text-xs font-bold text-foreground">
+              {stats ? formatBytes(stats.mem_used) : '0 B'} / {stats ? formatBytes(stats.mem_total) : '0 B'}
+            </div>
+            <div class="text-[10px] text-muted">
+              {stats ? formatBytes(stats.mem_available || stats.mem_free) : '0 B'} free
+            </div>
+          </div>
         </div>
         <div class="w-full bg-card-sub border border-border h-1.5 rounded overflow-hidden mt-3">
           <div
@@ -286,9 +291,14 @@
           <span class="text-2xl font-black font-mono text-foreground">
             {stats ? stats.disk_used_pct.toFixed(0) : '0'}%
           </span>
-          <span class="text-xs font-mono text-muted">
-            {stats ? formatBytes(stats.disk_used) : '0 B'}
-          </span>
+          <div class="text-right font-mono">
+            <div class="text-xs font-bold text-foreground">
+              {stats ? formatBytes(stats.disk_used) : '0 B'} / {stats ? formatBytes(stats.disk_total) : '0 B'}
+            </div>
+            <div class="text-[10px] text-muted">
+              {stats ? formatBytes(stats.disk_free) : '0 B'} free
+            </div>
+          </div>
         </div>
         <div class="w-full bg-card-sub border border-border h-1.5 rounded overflow-hidden mt-3">
           <div

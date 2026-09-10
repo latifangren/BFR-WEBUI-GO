@@ -24,7 +24,7 @@ fi
 OLD_DIR="/data/adb/modules/bfr_webui_go"
 if [ -d "$OLD_DIR" ]; then
     ui_print "- Preserving existing configuration files..."
-    for cfg in tweaks.json charger_config.json ssh_config.json telegram_config.json qos.json shortcuts.json; do
+    for cfg in tweaks.json charger_config.json ssh_config.json telegram_config.json qos.json shortcuts.json nas_config.json tunnel_config.json auth_config.json; do
         if [ -f "$OLD_DIR/$cfg" ]; then
             cp -f "$OLD_DIR/$cfg" "$MODPATH/$cfg"
             ui_print "- Preserved: $cfg"
@@ -33,9 +33,8 @@ if [ -d "$OLD_DIR" ]; then
 fi
 
 ui_print "- Launching WebUI dynamically..."
-# Start the newly installed binary from active MODPATH (which is modules_update during flash)
 chmod 755 "$MODPATH/webui"
-"$MODPATH"/webui &
+nohup "$MODPATH/webui" > "$MODPATH/webui.log" 2>&1 &
 
 ui_print "- Server started in background."
 ui_print "- Web Panel URL: http://127.0.0.1:80 or http://[your-ip-address]:80"

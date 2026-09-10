@@ -57,11 +57,32 @@ Returns full hardware metrics, CPU/RAM usage, temperatures, network details, and
     "cpu_usage": 12.5,
     "cpu_cores": [10.0, 15.0, 8.0, 14.0],
     "cpu_temp": 38.5,
-    "ram_total": 7800000000,
-    "ram_used": 3400000000,
-    "ram_percent": 43.5,
+    "mem_total": 7800000000,
+    "mem_used": 3400000000,
+    "mem_free": 200000000,
+    "mem_available": 4200000000,
+    "mem_used_pct": 43.5,
     "battery_level": 85,
     "battery_temp": 31.0,
+    "active_services": [
+      {
+        "name": "Web UI Server",
+        "key": "webui",
+        "running": true,
+        "detail": "Running (Port 80)",
+        "pid": 21800,
+        "cpu": 0.2,
+        "ram": 20.7
+      },
+      {
+        "name": "SSH Daemon",
+        "key": "ssh",
+        "running": true,
+        "detail": "Running (Port 22)",
+        "pid": 25140,
+        "ram": 0.05
+      }
+    ],
     "network_detail": {
       "ip_addresses": ["192.168.100.55"],
       "gateway": "192.168.100.1",
@@ -190,14 +211,60 @@ Returns system storage metrics.
 
 ## 🌐 Network & Tweaks Endpoints
 
+### `GET /api/network/dns`
+Returns the active primary and secondary DNS resolvers along with preconfigured DNS provider presets.
+
+- **Response** (`200 OK`):
+  ```json
+  {
+    "primary": "1.1.1.1",
+    "secondary": "1.0.0.1",
+    "presets": [
+      {
+        "name": "Cloudflare",
+        "primary": "1.1.1.1",
+        "secondary": "1.0.0.1"
+      },
+      {
+        "name": "Google",
+        "primary": "8.8.8.8",
+        "secondary": "8.8.4.4"
+      }
+    ]
+  }
+  ```
+
 ### `POST /api/network/dns`
-Configures DNS servers on interface resolvers and `iptables` port 53.
+Configures DNS servers on interface resolvers and `iptables` port 53 redirection.
 
 - **Request Body**:
   ```json
   {
     "primary": "1.1.1.1",
     "secondary": "8.8.8.8"
+  }
+  ```
+
+### `GET /api/network/ttl`
+Returns current TTL spoofing status and default system TTL recommendation.
+
+- **Response** (`200 OK`):
+  ```json
+  {
+    "ttl_spoof": true,
+    "current_ttl": 65,
+    "ttl": 65
+  }
+  ```
+
+### `POST /api/network/ttl`
+Enables or disables TTL spoofing rules via iptables mangle chain.
+
+- **Request Body**:
+  ```json
+  {
+    "enable": true,
+    "ttl": 65
   }
   ```
 

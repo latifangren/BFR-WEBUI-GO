@@ -29,6 +29,15 @@
   let selectedGovernor = $state('')
   let isUpdatingGovernor = $state(false)
 
+  function formatServiceRAM(mb?: number): string {
+    if (mb === undefined || mb === null || mb === 0) return '0 MB'
+    if (mb < 0.1) {
+      const kb = Math.round(mb * 1024)
+      return `${kb} KB`
+    }
+    return `${mb.toFixed(1)} MB`
+  }
+
   onMount(() => {
     fetchGovernor()
   })
@@ -473,16 +482,34 @@
         {#if stats.active_services && stats.active_services.length > 0}
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 font-mono text-xs">
             {#each stats.active_services as svc}
-              <div class="bg-card-sub border border-border p-2.5 rounded flex items-center justify-between">
-                <div class="space-y-0.5">
-                  <span class="font-bold text-foreground">{svc.name}</span>
-                  {#if svc.detail}
-                    <p class="text-[10px] text-muted truncate max-w-[120px]">{svc.detail}</p>
-                  {/if}
+              <div class="bg-card-sub border border-border p-2.5 rounded flex flex-col justify-between gap-2">
+                <div class="flex items-start justify-between gap-2">
+                  <div class="space-y-0.5 min-w-0">
+                    <span class="font-bold text-foreground truncate block">{svc.name}</span>
+                    {#if svc.detail}
+                      <p class="text-[10px] text-muted truncate">{svc.detail}</p>
+                    {/if}
+                  </div>
+                  <Badge variant={svc.running ? 'success' : 'default'} class="shrink-0">
+                    {svc.running ? 'Active' : 'Stopped'}
+                  </Badge>
                 </div>
-                <Badge variant={svc.running ? 'success' : 'default'}>
-                  {svc.running ? 'Active' : 'Stopped'}
-                </Badge>
+
+                {#if svc.running}
+                  <div class="flex items-center gap-1.5 pt-1.5 border-t border-border/50 text-[10px] text-muted font-mono flex-wrap">
+                    {#if svc.pid}
+                      <span class="px-1.5 py-0.5 rounded bg-card border border-border text-foreground font-bold">
+                        PID: {svc.pid}
+                      </span>
+                    {/if}
+                    <span class="px-1.5 py-0.5 rounded bg-card border border-border text-foreground">
+                      CPU: <strong class="text-accent">{svc.cpu || 0}%</strong>
+                    </span>
+                    <span class="px-1.5 py-0.5 rounded bg-card border border-border text-foreground">
+                      RAM: <strong class="text-emerald-400">{svc.ram || 0} MB</strong>
+                    </span>
+                  </div>
+                {/if}
               </div>
             {/each}
           </div>

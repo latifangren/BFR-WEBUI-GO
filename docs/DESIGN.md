@@ -81,12 +81,14 @@ All color themes drive standard CSS custom property variables defined in `base.c
 | Theme Preset | `--neo-bg` | `--neo-card` | `--neo-card-sub` | `--neo-text` | `--neo-muted` | `--neo-border` | `--neo-accent` | `--neo-shadow` |
 |---|---|---|---|---|---|---|---|---|
 | **🌙 Dark** *(Default)* | `#090d16` | `#131927` | `#1e293b` | `#f8fafc` | `#94a3b8` | `#334155` | `#7c3aed` | `#1e293b` |
+| **🖤 AMOLED** | `#000000` | `#0a0a0a` | `#141414` | `#ffffff` | `#71717a` | `#27272a` | `#10b981` | `#000000` |
 | **☀️ Light** | `#f4f6fa` | `#ffffff` | `#f8fafc` | `#0f172a` | `#64748b` | `#cbd5e1` | `#2563eb` | `#0f172a` |
 | **🧛 Dracula** | `#1e1f29` | `#282a36` | `#44475a` | `#f8f8f2` | `#6272a4` | `#44475a` | `#bd93f9` | `#191a21` |
 | **❄️ Nord** | `#242933` | `#2e3440` | `#3b4252` | `#eceff4` | `#d8dee9` | `#434c5e` | `#88c0d0` | `#1b1f27` |
 | **🤖 Cyberpunk** | `#0d0f18` | `#181b28` | `#222638` | `#fff066` | `#a3a7c2` | `#facc15` | `#facc15` | `#facc15` |
 | **🌲 Emerald** | `#042f2e` | `#064e3b` | `#0f766e` | `#ecfdf5` | `#6ee7b7` | `#115e59` | `#10b981` | `#022c22` |
 | **🌅 Sunset** | `#120b18` | `#1f1329` | `#2d1b3a` | `#fed7aa` | `#fb923c` | `#4c1d95` | `#f97316` | `#0a050e` |
+| **🕹️ Retro Deck** | `#daf0fc` | `#ffffff` | `#f1f5f9` | `#000000` | `#111827` | `#000000` | `#000000` | `#000000` |
 
 ---
 
@@ -150,11 +152,22 @@ The fundamental surface container for content blocks.
 - **Container**: `fixed top-4 right-4 z-50 flex flex-col gap-2.5 max-w-sm w-full pointer-events-none p-4`.
 - **Item**: Card with 2px status border (`border-green-500` for success, `border-red-500` for error, `border-amber-500` for info), hard shadow (`shadow-[4px_4px_0px_0px_var(--neo-shadow)]`), status icon badge, uppercase title, message text, and dismissal button (`✕`).
 
-### Appearance Modal Dialog (`#showAppearanceModal`)
-- Triggered by the **🎨 Appearance** button in the Header (`z-[120]`).
-- Features real-time selection between:
-  1. **UI Paradigm & Style**: Neobrutalism vs Modern Clean with instant preview cards.
-  2. **Color Theme Presets**: Interactive grid of all 7 color themes with dual color swatch previews.
+### Compact Appearance Studio Modal (`#showAppearanceModal`)
+- Triggered by the single unified **`[ 🎨 THEME ]`** button in the Header (`z-[120]`).
+- Features a streamlined, compact modal layout without redundant live preview sandboxes:
+  1. **Navigation Layout Architecture**: Segmented 2-button toggle between **Classic Top Bar** and **Modern Sidebar**.
+  2. **UI Paradigm Style**: Segmented 2-button toggle between **Neobrutalist** (2px borders, hard offset shadows) and **Modern Clean** (1px subtle borders, smooth curves).
+  3. **Color Themes (9 Palettes)**: Compact 3-column swatch grid with 3 preview dots, theme title, and active indicator checkmark (including the high-contrast **Retro Deck** theme).
+  4. **Footer**: Active theme/style summary and 1-tap **Done & Apply** button.
+
+### Multi-Tone Semantic Card Colors (`neo-tone-*`)
+Cards support semantic tinting via `tone="..."` on `Card.svelte`:
+- **`mint`**: Network, Hotspot, QoS, VnStat, Speedtest (`#c8f5d0`).
+- **`peach`**: Charger, Battery Health, Power Actions (`#ffd5cc`).
+- **`ice`**: Dual-Pane File Manager, LAN Web Share (NAS), Cloudflared Tunnel, SMS (`#c2e7ff`).
+- **`lavender`**: Proxy Core (Mihomo), Modules Manager, SSH Daemon, Telegram Bot (`#e2daf9`).
+- **`butter`**: System Tweaks, CPU Governor, Logs, Backup (`#fff0a3`).
+*(Non-retro themes render subtle border tinting to maintain OLED/Dark mode contrast).*
 
 ### Settings & Backup Modal Dialog (`#showBackupModal`)
 - Triggered by the **⚙️** button in the Header (`z-[200]`).

@@ -9,5 +9,7 @@ done
 chmod 755 "$MODDIR/webui"
 "$MODDIR/webui" --apply-tweaks
 
-# Launch WebUI daemon detached from service.sh session with logging
-nohup "$MODDIR/webui" > "$MODDIR/webui.log" 2>&1 &
+# Launch WebUI daemon detached from service.sh session with logging if not already running
+if ! pgrep -f "$MODDIR/webui" >/dev/null 2>&1; then
+    nohup "$MODDIR/webui" > "$MODDIR/webui.log" 2>&1 &
+fi

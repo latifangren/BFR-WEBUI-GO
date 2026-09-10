@@ -37,8 +37,12 @@ export interface LoadAverage {
 
 export interface ServiceStatus {
   name: string
+  key: string
   running: boolean
   detail: string
+  pid?: number
+  cpu?: number
+  ram?: number
 }
 
 export interface NetworkDetail {

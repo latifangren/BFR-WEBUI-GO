@@ -20,6 +20,7 @@ type gzipResponseWriter struct {
 func (g *gzipResponseWriter) initGzip() {
 	if !g.written {
 		g.written = true
+		g.Header().Del("Content-Length")
 		g.Header().Set("Content-Encoding", "gzip")
 		g.Header().Add("Vary", "Accept-Encoding")
 		g.Writer = gzip.NewWriter(g.ResponseWriter)
@@ -58,7 +59,17 @@ func (g *gzipResponseWriter) Close() {
 // GzipMiddleware wraps an http.Handler to compress responses with gzip.
 func GzipMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if !strings.Contains(r.Header.Get("Accept-Encoding"), "gzip") || strings.Contains(strings.ToLower(r.Header.Get("Upgrade")), "websocket") {
+		path := strings.ToLower(r.URL.Path)
+		if !strings.Contains(r.Header.Get("Accept-Encoding"), "gzip") ||
+			strings.Contains(strings.ToLower(r.Header.Get("Upgrade")), "websocket") ||
+			strings.HasPrefix(path, "/api/proxy/logs") ||
+			strings.HasSuffix(path, ".jpg") ||
+			strings.HasSuffix(path, ".jpeg") ||
+			strings.HasSuffix(path, ".png") ||
+			strings.HasSuffix(path, ".webp") ||
+			strings.HasSuffix(path, ".gif") ||
+			strings.HasSuffix(path, ".svg") ||
+			strings.HasSuffix(path, ".zip") {
 			next.ServeHTTP(w, r)
 			return
 		}

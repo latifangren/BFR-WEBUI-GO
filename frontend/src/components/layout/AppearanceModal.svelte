@@ -5,19 +5,15 @@
     Check,
     X,
     Layers,
-    Cpu,
-    BatteryCharging,
-    Sliders,
     LayoutGrid,
     PanelLeft,
   } from '@lucide/svelte'
   import { themeStore } from '../../stores/theme.svelte'
   import {
     navigationStore,
-    NAV_LAYOUT_REGISTRY,
-    type NavLayoutId,
   } from '../../stores/navigation.svelte'
   import type { ThemeMode, UIStyle } from '../../types/common'
+  import Button from '../ui/Button.svelte'
 
   interface Props {
     open?: boolean
@@ -166,273 +162,128 @@
 
     <!-- Modal Dialog Window -->
     <div
-      class="neo-card relative w-full max-w-2xl bg-card border-2 border-border p-5 sm:p-6 z-10 space-y-6 max-h-[92vh] overflow-y-auto my-auto shadow-2xl text-foreground font-mono"
+      class="neo-card relative w-full max-w-xl bg-card border-2 border-border p-4 sm:p-5 z-10 space-y-4 max-h-[92vh] overflow-y-auto my-auto shadow-2xl text-foreground font-mono"
     >
       <!-- Header -->
-      <div class="flex items-center justify-between border-b border-border pb-4">
-        <div class="flex items-center gap-3">
-          <div class="w-9 h-9 rounded bg-accent/15 text-accent border border-accent/30 flex items-center justify-center">
-            <Palette class="w-5 h-5" />
+      <div class="flex items-center justify-between border-b border-border pb-3">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded bg-accent/15 text-accent border border-accent/30 flex items-center justify-center">
+            <Palette class="w-4 h-4" />
           </div>
           <div>
-            <h2 class="text-sm sm:text-base font-bold uppercase tracking-wider text-foreground">
+            <h2 class="text-sm font-bold uppercase tracking-wider text-foreground">
               Appearance Studio
             </h2>
-            <p class="text-xs text-muted">Theme palette & UI paradigm configuration</p>
+            <p class="text-[10px] text-muted">Theme palette & UI paradigm configuration</p>
           </div>
         </div>
 
         <button
           type="button"
-          class="p-1.5 rounded border border-border text-muted hover:text-foreground hover:bg-card-sub cursor-pointer transition-colors"
+          class="p-1 rounded border border-border text-muted hover:text-foreground hover:border-accent cursor-pointer transition-colors"
           onclick={handleClose}
-          aria-label="Close modal"
+          aria-label="Close"
         >
-          <X class="w-5 h-5" />
+          <X class="w-4 h-4" />
         </button>
       </div>
 
-      <!-- Section 1: Navigation Style Selector -->
-      <div class="space-y-3">
-        <div class="flex items-center justify-between">
-          <span class="text-xs font-bold uppercase text-muted tracking-wider flex items-center gap-1.5">
-            <LayoutGrid class="w-3.5 h-3.5 text-accent" />
-            1. Navigation Layout
-          </span>
-          <span class="text-[11px] text-muted">Choose desktop header flyout or left sidebar rail</span>
-        </div>
-
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <!-- Option 1: Classic Top Bar -->
+      <!-- Section 1: Navigation Layout (Top Bar vs Sidebar) -->
+      <div class="space-y-1.5">
+        <span class="text-[11px] font-bold uppercase text-muted tracking-wider flex items-center gap-1.5">
+          <LayoutGrid class="w-3.5 h-3.5 text-accent" />
+          Navigation Layout
+        </span>
+        <div class="grid grid-cols-2 gap-2 bg-card-sub p-1 border border-border rounded-lg">
           <button
             type="button"
-            class="text-left p-4 rounded border-2 transition-all cursor-pointer relative flex flex-col justify-between {navigationStore.layout === 'topbar' ? 'border-accent bg-card-sub shadow-[4px_4px_0px_0px_var(--neo-accent)]' : 'border-border bg-card hover:border-accent/50'}"
+            class="flex items-center justify-center gap-2 py-2 px-3 rounded text-xs font-bold transition-all cursor-pointer {navigationStore.layout === 'topbar' ? 'bg-accent text-accent-text shadow-neobrutal-sm' : 'text-muted hover:text-foreground'}"
             onclick={() => navigationStore.setLayout('topbar')}
           >
-            <div>
-              <div class="flex items-center justify-between mb-1.5">
-                <div class="flex items-center gap-2">
-                  <LayoutGrid class="w-4 h-4 text-accent" />
-                  <span class="text-xs font-bold uppercase text-foreground">Classic Top Bar</span>
-                </div>
-                {#if navigationStore.layout === 'topbar'}
-                  <span class="w-5 h-5 rounded-full bg-accent text-accent-text flex items-center justify-center text-xs font-black">
-                    <Check class="w-3 h-3" />
-                  </span>
-                {/if}
-              </div>
-              <p class="text-[11px] text-muted leading-relaxed">
-                Desktop header flyout dropdowns with 100% full-width cards; mobile bottom popovers.
-              </p>
-            </div>
-
-            <div class="mt-3 pt-2 border-t border-border flex items-center justify-between">
-              <span class="text-[9px] uppercase font-bold text-muted">Layout Mode</span>
-              <span class="text-[10px] font-bold {navigationStore.layout === 'topbar' ? 'text-accent' : 'text-muted'}">FULL WIDTH</span>
-            </div>
+            <LayoutGrid class="w-3.5 h-3.5" />
+            <span>Classic Top Bar</span>
           </button>
-
-          <!-- Option 2: Modern Sidebar -->
           <button
             type="button"
-            class="text-left p-4 rounded border-2 transition-all cursor-pointer relative flex flex-col justify-between {navigationStore.layout === 'sidebar' ? 'border-accent bg-card-sub shadow-[4px_4px_0px_0px_var(--neo-accent)]' : 'border-border bg-card hover:border-accent/50'}"
+            class="flex items-center justify-center gap-2 py-2 px-3 rounded text-xs font-bold transition-all cursor-pointer {navigationStore.layout === 'sidebar' ? 'bg-accent text-accent-text shadow-neobrutal-sm' : 'text-muted hover:text-foreground'}"
             onclick={() => navigationStore.setLayout('sidebar')}
           >
-            <div>
-              <div class="flex items-center justify-between mb-1.5">
-                <div class="flex items-center gap-2">
-                  <PanelLeft class="w-4 h-4 text-accent" />
-                  <span class="text-xs font-bold uppercase text-foreground">Modern Sidebar</span>
-                </div>
-                {#if navigationStore.layout === 'sidebar'}
-                  <span class="w-5 h-5 rounded-full bg-accent text-accent-text flex items-center justify-center text-xs font-black">
-                    <Check class="w-3 h-3" />
-                  </span>
-                {/if}
-              </div>
-              <p class="text-[11px] text-muted leading-relaxed">
-                Desktop collapsible accordion sidebar rail; mobile clean slide-over drawer.
-              </p>
-            </div>
-
-            <div class="mt-3 pt-2 border-t border-border flex items-center justify-between">
-              <span class="text-[9px] uppercase font-bold text-muted">Layout Mode</span>
-              <span class="text-[10px] font-bold {navigationStore.layout === 'sidebar' ? 'text-accent' : 'text-muted'}">RAIL ACCORDION</span>
-            </div>
+            <PanelLeft class="w-3.5 h-3.5" />
+            <span>Modern Sidebar</span>
           </button>
         </div>
       </div>
 
-      <!-- Section 2: UI Paradigm (Neobrutal vs Modern) -->
-      <div class="space-y-3">
-        <div class="flex items-center justify-between">
-          <span class="text-xs font-bold uppercase text-muted tracking-wider flex items-center gap-1.5">
-            <Layers class="w-3.5 h-3.5 text-accent" />
-            2. UI Paradigm Style
-          </span>
-          <span class="text-[11px] text-muted">Select visual grammar</span>
-        </div>
-
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <!-- Option 1: Neo-Brutalist -->
+      <!-- Section 2: UI Paradigm Style (Neobrutal vs Modern) -->
+      <div class="space-y-1.5">
+        <span class="text-[11px] font-bold uppercase text-muted tracking-wider flex items-center gap-1.5">
+          <Layers class="w-3.5 h-3.5 text-accent" />
+          UI Paradigm Style
+        </span>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 bg-card-sub p-1 border border-border rounded-lg">
           <button
             type="button"
-            class="text-left p-4 rounded border-2 transition-all cursor-pointer relative flex flex-col justify-between {themeStore.currentStyle === 'neobrutal' ? 'border-accent bg-card-sub shadow-[4px_4px_0px_0px_var(--neo-accent)]' : 'border-border bg-card hover:border-accent/50'}"
+            class="flex flex-col items-center justify-center py-2 px-3 rounded text-xs font-bold transition-all cursor-pointer {themeStore.currentStyle === 'neobrutal' ? 'bg-accent text-accent-text shadow-neobrutal-sm' : 'text-muted hover:text-foreground'}"
             onclick={() => selectStyle('neobrutal')}
           >
-            <div>
-              <div class="flex items-center justify-between mb-1.5">
-                <span class="text-xs font-bold uppercase text-foreground">Neo-Brutalist</span>
-                {#if themeStore.currentStyle === 'neobrutal'}
-                  <span class="w-5 h-5 rounded-full bg-accent text-accent-text flex items-center justify-center text-xs font-black">
-                    <Check class="w-3 h-3" />
-                  </span>
-                {/if}
-              </div>
-              <p class="text-[11px] text-muted leading-relaxed">
-                Crisp 2px borders, hard mechanical drop-shadows, 4px corners, and subtle background dot-grid matrix.
-              </p>
-            </div>
-            <div class="mt-3 pt-2 border-t border-border/60 flex items-center gap-1.5 text-[10px] font-bold text-accent uppercase">
-              <span>● Solid Elevation</span>
-              <span>• 4px Corners</span>
-            </div>
+            <span>Neobrutalist</span>
+            <span class="text-[10px] font-normal opacity-80">2px borders, hard shadows</span>
           </button>
-
-          <!-- Option 2: Modern Clean -->
           <button
             type="button"
-            class="text-left p-4 rounded-xl border transition-all cursor-pointer relative flex flex-col justify-between {themeStore.currentStyle === 'modern' ? 'border-accent bg-card-sub shadow-lg ring-1 ring-accent' : 'border-border bg-card hover:border-accent/50'}"
+            class="flex flex-col items-center justify-center py-2 px-3 rounded text-xs font-bold transition-all cursor-pointer {themeStore.currentStyle === 'modern' ? 'bg-accent text-accent-text shadow-neobrutal-sm' : 'text-muted hover:text-foreground'}"
             onclick={() => selectStyle('modern')}
           >
-            <div>
-              <div class="flex items-center justify-between mb-1.5">
-                <span class="text-xs font-bold uppercase text-foreground">Modern Clean</span>
-                {#if themeStore.currentStyle === 'modern'}
-                  <span class="w-5 h-5 rounded-full bg-accent text-accent-text flex items-center justify-center text-xs font-black">
-                    <Check class="w-3 h-3" />
-                  </span>
-                {/if}
-              </div>
-              <p class="text-[11px] text-muted leading-relaxed">
-                Refined 1px borders, smooth ambient drop-shadows, generous 16px corner curves, and backdrop blur.
-              </p>
-            </div>
-            <div class="mt-3 pt-2 border-t border-border/60 flex items-center gap-1.5 text-[10px] font-bold text-accent uppercase">
-              <span>● Soft Ambient</span>
-              <span>• 16px Curves</span>
-            </div>
+            <span>Modern Clean</span>
+            <span class="text-[10px] font-normal opacity-80">1px borders, smooth curves</span>
           </button>
         </div>
       </div>
 
-      <!-- Section 3: Color Themes (8 Palettes) -->
-      <div class="space-y-3">
-        <div class="flex items-center justify-between">
-          <span class="text-xs font-bold uppercase text-muted tracking-wider flex items-center gap-1.5">
-            <Sliders class="w-3.5 h-3.5 text-accent" />
-            3. Color Palettes (8 Themes)
-          </span>
-          <span class="text-[11px] text-muted">Real-time dynamic CSS tokens</span>
-        </div>
-
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+      <!-- Section 3: Color Themes (9 Palettes) -->
+      <div class="space-y-1.5">
+        <span class="text-[11px] font-bold uppercase text-muted tracking-wider flex items-center gap-1.5">
+          <Sparkles class="w-3.5 h-3.5 text-accent" />
+          Color Themes (9 Palettes)
+        </span>
+        <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
           {#each themes as t}
             {@const isSelected = themeStore.currentTheme === t.id}
             <button
               type="button"
-              class="text-left p-3 rounded border transition-all cursor-pointer flex items-center justify-between gap-3 {isSelected ? 'border-accent bg-card-sub shadow-sm' : 'border-border bg-card hover:border-accent/40'}"
+              class="p-2.5 rounded-lg border-2 text-left transition-all cursor-pointer relative flex flex-col justify-between gap-1.5 {isSelected ? 'border-accent bg-accent/10 shadow-neobrutal-sm' : 'border-border bg-card-sub hover:border-accent/60'}"
               onclick={() => selectTheme(t.id)}
             >
-              <div class="min-w-0 flex-1">
-                <div class="flex items-center gap-2">
-                  <span class="text-xs font-bold text-foreground truncate">{t.name}</span>
-                  {#if isSelected}
-                    <span class="px-1.5 py-0.2 rounded text-[9px] font-black uppercase tracking-wider bg-accent text-accent-text">
-                      Active
-                    </span>
-                  {/if}
+              <div class="flex items-center justify-between">
+                <!-- 3 Color Swatches -->
+                <div class="flex items-center gap-1">
+                  <span class="w-3.5 h-3.5 rounded-full border border-black/20 shrink-0" style="background-color: {t.bg};"></span>
+                  <span class="w-3.5 h-3.5 rounded-full border border-black/20 shrink-0" style="background-color: {t.card};"></span>
+                  <span class="w-3.5 h-3.5 rounded-full border border-black/20 shrink-0" style="background-color: {t.accent};"></span>
                 </div>
-                <p class="text-[10px] text-muted truncate mt-0.5">{t.tagline}</p>
+                {#if isSelected}
+                  <span class="w-4 h-4 rounded-full bg-accent text-accent-text flex items-center justify-center text-[10px] font-black">
+                    <Check class="w-2.5 h-2.5" />
+                  </span>
+                {/if}
               </div>
-
-              <!-- Color Swatch Dots -->
-              <div class="flex items-center gap-1 shrink-0 p-1 rounded bg-black/30 border border-white/5">
-                <span class="w-3.5 h-3.5 rounded-full border border-black/30 shadow-inner" style="background-color: {t.bg};" title="Background"></span>
-                <span class="w-3.5 h-3.5 rounded-full border border-black/30 shadow-inner" style="background-color: {t.card};" title="Card"></span>
-                <span class="w-3.5 h-3.5 rounded-full border border-black/30 shadow-inner" style="background-color: {t.border};" title="Border"></span>
-                <span class="w-3.5 h-3.5 rounded-full border border-black/30 shadow-inner" style="background-color: {t.accent};" title="Accent"></span>
+              <div class="font-bold text-xs text-foreground truncate">
+                {t.name}
               </div>
             </button>
           {/each}
         </div>
       </div>
 
-      <!-- Section 3: Live Component Sandbox Preview -->
-      <div class="space-y-2 pt-1 border-t border-border">
-        <div class="flex items-center justify-between text-[11px] text-muted font-bold uppercase tracking-wider">
-          <span class="flex items-center gap-1.5">
-            <Sparkles class="w-3.5 h-3.5 text-accent" />
-            Live Preview Sandbox
-          </span>
-          <span class="text-[10px] text-accent font-mono">
-            {themeStore.currentStyle.toUpperCase()} / {themeStore.currentTheme.toUpperCase()}
-          </span>
-        </div>
-
-        <div class="p-3.5 rounded bg-card-sub border border-border space-y-3">
-          <!-- Mini Mock Card -->
-          <div class="neo-card bg-card p-3 space-y-2.5">
-            <div class="flex items-center justify-between border-b border-border pb-2">
-              <div class="flex items-center gap-2">
-                <Cpu class="w-4 h-4 text-accent" />
-                <span class="text-xs font-bold text-foreground uppercase tracking-wider">Hardware Telemetry</span>
-              </div>
-              <div class="flex items-center gap-1.5 text-[10px] px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-bold">
-                <BatteryCharging class="w-3 h-3" />
-                <span>ONLINE</span>
-              </div>
-            </div>
-
-            <div class="grid grid-cols-2 gap-2 text-xs">
-              <div class="p-2 rounded bg-card-sub border border-border">
-                <span class="text-[9px] text-muted uppercase font-bold block">Kernel CPU</span>
-                <span class="text-xs font-black text-foreground">2.84 GHz (8 Cores)</span>
-              </div>
-              <div class="p-2 rounded bg-card-sub border border-border">
-                <span class="text-[9px] text-muted uppercase font-bold block">Memory RAM</span>
-                <span class="text-xs font-black text-foreground">4.2 / 8.0 GB</span>
-              </div>
-            </div>
-
-            <!-- Action Buttons Sample -->
-            <div class="flex items-center gap-2 pt-1">
-              <button
-                type="button"
-                class="neo-button px-3 py-1.5 text-xs bg-accent text-accent-text cursor-pointer"
-              >
-                Execute Action
-              </button>
-              <button
-                type="button"
-                class="neo-button px-3 py-1.5 text-xs bg-card text-foreground cursor-pointer"
-              >
-                Reset Settings
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Footer Actions -->
-      <div class="border-t border-border pt-4 flex items-center justify-end gap-2">
-        <button
-          type="button"
-          class="neo-button px-4 py-2 text-xs bg-accent text-accent-text cursor-pointer font-bold uppercase tracking-wider"
-          onclick={handleClose}
-        >
-          Done & Apply
-        </button>
+      <!-- Footer: Summary and Done Button -->
+      <div class="flex items-center justify-between pt-3 border-t border-border">
+        <span class="text-[11px] text-muted">
+          Active: <strong class="text-foreground">{themes.find(t => t.id === themeStore.currentTheme)?.name}</strong> ({themeStore.currentStyle})
+        </span>
+        <Button variant="primary" size="sm" onclick={handleClose}>
+          <Check class="w-3.5 h-3.5 mr-1" />
+          <span>Done & Apply</span>
+        </Button>
       </div>
     </div>
   </div>
