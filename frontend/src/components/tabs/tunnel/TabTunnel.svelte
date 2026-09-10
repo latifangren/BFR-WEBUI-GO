@@ -27,10 +27,12 @@
   }
 
   interface TunnelStatus {
-    running: boolean
+    active?: boolean
+    running?: boolean
     engine?: string
+    pid?: number
     public_url?: string
-    status_detail?: string
+    logs?: string[]
   }
 
   let config = $state<TunnelConfig>({
@@ -38,7 +40,7 @@
     token: '',
     local_port: 80,
   })
-  let status = $state<TunnelStatus>({ running: false })
+  let status = $state<TunnelStatus>({ running: false, active: false })
   let isLoading = $state(false)
   let isToggling = $state(false)
 
@@ -76,6 +78,7 @@
         zerotier_network_id: config.engine === 'zerotier' ? config.token : undefined,
       }
       await api.post('/api/tunnel/start', payload)
+      status.active = true
       status.running = true
       toastStore.success(`Tunnel (${config.engine}) started successfully.`)
     } catch (err: unknown) {
@@ -89,6 +92,7 @@
     try {
       isToggling = true
       await api.post('/api/tunnel/stop')
+      status.active = false
       status.running = false
       toastStore.success('Tunnel stopped.')
     } catch (err: unknown) {
@@ -150,8 +154,8 @@
       <h2 class="text-base sm:text-lg font-mono font-bold uppercase tracking-wider text-foreground">
         Remote Access Tunnels
       </h2>
-      <Badge variant={status.running ? 'success' : 'default'}>
-        {status.running ? `${config.engine.toUpperCase()} Active` : 'Inactive'}
+      <Badge variant={(status.active || status.running) ? 'success' : 'default'}>
+        {(status.active || status.running) ? `${config.engine.toUpperCase()} Active` : 'Inactive'}
       </Badge>
     </div>
 
@@ -166,7 +170,7 @@
         <span>Refresh</span>
       </Button>
 
-      {#if status.running}
+      {#if (status.active || status.running)}
         <Button
           variant="danger"
           size="sm"
@@ -195,6 +199,7 @@
     <Card
       title="Tunnel Configuration"
       subtitle="Expose WebUI remotely without port forwarding"
+      tone="ice"
       class="lg:col-span-2"
     >
       <div class="space-y-5 font-mono text-xs">
@@ -209,7 +214,7 @@
                 type="button"
                 class="neo-button p-3 rounded border border-border bg-card-sub hover:border-accent text-center cursor-pointer transition-all {config.engine === eng ? 'border-accent bg-accent/15 text-accent font-bold shadow-neobrutal-sm' : 'text-foreground'}"
                 onclick={() => (config.engine = eng as TunnelConfig['engine'])}
-                disabled={status.running}
+                disabled={Boolean(status.active || status.running)}
               >
                 <div class="font-black text-sm uppercase">{eng}</div>
                 <div class="text-[10px] text-muted mt-0.5">
@@ -227,7 +232,7 @@
             label="Cloudflare Tunnel Token (cloudflared tunnel run --token ...)"
             placeholder="eyJhIjoi..."
             bind:value={config.token}
-            disabled={status.running}
+            disabled={Boolean(status.active || status.running)}
           />
         {:else if config.engine === 'frp'}
           <div class="space-y-3">
@@ -235,14 +240,14 @@
               label="FRP Server Address"
               placeholder="vps.example.com:7000"
               bind:value={config.server}
-              disabled={status.running}
+              disabled={Boolean(status.active || status.running)}
             />
             <Input
               type="password"
               label="FRP Auth Token"
               placeholder="secret_token"
               bind:value={config.token}
-              disabled={status.running}
+              disabled={Boolean(status.active || status.running)}
             />
           </div>
         {:else if config.engine === 'zerotier'}
@@ -250,16 +255,16 @@
             label="ZeroTier Network ID (16 Hex Digits)"
             placeholder="8056c2e21c000001"
             bind:value={config.token}
-            disabled={status.running}
+            disabled={Boolean(status.active || status.running)}
           />
         {/if}
       </div>
     </Card>
 
     <!-- Public URL & Connectivity -->
-    <Card title="Public Remote Endpoint" subtitle="Worldwide access URL">
+    <Card title="Public Remote Endpoint" subtitle="Worldwide access URL" tone="ice">
       <div class="space-y-3 font-mono text-xs">
-        {#if status.running && status.public_url}
+        {#if (status.active || status.running) && status.public_url}
           <div class="p-3 bg-card-sub border border-border rounded space-y-1">
             <span class="text-[10px] text-muted uppercase font-bold">Public Domain:</span>
             <a
@@ -272,7 +277,7 @@
               <ExternalLink class="w-3.5 h-3.5 shrink-0" />
             </a>
           </div>
-        {:else if status.running}
+        {:else if (status.active || status.running)}
           <div class="p-3 bg-card-sub border border-border rounded text-emerald-400 font-bold">
             Tunnel daemon is connected.
           </div>
@@ -289,6 +294,7 @@
   <Card
     title="Engine Binary Management"
     subtitle="Upload custom ARM64 or x86 executable binary for cloudflared / zerotier-one"
+    tone="ice"
   >
     <div class="space-y-4 font-mono text-xs">
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">

@@ -115,6 +115,7 @@
     <Card
       title="SSH Server Settings"
       subtitle="Configure port, authentication, and keys"
+      tone="lavender"
       class="lg:col-span-2"
     >
       {#snippet action()}
@@ -188,7 +189,7 @@
     </Card>
 
     <!-- Service Controls Card -->
-    <Card title="Daemon Lifecycle" subtitle="Direct process control">
+    <Card title="Daemon Lifecycle" subtitle="Direct process control" tone="lavender">
       <div class="space-y-4 font-mono text-xs">
         <div class="p-4 bg-card-sub border border-border rounded space-y-2">
           <div class="flex items-center justify-between">

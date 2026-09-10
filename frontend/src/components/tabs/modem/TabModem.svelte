@@ -309,7 +309,7 @@
   <!-- SUB-TAB 1: Signal & Radio -->
   {#if subTab === 'signal'}
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-      <Card title="Cellular Radio Signal" class="lg:col-span-2">
+      <Card title="Cellular Radio Signal" tone="mint" class="lg:col-span-2">
         {#snippet action()}
           <Button
             variant="secondary"
@@ -360,7 +360,7 @@
         </div>
       </Card>
 
-      <Card title="Cell Identity & Info" subtitle="Radio mast details">
+      <Card title="Cell Identity & Info" subtitle="Radio mast details" tone="mint">
         <div class="space-y-3 font-mono text-xs">
           <div class="flex items-center justify-between p-2 rounded bg-card-sub border border-border">
             <span class="text-muted">Operator</span>
@@ -386,7 +386,7 @@
   <!-- SUB-TAB 2: Band Locking (NEW) -->
   {#if subTab === 'bands'}
     <div class="space-y-6">
-      <Card title="Band Locking & Radio Technology (RAT)" subtitle="Lock cellular frequency bands to boost throughput and stabilize ping">
+      <Card title="Band Locking & Radio Technology (RAT)" subtitle="Lock cellular frequency bands to boost throughput and stabilize ping" tone="mint">
         {#snippet action()}
           <div class="flex items-center gap-2">
             <Button
@@ -572,7 +572,7 @@
 
   <!-- SUB-TAB 3: SMS Inbox -->
   {#if subTab === 'sms'}
-    <Card title="SMS Messages & OTP Reader">
+    <Card title="SMS Messages & OTP Reader" tone="ice">
       {#snippet action()}
         <form onsubmit={(e) => { e.preventDefault(); fetchSMS() }} class="flex items-center gap-2">
           <Input
@@ -649,7 +649,7 @@
 
   <!-- SUB-TAB 4: AT Terminal -->
   {#if subTab === 'at'}
-    <Card title="Modem Serial AT Command Console">
+    <Card title="Modem Serial AT Command Console" tone="lavender">
       <div class="space-y-4 font-mono text-xs">
         <form onsubmit={(e) => { e.preventDefault(); sendAT() }} class="flex items-center gap-2">
           <Input

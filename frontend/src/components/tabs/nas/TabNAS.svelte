@@ -24,7 +24,8 @@
   }
 
   interface NASStatus {
-    running: boolean
+    active?: boolean
+    running?: boolean
     port?: number
     share_path?: string
     url?: string
@@ -35,7 +36,7 @@
     share_path: '/sdcard',
     read_only: false,
   })
-  let status = $state<NASStatus>({ running: false })
+  let status = $state<NASStatus>({ running: false, active: false })
   let isLoading = $state(false)
   let isToggling = $state(false)
 
@@ -60,6 +61,7 @@
     try {
       isToggling = true
       await api.post('/api/nas/start', config)
+      status.active = true
       status.running = true
       toastStore.success(`NAS HTTP File Server started on port ${config.port}`)
     } catch (err: unknown) {
@@ -73,6 +75,7 @@
     try {
       isToggling = true
       await api.post('/api/nas/stop')
+      status.active = false
       status.running = false
       toastStore.success('NAS File Server stopped.')
     } catch (err: unknown) {
@@ -91,8 +94,8 @@
       <h2 class="text-base sm:text-lg font-mono font-bold uppercase tracking-wider text-foreground">
         NAS & Local File Sharing
       </h2>
-      <Badge variant={status.running ? 'success' : 'default'}>
-        {status.running ? 'Server Active' : 'Stopped'}
+      <Badge variant={(status.active || status.running) ? 'success' : 'default'}>
+        {(status.active || status.running) ? 'Server Active' : 'Stopped'}
       </Badge>
     </div>
 
@@ -107,7 +110,7 @@
         <span>Refresh</span>
       </Button>
 
-      {#if status.running}
+      {#if (status.active || status.running)}
         <Button
           variant="danger"
           size="sm"
@@ -136,6 +139,7 @@
     <Card
       title="File Server Configuration"
       subtitle="Expose storage to devices on Wi-Fi SoftAP & LAN"
+      tone="ice"
       class="lg:col-span-2"
     >
       <div class="space-y-4 font-mono text-xs">
@@ -144,7 +148,7 @@
             label="Share Path"
             placeholder="/sdcard"
             bind:value={config.share_path}
-            disabled={status.running}
+            disabled={Boolean(status.active || status.running)}
           />
           <Input
             type="number"
@@ -155,7 +159,7 @@
               const v = parseInt((e.target as HTMLInputElement).value, 10)
               if (!isNaN(v)) config.port = v
             }}
-            disabled={status.running}
+            disabled={Boolean(status.active || status.running)}
           />
         </div>
 
@@ -167,7 +171,7 @@
           <input
             type="checkbox"
             bind:checked={config.read_only}
-            disabled={status.running}
+            disabled={Boolean(status.active || status.running)}
             class="w-4 h-4 accent-accent"
           />
         </label>
@@ -175,9 +179,9 @@
     </Card>
 
     <!-- Network Access Info -->
-    <Card title="Direct Access Link" subtitle="LAN HTTP URL">
+    <Card title="Direct Access Link" subtitle="LAN HTTP URL" tone="ice">
       <div class="space-y-3 font-mono text-xs">
-        {#if status.running}
+        {#if (status.active || status.running)}
           <div class="p-3 bg-card-sub border border-border rounded space-y-1">
             <span class="text-[10px] text-muted uppercase font-bold">LAN Web Share:</span>
             <p class="font-bold text-accent break-all">

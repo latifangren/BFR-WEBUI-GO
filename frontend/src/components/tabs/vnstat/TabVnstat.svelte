@@ -189,7 +189,7 @@
 
   <!-- Per-Interface Traffic Breakdown -->
   {#if stats?.daily?.interfaces && Object.keys(stats.daily.interfaces).length > 0}
-    <Card title="Interface Telemetry Breakdown" subtitle="Traffic split per physical / cellular / softap interface">
+    <Card title="Interface Telemetry Breakdown" subtitle="Traffic split per physical / cellular / softap interface" tone="mint">
       <div class="overflow-x-auto">
         <table class="w-full text-left font-mono text-xs">
           <thead>

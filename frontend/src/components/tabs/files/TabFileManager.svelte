@@ -758,7 +758,7 @@
   {/if}
 
   <!-- Files Table Container -->
-  <Card class="p-0 overflow-hidden font-mono text-xs">
+  <Card class="p-0 overflow-hidden font-mono text-xs" tone="ice">
     {#if isLoading && files.length === 0}
       <div class="p-12 text-center text-muted">
         <RefreshCw class="w-6 h-6 animate-spin mx-auto mb-2 text-accent" />

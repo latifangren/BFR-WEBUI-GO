@@ -143,7 +143,7 @@
       Reading SMS messages from Android Telephony provider...
     </div>
   {:else if filteredMessages.length === 0}
-    <Card>
+    <Card tone="ice">
       <div class="p-8 text-center text-muted font-mono text-xs">
         <MessageSquare class="w-6 h-6 mx-auto mb-2 opacity-50" />
         No SMS messages found matching your criteria.

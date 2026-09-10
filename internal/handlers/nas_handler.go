@@ -2,12 +2,23 @@ package handlers
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 
 	"bfr-webui-go/internal/logger"
 	"bfr-webui-go/internal/nas"
 )
+
+func formatNASStatus(st nas.NASStatus) map[string]interface{} {
+	return map[string]interface{}{
+		"active":        st.Active,
+		"running":       st.Active,
+		"share_path":    st.SharePath,
+		"url":           st.URL,
+		"protocol":      st.Protocol,
+		"storage_used":  st.StorageUsed,
+		"storage_total": st.StorageTotal,
+	}
+}
 
 func HandleNASStatus(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
@@ -28,7 +39,7 @@ func HandleNASStatus(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	_ = json.NewEncoder(w).Encode(map[string]interface{}{
 		"config": cfg,
-		"status": status,
+		"status": formatNASStatus(status),
 	})
 }
 
@@ -57,8 +68,8 @@ func HandleNASStart(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	_ = json.NewEncoder(w).Encode(map[string]interface{}{
 		"success": err == nil,
-		"error":   fmt.Sprintf("%v", err),
-		"status":  mgr.GetStatus(),
+		"error":   errString(err),
+		"status":  formatNASStatus(mgr.GetStatus()),
 	})
 }
 
@@ -72,12 +83,14 @@ func HandleNASStop(w http.ResponseWriter, r *http.Request) {
 	err := mgr.StopNAS()
 	if err == nil {
 		logger.Get().Infof("NAS", "NAS File Server stopped")
+	} else {
+		logger.Get().Warnf("NAS", "NAS File Server stop failed: %v", err)
 	}
 
 	w.Header().Set("Content-Type", "application/json")
 	_ = json.NewEncoder(w).Encode(map[string]interface{}{
 		"success": err == nil,
-		"error":   fmt.Sprintf("%v", err),
-		"status":  mgr.GetStatus(),
+		"error":   errString(err),
+		"status":  formatNASStatus(mgr.GetStatus()),
 	})
 }

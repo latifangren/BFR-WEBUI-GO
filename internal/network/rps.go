@@ -23,6 +23,17 @@ type RPSConfig struct {
 	Bitmask   string `json:"bitmask"`
 }
 
+// GetDefaultTTL returns the recommended TTL value based on Android SDK level (65 for Android 11+, 64 otherwise).
+func GetDefaultTTL() int {
+	sdkStr := GetProp("ro.build.version.sdk")
+	sdk, _ := strconv.Atoi(sdkStr)
+
+	if sdk >= 30 { // Android 11+
+		return 65
+	}
+	return 64
+}
+
 func SetTTLSpoofSDK(enable bool, targetTTL int) error {
 	// Remove existing rules
 	_ = exec.Command(config.SUBin, "-c", "iptables -t mangle -D POSTROUTING -j TTL --ttl-set 64 2>/dev/null").Run()
@@ -33,14 +44,7 @@ func SetTTLSpoofSDK(enable bool, targetTTL int) error {
 	}
 
 	if targetTTL <= 0 {
-		sdkStr := GetProp("ro.build.version.sdk")
-		sdk, _ := strconv.Atoi(sdkStr)
-
-		if sdk >= 30 { // Android 11+
-			targetTTL = 65
-		} else {
-			targetTTL = 64
-		}
+		targetTTL = GetDefaultTTL()
 	}
 
 	cmdV4 := fmt.Sprintf("iptables -t mangle -A POSTROUTING -j TTL --ttl-set %d", targetTTL)

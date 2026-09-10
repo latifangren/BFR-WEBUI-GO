@@ -144,6 +144,7 @@
     <Card
       title="Flash Module Archive"
       subtitle="Install Magisk / KernelSU / APatch ZIP"
+      tone="lavender"
       class="lg:col-span-1"
     >
       <div class="space-y-4 font-mono text-xs">
@@ -207,6 +208,7 @@
     <Card
       title="Installed System Modules"
       subtitle="Active root overlays in /data/adb/modules"
+      tone="lavender"
       class="lg:col-span-2"
     >
       {#if isLoading && modules.length === 0}

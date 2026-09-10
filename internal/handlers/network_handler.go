@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 
 	"bfr-webui-go/internal/logger"
@@ -72,7 +71,7 @@ func HandleNetworkTweaks(w http.ResponseWriter, r *http.Request) {
 			if err := json.NewDecoder(r.Body).Decode(&req); err == nil {
 				err := network.SetSysctl(req.Key, req.Value)
 				w.Header().Set("Content-Type", "application/json")
-				_ = json.NewEncoder(w).Encode(map[string]interface{}{"success": err == nil, "error": fmt.Sprintf("%v", err)})
+				_ = json.NewEncoder(w).Encode(map[string]interface{}{"success": err == nil, "error": errString(err)})
 				return
 			}
 		case "ttl":
@@ -80,7 +79,7 @@ func HandleNetworkTweaks(w http.ResponseWriter, r *http.Request) {
 			if err := json.NewDecoder(r.Body).Decode(&req); err == nil {
 				err := network.SetTTLSpoofSDK(req.Enable, req.TTL)
 				w.Header().Set("Content-Type", "application/json")
-				_ = json.NewEncoder(w).Encode(map[string]interface{}{"success": err == nil, "error": fmt.Sprintf("%v", err)})
+				_ = json.NewEncoder(w).Encode(map[string]interface{}{"success": err == nil, "error": errString(err)})
 				return
 			}
 		case "interface":
@@ -88,7 +87,7 @@ func HandleNetworkTweaks(w http.ResponseWriter, r *http.Request) {
 			if err := json.NewDecoder(r.Body).Decode(&req); err == nil {
 				err := network.SetInterfaceConfig(req.Interface, req.MTU, req.TxQueueLen)
 				w.Header().Set("Content-Type", "application/json")
-				_ = json.NewEncoder(w).Encode(map[string]interface{}{"success": err == nil, "error": fmt.Sprintf("%v", err)})
+				_ = json.NewEncoder(w).Encode(map[string]interface{}{"success": err == nil, "error": errString(err)})
 				return
 			}
 		case "dns":
@@ -97,7 +96,7 @@ func HandleNetworkTweaks(w http.ResponseWriter, r *http.Request) {
 				logger.Get().Infof("network", "DNS change requested: primary=%s, secondary=%s", req.Primary, req.Secondary)
 				err := network.SetDNS(req.Primary, req.Secondary)
 				w.Header().Set("Content-Type", "application/json")
-				_ = json.NewEncoder(w).Encode(map[string]interface{}{"success": err == nil, "error": fmt.Sprintf("%v", err)})
+				_ = json.NewEncoder(w).Encode(map[string]interface{}{"success": err == nil, "error": errString(err)})
 				return
 			}
 		case "save_tweaks":
@@ -106,7 +105,7 @@ func HandleNetworkTweaks(w http.ResponseWriter, r *http.Request) {
 				errSave := network.SaveTweaks(req)
 				_ = network.ApplyAllTweaks() // Apply immediately
 				w.Header().Set("Content-Type", "application/json")
-				_ = json.NewEncoder(w).Encode(map[string]interface{}{"success": errSave == nil, "error": fmt.Sprintf("%v", errSave)})
+				_ = json.NewEncoder(w).Encode(map[string]interface{}{"success": errSave == nil, "error": errString(errSave)})
 				return
 			}
 		}
@@ -139,8 +138,13 @@ func HandlePing(w http.ResponseWriter, r *http.Request) {
 
 func HandleDNS(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodGet {
+		d1, d2 := network.GetActiveDNS()
 		w.Header().Set("Content-Type", "application/json")
-		_ = json.NewEncoder(w).Encode(network.PresetDNS)
+		_ = json.NewEncoder(w).Encode(map[string]interface{}{
+			"primary":   d1,
+			"secondary": d2,
+			"presets":   network.PresetDNS,
+		})
 		return
 	}
 
@@ -155,7 +159,7 @@ func HandleDNS(w http.ResponseWriter, r *http.Request) {
 		logger.Get().Infof("network", "DNS preset update requested: primary=%s, secondary=%s", req.Primary, req.Secondary)
 		err := network.SetDNS(req.Primary, req.Secondary)
 		w.Header().Set("Content-Type", "application/json")
-		_ = json.NewEncoder(w).Encode(map[string]interface{}{"success": err == nil, "error": fmt.Sprintf("%v", err)})
+		_ = json.NewEncoder(w).Encode(map[string]interface{}{"success": err == nil, "error": errString(err)})
 	}
 }
 
@@ -163,7 +167,7 @@ func HandleRPS(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodGet {
 		configs, err := network.GetRPSConfigs()
 		w.Header().Set("Content-Type", "application/json")
-		_ = json.NewEncoder(w).Encode(map[string]interface{}{"configs": configs, "error": fmt.Sprintf("%v", err)})
+		_ = json.NewEncoder(w).Encode(map[string]interface{}{"configs": configs, "error": errString(err)})
 		return
 	}
 
@@ -177,15 +181,20 @@ func HandleRPS(w http.ResponseWriter, r *http.Request) {
 		}
 		err := network.ConfigureRPS(req.Interface, req.Bitmask)
 		w.Header().Set("Content-Type", "application/json")
-		_ = json.NewEncoder(w).Encode(map[string]interface{}{"success": err == nil, "error": fmt.Sprintf("%v", err)})
+		_ = json.NewEncoder(w).Encode(map[string]interface{}{"success": err == nil, "error": errString(err)})
 	}
 }
 
 func HandleTTL(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodGet {
 		status := network.GetTTLSpoofStatus()
+		defaultTTL := network.GetDefaultTTL()
 		w.Header().Set("Content-Type", "application/json")
-		_ = json.NewEncoder(w).Encode(map[string]interface{}{"ttl_spoof": status})
+		_ = json.NewEncoder(w).Encode(map[string]interface{}{
+			"ttl_spoof":   status,
+			"current_ttl": defaultTTL,
+			"ttl":         defaultTTL,
+		})
 		return
 	}
 
@@ -199,7 +208,7 @@ func HandleTTL(w http.ResponseWriter, r *http.Request) {
 		}
 		err := network.SetTTLSpoofSDK(req.Enable, req.TTL)
 		w.Header().Set("Content-Type", "application/json")
-		_ = json.NewEncoder(w).Encode(map[string]interface{}{"success": err == nil, "error": fmt.Sprintf("%v", err)})
+		_ = json.NewEncoder(w).Encode(map[string]interface{}{"success": err == nil, "error": errString(err)})
 	}
 }
 
@@ -216,4 +225,11 @@ func HandleNetworkTweaksRestore(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	_ = json.NewEncoder(w).Encode(map[string]interface{}{"success": true, "message": "Sysctl defaults restored successfully"})
+}
+
+func errString(err error) interface{} {
+	if err != nil {
+		return err.Error()
+	}
+	return nil
 }

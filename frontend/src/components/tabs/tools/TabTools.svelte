@@ -252,7 +252,7 @@
   </div>
 
   <!-- Security & Authentication Card -->
-  <Card title="Security & Authentication" subtitle="Manage root WebUI access credentials">
+  <Card title="Security & Authentication" subtitle="Manage root WebUI access credentials" tone="butter">
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-3.5 bg-card-sub border border-border rounded font-mono text-xs">
       <div class="flex items-center gap-3">
         <div class="p-2.5 rounded bg-card border border-border text-accent">
@@ -275,7 +275,7 @@
   </Card>
 
   <!-- Backup & Cloud Synchronization Status Card -->
-  <Card title="Configuration Backup & Cloud Synchronization">
+  <Card title="Configuration Backup & Cloud Synchronization" tone="butter">
     <div class="grid grid-cols-1 md:grid-cols-3 gap-4 font-mono text-xs">
       <!-- Cloud State -->
       <div class="p-3.5 rounded bg-card-sub border border-border space-y-2 flex flex-col justify-between">
@@ -352,6 +352,7 @@
   <Card
     title="Installed Magisk / KernelSU Modules"
     subtitle="Manage systemless root extensions located in /data/adb/modules"
+    tone="butter"
   >
     {#if isLoading && modulesList.length === 0}
       <div class="p-8 text-center font-mono text-xs text-muted">

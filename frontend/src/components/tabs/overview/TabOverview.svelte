@@ -363,7 +363,7 @@
   </div>
 
   <!-- Application Shortcuts (CasaOS Style) -->
-  <Card title="Application Shortcuts">
+  <Card title="Application Shortcuts" tone="ice">
     {#snippet action()}
       <Button
         variant="secondary"
@@ -547,7 +547,7 @@
   </div>
 
   <!-- System Summary Card -->
-  <Card title="Device Status & Core Daemons">
+  <Card title="Device Status & Core Daemons" tone="butter">
     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 font-mono text-xs">
       <div class="bg-card-sub border border-border p-3 rounded space-y-1">
         <span class="text-[10px] text-muted uppercase font-bold">Device</span>

@@ -89,20 +89,28 @@
     }
 
     try {
-      const ttlRes = await api.get<{ ttl?: string | number; current_ttl?: string | number }>('/api/network/ttl')
-      const val = ttlRes.current_ttl || ttlRes.ttl
-      if (val) {
-        currentTTL = String(val)
-        selectedTTL = String(val)
+      const ttlRes = await api.get<{ ttl?: string | number; current_ttl?: string | number; ttl_spoof?: boolean }>('/api/network/ttl')
+      if (ttlRes?.current_ttl) {
+        currentTTL = String(ttlRes.current_ttl)
+        selectedTTL = String(ttlRes.current_ttl)
+      } else if (ttlRes?.ttl) {
+        currentTTL = String(ttlRes.ttl)
+        selectedTTL = String(ttlRes.ttl)
+      }
+      if (ttlRes?.ttl_spoof !== undefined) {
+        tweaks.ttl_spoofing = Boolean(ttlRes.ttl_spoof)
       }
     } catch {
       // Ignored
     }
 
     try {
-      const dnsRes = await api.get<{ primary?: string; secondary?: string; dns1?: string; dns2?: string }>('/api/network/dns')
-      if (dnsRes.primary || dnsRes.dns1) activeDNS1 = dnsRes.primary || dnsRes.dns1 || activeDNS1
-      if (dnsRes.secondary || dnsRes.dns2) activeDNS2 = dnsRes.secondary || dnsRes.dns2 || activeDNS2
+      const dnsRes = await api.get<{ primary?: string; secondary?: string; dns1?: string; dns2?: string; presets?: any[] }>('/api/network/dns')
+      if (dnsRes?.primary) activeDNS1 = dnsRes.primary
+      else if (dnsRes?.dns1) activeDNS1 = dnsRes.dns1
+
+      if (dnsRes?.secondary) activeDNS2 = dnsRes.secondary
+      else if (dnsRes?.dns2) activeDNS2 = dnsRes.dns2
     } catch {
       // Ignored
     }
@@ -257,7 +265,7 @@
   </div>
 
   <!-- Dynamic Optimizations Card -->
-  <Card title="Dynamic Optimizations & Sysctl Tweaks" subtitle="Hardware and kernel tuning (saved to tweaks.json)">
+  <Card title="Dynamic Optimizations & Sysctl Tweaks" subtitle="Hardware and kernel tuning (saved to tweaks.json)" tone="butter">
     {#snippet action()}
       <div class="flex items-center gap-2">
         <Button
@@ -358,7 +366,7 @@
 
   <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
     <!-- TTL Modifier Card -->
-    <Card title="Dynamic TTL Modifier" subtitle="Bypass operator hotspot quota restriction">
+    <Card title="Dynamic TTL Modifier" subtitle="Bypass operator hotspot quota restriction" tone="mint">
       <div class="space-y-4 font-mono text-xs">
         <div class="flex items-center justify-between p-3 bg-card-sub border border-border rounded">
           <span class="text-muted uppercase font-bold">Active System TTL:</span>
@@ -413,7 +421,7 @@
     </Card>
 
     <!-- DNS Presets Card -->
-    <Card title="DNS Presets & Configuration" subtitle="Override system resolver to prevent ISP DNS hijacking">
+    <Card title="DNS Presets & Configuration" subtitle="Override system resolver to prevent ISP DNS hijacking" tone="mint">
       <div class="space-y-4 font-mono text-xs">
         <div class="flex items-center justify-between p-3 bg-card-sub border border-border rounded">
           <span class="text-muted uppercase font-bold">Active DNS:</span>
@@ -457,7 +465,7 @@
   </div>
 
   <!-- Receive Packet Steering (RPS) Card -->
-  <Card title="Receive Packet Steering (RPS)" subtitle="Distribute network packet interrupts across CPU cores to maximize throughput">
+  <Card title="Receive Packet Steering (RPS)" subtitle="Distribute network packet interrupts across CPU cores to maximize throughput" tone="mint">
     {#snippet action()}
       <Button
         variant="outline"
@@ -564,7 +572,7 @@
   </Card>
 
   <!-- Network Ping Diagnostic -->
-  <Card title="Ping Diagnostics" subtitle="Test network latency and reachability">
+  <Card title="Ping Diagnostics" subtitle="Test network latency and reachability" tone="mint">
     <div class="space-y-4 font-mono text-xs">
       <div class="flex items-center gap-2">
         <Input

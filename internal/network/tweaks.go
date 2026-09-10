@@ -144,11 +144,11 @@ func SetSysctl(key, value string) error {
 }
 
 func GetTTLSpoofStatus() bool {
-	out, err := exec.Command(config.SUBin, "-c", "iptables -t mangle -C POSTROUTING -j TTL --ttl-set 64").CombinedOutput()
-	if err == nil {
-		return true
+	out, err := exec.Command(config.SUBin, "-c", "iptables -t mangle -S POSTROUTING 2>/dev/null").CombinedOutput()
+	if err != nil {
+		return false
 	}
-	return strings.Contains(string(out), "target") // Rule exists or iptables matched
+	return strings.Contains(string(out), "-j TTL --ttl-set")
 }
 
 func SetTTLSpoof(enable bool, ttl int) error {

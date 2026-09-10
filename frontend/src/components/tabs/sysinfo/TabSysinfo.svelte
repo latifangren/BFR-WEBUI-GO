@@ -131,7 +131,8 @@
       <!-- Device Specs Bento Box -->
       <Card
         title="Device Specifications & Hardware Info"
-        class="lg:col-span-2 neo-tone-ice"
+        tone="ice"
+        class="lg:col-span-2"
       >
         {#snippet action()}
           <div class="neo-icon-box">
@@ -184,7 +185,7 @@
       </Card>
 
       <!-- Battery & Power State -->
-      <Card title="Battery & Power Subsystem" class="neo-tone-peach">
+      <Card title="Battery & Power Subsystem" tone="peach">
         {#snippet action()}
           <div class="neo-icon-box">
             {#if stats.battery_status === 'Charging'}
@@ -245,7 +246,7 @@
     <!-- Grid 2: CPU, Thermals & Memory -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
       <!-- CPU & Per-Core Telemetry -->
-      <Card title="CPU Core Activity & Thermals" class="neo-tone-mint">
+      <Card title="CPU Core Activity & Thermals" tone="mint">
         {#snippet action()}
           <div class="neo-icon-box">
             <Cpu class="w-4 h-4 text-accent" />
@@ -305,7 +306,7 @@
       </Card>
 
       <!-- Memory & Swap Utilization -->
-      <Card title="RAM & Swap Memory" class="neo-tone-lavender">
+      <Card title="RAM & Swap Memory" tone="lavender">
         {#snippet action()}
           <div class="neo-icon-box">
             <Activity class="w-4 h-4 text-purple-400" />
@@ -355,7 +356,7 @@
     <!-- CPU Scaling Governor & Thermal Summary -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
       <!-- CPU Scaling Governor -->
-      <Card title="CPU Scaling Governor Policy">
+      <Card title="CPU Scaling Governor Policy" tone="butter">
         <div class="space-y-4 font-mono text-xs">
           <div class="flex items-center justify-between">
             <span class="text-muted">Active Governor Policy</span>
@@ -407,7 +408,7 @@
       </Card>
 
       <!-- Thermal Sensors Monitor -->
-      <Card title="Thermal Sensors Telemetry">
+      <Card title="Thermal Sensors Telemetry" tone="peach">
         <div class="space-y-3 font-mono text-xs">
           <div class="flex items-center justify-between">
             <span class="text-muted">Primary SoC Temp</span>
@@ -439,7 +440,7 @@
     <!-- Grid 3: Storage Partitions & Services -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
       <!-- Disks & Partitions -->
-      <Card title="Storage Filesystems">
+      <Card title="Storage Filesystems" tone="ice">
         {#if stats.disks && stats.disks.length > 0}
           <div class="space-y-3 font-mono text-xs">
             {#each stats.disks as disk}
@@ -468,7 +469,7 @@
       </Card>
 
       <!-- Background System Services -->
-      <Card title="Root Daemon Services">
+      <Card title="Root Daemon Services" tone="lavender">
         {#if stats.active_services && stats.active_services.length > 0}
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 font-mono text-xs">
             {#each stats.active_services as svc}

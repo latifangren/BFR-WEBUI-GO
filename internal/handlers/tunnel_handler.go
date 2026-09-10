@@ -2,12 +2,24 @@ package handlers
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 
 	"bfr-webui-go/internal/logger"
 	"bfr-webui-go/internal/tunnel"
 )
+
+func formatTunnelStatus(st tunnel.TunnelStatus) map[string]interface{} {
+	return map[string]interface{}{
+		"engine":       st.Engine,
+		"active":       st.Active,
+		"running":      st.Active,
+		"public_url":   st.PublicURL,
+		"ip_address":   st.IPAddress,
+		"logs":         st.Logs,
+		"binary_found": st.BinaryFound,
+		"binary_path":  st.BinaryPath,
+	}
+}
 
 func HandleTunnelStatus(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
@@ -28,7 +40,7 @@ func HandleTunnelStatus(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	_ = json.NewEncoder(w).Encode(map[string]interface{}{
 		"config": cfg,
-		"status": status,
+		"status": formatTunnelStatus(status),
 	})
 }
 
@@ -57,8 +69,8 @@ func HandleTunnelStart(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	_ = json.NewEncoder(w).Encode(map[string]interface{}{
 		"success": err == nil,
-		"error":   fmt.Sprintf("%v", err),
-		"status":  mgr.GetStatus(),
+		"error":   errString(err),
+		"status":  formatTunnelStatus(mgr.GetStatus()),
 	})
 }
 
@@ -72,13 +84,15 @@ func HandleTunnelStop(w http.ResponseWriter, r *http.Request) {
 	err := mgr.StopTunnel()
 	if err == nil {
 		logger.Get().Infof("Tunnel", "Tunnel stopped successfully")
+	} else {
+		logger.Get().Warnf("Tunnel", "Tunnel stop failed: %v", err)
 	}
 
 	w.Header().Set("Content-Type", "application/json")
 	_ = json.NewEncoder(w).Encode(map[string]interface{}{
 		"success": err == nil,
-		"error":   fmt.Sprintf("%v", err),
-		"status":  mgr.GetStatus(),
+		"error":   errString(err),
+		"status":  formatTunnelStatus(mgr.GetStatus()),
 	})
 }
 
@@ -86,6 +100,11 @@ func HandleTunnelUploadBinary(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
+	}
+
+	engine := r.URL.Query().Get("engine")
+	if engine == "" {
+		engine = "cloudflare"
 	}
 
 	err := r.ParseMultipartForm(64 << 20) // 64MB max
@@ -96,7 +115,6 @@ func HandleTunnelUploadBinary(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	engine := r.FormValue("engine")
 	file, header, err := r.FormFile("binary")
 	if err != nil {
 		w.Header().Set("Content-Type", "application/json")
@@ -115,6 +133,6 @@ func HandleTunnelUploadBinary(w http.ResponseWriter, r *http.Request) {
 	_ = json.NewEncoder(w).Encode(map[string]interface{}{
 		"success": err == nil,
 		"path":    binPath,
-		"error":   fmt.Sprintf("%v", err),
+		"error":   errString(err),
 	})
 }

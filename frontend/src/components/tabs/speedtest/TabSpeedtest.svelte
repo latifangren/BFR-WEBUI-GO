@@ -224,7 +224,7 @@
 
   <!-- Server Info Card -->
   {#if result.server_name || result.server_host}
-    <Card title="Speedtest Server">
+    <Card title="Speedtest Server" tone="mint">
       <div class="flex items-center gap-3 font-mono text-xs">
         <Server class="w-5 h-5 text-accent shrink-0" />
         <div>
@@ -236,7 +236,7 @@
   {/if}
 
   <!-- Speedtest History Section -->
-  <Card title="Speedtest History & Diagnostics">
+  <Card title="Speedtest History & Diagnostics" tone="mint">
     {#snippet action()}
       <Button
         variant="secondary"

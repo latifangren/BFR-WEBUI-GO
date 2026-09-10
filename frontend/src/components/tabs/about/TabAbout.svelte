@@ -44,6 +44,7 @@
     <Card
       title="BFR-WEBUI-GO Ecosystem"
       subtitle="Android Root System Control Panel & WebUI"
+      tone="butter"
       class="lg:col-span-2"
     >
       <div class="space-y-4 font-mono text-xs leading-relaxed text-muted">
@@ -77,7 +78,7 @@
     </Card>
 
     <!-- Architecture & Features -->
-    <Card title="Modern Architecture" subtitle="Zero-Virtual-DOM stack">
+    <Card title="Modern Architecture" subtitle="Zero-Virtual-DOM stack" tone="butter">
       <div class="space-y-3 font-mono text-xs">
         <div class="flex items-center gap-2 p-2 bg-card-sub border border-border rounded">
           <Zap class="w-4 h-4 text-amber-400 shrink-0" />

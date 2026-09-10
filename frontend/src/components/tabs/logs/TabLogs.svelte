@@ -257,7 +257,7 @@
       </div>
 
       <!-- Logs Output Container -->
-      <Card class="p-0 overflow-hidden font-mono text-xs">
+      <Card class="p-0 overflow-hidden font-mono text-xs" tone="butter">
         {#if isLoadingDaemon && daemonLogs.length === 0}
           <div class="p-12 text-center text-muted">
             <RefreshCw class="w-6 h-6 animate-spin mx-auto mb-2 text-accent" />
@@ -271,8 +271,8 @@
           <div class="max-h-[65vh] overflow-y-auto divide-y divide-border">
             {#each filteredDaemonLogs as log}
               <div class="p-3 flex items-start gap-3 hover:bg-card-sub/60 transition-colors">
-                <span class="text-[10px] text-muted shrink-0 w-28 truncate">
-                  {log.timestamp ? new Date(log.timestamp).toLocaleTimeString() : '—'}
+                <span class="text-[10px] text-muted shrink-0 w-36 truncate" title={log.time || log.timestamp || '—'}>
+                  {log.time || log.timestamp || '—'}
                 </span>
                 <Badge variant={getLevelBadgeVariant(log.level)} class="shrink-0">
                   {log.level}
@@ -328,7 +328,7 @@
       </div>
 
       <!-- Logcat Terminal Display -->
-      <div class="neo-card bg-card border-2 border-border shadow-neobrutal rounded-lg overflow-hidden flex flex-col">
+      <div class="neo-card neo-tone-butter bg-card border-2 border-border shadow-neobrutal rounded-lg overflow-hidden flex flex-col">
         <div class="bg-card-sub border-b border-border px-3 py-2 flex items-center justify-between font-mono text-xs text-muted">
           <div class="flex items-center gap-2">
             <span class="w-2.5 h-2.5 rounded-full {isLogcatStreaming ? 'bg-emerald-500 animate-pulse' : 'bg-red-500'} inline-block"></span>

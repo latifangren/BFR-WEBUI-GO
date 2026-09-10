@@ -171,6 +171,7 @@
     <Card
       title="Wi-Fi Hotspot Controller"
       subtitle="Android SoftAP tethering daemon"
+      tone="mint"
       class="lg:col-span-2"
     >
       {#snippet action()}
@@ -225,7 +226,7 @@
     </Card>
 
     <!-- Connected Clients Count -->
-    <Card title="Client Overview" subtitle="Real-time ARP status">
+    <Card title="Client Overview" subtitle="Real-time ARP status" tone="mint">
       <div class="space-y-4 font-mono text-xs">
         <div class="p-4 bg-card-sub border border-border rounded text-center">
           <span class="text-3xl font-black text-accent block">{clients.length}</span>
@@ -243,7 +244,7 @@
   </div>
 
   <!-- Connected Clients List -->
-  <Card title="Connected Client Devices" subtitle="Discovered ARP IP and MAC bindings">
+  <Card title="Connected Client Devices" subtitle="Discovered ARP IP and MAC bindings" tone="mint">
     {#if clients.length === 0}
       <div class="p-8 text-center font-mono text-xs text-muted">
         <Users class="w-6 h-6 mx-auto mb-2 opacity-50" />
@@ -278,7 +279,7 @@
   </Card>
 
   <!-- MAC Filter Security -->
-  <Card title="MAC Filtering & Access Control" subtitle="Allow or restrict clients by hardware MAC">
+  <Card title="MAC Filtering & Access Control" subtitle="Allow or restrict clients by hardware MAC" tone="mint">
     <div class="space-y-4 font-mono text-xs">
       <!-- Mode Selection Tabs -->
       <div class="flex items-center gap-2 pb-2 border-b border-border">

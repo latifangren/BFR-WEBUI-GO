@@ -81,7 +81,7 @@
   <!-- Power Actions Grid -->
   <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
     <!-- Standard Reboot -->
-    <Card title="Standard Reboot" subtitle="Restart system services & Android framework">
+    <Card title="Standard Reboot" subtitle="Restart system services & Android framework" tone="peach">
       <div class="space-y-3 font-mono text-xs">
         <p class="text-muted">
           Reboots Android OS normally. Modules and Magisk/KernelSU daemons will reload automatically on boot.
@@ -99,7 +99,7 @@
     </Card>
 
     <!-- Recovery Reboot -->
-    <Card title="Recovery Mode" subtitle="Enter custom recovery environment">
+    <Card title="Recovery Mode" subtitle="Enter custom recovery environment" tone="peach">
       <div class="space-y-3 font-mono text-xs">
         <p class="text-muted">
           Reboots directly to custom recovery partition (TWRP, OrangeFox, PBRP) for flashing zips or backups.
@@ -117,7 +117,7 @@
     </Card>
 
     <!-- Bootloader / Fastboot -->
-    <Card title="Bootloader / Fastboot" subtitle="Enter bootloader partition">
+    <Card title="Bootloader / Fastboot" subtitle="Enter bootloader partition" tone="peach">
       <div class="space-y-3 font-mono text-xs">
         <p class="text-muted">
           Enters Fastboot mode for PC USB flashing, firmware upgrades, or kernel flashing via fastboot command.
@@ -135,7 +135,7 @@
     </Card>
 
     <!-- Power Off -->
-    <Card title="Power Off Hardware" subtitle="Halt kernel and turn off device">
+    <Card title="Power Off Hardware" subtitle="Halt kernel and turn off device" tone="peach">
       <div class="space-y-3 font-mono text-xs">
         <p class="text-muted">
           Shuts down Android completely. Physical power button will be required to turn the device back on.

@@ -1,5 +1,6 @@
 export interface LogEntry {
-  timestamp: string
+  time?: string
+  timestamp?: string
   level: 'DEBUG' | 'INFO' | 'WARN' | 'ERROR' | string
   category: string
   message: string

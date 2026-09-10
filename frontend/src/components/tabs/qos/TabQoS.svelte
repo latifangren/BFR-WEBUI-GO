@@ -111,6 +111,7 @@
     <Card
       title="Bandwidth Rate Limiting"
       subtitle="Traffic shaping & packet queuing via Linux tc / iptables"
+      tone="mint"
       class="lg:col-span-2"
     >
       {#snippet action()}
@@ -218,7 +219,7 @@
     </Card>
 
     <!-- Engine Info -->
-    <Card title="QoS Engine & Queue" subtitle="Underlying Linux kernel subsystem">
+    <Card title="QoS Engine & Queue" subtitle="Underlying Linux kernel subsystem" tone="mint">
       <div class="space-y-4 font-mono text-xs">
         <div class="p-3 bg-card-sub border border-border rounded space-y-1">
           <span class="text-[10px] text-muted uppercase font-bold">QoS Engine</span>

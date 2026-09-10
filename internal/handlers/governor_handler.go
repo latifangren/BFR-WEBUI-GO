@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 
 	"bfr-webui-go/internal/logger"
@@ -47,9 +46,10 @@ func HandleGovernorSet(w http.ResponseWriter, r *http.Request) {
 	if err == nil {
 		logger.Get().Infof("sysinfo", "CPU governor updated: %s", req.Governor)
 	}
+
 	w.Header().Set("Content-Type", "application/json")
 	_ = json.NewEncoder(w).Encode(map[string]interface{}{
 		"success": err == nil,
-		"error":   fmt.Sprintf("%v", err),
+		"error":   errString(err),
 	})
 }

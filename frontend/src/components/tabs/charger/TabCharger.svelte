@@ -102,6 +102,7 @@
     <Card
       title="Hardware Charging Protection"
       subtitle="Bypass charging & battery cycle optimization"
+      tone="peach"
       class="lg:col-span-2"
     >
       {#snippet action()}
@@ -192,7 +193,7 @@
 
     <!-- Manual Control & Current State -->
     <div class="space-y-6">
-      <Card title="Instant Bypass Switch" subtitle="Immediate kernel charge toggle">
+      <Card title="Instant Bypass Switch" subtitle="Immediate kernel charge toggle" tone="peach">
         <div class="space-y-4 font-mono text-xs">
           <p class="text-muted">
             Immediately cuts or restores power to battery charging IC without modifying threshold profiles.
@@ -210,7 +211,7 @@
         </div>
       </Card>
 
-      <Card title="Active Battery Status">
+      <Card title="Active Battery Status" tone="peach">
         {#if sysinfoStore.stats}
           <div class="space-y-3 font-mono text-xs">
             <div class="flex items-center justify-between">

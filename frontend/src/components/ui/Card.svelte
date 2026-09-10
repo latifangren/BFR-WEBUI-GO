@@ -4,6 +4,7 @@
   interface Props {
     title?: string
     subtitle?: string
+    tone?: 'ice' | 'lavender' | 'peach' | 'mint' | 'butter' | 'none'
     class?: string
     headerClass?: string
     bodyClass?: string
@@ -14,6 +15,7 @@
   let {
     title,
     subtitle,
+    tone = 'none',
     class: className = '',
     headerClass = '',
     bodyClass = '',
@@ -22,7 +24,7 @@
   }: Props = $props()
 </script>
 
-<div class="neo-card bg-card p-4 sm:p-5 text-foreground {className}">
+<div class="neo-card bg-card p-4 sm:p-5 text-foreground {tone && tone !== 'none' ? 'neo-tone-' + tone : ''} {className}">
   {#if title || action}
     <div class="flex items-center justify-between border-b border-border pb-3 mb-4 {headerClass}">
       <div>

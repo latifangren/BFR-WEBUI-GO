@@ -317,7 +317,7 @@
 
   <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
     <!-- Status & Routing Mode -->
-    <Card title="Proxy Core Status & Mode" class="lg:col-span-2">
+    <Card title="Proxy Core Status & Mode" tone="lavender" class="lg:col-span-2">
       <div class="space-y-5 font-mono text-xs">
         <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
           <div class="bg-card-sub border border-border p-3 rounded space-y-1">
@@ -391,7 +391,7 @@
     </Card>
 
     <!-- Proxy Controller & WebUI Info -->
-    <Card title="Proxy Controller & Dashboard" subtitle="Mihomo / Clash external controller">
+    <Card title="Proxy Controller & Dashboard" subtitle="Mihomo / Clash external controller" tone="lavender">
       <div class="space-y-4 font-mono text-xs">
         <p class="text-muted leading-relaxed">
           Node latency checks, proxy selector groups, and rule routing matrices are managed directly through the external REST API and WebUI.
@@ -428,7 +428,7 @@
   </div>
 
   <!-- Real-time Proxy Logs Section -->
-  <Card class="overflow-hidden p-0">
+  <Card class="overflow-hidden p-0" tone="lavender">
     <div class="bg-card-sub border-b border-border p-3 sm:p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 font-mono text-xs">
       <div class="flex items-center gap-2.5">
         <Terminal class="w-4 h-4 text-accent" />

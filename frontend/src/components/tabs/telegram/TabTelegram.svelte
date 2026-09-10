@@ -52,11 +52,28 @@
   async function fetchTelegram() {
     try {
       isLoading = true
-      const s = await api.get<TelegramStatus>('/api/telegram/status')
-      if (s) status = s
+      const s = await api.get<any>('/api/telegram/status')
+      if (s) {
+        status = {
+          running: s.running ?? false,
+          enabled: s.enabled ?? s.config?.enabled ?? false,
+          has_token: s.has_token ?? false,
+          has_chat_id: s.has_chat_id ?? Boolean(s.chat_id || s.config?.allowed_chat_ids?.length),
+        }
+      }
 
-      const c = await api.get<TelegramConfig>('/api/telegram/config')
-      if (c) config = { ...config, ...c }
+      const c = await api.get<any>('/api/telegram/config')
+      if (c) {
+        const rawCfg = c.config || c
+        config = {
+          enabled: rawCfg.enabled ?? config.enabled,
+          bot_token: rawCfg.bot_token ?? config.bot_token,
+          chat_id: c.chat_id ?? rawCfg.chat_id ?? (rawCfg.allowed_chat_ids?.[0] ? String(rawCfg.allowed_chat_ids[0]) : ''),
+          notify_on_boot: rawCfg.notify_on_boot ?? config.notify_on_boot,
+          notify_on_login: rawCfg.notify_on_login ?? config.notify_on_login,
+          notify_on_ip_change: rawCfg.notify_on_ip_change ?? config.notify_on_ip_change,
+        }
+      }
     } catch {
       // Ignored
     } finally {
@@ -91,12 +108,12 @@
   }
 
   async function sendTestMessage() {
+    if (!config.bot_token || !config.chat_id) return
     try {
       isTesting = true
-      // Backend control handler accepts only 'start', 'stop', 'restart'.
-      // Triggering 'restart' dispatches an immediate test greeting alert to configured chat.
+      await api.post('/api/telegram/config', config)
       await api.post('/api/telegram/control', { action: 'restart' })
-      toastStore.success('Telegram bot restarted and test alert dispatched to allowed chat.')
+      toastStore.success('Telegram bot updated and test alert dispatched.')
       await fetchTelegram()
     } catch (err: unknown) {
       const errMsg = err instanceof Error ? err.message : String(err)
@@ -148,6 +165,7 @@
     <Card
       title="Bot Credentials & Events"
       subtitle="Receive real-time alerts when Android system events occur"
+      tone="lavender"
       class="lg:col-span-2"
     >
       {#snippet action()}
@@ -234,7 +252,7 @@
     </Card>
 
     <!-- Help Card -->
-    <Card title="Quick Setup Guide" subtitle="How to create a Telegram bot">
+    <Card title="Quick Setup Guide" subtitle="How to create a Telegram bot" tone="lavender">
       <div class="space-y-3 font-mono text-xs text-muted leading-relaxed">
         <ol class="list-decimal list-inside space-y-2">
           <li>Open Telegram and message <strong class="text-foreground">@BotFather</strong>.</li>
