@@ -1,6 +1,6 @@
 #!/system/bin/sh
 # ==============================================================================
-# QManager GO - 5G Dual Connectivity & Thermal Sensor Diagnostic (qm-5g-thermal)
+# BFR-WEBUI-GO - 5G Dual Connectivity & Thermal Sensor Diagnostic (qm-5g-thermal)
 # Mendiagnosis sensor mana yang memutus 5G DC saat bandwidth besar / suhu naik
 # ==============================================================================
 
@@ -51,7 +51,7 @@ while [ $# -gt 0 ]; do
             ;;
         -h|--help)
             echo "======================================================================"
-            echo "   QManager GO - 5G Dual Connectivity & Thermal Diagnostic Tool       "
+            echo "   BFR-WEBUI-GO - 5G Dual Connectivity & Thermal Diagnostic Tool      "
             echo "======================================================================"
             echo "Penggunaan: qm-5g-thermal [OPSI]"
             echo ""
@@ -63,9 +63,9 @@ while [ $# -gt 0 ]; do
             echo "  -h, --help      Bantuan ini"
             echo ""
             echo "Juga dapat dipanggil melalui:"
-            echo "  qmanager thermal"
-            echo "  qmanager 5g-dc"
-            echo "  qmanager 5g-temp"
+            echo "  qm-5g-thermal"
+            echo "  qm-5g-thermal -l"
+            echo "  qm-5g-thermal -j"
             exit 0
             ;;
         *)

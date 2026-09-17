@@ -22,8 +22,6 @@ if [ ! -f "$SRC_DEX" ]; then
     SCRIPT_DIR="${0%/*}"
     if [ -f "$SCRIPT_DIR/band_manager.dex" ]; then
         SRC_DEX="$SCRIPT_DIR/band_manager.dex"
-    elif [ -f "/data/adb/modules/qmanager-go/bin/band_manager.dex" ]; then
-        SRC_DEX="/data/adb/modules/qmanager-go/bin/band_manager.dex"
     fi
 fi
 

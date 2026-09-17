@@ -66,7 +66,6 @@ func findBandManagerCLI() (string, bool) {
 	candidates := []string{
 		filepath.Join(config.ModuleDir, "bin", "band_manager"),
 		"/data/adb/modules/bfr_webui_go/bin/band_manager",
-		"/data/adb/modules/qmanager-go/bin/band_manager",
 		"./bin/band_manager",
 		"bin/band_manager",
 		"/system/bin/band_manager",
@@ -87,7 +86,6 @@ func dexFileExists() bool {
 		"/data/adb/modules/bfr_webui_go/bin/band_manager.dex",
 		"/data/local/tmp/radiotmp/band_manager.dex",
 		"/data/local/tmp/band_manager.dex",
-		"/data/adb/modules/qmanager-go/bin/band_manager.dex",
 		"./bin/band_manager.dex",
 		"bin/band_manager.dex",
 	}
@@ -310,7 +308,6 @@ func findSimSwitcherCLI() (string, bool) {
 	candidates := []string{
 		filepath.Join(config.ModuleDir, "bin", "sim_switcher"),
 		"/data/adb/modules/bfr_webui_go/bin/sim_switcher",
-		"/data/adb/modules/qmanager-go/bin/sim_switcher",
 		"./bin/sim_switcher",
 		"bin/sim_switcher",
 		"/system/bin/sim_switcher",
@@ -423,7 +420,6 @@ func find5GThermalCLI() (string, bool) {
 	candidates := []string{
 		filepath.Join(config.ModuleDir, "bin", "qm-5g-thermal"),
 		"/data/adb/modules/bfr_webui_go/bin/qm-5g-thermal",
-		"/data/adb/modules/qmanager-go/bin/qm-5g-thermal",
 		"./bin/qm-5g-thermal",
 		"bin/qm-5g-thermal",
 		"/system/bin/qm-5g-thermal",
