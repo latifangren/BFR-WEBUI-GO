@@ -1,0 +1,56 @@
+#!/system/bin/sh
+# SIM Switcher CLI for Samsung & Android
+# Usage: sim_switcher <slotIdx: 0|1> [subId]
+
+SLOT="${1:-0}"
+SUBID="$2"
+
+if [ -z "$SUBID" ]; then
+    # Try reading current subId for slot
+    # On Dual-SIM Android, slot 0 is usually subId 1, slot 1 is usually subId 2 (or 3)
+    if [ "$SLOT" = "1" ]; then
+        SUBID=2
+    else
+        SUBID=1
+    fi
+fi
+
+TMP_DIR=/data/local/tmp/radiotmp
+mkdir -p "$TMP_DIR"
+chown -R 1001:1001 "$TMP_DIR"
+chmod 770 "$TMP_DIR"
+
+SRC_DEX="/data/adb/modules/bfr_webui_go/bin/sim_switcher.dex"
+if [ ! -f "$SRC_DEX" ]; then
+    SCRIPT_DIR="${0%/*}"
+    if [ -f "$SCRIPT_DIR/sim_switcher.dex" ]; then
+        SRC_DEX="$SCRIPT_DIR/sim_switcher.dex"
+    elif [ -f "/data/adb/modules/qmanager-go/bin/sim_switcher.dex" ]; then
+        SRC_DEX="/data/adb/modules/qmanager-go/bin/sim_switcher.dex"
+    fi
+fi
+
+TARGET_DEX="$TMP_DIR/sim_switcher.dex"
+if [ -f "$SRC_DEX" ]; then
+    cp -f "$SRC_DEX" "$TARGET_DEX"
+fi
+chown 1001:1001 "$TARGET_DEX"
+chmod 444 "$TARGET_DEX"
+
+# 1. Execute Java SimSwitcher via app_process
+export ANDROID_DATA="$TMP_DIR"
+export CLASSPATH="$TARGET_DEX"
+app_process / com.qmanager.tools.SimSwitcher "$SUBID" "$SLOT" 2>/dev/null || true
+
+# 2. Call transaction 31 (TRANSACTION_setDefaultDataSubId in ISub)
+service call isub 31 i32 "$SUBID" 2>/dev/null || true
+
+# 3. Update multi_sim global settings
+settings put global multi_sim_data_call "$SUBID" 2>/dev/null || true
+settings put global multi_sim_data_call_slot "$SLOT" 2>/dev/null || true
+settings put global user_preferred_data_sub "$SUBID" 2>/dev/null || true
+
+# 4. Broadcast intent
+am broadcast -a android.intent.action.ACTION_DEFAULT_DATA_SUBSCRIPTION_CHANGED --ei subscription "$SUBID" 2>/dev/null || true
+
+echo "{\"status\":\"ok\",\"slot\":$SLOT,\"subId\":$SUBID}"

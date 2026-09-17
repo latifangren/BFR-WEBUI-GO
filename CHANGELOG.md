@@ -18,6 +18,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Interactive frequency band lock matrix supporting LTE/NR bands (B1, B3, B5, B8, B40, etc.).
   - Automatic frequency band restoration (`band_manager auto`) and live carrier status telemetry (`AUTOMATIC` vs `LOCKED`).
   - Pre-configured quick selection presets for major Indonesian cellular operators (Telkomsel, Indosat Ooredoo Hutchison, XL Axiata, Smartfren).
+  - Instant Dual-SIM Mobile Data Switcher (`sim_switcher.dex`) leveraging `ISub` Android IPC to toggle active cellular data between SIM 1 and SIM 2.
+  - 5G NR Thermal Throttling & EN-DC Restriction Diagnostic (`qm-5g-thermal`) with automated root-cause culprit detection and real-time thermistor monitoring.
   - Real-time Samsung device environment verification (manufacturer, model, One UI / SEP version, RIL tool status).
   - Strict parameter boundary validation (SIM slot 0/1, valid band range 1-1000, 64-band safety limit, secure directory permissions `770`).
 - **Seamless Neo-Brutalist & Modern UI Style Integration**:

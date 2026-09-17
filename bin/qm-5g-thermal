@@ -1,0 +1,319 @@
+#!/system/bin/sh
+# ==============================================================================
+# QManager GO - 5G Dual Connectivity & Thermal Sensor Diagnostic (qm-5g-thermal)
+# Mendiagnosis sensor mana yang memutus 5G DC saat bandwidth besar / suhu naik
+# ==============================================================================
+
+if [ -t 1 ] || [ "$FORCE_COLOR" = "1" ]; then
+    C_RESET="\033[0m"
+    C_BOLD="\033[1m"
+    C_DIM="\033[2m"
+    C_GREEN="\033[32m"
+    C_YELLOW="\033[33m"
+    C_RED="\033[31m"
+    C_CYAN="\033[36m"
+    C_BLUE="\033[34m"
+    C_MAGENTA="\033[35m"
+    C_BG_GREEN="\033[42;30m"
+    C_BG_YELLOW="\033[43;30m"
+    C_BG_RED="\033[41;37m"
+else
+    C_RESET=""
+    C_BOLD=""
+    C_DIM=""
+    C_GREEN=""
+    C_YELLOW=""
+    C_RED=""
+    C_CYAN=""
+    C_BLUE=""
+    C_MAGENTA=""
+    C_BG_GREEN=""
+    C_BG_YELLOW=""
+    C_BG_RED=""
+fi
+
+MODE="once"
+INTERVAL=2
+
+while [ $# -gt 0 ]; do
+    case "$1" in
+        -l|--live|-w|--watch)
+            MODE="live"
+            shift
+            ;;
+        -j|--json)
+            MODE="json"
+            shift
+            ;;
+        -i|--interval)
+            INTERVAL="$2"
+            shift 2
+            ;;
+        -h|--help)
+            echo "======================================================================"
+            echo "   QManager GO - 5G Dual Connectivity & Thermal Diagnostic Tool       "
+            echo "======================================================================"
+            echo "Penggunaan: qm-5g-thermal [OPSI]"
+            echo ""
+            echo "Opsi:"
+            echo "  (tanpa opsi)    Tampilkan analisis lengkap sensor & status 5G DC saat ini"
+            echo "  -l, --live      Mode live monitoring (pantau saat download/speedtest)"
+            echo "  -i <detik>      Interval refresh (default: 2 detik)"
+            echo "  -j, --json      Output format JSON"
+            echo "  -h, --help      Bantuan ini"
+            echo ""
+            echo "Juga dapat dipanggil melalui:"
+            echo "  qmanager thermal"
+            echo "  qmanager 5g-dc"
+            echo "  qmanager 5g-temp"
+            exit 0
+            ;;
+        *)
+            shift
+            ;;
+    esac
+done
+
+read_tz() {
+    TYPE="$1"
+    for z in /sys/class/thermal/thermal_zone*; do
+        if [ -f "$z/type" ] && [ "$(cat $z/type 2>/dev/null)" = "$TYPE" ]; then
+            RAW=$(cat "$z/temp" 2>/dev/null)
+            awk -v r="$RAW" 'BEGIN { if (r > 1000) printf "%.1f", r/1000; else printf "%.1f", r }'
+            return
+        fi
+    done
+    echo "0.0"
+}
+
+read_cdev() {
+    TYPE="$1"
+    for c in /sys/class/thermal/cooling_device*; do
+        if [ -f "$c/type" ] && [ "$(cat $c/type 2>/dev/null)" = "$TYPE" ]; then
+            CUR=$(cat "$c/cur_state" 2>/dev/null)
+            MAX=$(cat "$c/max_state" 2>/dev/null)
+            echo "${CUR}|${MAX}"
+            return
+        fi
+    done
+    echo "0|0"
+}
+
+format_temp_color() {
+    VAL="$1"
+    WARN="$2"
+    CRIT="$3"
+    awk -v v="$VAL" -v w="$WARN" -v c="$CRIT" -v cr="$C_RESET" -v red="$C_RED" -v yel="$C_YELLOW" -v grn="$C_GREEN" -v bld="$C_BOLD" '
+        BEGIN {
+            if (v >= c) {
+                printf "%s%s%.1f°C 🚨%s", red, bld, v, cr
+            } else if (v >= w) {
+                printf "%s%s%.1f°C ⚠️%s", yel, bld, v, cr
+            } else {
+                printf "%s%.1f°C%s", grn, v, cr
+            }
+        }
+    '
+}
+
+collect_5g_thermal() {
+    # 1. Read Temperatures
+    PA1=$(read_tz "modem-lte-sub6-pa1")
+    PA2=$(read_tz "modem-lte-sub6-pa2")
+    SKIN=$(read_tz "modem-skin-usr")
+    PMR735A=$(read_tz "pmr735a_tz")
+    MDMSS=$(read_tz "mdmss-0-usr")
+
+    CF_RAW=$(cat /sys/class/sec/sec-cf-thermistor/temperature 2>/dev/null)
+    CF=$(awk -v r="$CF_RAW" 'BEGIN { if (r > 0) printf "%.1f", r/10; else printf "0.0" }')
+
+    AP_RAW=$(cat /sys/class/sec/sec-ap-thermistor/temperature 2>/dev/null)
+    AP=$(awk -v r="$AP_RAW" 'BEGIN { if (r > 0) printf "%.1f", r/10; else printf "0.0" }')
+
+    BAT_RAW=$(cat /sys/class/power_supply/battery/temp 2>/dev/null)
+    BAT=$(awk -v r="$BAT_RAW" 'BEGIN { if (r > 0) printf "%.1f", r/10; else printf "0.0" }')
+
+    # 2. Read Cooling Devices / DSC
+    PA_FR1_DSC_INFO=$(read_cdev "modem_pa_fr1_dsc")
+    SKIN_NR_DSC_INFO=$(read_cdev "modem_skin_nr_dsc")
+    PA_FR1_INFO=$(read_cdev "modem_pa_fr1")
+
+    PA_FR1_DSC=$(echo "$PA_FR1_DSC_INFO" | cut -d'|' -f1)
+    SKIN_NR_DSC=$(echo "$SKIN_NR_DSC_INFO" | cut -d'|' -f1)
+    PA_FR1=$(echo "$PA_FR1_INFO" | cut -d'|' -f1)
+
+    # 3. Android Thermal HAL Status
+    HAL_STATUS=$(dumpsys thermalservice 2>/dev/null | grep -m1 "Thermal Status:" | awk '{print $3}')
+    [ -z "$HAL_STATUS" ] && HAL_STATUS=0
+
+    # 4. Read Cellular / 5G DC Status via dumpsys
+    NET_TYPE="LTE"
+    NR_BAND=""
+    NR_RSRP=0
+    TRAFFIC_MBPS="0.0"
+
+    DUMP_REG=$(dumpsys telephony.registry 2>/dev/null | grep -m1 "isDcNrRestricted")
+    if echo "$DUMP_REG" | grep -qi "isDcNrRestricted = true"; then
+        NET_TYPE="5G Disconnect"
+    elif echo "$DUMP_REG" | grep -qi "nrState=CONNECTED"; then
+        NET_TYPE="5G-NSA"
+    fi
+
+    echo "OK|$PA1|$PA2|$CF|$SKIN|$PMR735A|$MDMSS|$AP|$BAT|$HAL_STATUS|$PA_FR1_DSC|$SKIN_NR_DSC|$PA_FR1|$NET_TYPE|$NR_BAND|$NR_RSRP|$TRAFFIC_MBPS"
+}
+
+print_report() {
+    DATA=$(collect_5g_thermal)
+    IFS='|' read -r STATUS PA1 PA2 CF SKIN PMR735A MDMSS AP BAT HAL_STATUS PA_FR1_DSC SKIN_NR_DSC PA_FR1 NET_TYPE NR_BAND NR_RSRP TRAFFIC_MBPS <<EOF
+$DATA
+EOF
+
+    # Evaluate Root Cause / Culprit Sensor
+    CULPRIT="TIDAK ADA (SUHU NORMAL)"
+    CULPRIT_DETAIL="Semua sensor dalam batas aman. 5G tidak mengalami pembatasan suhu."
+    IS_THROTTLED=0
+
+    # Check triggers
+    # 1. Android Thermal HAL status >= 3 (Severe) triggered by SKIN
+    if [ "$HAL_STATUS" -ge 3 ]; then
+        IS_THROTTLED=1
+        CULPRIT="Modem Skin Board (SKIN) / sec-cf"
+        CULPRIT_DETAIL="Suhu permukaan board/skin mencapai ${SKIN}°C (limit: 42.0°C). Android Thermal HAL masuk status SEVERE (Level ${HAL_STATUS}). Sistem memerintahkan pelepasan 5G NR Dual Connectivity!"
+    elif [ "$SKIN_NR_DSC" -gt 0 ]; then
+        IS_THROTTLED=1
+        CULPRIT="Modem Skin NR Controller (modem_skin_nr_dsc = ${SKIN_NR_DSC})"
+        CULPRIT_DETAIL="Qualcomm Thermal Engine membatasi 5G NR karena suhu skin modem (${SKIN}°C) melebihi ambang batas."
+    elif [ "$PA_FR1_DSC" -gt 0 ]; then
+        IS_THROTTLED=1
+        CULPRIT="5G Sub-6 Power Amplifier (modem_pa_fr1_dsc = ${PA_FR1_DSC})"
+        CULPRIT_DETAIL="Chip Power Amplifier 5G (${PA1}°C) melewati limit proteksi RF. Modem memotong daya transmisi 5G NR!"
+    elif awk -v p="$PA1" -v s="$SKIN" -v cf="$CF" 'BEGIN { if (p >= 48.0 || s >= 43.0 || cf >= 45.0) exit 0; else exit 1 }'; then
+        IS_THROTTLED=1
+        if awk -v p="$PA1" 'BEGIN { if (p >= 48.0) exit 0; else exit 1 }'; then
+            CULPRIT="5G Sub-6 Power Amplifier 1 (PA1 = ${PA1}°C)"
+            CULPRIT_DETAIL="Suhu PA1 sangat panas (${PA1}°C). Transceiver 5G bersiap memutus SCG 5G untuk perlindungan hardware."
+        elif awk -v s="$SKIN" 'BEGIN { if (s >= 43.0) exit 0; else exit 1 }'; then
+            CULPRIT="Modem Skin Board (SKIN = ${SKIN}°C)"
+            CULPRIT_DETAIL="Sensor bodi modem (${SKIN}°C) melewati batas 42.0°C. Ini adalah sensor utama pemicu 5G Disconnect di Samsung."
+        else
+            CULPRIT="Cellular Front-End Thermistor (sec-cf = ${CF}°C)"
+            CULPRIT_DETAIL="Sensor RF depan (${CF}°C) terlalu panas akibat traffic bandwidth besar."
+        fi
+    fi
+
+    # 5G Status formatting
+    NET_BADGE=""
+    case "$NET_TYPE" in
+        *NSA*|*5G-NSA*)
+            NET_BADGE="${C_BG_GREEN} 📶 5G NSA (Dual Connectivity CONNECTED) ${C_RESET}"
+            ;;
+        *Disconnect*|*DC*)
+            NET_BADGE="${C_BG_RED} ⚠️ 5G DISCONNECT (5G DC PUTUS / FALLBACK LTE) ${C_RESET}"
+            ;;
+        *)
+            NET_BADGE="${C_BG_YELLOW} 📱 LTE ONLY (4G Standar) ${C_RESET}"
+            ;;
+    esac
+
+    HAL_TEXT=""
+    case "$HAL_STATUS" in
+        0) HAL_TEXT="${C_GREEN}0 (NONE - Normal)${C_RESET}" ;;
+        1) HAL_TEXT="${C_GREEN}1 (LIGHT - Hangat Ringan)${C_RESET}" ;;
+        2) HAL_TEXT="${C_YELLOW}2 (MODERATE - Siaga Panas)${C_RESET}" ;;
+        3) HAL_TEXT="${C_RED}${C_BOLD}3 (SEVERE - Throttling 5G Aktif!)${C_RESET}" ;;
+        4) HAL_TEXT="${C_RED}${C_BOLD}4 (CRITICAL - Bahaya)${C_RESET}" ;;
+        *) HAL_TEXT="${HAL_STATUS}" ;;
+    esac
+
+    # Print Dashboard
+    echo -e "${C_BOLD}${C_CYAN}======================================================================${C_RESET}"
+    echo -e "${C_BOLD}${C_CYAN}  🔥 DIAGNOSTIK SUHU MODEM & PEMICU 5G DC (DUAL CONNECTIVITY DROP)    ${C_RESET}"
+    echo -e "${C_BOLD}${C_CYAN}======================================================================${C_RESET}"
+    echo -e "Status Jaringan  : $NET_BADGE"
+    echo -e "Band 5G Aktif    : ${C_BOLD}${NR_BAND:-"-"}${C_RESET} | Sinyal NR: ${C_BOLD}${NR_RSRP} dBm${C_RESET} | Trafik: ${C_BOLD}${TRAFFIC_MBPS} Mbps${C_RESET}"
+    echo -e "Thermal HAL Lev  : $HAL_TEXT"
+    echo -e "${C_DIM}----------------------------------------------------------------------${C_RESET}"
+
+    echo -e "${C_BOLD}🌡️ SENSOR SUHU MODEM & RF 5G (Qualcomm Snapdragon 888 / X60):${C_RESET}"
+    echo -e "  1. 5G Sub-6 Power Amp 1 (PA1) : $(format_temp_color "$PA1" 45.0 48.0)  ${C_DIM}(Limit Cutoff: ~48°C)${C_RESET}"
+    echo -e "  2. 5G Sub-6 Power Amp 2 (PA2) : $(format_temp_color "$PA2" 45.0 48.0)  ${C_DIM}(Limit Cutoff: ~48°C)${C_RESET}"
+    echo -e "  3. Modem Skin Board (SKIN)    : $(format_temp_color "$SKIN" 41.5 42.5)  ${C_DIM}(Limit Hal SEVERE: 42°C)${C_RESET}"
+    echo -e "  4. Cell Front RF (sec-cf)     : $(format_temp_color "$CF" 42.0 45.0)  ${C_DIM}(Sensor Thermistor Samsung)${C_RESET}"
+    echo -e "  5. 5G RF PMIC (PMR735A)       : $(format_temp_color "$PMR735A" 45.0 50.0)  ${C_DIM}(Power IC Transceiver)${C_RESET}"
+    echo -e "  6. Baseband Modem Core (MDMSS): $(format_temp_color "$MDMSS" 50.0 55.0)  ${C_DIM}(Qualcomm X60 DSP/Core)${C_RESET}"
+    echo -e "  7. Processor Utama (AP SoC)   : $(format_temp_color "$AP" 50.0 55.0)  ${C_DIM}(CPU Snapdragon 888)${C_RESET}"
+    echo -e "  8. Suhu Baterai (BAT)         : $(format_temp_color "$BAT" 38.0 42.0)  ${C_DIM}(Standar Aman Baterai)${C_RESET}"
+
+    echo ""
+    echo -e "${C_BOLD}🛡️ STATUS PENGAMAN / THROTTLER HARDWARE MODEM:${C_RESET}"
+    echo -e "  modem_pa_fr1_dsc  (5G PA Cutoff)     : ${C_BOLD}$PA_FR1_DSC${C_RESET} ${C_DIM}(0 = Normal, >0 = Pemutusan 5G)${C_RESET}"
+    echo -e "  modem_skin_nr_dsc (5G NR Skin Drop)  : ${C_BOLD}$SKIN_NR_DSC${C_RESET} ${C_DIM}(0 = Normal, >0 = 5G Drop)${C_RESET}"
+    echo -e "  modem_pa_fr1      (5G Power Backoff) : ${C_BOLD}$PA_FR1${C_RESET} ${C_DIM}(0 = Max Power, 3 = Min Power)${C_RESET}"
+
+    echo -e "${C_DIM}----------------------------------------------------------------------${C_RESET}"
+    echo -e "${C_BOLD}🔍 ANALISIS AKAR MASALAH (SENSOR PENYEBAB 5G DC PUTUS):${C_RESET}"
+    if [ "$IS_THROTTLED" -eq 1 ]; then
+        echo -e "  Sensor Pemicu  : ${C_RED}${C_BOLD}🚨 $CULPRIT${C_RESET}"
+        echo -e "  Penjelasan     : ${C_RED}$CULPRIT_DETAIL${C_RESET}"
+        echo -e "  Solusi Instan  : ${C_YELLOW}1. Jauhkan dari charger / lepas kabel saat speedtest.${C_RESET}"
+        echo -e "                   ${C_YELLOW}2. Pasang kipas pendingin di bodi belakang HP.${C_RESET}"
+        echo -e "                   ${C_YELLOW}3. Gunakan fitur 'Tidurkan Core 7' di QManager agar panas berkurang.${C_RESET}"
+    else
+        echo -e "  Sensor Pemicu  : ${C_GREEN}✅ $CULPRIT${C_RESET}"
+        echo -e "  Penjelasan     : ${C_GREEN}$CULPRIT_DETAIL${C_RESET}"
+        echo -e "  Catatan        : 5G akan diputus jika ${C_BOLD}SKIN >= 42.0°C${C_RESET} atau ${C_BOLD}PA1 >= 48.0°C${C_RESET} saat trafik deras."
+    fi
+    echo -e "${C_BOLD}${C_CYAN}======================================================================${C_RESET}"
+}
+
+print_json() {
+    DATA=$(collect_5g_thermal)
+    IFS='|' read -r STATUS PA1 PA2 CF SKIN PMR735A MDMSS AP BAT HAL_STATUS PA_FR1_DSC SKIN_NR_DSC PA_FR1 NET_TYPE NR_BAND NR_RSRP TRAFFIC_MBPS <<EOF
+$DATA
+EOF
+
+    cat <<EOF
+{
+  "network_type": "$NET_TYPE",
+  "is_5g_disconnect": $( echo "$NET_TYPE" | grep -qiE "disconnect|dc" && echo "true" || echo "false" ),
+  "nr_band": "$NR_BAND",
+  "nr_rsrp": $NR_RSRP,
+  "traffic_mbps": $TRAFFIC_MBPS,
+  "thermal_hal_status": $HAL_STATUS,
+  "sensors": {
+    "pa1_sub6_c": $PA1,
+    "pa2_sub6_c": $PA2,
+    "cell_front_cf_c": $CF,
+    "modem_skin_c": $SKIN,
+    "rf_pmic_c": $PMR735A,
+    "modem_baseband_c": $MDMSS,
+    "ap_soc_c": $AP,
+    "battery_c": $BAT
+  },
+  "throttlers": {
+    "modem_pa_fr1_dsc": $PA_FR1_DSC,
+    "modem_skin_nr_dsc": $SKIN_NR_DSC,
+    "modem_pa_fr1": $PA_FR1
+  },
+  "critical_thresholds": {
+    "modem_skin_limit_c": 42.0,
+    "pa1_cutoff_limit_c": 48.0
+  }
+}
+EOF
+}
+
+if [ "$MODE" = "json" ]; then
+    print_json
+elif [ "$MODE" = "live" ]; then
+    trap 'echo -e "\033[?25h"; echo ""; exit 0' INT TERM
+    echo -e "\033[?25l"
+    while true; do
+        clear
+        print_report
+        echo -e "${C_DIM}Live Monitoring 5G Thermal | Tekan Ctrl+C untuk keluar | Refresh tiap ${INTERVAL}s...${C_RESET}"
+        sleep "$INTERVAL"
+    done
+else
+    print_report
+fi

@@ -160,3 +160,60 @@ func HandleSamsungAuto(w http.ResponseWriter, r *http.Request) {
 		"slot":    req.Slot,
 	})
 }
+
+type simSwitchRequest struct {
+	Slot int `json:"slot"`
+}
+
+// HandleSamsungSimSwitch switches the active data SIM to the specified slot.
+func HandleSamsungSimSwitch(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	var req simSwitchRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusBadRequest)
+		_ = json.NewEncoder(w).Encode(map[string]string{"error": "Invalid request payload"})
+		return
+	}
+
+	if req.Slot < 0 || req.Slot > 1 {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusBadRequest)
+		_ = json.NewEncoder(w).Encode(map[string]string{"error": "Invalid slot, must be 0 or 1"})
+		return
+	}
+
+	res, err := samsung.SwitchDataSim(req.Slot)
+	w.Header().Set("Content-Type", "application/json")
+	if err != nil {
+		logger.Get().Errorf("Samsung", "Failed to switch data SIM: %v", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		_ = json.NewEncoder(w).Encode(map[string]string{"error": err.Error()})
+		return
+	}
+
+	_ = json.NewEncoder(w).Encode(res)
+}
+
+// HandleSamsungThermal returns 5G thermal diagnostics and throttling metrics.
+func HandleSamsungThermal(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	st, err := samsung.Get5GThermalStatus()
+	w.Header().Set("Content-Type", "application/json")
+	if err != nil {
+		logger.Get().Errorf("Samsung", "Failed to get 5G thermal status: %v", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		_ = json.NewEncoder(w).Encode(map[string]string{"error": err.Error()})
+		return
+	}
+
+	_ = json.NewEncoder(w).Encode(st)
+}

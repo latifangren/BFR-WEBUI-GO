@@ -237,6 +237,8 @@ func RegisterRoutes(mux *http.ServeMux, authMgr *auth.Manager) {
 	mux.HandleFunc("/api/samsung/bands", wrap(HandleSamsungBands, true))
 	mux.HandleFunc("/api/samsung/lock", wrap(HandleSamsungLock, true))
 	mux.HandleFunc("/api/samsung/auto", wrap(HandleSamsungAuto, true))
+	mux.HandleFunc("/api/samsung/sim/switch", wrap(HandleSamsungSimSwitch, true))
+	mux.HandleFunc("/api/samsung/thermal", wrap(HandleSamsungThermal, true))
 
 	// Cloudflare / Remote Tunnel URLs
 	mux.HandleFunc("/api/tunnel/status", wrap(HandleTunnelStatus, true))
