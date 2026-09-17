@@ -38,6 +38,7 @@
     hotspot: Wifi,
     proxy: Shield,
     modem: Radio,
+    samsung: Smartphone,
     sms: MessageSquare,
     power: Power,
     charger: BatteryCharging,

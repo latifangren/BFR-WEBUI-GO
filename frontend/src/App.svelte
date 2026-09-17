@@ -11,6 +11,7 @@
   import TabPower from './components/tabs/power/TabPower.svelte'
   import TabCharger from './components/tabs/charger/TabCharger.svelte'
   import TabModem from './components/tabs/modem/TabModem.svelte'
+  import TabSamsung from './components/tabs/samsung/TabSamsung.svelte'
   import TabTerminal from './components/tabs/terminal/TabTerminal.svelte'
   import TabScrcpy from './components/tabs/scrcpy/TabScrcpy.svelte'
   import TabFileManager from './components/tabs/files/TabFileManager.svelte'
@@ -62,6 +63,8 @@
     <TabCharger />
   {:else if navigationStore.activeTab === 'modem'}
     <TabModem />
+  {:else if navigationStore.activeTab === 'samsung'}
+    <TabSamsung />
   {:else if navigationStore.activeTab === 'terminal'}
     <TabTerminal />
   {:else if navigationStore.activeTab === 'scrcpy'}

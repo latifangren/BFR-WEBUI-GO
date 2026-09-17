@@ -1,0 +1,48 @@
+#!/system/bin/sh
+# Samsung Band Manager CLI for BFR-WEBUI-GO
+# Usage:
+#   band_manager <slotId> list
+#   band_manager <slotId> auto
+#   band_manager <slotId> lock <id1,id2,...>
+#   band_manager <slotId> json
+#   band_manager <slotId> status
+
+SLOT="${1:-0}"
+CMD="${2:-list}"
+shift 2 2>/dev/null
+
+TMP_DIR=/data/local/tmp/radiotmp
+mkdir -p "$TMP_DIR/dalvik-cache/arm64"
+chown -R 1001:1001 "$TMP_DIR"
+chmod -R 770 "$TMP_DIR"
+
+# Resolve source DEX path dynamically
+SRC_DEX="/data/adb/modules/bfr_webui_go/bin/band_manager.dex"
+if [ ! -f "$SRC_DEX" ]; then
+    SCRIPT_DIR="${0%/*}"
+    if [ -f "$SCRIPT_DIR/band_manager.dex" ]; then
+        SRC_DEX="$SCRIPT_DIR/band_manager.dex"
+    elif [ -f "/data/adb/modules/qmanager-go/bin/band_manager.dex" ]; then
+        SRC_DEX="/data/adb/modules/qmanager-go/bin/band_manager.dex"
+    fi
+fi
+
+TARGET_DEX="$TMP_DIR/band_manager.dex"
+if [ -f "$SRC_DEX" ]; then
+    cp -f "$SRC_DEX" "$TARGET_DEX"
+fi
+chown 1001:1001 "$TARGET_DEX"
+chmod 444 "$TARGET_DEX"
+
+RUNNER="$TMP_DIR/runner.sh"
+cat << 'EOF' > "$RUNNER"
+#!/system/bin/sh
+export ANDROID_DATA=/data/local/tmp/radiotmp
+export CLASSPATH=/data/local/tmp/radiotmp/band_manager.dex
+exec app_process / com.qmanager.tools.BandManager "$@"
+EOF
+
+chown 1001:1001 "$RUNNER"
+chmod 755 "$RUNNER"
+
+su 1001 -c "$RUNNER \"$CMD\" \"$SLOT\" \"$@\""

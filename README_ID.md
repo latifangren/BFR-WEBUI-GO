@@ -93,7 +93,7 @@ Pada Linux / macOS:
 chmod +x build.sh
 ./build.sh
 ```
-Paket ZIP modul Magisk (`BFR-WEBUI-Magisk-v1.2.2-local.zip`) akan dihasilkan di root proyek, siap diflash melalui Magisk, KernelSU, atau APatch manager.
+Paket ZIP modul Magisk (`BFR-WEBUI-Magisk-v1.2.3-local.zip`) akan dihasilkan di root proyek, siap diflash melalui Magisk, KernelSU, atau APatch manager.
 
 ### Kompilasi Biner Standalone (Cross-Compile)
 Untuk mengompilasi biner Android ARM64 langsung:

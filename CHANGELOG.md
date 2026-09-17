@@ -9,6 +9,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.2.3] - 2026-09-17
+
+### Added
+- **Dedicated Samsung RIL & SecRIL Telephony Control Tab (`TabSamsung.svelte` & `internal/samsung/`)**:
+  - Direct integration with Samsung One UI baseband telephony via `ISemTelephony` (`0x02` OEM RIL Band Selection).
+  - Deployed low-level `band_manager` shell bridge and `band_manager.dex` Dalvik payload running under radio UID 1001.
+  - Interactive frequency band lock matrix supporting LTE/NR bands (B1, B3, B5, B8, B40, etc.).
+  - Automatic frequency band restoration (`band_manager auto`) and live carrier status telemetry (`AUTOMATIC` vs `LOCKED`).
+  - Pre-configured quick selection presets for major Indonesian cellular operators (Telkomsel, Indosat Ooredoo Hutchison, XL Axiata, Smartfren).
+  - Real-time Samsung device environment verification (manufacturer, model, One UI / SEP version, RIL tool status).
+  - Strict parameter boundary validation (SIM slot 0/1, valid band range 1-1000, 64-band safety limit, secure directory permissions `770`).
+- **Seamless Neo-Brutalist & Modern UI Style Integration**:
+  - Registered `samsung` tab across all navigation layout modes (Modern Sidebar, Classic Topbar, Bottom Popover, Bottom Nav).
+  - Fully reactive design system support adhering to all 9 themes (AMOLED, Dark, Light, Dracula, Nord, Cyberpunk, Emerald, Sunset, Retro).
+
 ## [1.2.2] - 2026-09-09
 
 ### Added

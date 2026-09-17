@@ -232,6 +232,12 @@ func RegisterRoutes(mux *http.ServeMux, authMgr *auth.Manager) {
 	mux.HandleFunc("/api/modem/at", wrap(HandleModemAT, true))
 	mux.HandleFunc("/api/modem/reset", wrap(HandleModemReset, true))
 
+	// Samsung RIL URLs
+	mux.HandleFunc("/api/samsung/status", wrap(HandleSamsungStatus, true))
+	mux.HandleFunc("/api/samsung/bands", wrap(HandleSamsungBands, true))
+	mux.HandleFunc("/api/samsung/lock", wrap(HandleSamsungLock, true))
+	mux.HandleFunc("/api/samsung/auto", wrap(HandleSamsungAuto, true))
+
 	// Cloudflare / Remote Tunnel URLs
 	mux.HandleFunc("/api/tunnel/status", wrap(HandleTunnelStatus, true))
 	mux.HandleFunc("/api/tunnel/start", wrap(HandleTunnelStart, true))

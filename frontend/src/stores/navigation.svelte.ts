@@ -42,7 +42,7 @@ export interface NavCategoryGroup {
 
 export const NAV_CATEGORIES: NavCategoryGroup[] = [
   { id: 'core', label: 'Core', icon: 'LayoutDashboard', tabs: ['overview', 'sysinfo', 'about'] },
-  { id: 'network', label: 'Network', icon: 'Network', tabs: ['network', 'hotspot', 'proxy', 'modem', 'sms', 'qos', 'vnstat', 'tunnel'] },
+  { id: 'network', label: 'Network', icon: 'Network', tabs: ['network', 'hotspot', 'proxy', 'modem', 'samsung', 'sms', 'qos', 'vnstat', 'tunnel'] },
   { id: 'system', label: 'System', icon: 'Cpu', tabs: ['power', 'charger', 'modules'] },
   { id: 'tools', label: 'Tools', icon: 'Wrench', tabs: ['terminal', 'ssh', 'scrcpy', 'files', 'logs', 'nas', 'speedtest', 'tools', 'telegram'] },
 ]
@@ -54,6 +54,7 @@ export const AVAILABLE_TABS: TabItem[] = [
   { id: 'hotspot', label: 'Hotspot', icon: 'Wifi', category: 'network', badge: 'WIFI', badgeColor: 'mint' },
   { id: 'proxy', label: 'Proxy', icon: 'Shield', category: 'network', badge: 'CLASH', badgeColor: 'lavender' },
   { id: 'modem', label: 'Modem', icon: 'Radio', category: 'network', badge: 'LTE', badgeColor: 'ice' },
+  { id: 'samsung', label: 'Samsung RIL', icon: 'Smartphone', category: 'network', badge: 'OEM', badgeColor: 'mint' },
   { id: 'sms', label: 'SMS', icon: 'MessageSquare', category: 'network', badge: 'SMS', badgeColor: 'peach' },
   { id: 'power', label: 'Power', icon: 'Power', category: 'system', badge: 'PWR', badgeColor: 'peach' },
   { id: 'charger', label: 'Charger', icon: 'BatteryCharging', category: 'system', badge: 'BATT', badgeColor: 'mint' },

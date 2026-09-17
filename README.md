@@ -93,7 +93,7 @@ On Linux / macOS:
 chmod +x build.sh
 ./build.sh
 ```
-The output Magisk module ZIP (`BFR-WEBUI-Magisk-v1.2.2-local.zip`) will be generated at the workspace root, ready to flash via Magisk, KernelSU, or APatch manager.
+The output Magisk module ZIP (`BFR-WEBUI-Magisk-v1.2.3-local.zip`) will be generated at the workspace root, ready to flash via Magisk, KernelSU, or APatch manager.
 
 ### Cross-Compiling Standalone Binary
 To compile the Android ARM64 binary directly:
