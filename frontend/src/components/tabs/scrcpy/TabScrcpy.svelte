@@ -71,7 +71,6 @@
   let videoDecoder: any = null
   let cachedSpsPps: Uint8Array | null = null
   let isDecoderConfigured = false
-  let cachedCtx: CanvasRenderingContext2D | null = null
 
   let frameCounter = 0
   let fpsInterval: ReturnType<typeof setInterval> | null = null
@@ -205,16 +204,13 @@
         if (canvasEl.width !== frameW || canvasEl.height !== frameH) {
           canvasEl.width = frameW
           canvasEl.height = frameH
-          streamWidth = frameW
-          streamHeight = frameH
-          cachedCtx = canvasEl.getContext('2d', { alpha: false, desynchronized: true })
+          detectedWidth = frameW
+          detectedHeight = frameH
         }
 
-        if (!cachedCtx) {
-          cachedCtx = canvasEl.getContext('2d', { alpha: false, desynchronized: true })
-        }
-        if (cachedCtx) {
-          cachedCtx.drawImage(frame, 0, 0, frameW, frameH)
+        const ctx = canvasEl.getContext('2d', { alpha: false, desynchronized: true })
+        if (ctx) {
+          ctx.drawImage(frame, 0, 0, frameW, frameH)
         }
       }
       frameCounter++
@@ -403,16 +399,13 @@
             if (canvasEl.width !== bmp.width || canvasEl.height !== bmp.height) {
               canvasEl.width = bmp.width
               canvasEl.height = bmp.height
-              streamWidth = bmp.width
-              streamHeight = bmp.height
               detectedWidth = bmp.width
               detectedHeight = bmp.height
-              cachedCtx = canvasEl.getContext('2d', { alpha: false })
             }
-            if (!cachedCtx) {
-              cachedCtx = canvasEl.getContext('2d', { alpha: false })
+            const ctx = canvasEl.getContext('2d', { alpha: false })
+            if (ctx) {
+              ctx.drawImage(bmp, 0, 0)
             }
-            cachedCtx?.drawImage(bmp, 0, 0)
           }
           bmp.close()
           frameCounter++
@@ -427,8 +420,6 @@
       wsClient.disconnect()
       wsClient = null
     }
-
-    cachedCtx = null
 
     if (videoDecoder) {
       try {
@@ -814,7 +805,7 @@
 
         <!-- Phone Screen Surface Area -->
         <div
-          class="relative w-full max-h-[50vh] sm:max-h-[62vh] md:max-h-[70vh] lg:max-h-[78vh] bg-black rounded-xl overflow-hidden border-2 border-border flex items-center justify-center select-none shadow-inner"
+          class="relative w-full bg-black rounded-xl overflow-hidden border-2 border-border flex items-center justify-center select-none shadow-inner"
           style="aspect-ratio: {aspectRatio}; touch-action: none;"
         >
           <!-- Canvas rendering element -->

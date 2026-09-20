@@ -124,11 +124,11 @@ func handleInputEvent(evt InputEvent) {
 func handleHubInput(hub *Hub, evt InputEvent) {
 	switch evt.Action {
 	case "down":
-		_ = hub.SendTouch(0, evt.X, evt.Y, evt.PointerID)
+		_ = hub.SendTouch(0, evt.X, evt.Y, 0)
 	case "move":
-		_ = hub.SendTouch(2, evt.X, evt.Y, evt.PointerID)
+		_ = hub.SendTouch(2, evt.X, evt.Y, 0)
 	case "up":
-		_ = hub.SendTouch(1, evt.X, evt.Y, evt.PointerID)
+		_ = hub.SendTouch(1, evt.X, evt.Y, 0)
 	case "tap", "click":
 		hub.InjectTouch("tap", evt.X, evt.Y, 0, 0, 0)
 	case "swipe":
