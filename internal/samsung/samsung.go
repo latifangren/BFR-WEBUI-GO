@@ -44,12 +44,13 @@ type BandStatus struct {
 	Error       string     `json:"error,omitempty"`
 }
 
-// jsonResponse matches the JSON output emitted by `band_manager <slot> json`.
+// jsonResponse matches the JSON output emitted by `band_manager <slot> status` and lock/auto.
 type jsonResponse struct {
-	Mode        string `json:"mode"`
-	ActiveBands []int  `json:"active_bands"`
-	Status      string `json:"status"`
-	Message     string `json:"message"`
+	Slot        int        `json:"slot"`
+	Mode        string     `json:"mode"`
+	ActiveBands []BandItem `json:"active_bands"`
+	Status      string     `json:"status"`
+	Message     string     `json:"message"`
 }
 
 // getSystemProp reads an Android system property using `getprop`.
@@ -154,8 +155,8 @@ func GetDeviceStatus() *DeviceStatus {
 }
 
 // parseBandList parses the output of `band_manager <slot> list`.
-// Output pattern: `ID: %3d | %-22s | Active: %s`
-var listLineRegex = regexp.MustCompile(`ID:\s*(\d+)\s*\|\s*([^|]+)\|\s*Active:\s*(true|false)`)
+// Output pattern: `ID: %3d | %-22s | Active: %s` (Active is YES/NO or true/false)
+var listLineRegex = regexp.MustCompile(`(?i)ID:\s*(\d+)\s*\|\s*([^|]+)\|\s*Active:\s*(YES|NO|true|false)`)
 
 func parseBandList(output string) []BandItem {
 	var items []BandItem
@@ -165,7 +166,8 @@ func parseBandList(output string) []BandItem {
 		if len(matches) == 4 {
 			id, _ := strconv.Atoi(strings.TrimSpace(matches[1]))
 			name := strings.TrimSpace(matches[2])
-			active := strings.EqualFold(strings.TrimSpace(matches[3]), "true")
+			val := strings.ToUpper(strings.TrimSpace(matches[3]))
+			active := val == "YES" || val == "TRUE"
 			items = append(items, BandItem{
 				ID:     id,
 				Name:   name,
@@ -195,13 +197,12 @@ func GetBands(slot int) (*BandStatus, error) {
 		Bands:       []BandItem{},
 	}
 
-	// 1. Query JSON mode & active bands
-	jsonCmd := fmt.Sprintf("%q %d json", cli, slot)
-	outJson, err := config.ExecSuTimeout(8*time.Second, jsonCmd)
-	if err == nil && len(outJson) > 0 {
+	// 1. Query status command: provides mode (AUTOMATIC / LOCKED) and active_bands
+	statusCmd := fmt.Sprintf("%q %d status", cli, slot)
+	outStatus, err := config.ExecSuTimeout(8*time.Second, statusCmd)
+	if err == nil && len(outStatus) > 0 {
 		var parsed jsonResponse
-		trimmed := strings.TrimSpace(string(outJson))
-		// Locate opening brace '{' if any shell warnings preceded it
+		trimmed := strings.TrimSpace(string(outStatus))
 		if idx := strings.Index(trimmed, "{"); idx != -1 {
 			trimmed = trimmed[idx:]
 		}
@@ -209,22 +210,38 @@ func GetBands(slot int) (*BandStatus, error) {
 			if parsed.Mode != "" {
 				status.Mode = parsed.Mode
 			}
-			if len(parsed.ActiveBands) > 0 {
-				status.ActiveBands = parsed.ActiveBands
+			for _, b := range parsed.ActiveBands {
+				status.ActiveBands = append(status.ActiveBands, b.ID)
 			}
 		}
 	}
 
-	// 2. Query available band list
-	listCmd := fmt.Sprintf("%q %d list", cli, slot)
-	outList, err := config.ExecSuTimeout(8*time.Second, listCmd)
-	if err != nil {
-		status.Error = fmt.Sprintf("Failed to query band list: %v", err)
-		logger.Get().Errorf("Samsung", "Failed to query bands for slot %d: %v", slot, err)
-		return status, err
+	// 2. Query full bands list via json command (returns JSON array of all BandItems)
+	jsonCmd := fmt.Sprintf("%q %d json", cli, slot)
+	outJson, err := config.ExecSuTimeout(8*time.Second, jsonCmd)
+	if err == nil && len(outJson) > 0 {
+		var jsonBands []BandItem
+		trimmed := strings.TrimSpace(string(outJson))
+		if idx := strings.Index(trimmed, "["); idx != -1 {
+			trimmed = trimmed[idx:]
+		}
+		if jsonErr := json.Unmarshal([]byte(trimmed), &jsonBands); jsonErr == nil && len(jsonBands) > 0 {
+			status.Bands = jsonBands
+		}
 	}
 
-	status.Bands = parseBandList(string(outList))
+	// 3. Fallback to `list` command if json didn't return any bands
+	if len(status.Bands) == 0 {
+		listCmd := fmt.Sprintf("%q %d list", cli, slot)
+		outList, err := config.ExecSuTimeout(8*time.Second, listCmd)
+		if err == nil && len(outList) > 0 {
+			status.Bands = parseBandList(string(outList))
+		} else if err != nil && len(status.ActiveBands) == 0 {
+			status.Error = fmt.Sprintf("Failed to query band list: %v", err)
+			logger.Get().Errorf("Samsung", "Failed to query bands for slot %d: %v", slot, err)
+			return status, err
+		}
+	}
 
 	// Sync active status from active_bands list if mode is LOCKED
 	if status.Mode == "LOCKED" && len(status.ActiveBands) > 0 {
@@ -254,7 +271,60 @@ func LockBands(slot int, bands []int) error {
 		return fmt.Errorf("too many bands specified (max 64)")
 	}
 
-	cli, _ := findBandManagerCLI()
+	cli, exists := findBandManagerCLI()
+	if !exists || cli == "" {
+		cli = filepath.Join(config.ModuleDir, "bin", "band_manager")
+	}
+
+	// Smart Category Merge for Samsung RIL:
+	// If only 5G NR bands are selected, ensure active LTE anchor bands (or default anchors B1, B3, B5, B8, B40)
+	// are preserved so Samsung RIL does not drop connectivity in 5G NSA networks.
+	currentStatus, _ := GetBands(slot)
+	bandMap := make(map[int]bool)
+	hasLTE := false
+	hasNR := false
+
+	if currentStatus != nil && len(currentStatus.Bands) > 0 {
+		idToName := make(map[int]string)
+		for _, b := range currentStatus.Bands {
+			idToName[b.ID] = b.Name
+		}
+		for _, b := range bands {
+			bandMap[b] = true
+			name := idToName[b]
+			if strings.HasPrefix(name, "LTE") || strings.HasPrefix(name, "B") {
+				hasLTE = true
+			} else if strings.HasPrefix(name, "NR") || strings.HasPrefix(name, "N") {
+				hasNR = true
+			}
+		}
+
+		if hasNR && !hasLTE {
+			// Find active LTE bands or common anchors
+			addedAnchors := false
+			for _, b := range currentStatus.Bands {
+				if (strings.HasPrefix(b.Name, "LTE") || strings.HasPrefix(b.Name, "B")) && b.Active {
+					if !bandMap[b.ID] {
+						bandMap[b.ID] = true
+						bands = append(bands, b.ID)
+						addedAnchors = true
+					}
+				}
+			}
+			if !addedAnchors {
+				// Add default anchor bands if present in supported list
+				defaultAnchors := map[string]bool{
+					"LTE B1": true, "LTE B3": true, "LTE B5": true, "LTE B8": true, "LTE B40": true,
+				}
+				for _, b := range currentStatus.Bands {
+					if defaultAnchors[b.Name] && !bandMap[b.ID] {
+						bandMap[b.ID] = true
+						bands = append(bands, b.ID)
+					}
+				}
+			}
+		}
+	}
 
 	bandStrList := make([]string, len(bands))
 	for i, b := range bands {

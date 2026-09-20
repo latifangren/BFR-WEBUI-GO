@@ -413,13 +413,14 @@
   border-color: #000000 !important;
 }
 
-/* Ensure text and labels inside these tone cards in retro theme are crisp black #000000 */
-[data-theme='retro'] .neo-tone-ice *,
-[data-theme='retro'] .neo-tone-lavender *,
-[data-theme='retro'] .neo-tone-peach *,
-[data-theme='retro'] .neo-tone-mint *,
-[data-theme='retro'] .neo-tone-butter * {
-  color: #000000 !important;
+/* Ensure text and labels inside these tone cards in retro theme are crisp black #000000,
+   except for elements that are explicitly styled with white text or dark/black backgrounds */
+[data-theme='retro'] .neo-tone-ice *:not(.text-white):not([class*='text-white']):not(.bg-black):not(.bg-black *):not([class*='bg-red-']):not([class*='bg-red-'] *),
+[data-theme='retro'] .neo-tone-lavender *:not(.text-white):not([class*='text-white']):not(.bg-black):not(.bg-black *):not([class*='bg-red-']):not([class*='bg-red-'] *),
+[data-theme='retro'] .neo-tone-peach *:not(.text-white):not([class*='text-white']):not(.bg-black):not(.bg-black *):not([class*='bg-red-']):not([class*='bg-red-'] *),
+[data-theme='retro'] .neo-tone-mint *:not(.text-white):not([class*='text-white']):not(.bg-black):not(.bg-black *):not([class*='bg-red-']):not([class*='bg-red-'] *),
+[data-theme='retro'] .neo-tone-butter *:not(.text-white):not([class*='text-white']):not(.bg-black):not(.bg-black *):not([class*='bg-red-']):not([class*='bg-red-'] *) {
+  color: #000000;
 }
 
 /* Tone inner card elements in retro */
@@ -428,11 +429,44 @@
   border-color: #000000 !important;
 }
 
-[data-theme='retro'] [class*='neo-tone-'] .bg-accent,
-[data-theme='retro'] [class*='neo-tone-'] .bg-purple-500,
-[data-theme='retro'] [class*='neo-tone-'] .bg-blue-500,
-[data-theme='retro'] [class*='neo-tone-'] .bg-emerald-500 {
+/* Progress-bar/meter tracks in tone cards get solid black, excluding interactive buttons */
+[data-theme='retro'] [class*='neo-tone-'] .bg-accent:not(.neo-button):not(button):not([role='button']),
+[data-theme='retro'] [class*='neo-tone-'] .bg-purple-500:not(.neo-button):not(button):not([role='button']),
+[data-theme='retro'] [class*='neo-tone-'] .bg-blue-500:not(.neo-button):not(button):not([role='button']),
+[data-theme='retro'] [class*='neo-tone-'] .bg-emerald-500:not(.neo-button):not(button):not([role='button']) {
   background-color: #000000 !important;
+}
+
+/* Primary buttons in retro theme (both inside and outside tone cards) */
+[data-theme='retro'] .neo-button.bg-accent,
+[data-theme='retro'] button.bg-accent,
+[data-theme='retro'] [class*='neo-tone-'] .neo-button.bg-accent,
+[data-theme='retro'] [class*='neo-tone-'] button.bg-accent {
+  background-color: var(--neo-accent, #c8f5d0) !important;
+  color: #000000 !important;
+  border: 2px solid #000000 !important;
+  box-shadow: 2px 2px 0px #000000 !important;
+}
+
+[data-theme='retro'] .neo-button.bg-accent *,
+[data-theme='retro'] button.bg-accent *,
+[data-theme='retro'] [class*='neo-tone-'] .neo-button.bg-accent *,
+[data-theme='retro'] [class*='neo-tone-'] button.bg-accent * {
+  color: #000000 !important;
+}
+
+/* Ensure any dark/black button or active toggle has high contrast white text and icons */
+[data-theme='retro'] button.bg-black,
+[data-theme='retro'] .neo-button.bg-black,
+[data-theme='retro'] [class*='neo-tone-'] button.bg-black,
+[data-theme='retro'] [class*='neo-tone-'] .neo-button.bg-black,
+[data-theme='retro'] button.bg-black *,
+[data-theme='retro'] .neo-button.bg-black *,
+[data-theme='retro'] [class*='neo-tone-'] button.bg-black *,
+[data-theme='retro'] [class*='neo-tone-'] .neo-button.bg-black *,
+[data-theme='retro'] [class*='neo-tone-'] .text-white,
+[data-theme='retro'] [class*='neo-tone-'] .text-white * {
+  color: #ffffff !important;
 }
 
 /* Sparklines inside tone cards in retro theme get black stroke */

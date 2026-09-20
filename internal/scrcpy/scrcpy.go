@@ -9,6 +9,7 @@ import (
 	"log"
 	"net/http"
 	"os/exec"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -19,14 +20,16 @@ import (
 )
 
 type InputEvent struct {
-	Action   string `json:"action"`
-	X        int    `json:"x"`
-	Y        int    `json:"y"`
-	X2       int    `json:"x2"`
-	Y2       int    `json:"y2"`
-	Duration int    `json:"duration"`
-	Text     string `json:"text"`
-	KeyCode  int    `json:"keycode"`
+	Action    string `json:"action"`
+	X         int    `json:"x"`
+	Y         int    `json:"y"`
+	X2        int    `json:"x2"`
+	Y2        int    `json:"y2"`
+	Duration  int    `json:"duration"`
+	Text      string `json:"text"`
+	KeyCode   int    `json:"keycode"`
+	PointerID int    `json:"pointerId"`
+	On        bool   `json:"on"`
 }
 
 var upgrader = websocket.Upgrader{
@@ -118,6 +121,65 @@ func handleInputEvent(evt InputEvent) {
 	}
 }
 
+func handleHubInput(hub *Hub, evt InputEvent) {
+	switch evt.Action {
+	case "down":
+		_ = hub.SendTouch(0, evt.X, evt.Y, evt.PointerID)
+	case "move":
+		_ = hub.SendTouch(2, evt.X, evt.Y, evt.PointerID)
+	case "up":
+		_ = hub.SendTouch(1, evt.X, evt.Y, evt.PointerID)
+	case "tap", "click":
+		hub.InjectTouch("tap", evt.X, evt.Y, 0, 0, 0)
+	case "swipe":
+		hub.InjectTouch("swipe", evt.X, evt.Y, evt.X2, evt.Y2, evt.Duration)
+	case "key", "keycode":
+		hub.InjectKey("", evt.KeyCode)
+	case "back", "home", "recents", "app_switch", "power", "vol_up", "vol_down", "enter", "tab", "delete", "backspace", "wake", "sleep":
+		hub.InjectKey(evt.Action, 0)
+	case "screen_power":
+		_ = hub.SetScreenPower(evt.On)
+	case "screen_power_off":
+		_ = hub.SetScreenPower(false)
+	case "screen_power_on":
+		_ = hub.SetScreenPower(true)
+	case "text":
+		safeText := SanitizeInput(evt.Text)
+		if safeText != "" {
+			_ = exec.Command(config.SUBin, "-c", fmt.Sprintf("input text '%s'", safeText)).Run()
+		}
+	}
+}
+
+func parseQueryConfig(r *http.Request) ScrcpyConfig {
+	cfg := DefaultConfig()
+	q := r.URL.Query()
+
+	if q.Has("max_size") {
+		if v, err := strconv.Atoi(q.Get("max_size")); err == nil && v >= 0 {
+			cfg.MaxSize = v
+		}
+	}
+	if q.Has("bit_rate") {
+		if v, err := strconv.Atoi(q.Get("bit_rate")); err == nil && v > 0 {
+			cfg.BitRate = v
+		}
+	}
+	if v, err := strconv.Atoi(q.Get("max_fps")); err == nil && v > 0 {
+		cfg.MaxFps = v
+	}
+	if v, err := strconv.Atoi(q.Get("display_id")); err == nil && v >= 0 {
+		cfg.DisplayID = v
+	}
+	if q.Get("stay_awake") == "false" {
+		cfg.StayAwake = false
+	}
+	if q.Get("screen_off") == "true" {
+		cfg.TurnScreenOff = true
+	}
+	return cfg
+}
+
 func HandleWebsocket(w http.ResponseWriter, r *http.Request) {
 	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
@@ -134,12 +196,74 @@ func HandleWebsocket(w http.ResponseWriter, r *http.Request) {
 		return nil
 	})
 
+	cfg := parseQueryConfig(r)
+	hub := GetHub()
+	hubErr := hub.Start(cfg)
+
+	if hubErr == nil {
+		client, width, height, videoWidth, videoHeight, lastConfig := hub.RegisterClient(conn)
+		defer func() {
+			hub.UnregisterClient(client)
+			client.Close()
+		}()
+
+		// Send stream metadata (WebCodecs H.264 mode)
+		meta, _ := json.Marshal(map[string]interface{}{
+			"type":        "metadata",
+			"width":       width,
+			"height":      height,
+			"videoWidth":  videoWidth,
+			"videoHeight": videoHeight,
+			"fps":         cfg.MaxFps,
+			"engine":      "webcodecs",
+			"codec":       "avc1.640033",
+			"max_size":    cfg.MaxSize,
+			"bit_rate":    cfg.BitRate,
+			"displayId":   cfg.DisplayID,
+			"encoder":     GetEncoderInfo(),
+		})
+		client.Send(websocket.TextMessage, meta)
+
+		// Send cached SPS/PPS packet immediately to warm up browser decoder
+		if len(lastConfig) > 0 {
+			client.Send(websocket.BinaryMessage, lastConfig)
+		}
+
+		// Input event loop
+		for {
+			_, msgBytes, err := conn.ReadMessage()
+			if err != nil {
+				break
+			}
+			var evt InputEvent
+			if err := json.Unmarshal(msgBytes, &evt); err == nil {
+				handleHubInput(hub, evt)
+			}
+		}
+		return
+	}
+
+	// Fallback to legacy screencap stream if scrcpy-server is unavailable
+	log.Printf("[Scrcpy] Hub start failed (%v), falling back to legacy screencap stream", hubErr)
+	fallbackMeta, _ := json.Marshal(map[string]interface{}{
+		"type":   "metadata",
+		"width":  1080,
+		"height": 2400,
+		"fps":    3,
+		"engine": "mjpeg",
+	})
+	_ = conn.WriteMessage(websocket.TextMessage, fallbackMeta)
+
 	done := make(chan struct{})
 	var writeMux sync.Mutex
 
-	// Incoming input event reader loop
 	go func() {
 		defer close(done)
+		defer func() {
+			if r := recover(); r != nil {
+				log.Printf("[Scrcpy] Recovered panic in fallback input reader: %v", r)
+			}
+		}()
 		for {
 			_, msgBytes, err := conn.ReadMessage()
 			if err != nil {
@@ -152,7 +276,12 @@ func HandleWebsocket(w http.ResponseWriter, r *http.Request) {
 		}
 	}()
 
-	// Screen frame capture & stream loop (~3.3 FPS)
+	defer func() {
+		if r := recover(); r != nil {
+			log.Printf("[Scrcpy] Recovered panic in fallback screencap loop: %v", r)
+		}
+	}()
+
 	ticker := time.NewTicker(300 * time.Millisecond)
 	defer ticker.Stop()
 
@@ -161,13 +290,10 @@ func HandleWebsocket(w http.ResponseWriter, r *http.Request) {
 		case <-done:
 			return
 		case <-ticker.C:
-			// Adaptive Frame Throttling: TryLock to skip frame capture/send if previous write is still lagging
-			if !writeMux.TryLock() {
-				continue
-			}
-
+			writeMux.Lock()
 			frameData, err := captureScreenFrame()
 			if err == nil && len(frameData) > 0 {
+				_ = conn.SetWriteDeadline(time.Now().Add(1 * time.Second))
 				err = conn.WriteMessage(websocket.BinaryMessage, frameData)
 			}
 			writeMux.Unlock()

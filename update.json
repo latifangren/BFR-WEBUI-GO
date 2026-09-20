@@ -1,6 +1,6 @@
 {
-  "version": "v1.2.3",
-  "versionCode": 123,
-  "zipUrl": "https://github.com/latifangren/BFR-WEBUI-GO/releases/latest/download/BFR-WEBUI-Magisk-v1.2.3.zip",
+  "version": "v1.2.4",
+  "versionCode": 124,
+  "zipUrl": "https://github.com/latifangren/BFR-WEBUI-GO/releases/latest/download/BFR-WEBUI-Magisk-v1.2.4.zip",
   "changelog": "https://raw.githubusercontent.com/latifangren/BFR-WEBUI-GO/main/CHANGELOG.md"
 }

@@ -190,7 +190,7 @@
       const res = await api.get<SamsungDeviceStatus>('/api/samsung/status')
       deviceStatus = res
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : 'Gagal memuat status perangkat Samsung'
+      const msg = err instanceof Error ? err.message : 'Failed to load Samsung device status'
       toastStore.error(msg, 'Status Error')
     } finally {
       isLoadingStatus = false
@@ -200,7 +200,7 @@
   async function switchActiveDataSim(targetSlot: number) {
     if (isSwitchingSim) return
     if (activeDataSlot === targetSlot) {
-      toastStore.info(`Data Seluler sudah aktif di SIM ${targetSlot + 1}.`, 'Status Aktif')
+      toastStore.info(`Mobile data is already active on SIM ${targetSlot + 1}.`, 'Active Status')
       return
     }
     try {
@@ -209,12 +209,12 @@
         slot: targetSlot,
       })
       toastStore.success(
-        res.message || `Data Seluler berhasil dipindahkan ke SIM ${targetSlot + 1}.`,
+        res.message || `Mobile data successfully switched to SIM ${targetSlot + 1}.`,
         'SIM Data Switched'
       )
       await fetchDeviceStatus()
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : 'Gagal memindahkan koneksi data SIM'
+      const msg = err instanceof Error ? err.message : 'Failed to switch active data SIM'
       toastStore.error(msg, 'Switch Error')
     } finally {
       isSwitchingSim = false
@@ -231,7 +231,7 @@
         thermalError = res.error
       }
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : 'Gagal memuat telemetri termal 5G'
+      const msg = err instanceof Error ? err.message : 'Failed to load 5G thermal telemetry'
       thermalError = msg
     } finally {
       isLoadingThermal = false
@@ -389,7 +389,7 @@
       {
         id: 'batt',
         name: 'Battery',
-        desc: 'Baterai Perangkat',
+        desc: 'Device Battery',
         val: s.battery_c,
         limitLabel: undefined,
         status: getTempStatus(s.battery_c, 'battery'),
@@ -438,7 +438,7 @@
         }
       }
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : `Gagal mengambil daftar band SIM ${slot + 1}`
+      const msg = err instanceof Error ? err.message : `Failed to query bands for SIM ${slot + 1}`
       bandsError = msg
       toastStore.error(msg, 'Query Band Error')
     } finally {
@@ -462,17 +462,17 @@
 
   function selectPopular() {
     if (availablePopularIds.length === 0) {
-      toastStore.warning('Band populer (B1, B3, B8, B40) tidak tersedia di modem ini.')
+      toastStore.warning('Popular bands (B1, B3, B8, B40) are not available on this modem.')
       return
     }
     selectedBandIds = [...availablePopularIds]
-    toastStore.info(`Memilih ${selectedBandIds.length} frekuensi populer (B1, B3, B8, B40)`)
+    toastStore.info(`Selected ${selectedBandIds.length} popular frequency bands (B1, B3, B8, B40)`)
   }
 
   function selectAll() {
     if (allBands.length === 0) return
     selectedBandIds = allBands.map((b) => b.id)
-    toastStore.info(`Memilih semua ${allBands.length} frekuensi yang didukung`)
+    toastStore.info(`Selected all ${allBands.length} supported frequency bands`)
   }
 
   function deselectAll() {
@@ -485,7 +485,7 @@
 
   async function applyLock() {
     if (selectedBandIds.length === 0) {
-      toastStore.warning('Pilih minimal 1 frekuensi band sebelum menerapkan kunci!')
+      toastStore.warning('Select at least 1 frequency band before applying lock!')
       return
     }
 
@@ -496,12 +496,12 @@
         bands: selectedBandIds,
       })
       toastStore.success(
-        `Band lock berhasil diterapkan ke SIM ${selectedSlot + 1}. Radio modem sedang diperbarui.`,
+        `Band lock successfully applied to SIM ${selectedSlot + 1}. Modem radio is updating.`,
         'Lock Applied'
       )
       await fetchBands(selectedSlot)
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : 'Gagal mengirim perintah band lock'
+      const msg = err instanceof Error ? err.message : 'Failed to send band lock command'
       toastStore.error(msg, 'Lock Failed')
     } finally {
       isLocking = false
@@ -515,13 +515,13 @@
         slot: selectedSlot,
       })
       toastStore.success(
-        `SIM ${selectedSlot + 1} berhasil dikembalikan ke mode otomatis (All Bands).`,
-        'Reset Selesai'
+        `SIM ${selectedSlot + 1} successfully restored to automatic mode (All Bands).`,
+        'Reset Completed'
       )
       showResetModal = false
       await fetchBands(selectedSlot)
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : 'Gagal mereset modem ke mode otomatis'
+      const msg = err instanceof Error ? err.message : 'Failed to reset modem to automatic mode'
       toastStore.error(msg, 'Reset Failed')
     } finally {
       isResetting = false
@@ -555,7 +555,7 @@
         <Badge variant="info" class="text-[10px]">SecRIL</Badge>
       </div>
       <p class="text-xs text-muted mt-1">
-        Kontrol modulasi frekuensi modem langsung melalui Samsung RIL framework & binary band_manager.
+        Direct modem frequency modulation control via Samsung RIL framework & band_manager binary.
       </p>
     </div>
 
@@ -580,16 +580,16 @@
     >
       <div class="flex items-center gap-2 text-amber-400 font-bold uppercase text-xs tracking-wider">
         <AlertTriangle class="w-5 h-5 shrink-0 text-amber-400" />
-        <span>Peringatan Kompatibilitas OEM (Bukan Samsung)</span>
+        <span>OEM Compatibility Warning (Non-Samsung Device)</span>
       </div>
       <p class="text-xs text-muted leading-relaxed">
-        Perangkat Anda terdeteksi bermerek <span class="text-foreground font-bold">{deviceStatus.manufacturer || 'Non-Samsung'}</span> model <span class="text-foreground font-bold">{deviceStatus.model || 'Unknown'}</span>. Fitur ini dirancang khusus untuk modul baseband Samsung Exynos/Qualcomm yang mendukung hook SecRIL. Perintah penguncian band kemungkinan besar tidak akan berpengaruh pada modem perangkat ini.
+        Your device is detected as <span class="text-foreground font-bold">{deviceStatus.manufacturer || 'Non-Samsung'}</span> model <span class="text-foreground font-bold">{deviceStatus.model || 'Unknown'}</span>. This feature is designed specifically for Samsung Exynos/Qualcomm baseband modules supporting SecRIL hooks. Band locking commands will likely have no effect on this device's modem.
       </p>
     </div>
   {/if}
 
   <!-- DEVICE HARDWARE & TOOL ENVIRONMENT -->
-  <Card title="Hardware & Environment RIL" subtitle="Informasi OEM, versi One UI, dan ketersediaan tool baseband" tone="ice">
+  <Card title="RIL Hardware & Environment" subtitle="OEM info, One UI version, and baseband tool availability" tone="ice">
     {#snippet action()}
       {#if isSamsung}
         <Badge variant="success" class="flex items-center gap-1">
@@ -607,7 +607,7 @@
     <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
       <!-- Device & Model -->
       <div class="p-3 bg-card-sub border-2 border-border rounded space-y-1">
-        <span class="text-[10px] text-muted uppercase font-bold block">Perangkat / Model</span>
+        <span class="text-[10px] text-muted uppercase font-bold block">Device / Model</span>
         <p class="font-bold text-foreground truncate">
           {deviceStatus?.manufacturer || 'Unknown'} {deviceStatus?.model || '-'}
         </p>
@@ -623,7 +623,7 @@
           {deviceStatus?.oneui_version ? `One UI ${deviceStatus.oneui_version}` : 'Standard Android'}
         </p>
         <span class="text-[10px] text-muted block truncate">
-          Framework Samsung RIL
+          Samsung RIL Framework
         </span>
       </div>
 
@@ -673,13 +673,13 @@
 
   <!-- ACTIVE MOBILE DATA SIM SWITCHER -->
   <Card
-    title="Active Mobile Data SIM Switcher"
-    subtitle="Kontrol perutean traffic data seluler antar slot kartu SIM"
+    title="SIM Card & Cellular Data Management"
+    subtitle="Select active SIM card for mobile data and radio band configuration"
   >
     {#snippet action()}
       <Badge variant="success" class="flex items-center gap-1.5 shadow-sm">
         <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-        <span>DATA SELULER: SIM {activeDataSlot + 1}</span>
+        <span>ACTIVE DATA: SIM {activeDataSlot + 1}</span>
       </Badge>
     {/snippet}
 
@@ -719,7 +719,7 @@
 
           <div class="flex items-center justify-between gap-2 pt-2 border-t border-border/50">
             <span class="text-[11px] {activeDataSlot === 0 ? 'text-emerald-300 font-semibold' : 'text-muted'}">
-              {activeDataSlot === 0 ? '● Saluran Data Internet Aktif' : 'Standby untuk Data'}
+              {activeDataSlot === 0 ? '● Active Mobile Data Route' : 'Standby for Mobile Data'}
             </span>
 
             {#if activeDataSlot !== 0}
@@ -728,14 +728,14 @@
                 size="sm"
                 disabled={isSwitchingSim}
                 onclick={() => switchActiveDataSim(0)}
-                title="Pindahkan koneksi data seluler ke SIM 1"
+                title="Switch cellular data connection to SIM 1"
               >
                 {#if isSwitchingSim}
                   <RefreshCw class="w-3 h-3 mr-1 animate-spin" />
-                  <span>Mengalihkan...</span>
+                  <span>Switching...</span>
                 {:else}
                   <ArrowLeftRight class="w-3 h-3 mr-1" />
-                  <span>Pindahkan ke SIM 1</span>
+                  <span>Switch to SIM 1</span>
                 {/if}
               </Button>
             {/if}
@@ -775,7 +775,7 @@
 
           <div class="flex items-center justify-between gap-2 pt-2 border-t border-border/50">
             <span class="text-[11px] {activeDataSlot === 1 ? 'text-emerald-300 font-semibold' : 'text-muted'}">
-              {activeDataSlot === 1 ? '● Saluran Data Internet Aktif' : 'Standby untuk Data'}
+              {activeDataSlot === 1 ? '● Active Mobile Data Route' : 'Standby for Mobile Data'}
             </span>
 
             {#if activeDataSlot !== 1}
@@ -784,14 +784,14 @@
                 size="sm"
                 disabled={isSwitchingSim}
                 onclick={() => switchActiveDataSim(1)}
-                title="Pindahkan koneksi data seluler ke SIM 2"
+                title="Switch cellular data connection to SIM 2"
               >
                 {#if isSwitchingSim}
                   <RefreshCw class="w-3 h-3 mr-1 animate-spin" />
-                  <span>Mengalihkan...</span>
+                  <span>Switching...</span>
                 {:else}
                   <ArrowLeftRight class="w-3 h-3 mr-1" />
-                  <span>Pindahkan ke SIM 2</span>
+                  <span>Switch to SIM 2</span>
                 {/if}
               </Button>
             {/if}
@@ -802,10 +802,10 @@
       <!-- INTERACTIVE SWITCH BANNER / QUICK TOGGLE -->
       <div class="p-3 bg-card-sub border-2 border-border rounded-lg flex flex-col sm:flex-row items-center justify-between gap-3">
         <div class="flex items-center gap-2 text-xs">
-          <span class="text-muted">Status Mobile Data:</span>
+          <span class="text-muted">Mobile Data Status:</span>
           <span class="font-bold text-foreground flex items-center gap-1.5">
             <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-            SIM {activeDataSlot + 1} (Slot Indeks {activeDataSlot}) Terhubung
+            SIM {activeDataSlot + 1} (Slot Index {activeDataSlot}) Connected
           </span>
         </div>
 
@@ -820,10 +820,10 @@
             >
               {#if isSwitchingSim}
                 <RefreshCw class="w-3.5 h-3.5 mr-1.5 animate-spin" />
-                <span>Memindahkan Data ke SIM 2...</span>
+                <span>Switching Data to SIM 2...</span>
               {:else}
                 <ArrowLeftRight class="w-3.5 h-3.5 mr-1.5" />
-                <span>Pindahkan Data ke SIM 2</span>
+                <span>Switch Data to SIM 2</span>
               {/if}
             </Button>
           {:else}
@@ -836,10 +836,10 @@
             >
               {#if isSwitchingSim}
                 <RefreshCw class="w-3.5 h-3.5 mr-1.5 animate-spin" />
-                <span>Memindahkan Data ke SIM 1...</span>
+                <span>Switching Data to SIM 1...</span>
               {:else}
                 <ArrowLeftRight class="w-3.5 h-3.5 mr-1.5" />
-                <span>Pindahkan Data ke SIM 1</span>
+                <span>Switch Data to SIM 1</span>
               {/if}
             </Button>
           {/if}
@@ -850,8 +850,8 @@
 
   <!-- 5G THERMAL & EN-DC THROTTLING DIAGNOSTIC MONITOR -->
   <Card
-    title="5G Thermal & EN-DC Throttling Monitor"
-    subtitle="Diagnostik suhu RF baseband Qualcomm/Samsung & mitigasi penurunan sinyal 5G"
+    title="5G Modem Thermal & Throttling Telemetry"
+    subtitle="Real-time thermal sensors for Sub-6 Power Amps, SoC, and EN-DC disconnect detection"
     tone={thermalTone}
   >
     {#snippet action()}
@@ -865,7 +865,7 @@
           {:else}
             <Badge variant="success" class="flex items-center gap-1">
               <ShieldCheck class="w-3 h-3" />
-              <span>AMAN</span>
+              <span>SAFE</span>
             </Badge>
           {/if}
         {/if}
@@ -874,7 +874,7 @@
           size="sm"
           disabled={isLoadingThermal}
           onclick={fetchThermalStatus}
-          title="Muat ulang telemetri termal 5G"
+          title="Reload 5G thermal telemetry"
         >
           <RefreshCw class="w-3.5 h-3.5 mr-1 {isLoadingThermal ? 'animate-spin' : ''}" />
           <span>Telemetry</span>
@@ -887,7 +887,7 @@
         <!-- LOADING SKELETON -->
         <div class="p-4 rounded border-2 border-border bg-card-sub animate-pulse flex items-center gap-3">
           <RefreshCw class="w-5 h-5 animate-spin text-muted" />
-          <span class="text-xs text-muted">Membaca sensor suhu modem dan Android Thermal HAL...</span>
+          <span class="text-xs text-muted">Reading modem thermal sensors and Android Thermal HAL...</span>
         </div>
         <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
           {#each Array(4) as _}
@@ -900,15 +900,15 @@
           <div class="flex items-center justify-between">
             <div class="flex items-center gap-2 font-bold text-xs text-foreground uppercase">
               <Info class="w-4 h-4 text-accent" />
-              <span>Diagnostik Termal 5G Belum Aktif</span>
+              <span>5G Thermal Diagnostics Inactive</span>
             </div>
             <Button variant="secondary" size="sm" onclick={fetchThermalStatus}>
               <RefreshCw class="w-3 h-3 mr-1" />
-              <span>Coba Lagi</span>
+              <span>Retry</span>
             </Button>
           </div>
           <p class="text-xs leading-relaxed">
-            {thermalError || 'Modul `qm-5g-thermal` tidak terdeteksi atau modem saat ini tidak mendukung pembacaan telemetri thermal HAL 5G.'}
+            {thermalError || 'qm-5g-thermal module not detected or modem does not support 5G Thermal HAL telemetry.'}
           </p>
         </div>
       {:else if thermalData}
@@ -920,17 +920,17 @@
           >
             <div class="flex items-center gap-2 text-red-400 font-bold uppercase text-xs tracking-wider">
               <Flame class="w-5 h-5 shrink-0 text-red-400 animate-pulse" />
-              <span>Peringatan: Modem 5G Sedang Mengalami Throttling / EN-DC Disconnect</span>
+              <span>Warning: 5G Modem is Throttling / EN-DC Disconnected</span>
             </div>
             <div class="text-xs text-red-200/90 leading-relaxed font-mono space-y-1.5">
               <div>
-                <span class="text-muted uppercase text-[10px] block font-sans">Sensor Penyebab (Culprit):</span>
+                <span class="text-muted uppercase text-[10px] block font-sans">Culprit Sensor:</span>
                 <span class="text-red-300 font-bold">
                   {thermalData.culprit_sensor || thermalData.culprit || 'Thermal HAL / PA Skin Engine'}
                 </span>
               </div>
               <p class="text-xs text-muted">
-                {thermalData.culprit_detail || 'Suhu perangkat telah melampaui batas ambang proteksi thermal baseband. Qualcomm/Samsung Thermal Engine membatasi atau memutuskan sambungan 5G NR untuk mencegah panas berlebih.'}
+                {thermalData.culprit_detail || 'Device temperature exceeded baseband thermal threshold. Thermal Engine is throttling or disconnecting 5G NR to prevent overheating.'}
               </p>
             </div>
           </div>
@@ -944,14 +944,14 @@
               </div>
               <div>
                 <span class="text-xs font-bold text-emerald-300 uppercase block tracking-wider">
-                  Semua sensor suhu modem dalam batas aman
+                  All modem temperature sensors within safe limits
                 </span>
-                <span class="text-[11px] text-muted block">
-                  Tidak terdeteksi mitigasi penurunan daya RF atau pemutusan 5G NR Dual-Connectivity.
+                <span class="text-[10px] text-muted block">
+                  Thermal HAL & Power Amplifiers (PA) operating normally without throttling
                 </span>
               </div>
             </div>
-            <Badge variant="success">Normal</Badge>
+            <Badge variant="success">NORMAL</Badge>
           </div>
         {/if}
 
@@ -1078,7 +1078,7 @@
   <!-- SIM SELECTOR & CURRENT MODE STATUS -->
   <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
     <!-- SIM SELECTOR (1 col) -->
-    <Card title="SIM Card Slot" subtitle="Pilih kartu SIM untuk konfigurasi band locking" class="md:col-span-1">
+    <Card title="SIM Card Slot" subtitle="Select SIM card for band locking configuration" class="md:col-span-1">
       <div class="flex flex-col gap-2.5">
         <button
           type="button"
@@ -1090,7 +1090,7 @@
             <Radio class="w-4 h-4 {selectedSlot === 0 ? 'text-accent' : 'text-muted'}" />
             <div>
               <div class="text-sm font-bold">SIM 1</div>
-              <div class="text-[10px] text-muted">Slot Indeks 0</div>
+              <div class="text-[10px] text-muted">Slot Index 0</div>
             </div>
           </div>
           <div class="flex flex-col items-end gap-1">
@@ -1101,7 +1101,7 @@
               </Badge>
             {/if}
             {#if selectedSlot === 0}
-              <Badge variant="info">DIPILIH</Badge>
+              <Badge variant="info">SELECTED</Badge>
             {/if}
           </div>
         </button>
@@ -1116,7 +1116,7 @@
             <Radio class="w-4 h-4 {selectedSlot === 1 ? 'text-accent' : 'text-muted'}" />
             <div>
               <div class="text-sm font-bold">SIM 2</div>
-              <div class="text-[10px] text-muted">Slot Indeks 1</div>
+              <div class="text-[10px] text-muted">Slot Index 1</div>
             </div>
           </div>
           <div class="flex flex-col items-end gap-1">
@@ -1127,7 +1127,7 @@
               </Badge>
             {/if}
             {#if selectedSlot === 1}
-              <Badge variant="info">DIPILIH</Badge>
+              <Badge variant="info">SELECTED</Badge>
             {/if}
           </div>
         </button>
@@ -1135,7 +1135,7 @@
     </Card>
 
     <!-- STATUS MODE CARD (2 cols) -->
-    <Card title="Status Baseband & Mode SIM" subtitle="Status transmisi frekuensi pada modem saat ini" tone="mint" class="md:col-span-2">
+    <Card title="Baseband Status & SIM Mode" subtitle="Current frequency transmission status on modem" tone="mint" class="md:col-span-2">
       {#snippet action()}
         {#if bandData}
           {#if isLockedMode}
@@ -1155,21 +1155,21 @@
       <div class="space-y-4">
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-3 bg-card-sub border-2 border-border rounded">
           <div>
-            <span class="text-[10px] text-muted uppercase font-bold block">Mode Operasi Saat Ini</span>
+            <span class="text-[10px] text-muted uppercase font-bold block">Current Operating Mode</span>
             <p class="text-sm font-bold text-foreground flex items-center gap-1.5 mt-0.5">
               {#if isLockedMode}
                 <Lock class="w-4 h-4 text-amber-400 inline" />
-                <span class="text-amber-400">Modem Dikunci ke Frekuensi Terpilih</span>
+                <span class="text-amber-400">Modem Locked to Selected Bands</span>
               {:else}
                 <CheckCircle class="w-4 h-4 text-emerald-400 inline" />
-                <span class="text-emerald-400">Pemilihan Otomatis (All Bands Dinamis)</span>
+                <span class="text-emerald-400">Automatic Selection (All Bands Dynamic)</span>
               {/if}
             </p>
           </div>
           <div class="text-left sm:text-right">
-            <span class="text-[10px] text-muted uppercase font-bold block">Frekuensi Terdaftar</span>
+            <span class="text-[10px] text-muted uppercase font-bold block">Registered Frequencies</span>
             <span class="text-sm font-bold text-foreground">
-              {activeBandsList.length} Band Aktif / {allBands.length} Total
+              {activeBandsList.length} Active Bands / {allBands.length} Total
             </span>
           </div>
         </div>
@@ -1177,12 +1177,12 @@
         <!-- ACTIVE BANDS CHIP LIST -->
         <div>
           <span class="text-[10px] text-muted uppercase font-bold block mb-1.5">
-            Daftar Frekuensi Sedang Aktif di Modem:
+            Active Frequencies on Modem:
           </span>
           {#if isLoadingBands}
             <div class="flex items-center gap-2 text-xs text-muted">
               <RefreshCw class="w-3.5 h-3.5 animate-spin" />
-              <span>Membaca telemetry baseband...</span>
+              <span>Reading baseband telemetry...</span>
             </div>
           {:else if activeBandsList.length > 0}
             <div class="flex flex-wrap gap-1.5">
@@ -1197,7 +1197,7 @@
             </div>
           {:else}
             <p class="text-xs text-muted italic">
-              Tidak ada band spesifik yang dilaporkan atau modem dalam mode auto penuh.
+              No specific bands reported or modem is in full automatic mode.
             </p>
           {/if}
         </div>
@@ -1206,11 +1206,11 @@
   </div>
 
   <!-- BAND SELECTION GRID & CONTROLS -->
-  <Card title="Matriks Frekuensi Baseband" subtitle="Pilih satu atau beberapa band frekuensi lalu kunci untuk mengoptimalkan throughput dan kestabilan BTS" tone="none">
+  <Card title="Baseband Frequency Matrix" subtitle="Select one or more frequency bands to lock for optimal cell tower throughput and link stability" tone="none">
     {#snippet action()}
       <div class="flex items-center gap-2">
         <Badge variant="default" class="text-xs font-mono">
-          {selectedBandIds.length} Band Dipilih
+          {selectedBandIds.length} Bands Selected
         </Badge>
       </div>
     {/snippet}
@@ -1224,7 +1224,7 @@
           <input
             type="text"
             bind:value={searchQuery}
-            placeholder="Cari band (contoh: 1, 3, B40, 1800)..."
+            placeholder="Search bands (e.g. 1, 3, B40, n78)..."
             class="neo-input w-full bg-card border-2 border-border rounded pl-9 pr-3 py-1.5 text-xs font-mono text-foreground placeholder:text-muted focus:outline-none focus:border-accent"
           />
         </div>
@@ -1236,10 +1236,10 @@
             variant={isPopularSelected ? 'primary' : 'outline'}
             size="sm"
             onclick={selectPopular}
-            title="Pilih band umum operator Indonesia (B1, B3, B8, B40)"
+            title="Select popular bands (B1, B3, B8, B40)"
           >
             <Zap class="w-3.5 h-3.5 mr-1 {isPopularSelected ? 'text-amber-300' : 'text-amber-500'}" />
-            <span>Pilih Populer ID (B1, B3, B8, B40)</span>
+            <span>Select Popular (B1, B3, B8, B40)</span>
           </Button>
 
           <!-- Select All -->
@@ -1269,12 +1269,12 @@
         <div class="p-4 border-2 border-red-500 bg-red-950/20 rounded text-red-400 space-y-2">
           <div class="flex items-center gap-2 font-bold text-xs uppercase">
             <AlertTriangle class="w-4 h-4" />
-            <span>Gagal Mendapatkan Daftar Band</span>
+            <span>Failed to Retrieve Band List</span>
           </div>
           <p class="text-xs text-muted">{bandsError}</p>
           <Button variant="danger" size="sm" onclick={() => fetchBands(selectedSlot)}>
             <RefreshCw class="w-3 h-3 mr-1" />
-            <span>Coba Lagi</span>
+            <span>Retry</span>
           </Button>
         </div>
       {/if}
@@ -1296,12 +1296,12 @@
       {:else if filteredBands.length === 0}
         <div class="p-8 text-center border-2 border-dashed border-border rounded bg-card-sub space-y-2">
           <Layers class="w-8 h-8 mx-auto text-muted" />
-          <p class="text-sm font-bold text-foreground">Tidak Ada Band Ditemukan</p>
+          <p class="text-sm font-bold text-foreground">No Bands Found</p>
           <p class="text-xs text-muted max-w-sm mx-auto">
             {#if searchQuery.trim()}
-              Tidak ada band yang cocok dengan filter pencarian "{searchQuery}".
+              No bands match the search filter "{searchQuery}".
             {:else}
-              Modem tidak mengembalikan daftar band yang didukung. Pastikan perangkat di-root dengan izin Superuser (su) dan binary band_manager tersedia.
+              Modem did not return supported bands list. Ensure device has root Superuser (su) permission and band_manager binary is present.
             {/if}
           </p>
         </div>
@@ -1366,13 +1366,13 @@
       </div>
       <div>
         <div class="text-xs font-bold uppercase text-foreground">
-          Konfigurasi SIM {selectedSlot + 1}
+          SIM {selectedSlot + 1} Configuration
         </div>
         <div class="text-[11px] text-muted">
           {#if selectedBandIds.length === 0}
-            <span class="text-red-400 font-bold">Pilih minimal 1 band sebelum mengunci</span>
+            <span class="text-red-400 font-bold">Select at least 1 band before locking</span>
           {:else}
-            <span class="text-foreground font-bold">{selectedBandIds.length} band</span> siap dikunci
+            <span class="text-foreground font-bold">{selectedBandIds.length} bands</span> ready to lock
           {/if}
         </div>
       </div>
@@ -1385,7 +1385,7 @@
         size="md"
         disabled={isLoadingBands || isResetting || isLocking}
         onclick={() => (showResetModal = true)}
-        title="Kembalikan SIM ke mode otomatis"
+        title="Restore SIM to automatic mode"
       >
         <RotateCcw class="w-4 h-4 mr-1.5" />
         <span>Reset to Auto</span>
@@ -1397,7 +1397,7 @@
         size="md"
         disabled={selectedBandIds.length === 0 || isLoadingBands || isLocking}
         onclick={applyLock}
-        title="Terapkan kunci ke frekuensi yang dipilih"
+        title="Apply lock to selected frequencies"
       >
         {#if isLocking}
           <RefreshCw class="w-4 h-4 mr-1.5 animate-spin" />
@@ -1414,7 +1414,7 @@
 <!-- RESET CONFIRMATION MODAL -->
 <Modal
   open={showResetModal}
-  title="Konfirmasi Reset ke Mode Auto"
+  title="Confirm Reset to Automatic Mode"
   onclose={() => (showResetModal = false)}
 >
   <div class="space-y-4 font-mono text-xs">
@@ -1422,16 +1422,16 @@
       <AlertTriangle class="w-5 h-5 shrink-0 text-amber-400 mt-0.5" />
       <div class="space-y-1">
         <p class="font-bold text-sm text-foreground">
-          Reset Kunci Frekuensi SIM {selectedSlot + 1}?
+          Reset Frequency Lock for SIM {selectedSlot + 1}?
         </p>
         <p class="text-muted leading-relaxed">
-          Tindakan ini akan menghapus seluruh pembatasan band frekuensi pada SIM {selectedSlot + 1} dan mengembalikan modem Samsung ke pemilihan dinamis (All Bands Permitted).
+          This action will clear all frequency band restrictions on SIM {selectedSlot + 1} and restore the Samsung modem to dynamic selection (All Bands Permitted).
         </p>
       </div>
     </div>
 
     <p class="text-muted text-[11px] leading-relaxed">
-      Koneksi data seluler Anda mungkin akan mengalami radio reset singkat (1-3 detik) saat modem kembali menegosiasikan sinyal terbaik dengan BTS terdekat.
+      Your cellular data connection may undergo a brief radio reset (1-3 seconds) while the modem renegotiates the optimal signal with the cellular tower.
     </p>
   </div>
 
@@ -1443,7 +1443,7 @@
         disabled={isResetting}
         onclick={() => (showResetModal = false)}
       >
-        Batal
+        Cancel
       </Button>
       <Button
         variant="danger"
@@ -1453,10 +1453,10 @@
       >
         {#if isResetting}
           <RefreshCw class="w-3.5 h-3.5 mr-1.5 animate-spin" />
-          <span>Mereset Modem...</span>
+          <span>Resetting Modem...</span>
         {:else}
           <RotateCcw class="w-3.5 h-3.5 mr-1.5" />
-          <span>Ya, Reset ke Auto</span>
+          <span>Confirm Reset</span>
         {/if}
       </Button>
     </div>

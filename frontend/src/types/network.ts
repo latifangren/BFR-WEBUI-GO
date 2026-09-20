@@ -84,3 +84,20 @@ export interface RPSConfig {
   interface: string
   bitmask: string
 }
+
+export type ScheduleMode = 'disabled' | 'interval' | 'clock'
+
+export interface ScheduleConfig {
+  enabled: boolean
+  mode: ScheduleMode
+  interval_hours: number
+  clock_time: string
+}
+
+export interface ScheduleStatus {
+  config: ScheduleConfig
+  uptime_seconds: number
+  next_reboot_in_sec: number
+  next_reboot_time: string
+  description: string
+}

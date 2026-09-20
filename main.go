@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"crypto/tls"
 	"flag"
 	"log"
 	"net/http"
@@ -15,9 +16,11 @@ import (
 	"bfr-webui-go/internal/handlers"
 	"bfr-webui-go/internal/logger"
 	"bfr-webui-go/internal/network"
+	"bfr-webui-go/internal/power"
 	"bfr-webui-go/internal/qos"
 	"bfr-webui-go/internal/ssh"
 	"bfr-webui-go/internal/telegram"
+	"bfr-webui-go/internal/tlsgen"
 	_ "bfr-webui-go/internal/vnstat"
 )
 
@@ -25,6 +28,7 @@ func main() {
 	logger.SetupGlobalLogHook()
 
 	port := flag.String("port", "80", "HTTP server port")
+	httpsPort := flag.String("https-port", "443", "HTTPS server port (0 to disable)")
 	applyTweaks := flag.Bool("apply-tweaks", false, "Apply all optimized network tweaks and exit")
 	flag.Parse()
 
@@ -39,6 +43,9 @@ func main() {
 
 	if envPort := os.Getenv("PORT"); envPort != "" {
 		*port = envPort
+	}
+	if envHttpsPort := os.Getenv("HTTPS_PORT"); envHttpsPort != "" {
+		*httpsPort = envHttpsPort
 	}
 
 	authPass := os.Getenv("BFR_PASSWORD")
@@ -74,10 +81,35 @@ func main() {
 		}
 	}()
 
+	go func() {
+		power.GetScheduler().Start()
+	}()
+
 	addr := ":" + *port
 	server := &http.Server{
 		Addr:    addr,
 		Handler: handlers.GzipMiddleware(mux),
+	}
+
+	var httpsServer *http.Server
+	if *httpsPort != "" && *httpsPort != "0" {
+		certPath, keyPath, err := tlsgen.EnsureCertificates("")
+		if err != nil {
+			log.Printf("[TLS] Warning: Failed to prepare certificates: %v", err)
+		} else {
+			httpsAddr := ":" + *httpsPort
+			httpsServer = &http.Server{
+				Addr:      httpsAddr,
+				Handler:   handlers.GzipMiddleware(mux),
+				TLSConfig: &tls.Config{MinVersion: tls.VersionTLS12},
+			}
+			go func() {
+				log.Printf("BFR WEBUI GO HTTPS starting on %s...", httpsAddr)
+				if err := httpsServer.ListenAndServeTLS(certPath, keyPath); err != nil && err != http.ErrServerClosed {
+					log.Printf("[TLS] HTTPS server error: %v", err)
+				}
+			}()
+		}
 	}
 
 	// L-5: Graceful shutdown on SIGINT / SIGTERM.
@@ -98,7 +130,12 @@ func main() {
 	defer cancel()
 
 	if err := server.Shutdown(ctx); err != nil {
-		log.Fatalf("Server forced to shutdown: %v", err)
+		log.Printf("HTTP server shutdown error: %v", err)
+	}
+	if httpsServer != nil {
+		if err := httpsServer.Shutdown(ctx); err != nil {
+			log.Printf("HTTPS server shutdown error: %v", err)
+		}
 	}
 
 	log.Println("Server exited cleanly.")

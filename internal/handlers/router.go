@@ -167,6 +167,7 @@ func RegisterRoutes(mux *http.ServeMux, authMgr *auth.Manager) {
 
 	// Power URLs
 	mux.HandleFunc("/api/power", wrap(HandlePower, true))
+	mux.HandleFunc("/api/power/schedule", wrap(HandlePowerSchedule, true))
 
 	// Network URLs
 	mux.HandleFunc("/api/network/tweaks", wrap(HandleNetworkTweaks, true))

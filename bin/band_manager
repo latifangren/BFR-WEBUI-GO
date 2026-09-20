@@ -14,7 +14,7 @@ shift 2 2>/dev/null
 TMP_DIR=/data/local/tmp/radiotmp
 mkdir -p "$TMP_DIR/dalvik-cache/arm64"
 chown -R 1001:1001 "$TMP_DIR"
-chmod -R 770 "$TMP_DIR"
+chmod -R 777 "$TMP_DIR"
 
 # Resolve source DEX path dynamically
 SRC_DEX="/data/adb/modules/bfr_webui_go/bin/band_manager.dex"
@@ -43,4 +43,4 @@ EOF
 chown 1001:1001 "$RUNNER"
 chmod 755 "$RUNNER"
 
-su 1001 -c "$RUNNER \"$CMD\" \"$SLOT\" \"$@\""
+su 1001 -c "$RUNNER $CMD $SLOT $@"

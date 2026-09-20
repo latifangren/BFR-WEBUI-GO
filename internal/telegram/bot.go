@@ -22,6 +22,7 @@ import (
 	"bfr-webui-go/internal/logger"
 	"bfr-webui-go/internal/modules"
 	"bfr-webui-go/internal/network"
+	"bfr-webui-go/internal/power"
 	"bfr-webui-go/internal/proxy"
 	"bfr-webui-go/internal/smsviewer"
 	"bfr-webui-go/internal/ssh"
@@ -104,6 +105,15 @@ var (
 	globalManager *Manager
 	once          sync.Once
 )
+
+func init() {
+	power.GetScheduler().SetRebootNotifier(func(msg string) {
+		m := GetManager()
+		if m != nil && m.IsEnabled() {
+			m.BroadcastMessage(msg)
+		}
+	})
+}
 
 func getStoragePath() string {
 	return config.GetPersistentFilePath("telegram_config.json")
@@ -546,7 +556,8 @@ func getMainReplyKeyboard() ReplyKeyboardMarkup {
 			{{Text: "📊 Status Sistem"}, {Text: "🔋 Battery Guard"}},
 			{{Text: "🔑 Kontrol SSH"}, {Text: "🌐 Status Proxy"}},
 			{{Text: "📶 Klien Hotspot"}, {Text: "🧩 Modul Root"}},
-			{{Text: "🌐 Cek IP Publik"}, {Text: "🔄 Refresh Menu"}},
+			{{Text: "🔄 Auto Reboot"}, {Text: "🌐 Cek IP Publik"}},
+			{{Text: "🔄 Refresh Menu"}},
 		},
 		ResizeKeyboard: true,
 		Persistent:     true,
@@ -647,6 +658,79 @@ func buildProxyMessageAndKeyboard() (string, InlineKeyboardMarkup) {
 		InlineKeyboard: [][]InlineKeyboardButton{
 			{
 				{Text: "🔄 Restart Proxy", CallbackData: "cb_proxy_restart"},
+			},
+		},
+	}
+	return msg, kb
+}
+
+func formatDuration(sec int64) string {
+	if sec < 60 {
+		return fmt.Sprintf("%d dtk", sec)
+	}
+	m := sec / 60
+	h := m / 60
+	m = m % 60
+	if h > 0 {
+		return fmt.Sprintf("%dj %dm", h, m)
+	}
+	return fmt.Sprintf("%dm", m)
+}
+
+func buildAutoRebootMessageAndKeyboard() (string, InlineKeyboardMarkup) {
+	st := power.GetScheduler().GetStatus()
+
+	enabledStr := "Nonaktif 🔴"
+	if st.Config.Enabled {
+		enabledStr = "Aktif 🟢"
+	}
+
+	modeStr := "Disabled"
+	if st.Config.Mode == power.ScheduleModeInterval {
+		modeStr = fmt.Sprintf("Interval (%d Jam)", st.Config.IntervalHours)
+	} else if st.Config.Mode == power.ScheduleModeClock {
+		modeStr = fmt.Sprintf("Jam Tertentu (%s)", st.Config.ClockTime)
+	}
+
+	uptimeMins := st.UptimeSeconds / 60
+	uptimeHours := uptimeMins / 60
+	uptimeMins = uptimeMins % 60
+
+	nextReboot := "Tidak dijadwalkan"
+	if st.NextRebootInSec >= 0 {
+		nextReboot = fmt.Sprintf("%s (%s lagi)", st.NextRebootTime, formatDuration(st.NextRebootInSec))
+	}
+
+	msg := fmt.Sprintf("🔄 *Auto-Reboot Scheduler*\n\n"+
+		"• *Status:* %s\n"+
+		"• *Mode:* %s\n"+
+		"• *Uptime Perangkat:* %dh %dm\n"+
+		"• *Jadwal Reboot Berikutnya:* %s\n"+
+		"• *Keterangan:* %s\n\n"+
+		"💡 _Pilih opsi di bawah untuk mengatur jadwal reboot otomatis._",
+		enabledStr, modeStr, uptimeHours, uptimeMins, nextReboot, st.Description,
+	)
+
+	kb := InlineKeyboardMarkup{
+		InlineKeyboard: [][]InlineKeyboardButton{
+			{
+				{Text: "⏱ 2 Jam", CallbackData: "cb_autoreboot_interval_2"},
+				{Text: "⏱ 4 Jam", CallbackData: "cb_autoreboot_interval_4"},
+				{Text: "⏱ 6 Jam", CallbackData: "cb_autoreboot_interval_6"},
+			},
+			{
+				{Text: "⏱ 8 Jam", CallbackData: "cb_autoreboot_interval_8"},
+				{Text: "⏱ 12 Jam", CallbackData: "cb_autoreboot_interval_12"},
+				{Text: "⏱ 24 Jam", CallbackData: "cb_autoreboot_interval_24"},
+			},
+			{
+				{Text: "⏰ 03:00", CallbackData: "cb_autoreboot_clock_03:00"},
+				{Text: "⏰ 04:00", CallbackData: "cb_autoreboot_clock_04:00"},
+				{Text: "⏰ 05:00", CallbackData: "cb_autoreboot_clock_05:00"},
+			},
+			{
+				{Text: "❌ Matikan Auto Reboot", CallbackData: "cb_autoreboot_disable"},
+				{Text: "🔄 Refresh", CallbackData: "cb_autoreboot_refresh"},
 			},
 		},
 	}
@@ -801,6 +885,16 @@ func (m *Manager) SendMessageToAllowed(text string) {
 
 	for _, chatID := range allowed {
 		m.sendMessage(chatID, text)
+	}
+}
+
+func (m *Manager) BroadcastMessage(text string) {
+	m.SendMessageToAllowed(text)
+}
+
+func BroadcastMessage(text string) {
+	if globalManager != nil {
+		globalManager.BroadcastMessage(text)
 	}
 }
 
@@ -1040,6 +1134,57 @@ func (m *Manager) handleCallbackQuery(cb *struct {
 		} else {
 			m.sendMessage(chatID, "❌ Reboot dibatalkan.")
 		}
+
+	case "cb_autoreboot_disable":
+		_ = power.GetScheduler().UpdateConfig(power.ScheduleConfig{
+			Enabled: false,
+			Mode:    power.ScheduleModeDisabled,
+		})
+		msg, kb := buildAutoRebootMessageAndKeyboard()
+		if msgID > 0 {
+			m.editMessageText(chatID, msgID, msg, kb)
+		} else {
+			m.sendMessageFull(chatID, msg, kb)
+		}
+
+	case "cb_autoreboot_refresh":
+		msg, kb := buildAutoRebootMessageAndKeyboard()
+		if msgID > 0 {
+			m.editMessageText(chatID, msgID, msg, kb)
+		} else {
+			m.sendMessageFull(chatID, msg, kb)
+		}
+
+	default:
+		if strings.HasPrefix(cb.Data, "cb_autoreboot_interval_") {
+			hoursStr := strings.TrimPrefix(cb.Data, "cb_autoreboot_interval_")
+			if hours, err := strconv.Atoi(hoursStr); err == nil && hours >= 1 {
+				_ = power.GetScheduler().UpdateConfig(power.ScheduleConfig{
+					Enabled:       true,
+					Mode:          power.ScheduleModeInterval,
+					IntervalHours: hours,
+				})
+			}
+			msg, kb := buildAutoRebootMessageAndKeyboard()
+			if msgID > 0 {
+				m.editMessageText(chatID, msgID, msg, kb)
+			} else {
+				m.sendMessageFull(chatID, msg, kb)
+			}
+		} else if strings.HasPrefix(cb.Data, "cb_autoreboot_clock_") {
+			clockStr := strings.TrimPrefix(cb.Data, "cb_autoreboot_clock_")
+			_ = power.GetScheduler().UpdateConfig(power.ScheduleConfig{
+				Enabled:   true,
+				Mode:      power.ScheduleModeClock,
+				ClockTime: clockStr,
+			})
+			msg, kb := buildAutoRebootMessageAndKeyboard()
+			if msgID > 0 {
+				m.editMessageText(chatID, msgID, msg, kb)
+			} else {
+				m.sendMessageFull(chatID, msg, kb)
+			}
+		}
 	}
 }
 
@@ -1067,6 +1212,8 @@ func (m *Manager) handleMessage(chatID int64, text string) {
 		text = "/modules"
 	case "🌐 Cek IP Publik":
 		text = "/ip"
+	case "🔄 Auto Reboot":
+		text = "/autoreboot"
 	case "🔄 Refresh Menu":
 		text = "/start"
 	}
@@ -1093,9 +1240,14 @@ func (m *Manager) handleMessage(chatID int64, text string) {
 			"/modules - Active system modules\n" +
 			"/ip - Public IP address\n" +
 			"/tweak - Tweaks status\n" +
+			"/autoreboot - Auto-reboot scheduler settings\n" +
 			"/cmd <command> - Execute shell command\n" +
 			"/reboot - Reboot device"
 		m.sendMessageFull(chatID, msg, getMainReplyKeyboard())
+
+	case "/autoreboot", "/reboot_schedule":
+		msg, kb := buildAutoRebootMessageAndKeyboard()
+		m.sendMessageFull(chatID, msg, kb)
 
 	case "/sms":
 		count := 5

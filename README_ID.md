@@ -77,6 +77,29 @@ Arsitektur BFR-WEBUI-GO
 
 ---
 
+## 📥 Panduan Pemasangan
+
+1. Unduh file `BFR-WEBUI-Magisk-v1.2.4.zip` dari halaman [Releases](https://github.com/latifangren/BFR-WEBUI-GO/releases).
+2. Buka aplikasi **Magisk / KernelSU / APatch** -> buka tab **Modul** -> pilih **Pasang dari penyimpanan (Install from storage)** -> pilih file ZIP yang telah diunduh -> tunggu hingga proses selesai -> **Reboot HP**.
+3. Buka browser di perangkat lain yang terhubung ke jaringan Wi-Fi / hotspot yang sama dan akses:
+   - **HTTP**: `http://<IP-HP>` (port standar 80 default)
+   - **HTTPS**: `https://<IP-HP>` (port standar 443 default, langsung akses tanpa port tambahan)
+
+---
+
+## 📺 Fitur Scrcpy Remote Screen & Catatan HTTPS
+
+> ⚠️ **PENTING: Wajib Menggunakan Konteks Aman (HTTPS) untuk Fitur Scrcpy**
+
+- Fitur **Scrcpy Remote Screen Control** memanfaatkan teknologi **WebCodecs API** untuk decoding video H.264 berlatensi ultra-rendah langsung di browser.
+- Browser modern (Google Chrome, Microsoft Edge, Mozilla Firefox) memberlakukan kebijakan keamanan ketat yang **memblokir WebCodecs pada koneksi HTTP biasa** (misal: `http://<IP-HP>`). Jika dibuka via HTTP biasa, browser memblokir hardware decoder video sehingga layar tampil **blank hitam**.
+- **Solusi**:
+  1. Akses WebUI via **HTTPS**: `https://<IP-HP>` (HTTPS berjalan otomatis di port standar 443, sehingga cukup ketikkan alamat URL secara langsung tanpa port).
+  2. Karena BFR-WEBUI-GO menggunakan sertifikat SSL self-signed bawaan (`internal/tlsgen/`), browser akan menampilkan peringatan keamanan saat pertama kali dibuka. Klik **"Tingkat Lanjut (Advanced)"** lalu pilih **"Lanjutkan ke <IP-HP> (tidak aman)" / "Proceed"**.
+  3. *(Alternatif Chromium)*: Masukkan origin `http://<IP-HP>` ke dalam pengaturan `chrome://flags/#unsafely-treat-insecure-origin-as-secure` kemudian restart browser.
+
+---
+
 ## 📦 Kompilasi & Pembuatan Paket
 
 ### Prasyarat
@@ -93,7 +116,7 @@ Pada Linux / macOS:
 chmod +x build.sh
 ./build.sh
 ```
-Paket ZIP modul Magisk (`BFR-WEBUI-Magisk-v1.2.3-local.zip`) akan dihasilkan di root proyek, siap diflash melalui Magisk, KernelSU, atau APatch manager.
+Paket ZIP modul Magisk (`BFR-WEBUI-Magisk-v1.2.4-local.zip`) akan dihasilkan di root proyek, siap diflash melalui Magisk, KernelSU, atau APatch manager.
 
 ### Kompilasi Biner Standalone (Cross-Compile)
 Untuk mengompilasi biner Android ARM64 langsung:

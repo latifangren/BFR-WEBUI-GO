@@ -68,15 +68,49 @@ func HandlePower(w http.ResponseWriter, r *http.Request) {
 	logger.Get().Infof("Power", "Executing power action: %s", act)
 
 	go func() {
-		time.Sleep(500 * time.Millisecond)
+		time.Sleep(1 * time.Second)
 		if err := power.Execute(act); err != nil {
-			log.Printf("Power execution error: %v", err)
+			logger.Get().Errorf("Power", "Failed to execute %s: %v", act, err)
+			log.Printf("Failed to execute %s: %v", act, err)
 		}
 	}()
 
 	w.Header().Set("Content-Type", "application/json")
 	_ = json.NewEncoder(w).Encode(map[string]interface{}{
 		"success": true,
-		"message": fmt.Sprintf("Executing action: %s", act),
+		"action":  actionStr,
+		"message": fmt.Sprintf("Power action '%s' initiated successfully", actionStr),
 	})
+}
+
+func HandlePowerSchedule(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	scheduler := power.GetScheduler()
+
+	switch r.Method {
+	case http.MethodGet:
+		status := scheduler.GetStatus()
+		_ = json.NewEncoder(w).Encode(status)
+
+	case http.MethodPost:
+		var cfg power.ScheduleConfig
+		if err := json.NewDecoder(r.Body).Decode(&cfg); err != nil {
+			w.WriteHeader(http.StatusBadRequest)
+			_ = json.NewEncoder(w).Encode(map[string]interface{}{"error": "Invalid request payload"})
+			return
+		}
+
+		if err := scheduler.UpdateConfig(cfg); err != nil {
+			w.WriteHeader(http.StatusBadRequest)
+			_ = json.NewEncoder(w).Encode(map[string]interface{}{"error": err.Error()})
+			return
+		}
+
+		status := scheduler.GetStatus()
+		_ = json.NewEncoder(w).Encode(status)
+
+	default:
+		w.WriteHeader(http.StatusMethodNotAllowed)
+		_ = json.NewEncoder(w).Encode(map[string]interface{}{"error": "Method not allowed"})
+	}
 }

@@ -77,6 +77,29 @@ BFR-WEBUI-GO Architecture
 
 ---
 
+## 📥 Installation
+
+1. Download `BFR-WEBUI-Magisk-v1.2.4.zip` from the [Releases](https://github.com/latifangren/BFR-WEBUI-GO/releases) page.
+2. Open the **Magisk / KernelSU / APatch** app -> navigate to the **Modules** tab -> select **Install from storage** -> choose the downloaded ZIP file -> wait for the installation process to complete -> **Reboot** your device.
+3. Open a browser on any device connected to the same Wi-Fi or hotspot network and navigate to:
+   - **HTTP**: `http://<DEVICE-IP>` (standard port 80 default)
+   - **HTTPS**: `https://<DEVICE-IP>` (standard port 443 default, direct access without extra port)
+
+---
+
+## 📺 Scrcpy Remote Screen & HTTPS Notice
+
+> ⚠️ **IMPORTANT: HTTPS (Secure Context) Required for Scrcpy WebCodecs**
+
+- The **Scrcpy Remote Screen Control** feature utilizes the modern browser **WebCodecs API** for ultra-low latency H.264 video decoding.
+- Modern browsers (Google Chrome, Microsoft Edge, Mozilla Firefox) require a **Secure Context** (`window.isSecureContext`) for WebCodecs. When accessing via plain HTTP (`http://<DEVICE-IP>`), browsers automatically block the video hardware decoder, resulting in a **blank black screen**.
+- **Solution**:
+  1. Access the WebUI via **HTTPS**: `https://<DEVICE-IP>` (native HTTPS runs on standard port 443, so simply type the URL directly without specifying any port).
+  2. Since BFR-WEBUI-GO generates a self-signed SSL certificate automatically (`internal/tlsgen/`), your browser will present a security warning on the first visit. Click **"Advanced"** and select **"Proceed to <DEVICE-IP> (unsafe)"** to continue.
+  3. *(Chromium alternative)*: Add `http://<DEVICE-IP>` to `chrome://flags/#unsafely-treat-insecure-origin-as-secure` and restart the browser.
+
+---
+
 ## 📦 Building & Packaging
 
 ### Prerequisites
@@ -93,7 +116,7 @@ On Linux / macOS:
 chmod +x build.sh
 ./build.sh
 ```
-The output Magisk module ZIP (`BFR-WEBUI-Magisk-v1.2.3-local.zip`) will be generated at the workspace root, ready to flash via Magisk, KernelSU, or APatch manager.
+The output Magisk module ZIP (`BFR-WEBUI-Magisk-v1.2.4-local.zip`) will be generated at the workspace root, ready to flash via Magisk, KernelSU, or APatch manager.
 
 ### Cross-Compiling Standalone Binary
 To compile the Android ARM64 binary directly:

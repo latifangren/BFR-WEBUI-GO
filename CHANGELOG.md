@@ -9,6 +9,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.2.4] - 2026-09-20
+
+### Added
+- **Scrcpy Remote Screen Control (`TabScrcpy.svelte`, `internal/scrcpy/`)**: Real-time hardware video streaming using embedded `scrcpy-server.jar` and low-latency WebCodecs Annex-B H.264 decoding.
+- **Multi-Touch Pointer Support**: Multi-finger gesture injection with `pointerId` tracking in WebSocket stream.
+- **Hardware Control Injection**: Remote keys for Power, Home, Back, Recents, Volume Up/Down, and physical Screen Power toggle (`screen_power`).
+- **Power Auto-Reboot Scheduler (`internal/power/scheduler.go`, `internal/handlers/power_handler.go`, `TabPower.svelte`)**: Interval-based and daily clock auto-reboot scheduler with Telegram bot broadcast notification.
+- **Built-in Self-Signed TLS Generator (`internal/tlsgen/`)**: Automated ECDSA P-256 certificate provisioning for native HTTPS on port 443.
+
+### Fixed & Optimized
+- **Retro Deck Theme Contrast**: Resolved button and active pill blackout inside tone cards.
+- **Scrcpy Mobile Viewport Layout**: Added viewport-aware max-height bounds on phone stage canvas and compact mobile navigation dock to prevent off-screen truncation.
+
+### Browser Security & HTTPS Notice
+- Modern browsers (Chrome, Edge, Firefox) enforce **Secure Context** (`window.isSecureContext`) restrictions on the WebCodecs API (`VideoDecoder`).
+- Accessing via plain HTTP (`http://<ip>`) results in a blank black screen because the browser blocks video hardware decoders.
+- Users should access the WebUI directly via HTTPS (`https://<ip>`) without specifying ports (since default HTTPS port is 443).
+
 ## [1.2.3] - 2026-09-17
 
 ### Added
