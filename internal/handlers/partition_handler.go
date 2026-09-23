@@ -22,7 +22,9 @@ type backupGroupRequest struct {
 }
 
 type deleteBackupRequest struct {
-	Filename string `json:"filename"`
+	Filename  string   `json:"filename,omitempty"`
+	Filenames []string `json:"filenames,omitempty"`
+	All       bool     `json:"all,omitempty"`
 }
 
 // HandleListPartitions returns list of partitions and current slot info
@@ -74,7 +76,7 @@ func HandleBackupPartition(w http.ResponseWriter, r *http.Request) {
 	_ = json.NewEncoder(w).Encode(result)
 }
 
-// HandleBackupGroup backs up a predefined group of partitions
+// HandleBackupGroup backs up a predefined group of partitions into a single .zip archive
 func HandleBackupGroup(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
@@ -89,7 +91,7 @@ func HandleBackupGroup(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	results, err := partition.BackupGroup(req.Group, req.Compress)
+	res, err := partition.BackupGroupZip(req.Group)
 	if err != nil {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusBadRequest)
@@ -99,8 +101,13 @@ func HandleBackupGroup(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
 	_ = json.NewEncoder(w).Encode(map[string]interface{}{
-		"group":   req.Group,
-		"results": results,
+		"success":    true,
+		"group":      req.Group,
+		"filename":   res.Filename,
+		"file_path":  res.FilePath,
+		"size_bytes": res.SizeBytes,
+		"size_human": partition.FormatBytesHuman(res.SizeBytes),
+		"sha256":     res.SHA256,
 	})
 }
 
@@ -150,7 +157,7 @@ func HandleDownloadBackup(w http.ResponseWriter, r *http.Request) {
 	http.ServeFile(w, r, filePath)
 }
 
-// HandleDeleteBackup deletes a backup file and its .sha256 sidecar
+// HandleDeleteBackup deletes one, multiple, or all backup files
 func HandleDeleteBackup(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
@@ -158,23 +165,59 @@ func HandleDeleteBackup(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var req deleteBackupRequest
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil || req.Filename == "" {
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusBadRequest)
-		_ = json.NewEncoder(w).Encode(map[string]interface{}{"error": "Filename required"})
-		return
-	}
-
-	if err := partition.DeleteBackup(req.Filename); err != nil {
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusBadRequest)
-		_ = json.NewEncoder(w).Encode(map[string]interface{}{"error": err.Error()})
+		_ = json.NewEncoder(w).Encode(map[string]interface{}{"error": "Invalid request payload"})
 		return
 	}
 
 	w.Header().Set("Content-Type", "application/json")
+
+	if req.All {
+		count, err := partition.DeleteAllBackups()
+		if err != nil && count == 0 {
+			w.WriteHeader(http.StatusInternalServerError)
+			_ = json.NewEncoder(w).Encode(map[string]interface{}{"error": err.Error()})
+			return
+		}
+		_ = json.NewEncoder(w).Encode(map[string]interface{}{
+			"success": true,
+			"deleted": count,
+		})
+		return
+	}
+
+	if len(req.Filenames) > 0 {
+		count, err := partition.DeleteMultipleBackups(req.Filenames)
+		if err != nil && count == 0 {
+			w.WriteHeader(http.StatusBadRequest)
+			_ = json.NewEncoder(w).Encode(map[string]interface{}{"error": err.Error()})
+			return
+		}
+		_ = json.NewEncoder(w).Encode(map[string]interface{}{
+			"success": true,
+			"deleted": count,
+		})
+		return
+	}
+
+	if req.Filename != "" {
+		if err := partition.DeleteBackup(req.Filename); err != nil {
+			w.WriteHeader(http.StatusBadRequest)
+			_ = json.NewEncoder(w).Encode(map[string]interface{}{"error": err.Error()})
+			return
+		}
+		_ = json.NewEncoder(w).Encode(map[string]interface{}{
+			"success": true,
+			"deleted": 1,
+		})
+		return
+	}
+
+	w.WriteHeader(http.StatusBadRequest)
 	_ = json.NewEncoder(w).Encode(map[string]interface{}{
-		"success": true,
+		"error": "Filename, filenames, or all flag required",
 	})
 }
 

@@ -1,9 +1,11 @@
 package partition_test
 
 import (
+	"archive/zip"
 	"bytes"
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 
 	"bfr-webui-go/internal/partition"
@@ -194,5 +196,122 @@ func TestBackupPartition_ZeroBytesError(t *testing.T) {
 	res, err := partition.BackupPartition("boot_a", false)
 	if err == nil {
 		t.Fatalf("expected error for 0-byte read, got success: %+v", res)
+	}
+}
+
+func TestBackupGroupZip(t *testing.T) {
+	tempDir := t.TempDir()
+	devRootDir := filepath.Join(tempDir, "by-name")
+	backupDir := filepath.Join(tempDir, "backups")
+
+	_ = os.MkdirAll(devRootDir, 0755)
+	_ = os.MkdirAll(backupDir, 0755)
+
+	t.Setenv("BFR_BLOCK_DEV_ROOT", devRootDir)
+	t.Setenv("BFR_BACKUP_DIR", backupDir)
+
+	// Create fake core partitions
+	_ = os.WriteFile(filepath.Join(devRootDir, "boot"), []byte("BOOT_DATA"), 0644)
+	_ = os.WriteFile(filepath.Join(devRootDir, "dtbo"), []byte("DTBO_DATA"), 0644)
+
+	res, err := partition.BackupGroupZip("boot_core")
+	if err != nil {
+		t.Fatalf("BackupGroupZip failed: %v", err)
+	}
+	if !res.Success {
+		t.Fatalf("expected success, got error: %s", res.Error)
+	}
+	if !strings.HasSuffix(res.Filename, ".zip") {
+		t.Errorf("expected .zip extension, got %s", res.Filename)
+	}
+
+	// Verify zip contents
+	r, err := zip.OpenReader(res.FilePath)
+	if err != nil {
+		t.Fatalf("failed to open created zip: %v", err)
+	}
+
+	foundEntries := make(map[string]bool)
+	for _, f := range r.File {
+		foundEntries[f.Name] = true
+	}
+	_ = r.Close()
+
+	for _, expected := range []string{"boot.img", "dtbo.img", "checksums.sha256", "manifest.json"} {
+		if !foundEntries[expected] {
+			t.Errorf("expected entry '%s' inside zip", expected)
+		}
+	}
+
+	// Test ListBackups includes zip
+	backups, err := partition.ListBackups()
+	if err != nil {
+		t.Fatalf("ListBackups failed: %v", err)
+	}
+	if len(backups) != 1 {
+		t.Fatalf("expected 1 backup, got %d", len(backups))
+	}
+	if !backups[0].IsCompressed {
+		t.Errorf("expected IsCompressed to be true for zip")
+	}
+	if !strings.Contains(backups[0].PartitionName, "(zip)") {
+		t.Errorf("expected (zip) in partition name, got %s", backups[0].PartitionName)
+	}
+
+	// Test DeleteBackup for zip
+	if err := partition.DeleteBackup(res.Filename); err != nil {
+		t.Fatalf("DeleteBackup failed for zip: %v", err)
+	}
+	if _, err := os.Stat(res.FilePath); !os.IsNotExist(err) {
+		t.Errorf("expected zip file to be deleted")
+	}
+}
+
+func TestDeleteMultipleAndAllBackups(t *testing.T) {
+	tempDir := t.TempDir()
+	backupDir := filepath.Join(tempDir, "backups")
+	_ = os.MkdirAll(backupDir, 0755)
+
+	t.Setenv("BFR_BACKUP_DIR", backupDir)
+
+	f1 := "boot_20260101_120000.img"
+	f2 := "dtbo_20260101_120000.img"
+	f3 := "recovery_20260101_120000.img"
+
+	_ = os.WriteFile(filepath.Join(backupDir, f1), []byte("test1"), 0644)
+	_ = os.WriteFile(filepath.Join(backupDir, f1+".sha256"), []byte("sha1"), 0644)
+	_ = os.WriteFile(filepath.Join(backupDir, f2), []byte("test2"), 0644)
+	_ = os.WriteFile(filepath.Join(backupDir, f2+".sha256"), []byte("sha2"), 0644)
+	_ = os.WriteFile(filepath.Join(backupDir, f3), []byte("test3"), 0644)
+	_ = os.WriteFile(filepath.Join(backupDir, f3+".sha256"), []byte("sha3"), 0644)
+
+	// Test DeleteMultipleBackups
+	deleted, err := partition.DeleteMultipleBackups([]string{f1, f2})
+	if err != nil {
+		t.Fatalf("DeleteMultipleBackups failed: %v", err)
+	}
+	if deleted != 2 {
+		t.Errorf("expected 2 deleted, got %d", deleted)
+	}
+	if _, err := os.Stat(filepath.Join(backupDir, f1)); !os.IsNotExist(err) {
+		t.Errorf("expected f1 to be deleted")
+	}
+	if _, err := os.Stat(filepath.Join(backupDir, f2)); !os.IsNotExist(err) {
+		t.Errorf("expected f2 to be deleted")
+	}
+	if _, err := os.Stat(filepath.Join(backupDir, f3)); err != nil {
+		t.Errorf("expected f3 to still exist")
+	}
+
+	// Test DeleteAllBackups
+	allDeleted, err := partition.DeleteAllBackups()
+	if err != nil {
+		t.Fatalf("DeleteAllBackups failed: %v", err)
+	}
+	if allDeleted != 1 {
+		t.Errorf("expected 1 deleted in DeleteAllBackups, got %d", allDeleted)
+	}
+	if _, err := os.Stat(filepath.Join(backupDir, f3)); !os.IsNotExist(err) {
+		t.Errorf("expected f3 to be deleted")
 	}
 }

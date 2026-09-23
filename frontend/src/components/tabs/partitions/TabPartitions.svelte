@@ -1,5 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte'
+  import { HardDriveDownload } from '@lucide/svelte'
   import { api } from '../../../api/client'
   import { toastStore } from '../../../stores/toast.svelte'
   import type {
@@ -28,7 +29,7 @@
   // Filters & Actions
   let activeFilter = $state<string>('all')
   let searchQuery = $state<string>('')
-  let compress = $state<boolean>(true)
+  let autoDownload = $state<boolean>(true)
   let isBackingUp = $state<string | null>(null)
 
   // Flashing Modal
@@ -79,20 +80,27 @@
       isBackingUp = group
       const res = await api.post<BackupGroupResponse>('/api/partitions/backup-group', {
         group,
-        compress,
+        compress: true,
       })
 
-      if (res && Array.isArray(res.results)) {
-        const successes = res.results.filter((r) => r.success)
-        const fails = res.results.filter((r) => !r.success)
-        const groupLabel = group === 'radio_efs' ? 'Radio & EFS' : 'Boot & Kernel Core'
+      const groupLabel = group === 'radio_efs' ? 'Radio & EFS' : 'Boot & Kernel Core'
 
-        if (fails.length === 0) {
-          toastStore.success(`All ${successes.length} ${groupLabel} partitions backed up successfully.`)
-        } else {
-          toastStore.warning(`Partial backup: ${successes.length} succeeded, ${fails.length} failed.`)
+      if (res && res.success && res.filename) {
+        toastStore.success(`${groupLabel} packaged into ${res.filename} (${res.size_human})`)
+
+        if (autoDownload && typeof document !== 'undefined') {
+          const downloadUrl = `/api/partitions/download?filename=${encodeURIComponent(res.filename)}`
+          const link = document.createElement('a')
+          link.href = downloadUrl
+          link.download = res.filename
+          document.body.appendChild(link)
+          link.click()
+          document.body.removeChild(link)
         }
+      } else {
+        toastStore.error(res?.error || `Failed to create ${groupLabel} backup archive`)
       }
+
       await fetchBackups()
     } catch (err: unknown) {
       toastStore.error(err instanceof Error ? err.message : 'Group backup operation failed')
@@ -106,7 +114,7 @@
       isBackingUp = part.name
       const res = await api.post<BackupResult>('/api/partitions/backup', {
         partition: part.name,
-        compress,
+        compress: true,
       })
 
       if (res && res.success) {
@@ -169,6 +177,26 @@
       toastStore.error(err instanceof Error ? err.message : 'Failed to delete backup archive')
     }
   }
+
+  async function handleDeleteMultiple(filenames: string[]) {
+    try {
+      await api.post('/api/partitions/backup/delete', { filenames })
+      toastStore.success(`Successfully deleted ${filenames.length} backup archive(s)`)
+      await fetchBackups()
+    } catch (err: unknown) {
+      toastStore.error(err instanceof Error ? err.message : 'Failed to delete selected archives')
+    }
+  }
+
+  async function handleDeleteAll() {
+    try {
+      await api.post('/api/partitions/backup/delete', { all: true })
+      toastStore.success('All backup archives deleted successfully')
+      await fetchBackups()
+    } catch (err: unknown) {
+      toastStore.error(err instanceof Error ? err.message : 'Failed to delete all archives')
+    }
+  }
 </script>
 
 <div class="space-y-6">
@@ -182,10 +210,54 @@
 
   <PartitionQuickActions
     {isBackingUp}
-    {compress}
-    onToggleCompress={(val) => (compress = val)}
+    {autoDownload}
+    onToggleAutoDownload={(val) => (autoDownload = val)}
     onBackupGroup={handleBackupGroup}
   />
+
+  <!-- Category Navigation Bar (Always Visible) -->
+  <div class="bg-card border-2 border-border rounded-lg shadow-neobrutal p-1.5 flex items-center overflow-x-auto custom-scrollbar gap-1">
+    <button
+      type="button"
+      onclick={() => (activeFilter = 'all')}
+      class="px-3.5 py-1.5 text-xs font-mono font-bold uppercase tracking-wider rounded select-none cursor-pointer transition-colors whitespace-nowrap {activeFilter === 'all' ? 'bg-foreground text-background shadow-neobrutal' : 'text-muted hover:text-foreground'}"
+    >
+      All ({partitions.length})
+    </button>
+
+    <button
+      type="button"
+      onclick={() => (activeFilter = 'radio_efs')}
+      class="px-3.5 py-1.5 text-xs font-mono font-bold uppercase tracking-wider rounded select-none cursor-pointer transition-colors whitespace-nowrap {activeFilter === 'radio_efs' ? 'bg-foreground text-background shadow-neobrutal' : 'text-muted hover:text-foreground'}"
+    >
+      Radio & EFS
+    </button>
+
+    <button
+      type="button"
+      onclick={() => (activeFilter = 'boot_recovery')}
+      class="px-3.5 py-1.5 text-xs font-mono font-bold uppercase tracking-wider rounded select-none cursor-pointer transition-colors whitespace-nowrap {activeFilter === 'boot_recovery' ? 'bg-foreground text-background shadow-neobrutal' : 'text-muted hover:text-foreground'}"
+    >
+      Boot & Recovery
+    </button>
+
+    <button
+      type="button"
+      onclick={() => (activeFilter = 'system_os')}
+      class="px-3.5 py-1.5 text-xs font-mono font-bold uppercase tracking-wider rounded select-none cursor-pointer transition-colors whitespace-nowrap {activeFilter === 'system_os' ? 'bg-foreground text-background shadow-neobrutal' : 'text-muted hover:text-foreground'}"
+    >
+      System OS
+    </button>
+
+    <button
+      type="button"
+      onclick={() => (activeFilter = 'backups')}
+      class="px-3.5 py-1.5 text-xs font-mono font-bold uppercase tracking-wider rounded select-none cursor-pointer transition-colors whitespace-nowrap flex items-center gap-1.5 {activeFilter === 'backups' ? 'bg-foreground text-background shadow-neobrutal' : 'text-muted hover:text-foreground'}"
+    >
+      <HardDriveDownload size={13} />
+      <span>Saved Backups ({backups.length})</span>
+    </button>
+  </div>
 
   {#if activeFilter === 'backups'}
     <PartitionBackupList
@@ -193,6 +265,8 @@
       isLoading={isLoadingBackups}
       onRefresh={fetchBackups}
       onDeleteBackup={handleDeleteBackup}
+      onDeleteMultiple={handleDeleteMultiple}
+      onDeleteAll={handleDeleteAll}
     />
   {:else}
     <PartitionTable
@@ -200,8 +274,6 @@
       {activeFilter}
       {searchQuery}
       {isBackingUp}
-      backupCount={backups.length}
-      onSelectFilter={(f) => (activeFilter = f)}
       onSearchChange={(q) => (searchQuery = q)}
       onBackupPartition={handleBackupPartition}
       onOpenFlashModal={handleOpenFlashModal}

@@ -9,15 +9,15 @@
 
   interface Props {
     isBackingUp: string | null
-    compress: boolean
-    onToggleCompress: (val: boolean) => void
+    autoDownload: boolean
+    onToggleAutoDownload: (val: boolean) => void
     onBackupGroup: (group: 'radio_efs' | 'boot_core') => void
   }
 
   let {
     isBackingUp,
-    compress,
-    onToggleCompress,
+    autoDownload,
+    onToggleAutoDownload,
     onBackupGroup,
   }: Props = $props()
 </script>
@@ -31,12 +31,12 @@
     <label class="inline-flex items-center gap-2 cursor-pointer select-none">
       <input
         type="checkbox"
-        checked={compress}
-        onchange={(e) => onToggleCompress((e.target as HTMLInputElement).checked)}
+        checked={autoDownload}
+        onchange={(e) => onToggleAutoDownload((e.target as HTMLInputElement).checked)}
         class="rounded bg-card-sub border-border text-accent focus:ring-accent w-4 h-4 cursor-pointer"
       />
       <span class="text-xs font-mono font-bold text-foreground uppercase tracking-wider">
-        Gzip (.img.gz)
+        AUTO-DOWNLOAD (.ZIP)
       </span>
     </label>
   {/snippet}
@@ -56,9 +56,9 @@
             HIGH PRIORITY
           </span>
         </div>
-        <h4 class="text-sm font-bold font-mono text-foreground">Backup Radio & EFS</h4>
+        <h4 class="text-sm font-bold font-mono text-foreground">Backup Radio & EFS (.ZIP)</h4>
         <p class="text-xs text-muted">
-          Archives modemst1, modemst2, fsg, fsc, efs, nvram, nvdata, and protect partitions to safeguard baseband calibrations and IMEI.
+          Packages modemst1, modemst2, fsg, fsc, efs, nvram, and baseband calibrations into a single compressed .zip file.
         </p>
       </div>
 
@@ -72,10 +72,10 @@
       >
         {#if isBackingUp === 'radio_efs'}
           <RefreshCw size={14} class="animate-spin mr-1.5" />
-          <span>Backing up Radio & EFS...</span>
+          <span>Packaging Radio & EFS (.ZIP)...</span>
         {:else}
           <ShieldCheck size={14} class="mr-1.5 text-red-400" />
-          <span>Backup Radio & EFS (IMEI/NVRAM)</span>
+          <span>Backup Radio & EFS (.ZIP)</span>
         {/if}
       </Button>
     </div>
@@ -94,9 +94,9 @@
             BOOT CORE
           </span>
         </div>
-        <h4 class="text-sm font-bold font-mono text-foreground">Backup Boot & Kernel Core</h4>
+        <h4 class="text-sm font-bold font-mono text-foreground">Backup Boot & Kernel Core (.ZIP)</h4>
         <p class="text-xs text-muted">
-          Archives active boot, init_boot, vendor_boot, recovery, dtbo, and vbmeta partitions for effortless stock restore and unrooting.
+          Packages active boot, init_boot, vendor_boot, recovery, dtbo, and vbmeta into a single compressed .zip file.
         </p>
       </div>
 
@@ -110,10 +110,10 @@
       >
         {#if isBackingUp === 'boot_core'}
           <RefreshCw size={14} class="animate-spin mr-1.5" />
-          <span>Backing up Boot Core...</span>
+          <span>Packaging Boot Core (.ZIP)...</span>
         {:else}
           <Zap size={14} class="mr-1.5 text-emerald-400" />
-          <span>Backup Boot & Kernel Core</span>
+          <span>Backup Boot & Kernel Core (.ZIP)</span>
         {/if}
       </Button>
     </div>

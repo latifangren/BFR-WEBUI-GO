@@ -59,6 +59,12 @@ export interface BackupListResponse {
 }
 
 export interface BackupGroupResponse {
+  success: boolean
   group: string
-  results: BackupResult[]
+  filename: string
+  file_path: string
+  size_bytes: number
+  size_human: string
+  sha256: string
+  error?: string
 }

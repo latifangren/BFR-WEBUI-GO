@@ -6,6 +6,8 @@ import (
 	"mime/multipart"
 	"net/http"
 	"net/http/httptest"
+	"os"
+	"path/filepath"
 	"testing"
 
 	"bfr-webui-go/internal/handlers"
@@ -91,6 +93,49 @@ func TestHandleBackupGroup_Validation(t *testing.T) {
 	}
 }
 
+func TestHandleBackupGroup_Success(t *testing.T) {
+	tempDir := t.TempDir()
+	devRootDir := filepath.Join(tempDir, "by-name")
+	backupDir := filepath.Join(tempDir, "backups")
+
+	_ = os.MkdirAll(devRootDir, 0755)
+	_ = os.MkdirAll(backupDir, 0755)
+
+	t.Setenv("BFR_BLOCK_DEV_ROOT", devRootDir)
+	t.Setenv("BFR_BACKUP_DIR", backupDir)
+
+	_ = os.WriteFile(filepath.Join(devRootDir, "boot"), []byte("BOOT_BYTES"), 0644)
+
+	payload, _ := json.Marshal(map[string]interface{}{
+		"group": "boot_core",
+	})
+	req := httptest.NewRequest("POST", "/api/partitions/backup-group", bytes.NewBuffer(payload))
+	rr := httptest.NewRecorder()
+	handlers.HandleBackupGroup(rr, req)
+
+	if rr.Code != http.StatusOK {
+		t.Fatalf("expected 200 for valid backup-group, got %d: %s", rr.Code, rr.Body.String())
+	}
+
+	var resp map[string]interface{}
+	if err := json.Unmarshal(rr.Body.Bytes(), &resp); err != nil {
+		t.Fatalf("failed to decode JSON response: %v", err)
+	}
+
+	if resp["success"] != true {
+		t.Errorf("expected success: true, got %v", resp["success"])
+	}
+	if resp["group"] != "boot_core" {
+		t.Errorf("expected group: 'boot_core', got %v", resp["group"])
+	}
+	if resp["filename"] == nil || resp["filename"] == "" {
+		t.Errorf("expected filename in response")
+	}
+	if resp["sha256"] == nil || resp["sha256"] == "" {
+		t.Errorf("expected sha256 in response")
+	}
+}
+
 func TestHandleListBackups(t *testing.T) {
 	// Wrong method
 	reqPost := httptest.NewRequest("POST", "/api/partitions/backups", nil)
@@ -167,6 +212,56 @@ func TestHandleDeleteBackup_Validation(t *testing.T) {
 	handlers.HandleDeleteBackup(rrInvalid, reqInvalid)
 	if rrInvalid.Code != http.StatusBadRequest {
 		t.Errorf("expected 400 for non-image extension, got %d", rrInvalid.Code)
+	}
+}
+
+func TestHandleDeleteBackup_BatchAndAll(t *testing.T) {
+	tempDir := t.TempDir()
+	backupDir := filepath.Join(tempDir, "backups")
+	_ = os.MkdirAll(backupDir, 0755)
+
+	t.Setenv("BFR_BACKUP_DIR", backupDir)
+
+	f1 := "boot_20260101_120000.img"
+	f2 := "dtbo_20260101_120000.img"
+	f3 := "recovery_20260101_120000.img"
+
+	_ = os.WriteFile(filepath.Join(backupDir, f1), []byte("test1"), 0644)
+	_ = os.WriteFile(filepath.Join(backupDir, f2), []byte("test2"), 0644)
+	_ = os.WriteFile(filepath.Join(backupDir, f3), []byte("test3"), 0644)
+
+	// Batch delete: f1, f2
+	payloadBatch, _ := json.Marshal(map[string]interface{}{
+		"filenames": []string{f1, f2},
+	})
+	reqBatch := httptest.NewRequest("POST", "/api/partitions/backup/delete", bytes.NewBuffer(payloadBatch))
+	rrBatch := httptest.NewRecorder()
+	handlers.HandleDeleteBackup(rrBatch, reqBatch)
+
+	if rrBatch.Code != http.StatusOK {
+		t.Fatalf("expected 200 for batch delete, got %d: %s", rrBatch.Code, rrBatch.Body.String())
+	}
+	var respBatch map[string]interface{}
+	_ = json.Unmarshal(rrBatch.Body.Bytes(), &respBatch)
+	if respBatch["deleted"] != float64(2) {
+		t.Errorf("expected deleted: 2, got %v", respBatch["deleted"])
+	}
+
+	// Delete all: remaining f3
+	payloadAll, _ := json.Marshal(map[string]interface{}{
+		"all": true,
+	})
+	reqAll := httptest.NewRequest("POST", "/api/partitions/backup/delete", bytes.NewBuffer(payloadAll))
+	rrAll := httptest.NewRecorder()
+	handlers.HandleDeleteBackup(rrAll, reqAll)
+
+	if rrAll.Code != http.StatusOK {
+		t.Fatalf("expected 200 for delete all, got %d: %s", rrAll.Code, rrAll.Body.String())
+	}
+	var respAll map[string]interface{}
+	_ = json.Unmarshal(rrAll.Body.Bytes(), &respAll)
+	if respAll["deleted"] != float64(1) {
+		t.Errorf("expected deleted: 1, got %v", respAll["deleted"])
 	}
 }
 

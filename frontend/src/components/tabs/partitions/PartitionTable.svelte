@@ -15,8 +15,6 @@
     activeFilter: string
     searchQuery: string
     isBackingUp: string | null
-    backupCount?: number
-    onSelectFilter: (f: string) => void
     onSearchChange: (q: string) => void
     onBackupPartition: (p: PartitionInfo) => void
     onOpenFlashModal: (p: PartitionInfo) => void
@@ -27,8 +25,6 @@
     activeFilter,
     searchQuery,
     isBackingUp,
-    backupCount = 0,
-    onSelectFilter,
     onSearchChange,
     onBackupPartition,
     onOpenFlashModal,
@@ -84,54 +80,15 @@
 </script>
 
 <div class="space-y-4">
-  <!-- Filter & Navigation Bar -->
-  <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
-    <!-- Category Filter Tabs -->
-    <div class="flex items-center overflow-x-auto custom-scrollbar gap-1 p-1 bg-card border border-border rounded">
-      <button
-        type="button"
-        onclick={() => onSelectFilter('all')}
-        class="px-3 py-1.5 text-xs font-mono font-bold uppercase tracking-wider rounded select-none cursor-pointer transition-colors {activeFilter === 'all' ? 'bg-foreground text-background shadow-neobrutal' : 'text-muted hover:text-foreground'}"
-      >
-        All ({partitions.length})
-      </button>
-
-      <button
-        type="button"
-        onclick={() => onSelectFilter('radio_efs')}
-        class="px-3 py-1.5 text-xs font-mono font-bold uppercase tracking-wider rounded select-none cursor-pointer transition-colors {activeFilter === 'radio_efs' ? 'bg-foreground text-background shadow-neobrutal' : 'text-muted hover:text-foreground'}"
-      >
-        Radio & EFS
-      </button>
-
-      <button
-        type="button"
-        onclick={() => onSelectFilter('boot_recovery')}
-        class="px-3 py-1.5 text-xs font-mono font-bold uppercase tracking-wider rounded select-none cursor-pointer transition-colors {activeFilter === 'boot_recovery' ? 'bg-foreground text-background shadow-neobrutal' : 'text-muted hover:text-foreground'}"
-      >
-        Boot & Recovery
-      </button>
-
-      <button
-        type="button"
-        onclick={() => onSelectFilter('system_os')}
-        class="px-3 py-1.5 text-xs font-mono font-bold uppercase tracking-wider rounded select-none cursor-pointer transition-colors {activeFilter === 'system_os' ? 'bg-foreground text-background shadow-neobrutal' : 'text-muted hover:text-foreground'}"
-      >
-        System OS
-      </button>
-
-      <button
-        type="button"
-        onclick={() => onSelectFilter('backups')}
-        class="px-3 py-1.5 text-xs font-mono font-bold uppercase tracking-wider rounded select-none cursor-pointer transition-colors flex items-center gap-1.5 {activeFilter === 'backups' ? 'bg-foreground text-background shadow-neobrutal' : 'text-muted hover:text-foreground'}"
-      >
-        <HardDriveDownload size={13} />
-        Saved Backups ({backupCount})
-      </button>
+  <!-- Search Bar Header -->
+  <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 bg-card-sub p-2.5 border border-border rounded">
+    <div class="text-xs font-mono text-muted flex items-center gap-1.5">
+      <span class="font-bold text-foreground">{filteredPartitions.length}</span>
+      <span>of {partitions.length} partitions displayed</span>
     </div>
 
     <!-- Search Input -->
-    <div class="relative w-full sm:w-64">
+    <div class="relative w-full sm:w-72">
       <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-muted">
         <Search size={14} />
       </div>
@@ -139,14 +96,15 @@
         type="text"
         value={searchQuery}
         oninput={(e) => onSearchChange((e.target as HTMLInputElement).value)}
-        placeholder="Search partitions..."
-        class="neo-input w-full bg-card-sub border border-border rounded pl-9 pr-8 py-1.5 text-xs font-mono text-foreground placeholder:text-muted focus:outline-none focus:border-accent"
+        placeholder="Filter by name or device path..."
+        class="neo-input w-full bg-card border border-border rounded pl-9 pr-8 py-1.5 text-xs font-mono text-foreground placeholder:text-muted focus:outline-none focus:border-accent"
       />
       {#if searchQuery}
         <button
           type="button"
           onclick={() => onSearchChange('')}
           class="absolute inset-y-0 right-0 pr-2.5 flex items-center text-muted hover:text-foreground cursor-pointer"
+          title="Clear search query"
         >
           <X size={13} />
         </button>
@@ -164,7 +122,7 @@
       <div class="p-8 text-center border-2 border-dashed border-border rounded bg-card-sub">
         <p class="font-mono text-sm text-foreground font-bold">No matching partitions found</p>
         <p class="text-xs text-muted mt-1">
-          Try clearing your search query or switching the category filter.
+          Try clearing your search query or switching the category filter above.
         </p>
       </div>
     {:else}
