@@ -9,6 +9,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.2.5] - 2026-09-23
+
+### Added
+- **Vnstat Bandwidth Accounting Overhaul (`TabVnstat.svelte`, `internal/vnstat/`)**:
+  - **Weekly Period Accounting (`weekly`)**: Track bandwidth per ISO week (`YYYY-Www`) with automatic Monday 00:00 rollover.
+  - **Yesterday Telemetry (`yesterday`)**: Capture and preserve previous day traffic totals upon daily rollover for direct day-to-day comparison.
+  - **7-Day Historical Trend (`daily_history`)**: Store up to 7 days of daily bandwidth history persisted in `vnstat_data.json`.
+  - **Visual 7-Day Stacked Bar Chart (`VnstatHistoryChart.svelte`)**: Visual chart comparing peak volume percentages and download/upload split.
+  - **Interface Category Filters & Period Switcher (`VnstatInterfaceTable.svelte`)**: Quick interface filters for `All`, `Cellular (rmnet*)`, `Wi-Fi (wlan*)`, `SoftAP (ap*)`, and `Other`, plus multi-period selection (`Today`, `Yesterday`, `This Week`, `This Month`).
+  - **Database Reset Safety Modal**: Added safety confirmation modal for traffic counter reset (*Strictly Non-Silent*).
+- **Android Partition & Backup Manager (`TabPartitions.svelte`, `internal/partition/`)**:
+  - **Group Backup Single `.ZIP` Packaging**: Package Radio/EFS and Boot Core group backups into compressed `.zip` archives with embedded JSON metadata manifest and SHA256 checksums.
+  - **Browser Auto-Download Trigger**: Automatic browser download initiation upon quick group backup completion.
+  - **Checklist Multi-Selection & Batch Deletion (`PartitionBackupList.svelte`)**: Table selection checkboxes, master toggle, `Delete Selected`, and `Delete All` with explicit warning modal.
+  - **Safety Whitelist & Zero-Byte Verification**: Guardrails against zero-byte partition dumps and strict image-size/block-size validation before flashing.
+- **PTU/Terminal Interactive Shell Enhancements (`TabTerminal.svelte`, `internal/terminal/`)**:
+  - **Environment Injections**: Standard Android root shell environment variables (`$HOME=/data/adb`, `$TERM=xterm-256color`, `$PATH`).
+  - **PTU Resize Synchronization**: WebSocket window dimension resize signaling (`TIOCSWINSZ`) for responsive terminal sizing.
+  - **Responsive Virtual Key Bar**: Dedicated mobile virtual keys with auto-hiding on desktop viewports and toolbar toggle.
+
+### Fixed & Optimized
+- **File Manager Multi-File & Path Upload Bugfix (`internal/handlers/file_handler.go`)**:
+  - Supported both `files` and `file` multipart form keys for drag-and-drop and standard file uploads.
+  - Fixed target upload directory resolution using query parameter fallback.
+- **Partition Category Navigation Bar**:
+  - Preserved persistent partition category filter tabs when navigating into Saved Backups.
+
 ## [1.2.4] - 2026-09-20
 
 ### Added

@@ -79,7 +79,7 @@ BFR-WEBUI-GO Architecture
 
 ## 📥 Installation
 
-1. Download `BFR-WEBUI-Magisk-v1.2.4.zip` from the [Releases](https://github.com/latifangren/BFR-WEBUI-GO/releases) page.
+1. Download `BFR-WEBUI-Magisk-v1.2.5.zip` from the [Releases](https://github.com/latifangren/BFR-WEBUI-GO/releases) page.
 2. Open the **Magisk / KernelSU / APatch** app -> navigate to the **Modules** tab -> select **Install from storage** -> choose the downloaded ZIP file -> wait for the installation process to complete -> **Reboot** your device.
 3. Open a browser on any device connected to the same Wi-Fi or hotspot network and navigate to:
    - **HTTP**: `http://<DEVICE-IP>` (standard port 80 default)
@@ -116,7 +116,7 @@ On Linux / macOS:
 chmod +x build.sh
 ./build.sh
 ```
-The output Magisk module ZIP (`BFR-WEBUI-Magisk-v1.2.4-local.zip`) will be generated at the workspace root, ready to flash via Magisk, KernelSU, or APatch manager.
+The output Magisk module ZIP (`BFR-WEBUI-Magisk-v1.2.5-local.zip`) will be generated at the workspace root, ready to flash via Magisk, KernelSU, or APatch manager.
 
 ### Cross-Compiling Standalone Binary
 To compile the Android ARM64 binary directly:

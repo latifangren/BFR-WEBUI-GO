@@ -251,7 +251,7 @@
   <div class="p-3 border-t border-border font-mono text-[10px] text-muted flex items-center justify-between shrink-0 bg-card">
     <span class="font-bold">BFR-WEBUI-GO</span>
     <span class="px-1.5 py-0.5 rounded bg-card-sub border border-border text-foreground font-bold">
-      v1.2.4
+      v1.2.5
     </span>
   </div>
 </aside>
