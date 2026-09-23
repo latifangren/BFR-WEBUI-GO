@@ -1,6 +1,7 @@
 package terminal
 
 import (
+	"encoding/json"
 	"log"
 	"net/http"
 	"net/url"
@@ -16,6 +17,46 @@ import (
 	"github.com/creack/pty"
 	"github.com/gorilla/websocket"
 )
+
+type resizeMessage struct {
+	Type string `json:"type"`
+	Cols uint16 `json:"cols"`
+	Rows uint16 `json:"rows"`
+}
+
+var defaultEnv = []string{
+	"HOME=/data/adb",
+	"TERM=xterm-256color",
+	"COLORTERM=truecolor",
+	"USER=root",
+	"LOGNAME=root",
+	"TMPDIR=/data/local/tmp",
+	"SHELL=/system/bin/sh",
+	"PATH=/data/adb/ap/bin:/data/adb/ksu/bin:/data/adb/magisk:/data/data/com.termux/files/usr/bin:/system/bin:/system/xbin:/vendor/bin:/apex/com.android.runtime/bin",
+}
+
+func getTerminalWorkingDir() string {
+	candidates := []string{"/data/adb", "/data/local/tmp", "/sdcard"}
+	for _, dir := range candidates {
+		if info, err := os.Stat(dir); err == nil && info.IsDir() {
+			return dir
+		}
+	}
+	if currentDir, err := os.Getwd(); err == nil && currentDir != "" {
+		return currentDir
+	}
+	return os.TempDir()
+}
+
+// ConfigureTerminalCmd configures working directory and default environment for shell execution.
+func ConfigureTerminalCmd(cmd *exec.Cmd) {
+	configureTerminalCmd(cmd)
+}
+
+func configureTerminalCmd(cmd *exec.Cmd) {
+	cmd.Dir = getTerminalWorkingDir()
+	cmd.Env = append(os.Environ(), defaultEnv...)
+}
 
 var upgrader = websocket.Upgrader{
 	CheckOrigin: func(r *http.Request) bool {
@@ -113,6 +154,7 @@ func HandleWebsocket(w http.ResponseWriter, r *http.Request) {
 	shellCommandFunc := func() (*exec.Cmd, bool) {
 		// Try su first
 		cmdSu := exec.Command(config.SUBin)
+		configureTerminalCmd(cmdSu)
 		if f, err := pty.Start(cmdSu); err == nil {
 			shellFile = f
 			cmd = cmdSu
@@ -130,6 +172,7 @@ func HandleWebsocket(w http.ResponseWriter, r *http.Request) {
 		for _, bPath := range busyboxPaths {
 			if _, err := os.Stat(bPath); err == nil {
 				cmdBb := exec.Command(bPath, "sh")
+				configureTerminalCmd(cmdBb)
 				if f, err := pty.Start(cmdBb); err == nil {
 					shellFile = f
 					cmd = cmdBb
@@ -140,6 +183,7 @@ func HandleWebsocket(w http.ResponseWriter, r *http.Request) {
 
 		// Try default system/bin/sh
 		cmdSh := exec.Command("/system/bin/sh")
+		configureTerminalCmd(cmdSh)
 		if f, err := pty.Start(cmdSh); err == nil {
 			shellFile = f
 			cmd = cmdSh
@@ -183,6 +227,15 @@ func HandleWebsocket(w http.ResponseWriter, r *http.Request) {
 			if err != nil {
 				break
 			}
+			if len(msg) > 0 && msg[0] == '{' {
+				var rMsg resizeMessage
+				if err := json.Unmarshal(msg, &rMsg); err == nil {
+					if rMsg.Type == "resize" && rMsg.Cols > 0 && rMsg.Rows > 0 {
+						_ = pty.Setsize(shellFile, &pty.Winsize{Rows: rMsg.Rows, Cols: rMsg.Cols})
+						continue
+					}
+				}
+			}
 			if _, err := shellFile.Write(msg); err != nil {
 				break
 			}
@@ -190,9 +243,11 @@ func HandleWebsocket(w http.ResponseWriter, r *http.Request) {
 	} else {
 		// 2. SELinux blocked /dev/ptmx or /dev/pts. Fallback to standard bi-directional Pipes (SELinux Immune)
 		cmd = exec.Command(config.SUBin)
+		configureTerminalCmd(cmd)
 		stdinPipe, err := cmd.StdinPipe()
 		if err != nil {
 			cmd = exec.Command("/system/bin/sh", "-i")
+			configureTerminalCmd(cmd)
 			stdinPipe, err = cmd.StdinPipe()
 			if err != nil {
 				_ = conn.WriteMessage(websocket.TextMessage, []byte("SELinux Blocked all shell allocations\r\n"))
@@ -262,6 +317,12 @@ func HandleWebsocket(w http.ResponseWriter, r *http.Request) {
 			_, msg, err := conn.ReadMessage()
 			if err != nil {
 				break
+			}
+			if len(msg) > 0 && msg[0] == '{' {
+				var rMsg resizeMessage
+				if err := json.Unmarshal(msg, &rMsg); err == nil && rMsg.Type == "resize" {
+					continue
+				}
 			}
 			_, err = stdinPipe.Write(msg)
 			if err != nil {

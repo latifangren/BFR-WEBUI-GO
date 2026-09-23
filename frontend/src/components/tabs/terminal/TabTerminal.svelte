@@ -3,20 +3,39 @@
   import { Terminal as XTerminal } from '@xterm/xterm'
   import { FitAddon } from '@xterm/addon-fit'
   import '@xterm/xterm/css/xterm.css'
-  import { Terminal, RefreshCw, Maximize2, Trash2 } from '@lucide/svelte'
+  import {
+    Terminal,
+    RefreshCw,
+    Maximize2,
+    Trash2,
+    Keyboard,
+  } from '@lucide/svelte'
   import { WebSocketClient } from '../../../ws/socket'
-  import Card from '../../ui/Card.svelte'
   import Button from '../../ui/Button.svelte'
   import Badge from '../../ui/Badge.svelte'
+  import TerminalVirtualKeys from './TerminalVirtualKeys.svelte'
 
   let terminalContainer: HTMLDivElement | null = $state(null)
   let term: XTerminal | null = null
   let fitAddon: FitAddon | null = null
   let wsClient: WebSocketClient | null = null
+  let resizeObserver: ResizeObserver | null = null
+
   let isConnected = $state(false)
   let isConnecting = $state(false)
+  let showVirtualKeys = $state(false)
+
+  // Mobile detection for virtual keys ergonomics
+  function isMobileClient(): boolean {
+    if (typeof window === 'undefined' || typeof navigator === 'undefined') return false
+    const uaMatches = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini|Mobile/i.test(navigator.userAgent)
+    const touchMatches = navigator.maxTouchPoints > 0 && window.innerWidth < 1024
+    return uaMatches || touchMatches
+  }
 
   onMount(() => {
+    showVirtualKeys = isMobileClient()
+
     initTerminal()
     connectWebSocket()
 
@@ -37,11 +56,43 @@
 
   function handleFitAndResize() {
     if (fitAddon && term) {
-      fitAddon.fit()
+      try {
+        fitAddon.fit()
+        if (wsClient && wsClient.readyState === WebSocket.OPEN && term.cols > 0 && term.rows > 0) {
+          wsClient.send(
+            JSON.stringify({
+              type: 'resize',
+              cols: term.cols,
+              rows: term.rows,
+            })
+          )
+        }
+      } catch {
+        // Suppress fit errors during transition or zero-dimension states
+      }
     }
   }
 
+  function toggleVirtualKeys() {
+    showVirtualKeys = !showVirtualKeys
+    setTimeout(() => {
+      handleFitAndResize()
+      term?.focus()
+    }, 60)
+  }
+
+  function handleVirtualKey(data: string) {
+    if (wsClient && wsClient.readyState === WebSocket.OPEN) {
+      wsClient.send(data)
+    }
+    term?.focus()
+  }
+
   function cleanup() {
+    if (resizeObserver) {
+      resizeObserver.disconnect()
+      resizeObserver = null
+    }
     if (wsClient) {
       wsClient.disconnect()
       wsClient = null
@@ -84,6 +135,14 @@
     fitAddon = new FitAddon()
     term.loadAddon(fitAddon)
     term.open(terminalContainer)
+
+    // Attach ResizeObserver to keep cols/rows synchronized on any dimension shift
+    if (typeof ResizeObserver !== 'undefined') {
+      resizeObserver = new ResizeObserver(() => {
+        handleFitAndResize()
+      })
+      resizeObserver.observe(terminalContainer)
+    }
 
     setTimeout(() => {
       handleFitAndResize()
@@ -149,7 +208,7 @@
 
 <div class="space-y-4">
   <!-- Header & Toolbar -->
-  <div class="flex items-center justify-between">
+  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
     <div class="flex items-center gap-2">
       <Terminal class="w-5 h-5 text-accent" />
       <h2 class="text-base sm:text-lg font-mono font-bold uppercase tracking-wider text-foreground">
@@ -160,11 +219,25 @@
       </Badge>
     </div>
 
-    <div class="flex items-center gap-2">
+    <div class="flex items-center gap-2 flex-wrap">
+      <!-- Virtual Keys Toggle -->
+      <Button
+        variant={showVirtualKeys ? 'secondary' : 'outline'}
+        size="sm"
+        onclick={toggleVirtualKeys}
+        title="Toggle Virtual Keypad Bar"
+      >
+        <Keyboard class="w-3.5 h-3.5 mr-1" />
+        <span>{showVirtualKeys ? 'Keys: On' : 'Keys: Off'}</span>
+      </Button>
+
+      <!-- Clear Terminal -->
       <Button variant="outline" size="sm" onclick={clearTerminal} title="Clear Terminal">
         <Trash2 class="w-3.5 h-3.5 mr-1" />
         <span>Clear</span>
       </Button>
+
+      <!-- Reconnect Session -->
       <Button variant="secondary" size="sm" onclick={reconnect} title="Reconnect Terminal">
         <RefreshCw class="w-3.5 h-3.5 mr-1 {isConnecting ? 'animate-spin' : ''}" />
         <span>Reconnect</span>
@@ -172,10 +245,10 @@
     </div>
   </div>
 
-  <!-- Terminal Window (Neo-Brutalist Frame) -->
-  <div class="neo-card bg-card border-2 border-border shadow-neobrutal rounded-lg overflow-hidden flex flex-col">
+  <!-- Terminal Window (Neo-Brutalist Full-Height Frame) -->
+  <div class="neo-card bg-card border-2 border-border shadow-neobrutal rounded-lg overflow-hidden h-[calc(100vh-210px)] min-h-[460px] flex flex-col">
     <!-- Terminal Header Bar -->
-    <div class="bg-card-sub border-b border-border px-3 py-2 flex items-center justify-between font-mono text-xs text-muted">
+    <div class="bg-card-sub border-b border-border px-3 py-2 flex items-center justify-between font-mono text-xs text-muted shrink-0">
       <div class="flex items-center gap-2">
         <span class="w-3 h-3 rounded-full bg-red-500/80 inline-block"></span>
         <span class="w-3 h-3 rounded-full bg-amber-500/80 inline-block"></span>
@@ -188,7 +261,8 @@
         <button
           type="button"
           class="hover:text-foreground cursor-pointer flex items-center gap-1"
-          onclick={() => fitAddon?.fit()}
+          onclick={() => handleFitAndResize()}
+          title="Force Fit Terminal Canvas"
         >
           <Maximize2 class="w-3 h-3" />
           <span>Fit</span>
@@ -199,7 +273,12 @@
     <!-- Terminal Canvas Container -->
     <div
       bind:this={terminalContainer}
-      class="w-full h-[65vh] p-2 bg-[#090d16] font-mono"
+      class="flex-1 w-full p-2 bg-[#090d16] font-mono overflow-hidden"
     ></div>
+
+    <!-- Virtual Touch Keypad (Mobile / Toggleable) -->
+    {#if showVirtualKeys}
+      <TerminalVirtualKeys onKey={handleVirtualKey} />
+    {/if}
   </div>
 </div>
