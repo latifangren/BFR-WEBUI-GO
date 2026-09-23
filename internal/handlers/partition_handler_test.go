@@ -1,0 +1,229 @@
+package handlers_test
+
+import (
+	"bytes"
+	"encoding/json"
+	"mime/multipart"
+	"net/http"
+	"net/http/httptest"
+	"testing"
+
+	"bfr-webui-go/internal/handlers"
+)
+
+func TestHandleListPartitions(t *testing.T) {
+	// Wrong method
+	reqPost := httptest.NewRequest("POST", "/api/partitions", nil)
+	rrPost := httptest.NewRecorder()
+	handlers.HandleListPartitions(rrPost, reqPost)
+	if rrPost.Code != http.StatusMethodNotAllowed {
+		t.Errorf("expected 405 for POST on /api/partitions, got %d", rrPost.Code)
+	}
+
+	// Valid GET
+	reqGet := httptest.NewRequest("GET", "/api/partitions", nil)
+	rrGet := httptest.NewRecorder()
+	handlers.HandleListPartitions(rrGet, reqGet)
+	if rrGet.Code != http.StatusOK {
+		t.Errorf("expected 200 for GET on /api/partitions, got %d", rrGet.Code)
+	}
+
+	var resp map[string]interface{}
+	if err := json.Unmarshal(rrGet.Body.Bytes(), &resp); err != nil {
+		t.Fatalf("failed to decode response JSON: %v", err)
+	}
+	if _, ok := resp["partitions"]; !ok {
+		t.Errorf("expected 'partitions' field in response")
+	}
+	if _, ok := resp["slot_info"]; !ok {
+		t.Errorf("expected 'slot_info' field in response")
+	}
+}
+
+func TestHandleBackupPartition_Validation(t *testing.T) {
+	// Wrong method
+	reqGet := httptest.NewRequest("GET", "/api/partitions/backup", nil)
+	rrGet := httptest.NewRecorder()
+	handlers.HandleBackupPartition(rrGet, reqGet)
+	if rrGet.Code != http.StatusMethodNotAllowed {
+		t.Errorf("expected 405 for GET on /api/partitions/backup, got %d", rrGet.Code)
+	}
+
+	// Empty payload
+	reqEmpty := httptest.NewRequest("POST", "/api/partitions/backup", bytes.NewBufferString("{}"))
+	rrEmpty := httptest.NewRecorder()
+	handlers.HandleBackupPartition(rrEmpty, reqEmpty)
+	if rrEmpty.Code != http.StatusBadRequest {
+		t.Errorf("expected 400 for empty partition name, got %d", rrEmpty.Code)
+	}
+
+	// Non-existent partition device
+	payload, _ := json.Marshal(map[string]interface{}{
+		"partition": "nonexistent_part_12345",
+		"compress":  false,
+	})
+	reqBad := httptest.NewRequest("POST", "/api/partitions/backup", bytes.NewBuffer(payload))
+	rrBad := httptest.NewRecorder()
+	handlers.HandleBackupPartition(rrBad, reqBad)
+	if rrBad.Code != http.StatusBadRequest {
+		t.Errorf("expected 400 for nonexistent partition, got %d", rrBad.Code)
+	}
+}
+
+func TestHandleBackupGroup_Validation(t *testing.T) {
+	// Wrong method
+	reqGet := httptest.NewRequest("GET", "/api/partitions/backup-group", nil)
+	rrGet := httptest.NewRecorder()
+	handlers.HandleBackupGroup(rrGet, reqGet)
+	if rrGet.Code != http.StatusMethodNotAllowed {
+		t.Errorf("expected 405 for GET on /api/partitions/backup-group, got %d", rrGet.Code)
+	}
+
+	// Invalid group
+	payload, _ := json.Marshal(map[string]interface{}{
+		"group": "invalid_group_xyz",
+	})
+	reqBad := httptest.NewRequest("POST", "/api/partitions/backup-group", bytes.NewBuffer(payload))
+	rrBad := httptest.NewRecorder()
+	handlers.HandleBackupGroup(rrBad, reqBad)
+	if rrBad.Code != http.StatusBadRequest {
+		t.Errorf("expected 400 for invalid group, got %d", rrBad.Code)
+	}
+}
+
+func TestHandleListBackups(t *testing.T) {
+	// Wrong method
+	reqPost := httptest.NewRequest("POST", "/api/partitions/backups", nil)
+	rrPost := httptest.NewRecorder()
+	handlers.HandleListBackups(rrPost, reqPost)
+	if rrPost.Code != http.StatusMethodNotAllowed {
+		t.Errorf("expected 405 for POST on /api/partitions/backups, got %d", rrPost.Code)
+	}
+
+	// Valid GET
+	reqGet := httptest.NewRequest("GET", "/api/partitions/backups", nil)
+	rrGet := httptest.NewRecorder()
+	handlers.HandleListBackups(rrGet, reqGet)
+	if rrGet.Code != http.StatusOK {
+		t.Errorf("expected 200 for GET on /api/partitions/backups, got %d", rrGet.Code)
+	}
+
+	var resp map[string]interface{}
+	if err := json.Unmarshal(rrGet.Body.Bytes(), &resp); err != nil {
+		t.Fatalf("failed to decode response JSON: %v", err)
+	}
+	if _, ok := resp["backups"]; !ok {
+		t.Errorf("expected 'backups' field in response")
+	}
+}
+
+func TestHandleDownloadBackup_Validation(t *testing.T) {
+	// Wrong method
+	reqPost := httptest.NewRequest("POST", "/api/partitions/download", nil)
+	rrPost := httptest.NewRecorder()
+	handlers.HandleDownloadBackup(rrPost, reqPost)
+	if rrPost.Code != http.StatusMethodNotAllowed {
+		t.Errorf("expected 405 for POST on /api/partitions/download, got %d", rrPost.Code)
+	}
+
+	// Path traversal attempt
+	reqBad := httptest.NewRequest("GET", "/api/partitions/download?filename=../../etc/passwd", nil)
+	rrBad := httptest.NewRecorder()
+	handlers.HandleDownloadBackup(rrBad, reqBad)
+	if rrBad.Code != http.StatusBadRequest {
+		t.Errorf("expected 400 for path traversal filename, got %d", rrBad.Code)
+	}
+
+	// Non-existent file
+	reqNotFound := httptest.NewRequest("GET", "/api/partitions/download?filename=nonexistent_file_12345.img", nil)
+	rrNotFound := httptest.NewRecorder()
+	handlers.HandleDownloadBackup(rrNotFound, reqNotFound)
+	if rrNotFound.Code != http.StatusNotFound {
+		t.Errorf("expected 404 for non-existent backup file, got %d", rrNotFound.Code)
+	}
+}
+
+func TestHandleDeleteBackup_Validation(t *testing.T) {
+	// Wrong method
+	reqGet := httptest.NewRequest("GET", "/api/partitions/backup/delete", nil)
+	rrGet := httptest.NewRecorder()
+	handlers.HandleDeleteBackup(rrGet, reqGet)
+	if rrGet.Code != http.StatusMethodNotAllowed {
+		t.Errorf("expected 405 for GET on /api/partitions/backup/delete, got %d", rrGet.Code)
+	}
+
+	// Empty filename
+	reqEmpty := httptest.NewRequest("POST", "/api/partitions/backup/delete", bytes.NewBufferString("{}"))
+	rrEmpty := httptest.NewRecorder()
+	handlers.HandleDeleteBackup(rrEmpty, reqEmpty)
+	if rrEmpty.Code != http.StatusBadRequest {
+		t.Errorf("expected 400 for empty filename, got %d", rrEmpty.Code)
+	}
+
+	// Non-img extension
+	payload, _ := json.Marshal(map[string]string{"filename": "test.txt"})
+	reqInvalid := httptest.NewRequest("POST", "/api/partitions/backup/delete", bytes.NewBuffer(payload))
+	rrInvalid := httptest.NewRecorder()
+	handlers.HandleDeleteBackup(rrInvalid, reqInvalid)
+	if rrInvalid.Code != http.StatusBadRequest {
+		t.Errorf("expected 400 for non-image extension, got %d", rrInvalid.Code)
+	}
+}
+
+func TestHandleFlashPartition_SafetyRejection(t *testing.T) {
+	// Method check
+	reqGet := httptest.NewRequest("GET", "/api/partitions/flash", nil)
+	rrGet := httptest.NewRecorder()
+	handlers.HandleFlashPartition(rrGet, reqGet)
+	if rrGet.Code != http.StatusMethodNotAllowed {
+		t.Errorf("expected 405 for GET on /api/partitions/flash, got %d", rrGet.Code)
+	}
+
+	// Missing safety_ack
+	bodyNoAck := &bytes.Buffer{}
+	writerNoAck := multipart.NewWriter(bodyNoAck)
+	_ = writerNoAck.WriteField("partition", "boot")
+	_ = writerNoAck.Close()
+
+	reqNoAck := httptest.NewRequest("POST", "/api/partitions/flash", bodyNoAck)
+	reqNoAck.Header.Set("Content-Type", writerNoAck.FormDataContentType())
+	rrNoAck := httptest.NewRecorder()
+	handlers.HandleFlashPartition(rrNoAck, reqNoAck)
+	if rrNoAck.Code != http.StatusBadRequest {
+		t.Errorf("expected 400 for missing safety_ack, got %d", rrNoAck.Code)
+	}
+
+	// Safety Whitelist Rejection: attempt to flash 'super' or 'modem'
+	bodyRejected := &bytes.Buffer{}
+	writerRejected := multipart.NewWriter(bodyRejected)
+	_ = writerRejected.WriteField("partition", "super")
+	_ = writerRejected.WriteField("safety_ack", "I_UNDERSTAND_THE_RISKS")
+	part, _ := writerRejected.CreateFormFile("file", "super.img")
+	_, _ = part.Write([]byte("fake image data"))
+	_ = writerRejected.Close()
+
+	reqRejected := httptest.NewRequest("POST", "/api/partitions/flash", bodyRejected)
+	reqRejected.Header.Set("Content-Type", writerRejected.FormDataContentType())
+	rrRejected := httptest.NewRecorder()
+	handlers.HandleFlashPartition(rrRejected, reqRejected)
+	if rrRejected.Code != http.StatusBadRequest {
+		t.Errorf("expected 400 when attempting to flash non-whitelisted partition 'super', got %d", rrRejected.Code)
+	}
+
+	// Safety Whitelist Rejection: attempt to flash 'modem'
+	bodyModem := &bytes.Buffer{}
+	writerModem := multipart.NewWriter(bodyModem)
+	_ = writerModem.WriteField("partition", "modem_a")
+	_ = writerModem.WriteField("safety_ack", "I_UNDERSTAND_THE_RISKS")
+	partM, _ := writerModem.CreateFormFile("file", "modem.img")
+	_, _ = partM.Write([]byte("fake modem data"))
+	_ = writerModem.Close()
+
+	reqModem := httptest.NewRequest("POST", "/api/partitions/flash", bodyModem)
+	reqModem.Header.Set("Content-Type", writerModem.FormDataContentType())
+	rrModem := httptest.NewRecorder()
+	handlers.HandleFlashPartition(rrModem, reqModem)
+	if rrModem.Code != http.StatusBadRequest {
+		t.Errorf("expected 400 when attempting to flash non-whitelisted partition 'modem_a', got %d", rrModem.Code)
+	}
+}

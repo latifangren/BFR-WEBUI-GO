@@ -3,6 +3,7 @@ package handlers_test
 import (
 	"bytes"
 	"encoding/json"
+	"mime/multipart"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -98,5 +99,55 @@ func TestHandleFilesUpload_InvalidPayload(t *testing.T) {
 	handlers.HandleFilesUpload(rrPost, reqPostNoFile)
 	if rrPost.Code != http.StatusBadRequest {
 		t.Errorf("expected status 400 for missing multipart file, got %d", rrPost.Code)
+	}
+}
+
+func TestHandleFilesUpload_NoFiles(t *testing.T) {
+	body := &bytes.Buffer{}
+	writer := multipart.NewWriter(body)
+	_ = writer.WriteField("path", "/data")
+	_ = writer.Close()
+
+	req := httptest.NewRequest("POST", "/api/files/upload", body)
+	req.Header.Set("Content-Type", writer.FormDataContentType())
+	rr := httptest.NewRecorder()
+
+	handlers.HandleFilesUpload(rr, req)
+	if rr.Code != http.StatusBadRequest {
+		t.Errorf("expected status 400 for no files uploaded, got %d", rr.Code)
+	}
+}
+
+func TestHandleFilesUpload_PluralAndSingularFields(t *testing.T) {
+	// Test plural 'files' field with invalid/empty path
+	bodyPlural := &bytes.Buffer{}
+	writerPlural := multipart.NewWriter(bodyPlural)
+	part1, _ := writerPlural.CreateFormFile("files", "test1.txt")
+	_, _ = part1.Write([]byte("content 1"))
+	part2, _ := writerPlural.CreateFormFile("files", "test2.txt")
+	_, _ = part2.Write([]byte("content 2"))
+	_ = writerPlural.Close()
+
+	reqPlural := httptest.NewRequest("POST", "/api/files/upload", bodyPlural)
+	reqPlural.Header.Set("Content-Type", writerPlural.FormDataContentType())
+	rrPlural := httptest.NewRecorder()
+	handlers.HandleFilesUpload(rrPlural, reqPlural)
+	if rrPlural.Code != http.StatusBadRequest {
+		t.Errorf("expected status 400 for invalid/empty path with 'files', got %d", rrPlural.Code)
+	}
+
+	// Test singular 'file' field with query param path
+	bodySingular := &bytes.Buffer{}
+	writerSingular := multipart.NewWriter(bodySingular)
+	partSingular, _ := writerSingular.CreateFormFile("file", "test.txt")
+	_, _ = partSingular.Write([]byte("content"))
+	_ = writerSingular.Close()
+
+	reqSingular := httptest.NewRequest("POST", "/api/files/upload?path=/nonexistent_dir_12345", bodySingular)
+	reqSingular.Header.Set("Content-Type", writerSingular.FormDataContentType())
+	rrSingular := httptest.NewRecorder()
+	handlers.HandleFilesUpload(rrSingular, reqSingular)
+	if rrSingular.Code != http.StatusBadRequest {
+		t.Errorf("expected status 400 for invalid dir via query param with 'file', got %d", rrSingular.Code)
 	}
 }

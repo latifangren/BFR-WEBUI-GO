@@ -93,7 +93,7 @@ func securityHeaders(next http.HandlerFunc) http.HandlerFunc {
 func maxBodySize(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		if r.Method == http.MethodPost || r.Method == http.MethodPut || r.Method == http.MethodPatch {
-			if r.URL.Path != "/api/files/upload" && r.URL.Path != "/api/modules/install" && r.URL.Path != "/api/tunnel/upload" {
+			if r.URL.Path != "/api/files/upload" && r.URL.Path != "/api/modules/install" && r.URL.Path != "/api/tunnel/upload" && r.URL.Path != "/api/partitions/flash" {
 				r.Body = http.MaxBytesReader(w, r.Body, 1<<20) // 1MB limit
 			}
 		}
@@ -277,6 +277,15 @@ func RegisterRoutes(mux *http.ServeMux, authMgr *auth.Manager) {
 	mux.HandleFunc("/api/backup/import", wrap(HandleBackupImport, true))
 	mux.HandleFunc("/api/backup/cloud/config", wrap(HandleCloudBackupConfig, true))
 	mux.HandleFunc("/api/backup/cloud/sync", wrap(HandleCloudBackupSync, true))
+
+	// Partition URLs
+	mux.HandleFunc("/api/partitions", wrap(HandleListPartitions, true))
+	mux.HandleFunc("/api/partitions/backup", wrap(HandleBackupPartition, true))
+	mux.HandleFunc("/api/partitions/backup-group", wrap(HandleBackupGroup, true))
+	mux.HandleFunc("/api/partitions/backups", wrap(HandleListBackups, true))
+	mux.HandleFunc("/api/partitions/download", wrap(HandleDownloadBackup, true))
+	mux.HandleFunc("/api/partitions/backup/delete", wrap(HandleDeleteBackup, true))
+	mux.HandleFunc("/api/partitions/flash", wrap(HandleFlashPartition, true))
 
 	// Speedtest URLs
 	mux.HandleFunc("/api/speedtest/start", wrap(HandleSpeedtestStart, true))

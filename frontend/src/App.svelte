@@ -27,6 +27,7 @@
   import TabAbout from './components/tabs/about/TabAbout.svelte'
   import TabSSH from './components/tabs/ssh/TabSSH.svelte'
   import TabModules from './components/tabs/modules/TabModules.svelte'
+  import TabPartitions from './components/tabs/partitions/TabPartitions.svelte'
   import TabSMS from './components/tabs/sms/TabSMS.svelte'
   import ToastContainer from './components/ui/ToastContainer.svelte'
   import { authStore } from './stores/auth.svelte'
@@ -93,6 +94,8 @@
     <TabSSH />
   {:else if navigationStore.activeTab === 'modules'}
     <TabModules />
+  {:else if navigationStore.activeTab === 'partitions'}
+    <TabPartitions />
   {:else if navigationStore.activeTab === 'sms'}
     <TabSMS />
   {:else if navigationStore.activeTab === 'about'}

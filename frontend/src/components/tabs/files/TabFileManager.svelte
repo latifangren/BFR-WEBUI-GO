@@ -224,9 +224,13 @@
           credentials: 'include',
         }
       )
-      if (!res.ok) throw new Error((await res.text()) || 'Upload failed')
-      toastStore.success(`Uploaded ${files.length} file(s) successfully`)
-      await activePane.refresh()
+      const data = await res.json().catch(() => null)
+      if (!res.ok || (data && data.success === false)) {
+        throw new Error(data?.error || `Upload failed with status ${res.status}`)
+      }
+      const count = data?.uploaded ?? files.length
+      toastStore.success(`Uploaded ${count} file(s) successfully`)
+      await Promise.all([leftPane.refresh(), rightPane.refresh()])
     } catch (err: unknown) {
       toastStore.error(err instanceof Error ? err.message : 'Upload failed')
     } finally {

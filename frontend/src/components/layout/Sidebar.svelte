@@ -25,6 +25,7 @@
     X,
     MessageSquare,
     Box,
+    HardDriveDownload,
     ChevronDown,
   } from '@lucide/svelte'
   import { navigationStore, AVAILABLE_TABS, type TabItem } from '../../stores/navigation.svelte'
@@ -44,6 +45,7 @@
     power: Power,
     charger: BatteryCharging,
     modules: Box,
+    partitions: HardDriveDownload,
     terminal: Terminal,
     ssh: Terminal,
     scrcpy: Smartphone,

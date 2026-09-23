@@ -3,7 +3,9 @@ package handlers
 import (
 	"encoding/json"
 	"fmt"
+	"mime/multipart"
 	"net/http"
+	"strings"
 
 	"bfr-webui-go/internal/filemanager"
 	"bfr-webui-go/internal/logger"
@@ -122,20 +124,61 @@ func HandleFilesUpload(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	dirPath := r.FormValue("path")
-	file, header, err := r.FormFile("file")
-	if err != nil {
+	if dirPath == "" {
+		dirPath = r.URL.Query().Get("path")
+	}
+
+	var fileHeaders []*multipart.FileHeader
+	if r.MultipartForm != nil && r.MultipartForm.File != nil {
+		if fhs, ok := r.MultipartForm.File["files"]; ok && len(fhs) > 0 {
+			fileHeaders = append(fileHeaders, fhs...)
+		} else if fhs, ok := r.MultipartForm.File["file"]; ok && len(fhs) > 0 {
+			fileHeaders = append(fileHeaders, fhs...)
+		}
+	}
+
+	if len(fileHeaders) == 0 {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusBadRequest)
 		_ = json.NewEncoder(w).Encode(map[string]interface{}{"error": "No file uploaded"})
 		return
 	}
-	defer file.Close()
 
-	err = filemanager.UploadFile(dirPath, header.Filename, file)
+	var uploadedCount int
+	var uploadErrors []string
+
+	for _, fh := range fileHeaders {
+		f, err := fh.Open()
+		if err != nil {
+			uploadErrors = append(uploadErrors, fmt.Sprintf("%s: %v", fh.Filename, err))
+			continue
+		}
+		err = filemanager.UploadFile(dirPath, fh.Filename, f)
+		_ = f.Close()
+		if err != nil {
+			uploadErrors = append(uploadErrors, fmt.Sprintf("%s: %v", fh.Filename, err))
+		} else {
+			uploadedCount++
+		}
+	}
+
 	w.Header().Set("Content-Type", "application/json")
+	if uploadedCount == 0 {
+		w.WriteHeader(http.StatusBadRequest)
+		errMsg := "All file uploads failed"
+		if len(uploadErrors) > 0 {
+			errMsg = strings.Join(uploadErrors, "; ")
+		}
+		_ = json.NewEncoder(w).Encode(map[string]interface{}{
+			"error": errMsg,
+		})
+		return
+	}
+
+	logger.Get().Infof("filemanager", "Files uploaded: %d files to %s", uploadedCount, dirPath)
 	_ = json.NewEncoder(w).Encode(map[string]interface{}{
-		"success": err == nil,
-		"error":   fmt.Sprintf("%v", err),
+		"success":  true,
+		"uploaded": uploadedCount,
 	})
 }
 
