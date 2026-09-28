@@ -24,6 +24,28 @@ func TestHandleNASStatus(t *testing.T) {
 		t.Errorf("expected status 200 for GET NAS status, got %d", rrGet.Code)
 	}
 
+	var resp map[string]interface{}
+	if err := json.Unmarshal(rrGet.Body.Bytes(), &resp); err != nil {
+		t.Fatalf("failed to decode response JSON: %v", err)
+	}
+
+	st, ok := resp["status"].(map[string]interface{})
+	if !ok {
+		t.Fatalf("expected status map in response, got %v", resp["status"])
+	}
+	if _, ok := st["ips"]; !ok {
+		t.Errorf("expected 'ips' field in NAS status")
+	}
+	if _, ok := st["primary_ip"]; !ok {
+		t.Errorf("expected 'primary_ip' field in NAS status")
+	}
+	if _, ok := st["mount_urls"]; !ok {
+		t.Errorf("expected 'mount_urls' field in NAS status")
+	}
+	if _, ok := st["port"]; !ok {
+		t.Errorf("expected 'port' field in NAS status")
+	}
+
 	// POST wrong method
 	reqPost := httptest.NewRequest("POST", "/api/nas/status", nil)
 	rrPost := httptest.NewRecorder()

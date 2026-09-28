@@ -15,6 +15,12 @@ func formatNASStatus(st nas.NASStatus) map[string]interface{} {
 		"share_path":    st.SharePath,
 		"url":           st.URL,
 		"protocol":      st.Protocol,
+		"port":          st.Port,
+		"read_only":     st.ReadOnly,
+		"auth_required": st.AuthRequired,
+		"ips":           st.IPs,
+		"primary_ip":    st.PrimaryIP,
+		"mount_urls":    st.MountURLs,
 		"storage_used":  st.StorageUsed,
 		"storage_total": st.StorageTotal,
 	}

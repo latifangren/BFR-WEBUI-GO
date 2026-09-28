@@ -15,6 +15,7 @@ import (
 	"bfr-webui-go/internal/charger"
 	"bfr-webui-go/internal/handlers"
 	"bfr-webui-go/internal/logger"
+	"bfr-webui-go/internal/nas"
 	"bfr-webui-go/internal/network"
 	"bfr-webui-go/internal/power"
 	"bfr-webui-go/internal/qos"
@@ -87,6 +88,15 @@ func main() {
 
 	go func() {
 		_ = charger.GetManager()
+	}()
+
+	go func() {
+		nasMgr := nas.GetManager()
+		if cfg, err := nasMgr.LoadConfig(); err == nil && cfg.Enabled {
+			if err := nasMgr.StartNAS(*cfg); err != nil {
+				log.Printf("NAS startup initialization failed: %v", err)
+			}
+		}
 	}()
 
 	addr := ":" + *port

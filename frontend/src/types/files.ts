@@ -67,3 +67,30 @@ export interface FileRenamePayload {
   old_path: string
   new_path: string
 }
+
+export interface NASConfig {
+  enabled?: boolean
+  share_path: string
+  port: number
+  read_only?: boolean
+  auth_required?: boolean
+  username?: string
+  password?: string
+  protocol?: 'webdav' | 'http' | string
+}
+
+export interface NASStatus {
+  active?: boolean
+  running?: boolean
+  port?: number
+  share_path?: string
+  url?: string
+  protocol?: string
+  storage_used?: string
+  storage_total?: string
+  ips?: string[]
+  primary_ip?: string
+  mount_urls?: Record<string, string> | string[]
+  auth_required?: boolean
+  read_only?: boolean
+}

@@ -15,6 +15,7 @@ import (
 
 	"bfr-webui-go/internal/config"
 	"bfr-webui-go/internal/logger"
+	"golang.org/x/net/webdav"
 )
 
 type NASConfig struct {
@@ -29,12 +30,18 @@ type NASConfig struct {
 }
 
 type NASStatus struct {
-	Active       bool   `json:"active"`
-	SharePath    string `json:"share_path"`
-	URL          string `json:"url"`
-	Protocol     string `json:"protocol"`
-	StorageUsed  string `json:"storage_used"`
-	StorageTotal string `json:"storage_total"`
+	Active       bool     `json:"active"`
+	SharePath    string   `json:"share_path"`
+	URL          string   `json:"url"`
+	Protocol     string   `json:"protocol"`
+	Port         int      `json:"port"`
+	ReadOnly     bool     `json:"read_only"`
+	AuthRequired bool     `json:"auth_required"`
+	IPs          []string `json:"ips"`
+	PrimaryIP    string   `json:"primary_ip"`
+	MountURLs    []string `json:"mount_urls"`
+	StorageUsed  string   `json:"storage_used"`
+	StorageTotal string   `json:"storage_total"`
 }
 
 type Manager struct {
@@ -62,12 +69,12 @@ func newManager() *Manager {
 		config: NASConfig{
 			Enabled:      false,
 			SharePath:    "/sdcard",
-			Port:         8088,
+			Port:         85,
 			ReadOnly:     false,
 			AuthRequired: false,
 			Username:     "admin",
 			Password:     "bfr",
-			Protocol:     "http",
+			Protocol:     "webdav",
 		},
 	}
 	_, _ = m.LoadConfig()
@@ -79,6 +86,98 @@ func GetManager() *Manager {
 		globalManager = newManager()
 	})
 	return globalManager
+}
+
+// GetLocalIPs scans active network interfaces and returns non-loopback IPv4 addresses.
+func GetLocalIPs() []string {
+	var ips []string
+	ifaces, err := net.Interfaces()
+	if err != nil {
+		return ips
+	}
+	seen := make(map[string]bool)
+	for _, iface := range ifaces {
+		if iface.Flags&net.FlagUp == 0 || iface.Flags&net.FlagLoopback != 0 {
+			continue
+		}
+		addrs, err := iface.Addrs()
+		if err != nil {
+			continue
+		}
+		for _, addr := range addrs {
+			var ip net.IP
+			switch v := addr.(type) {
+			case *net.IPNet:
+				ip = v.IP
+			case *net.IPAddr:
+				ip = v.IP
+			}
+			if ip == nil || ip.IsLoopback() {
+				continue
+			}
+			if ip4 := ip.To4(); ip4 != nil {
+				ipStr := ip4.String()
+				if !seen[ipStr] {
+					seen[ipStr] = true
+					ips = append(ips, ipStr)
+				}
+			}
+		}
+	}
+	return ips
+}
+
+// GetPrimaryIP selects the primary local IPv4 address, prioritizing Wi-Fi, hotspot, and Ethernet interfaces.
+func GetPrimaryIP() string {
+	ifaces, err := net.Interfaces()
+	if err != nil {
+		return "127.0.0.1"
+	}
+
+	prefOrder := []string{"wlan0", "ap0", "wlan1", "rndis0", "eth0", "usb0", "tun0"}
+	type ifaceIP struct {
+		name string
+		ip   string
+	}
+	var list []ifaceIP
+
+	for _, iface := range ifaces {
+		if iface.Flags&net.FlagUp == 0 || iface.Flags&net.FlagLoopback != 0 {
+			continue
+		}
+		addrs, err := iface.Addrs()
+		if err != nil {
+			continue
+		}
+		for _, addr := range addrs {
+			var ip net.IP
+			switch v := addr.(type) {
+			case *net.IPNet:
+				ip = v.IP
+			case *net.IPAddr:
+				ip = v.IP
+			}
+			if ip == nil || ip.IsLoopback() {
+				continue
+			}
+			if ip4 := ip.To4(); ip4 != nil {
+				list = append(list, ifaceIP{name: iface.Name, ip: ip4.String()})
+			}
+		}
+	}
+
+	for _, pref := range prefOrder {
+		for _, item := range list {
+			if strings.EqualFold(item.name, pref) {
+				return item.ip
+			}
+		}
+	}
+
+	if len(list) > 0 {
+		return list[0].ip
+	}
+	return "127.0.0.1"
 }
 
 func (m *Manager) LoadConfig() (*NASConfig, error) {
@@ -95,13 +194,13 @@ func (m *Manager) LoadConfig() (*NASConfig, error) {
 		var cfg NASConfig
 		if err := json.Unmarshal(buf, &cfg); err == nil {
 			if cfg.Port <= 0 {
-				cfg.Port = 8088
+				cfg.Port = 85
 			}
 			if cfg.SharePath == "" {
 				cfg.SharePath = "/sdcard"
 			}
 			if cfg.Protocol == "" {
-				cfg.Protocol = "http"
+				cfg.Protocol = "webdav"
 			}
 			m.config = cfg
 			return &m.config, nil
@@ -120,13 +219,13 @@ func (m *Manager) SaveConfig(cfg *NASConfig) error {
 	}
 
 	if cfg.Port <= 0 {
-		cfg.Port = 8088
+		cfg.Port = 85
 	}
 	if cfg.SharePath == "" {
 		cfg.SharePath = "/sdcard"
 	}
 	if cfg.Protocol == "" {
-		cfg.Protocol = "http"
+		cfg.Protocol = "webdav"
 	}
 
 	m.config = *cfg
@@ -192,8 +291,23 @@ func (m *Manager) StartNAS(cfg NASConfig) error {
 		return fmt.Errorf("shared path does not exist: %s", cleanPath)
 	}
 
-	// Prepare FileServer handler
-	fsHandler := http.FileServer(http.Dir(cleanPath))
+	var baseHandler http.Handler
+	if strings.EqualFold(cfg.Protocol, "http") {
+		fileServer := http.FileServer(http.Dir(cleanPath))
+		baseHandler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			if r.Method == http.MethodOptions {
+				w.Header().Set("Allow", "GET, HEAD, OPTIONS")
+				w.WriteHeader(http.StatusOK)
+				return
+			}
+			fileServer.ServeHTTP(w, r)
+		})
+	} else {
+		baseHandler = &webdav.Handler{
+			FileSystem: webdav.Dir(cleanPath),
+			LockSystem: webdav.NewMemLS(),
+		}
+	}
 
 	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// Basic Auth middleware check
@@ -206,24 +320,16 @@ func (m *Manager) StartNAS(cfg NASConfig) error {
 			}
 		}
 
-		// Read-Only mode restriction check
+		// Read-Only mode restriction check: reject mutation methods
 		if cfg.ReadOnly {
-			method := strings.ToUpper(r.Method)
-			if method == "PUT" || method == "POST" || method == "DELETE" || method == "MKCOL" || method == "PROPPATCH" || method == "MOVE" || method == "COPY" {
+			switch strings.ToUpper(r.Method) {
+			case "PUT", "POST", "DELETE", "MKCOL", "PROPPATCH", "MOVE", "COPY", "LOCK":
 				http.Error(w, "Read-Only mode enabled", http.StatusForbidden)
 				return
 			}
 		}
 
-		// Support WebDAV OPTIONS query
-		if r.Method == "OPTIONS" {
-			w.Header().Set("Allow", "GET, HEAD, POST, PUT, DELETE, OPTIONS, PROPFIND, MKCOL")
-			w.Header().Set("DAV", "1, 2")
-			w.WriteHeader(http.StatusOK)
-			return
-		}
-
-		fsHandler.ServeHTTP(w, r)
+		baseHandler.ServeHTTP(w, r)
 	})
 
 	addr := fmt.Sprintf(":%d", cfg.Port)
@@ -238,10 +344,11 @@ func (m *Manager) StartNAS(cfg NASConfig) error {
 		WriteTimeout: 15 * time.Minute,
 	}
 
+	primaryIP := GetPrimaryIP()
 	m.server = server
 	m.listener = listener
 	m.active = true
-	m.activeURL = fmt.Sprintf("http://localhost:%d", cfg.Port)
+	m.activeURL = fmt.Sprintf("http://%s:%d", primaryIP, cfg.Port)
 
 	go func() {
 		if err := server.Serve(listener); err != nil && err != http.ErrServerClosed {
@@ -260,9 +367,20 @@ func (m *Manager) GetStatus() NASStatus {
 	cfg := m.config
 	used, total := getStorageStats(cfg.SharePath)
 
+	ips := GetLocalIPs()
+	primaryIP := GetPrimaryIP()
+
+	mountURLs := make([]string, 0, len(ips))
+	for _, ip := range ips {
+		mountURLs = append(mountURLs, fmt.Sprintf("http://%s:%d", ip, cfg.Port))
+	}
+	if len(mountURLs) == 0 {
+		mountURLs = append(mountURLs, fmt.Sprintf("http://127.0.0.1:%d", cfg.Port))
+	}
+
 	url := m.activeURL
 	if url == "" && cfg.Enabled {
-		url = fmt.Sprintf("http://localhost:%d", cfg.Port)
+		url = fmt.Sprintf("http://%s:%d", primaryIP, cfg.Port)
 	}
 
 	return NASStatus{
@@ -270,6 +388,12 @@ func (m *Manager) GetStatus() NASStatus {
 		SharePath:    cfg.SharePath,
 		URL:          url,
 		Protocol:     cfg.Protocol,
+		Port:         cfg.Port,
+		ReadOnly:     cfg.ReadOnly,
+		AuthRequired: cfg.AuthRequired,
+		IPs:          ips,
+		PrimaryIP:    primaryIP,
+		MountURLs:    mountURLs,
 		StorageUsed:  used,
 		StorageTotal: total,
 	}
