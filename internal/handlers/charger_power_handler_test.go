@@ -59,6 +59,35 @@ func TestHandleChargerToggle(t *testing.T) {
 	}
 }
 
+func TestHandleChargerProbe(t *testing.T) {
+	tempDir := t.TempDir()
+	t.Setenv("BFR_DATA_DIR", tempDir)
+
+	// GET wrong method
+	reqGet := httptest.NewRequest("GET", "/api/charger/probe", nil)
+	rrGet := httptest.NewRecorder()
+	handlers.HandleChargerProbe(rrGet, reqGet)
+	if rrGet.Code != http.StatusMethodNotAllowed {
+		t.Errorf("expected status 405 for GET, got %d", rrGet.Code)
+	}
+
+	// POST probe all
+	reqPost := httptest.NewRequest("POST", "/api/charger/probe", nil)
+	rrPost := httptest.NewRecorder()
+	handlers.HandleChargerProbe(rrPost, reqPost)
+	if rrPost.Code != http.StatusOK {
+		t.Errorf("expected status 200 for POST charger probe, got %d", rrPost.Code)
+	}
+
+	// POST probe single
+	reqSingle := httptest.NewRequest("POST", "/api/charger/probe?profile_id=qc_battery_charging_enabled", nil)
+	rrSingle := httptest.NewRecorder()
+	handlers.HandleChargerProbe(rrSingle, reqSingle)
+	if rrSingle.Code != http.StatusOK {
+		t.Errorf("expected status 200 for POST charger probe single, got %d", rrSingle.Code)
+	}
+}
+
 func TestHandlePower_Validation(t *testing.T) {
 	// GET wrong method
 	reqGet := httptest.NewRequest("GET", "/api/power/action", nil)

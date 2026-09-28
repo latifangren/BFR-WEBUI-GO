@@ -28,11 +28,62 @@ export interface ConnectedClient {
   state: string
 }
 
+export interface SwitchNode {
+  path: string
+  on_value: string
+  off_value: string
+}
+
+export interface SwitchProfile {
+  id: string
+  name: string
+  description: string
+  nodes: SwitchNode[]
+  is_bypass: boolean
+}
+
 export interface ChargerConfig {
   enabled: boolean
   start_percent: number
   stop_percent: number
+  selected_switch?: string
   custom_path?: string
+  custom_on?: string
+  custom_off?: string
+}
+
+export interface BatteryInfo {
+  capacity: number
+  status: string
+  current_now: number
+  voltage_now: number
+  temperature: number
+  power_supply: string
+  is_online: boolean
+  is_idle: boolean
+}
+
+export interface ProbeResult {
+  profile_id: string
+  name: string
+  success: boolean
+  current_before: number
+  current_after: number
+  message: string
+  tested_at: string
+}
+
+export interface ChargerStatusResponse {
+  config: ChargerConfig
+  active_profile?: SwitchProfile
+  detected_path: string
+  detected_type: string
+  charging_disabled: boolean
+  current_level: number
+  battery: BatteryInfo
+  available_switches: SwitchProfile[]
+  probe_results?: ProbeResult[]
+  logs: string[]
 }
 
 export type PowerAction = 'reboot' | 'recovery' | 'bootloader' | 'poweroff'

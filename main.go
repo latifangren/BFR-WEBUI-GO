@@ -12,7 +12,7 @@ import (
 	"time"
 
 	"bfr-webui-go/internal/auth"
-	_ "bfr-webui-go/internal/charger"
+	"bfr-webui-go/internal/charger"
 	"bfr-webui-go/internal/handlers"
 	"bfr-webui-go/internal/logger"
 	"bfr-webui-go/internal/network"
@@ -83,6 +83,10 @@ func main() {
 
 	go func() {
 		power.GetScheduler().Start()
+	}()
+
+	go func() {
+		_ = charger.GetManager()
 	}()
 
 	addr := ":" + *port

@@ -121,7 +121,7 @@ func RegisterRoutes(mux *http.ServeMux, authMgr *auth.Manager) {
 			if f, err := distFS.Open(reqPath); err == nil {
 				_ = f.Close()
 				if strings.HasPrefix(r.URL.Path, "/assets/") {
-					w.Header().Set("Cache-Control", "public, max-age=31536000, immutable")
+					w.Header().Set("Cache-Control", "no-cache, must-revalidate")
 				}
 				fileServer.ServeHTTP(w, r)
 				return
@@ -221,6 +221,7 @@ func RegisterRoutes(mux *http.ServeMux, authMgr *auth.Manager) {
 	// Smart Charger URLs
 	mux.HandleFunc("/api/charger/config", wrap(HandleChargerConfig, true))
 	mux.HandleFunc("/api/charger/toggle", wrap(HandleChargerToggle, true))
+	mux.HandleFunc("/api/charger/probe", wrap(HandleChargerProbe, true))
 
 	// QoS URLs
 	mux.HandleFunc("/api/qos/status", wrap(HandleQoSStatus, true))
