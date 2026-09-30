@@ -142,7 +142,7 @@ func TestApplyAndResetBandLock(t *testing.T) {
 		HexBitmask:   "0x5",
 	}
 
-	_ = mgr.ApplyBandLock(cfg)
+	_, _ = mgr.ApplyBandLock(cfg)
 	errReset := mgr.ResetBandLock()
 	if errReset != nil {
 		t.Errorf("unexpected error resetting band lock: %v", errReset)

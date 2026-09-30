@@ -26,6 +26,7 @@
     Info,
     Palette,
     X,
+    Layers,
   } from '@lucide/svelte'
   import {
     navigationStore,
@@ -41,7 +42,9 @@
     hotspot: Wifi,
     proxy: Shield,
     modem: Radio,
+    qualcomm: Zap,
     samsung: Smartphone,
+    shannon: Layers,
     sms: MessageSquare,
     power: Power,
     charger: BatteryCharging,

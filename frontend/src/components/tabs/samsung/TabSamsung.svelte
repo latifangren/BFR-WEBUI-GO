@@ -15,6 +15,7 @@
     Search,
     Layers,
     Info,
+    Cpu,
   } from '@lucide/svelte'
   import { api } from '../../../api/client'
   import { toastStore } from '../../../stores/toast.svelte'
@@ -278,6 +279,48 @@
         <RefreshCw class="w-3.5 h-3.5 mr-1.5 {isLoadingStatus || isLoadingBands ? 'animate-spin' : ''}" />
         <span>Refresh</span>
       </Button>
+    </div>
+  </div>
+
+  <!-- TARGET ARCHITECTURE & HARDWARE SPECIFICATIONS -->
+  <div class="p-4 bg-card-sub border-2 border-border rounded-lg space-y-3 shadow-neobrutal-sm">
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b-2 border-border/60 pb-3">
+      <div class="flex items-center gap-2">
+        <Cpu class="w-4 h-4 text-accent" />
+        <span class="text-xs font-bold uppercase tracking-wider text-foreground">
+          Target Architecture & Hardware Compatibility
+        </span>
+      </div>
+      {#if isSamsung}
+        <Badge variant="success" class="flex items-center gap-1.5 w-fit">
+          <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+          <span>COMPATIBLE & DETECTED (SAMSUNG ONEUI)</span>
+        </Badge>
+      {:else}
+        <Badge variant="warning" class="flex items-center gap-1.5 w-fit">
+          <AlertTriangle class="w-3.5 h-3.5" />
+          <span>INCOMPATIBLE (REQUIRES SAMSUNG ONEUI)</span>
+        </Badge>
+      {/if}
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-xs">
+      <div class="p-2.5 bg-card border-2 border-border rounded">
+        <span class="text-[10px] text-muted uppercase font-bold block mb-1">Target Device</span>
+        <p class="font-bold text-foreground">Galaxy Z Flip 3-6, Fold 3-6, S20-S24, Note, A & M Series</p>
+      </div>
+      <div class="p-2.5 bg-card border-2 border-border rounded">
+        <span class="text-[10px] text-muted uppercase font-bold block mb-1">Target ROM</span>
+        <p class="font-bold text-foreground">Official Samsung OneUI (One UI 3.x - 7.x with SecRIL)</p>
+      </div>
+      <div class="p-2.5 bg-card border-2 border-border rounded">
+        <span class="text-[10px] text-muted uppercase font-bold block mb-1">Target Chipset</span>
+        <p class="font-bold text-foreground">Qualcomm Snapdragon & Samsung Exynos (Running OneUI)</p>
+      </div>
+      <div class="p-2.5 bg-card border-2 border-border rounded">
+        <span class="text-[10px] text-muted uppercase font-bold block mb-1">Target Modem</span>
+        <p class="font-bold text-foreground">SecRIL Telephony Subsystem (service call phone 73/74)</p>
+      </div>
     </div>
   </div>
 

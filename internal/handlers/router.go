@@ -233,6 +233,7 @@ func RegisterRoutes(mux *http.ServeMux, authMgr *auth.Manager) {
 	mux.HandleFunc("/api/modem/bands", wrap(HandleModemBands, true))
 	mux.HandleFunc("/api/modem/at", wrap(HandleModemAT, true))
 	mux.HandleFunc("/api/modem/reset", wrap(HandleModemReset, true))
+	mux.HandleFunc("/api/modem/bands/reset", wrap(HandleModemReset, true))
 	mux.HandleFunc("/api/modem/sim/status", wrap(HandleModemSimStatus, true))
 	mux.HandleFunc("/api/modem/sim/switch", wrap(HandleModemSimSwitch, true))
 	mux.HandleFunc("/api/modem/thermal", wrap(HandleModemThermal, true))
@@ -244,6 +245,16 @@ func RegisterRoutes(mux *http.ServeMux, authMgr *auth.Manager) {
 	mux.HandleFunc("/api/samsung/auto", wrap(HandleSamsungAuto, true))
 	mux.HandleFunc("/api/samsung/sim/switch", wrap(HandleSamsungSimSwitch, true))
 	mux.HandleFunc("/api/samsung/thermal", wrap(HandleSamsungThermal, true))
+
+	// Google Tensor Shannon Modem URLs
+	mux.HandleFunc("/api/shannon/status", wrap(HandleShannonStatus, true))
+	mux.HandleFunc("/api/shannon/lock", wrap(HandleShannonLock, true))
+	mux.HandleFunc("/api/shannon/reset", wrap(HandleShannonReset, true))
+
+	// Qualcomm Snapdragon QMI URLs
+	mux.HandleFunc("/api/qualcomm/bands", wrap(HandleModemBands, true))
+	mux.HandleFunc("/api/qualcomm/bands/reset", wrap(HandleModemReset, true))
+	mux.HandleFunc("/api/qualcomm/reset", wrap(HandleModemReset, true))
 
 	// Cloudflare / Remote Tunnel URLs
 	mux.HandleFunc("/api/tunnel/status", wrap(HandleTunnelStatus, true))

@@ -42,11 +42,16 @@ type SignalInfo struct {
 }
 
 type BandConfig struct {
-	Engine       string `json:"engine"`        // "universal", "qualcomm_at", "intent"
-	PreferredRAT string `json:"preferred_rat"` // "5g_only", "4g_only", "hybrid", "3g_only"
-	LTEBands     []int  `json:"lte_bands"`
-	NRBands      []int  `json:"nr_bands"`
-	HexBitmask   string `json:"hex_bitmask"`
+	Engine         string `json:"engine"`        // "universal", "qualcomm_qrtr", "qualcomm_at", "intent"
+	PreferredRAT   string `json:"preferred_rat"` // "5g_only", "4g_only", "hybrid", "3g_only"
+	LTEBands       []int  `json:"lte_bands"`
+	NRBands        []int  `json:"nr_bands"`
+	HexBitmask     string `json:"hex_bitmask"`
+	SimSlot        int    `json:"sim_slot"`          // 0 = SIM 1, 1 = SIM 2
+	NRMode         string `json:"nr_mode,omitempty"` // "both", "sa", "nsa"
+	IsQualcomm     bool   `json:"is_qualcomm"`
+	ActiveLTEBands []int  `json:"active_lte_bands,omitempty"`
+	ActiveNRBands  []int  `json:"active_nr_bands,omitempty"`
 }
 
 type ATResponse struct {
@@ -85,14 +90,20 @@ func getStoragePath() string {
 }
 
 func newManager() *Manager {
+	engine := "universal"
+	if IsQRTRSupported() {
+		engine = "qualcomm_qrtr"
+	}
 	m := &Manager{
 		dataPath: getStoragePath(),
 		config: BandConfig{
-			Engine:       "universal",
+			Engine:       engine,
 			PreferredRAT: "hybrid",
 			LTEBands:     make([]int, 0),
 			NRBands:      make([]int, 0),
 			HexBitmask:   "0x0",
+			SimSlot:      0,
+			IsQualcomm:   IsQRTRSupported(),
 		},
 	}
 	_, _ = m.LoadConfig()
@@ -474,11 +485,58 @@ func (m *Manager) LoadConfig() (*BandConfig, error) {
 				cfg.NRBands = make([]int, 0)
 			}
 			m.config = cfg
-			return &m.config, nil
+		}
+	}
+
+	// Default to active data slot if unconfigured or on fresh boot
+	if m.config.SimSlot == 0 {
+		activeSlot := GetActiveDataSlot()
+		if activeSlot == 1 {
+			m.config.SimSlot = 1
+		}
+	}
+
+	// Always sync Qualcomm status dynamically
+	m.config.IsQualcomm = IsQRTRSupported()
+	if m.config.IsQualcomm && (m.config.Engine == "" || m.config.Engine == "universal") {
+		m.config.Engine = "qualcomm_qrtr"
+	}
+
+	// Fetch live active bands from modem if QRTR is active
+	if m.config.IsQualcomm {
+		if st, err := GetQRTRActiveBands(m.config.SimSlot); err == nil && st != nil {
+			m.config.ActiveLTEBands = st.LTEBands
+			m.config.ActiveNRBands = st.NRBands
+			if st.NRMode != "" {
+				m.config.NRMode = st.NRMode
+			}
 		}
 	}
 
 	return &m.config, nil
+}
+
+// LoadConfigForSlot returns the band configuration and live active bands for a specific SIM slot.
+func (m *Manager) LoadConfigForSlot(slot int) (*BandConfig, error) {
+	cfg, err := m.LoadConfig()
+	if err != nil {
+		return nil, err
+	}
+	if slot >= 0 && slot <= 1 {
+		cfgCopy := *cfg
+		cfgCopy.SimSlot = slot
+		if cfgCopy.IsQualcomm {
+			if st, err := GetQRTRActiveBands(slot); err == nil && st != nil {
+				cfgCopy.ActiveLTEBands = st.LTEBands
+				cfgCopy.ActiveNRBands = st.NRBands
+				if st.NRMode != "" {
+					cfgCopy.NRMode = st.NRMode
+				}
+			}
+		}
+		return &cfgCopy, nil
+	}
+	return cfg, nil
 }
 
 func (m *Manager) SaveConfig(cfg *BandConfig) error {
@@ -519,9 +577,10 @@ func (m *Manager) SaveConfig(cfg *BandConfig) error {
 	return nil
 }
 
-func (m *Manager) ApplyBandLock(cfg BandConfig) error {
+func (m *Manager) ApplyBandLock(cfg BandConfig) (*BandLockVerificationResult, error) {
+	cfg.IsQualcomm = IsQRTRSupported()
 	if err := m.SaveConfig(&cfg); err != nil {
-		return err
+		return nil, err
 	}
 
 	hexMask := cfg.HexBitmask
@@ -535,13 +594,25 @@ func (m *Manager) ApplyBandLock(cfg BandConfig) error {
 	}
 	bandStr := strings.Join(lteJoin, ":")
 
-	// Attempt Qualcomm AT Command direct band lock
-	if bandStr != "" {
+	// 1. Direct Qualcomm QMI over QRTR if supported
+	if IsQRTRSupported() && (cfg.Engine == "qualcomm_qrtr" || cfg.Engine == "universal") {
+		vRes, err := ApplyQRTRBandLockDetailed(cfg.SimSlot, cfg.LTEBands, cfg.NRBands, cfg.PreferredRAT, cfg.NRMode)
+		if err != nil {
+			logger.Get().Warnf("Modem", "Qualcomm QRTR band lock failed: %v", err)
+			return vRes, fmt.Errorf("modem rejected band lock: %w", err)
+		}
+		logger.Get().Infof("Modem", "Qualcomm QRTR band lock applied: verified=%t, active=%v",
+			vRes.Verified, vRes.ActiveLTEBands)
+		return vRes, nil
+	}
+
+	// 2. Attempt Qualcomm AT Command direct band lock fallback if specified
+	if cfg.Engine == "qualcomm_at" && bandStr != "" {
 		_ = ExecuteATCommand(fmt.Sprintf("AT+QNWPREFCFG=\"lte_band\",%s", bandStr))
 		_ = ExecuteATCommand(fmt.Sprintf("AT^SYSCONFIG=14,2,2,4,%s", hexMask))
 	}
 
-	// Determine Android radio network mode value
+	// 3. Determine Android radio network mode value & apply global Android settings
 	ratVal := "9" // Hybrid/Auto default
 	switch cfg.PreferredRAT {
 	case "5g_only":
@@ -552,21 +623,18 @@ func (m *Manager) ApplyBandLock(cfg BandConfig) error {
 		ratVal = "2" // WCDMA Only
 	}
 
-	// Apply settings & network modes (supports Android 9 through Android 16)
 	var cmds []string
 	cmds = append(cmds, fmt.Sprintf("settings put global preferred_network_mode %s 2>/dev/null || true", ratVal))
 	cmds = append(cmds, fmt.Sprintf("settings put global preferred_network_mode1 %s 2>/dev/null || true", ratVal))
 	cmds = append(cmds, fmt.Sprintf("settings put global preferred_network_mode2 %s 2>/dev/null || true", ratVal))
 	cmds = append(cmds, fmt.Sprintf("cmd phone set-preferred-network-type %s 2>/dev/null || true", ratVal))
 
-	if len(cfg.LTEBands) > 0 {
-		cmds = append(cmds, fmt.Sprintf("cmd phone lte-set-band-mode %s 2>/dev/null || true", hexMask))
+	// If not QRTR (legacy universal engine or intent), trigger airplane mode cycle fallback
+	if !IsQRTRSupported() || cfg.Engine == "intent" {
+		cmds = append(cmds, "settings put global airplane_mode_on 1 && am broadcast -a android.intent.action.AIRPLANE_MODE --ez state true >/dev/null 2>&1")
+		cmds = append(cmds, "sleep 1")
+		cmds = append(cmds, "settings put global airplane_mode_on 0 && am broadcast -a android.intent.action.AIRPLANE_MODE --ez state false >/dev/null 2>&1")
 	}
-
-	// Airplane Mode Cycle to force radio stack to tear down and re-register on target band
-	cmds = append(cmds, "settings put global airplane_mode_on 1 && am broadcast -a android.intent.action.AIRPLANE_MODE --ez state true >/dev/null 2>&1")
-	cmds = append(cmds, "sleep 1")
-	cmds = append(cmds, "settings put global airplane_mode_on 0 && am broadcast -a android.intent.action.AIRPLANE_MODE --ez state false >/dev/null 2>&1")
 
 	execCmdStr := strings.Join(cmds, " && ")
 	out, err := config.ExecSuTimeout(8*time.Second, execCmdStr)
@@ -575,23 +643,40 @@ func (m *Manager) ApplyBandLock(cfg BandConfig) error {
 	}
 	logger.Get().Infof("Modem", "Applied Band Lock (RAT: %s, Bands: %s, mask: %s)", cfg.PreferredRAT, bandStr, hexMask)
 
-	return nil
+	return &BandLockVerificationResult{
+		Success:        true,
+		Verified:       false,
+		TargetSlot:     cfg.SimSlot,
+		TargetSlotName: fmt.Sprintf("SIM %d", cfg.SimSlot+1),
+		RequestedLTE:   cfg.LTEBands,
+		Message:        "Global system preferred network mode applied via Android Telephony.",
+		StepLogs:       []string{"Applied global preferred network mode settings", "Broadcasted intent to telephony registry"},
+	}, nil
 }
 
 func (m *Manager) ResetBandLock() error {
+	defaultEngine := "universal"
+	if IsQRTRSupported() {
+		defaultEngine = "qualcomm_qrtr"
+		_ = ResetQRTRBandLock(0)
+		_ = ResetQRTRBandLock(1)
+	}
+
 	defaultCfg := BandConfig{
-		Engine:       "universal",
+		Engine:       defaultEngine,
 		PreferredRAT: "hybrid",
 		LTEBands:     make([]int, 0),
 		NRBands:      make([]int, 0),
 		HexBitmask:   "0x0",
+		SimSlot:      0,
+		IsQualcomm:   IsQRTRSupported(),
 	}
 
 	if err := m.SaveConfig(&defaultCfg); err != nil {
 		return err
 	}
 
-	// Reset AT / Qualcomm band mask
+	// Reset AT / Qualcomm band mask fallback
 	_ = ExecuteATCommand("AT+QNWPREFCFG=\"lte_band\",1:3:5:8:40")
 
 	// Reset Universal network type to Auto (mode 9/10)

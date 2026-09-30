@@ -27,6 +27,7 @@
     Box,
     HardDriveDownload,
     ChevronDown,
+    Layers,
   } from '@lucide/svelte'
   import { navigationStore, AVAILABLE_TABS, type TabItem } from '../../stores/navigation.svelte'
   import { themeStore } from '../../stores/theme.svelte'
@@ -40,7 +41,9 @@
     hotspot: Wifi,
     proxy: Shield,
     modem: Radio,
+    qualcomm: Zap,
     samsung: Smartphone,
+    shannon: Layers,
     sms: MessageSquare,
     power: Power,
     charger: BatteryCharging,

@@ -2,8 +2,8 @@ package handlers
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
+	"strconv"
 
 	"bfr-webui-go/internal/logger"
 	"bfr-webui-go/internal/modem"
@@ -34,7 +34,16 @@ func HandleModemBands(w http.ResponseWriter, r *http.Request) {
 	mgr := modem.GetManager()
 
 	if r.Method == http.MethodGet {
-		cfg, err := mgr.LoadConfig()
+		targetSlot := -1
+		slotStr := r.URL.Query().Get("slot")
+		if slotStr == "" {
+			slotStr = r.URL.Query().Get("sim_slot")
+		}
+		if s, err := strconv.Atoi(slotStr); err == nil && (s == 0 || s == 1) {
+			targetSlot = s
+		}
+
+		cfg, err := mgr.LoadConfigForSlot(targetSlot)
 		w.Header().Set("Content-Type", "application/json")
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
@@ -54,16 +63,28 @@ func HandleModemBands(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		err := mgr.ApplyBandLock(cfg)
+		res, err := mgr.ApplyBandLock(cfg)
 		if err == nil {
 			logger.Get().Infof("Modem", "Band lock applied successfully: engine=%s, RAT=%s", cfg.Engine, cfg.PreferredRAT)
+		} else {
+			logger.Get().Warnf("Modem", "Band lock failed: %v", err)
 		}
 
+		updatedCfg, _ := mgr.LoadConfig()
+
 		w.Header().Set("Content-Type", "application/json")
-		_ = json.NewEncoder(w).Encode(map[string]interface{}{
+		if err != nil {
+			w.WriteHeader(http.StatusBadRequest)
+		}
+		resp := map[string]interface{}{
 			"success": err == nil,
-			"error":   fmt.Sprintf("%v", err),
-		})
+			"config":  updatedCfg,
+			"result":  res,
+		}
+		if err != nil {
+			resp["error"] = err.Error()
+		}
+		_ = json.NewEncoder(w).Encode(resp)
 		return
 	}
 
@@ -107,11 +128,17 @@ func HandleModemReset(w http.ResponseWriter, r *http.Request) {
 		logger.Get().Infof("Modem", "Modem band lock settings reset to default")
 	}
 
+	updatedCfg, _ := mgr.LoadConfig()
+
 	w.Header().Set("Content-Type", "application/json")
-	_ = json.NewEncoder(w).Encode(map[string]interface{}{
+	resp := map[string]interface{}{
 		"success": err == nil,
-		"error":   fmt.Sprintf("%v", err),
-	})
+		"config":  updatedCfg,
+	}
+	if err != nil {
+		resp["error"] = err.Error()
+	}
+	_ = json.NewEncoder(w).Encode(resp)
 }
 
 // HandleModemSimStatus returns current multi-SIM status and active data slot.
