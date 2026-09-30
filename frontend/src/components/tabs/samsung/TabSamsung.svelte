@@ -15,13 +15,6 @@
     Search,
     Layers,
     Info,
-    ArrowLeftRight,
-    Flame,
-    Thermometer,
-    Activity,
-    Cpu,
-    Battery,
-    Wifi,
   } from '@lucide/svelte'
   import { api } from '../../../api/client'
   import { toastStore } from '../../../stores/toast.svelte'
@@ -57,59 +50,9 @@
     error?: string
   }
 
-  interface ThermalSensors {
-    pa1_sub6_c: number
-    pa2_sub6_c: number
-    cell_front_cf_c: number
-    modem_skin_c: number
-    rf_pmic_c: number
-    modem_baseband_c: number
-    ap_soc_c: number
-    battery_c: number
-  }
-
-  interface ThermalThrottlers {
-    modem_pa_fr1_dsc: number
-    modem_skin_nr_dsc: number
-    modem_pa_fr1: number
-  }
-
-  interface Thermal5GStatus {
-    available?: boolean
-    network_type: string
-    is_5g_disconnect: boolean
-    nr_band: string
-    nr_rsrp: number
-    traffic_mbps: number
-    thermal_hal_status: number
-    thermal_hal_desc: string
-    is_throttled: boolean
-    culprit_sensor: string
-    culprit?: string
-    culprit_detail: string
-    sensors: ThermalSensors
-    throttlers: ThermalThrottlers
-    error?: string
-  }
-
-  interface SimSwitchResponse {
-    success: boolean
-    slot: number
-    sub_id?: number
-    message?: string
-  }
-
   // State
   let deviceStatus = $state<SamsungDeviceStatus | null>(null)
   let isLoadingStatus = $state(false)
-
-  // Active Data SIM Switch State
-  let isSwitchingSim = $state(false)
-
-  // 5G Thermal State
-  let thermalData = $state<Thermal5GStatus | null>(null)
-  let isLoadingThermal = $state(false)
-  let thermalError = $state<string | null>(null)
 
   let selectedSlot = $state<number>(0)
   let bandData = $state<SamsungBandStatus | null>(null)
@@ -132,18 +75,6 @@
   const allBands = $derived(bandData?.bands ?? [])
   const activeBandsList = $derived(
     allBands.filter((b) => b.active || (bandData?.active_bands ?? []).includes(b.id))
-  )
-
-  const isThermalThrottledOrDisconnected = $derived(
-    thermalData?.is_throttled === true || thermalData?.is_5g_disconnect === true
-  )
-
-  const thermalTone = $derived<'peach' | 'mint' | 'none'>(
-    thermalData && thermalData.available !== false
-      ? isThermalThrottledOrDisconnected
-        ? 'peach'
-        : 'mint'
-      : 'none'
   )
 
   const filteredBands = $derived(
@@ -180,7 +111,6 @@
     await Promise.allSettled([
       fetchDeviceStatus(),
       fetchBands(selectedSlot),
-      fetchThermalStatus(),
     ])
   }
 
@@ -197,222 +127,6 @@
     }
   }
 
-  async function switchActiveDataSim(targetSlot: number) {
-    if (isSwitchingSim) return
-    if (activeDataSlot === targetSlot) {
-      toastStore.info(`Mobile data is already active on SIM ${targetSlot + 1}.`, 'Active Status')
-      return
-    }
-    try {
-      isSwitchingSim = true
-      const res = await api.post<SimSwitchResponse>('/api/samsung/sim/switch', {
-        slot: targetSlot,
-      })
-      toastStore.success(
-        res.message || `Mobile data successfully switched to SIM ${targetSlot + 1}.`,
-        'SIM Data Switched'
-      )
-      await fetchDeviceStatus()
-    } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : 'Failed to switch active data SIM'
-      toastStore.error(msg, 'Switch Error')
-    } finally {
-      isSwitchingSim = false
-    }
-  }
-
-  async function fetchThermalStatus() {
-    try {
-      isLoadingThermal = true
-      thermalError = null
-      const res = await api.get<Thermal5GStatus>('/api/samsung/thermal')
-      thermalData = res
-      if (res.available === false && res.error) {
-        thermalError = res.error
-      }
-    } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : 'Failed to load 5G thermal telemetry'
-      thermalError = msg
-    } finally {
-      isLoadingThermal = false
-    }
-  }
-
-  function getTempStatus(
-    temp: number,
-    type: 'modem_skin' | 'battery' | 'pa' | 'soc' | 'default' = 'default'
-  ): {
-    colorClass: string
-    bgClass: string
-    borderClass: string
-    badgeVariant: 'success' | 'warning' | 'danger'
-    label: string
-  } {
-    if (temp <= 0) {
-      return {
-        colorClass: 'text-muted',
-        bgClass: 'bg-card-sub',
-        borderClass: 'border-border',
-        badgeVariant: 'success',
-        label: 'IDLE',
-      }
-    }
-
-    if (type === 'modem_skin') {
-      if (temp >= 42) {
-        return {
-          colorClass: 'text-red-400',
-          bgClass: 'bg-red-950/40',
-          borderClass: 'border-red-500',
-          badgeVariant: 'danger',
-          label: 'OVER LIMIT (42°C)',
-        }
-      }
-      if (temp >= 40) {
-        return {
-          colorClass: 'text-amber-400',
-          bgClass: 'bg-amber-950/40',
-          borderClass: 'border-amber-500',
-          badgeVariant: 'warning',
-          label: 'NEAR LIMIT',
-        }
-      }
-      return {
-        colorClass: 'text-emerald-400',
-        bgClass: 'bg-emerald-950/20',
-        borderClass: 'border-emerald-500/40',
-        badgeVariant: 'success',
-        label: 'SAFE',
-      }
-    }
-
-    if (type === 'battery') {
-      if (temp >= 45) {
-        return {
-          colorClass: 'text-red-400',
-          bgClass: 'bg-red-950/40',
-          borderClass: 'border-red-500',
-          badgeVariant: 'danger',
-          label: 'HOT',
-        }
-      }
-      if (temp >= 40) {
-        return {
-          colorClass: 'text-amber-400',
-          bgClass: 'bg-amber-950/40',
-          borderClass: 'border-amber-500',
-          badgeVariant: 'warning',
-          label: 'WARM',
-        }
-      }
-      return {
-        colorClass: 'text-emerald-400',
-        bgClass: 'bg-emerald-950/20',
-        borderClass: 'border-emerald-500/40',
-        badgeVariant: 'success',
-        label: 'NORMAL',
-      }
-    }
-
-    // PA, SoC, Default
-    if (temp >= 55) {
-      return {
-        colorClass: 'text-red-400',
-        bgClass: 'bg-red-950/40',
-        borderClass: 'border-red-500',
-        badgeVariant: 'danger',
-        label: 'HIGH',
-      }
-    }
-    if (temp >= 48) {
-      return {
-        colorClass: 'text-amber-400',
-        bgClass: 'bg-amber-950/40',
-        borderClass: 'border-amber-500',
-        badgeVariant: 'warning',
-        label: 'ELEVATED',
-      }
-    }
-    return {
-      colorClass: 'text-emerald-400',
-      bgClass: 'bg-emerald-950/20',
-      borderClass: 'border-emerald-500/40',
-      badgeVariant: 'success',
-      label: 'COOL',
-    }
-  }
-
-  const sensorItems = $derived.by(() => {
-    if (!thermalData?.sensors) return []
-    const s = thermalData.sensors
-    return [
-      {
-        id: 'pa1',
-        name: 'PA1 Sub-6',
-        desc: 'Sub-6GHz Power Amp 1',
-        val: s.pa1_sub6_c,
-        limitLabel: undefined,
-        status: getTempStatus(s.pa1_sub6_c, 'pa'),
-      },
-      {
-        id: 'pa2',
-        name: 'PA2 Sub-6',
-        desc: 'Sub-6GHz Power Amp 2',
-        val: s.pa2_sub6_c,
-        limitLabel: undefined,
-        status: getTempStatus(s.pa2_sub6_c, 'pa'),
-      },
-      {
-        id: 'skin',
-        name: 'Modem Skin',
-        desc: 'Surface Thermistor',
-        val: s.modem_skin_c,
-        limitLabel: 'Limit 42°C',
-        status: getTempStatus(s.modem_skin_c, 'modem_skin'),
-      },
-      {
-        id: 'cf',
-        name: 'Cell Front (CF)',
-        desc: 'Cellular Frontend',
-        val: s.cell_front_cf_c,
-        limitLabel: undefined,
-        status: getTempStatus(s.cell_front_cf_c, 'default'),
-      },
-      {
-        id: 'soc',
-        name: 'AP SoC',
-        desc: 'Application Processor',
-        val: s.ap_soc_c,
-        limitLabel: undefined,
-        status: getTempStatus(s.ap_soc_c, 'soc'),
-      },
-      {
-        id: 'batt',
-        name: 'Battery',
-        desc: 'Device Battery',
-        val: s.battery_c,
-        limitLabel: undefined,
-        status: getTempStatus(s.battery_c, 'battery'),
-      },
-      {
-        id: 'pmic',
-        name: 'RF PMIC',
-        desc: 'RF Power Management',
-        val: s.rf_pmic_c,
-        limitLabel: undefined,
-        status: getTempStatus(s.rf_pmic_c, 'default'),
-      },
-      {
-        id: 'bb',
-        name: 'Modem Baseband',
-        desc: 'Modem DSP Core',
-        val: s.modem_baseband_c,
-        limitLabel: undefined,
-        status: getTempStatus(s.modem_baseband_c, 'default'),
-      },
-    ]
-  })
-
   async function fetchBands(slot: number) {
     try {
       isLoadingBands = true
@@ -420,27 +134,22 @@
       const res = await api.get<SamsungBandStatus>(`/api/samsung/bands?slot=${slot}`)
       bandData = res
 
-      // Initialize selected band IDs based on current active bands or mode
-      if (res.mode === 'LOCKED' && res.active_bands && res.active_bands.length > 0) {
+      // Update selected bands based on server reported active bands if in LOCKED mode
+      if (res.mode === 'LOCKED' && Array.isArray(res.active_bands) && res.active_bands.length > 0) {
         selectedBandIds = [...res.active_bands]
+      } else if (res.mode === 'LOCKED') {
+        selectedBandIds = res.bands.filter((b) => b.active).map((b) => b.id)
       } else {
-        const activeIds = (res.bands || []).filter((b) => b.active).map((b) => b.id)
-        if (activeIds.length > 0) {
-          selectedBandIds = activeIds
-        } else if (res.active_bands && res.active_bands.length > 0) {
-          selectedBandIds = [...res.active_bands]
-        } else {
-          // If in automatic mode and no active list returned, default to popular available bands
-          const pop = (res.bands || [])
-            .filter((b) => popularBandIds.includes(b.id))
-            .map((b) => b.id)
-          selectedBandIds = pop.length > 0 ? pop : (res.bands || []).map((b) => b.id)
-        }
+        selectedBandIds = []
+      }
+
+      if (res.error) {
+        bandsError = res.error
       }
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : `Failed to query bands for SIM ${slot + 1}`
+      const msg = err instanceof Error ? err.message : 'Failed to query modem frequency bands'
       bandsError = msg
-      toastStore.error(msg, 'Query Band Error')
+      toastStore.error(msg, 'Band Query Error')
     } finally {
       isLoadingBands = false
     }
@@ -550,12 +259,12 @@
       <div class="flex items-center gap-2">
         <Smartphone class="w-6 h-6 text-accent" />
         <h1 class="text-xl sm:text-2xl font-black uppercase tracking-wider text-foreground">
-          Samsung RIL Manager
+          Samsung RIL Band Locking
         </h1>
         <Badge variant="info" class="text-[10px]">SecRIL</Badge>
       </div>
       <p class="text-xs text-muted mt-1">
-        Direct modem frequency modulation control via Samsung RIL framework & band_manager binary.
+        Direct modem frequency modulation and carrier band locking via Samsung RIL framework.
       </p>
     </div>
 
@@ -563,10 +272,10 @@
       <Button
         variant="secondary"
         size="sm"
-        disabled={isLoadingStatus || isLoadingBands || isLoadingThermal || isSwitchingSim}
+        disabled={isLoadingStatus || isLoadingBands}
         onclick={loadInitialData}
       >
-        <RefreshCw class="w-3.5 h-3.5 mr-1.5 {isLoadingStatus || isLoadingBands || isLoadingThermal ? 'animate-spin' : ''}" />
+        <RefreshCw class="w-3.5 h-3.5 mr-1.5 {isLoadingStatus || isLoadingBands ? 'animate-spin' : ''}" />
         <span>Refresh</span>
       </Button>
     </div>
@@ -648,430 +357,26 @@
         </span>
       </div>
 
-      <!-- CLI Tool Status -->
+      <!-- Native Go Runner Status -->
       <div class="p-3 bg-card-sub border-2 border-border rounded space-y-1">
-        <span class="text-[10px] text-muted uppercase font-bold block">Binary Tool CLI</span>
+        <span class="text-[10px] text-muted uppercase font-bold block">Execution Engine</span>
         <div class="pt-0.5">
-          {#if deviceStatus?.cli_exists}
+          {#if deviceStatus?.dex_exists}
             <Badge variant="success" class="flex items-center gap-1 w-fit">
               <CheckCircle class="w-3 h-3" />
-              <span>CLI OK</span>
+              <span>NATIVE RUNNER</span>
             </Badge>
           {:else}
             <Badge variant="warning" class="flex items-center gap-1 w-fit">
               <AlertTriangle class="w-3 h-3" />
-              <span>FALLBACK CLI</span>
+              <span>NOT READY</span>
             </Badge>
           {/if}
         </div>
-        <span class="text-[10px] text-muted block truncate font-mono" title={deviceStatus?.cli_path || 'band_manager'}>
-          {deviceStatus?.cli_path ? deviceStatus.cli_path.split('/').pop() : 'band_manager'}
+        <span class="text-[10px] text-muted block truncate font-mono">
+          Go UID 1001 Radio Runner
         </span>
       </div>
-    </div>
-  </Card>
-
-  <!-- ACTIVE MOBILE DATA SIM SWITCHER -->
-  <Card
-    title="SIM Card & Cellular Data Management"
-    subtitle="Select active SIM card for mobile data and radio band configuration"
-  >
-    {#snippet action()}
-      <Badge variant="success" class="flex items-center gap-1.5 shadow-sm">
-        <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-        <span>ACTIVE DATA: SIM {activeDataSlot + 1}</span>
-      </Badge>
-    {/snippet}
-
-    <div class="space-y-4">
-      <!-- DUAL SIM CARDS GRID -->
-      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-        <!-- SIM 1 CARD -->
-        <div
-          class="p-3.5 rounded-lg border-2 transition-all flex flex-col justify-between gap-3.5 {activeDataSlot === 0
-            ? 'border-emerald-500 bg-emerald-950/25 shadow-neobrutal-sm ring-1 ring-emerald-500/50'
-            : 'border-border bg-card-sub'}"
-        >
-          <div class="flex items-start justify-between gap-2">
-            <div class="flex items-center gap-2.5">
-              <div
-                class="w-8 h-8 rounded border-2 flex items-center justify-center font-bold text-xs {activeDataSlot === 0
-                  ? 'border-emerald-500 bg-emerald-500/20 text-emerald-300'
-                  : 'border-border bg-card text-muted'}"
-              >
-                1
-              </div>
-              <div>
-                <span class="text-xs font-bold text-foreground block">SIM 1 (Slot 0)</span>
-                <span class="text-[10px] text-muted block">Radio RIL Primary</span>
-              </div>
-            </div>
-
-            {#if activeDataSlot === 0}
-              <Badge variant="success" class="flex items-center gap-1.5 shadow-sm">
-                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                <span>Active Data SIM</span>
-              </Badge>
-            {:else}
-              <Badge variant="default">Standby</Badge>
-            {/if}
-          </div>
-
-          <div class="flex items-center justify-between gap-2 pt-2 border-t border-border/50">
-            <span class="text-[11px] {activeDataSlot === 0 ? 'text-emerald-300 font-semibold' : 'text-muted'}">
-              {activeDataSlot === 0 ? '● Active Mobile Data Route' : 'Standby for Mobile Data'}
-            </span>
-
-            {#if activeDataSlot !== 0}
-              <Button
-                variant="secondary"
-                size="sm"
-                disabled={isSwitchingSim}
-                onclick={() => switchActiveDataSim(0)}
-                title="Switch cellular data connection to SIM 1"
-              >
-                {#if isSwitchingSim}
-                  <RefreshCw class="w-3 h-3 mr-1 animate-spin" />
-                  <span>Switching...</span>
-                {:else}
-                  <ArrowLeftRight class="w-3 h-3 mr-1" />
-                  <span>Switch to SIM 1</span>
-                {/if}
-              </Button>
-            {/if}
-          </div>
-        </div>
-
-        <!-- SIM 2 CARD -->
-        <div
-          class="p-3.5 rounded-lg border-2 transition-all flex flex-col justify-between gap-3.5 {activeDataSlot === 1
-            ? 'border-emerald-500 bg-emerald-950/25 shadow-neobrutal-sm ring-1 ring-emerald-500/50'
-            : 'border-border bg-card-sub'}"
-        >
-          <div class="flex items-start justify-between gap-2">
-            <div class="flex items-center gap-2.5">
-              <div
-                class="w-8 h-8 rounded border-2 flex items-center justify-center font-bold text-xs {activeDataSlot === 1
-                  ? 'border-emerald-500 bg-emerald-500/20 text-emerald-300'
-                  : 'border-border bg-card text-muted'}"
-              >
-                2
-              </div>
-              <div>
-                <span class="text-xs font-bold text-foreground block">SIM 2 (Slot 1)</span>
-                <span class="text-[10px] text-muted block">Radio RIL Secondary</span>
-              </div>
-            </div>
-
-            {#if activeDataSlot === 1}
-              <Badge variant="success" class="flex items-center gap-1.5 shadow-sm">
-                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                <span>Active Data SIM</span>
-              </Badge>
-            {:else}
-              <Badge variant="default">Standby</Badge>
-            {/if}
-          </div>
-
-          <div class="flex items-center justify-between gap-2 pt-2 border-t border-border/50">
-            <span class="text-[11px] {activeDataSlot === 1 ? 'text-emerald-300 font-semibold' : 'text-muted'}">
-              {activeDataSlot === 1 ? '● Active Mobile Data Route' : 'Standby for Mobile Data'}
-            </span>
-
-            {#if activeDataSlot !== 1}
-              <Button
-                variant="secondary"
-                size="sm"
-                disabled={isSwitchingSim}
-                onclick={() => switchActiveDataSim(1)}
-                title="Switch cellular data connection to SIM 2"
-              >
-                {#if isSwitchingSim}
-                  <RefreshCw class="w-3 h-3 mr-1 animate-spin" />
-                  <span>Switching...</span>
-                {:else}
-                  <ArrowLeftRight class="w-3 h-3 mr-1" />
-                  <span>Switch to SIM 2</span>
-                {/if}
-              </Button>
-            {/if}
-          </div>
-        </div>
-      </div>
-
-      <!-- INTERACTIVE SWITCH BANNER / QUICK TOGGLE -->
-      <div class="p-3 bg-card-sub border-2 border-border rounded-lg flex flex-col sm:flex-row items-center justify-between gap-3">
-        <div class="flex items-center gap-2 text-xs">
-          <span class="text-muted">Mobile Data Status:</span>
-          <span class="font-bold text-foreground flex items-center gap-1.5">
-            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-            SIM {activeDataSlot + 1} (Slot Index {activeDataSlot}) Connected
-          </span>
-        </div>
-
-        <div>
-          {#if activeDataSlot === 0}
-            <Button
-              variant="primary"
-              size="sm"
-              disabled={isSwitchingSim}
-              onclick={() => switchActiveDataSim(1)}
-              class="w-full sm:w-auto"
-            >
-              {#if isSwitchingSim}
-                <RefreshCw class="w-3.5 h-3.5 mr-1.5 animate-spin" />
-                <span>Switching Data to SIM 2...</span>
-              {:else}
-                <ArrowLeftRight class="w-3.5 h-3.5 mr-1.5" />
-                <span>Switch Data to SIM 2</span>
-              {/if}
-            </Button>
-          {:else}
-            <Button
-              variant="primary"
-              size="sm"
-              disabled={isSwitchingSim}
-              onclick={() => switchActiveDataSim(0)}
-              class="w-full sm:w-auto"
-            >
-              {#if isSwitchingSim}
-                <RefreshCw class="w-3.5 h-3.5 mr-1.5 animate-spin" />
-                <span>Switching Data to SIM 1...</span>
-              {:else}
-                <ArrowLeftRight class="w-3.5 h-3.5 mr-1.5" />
-                <span>Switch Data to SIM 1</span>
-              {/if}
-            </Button>
-          {/if}
-        </div>
-      </div>
-    </div>
-  </Card>
-
-  <!-- 5G THERMAL & EN-DC THROTTLING DIAGNOSTIC MONITOR -->
-  <Card
-    title="5G Modem Thermal & Throttling Telemetry"
-    subtitle="Real-time thermal sensors for Sub-6 Power Amps, SoC, and EN-DC disconnect detection"
-    tone={thermalTone}
-  >
-    {#snippet action()}
-      <div class="flex items-center gap-2">
-        {#if thermalData && thermalData.available !== false}
-          {#if isThermalThrottledOrDisconnected}
-            <Badge variant="danger" class="flex items-center gap-1">
-              <Flame class="w-3 h-3" />
-              <span>THROTTLED</span>
-            </Badge>
-          {:else}
-            <Badge variant="success" class="flex items-center gap-1">
-              <ShieldCheck class="w-3 h-3" />
-              <span>SAFE</span>
-            </Badge>
-          {/if}
-        {/if}
-        <Button
-          variant="secondary"
-          size="sm"
-          disabled={isLoadingThermal}
-          onclick={fetchThermalStatus}
-          title="Reload 5G thermal telemetry"
-        >
-          <RefreshCw class="w-3.5 h-3.5 mr-1 {isLoadingThermal ? 'animate-spin' : ''}" />
-          <span>Telemetry</span>
-        </Button>
-      </div>
-    {/snippet}
-
-    <div class="space-y-4">
-      {#if isLoadingThermal && !thermalData}
-        <!-- LOADING SKELETON -->
-        <div class="p-4 rounded border-2 border-border bg-card-sub animate-pulse flex items-center gap-3">
-          <RefreshCw class="w-5 h-5 animate-spin text-muted" />
-          <span class="text-xs text-muted">Reading modem thermal sensors and Android Thermal HAL...</span>
-        </div>
-        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
-          {#each Array(4) as _}
-            <div class="p-3 rounded border-2 border-border bg-card-sub animate-pulse h-16"></div>
-          {/each}
-        </div>
-      {:else if thermalError || (thermalData && thermalData.available === false)}
-        <!-- FALLBACK / UNAVAILABLE -->
-        <div class="p-4 rounded-lg border-2 border-border bg-card-sub text-muted space-y-2">
-          <div class="flex items-center justify-between">
-            <div class="flex items-center gap-2 font-bold text-xs text-foreground uppercase">
-              <Info class="w-4 h-4 text-accent" />
-              <span>5G Thermal Diagnostics Inactive</span>
-            </div>
-            <Button variant="secondary" size="sm" onclick={fetchThermalStatus}>
-              <RefreshCw class="w-3 h-3 mr-1" />
-              <span>Retry</span>
-            </Button>
-          </div>
-          <p class="text-xs leading-relaxed">
-            {thermalError || 'qm-5g-thermal module not detected or modem does not support 5G Thermal HAL telemetry.'}
-          </p>
-        </div>
-      {:else if thermalData}
-        <!-- STATUS BANNER -->
-        {#if isThermalThrottledOrDisconnected}
-          <div
-            class="p-4 rounded-lg border-2 border-red-500 bg-red-950/40 shadow-neobrutal-sm text-foreground space-y-2 select-none"
-            role="alert"
-          >
-            <div class="flex items-center gap-2 text-red-400 font-bold uppercase text-xs tracking-wider">
-              <Flame class="w-5 h-5 shrink-0 text-red-400 animate-pulse" />
-              <span>Warning: 5G Modem is Throttling / EN-DC Disconnected</span>
-            </div>
-            <div class="text-xs text-red-200/90 leading-relaxed font-mono space-y-1.5">
-              <div>
-                <span class="text-muted uppercase text-[10px] block font-sans">Culprit Sensor:</span>
-                <span class="text-red-300 font-bold">
-                  {thermalData.culprit_sensor || thermalData.culprit || 'Thermal HAL / PA Skin Engine'}
-                </span>
-              </div>
-              <p class="text-xs text-muted">
-                {thermalData.culprit_detail || 'Device temperature exceeded baseband thermal threshold. Thermal Engine is throttling or disconnecting 5G NR to prevent overheating.'}
-              </p>
-            </div>
-          </div>
-        {:else}
-          <div
-            class="p-3.5 rounded-lg border-2 border-emerald-500/50 bg-emerald-950/25 shadow-neobrutal-sm text-foreground flex items-center justify-between gap-3 select-none"
-          >
-            <div class="flex items-center gap-3">
-              <div class="p-2 rounded bg-emerald-500/20 border border-emerald-500 text-emerald-300">
-                <ShieldCheck class="w-5 h-5" />
-              </div>
-              <div>
-                <span class="text-xs font-bold text-emerald-300 uppercase block tracking-wider">
-                  All modem temperature sensors within safe limits
-                </span>
-                <span class="text-[10px] text-muted block">
-                  Thermal HAL & Power Amplifiers (PA) operating normally without throttling
-                </span>
-              </div>
-            </div>
-            <Badge variant="success">NORMAL</Badge>
-          </div>
-        {/if}
-
-        <!-- KEY METRICS GRID -->
-        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
-          <!-- Network Type -->
-          <div class="p-3 rounded border-2 border-border bg-card-sub space-y-1">
-            <span class="text-[10px] text-muted uppercase font-bold block">Network Type</span>
-            <div class="flex items-center gap-1.5 pt-0.5">
-              {#if thermalData.network_type?.includes('5G')}
-                <Badge variant="info">{thermalData.network_type}</Badge>
-              {:else if thermalData.is_5g_disconnect}
-                <Badge variant="danger">5G DISCONNECT</Badge>
-              {:else}
-                <Badge variant="default">{thermalData.network_type || 'LTE'}</Badge>
-              {/if}
-            </div>
-            <span class="text-[10px] text-muted block truncate">
-              {thermalData.is_5g_disconnect ? 'EN-DC Terputus' : 'Dual-Connectivity'}
-            </span>
-          </div>
-
-          <!-- Thermal HAL Status -->
-          <div class="p-3 rounded border-2 border-border bg-card-sub space-y-1">
-            <span class="text-[10px] text-muted uppercase font-bold block">Thermal HAL Status</span>
-            <div class="text-sm font-bold font-mono text-foreground">
-              Level {thermalData.thermal_hal_status ?? 0}
-            </div>
-            <div class="pt-0.5">
-              {#if (thermalData.thermal_hal_status ?? 0) >= 3}
-                <Badge variant="danger">{thermalData.thermal_hal_desc || 'SEVERE'}</Badge>
-              {:else if (thermalData.thermal_hal_status ?? 0) >= 1}
-                <Badge variant="warning">{thermalData.thermal_hal_desc || 'MODERATE'}</Badge>
-              {:else}
-                <Badge variant="success">{thermalData.thermal_hal_desc || 'NONE'}</Badge>
-              {/if}
-            </div>
-          </div>
-
-          <!-- Traffic Mbps -->
-          <div class="p-3 rounded border-2 border-border bg-card-sub space-y-1">
-            <span class="text-[10px] text-muted uppercase font-bold block">Trafik (Throughput)</span>
-            <div class="text-sm font-bold font-mono text-foreground">
-              {(thermalData.traffic_mbps ?? 0).toFixed(1)} <span class="text-xs font-normal text-muted">Mbps</span>
-            </div>
-            <span class="text-[10px] text-muted block">Baseband Traffic</span>
-          </div>
-
-          <!-- 5G NR Band & Signal -->
-          <div class="p-3 rounded border-2 border-border bg-card-sub space-y-1">
-            <span class="text-[10px] text-muted uppercase font-bold block">NR Band & Sinyal</span>
-            <div class="text-sm font-bold font-mono text-foreground truncate">
-              {thermalData.nr_band ? thermalData.nr_band.toUpperCase() : 'Non-5G'}
-            </div>
-            <span class="text-[10px] text-muted block">
-              {thermalData.nr_rsrp ? `${thermalData.nr_rsrp} dBm RSRP` : 'Sinyal NR N/A'}
-            </span>
-          </div>
-        </div>
-
-        <!-- SENSORS TEMPERATURE GRID -->
-        <div>
-          <div class="flex items-center justify-between mb-2">
-            <span class="text-[10px] text-muted uppercase font-bold tracking-wider flex items-center gap-1.5">
-              <Thermometer class="w-3.5 h-3.5 text-accent" />
-              <span>Grid Telemetri Suhu Sensor (°C)</span>
-            </span>
-            <span class="text-[10px] text-muted font-normal">
-              Batas Aman Modem Skin: <strong class="text-foreground font-mono">42.0°C</strong>
-            </span>
-          </div>
-
-          {#if sensorItems.length > 0}
-            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
-              {#each sensorItems as item (item.id)}
-                <div class="p-2.5 rounded border-2 {item.status.borderClass} {item.status.bgClass} flex flex-col justify-between">
-                  <div class="flex items-center justify-between text-[10px]">
-                    <span class="text-muted font-bold">{item.name}</span>
-                    {#if item.limitLabel}
-                      <span class="text-[9px] font-bold text-red-400 font-mono">{item.limitLabel}</span>
-                    {:else}
-                      <Badge variant={item.status.badgeVariant} class="text-[9px] px-1 py-0">{item.status.label}</Badge>
-                    {/if}
-                  </div>
-                  <div class="text-base sm:text-lg font-black font-mono {item.status.colorClass} my-1">
-                    {item.val > 0 ? item.val.toFixed(1) : '--'}°C
-                  </div>
-                  <div class="flex items-center justify-between text-[9px] text-muted">
-                    <span class="truncate">{item.desc}</span>
-                    {#if item.limitLabel}
-                      <Badge variant={item.status.badgeVariant} class="text-[8px] px-1 py-0">{item.status.label}</Badge>
-                    {/if}
-                  </div>
-                </div>
-              {/each}
-            </div>
-          {/if}
-        </div>
-
-        <!-- HARDWARE THROTTLER COUNTERS (JIKA ADA DATA) -->
-        {#if thermalData.throttlers}
-          {@const thr = thermalData.throttlers}
-          <div class="p-3 bg-card-sub border-2 border-border rounded-lg flex flex-wrap items-center justify-between gap-2 text-xs">
-            <span class="text-[10px] text-muted uppercase font-bold">Mitigator Counters:</span>
-            <div class="flex flex-wrap items-center gap-3 font-mono text-[11px]">
-              <span class="text-muted">
-                Skin NR Dsc: <strong class="text-foreground font-bold">{thr.modem_skin_nr_dsc}</strong>
-              </span>
-              <span class="text-border">|</span>
-              <span class="text-muted">
-                PA FR1 Dsc: <strong class="text-foreground font-bold">{thr.modem_pa_fr1_dsc}</strong>
-              </span>
-              <span class="text-border">|</span>
-              <span class="text-muted">
-                PA FR1 Level: <strong class="text-foreground font-bold">{thr.modem_pa_fr1}</strong>
-              </span>
-            </div>
-          </div>
-        {/if}
-      {/if}
     </div>
   </Card>
 
@@ -1097,7 +402,7 @@
             {#if activeDataSlot === 0}
               <Badge variant="success" class="text-[9px] px-1.5 py-0 flex items-center gap-1">
                 <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                <span>Active Data SIM</span>
+                <span>Active Data</span>
               </Badge>
             {/if}
             {#if selectedSlot === 0}
@@ -1123,7 +428,7 @@
             {#if activeDataSlot === 1}
               <Badge variant="success" class="text-[9px] px-1.5 py-0 flex items-center gap-1">
                 <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                <span>Active Data SIM</span>
+                <span>Active Data</span>
               </Badge>
             {/if}
             {#if selectedSlot === 1}
@@ -1152,201 +457,183 @@
         {/if}
       {/snippet}
 
-      <div class="space-y-4">
-        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-3 bg-card-sub border-2 border-border rounded">
-          <div>
-            <span class="text-[10px] text-muted uppercase font-bold block">Current Operating Mode</span>
-            <p class="text-sm font-bold text-foreground flex items-center gap-1.5 mt-0.5">
-              {#if isLockedMode}
-                <Lock class="w-4 h-4 text-amber-400 inline" />
-                <span class="text-amber-400">Modem Locked to Selected Bands</span>
-              {:else}
-                <CheckCircle class="w-4 h-4 text-emerald-400 inline" />
-                <span class="text-emerald-400">Automatic Selection (All Bands Dynamic)</span>
-              {/if}
-            </p>
-          </div>
-          <div class="text-left sm:text-right">
-            <span class="text-[10px] text-muted uppercase font-bold block">Registered Frequencies</span>
-            <span class="text-sm font-bold text-foreground">
-              {activeBandsList.length} Active Bands / {allBands.length} Total
-            </span>
-          </div>
+      <div class="space-y-3 font-mono text-xs">
+        <div class="flex items-center justify-between p-2.5 rounded bg-card-sub border-2 border-border">
+          <span class="text-muted text-[11px] uppercase font-bold">Current Operating Mode</span>
+          <span class="font-bold flex items-center gap-1.5 {isLockedMode ? 'text-amber-400' : 'text-emerald-400'}">
+            {#if isLockedMode}
+              <CheckCircle class="w-3.5 h-3.5 text-amber-400" />
+              <span>Locked to Specific Bands ({activeBandsList.length} Selected)</span>
+            {:else}
+              <CheckCircle class="w-3.5 h-3.5 text-emerald-400" />
+              <span>Automatic Selection (All Bands Dynamic)</span>
+            {/if}
+          </span>
         </div>
 
-        <!-- ACTIVE BANDS CHIP LIST -->
+        <div class="flex items-center justify-between p-2.5 rounded bg-card-sub border-2 border-border">
+          <span class="text-muted text-[11px] uppercase font-bold">Registered Frequencies</span>
+          <span class="font-bold text-foreground">
+            {activeBandsList.length} Active Bands / {allBands.length} Total
+          </span>
+        </div>
+
+        <!-- Active Bands Chips Preview -->
         <div>
           <span class="text-[10px] text-muted uppercase font-bold block mb-1.5">
             Active Frequencies on Modem:
           </span>
-          {#if isLoadingBands}
-            <div class="flex items-center gap-2 text-xs text-muted">
-              <RefreshCw class="w-3.5 h-3.5 animate-spin" />
-              <span>Reading baseband telemetry...</span>
-            </div>
-          {:else if activeBandsList.length > 0}
-            <div class="flex flex-wrap gap-1.5">
-              {#each activeBandsList as activeBand}
-                {@const parsed = formatBandDisplay(activeBand)}
-                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded border border-emerald-500/40 bg-emerald-950/40 text-emerald-300 text-xs font-bold font-mono">
-                  <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                  <span>{parsed.label}</span>
-                  <span class="text-[10px] text-emerald-400/80 font-normal">({parsed.desc})</span>
-                </span>
-              {/each}
-            </div>
-          {:else}
+          {#if activeBandsList.length === 0}
             <p class="text-xs text-muted italic">
               No specific bands reported or modem is in full automatic mode.
             </p>
+          {:else}
+            <div class="flex flex-wrap gap-1.5 max-h-24 overflow-y-auto p-1.5 bg-card-sub border border-border/60 rounded">
+              {#each activeBandsList as b}
+                {@const fmt = formatBandDisplay(b)}
+                <span class="px-2 py-0.5 rounded text-[11px] font-bold bg-accent/20 border border-accent text-accent">
+                  {fmt.label}
+                </span>
+              {/each}
+            </div>
           {/if}
         </div>
       </div>
     </Card>
   </div>
 
-  <!-- BAND SELECTION GRID & CONTROLS -->
-  <Card title="Baseband Frequency Matrix" subtitle="Select one or more frequency bands to lock for optimal cell tower throughput and link stability" tone="none">
+  <!-- BAND SELECTION MATRIX -->
+  <Card
+    title="Baseband Frequency Matrix"
+    subtitle="Select one or more frequency bands to lock for optimal cell tower throughput and link stability"
+    tone="lavender"
+  >
     {#snippet action()}
       <div class="flex items-center gap-2">
-        <Badge variant="default" class="text-xs font-mono">
+        <Badge variant="default" class="text-xs">
           {selectedBandIds.length} Bands Selected
         </Badge>
       </div>
     {/snippet}
 
     <div class="space-y-4">
-      <!-- FILTER & QUICK PRESET BAR -->
-      <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-3 p-3 bg-card-sub border-2 border-border rounded">
-        <!-- Search bar -->
-        <div class="relative flex-1 min-w-[200px] max-w-md">
+      <!-- Search and Quick Filter Controls -->
+      <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 pb-3 border-b-2 border-border">
+        <!-- Search Input -->
+        <div class="relative flex-1">
           <Search class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted" />
           <input
             type="text"
-            bind:value={searchQuery}
             placeholder="Search bands (e.g. 1, 3, B40, n78)..."
-            class="neo-input w-full bg-card border-2 border-border rounded pl-9 pr-3 py-1.5 text-xs font-mono text-foreground placeholder:text-muted focus:outline-none focus:border-accent"
+            bind:value={searchQuery}
+            class="neo-input w-full pl-9 pr-3 py-1.5 text-xs bg-card-sub border-2 border-border rounded text-foreground focus:outline-none focus:border-accent"
           />
         </div>
 
-        <!-- Quick selection buttons -->
-        <div class="flex flex-wrap items-center gap-2">
-          <!-- Popular Indonesia -->
+        <!-- Quick Filter Buttons -->
+        <div class="flex items-center gap-1.5 self-end sm:self-auto">
           <Button
-            variant={isPopularSelected ? 'primary' : 'outline'}
+            variant={isPopularSelected ? 'primary' : 'secondary'}
             size="sm"
             onclick={selectPopular}
-            title="Select popular bands (B1, B3, B8, B40)"
+            title="Select popular Indonesian bands (B1, B3, B8, B40)"
           >
-            <Zap class="w-3.5 h-3.5 mr-1 {isPopularSelected ? 'text-amber-300' : 'text-amber-500'}" />
+            <Zap class="w-3.5 h-3.5 mr-1 text-amber-400" />
             <span>Select Popular (B1, B3, B8, B40)</span>
           </Button>
 
-          <!-- Select All -->
           <Button
-            variant={isAllSelected ? 'secondary' : 'outline'}
+            variant={isAllSelected ? 'primary' : 'outline'}
             size="sm"
-            onclick={selectAll}
+            onclick={isAllSelected ? deselectAll : selectAll}
           >
             <Check class="w-3.5 h-3.5 mr-1" />
-            <span>Select All</span>
+            <span>{isAllSelected ? 'Deselect All' : 'Select All'}</span>
           </Button>
 
-          <!-- Clear -->
-          <Button
-            variant="ghost"
-            size="sm"
-            onclick={clearAll}
-            disabled={selectedBandIds.length === 0}
-          >
-            <span>Clear</span>
-          </Button>
+          {#if selectedBandIds.length > 0}
+            <Button variant="ghost" size="sm" onclick={clearAll}>
+              <span>Clear</span>
+            </Button>
+          {/if}
         </div>
       </div>
 
-      <!-- ERROR STATE -->
-      {#if bandsError}
-        <div class="p-4 border-2 border-red-500 bg-red-950/20 rounded text-red-400 space-y-2">
+      <!-- Loading State -->
+      {#if isLoadingBands}
+        <div class="p-8 text-center text-xs text-muted flex flex-col items-center justify-center gap-2">
+          <RefreshCw class="w-6 h-6 animate-spin text-accent" />
+          <span>Interrogating Samsung SecRIL baseband frequency registry...</span>
+        </div>
+      {:else if bandsError && allBands.length === 0}
+        <!-- Error State -->
+        <div class="p-4 rounded-lg border-2 border-red-500 bg-red-950/30 text-red-200 space-y-2">
           <div class="flex items-center gap-2 font-bold text-xs uppercase">
-            <AlertTriangle class="w-4 h-4" />
-            <span>Failed to Retrieve Band List</span>
+            <AlertTriangle class="w-4 h-4 text-red-400" />
+            <span>Failed to Read Modem Bands</span>
           </div>
           <p class="text-xs text-muted">{bandsError}</p>
-          <Button variant="danger" size="sm" onclick={() => fetchBands(selectedSlot)}>
+          <Button variant="secondary" size="sm" onclick={() => fetchBands(selectedSlot)}>
             <RefreshCw class="w-3 h-3 mr-1" />
-            <span>Retry</span>
+            <span>Retry Query</span>
           </Button>
         </div>
-      {/if}
-
-      <!-- LOADING STATE -->
-      {#if isLoadingBands}
-        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3">
-          {#each Array(12) as _, idx}
-            <div class="p-3 rounded-lg border-2 border-border bg-card-sub animate-pulse h-24 flex flex-col justify-between">
-              <div class="flex items-center justify-between">
-                <div class="w-10 h-5 bg-border rounded"></div>
-                <div class="w-4 h-4 bg-border rounded"></div>
-              </div>
-              <div class="w-20 h-3 bg-border rounded"></div>
-              <div class="w-12 h-3 bg-border rounded"></div>
-            </div>
-          {/each}
-        </div>
       {:else if filteredBands.length === 0}
-        <div class="p-8 text-center border-2 border-dashed border-border rounded bg-card-sub space-y-2">
-          <Layers class="w-8 h-8 mx-auto text-muted" />
-          <p class="text-sm font-bold text-foreground">No Bands Found</p>
-          <p class="text-xs text-muted max-w-sm mx-auto">
-            {#if searchQuery.trim()}
-              No bands match the search filter "{searchQuery}".
-            {:else}
-              Modem did not return supported bands list. Ensure device has root Superuser (su) permission and band_manager binary is present.
-            {/if}
+        <!-- Empty Results -->
+        <div class="p-8 text-center text-xs text-muted space-y-2">
+          <Layers class="w-8 h-8 mx-auto opacity-40 text-muted" />
+          <p class="font-bold text-foreground">No Bands Found</p>
+          <p class="text-[11px] text-muted max-w-md mx-auto">
+            {searchQuery
+              ? `No bands match search term "${searchQuery}".`
+              : 'Modem did not return supported bands list. Ensure device has root Superuser (su) permission and band_manager binary is present.'}
           </p>
         </div>
       {:else}
-        <!-- BAND CARDS GRID -->
-        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3">
+        <!-- BANDS GRID -->
+        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2.5">
           {#each filteredBands as band (band.id)}
-            {@const isChecked = selectedBandIds.includes(band.id)}
-            {@const isLiveActive = band.active || (bandData?.active_bands ?? []).includes(band.id)}
-            {@const parsed = formatBandDisplay(band)}
+            {@const isSelected = selectedBandIds.includes(band.id)}
+            {@const isLiveActive = band.active}
+            {@const fmt = formatBandDisplay(band)}
+            {@const isNR = fmt.label.startsWith('N')}
+
             <button
               type="button"
-              class="relative p-3 rounded-lg border-2 text-left cursor-pointer select-none transition-all flex flex-col justify-between min-h-[96px] group {isChecked
-                ? 'border-accent bg-accent/15 text-foreground shadow-neobrutal-sm -translate-x-0.5 -translate-y-0.5'
-                : 'border-border bg-card-sub text-muted hover:border-foreground/30 hover:bg-card'}"
+              class="p-2.5 rounded-lg border-2 text-left cursor-pointer transition-all flex flex-col justify-between select-none {isSelected
+                ? isNR
+                  ? 'border-cyan-500 bg-cyan-950/30 shadow-neobrutal-sm ring-1 ring-cyan-500/50'
+                  : 'border-accent bg-accent/20 shadow-neobrutal-sm ring-1 ring-accent/50'
+                : 'border-border bg-card-sub hover:border-foreground/30 hover:bg-card'}"
               onclick={() => toggleBand(band.id)}
             >
-              <!-- CARD TOP -->
-              <div class="flex items-center justify-between gap-1 w-full">
-                <span class="font-mono font-black text-base tracking-tight {isChecked ? 'text-accent' : 'text-foreground'}">
-                  {parsed.label}
-                </span>
+              <div class="flex items-start justify-between gap-1">
+                <div>
+                  <span class="text-sm font-black {isSelected ? (isNR ? 'text-cyan-300' : 'text-accent') : 'text-foreground'}">
+                    {fmt.label}
+                  </span>
+                  <span class="text-[9px] text-muted block truncate" title={fmt.desc}>
+                    {fmt.desc}
+                  </span>
+                </div>
 
-                <!-- CHECKBOX INDICATOR -->
-                <span
-                  class="w-4 h-4 rounded border-2 flex items-center justify-center shrink-0 transition-colors {isChecked
-                    ? 'border-accent bg-accent text-accent-text'
-                    : 'border-border bg-card text-transparent group-hover:border-foreground/40'}"
+                <!-- Checkbox Indicator -->
+                <div
+                  class="w-4 h-4 rounded border-2 flex items-center justify-center shrink-0 mt-0.5 {isSelected
+                    ? isNR
+                      ? 'border-cyan-500 bg-cyan-500 text-black'
+                      : 'border-accent bg-accent text-accent-text'
+                    : 'border-border bg-card'}"
                 >
-                  {#if isChecked}
+                  {#if isSelected}
                     <Check class="w-3 h-3 stroke-[3]" />
                   {/if}
-                </span>
+                </div>
               </div>
 
-              <!-- CARD BODY -->
-              <div class="my-1.5 truncate">
-                <span class="text-[11px] block truncate text-muted font-medium" title={band.name}>
-                  {parsed.desc}
-                </span>
-              </div>
-
-              <!-- CARD FOOTER -->
-              <div class="flex items-center justify-between text-[10px] w-full pt-1 border-t border-border/50">
-                <span class="text-muted font-mono">ID {band.id}</span>
+              <!-- Live Active Badge -->
+              <div class="flex items-center justify-between gap-1 pt-2 mt-2 border-t border-border/40 text-[9px]">
+                <span class="text-muted font-mono">ID: {band.id}</span>
                 {#if isLiveActive}
                   <Badge variant="success" class="text-[8px] px-1 py-0 font-bold">ACTIVE</Badge>
                 {/if}

@@ -113,3 +113,70 @@ func HandleModemReset(w http.ResponseWriter, r *http.Request) {
 		"error":   fmt.Sprintf("%v", err),
 	})
 }
+
+// HandleModemSimStatus returns current multi-SIM status and active data slot.
+func HandleModemSimStatus(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	st := modem.GetSimStatus()
+	w.Header().Set("Content-Type", "application/json")
+	_ = json.NewEncoder(w).Encode(st)
+}
+
+// HandleModemSimSwitch switches the active mobile data SIM slot.
+func HandleModemSimSwitch(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	var req struct {
+		Slot int `json:"slot"`
+	}
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusBadRequest)
+		_ = json.NewEncoder(w).Encode(map[string]string{"error": "Invalid request payload"})
+		return
+	}
+
+	if req.Slot < 0 || req.Slot > 1 {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusBadRequest)
+		_ = json.NewEncoder(w).Encode(map[string]string{"error": "Invalid slot, must be 0 or 1"})
+		return
+	}
+
+	res, err := modem.SwitchDataSim(req.Slot)
+	w.Header().Set("Content-Type", "application/json")
+	if err != nil {
+		logger.Get().Errorf("Modem", "Failed to switch data SIM: %v", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		_ = json.NewEncoder(w).Encode(map[string]string{"error": err.Error()})
+		return
+	}
+
+	_ = json.NewEncoder(w).Encode(res)
+}
+
+// HandleModemThermal returns real-time modem thermal sensors and throttling telemetry.
+func HandleModemThermal(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	st, err := modem.Get5GThermalStatus()
+	w.Header().Set("Content-Type", "application/json")
+	if err != nil {
+		logger.Get().Errorf("Modem", "Failed to get thermal status: %v", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		_ = json.NewEncoder(w).Encode(map[string]string{"error": err.Error()})
+		return
+	}
+
+	_ = json.NewEncoder(w).Encode(st)
+}

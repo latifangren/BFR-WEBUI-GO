@@ -233,6 +233,9 @@ func RegisterRoutes(mux *http.ServeMux, authMgr *auth.Manager) {
 	mux.HandleFunc("/api/modem/bands", wrap(HandleModemBands, true))
 	mux.HandleFunc("/api/modem/at", wrap(HandleModemAT, true))
 	mux.HandleFunc("/api/modem/reset", wrap(HandleModemReset, true))
+	mux.HandleFunc("/api/modem/sim/status", wrap(HandleModemSimStatus, true))
+	mux.HandleFunc("/api/modem/sim/switch", wrap(HandleModemSimSwitch, true))
+	mux.HandleFunc("/api/modem/thermal", wrap(HandleModemThermal, true))
 
 	// Samsung RIL URLs
 	mux.HandleFunc("/api/samsung/status", wrap(HandleSamsungStatus, true))

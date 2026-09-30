@@ -12,6 +12,7 @@ import (
 
 	"bfr-webui-go/internal/config"
 	"bfr-webui-go/internal/logger"
+	"bfr-webui-go/internal/modem"
 )
 
 // DeviceStatus holds Samsung-specific hardware and software environment info.
@@ -44,7 +45,7 @@ type BandStatus struct {
 	Error       string     `json:"error,omitempty"`
 }
 
-// jsonResponse matches the JSON output emitted by `band_manager <slot> status` and lock/auto.
+// jsonResponse matches the JSON output emitted by `BandManager <slot> status` and lock/auto.
 type jsonResponse struct {
 	Slot        int        `json:"slot"`
 	Mode        string     `json:"mode"`
@@ -52,6 +53,13 @@ type jsonResponse struct {
 	Status      string     `json:"status"`
 	Message     string     `json:"message"`
 }
+
+// Type aliases to modem universal structures
+type SimSwitchResult = modem.SimSwitchResult
+type ThermalSensors = modem.ThermalSensors
+type ThermalThrottlers = modem.ThermalThrottlers
+type CriticalThresholds = modem.CriticalThresholds
+type Thermal5GStatus = modem.Thermal5GStatus
 
 // getSystemProp reads an Android system property using `getprop`.
 func getSystemProp(key string) string {
@@ -62,66 +70,63 @@ func getSystemProp(key string) string {
 	return strings.TrimSpace(string(out))
 }
 
-// findBandManagerCLI searches for the band_manager shell wrapper or executable.
-func findBandManagerCLI() (string, bool) {
-	candidates := []string{
-		filepath.Join(config.ModuleDir, "bin", "band_manager"),
-		"/data/adb/modules/bfr_webui_go/bin/band_manager",
-		"./bin/band_manager",
-		"bin/band_manager",
-		"/system/bin/band_manager",
-	}
-
-	for _, p := range candidates {
-		if fi, err := os.Stat(p); err == nil && !fi.IsDir() {
-			return p, true
-		}
-	}
-	return candidates[0], false
-}
-
-// dexFileExists checks if the band_manager.dex payload is present on disk.
-func dexFileExists() bool {
+// findBandManagerDex locates the compiled band_manager.dex payload.
+func findBandManagerDex() string {
 	candidates := []string{
 		filepath.Join(config.ModuleDir, "bin", "band_manager.dex"),
 		"/data/adb/modules/bfr_webui_go/bin/band_manager.dex",
-		"/data/local/tmp/radiotmp/band_manager.dex",
-		"/data/local/tmp/band_manager.dex",
 		"./bin/band_manager.dex",
 		"bin/band_manager.dex",
 	}
 
 	for _, p := range candidates {
 		if fi, err := os.Stat(p); err == nil && !fi.IsDir() {
-			return true
+			return p
 		}
+	}
+	return candidates[0]
+}
+
+// dexFileExists checks if the band_manager.dex payload is present on disk.
+func dexFileExists() bool {
+	p := findBandManagerDex()
+	if fi, err := os.Stat(p); err == nil && !fi.IsDir() {
+		return true
 	}
 	return false
 }
 
+// execBandManager executes BandManager.dex directly via app_process as UID 1001 (radio).
+func execBandManager(cmd string, slot int, extraArgs ...string) ([]byte, error) {
+	tmpDir := "/data/local/tmp/radiotmp"
+	targetDex := filepath.Join(tmpDir, "band_manager.dex")
+	srcDex := findBandManagerDex()
+
+	// 1. Prepare directory with radio UID ownership
+	setupCmd := fmt.Sprintf("mkdir -p %q/dalvik-cache/arm64 && chown -R 1001:1001 %q && chmod -R 777 %q", tmpDir, tmpDir, tmpDir)
+	_, _ = config.ExecSuTimeout(2*time.Second, setupCmd)
+
+	if srcDex != "" {
+		copyCmd := fmt.Sprintf("cp -f %q %q && chown 1001:1001 %q && chmod 444 %q", srcDex, targetDex, targetDex, targetDex)
+		_, _ = config.ExecSuTimeout(2*time.Second, copyCmd)
+	}
+
+	// 2. Execute via app_process as radio user (1001)
+	argStr := ""
+	if len(extraArgs) > 0 {
+		argStr = " " + strings.Join(extraArgs, " ")
+	}
+
+	runCmd := fmt.Sprintf(
+		"su 1001 -c 'ANDROID_DATA=%s CLASSPATH=%s app_process / com.qmanager.tools.BandManager %s %d%s'",
+		tmpDir, targetDex, cmd, slot, argStr,
+	)
+	return config.ExecSuTimeout(10*time.Second, runCmd)
+}
+
 // GetActiveDataSlot returns the SIM slot currently used for mobile data (0 or 1).
 func GetActiveDataSlot() int {
-	out, err := config.ExecSuTimeout(2*time.Second, "settings get global multi_sim_data_call_slot")
-	if err == nil {
-		str := strings.TrimSpace(string(out))
-		if slot, err := strconv.Atoi(str); err == nil && (slot == 0 || slot == 1) {
-			return slot
-		}
-	}
-
-	// Fallback to multi_sim_data_call
-	out, err = config.ExecSuTimeout(2*time.Second, "settings get global multi_sim_data_call")
-	if err == nil {
-		str := strings.TrimSpace(string(out))
-		if subId, err := strconv.Atoi(str); err == nil {
-			if subId >= 2 {
-				return 1
-			}
-			return 0
-		}
-	}
-
-	return 0
+	return modem.GetActiveDataSlot()
 }
 
 // GetDeviceStatus checks whether the device is running Samsung firmware and verifies tools.
@@ -135,8 +140,6 @@ func GetDeviceStatus() *DeviceStatus {
 	}
 
 	isSamsung := strings.EqualFold(mfg, "samsung") || strings.Contains(strings.ToLower(mfg), "samsung")
-
-	cliPath, cliExists := findBandManagerCLI()
 	dexExists := dexFileExists()
 	activeDataSlot := GetActiveDataSlot()
 
@@ -147,15 +150,14 @@ func GetDeviceStatus() *DeviceStatus {
 		Device:         device,
 		OneUIVersion:   oneui,
 		DexExists:      dexExists,
-		CliExists:      cliExists,
-		CliPath:        cliPath,
+		CliExists:      dexExists,
+		CliPath:        "band_manager.dex (native runner)",
 		SupportedSlot:  2,
 		ActiveDataSlot: activeDataSlot,
 	}
 }
 
-// parseBandList parses the output of `band_manager <slot> list`.
-// Output pattern: `ID: %3d | %-22s | Active: %s` (Active is YES/NO or true/false)
+// parseBandList parses the output of `BandManager <slot> list`.
 var listLineRegex = regexp.MustCompile(`(?i)ID:\s*(\d+)\s*\|\s*([^|]+)\|\s*Active:\s*(YES|NO|true|false)`)
 
 func parseBandList(output string) []BandItem {
@@ -184,12 +186,6 @@ func GetBands(slot int) (*BandStatus, error) {
 		return nil, fmt.Errorf("invalid slot %d, must be 0 or 1", slot)
 	}
 
-	cli, exists := findBandManagerCLI()
-	if !exists {
-		// Even if binary file stat fails on PC/host, construct command with fallback
-		cli = filepath.Join(config.ModuleDir, "bin", "band_manager")
-	}
-
 	status := &BandStatus{
 		Slot:        slot,
 		Mode:        "AUTOMATIC",
@@ -197,9 +193,8 @@ func GetBands(slot int) (*BandStatus, error) {
 		Bands:       []BandItem{},
 	}
 
-	// 1. Query status command: provides mode (AUTOMATIC / LOCKED) and active_bands
-	statusCmd := fmt.Sprintf("%q %d status", cli, slot)
-	outStatus, err := config.ExecSuTimeout(8*time.Second, statusCmd)
+	// 1. Query status: provides mode (AUTOMATIC / LOCKED) and active_bands
+	outStatus, err := execBandManager("status", slot)
 	if err == nil && len(outStatus) > 0 {
 		var parsed jsonResponse
 		trimmed := strings.TrimSpace(string(outStatus))
@@ -216,12 +211,11 @@ func GetBands(slot int) (*BandStatus, error) {
 		}
 	}
 
-	// 2. Query full bands list via json command (returns JSON array of all BandItems)
-	jsonCmd := fmt.Sprintf("%q %d json", cli, slot)
-	outJson, err := config.ExecSuTimeout(8*time.Second, jsonCmd)
-	if err == nil && len(outJson) > 0 {
+	// 2. Query full bands list via json (returns JSON array of all BandItems)
+	outJSON, err := execBandManager("json", slot)
+	if err == nil && len(outJSON) > 0 {
 		var jsonBands []BandItem
-		trimmed := strings.TrimSpace(string(outJson))
+		trimmed := strings.TrimSpace(string(outJSON))
 		if idx := strings.Index(trimmed, "["); idx != -1 {
 			trimmed = trimmed[idx:]
 		}
@@ -230,10 +224,9 @@ func GetBands(slot int) (*BandStatus, error) {
 		}
 	}
 
-	// 3. Fallback to `list` command if json didn't return any bands
+	// 3. Fallback to `list` if json didn't return any bands
 	if len(status.Bands) == 0 {
-		listCmd := fmt.Sprintf("%q %d list", cli, slot)
-		outList, err := config.ExecSuTimeout(8*time.Second, listCmd)
+		outList, err := execBandManager("list", slot)
 		if err == nil && len(outList) > 0 {
 			status.Bands = parseBandList(string(outList))
 		} else if err != nil && len(status.ActiveBands) == 0 {
@@ -252,6 +245,8 @@ func GetBands(slot int) (*BandStatus, error) {
 		for i := range status.Bands {
 			if activeMap[status.Bands[i].ID] {
 				status.Bands[i].Active = true
+			} else {
+				status.Bands[i].Active = false
 			}
 		}
 	}
@@ -259,32 +254,21 @@ func GetBands(slot int) (*BandStatus, error) {
 	return status, nil
 }
 
-// LockBands locks the selected SIM slot to the given band IDs.
+// LockBands locks the modem to the specified frequency bands for the given SIM slot.
 func LockBands(slot int, bands []int) error {
 	if slot < 0 || slot > 1 {
 		return fmt.Errorf("invalid slot %d, must be 0 or 1", slot)
 	}
 	if len(bands) == 0 {
-		return fmt.Errorf("no bands selected for locking")
-	}
-	if len(bands) > 64 {
-		return fmt.Errorf("too many bands specified (max 64)")
+		return fmt.Errorf("at least one band must be specified")
 	}
 
-	cli, exists := findBandManagerCLI()
-	if !exists || cli == "" {
-		cli = filepath.Join(config.ModuleDir, "bin", "band_manager")
-	}
-
-	// Smart Category Merge for Samsung RIL:
-	// If only 5G NR bands are selected, ensure active LTE anchor bands (or default anchors B1, B3, B5, B8, B40)
-	// are preserved so Samsung RIL does not drop connectivity in 5G NSA networks.
+	// Query supported bands to evaluate NR NSA anchoring
 	currentStatus, _ := GetBands(slot)
-	bandMap := make(map[int]bool)
-	hasLTE := false
-	hasNR := false
-
 	if currentStatus != nil && len(currentStatus.Bands) > 0 {
+		hasLTE := false
+		hasNR := false
+		bandMap := make(map[int]bool)
 		idToName := make(map[int]string)
 		for _, b := range currentStatus.Bands {
 			idToName[b.ID] = b.Name
@@ -300,7 +284,6 @@ func LockBands(slot int, bands []int) error {
 		}
 
 		if hasNR && !hasLTE {
-			// Find active LTE bands or common anchors
 			addedAnchors := false
 			for _, b := range currentStatus.Bands {
 				if (strings.HasPrefix(b.Name, "LTE") || strings.HasPrefix(b.Name, "B")) && b.Active {
@@ -312,7 +295,6 @@ func LockBands(slot int, bands []int) error {
 				}
 			}
 			if !addedAnchors {
-				// Add default anchor bands if present in supported list
 				defaultAnchors := map[string]bool{
 					"LTE B1": true, "LTE B3": true, "LTE B5": true, "LTE B8": true, "LTE B40": true,
 				}
@@ -335,10 +317,8 @@ func LockBands(slot int, bands []int) error {
 	}
 	bandArg := strings.Join(bandStrList, ",")
 
-	cmd := fmt.Sprintf("%q %d lock %s", cli, slot, bandArg)
-	logger.Get().Infof("Samsung", "Executing band lock on slot %d: %s", slot, bandArg)
-
-	out, err := config.ExecSuTimeout(10*time.Second, cmd)
+	logger.Get().Infof("Samsung", "Executing native band lock on slot %d: %s", slot, bandArg)
+	out, err := execBandManager("lock", slot, bandArg)
 	if err != nil {
 		return fmt.Errorf("band lock failed: %v (output: %s)", err, strings.TrimSpace(string(out)))
 	}
@@ -361,11 +341,9 @@ func ResetAuto(slot int) error {
 	if slot < 0 || slot > 1 {
 		return fmt.Errorf("invalid slot %d, must be 0 or 1", slot)
 	}
-	cli, _ := findBandManagerCLI()
-	cmd := fmt.Sprintf("%q %d auto", cli, slot)
 	logger.Get().Infof("Samsung", "Resetting band selection to auto on slot %d", slot)
 
-	out, err := config.ExecSuTimeout(10*time.Second, cmd)
+	out, err := execBandManager("auto", slot)
 	if err != nil {
 		return fmt.Errorf("reset band auto failed: %v (output: %s)", err, strings.TrimSpace(string(out)))
 	}
@@ -373,210 +351,12 @@ func ResetAuto(slot int) error {
 	return nil
 }
 
-// findSimSwitcherCLI searches for the sim_switcher shell script or executable.
-func findSimSwitcherCLI() (string, bool) {
-	candidates := []string{
-		filepath.Join(config.ModuleDir, "bin", "sim_switcher"),
-		"/data/adb/modules/bfr_webui_go/bin/sim_switcher",
-		"./bin/sim_switcher",
-		"bin/sim_switcher",
-		"/system/bin/sim_switcher",
-	}
-
-	for _, p := range candidates {
-		if fi, err := os.Stat(p); err == nil && !fi.IsDir() {
-			return p, true
-		}
-	}
-	return candidates[0], false
-}
-
-// SimSwitchResult contains the outcome of switching the active data SIM slot.
-type SimSwitchResult struct {
-	Success bool   `json:"success"`
-	Slot    int    `json:"slot"`
-	SubID   int    `json:"sub_id"`
-	Message string `json:"message"`
-}
-
-// SwitchDataSim switches mobile data to the specified SIM slot (0 or 1).
+// SwitchDataSim delegates to the universal native Go SIM switcher.
 func SwitchDataSim(slot int) (*SimSwitchResult, error) {
-	if slot < 0 || slot > 1 {
-		return nil, fmt.Errorf("invalid slot %d, must be 0 or 1", slot)
-	}
-
-	cli, _ := findSimSwitcherCLI()
-	cmd := fmt.Sprintf("%q %d", cli, slot)
-	logger.Get().Infof("Samsung", "Switching data SIM to slot %d using %s", slot, cli)
-
-	out, err := config.ExecSuTimeout(10*time.Second, cmd)
-	if err != nil {
-		return nil, fmt.Errorf("sim switch failed: %v (output: %s)", err, strings.TrimSpace(string(out)))
-	}
-
-	res := &SimSwitchResult{
-		Success: true,
-		Slot:    slot,
-		SubID:   slot + 1,
-		Message: fmt.Sprintf("Successfully switched active data SIM to slot %d", slot),
-	}
-
-	trimmed := strings.TrimSpace(string(out))
-	if idx := strings.Index(trimmed, "{"); idx != -1 {
-		var raw struct {
-			Status string `json:"status"`
-			Slot   int    `json:"slot"`
-			SubID  int    `json:"subId"`
-		}
-		if jsonErr := json.Unmarshal([]byte(trimmed[idx:]), &raw); jsonErr == nil {
-			if raw.Status == "ok" {
-				res.Success = true
-				res.Slot = raw.Slot
-				if raw.SubID > 0 {
-					res.SubID = raw.SubID
-				}
-				res.Message = fmt.Sprintf("Active data SIM switched to slot %d (SubID: %d)", res.Slot, res.SubID)
-			}
-		}
-	}
-
-	return res, nil
+	return modem.SwitchDataSim(slot)
 }
 
-// ThermalSensors represents temperature sensor readings in degrees Celsius.
-type ThermalSensors struct {
-	PA1Sub6C       float64 `json:"pa1_sub6_c"`
-	PA2Sub6C       float64 `json:"pa2_sub6_c"`
-	CellFrontCFC   float64 `json:"cell_front_cf_c"`
-	ModemSkinC     float64 `json:"modem_skin_c"`
-	RfPmicC        float64 `json:"rf_pmic_c"`
-	ModemBasebandC float64 `json:"modem_baseband_c"`
-	ApSocC         float64 `json:"ap_soc_c"`
-	BatteryC       float64 `json:"battery_c"`
-}
-
-// ThermalThrottlers represents cooling device throttling state counters.
-type ThermalThrottlers struct {
-	ModemPaFr1Dsc  int `json:"modem_pa_fr1_dsc"`
-	ModemSkinNrDsc int `json:"modem_skin_nr_dsc"`
-	ModemPaFr1     int `json:"modem_pa_fr1"`
-}
-
-// CriticalThresholds represents hardware safety temperature limits.
-type CriticalThresholds struct {
-	ModemSkinLimitC float64 `json:"modem_skin_limit_c"`
-	PA1CutoffLimitC float64 `json:"pa1_cutoff_limit_c"`
-}
-
-// Thermal5GStatus holds the complete thermal diagnostic report and root cause.
-type Thermal5GStatus struct {
-	NetworkType        string             `json:"network_type"`
-	Is5GDisconnect     bool               `json:"is_5g_disconnect"`
-	NRBand             string             `json:"nr_band"`
-	NRRSRP             int                `json:"nr_rsrp"`
-	TrafficMbps        float64            `json:"traffic_mbps"`
-	ThermalHALStatus   int                `json:"thermal_hal_status"`
-	ThermalHALDesc     string             `json:"thermal_hal_desc"`
-	Sensors            ThermalSensors     `json:"sensors"`
-	Throttlers         ThermalThrottlers  `json:"throttlers"`
-	CriticalThresholds CriticalThresholds `json:"critical_thresholds"`
-	IsThrottled        bool               `json:"is_throttled"`
-	Culprit            string             `json:"culprit"`
-	CulpritDetail      string             `json:"culprit_detail"`
-}
-
-// find5GThermalCLI searches for the qm-5g-thermal script or executable.
-func find5GThermalCLI() (string, bool) {
-	candidates := []string{
-		filepath.Join(config.ModuleDir, "bin", "qm-5g-thermal"),
-		"/data/adb/modules/bfr_webui_go/bin/qm-5g-thermal",
-		"./bin/qm-5g-thermal",
-		"bin/qm-5g-thermal",
-		"/system/bin/qm-5g-thermal",
-	}
-
-	for _, p := range candidates {
-		if fi, err := os.Stat(p); err == nil && !fi.IsDir() {
-			return p, true
-		}
-	}
-	return candidates[0], false
-}
-
-func getThermalHALDesc(status int) string {
-	switch status {
-	case 0:
-		return "NONE (Normal)"
-	case 1:
-		return "LIGHT (Hangat Ringan)"
-	case 2:
-		return "MODERATE (Siaga Panas)"
-	case 3:
-		return "SEVERE (Throttling 5G Aktif!)"
-	case 4:
-		return "CRITICAL (Bahaya)"
-	default:
-		if status > 4 {
-			return "EMERGENCY"
-		}
-		return fmt.Sprintf("Level %d", status)
-	}
-}
-
-func evaluate5GThermalCulprit(status *Thermal5GStatus) {
-	status.Culprit = "TIDAK ADA (SUHU NORMAL)"
-	status.CulpritDetail = "Semua sensor dalam batas aman. 5G tidak mengalami pembatasan suhu."
-	status.IsThrottled = false
-
-	if status.ThermalHALStatus >= 3 {
-		status.IsThrottled = true
-		status.Culprit = "Modem Skin Board (SKIN) / sec-cf"
-		status.CulpritDetail = fmt.Sprintf("Suhu permukaan board/skin mencapai %.1f°C (limit: 42.0°C). Android Thermal HAL masuk status SEVERE (Level %d). Sistem memerintahkan pelepasan 5G NR Dual Connectivity!", status.Sensors.ModemSkinC, status.ThermalHALStatus)
-	} else if status.Throttlers.ModemSkinNrDsc > 0 {
-		status.IsThrottled = true
-		status.Culprit = fmt.Sprintf("Modem Skin NR Controller (modem_skin_nr_dsc = %d)", status.Throttlers.ModemSkinNrDsc)
-		status.CulpritDetail = fmt.Sprintf("Qualcomm Thermal Engine membatasi 5G NR karena suhu skin modem (%.1f°C) melebihi ambang batas.", status.Sensors.ModemSkinC)
-	} else if status.Throttlers.ModemPaFr1Dsc > 0 {
-		status.IsThrottled = true
-		status.Culprit = fmt.Sprintf("5G Sub-6 Power Amplifier (modem_pa_fr1_dsc = %d)", status.Throttlers.ModemPaFr1Dsc)
-		status.CulpritDetail = fmt.Sprintf("Chip Power Amplifier 5G (%.1f°C) melewati limit proteksi RF. Modem memotong daya transmisi 5G NR!", status.Sensors.PA1Sub6C)
-	} else if status.Sensors.PA1Sub6C >= 48.0 {
-		status.IsThrottled = true
-		status.Culprit = fmt.Sprintf("5G Sub-6 Power Amplifier 1 (PA1 = %.1f°C)", status.Sensors.PA1Sub6C)
-		status.CulpritDetail = fmt.Sprintf("Suhu PA1 sangat panas (%.1f°C). Transceiver 5G bersiap memutus SCG 5G untuk perlindungan hardware.", status.Sensors.PA1Sub6C)
-	} else if status.Sensors.ModemSkinC >= 43.0 {
-		status.IsThrottled = true
-		status.Culprit = fmt.Sprintf("Modem Skin Board (SKIN = %.1f°C)", status.Sensors.ModemSkinC)
-		status.CulpritDetail = fmt.Sprintf("Sensor bodi modem (%.1f°C) melewati batas 42.0°C. Ini adalah sensor utama pemicu 5G Disconnect di Samsung.", status.Sensors.ModemSkinC)
-	} else if status.Sensors.CellFrontCFC >= 45.0 {
-		status.IsThrottled = true
-		status.Culprit = fmt.Sprintf("Cellular Front-End Thermistor (sec-cf = %.1f°C)", status.Sensors.CellFrontCFC)
-		status.CulpritDetail = fmt.Sprintf("Sensor RF depan (%.1f°C) terlalu panas akibat traffic bandwidth besar.", status.Sensors.CellFrontCFC)
-	}
-}
-
-// Get5GThermalStatus executes the 5G thermal diagnostic utility and parses the telemetry report.
+// Get5GThermalStatus delegates to the universal native Go thermal reader.
 func Get5GThermalStatus() (*Thermal5GStatus, error) {
-	cli, _ := find5GThermalCLI()
-	cmd := fmt.Sprintf("%q -j", cli)
-	out, err := config.ExecSuTimeout(5*time.Second, cmd)
-	if err != nil {
-		return nil, fmt.Errorf("failed to run 5g thermal diagnostics: %v (output: %s)", err, strings.TrimSpace(string(out)))
-	}
-
-	trimmed := strings.TrimSpace(string(out))
-	idx := strings.Index(trimmed, "{")
-	if idx == -1 {
-		return nil, fmt.Errorf("invalid json output from 5g thermal tool: %s", trimmed)
-	}
-
-	var status Thermal5GStatus
-	if jsonErr := json.Unmarshal([]byte(trimmed[idx:]), &status); jsonErr != nil {
-		return nil, fmt.Errorf("failed to parse 5g thermal json: %v", jsonErr)
-	}
-
-	status.ThermalHALDesc = getThermalHALDesc(status.ThermalHALStatus)
-	evaluate5GThermalCulprit(&status)
-
-	return &status, nil
+	return modem.Get5GThermalStatus()
 }
