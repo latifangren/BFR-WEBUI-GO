@@ -677,6 +677,19 @@ func getLoadAvg() LoadAverage {
 }
 
 func findPID(name string) (int, bool) {
+	if out, err := exec.Command("/system/bin/pidof", "-s", name).Output(); err == nil {
+		pStr := strings.TrimSpace(string(out))
+		if p, err := strconv.Atoi(pStr); err == nil && p > 0 {
+			return p, true
+		}
+	}
+	if out, err := exec.Command("/system/bin/pgrep", "-f", "-o", name).Output(); err == nil {
+		pStr := strings.TrimSpace(string(out))
+		if p, err := strconv.Atoi(pStr); err == nil && p > 0 {
+			return p, true
+		}
+	}
+
 	entries, err := os.ReadDir("/proc")
 	if err != nil {
 		return 0, false
@@ -698,19 +711,6 @@ func findPID(name string) (int, bool) {
 			commStr := strings.TrimSpace(string(commBytes))
 			if strings.EqualFold(commStr, name) || strings.Contains(strings.ToLower(commStr), nameLower) {
 				return pid, true
-			}
-		}
-
-		cmdlinePath := fmt.Sprintf("/proc/%d/cmdline", pid)
-		if cmdlineBytes, err := os.ReadFile(cmdlinePath); err == nil && len(cmdlineBytes) > 0 {
-			cmdStr := strings.ReplaceAll(string(cmdlineBytes), "\x00", " ")
-			cmdStr = strings.TrimSpace(cmdStr)
-			fields := strings.Fields(cmdStr)
-			if len(fields) > 0 {
-				base := filepath.Base(fields[0])
-				if strings.EqualFold(base, name) || strings.Contains(strings.ToLower(cmdStr), nameLower) {
-					return pid, true
-				}
 			}
 		}
 	}

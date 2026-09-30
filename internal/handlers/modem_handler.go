@@ -207,3 +207,216 @@ func HandleModemThermal(w http.ResponseWriter, r *http.Request) {
 
 	_ = json.NewEncoder(w).Encode(st)
 }
+
+// HandleModemCellLock gets or sets physical cell and EARFCN lock.
+func HandleModemCellLock(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+
+	if r.Method == http.MethodGet {
+		targetSlot := 0
+		slotStr := r.URL.Query().Get("slot")
+		if slotStr == "" {
+			slotStr = r.URL.Query().Get("sim_slot")
+		}
+		if s, err := strconv.Atoi(slotStr); err == nil && (s == 0 || s == 1) {
+			targetSlot = s
+		}
+
+		active, earfcn, pci, err := modem.GetLTECellLockStatus(targetSlot)
+		resp := map[string]interface{}{
+			"supported":   true,
+			"active_lock": active,
+			"earfcn":      earfcn,
+			"pci":         pci,
+			"slot":        targetSlot,
+		}
+		if err != nil {
+			resp["message"] = err.Error()
+		}
+		_ = json.NewEncoder(w).Encode(resp)
+		return
+	}
+
+	if r.Method == http.MethodPost {
+		var req struct {
+			Slot   int    `json:"slot"`
+			Type   string `json:"type"`
+			EARFCN uint32 `json:"earfcn"`
+			PCI    uint16 `json:"pci"`
+		}
+		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+			w.WriteHeader(http.StatusBadRequest)
+			_ = json.NewEncoder(w).Encode(map[string]interface{}{
+				"success": false,
+				"error":   "Invalid cell lock payload",
+			})
+			return
+		}
+
+		if req.EARFCN == 0 || req.PCI > 503 {
+			w.WriteHeader(http.StatusBadRequest)
+			_ = json.NewEncoder(w).Encode(map[string]interface{}{
+				"success": false,
+				"error":   "Invalid EARFCN or PCI (PCI must be 0-503, EARFCN > 0)",
+			})
+			return
+		}
+
+		err := modem.ApplyLTECellLock(req.Slot, req.EARFCN, req.PCI)
+		resp := map[string]interface{}{
+			"success": err == nil,
+			"slot":    req.Slot,
+			"earfcn":  req.EARFCN,
+			"pci":     req.PCI,
+		}
+		if err != nil {
+			logger.Get().Warnf("Modem", "Cell lock rejected: slot=%d, earfcn=%d, pci=%d, err=%v", req.Slot, req.EARFCN, req.PCI, err)
+			w.WriteHeader(http.StatusBadRequest)
+			resp["error"] = err.Error()
+			resp["message"] = "Modem rejected cell lock command: " + err.Error()
+		} else {
+			logger.Get().Infof("Modem", "Cell lock applied successfully: slot=%d, earfcn=%d, pci=%d", req.Slot, req.EARFCN, req.PCI)
+			resp["message"] = "LTE Cell Lock applied successfully"
+		}
+		_ = json.NewEncoder(w).Encode(resp)
+		return
+	}
+
+	http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+}
+
+// HandleModemCellLockClear clears any active cell lock on the modem.
+func HandleModemCellLockClear(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	var req struct {
+		Slot int `json:"slot"`
+	}
+	_ = json.NewDecoder(r.Body).Decode(&req)
+
+	err := modem.ClearLTECellLock(req.Slot)
+	resp := map[string]interface{}{
+		"success": err == nil,
+		"slot":    req.Slot,
+	}
+	if err != nil {
+		logger.Get().Warnf("Modem", "Failed to clear cell lock on slot %d: %v", req.Slot, err)
+		w.WriteHeader(http.StatusBadRequest)
+		resp["error"] = err.Error()
+		resp["message"] = "Modem failed to clear cell lock: " + err.Error()
+	} else {
+		logger.Get().Infof("Modem", "Cell lock cleared successfully on slot %d", req.Slot)
+		resp["message"] = "LTE Cell Lock cleared successfully"
+	}
+	_ = json.NewEncoder(w).Encode(resp)
+}
+
+// HandleModemPlmnLock handles automatic or manual PLMN carrier locking.
+func HandleModemPlmnLock(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	var req struct {
+		Slot int    `json:"slot"`
+		Mode string `json:"mode"`
+		MCC  uint16 `json:"mcc"`
+		MNC  uint16 `json:"mnc"`
+	}
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		_ = json.NewEncoder(w).Encode(map[string]interface{}{
+			"success": false,
+			"error":   "Invalid PLMN lock payload",
+		})
+		return
+	}
+
+	err := modem.ApplyPLMNLock(req.Slot, req.Mode, req.MCC, req.MNC)
+	resp := map[string]interface{}{
+		"success": err == nil,
+		"slot":    req.Slot,
+		"mode":    req.Mode,
+	}
+	if err != nil {
+		logger.Get().Warnf("Modem", "Failed to apply PLMN lock (%s): %v", req.Mode, err)
+		w.WriteHeader(http.StatusBadRequest)
+		resp["error"] = err.Error()
+		resp["message"] = "Modem rejected PLMN lock: " + err.Error()
+	} else {
+		logger.Get().Infof("Modem", "PLMN lock applied successfully: mode=%s, mcc=%d, mnc=%d", req.Mode, req.MCC, req.MNC)
+		resp["message"] = "PLMN network selection updated successfully"
+	}
+	_ = json.NewEncoder(w).Encode(resp)
+}
+
+// HandleModemHardwareBands queries factory hardware-supported frequency bands.
+func HandleModemHardwareBands(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	targetSlot := 0
+	slotStr := r.URL.Query().Get("slot")
+	if slotStr == "" {
+		slotStr = r.URL.Query().Get("sim_slot")
+	}
+	if s, err := strconv.Atoi(slotStr); err == nil && (s == 0 || s == 1) {
+		targetSlot = s
+	}
+
+	bands, err := modem.GetHardwareBandsInfo(targetSlot)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		_ = json.NewEncoder(w).Encode(map[string]interface{}{
+			"error": err.Error(),
+		})
+		return
+	}
+
+	_ = json.NewEncoder(w).Encode(bands)
+}
+
+// HandleModemCellScan scans and lists all detected serving, CA secondary, and neighbor towers.
+func HandleModemCellScan(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet && r.Method != http.MethodPost {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	targetSlot := 0
+	slotStr := r.URL.Query().Get("slot")
+	if slotStr == "" {
+		slotStr = r.URL.Query().Get("sim_slot")
+	}
+	if s, err := strconv.Atoi(slotStr); err == nil && (s == 0 || s == 1) {
+		targetSlot = s
+	} else {
+		// Use currently active mobile data slot by default
+		simSt := modem.GetSimStatus()
+		targetSlot = simSt.ActiveSlot
+	}
+
+	res, err := modem.ScanNearbyCells(targetSlot)
+	if err != nil {
+		logger.Get().Warnf("Modem", "Cell scan failed on slot %d: %v", targetSlot, err)
+		w.WriteHeader(http.StatusInternalServerError)
+		_ = json.NewEncoder(w).Encode(map[string]interface{}{
+			"success":       false,
+			"error_message": err.Error(),
+		})
+		return
+	}
+
+	_ = json.NewEncoder(w).Encode(res)
+}
+

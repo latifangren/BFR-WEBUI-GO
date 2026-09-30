@@ -349,22 +349,25 @@
           <div class="bg-card-sub border-2 border-border p-3 rounded space-y-1">
             <span class="text-[10px] text-muted uppercase font-bold">RSRP (Power)</span>
             <p class="text-sm font-bold text-foreground">
-              {String(signalInfo['rsrp'] || '-95 dBm')}
+              {signalInfo['rsrp'] !== undefined && signalInfo['rsrp'] !== null && signalInfo['rsrp'] !== -999 ? `${signalInfo['rsrp']} dBm` : '--'}
             </p>
           </div>
 
           <div class="bg-card-sub border-2 border-border p-3 rounded space-y-1">
             <span class="text-[10px] text-muted uppercase font-bold">RSRQ (Quality)</span>
             <p class="text-sm font-bold text-foreground">
-              {String(signalInfo['rsrq'] || '-10 dB')}
+              {signalInfo['rsrq'] !== undefined && signalInfo['rsrq'] !== null && signalInfo['rsrq'] !== -999 ? `${signalInfo['rsrq']} dB` : '--'}
             </p>
           </div>
 
           <div class="bg-card-sub border-2 border-border p-3 rounded space-y-1">
             <span class="text-[10px] text-muted uppercase font-bold">SINR (SNR)</span>
             <p class="text-sm font-bold text-foreground">
-              {String(signalInfo['sinr'] || '15 dB')}
+              {signalInfo['sinr'] !== undefined && signalInfo['sinr'] !== null && signalInfo['sinr'] !== -999 ? `${signalInfo['sinr']} dB` : 'N/A'}
             </p>
+            {#if signalInfo['sinr'] === -999 || signalInfo['sinr'] === undefined}
+              <span class="text-[9px] text-muted block">No SNR broadcast</span>
+            {/if}
           </div>
 
           <div class="bg-card-sub border-2 border-border p-3 rounded space-y-1">
@@ -394,12 +397,23 @@
             <span class="font-bold text-accent">{String(signalInfo['band'] || 'Auto')}</span>
           </div>
           <div class="flex items-center justify-between p-2 rounded bg-card-sub border-2 border-border">
-            <span class="text-muted">Cell ID</span>
-            <span class="font-bold text-foreground">{String(signalInfo['cell_id'] || '--')}</span>
+            <span class="text-muted">Bandwidth</span>
+            <span class="font-bold text-foreground">{String(signalInfo['bandwidth'] || '--')}</span>
           </div>
           <div class="flex items-center justify-between p-2 rounded bg-card-sub border-2 border-border">
-            <span class="text-muted">TAC / PCI</span>
-            <span class="font-bold text-foreground">{String(signalInfo['tac'] || '--')} / {String(signalInfo['pci'] || '--')}</span>
+            <span class="text-muted">EARFCN (Channel)</span>
+            <span class="font-bold text-accent">{String(signalInfo['earfcn'] && signalInfo['earfcn'] !== 0 ? signalInfo['earfcn'] : '--')}</span>
+          </div>
+          <div class="flex items-center justify-between p-2 rounded bg-card-sub border-2 border-border">
+            <span class="text-muted">Physical Cell ID (PCI)</span>
+            <span class="font-bold text-emerald-400">{String(signalInfo['pci'] && signalInfo['pci'] !== 'Unknown' ? signalInfo['pci'] : '--')}</span>
+          </div>
+          <div class="flex items-center justify-between p-2 rounded bg-card-sub border-2 border-border">
+            <span class="text-muted">Cell ID / TAC</span>
+            <span class="font-bold text-foreground">
+              {signalInfo['cell_id'] && signalInfo['cell_id'] !== 'Unknown' && signalInfo['cell_id'] !== '0' && signalInfo['cell_id'] !== 'Protected' ? signalInfo['cell_id'] : '--'} / {signalInfo['tac'] && signalInfo['tac'] !== 'Unknown' && signalInfo['tac'] !== '0' && signalInfo['tac'] !== 'Protected' ? signalInfo['tac'] : '--'}
+              <span class="text-[9px] font-normal text-muted ml-1.5 px-1.5 py-0.5 rounded bg-amber-950/40 border border-amber-800/60 text-amber-300" title="Android 16 privacy policy masks global Cell ID and TAC in telephony dumpsys">Android 16 Masked</span>
+            </span>
           </div>
         </div>
       </Card>

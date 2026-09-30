@@ -9,6 +9,42 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- **Multi-Vendor Cellular & Modem Control Overhaul (`TabModem.svelte`, `TabQualcomm.svelte`, `TabShannon.svelte`, `TabSamsung.svelte`)**:
+  - **Modular Vendor Architecture**: Separated modem controls into dedicated hardware tabs: Universal Cellular Telemetry, Qualcomm Snapdragon (QMI/QRTR), Google Tensor (Shannon), and Samsung One UI (SecRIL).
+  - **Qualcomm Snapdragon QRTR Baseband Engine (`internal/modem/qualcomm_qrtr.go`, `TabQualcomm.svelte`)**: Direct Linux kernel `AF_QIPCRTR` IPC socket interface communicating directly with the Qualcomm baseband modem.
+  - **Atomic QMI Band Setters & Verification**: Ground-truth band verification via QMI `0x0034` (`NAS_GET_SYS_INFO`) eliminating false positive band locking feedback.
+  - **Tower Cell Scanning & Live Discovery (`QualcommCellScanner.svelte`, `internal/modem/qualcomm_qrtr.go`)**: Real-time discovery of serving, neighbor, and secondary Carrier Aggregation (CA) cell towers with live signal power metrics (RSRP, RSRQ, RSSI, SINR).
+  - **eNodeB Tower Cell Locking (`QualcommCellLock.svelte`, `internal/modem/qualcomm_qrtr.go`)**: Hardware-level cell tower locking (`EARFCN` + `PCI`) via baseband QRTR to prevent frequent signal hopping.
+  - **Quick Band Presets & Operator Profiles (`QualcommProfiles.svelte`)**: One-click frequency band presets for Indonesian telcos (Telkomsel, XL Axiata, Indosat Ooredoo, Smartfren, Tri), Speed Aggregation (B3+B1), and Wide Coverage (B8).
+  - **Google Tensor Shannon Modem Integration (`internal/shannon/`, `TabShannon.svelte`)**: Baseband communication via `/dev/umts_router` character device for Pixel 6, 7, 8, and 9 series devices.
+  - **Samsung One UI SecRIL Band Locking (`TabSamsung.svelte`, `internal/samsung/`)**: Refocused interface for Samsung devices utilizing `ISemTelephony` (`0x02` OEM RIL).
+  - **High-Fidelity Multi-SIM & eSIM Telemetry (`internal/modem/sim.go`)**: Accurate slot index mapping and eSIM/pSIM profile distinction parsing `dumpsys isub` internal state.
+- **NetMonster Core Telemetry Engine Port (`internal/modem/netmonster_parser.go`, `internal/modem/netmonster_bands.go`)**:
+  - **Physical Channel Parsing**: Extracted unredacted Physical Cell ID (`PCI`), downlink channel (`EARFCN`), and bandwidth from `mPhysicalChannelConfigs`.
+  - **Carrier Aggregation (CA) Detection**: Multi-band aggregation parsing detecting active CA states (e.g. `B5 + B3 [2CA Active]`).
+  - **Comprehensive 3GPP Database**: Native Go database mapping EARFCN channel numbers to 3GPP LTE and 5G NR frequency bands.
+  - **Smart Signal Telemetry Fallback**: Intelligent signal parser querying `mSignalStrength` when primary metrics report sentinel `2147483647` (`Integer.MAX_VALUE`).
+- **Native RFC 4918 WebDAV Server & LAN Clipboard (`TabNAS.svelte`, `internal/nas/`)**:
+  - **Native WebDAV Server**: Fully native Go RFC 4918 WebDAV engine running on dynamic port 85 with cross-platform OS mounting support (Windows Map Network Drive, macOS Finder, Linux DAVFS, mobile file managers).
+  - **Flexible Authentication Modes**: Configurable Basic Authentication or anonymous read/write access with customizable storage roots.
+  - **Real-Time LAN Clipboard Synchronizer**: Instant clipboard sharing across local Wi-Fi network for text, URLs, and code snippets without external cloud services.
+- **Smart Battery & Charging Limiter Overhaul (`TabCharger.svelte`, `internal/charger/`)**:
+  - **ACC Modular Architecture**: Complete rewrite inspired by Advanced Charging Controller architecture with automated sysfs switch probing (`charging_enabled`, `battery_charging_enabled`, `input_suspend`, etc.).
+  - **Live Battery Telemetry**: Real-time gauges for charging current (mA), voltage (mV), battery temperature (°C), capacity (%), and charge counter (mAh).
+  - **Configurable Charging Thresholds**: Automated daemon to pause charging at user-defined upper percentage and resume at lower threshold.
+- **Modem Native Go Elimination of External Binaries (`internal/modem/`)**:
+  - Replaced legacy binary scripts (`bin/qm-5g-thermal`, `bin/sim_switcher`, `bin/band_manager`) with 100% native Go implementations.
+  - Native Go sysfs thermal sensor reader (`thermal.go`) tracking Sub-6GHz Power Amps, RF PMIC, Modem Skin, and AP SoC temperatures.
+  - Direct DEX invocation via `app_process` for seamless AOSP `ISub` SIM routing.
+
+### Fixed & Optimized
+- **Cellular Signal UI Refinement (`TabModem.svelte`)**:
+  - Handled missing SINR gracefully by displaying `N/A` with informative "No SNR broadcast" subtitle instead of raw sentinel `-999`.
+  - Formatted signal metrics with proper unit labels (`dBm` for RSRP/RSSI, `dB` for RSRQ/SINR).
+  - Split EARFCN and PCI into distinct, dedicated fields in the Cell Identity card.
+  - Handled Android 12–16 OS-level location privacy redactions gracefully with an `Android 16 Masked` badge instead of ambiguous raw placeholder strings.
+
 ## [1.2.5] - 2026-09-23
 
 ### Added

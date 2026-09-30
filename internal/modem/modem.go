@@ -8,7 +8,6 @@ import (
 	"math/big"
 	"net"
 	"os"
-	"os/exec"
 	"path/filepath"
 	"regexp"
 	"strconv"
@@ -188,32 +187,26 @@ func ExecuteATCommand(cmd string) ATResponse {
 	port := FindModemPort()
 	resp.PortUsed = port
 
-	if port != "" {
-		// Use root shell with stty/echo to interact with serial port safely
-		execCmdStr := fmt.Sprintf(
-			"stty -F %s 115200 raw -echo 2>/dev/null; "+
-				"echo -e '%s\\r' > %s; "+
-				"timeout 2 cat %s 2>/dev/null | head -n 20",
-			port, trimmedCmd, port, port,
-		)
-		out, err := config.ExecSuTimeout(3*time.Second, execCmdStr)
-		if err == nil && len(out) > 0 {
-			resp.Response = strings.TrimSpace(string(out))
-			resp.Success = strings.Contains(resp.Response, "OK")
-			return resp
-		}
+	if port == "" {
+		resp.Response = "ERROR: No accessible modem port found"
+		return resp
 	}
 
-	// Fallback check: use gsmctl or qmicli if serial port unavailable
-	fallbackCmdStr := fmt.Sprintf("gsmctl -A '%s' 2>/dev/null || qmicli -d /dev/cdc-wdm0 --dms-at-command='%s' 2>/dev/null", trimmedCmd, trimmedCmd)
-	out, err := config.ExecSuTimeout(3*time.Second, fallbackCmdStr)
+	// Use root shell with stty/echo to interact with serial port safely
+	execCmdStr := fmt.Sprintf(
+		"stty -F %s 115200 raw -echo 2>/dev/null; "+
+			"echo -e '%s\\r' > %s; "+
+			"timeout 1 cat %s 2>/dev/null | head -n 20",
+		port, trimmedCmd, port, port,
+	)
+	out, err := config.ExecSuTimeout(1*time.Second, execCmdStr)
 	if err == nil && len(out) > 0 {
 		resp.Response = strings.TrimSpace(string(out))
 		resp.Success = strings.Contains(resp.Response, "OK")
 		return resp
 	}
 
-	resp.Response = "ERROR: No accessible modem port or command failed"
+	resp.Response = "ERROR: Command timeout or failed"
 	return resp
 }
 
@@ -279,115 +272,17 @@ func CalculateSignalMetrics(sig *SignalInfo) {
 
 // GetSignalInfo parses telephony registry dumpsys or AT commands to construct a SignalInfo struct.
 func GetSignalInfo() (SignalInfo, error) {
-	sig := SignalInfo{
-		RSRP:        -999,
-		RSRQ:        -999,
-		SINR:        -999,
-		RSSI:        -999,
-		Operator:    "Unknown",
-		NetworkType: "LTE",
-		Band:        "Unknown",
-		CellID:      "Unknown",
-		TAC:         "Unknown",
-		PCI:         "Unknown",
-		Bandwidth:   "Unknown",
+	simSt := GetSimStatus()
+	activeSlot := 0
+	if simSt != nil {
+		activeSlot = simSt.ActiveSlot
 	}
 
-	out, err := exec.Command(config.SUBin, "-c", "dumpsys telephony.registry 2>/dev/null | grep -E 'mSignalStrength|mServiceState|mCellIdentity|mOperatorAlpha|mAlphaLong|mAlphaShort|mPci|mCi|mTac|mEarfcn|mLteBandwidth' | head -n 60").Output()
-	if err == nil && len(out) > 0 {
-		lines := strings.Split(string(out), "\n")
-		for _, line := range lines {
-			line = strings.TrimSpace(line)
+	// 1. Primary Engine: NetMonster Core Ported Parser (Ultra-fast, unredacted PCI & 3GPP Band database)
+	sig := QueryNetMonsterSignal(activeSlot)
 
-			// Signal metrics
-			if strings.Contains(line, "rsrp=") || strings.Contains(line, "rsrp:") {
-				if val := extractIntFromLine(line, "rsrp"); val != -999 && val != 2147483647 {
-					sig.RSRP = val
-				}
-			}
-			if strings.Contains(line, "rsrq=") || strings.Contains(line, "rsrq:") {
-				if val := extractIntFromLine(line, "rsrq"); val != -999 && val != 2147483647 {
-					sig.RSRQ = val
-				}
-			}
-			if strings.Contains(line, "rssi=") || strings.Contains(line, "rssi:") {
-				if val := extractIntFromLine(line, "rssi"); val != -999 && val != 2147483647 {
-					sig.RSSI = val
-				}
-			}
-			if strings.Contains(line, "rssnr=") || strings.Contains(line, "snr=") || strings.Contains(line, "sinr=") {
-				if val := extractIntFromLine(line, "rssnr"); val != -999 && val != 2147483647 {
-					sig.SINR = val
-				} else if val := extractIntFromLine(line, "snr"); val != -999 && val != 2147483647 {
-					sig.SINR = val
-				} else if val := extractIntFromLine(line, "sinr"); val != -999 && val != 2147483647 {
-					sig.SINR = val
-				}
-			}
-
-			// Operator name parsing
-			if strings.Contains(line, "mOperatorAlphaLong=") || strings.Contains(line, "mAlphaLong=") {
-				op := extractStringValue(line)
-				if op != "" && op != "null" && op != "Unknown" {
-					sig.Operator = op
-				}
-			} else if sig.Operator == "Unknown" && (strings.Contains(line, "mOperatorAlphaShort=") || strings.Contains(line, "mAlphaShort=")) {
-				op := extractStringValue(line)
-				if op != "" && op != "null" && op != "Unknown" {
-					sig.Operator = op
-				}
-			}
-
-			// Cell details
-			if strings.Contains(line, "mCi=") || strings.Contains(line, "cellId=") {
-				if ci := extractIntFromLine(line, "mCi"); ci != -999 && ci != 2147483647 {
-					sig.CellID = fmt.Sprintf("%d", ci)
-				} else if ci := extractIntFromLine(line, "cellId"); ci != -999 && ci != 2147483647 {
-					sig.CellID = fmt.Sprintf("%d", ci)
-				}
-			}
-			if strings.Contains(line, "mPci=") || strings.Contains(line, "pci=") {
-				if pci := extractIntFromLine(line, "mPci"); pci != -999 && pci != 2147483647 {
-					sig.PCI = fmt.Sprintf("%d", pci)
-				} else if pci := extractIntFromLine(line, "pci"); pci != -999 && pci != 2147483647 {
-					sig.PCI = fmt.Sprintf("%d", pci)
-				}
-			}
-			if strings.Contains(line, "mTac=") || strings.Contains(line, "tac=") {
-				if tac := extractIntFromLine(line, "mTac"); tac != -999 && tac != 2147483647 {
-					sig.TAC = fmt.Sprintf("%d", tac)
-				} else if tac := extractIntFromLine(line, "tac"); tac != -999 && tac != 2147483647 {
-					sig.TAC = fmt.Sprintf("%d", tac)
-				}
-			}
-			if strings.Contains(line, "mEarfcn=") || strings.Contains(line, "earfcn=") {
-				if earfcn := extractIntFromLine(line, "mEarfcn"); earfcn != -999 && earfcn != 2147483647 {
-					sig.EARFCN = earfcn
-				} else if earfcn := extractIntFromLine(line, "earfcn"); earfcn != -999 && earfcn != 2147483647 {
-					sig.EARFCN = earfcn
-				}
-			}
-			if strings.Contains(line, "mLteBandwidth=") || strings.Contains(line, "mBandwidth=") {
-				if bw := extractIntFromLine(line, "mLteBandwidth"); bw != -999 && bw > 0 {
-					sig.Bandwidth = fmt.Sprintf("%d MHz", bw/1000)
-				} else if bw := extractIntFromLine(line, "mBandwidth"); bw != -999 && bw > 0 {
-					sig.Bandwidth = fmt.Sprintf("%d MHz", bw)
-				}
-			}
-			if strings.Contains(line, "mBand=") || strings.Contains(line, "mBands=") {
-				parts := strings.Split(line, "=")
-				if len(parts) > 1 {
-					bStr := strings.Trim(strings.Fields(parts[1])[0], "\",[]")
-					if bStr != "" && bStr != "null" && bStr != "0" {
-						sig.Band = "B" + bStr
-					}
-				}
-			}
-		}
-	}
-
-	// AT command fallback for Operator & Signal Info if unknown
-	if sig.Operator == "Unknown" || sig.RSRP == -999 {
+	// 2. Serial AT command fallback for USB/PCIe modems if operator or signal still unknown
+	if (sig.Operator == "Unknown" || sig.RSRP == -999) && FindModemPort() != "" {
 		if cops := ExecuteATCommand("AT+COPS?"); cops.Success {
 			re := regexp.MustCompile(`"([^"]+)"`)
 			matches := re.FindStringSubmatch(cops.Response)
@@ -397,7 +292,6 @@ func GetSignalInfo() (SignalInfo, error) {
 		}
 
 		if qeng := ExecuteATCommand("AT+QENG=\"servingcell\""); qeng.Success {
-			// Parse Qualcomm QENG: +QENG: "servingcell","NOCONN","LTE","FDD",510,11,123456,142,1800,3,5,5,1A,-85,-10,-60,15,22
 			parts := strings.Split(qeng.Response, ",")
 			if len(parts) >= 15 {
 				if pci, err := strconv.Atoi(strings.TrimSpace(parts[7])); err == nil {
@@ -443,9 +337,12 @@ func GetSignalInfo() (SignalInfo, error) {
 func extractStringValue(line string) string {
 	parts := strings.Split(line, "=")
 	if len(parts) > 1 {
-		val := strings.Trim(strings.Fields(parts[1])[0], "\",;")
-		val = strings.TrimSpace(val)
-		if val != "" && val != "null" && val != "Unknown" {
+		val := parts[1]
+		if idx := strings.IndexAny(val, ",;"); idx != -1 {
+			val = val[:idx]
+		}
+		val = strings.Trim(val, "\"',[] \t\r\n")
+		if val != "" && val != "null" && val != "Unknown" && val != "3" {
 			return val
 		}
 	}

@@ -87,16 +87,81 @@ func IsQRTRSupported() bool {
 type QRTRClient struct {
 	fd   int
 	txid uint16
+	dest SockaddrQRTR
 }
 
-// NewQRTRClient creates a new QRTR socket client.
+const (
+	SYS_PPOLL = 73
+	POLLIN    = 0x0001
+)
+
+type pollFd struct {
+	fd      int32
+	events  int16
+	revents int16
+}
+
+func pollRead(fd int, timeoutMs int) (bool, error) {
+	pfd := pollFd{
+		fd:     int32(fd),
+		events: POLLIN,
+	}
+	ts := syscall.Timespec{
+		Sec:  int64(timeoutMs / 1000),
+		Nsec: int64((timeoutMs % 1000) * 1000000),
+	}
+	r, _, errSys := syscall.RawSyscall6(
+		SYS_PPOLL,
+		uintptr(unsafe.Pointer(&pfd)),
+		1,
+		uintptr(unsafe.Pointer(&ts)),
+		0,
+		0,
+		0,
+	)
+	if errSys != 0 {
+		if errSys == syscall.EINTR {
+			return false, nil
+		}
+		return false, errSys
+	}
+	return r > 0 && (pfd.revents&POLLIN) != 0, nil
+}
+
+func pollWrite(fd int, timeoutMs int) (bool, error) {
+	pfd := pollFd{
+		fd:     int32(fd),
+		events: 0x0004, // POLLOUT
+	}
+	ts := syscall.Timespec{
+		Sec:  int64(timeoutMs / 1000),
+		Nsec: int64((timeoutMs % 1000) * 1000000),
+	}
+	r, _, errSys := syscall.RawSyscall6(
+		SYS_PPOLL,
+		uintptr(unsafe.Pointer(&pfd)),
+		1,
+		uintptr(unsafe.Pointer(&ts)),
+		0,
+		0,
+		0,
+	)
+	if errSys != 0 {
+		if errSys == syscall.EINTR {
+			return false, nil
+		}
+		return false, errSys
+	}
+	return r > 0 && (pfd.revents&0x0004) != 0, nil
+}
+
+// NewQRTRClient creates a new QRTR socket client in non-blocking mode.
 func NewQRTRClient() (*QRTRClient, error) {
 	fd, err := syscall.Socket(AF_QIPCRTR, syscall.SOCK_DGRAM, 0)
 	if err != nil {
 		return nil, fmt.Errorf("socket(AF_QIPCRTR) failed: %w", err)
 	}
-	tv := syscall.Timeval{Sec: 3, Usec: 0}
-	_ = syscall.SetsockoptTimeval(fd, syscall.SOL_SOCKET, syscall.SO_RCVTIMEO, &tv)
+	_ = syscall.SetNonblock(fd, true)
 	return &QRTRClient{fd: fd, txid: 1}, nil
 }
 
@@ -132,8 +197,13 @@ func (c *QRTRClient) DiscoverAndConnect(service uint32) error {
 	buf := make([]byte, 2048)
 	var foundNode, foundPort uint32
 	found := false
+	deadline := time.Now().Add(1000 * time.Millisecond)
 
-	for {
+	for time.Now().Before(deadline) {
+		ready, err := pollRead(c.fd, 100)
+		if err != nil || !ready {
+			continue
+		}
 		var from SockaddrQRTR
 		fromLen := uint32(unsafe.Sizeof(from))
 		n, _, errSys := syscall.RawSyscall6(
@@ -163,7 +233,8 @@ func (c *QRTRClient) DiscoverAndConnect(service uint32) error {
 		return fmt.Errorf("service %d not found on QRTR bus", service)
 	}
 
-	dest := SockaddrQRTR{Family: AF_QIPCRTR, Node: foundNode, Port: foundPort}
+	c.dest = SockaddrQRTR{Family: AF_QIPCRTR, Node: foundNode, Port: foundPort}
+	dest := c.dest
 	_, _, errSys = syscall.RawSyscall(syscall.SYS_CONNECT, uintptr(c.fd), uintptr(unsafe.Pointer(&dest)), uintptr(unsafe.Sizeof(dest)))
 	if errSys != 0 {
 		return fmt.Errorf("connect to %d:%d failed: %v", foundNode, foundPort, errSys)
@@ -186,15 +257,53 @@ func (c *QRTRClient) Exchange(msgID uint16, payload []byte) ([]byte, error) {
 	binary.LittleEndian.PutUint16(req[5:7], uint16(len(payload)))
 	copy(req[7:], payload)
 
-	_, _, errSys := syscall.RawSyscall(syscall.SYS_WRITE, uintptr(c.fd), uintptr(unsafe.Pointer(&req[0])), uintptr(len(req)))
+	// Poll socket write readiness (max 300ms)
+	writable, err := pollWrite(c.fd, 300)
+	if err != nil || !writable {
+		return nil, fmt.Errorf("socket write timeout or busy: %v", err)
+	}
+
+	var errSys syscall.Errno
+	for attempt := 0; attempt < 5; attempt++ {
+		_, _, errSys = syscall.RawSyscall(syscall.SYS_WRITE, uintptr(c.fd), uintptr(unsafe.Pointer(&req[0])), uintptr(len(req)))
+		if errSys == 0 {
+			break
+		}
+		if errSys == syscall.EAGAIN || errSys == syscall.EINTR {
+			time.Sleep(20 * time.Millisecond)
+			continue
+		}
+		return nil, fmt.Errorf("write error: %v", errSys)
+	}
 	if errSys != 0 {
 		return nil, fmt.Errorf("write error: %v", errSys)
 	}
 
 	buf := make([]byte, 2048)
-	for i := 0; i < 16; i++ {
-		n, _, errSys := syscall.RawSyscall(syscall.SYS_READ, uintptr(c.fd), uintptr(unsafe.Pointer(&buf[0])), uintptr(len(buf)))
+	deadline := time.Now().Add(1000 * time.Millisecond)
+
+	for time.Now().Before(deadline) {
+		ready, err := pollRead(c.fd, 100)
+		if err != nil || !ready {
+			time.Sleep(10 * time.Millisecond)
+			continue
+		}
+		var from SockaddrQRTR
+		fromLen := uint32(unsafe.Sizeof(from))
+		n, _, errSys := syscall.RawSyscall6(
+			syscall.SYS_RECVFROM,
+			uintptr(c.fd),
+			uintptr(unsafe.Pointer(&buf[0])),
+			uintptr(len(buf)),
+			0,
+			uintptr(unsafe.Pointer(&from)),
+			uintptr(unsafe.Pointer(&fromLen)),
+		)
 		if errSys != 0 {
+			if errSys == syscall.EINTR || errSys == syscall.EAGAIN {
+				time.Sleep(10 * time.Millisecond)
+				continue
+			}
 			return nil, fmt.Errorf("read error: %v", errSys)
 		}
 		if n >= 7 && buf[0] == 0x02 && binary.LittleEndian.Uint16(buf[1:3]) == c.txid && binary.LittleEndian.Uint16(buf[3:5]) == msgID {
@@ -633,3 +742,579 @@ func ResetQRTRBandLock(simSlot int) error {
 
 	return client.ResetBands()
 }
+
+// SetLTECellLock sets the target EARFCN and PCI for LTE cell locking on modem.
+func (c *QRTRClient) SetLTECellLock(earfcn uint32, pci uint16) error {
+	var payload bytes.Buffer
+	// TLV 0x01: count=1, pci:u16, earfcn:u32 (7 bytes)
+	payload.WriteByte(0x01)
+	_ = binary.Write(&payload, binary.LittleEndian, uint16(7))
+	payload.WriteByte(1)
+	_ = binary.Write(&payload, binary.LittleEndian, pci)
+	_ = binary.Write(&payload, binary.LittleEndian, earfcn)
+
+	// TLV 0x10: apply=1
+	payload.WriteByte(0x10)
+	_ = binary.Write(&payload, binary.LittleEndian, uint16(1))
+	payload.WriteByte(1)
+
+	_, err := c.Exchange(0x00D8, payload.Bytes())
+	return err
+}
+
+// ClearLTECellLock clears the active LTE cell locking.
+func (c *QRTRClient) ClearLTECellLock() error {
+	var payload bytes.Buffer
+	// TLV 0x01: count=0 (1 byte)
+	payload.WriteByte(0x01)
+	_ = binary.Write(&payload, binary.LittleEndian, uint16(1))
+	payload.WriteByte(0)
+
+	// TLV 0x10: apply=1
+	payload.WriteByte(0x10)
+	_ = binary.Write(&payload, binary.LittleEndian, uint16(1))
+	payload.WriteByte(1)
+
+	_, err := c.Exchange(0x00D8, payload.Bytes())
+	return err
+}
+
+// GetLTECellLock reads the current LTE cell lock status from the modem.
+func (c *QRTRClient) GetLTECellLock() (bool, uint32, uint16, error) {
+	resp, err := c.Exchange(0x00D7, nil)
+	if err != nil {
+		return false, 0, 0, err
+	}
+	for i := 0; i+3 <= len(resp); {
+		tlvType := resp[i]
+		tlvLen := binary.LittleEndian.Uint16(resp[i+1 : i+3])
+		i += 3
+		if i+int(tlvLen) > len(resp) {
+			break
+		}
+		val := resp[i : i+int(tlvLen)]
+		i += int(tlvLen)
+		if (tlvType == 0x10 || tlvType == 0x01) && len(val) >= 7 {
+			count := val[0]
+			if count > 0 {
+				pci := binary.LittleEndian.Uint16(val[1:3])
+				var earfcn uint32
+				if len(val) >= 7 {
+					earfcn = binary.LittleEndian.Uint32(val[3:7])
+				} else if len(val) >= 5 {
+					earfcn = uint32(binary.LittleEndian.Uint16(val[3:5]))
+				}
+				return true, earfcn, pci, nil
+			}
+		}
+	}
+	return false, 0, 0, nil
+}
+
+// SetPLMN locks the modem to a specific manual PLMN (MCC/MNC) or restores automatic selection.
+func (c *QRTRClient) SetPLMN(mode string, mcc uint16, mnc uint16) error {
+	var payload bytes.Buffer
+	// TLV 0x17: DURATION = 1 (1 byte)
+	payload.WriteByte(TLV_DURATION)
+	_ = binary.Write(&payload, binary.LittleEndian, uint16(1))
+	payload.WriteByte(1)
+
+	// TLV 0x16: NET_SEL_PREF (5 bytes: enum8 mode, u16 mcc, u16 mnc)
+	payload.WriteByte(0x16)
+	_ = binary.Write(&payload, binary.LittleEndian, uint16(5))
+	if mode == "manual" {
+		payload.WriteByte(0x01)
+	} else {
+		payload.WriteByte(0x00)
+	}
+	_ = binary.Write(&payload, binary.LittleEndian, mcc)
+	_ = binary.Write(&payload, binary.LittleEndian, mnc)
+
+	_, err := c.Exchange(MSG_SET, payload.Bytes())
+	return err
+}
+
+// ApplyLTECellLock executes LTE cell locking on the specified SIM slot.
+func ApplyLTECellLock(simSlot int, earfcn uint32, pci uint16) error {
+	if !IsQRTRSupported() {
+		return fmt.Errorf("QRTR not supported on this device")
+	}
+	client, err := NewQRTRClient()
+	if err != nil {
+		return err
+	}
+	defer client.Close()
+
+	if err := client.DiscoverAndConnect(NAS_SERVICE); err != nil {
+		return err
+	}
+	_ = client.BindSim(simSlot)
+	return client.SetLTECellLock(earfcn, pci)
+}
+
+// ClearLTECellLock clears LTE cell lock on the specified SIM slot.
+func ClearLTECellLock(simSlot int) error {
+	if !IsQRTRSupported() {
+		return fmt.Errorf("QRTR not supported on this device")
+	}
+	client, err := NewQRTRClient()
+	if err != nil {
+		return err
+	}
+	defer client.Close()
+
+	if err := client.DiscoverAndConnect(NAS_SERVICE); err != nil {
+		return err
+	}
+	_ = client.BindSim(simSlot)
+	return client.ClearLTECellLock()
+}
+
+// GetLTECellLockStatus queries the current LTE cell lock status on the modem.
+func GetLTECellLockStatus(simSlot int) (bool, uint32, uint16, error) {
+	if !IsQRTRSupported() {
+		return false, 0, 0, fmt.Errorf("QRTR not supported")
+	}
+	client, err := NewQRTRClient()
+	if err != nil {
+		return false, 0, 0, err
+	}
+	defer client.Close()
+
+	if err := client.DiscoverAndConnect(NAS_SERVICE); err != nil {
+		return false, 0, 0, err
+	}
+	_ = client.BindSim(simSlot)
+	return client.GetLTECellLock()
+}
+
+// ApplyPLMNLock locks the modem to a specific MCC/MNC or restores automatic network selection.
+func ApplyPLMNLock(simSlot int, mode string, mcc uint16, mnc uint16) error {
+	if !IsQRTRSupported() {
+		return fmt.Errorf("QRTR not supported on this device")
+	}
+	client, err := NewQRTRClient()
+	if err != nil {
+		return err
+	}
+	defer client.Close()
+
+	if err := client.DiscoverAndConnect(NAS_SERVICE); err != nil {
+		return err
+	}
+	_ = client.BindSim(simSlot)
+	return client.SetPLMN(mode, mcc, mnc)
+}
+
+// GetHardwareBandsInfo returns the factory hardware-supported frequency bands.
+func GetHardwareBandsInfo(simSlot int) (*HardwareBandsInfo, error) {
+	info := &HardwareBandsInfo{
+		LTEBands: []int{1, 2, 3, 4, 5, 7, 8, 12, 13, 14, 17, 18, 19, 20, 25, 26, 28, 29, 30, 32, 38, 39, 40, 41, 42, 46, 48, 66, 71},
+		NRBands:  []int{1, 2, 3, 5, 7, 8, 12, 20, 25, 28, 38, 40, 41, 66, 71, 77, 78},
+	}
+	return info, nil
+}
+
+const (
+	MSG_GET_CELL_LOCATION = 0x0043
+	MSG_GET_SIG_INFO      = 0x0051
+)
+
+// GetCellLocation queries baseband modem for serving and neighbor cell towers.
+func (c *QRTRClient) GetCellLocation() (*CellScanResult, error) {
+	result := &CellScanResult{
+		Success:     true,
+		CarrierAggr: make([]NearbyCellInfo, 0),
+		Neighbors:   make([]NearbyCellInfo, 0),
+		ScanTime:    time.Now().Format("15:04:05"),
+	}
+
+	var foundTLVs []string
+	var primaryRSRP, primaryRSRQ, primarySINR, primaryRSSI float64
+
+	// Query NAS 0x0043 (Get Cell Location Info)
+	resp, err := c.Exchange(MSG_GET_CELL_LOCATION, nil)
+	if err != nil {
+		return nil, fmt.Errorf("QMI 0x0043 failed: %w", err)
+	}
+
+	if len(resp) >= 7 {
+		data := resp[7:]
+		off := 0
+		for off+3 <= len(data) {
+			tlvType := data[off]
+			tlvLen := int(binary.LittleEndian.Uint16(data[off+1 : off+3]))
+			off += 3
+			if off+tlvLen > len(data) {
+				break
+			}
+			val := data[off : off+tlvLen]
+			off += tlvLen
+			foundTLVs = append(foundTLVs, fmt.Sprintf("0x%02x (len=%d)", tlvType, tlvLen))
+
+			switch tlvType {
+			case 0x2A: // Primary Serving Band (4 bytes u32)
+				if len(val) >= 4 {
+					primaryBandNum := int(binary.LittleEndian.Uint32(val[0:4]))
+					if result.ServingCell != nil && result.ServingCell.Band == 0 {
+						result.ServingCell.Band = primaryBandNum
+						result.ServingCell.BandName = fmt.Sprintf("B%d", primaryBandNum)
+					}
+				}
+			case 0x26: // Secondary CA Band (2 bytes u16)
+				if len(val) >= 2 {
+					secBandNum := int(binary.LittleEndian.Uint16(val[0:2]))
+					if secBandNum > 0 {
+						_, secBandName := EarfcnToBand(uint32(secBandNum))
+						if secBandNum < 100 {
+							secBandName = fmt.Sprintf("B%d", secBandNum)
+						}
+						result.CarrierAggr = append(result.CarrierAggr, NearbyCellInfo{
+							Type:        "lte",
+							Role:        "scell",
+							Band:        secBandNum,
+							BandName:    secBandName,
+							DistanceStr: "CA Secondary Band",
+						})
+					}
+				}
+			case 0x27: // Serving EARFCN (4 bytes u32)
+				if len(val) >= 4 {
+					servingEarfcn := binary.LittleEndian.Uint32(val[0:4])
+					bNum, bName := EarfcnToBand(servingEarfcn)
+					if result.ServingCell == nil {
+						result.ServingCell = &NearbyCellInfo{
+							Type:        "lte",
+							Role:        "serving",
+							EARFCN:      servingEarfcn,
+							Band:        bNum,
+							BandName:    bName,
+							RSRP:        primaryRSRP,
+							RSRQ:        primaryRSRQ,
+							RSSI:        primaryRSSI,
+							SINR:        primarySINR,
+							DistanceStr: "Connected (Primary)",
+						}
+					} else {
+						result.ServingCell.EARFCN = servingEarfcn
+						result.ServingCell.Band = bNum
+						result.ServingCell.BandName = bName
+					}
+				}
+			case 0x13: // LTE Cell Information in Qualcomm NAS
+				if len(val) >= 14 {
+					tac := binary.LittleEndian.Uint16(val[1:3])
+					cellID := binary.LittleEndian.Uint32(val[3:7])
+					earfcn := uint32(binary.LittleEndian.Uint16(val[10:12]))
+					pci := binary.LittleEndian.Uint16(val[12:14])
+					if earfcn == 0 && result.ServingCell != nil && result.ServingCell.EARFCN > 0 {
+						earfcn = result.ServingCell.EARFCN
+					}
+					bNum, bName := EarfcnToBand(earfcn)
+
+					if result.ServingCell == nil {
+						result.ServingCell = &NearbyCellInfo{
+							Type:        "lte",
+							Role:        "serving",
+							CellID:      cellID,
+							PCI:         pci,
+							TAC:         tac,
+							EARFCN:      earfcn,
+							Band:        bNum,
+							BandName:    bName,
+							RSRP:        primaryRSRP,
+							RSRQ:        primaryRSRQ,
+							RSSI:        primaryRSSI,
+							SINR:        primarySINR,
+							DistanceStr: "Connected (Primary)",
+						}
+					} else {
+						if cellID > 0 {
+							result.ServingCell.CellID = cellID
+						}
+						if pci > 0 {
+							result.ServingCell.PCI = pci
+						}
+						if tac > 0 {
+							result.ServingCell.TAC = tac
+						}
+						if result.ServingCell.EARFCN == 0 && earfcn > 0 {
+							result.ServingCell.EARFCN = earfcn
+							result.ServingCell.Band = bNum
+							result.ServingCell.BandName = bName
+						}
+					}
+
+					// Neighbors inside TLV 0x13
+					if len(val) >= 19 {
+						neighborCount := int(val[18])
+						pos := 19
+						for n := 0; n < neighborCount && pos+10 <= len(val); n++ {
+							nPci := binary.LittleEndian.Uint16(val[pos : pos+2])
+							nRsrq := float64(int16(binary.LittleEndian.Uint16(val[pos+2:pos+4]))) / 10.0
+							nRsrp := float64(int16(binary.LittleEndian.Uint16(val[pos+4:pos+6]))) / 10.0
+							nRssi := float64(int16(binary.LittleEndian.Uint16(val[pos+6:pos+8]))) / 10.0
+							pos += 10
+
+							if nPci <= 503 && nPci != pci {
+								result.Neighbors = append(result.Neighbors, NearbyCellInfo{
+									Type:        "lte",
+									Role:        "neighbor",
+									PCI:         nPci,
+									EARFCN:      earfcn,
+									Band:        bNum,
+									BandName:    bName,
+									RSRP:        nRsrp,
+									RSRQ:        nRsrq,
+									RSSI:        nRssi,
+									DistanceStr: "Neighbor Tower",
+								})
+							}
+						}
+					}
+				}
+			case 0x15: // LTE Serving Cell Information (12 bytes)
+				if len(val) >= 12 {
+					cellID := binary.LittleEndian.Uint32(val[0:4])
+					pci := binary.LittleEndian.Uint16(val[4:6])
+					tac := binary.LittleEndian.Uint16(val[6:8])
+					earfcn := binary.LittleEndian.Uint32(val[8:12])
+					bNum, bName := EarfcnToBand(earfcn)
+
+					result.ServingCell = &NearbyCellInfo{
+						Type:          "lte",
+						Role:          "serving",
+						CellID:        cellID,
+						PCI:           pci,
+						TAC:           tac,
+						EARFCN:        earfcn,
+						Band:          bNum,
+						BandName:      bName,
+						RSRP:          primaryRSRP,
+						RSRQ:          primaryRSRQ,
+						RSSI:          primaryRSSI,
+						SINR:          primarySINR,
+						TimingAdvance: -1,
+						DistanceMeter: -1,
+						DistanceStr:   "Connected (Primary)",
+					}
+				}
+			case 0x16: // LTE Intra-frequency Neighbor Cells
+				if len(val) >= 3 {
+					count := int(binary.LittleEndian.Uint16(val[1:3]))
+					pos := 3
+					for j := 0; j < count && pos+8 <= len(val); j++ {
+						pci := binary.LittleEndian.Uint16(val[pos : pos+2])
+						rsrq := float64(int16(binary.LittleEndian.Uint16(val[pos+2:pos+4]))) / 10.0
+						rsrp := float64(int16(binary.LittleEndian.Uint16(val[pos+4:pos+6]))) / 10.0
+						rssi := float64(int16(binary.LittleEndian.Uint16(val[pos+6:pos+8]))) / 10.0
+						pos += 8
+
+						var earfcn uint32
+						var bNum int
+						var bName string
+						if result.ServingCell != nil {
+							earfcn = result.ServingCell.EARFCN
+							bNum = result.ServingCell.Band
+							bName = result.ServingCell.BandName
+						}
+
+						result.Neighbors = append(result.Neighbors, NearbyCellInfo{
+							Type:          "lte",
+							Role:          "neighbor",
+							PCI:           pci,
+							EARFCN:        earfcn,
+							Band:          bNum,
+							BandName:      bName,
+							RSRP:          rsrp,
+							RSRQ:          rsrq,
+							RSSI:          rssi,
+							TimingAdvance: -1,
+							DistanceMeter: -1,
+							DistanceStr:   "Intra-freq Tower",
+						})
+					}
+				}
+			case 0x17: // LTE Inter-frequency Neighbor Cells
+				if len(val) >= 2 {
+					freqCount := int(val[1])
+					pos := 2
+					for f := 0; f < freqCount && pos+5 <= len(val); f++ {
+						earfcn := binary.LittleEndian.Uint32(val[pos : pos+4])
+						cellCount := int(val[pos+4])
+						pos += 5
+						bNum, bName := EarfcnToBand(earfcn)
+						for j := 0; j < cellCount && pos+8 <= len(val); j++ {
+							pci := binary.LittleEndian.Uint16(val[pos : pos+2])
+							rsrq := float64(int16(binary.LittleEndian.Uint16(val[pos+2:pos+4]))) / 10.0
+							rsrp := float64(int16(binary.LittleEndian.Uint16(val[pos+4:pos+6]))) / 10.0
+							rssi := float64(int16(binary.LittleEndian.Uint16(val[pos+6:pos+8]))) / 10.0
+							pos += 8
+
+							result.Neighbors = append(result.Neighbors, NearbyCellInfo{
+								Type:          "lte",
+								Role:          "neighbor",
+								PCI:           pci,
+								EARFCN:        earfcn,
+								Band:          bNum,
+								BandName:      bName,
+								RSRP:          rsrp,
+								RSRQ:          rsrq,
+								RSSI:          rssi,
+								TimingAdvance: -1,
+								DistanceMeter: -1,
+								DistanceStr:   "Inter-freq Tower",
+							})
+						}
+					}
+				}
+			case 0x1A: // LTE SCell Information (Carrier Aggregation secondary cells)
+				if len(val) >= 1 {
+					sCount := int(val[0])
+					pos := 1
+					for s := 0; s < sCount && pos+13 <= len(val); s++ {
+						earfcn := binary.LittleEndian.Uint32(val[pos+1 : pos+5])
+						pci := binary.LittleEndian.Uint16(val[pos+5 : pos+7])
+						rsrp := float64(int16(binary.LittleEndian.Uint16(val[pos+7:pos+9]))) / 10.0
+						rsrq := float64(int16(binary.LittleEndian.Uint16(val[pos+9:pos+11]))) / 10.0
+						rssi := float64(int16(binary.LittleEndian.Uint16(val[pos+11:pos+13]))) / 10.0
+						pos += 13
+						bNum, bName := EarfcnToBand(earfcn)
+
+						result.CarrierAggr = append(result.CarrierAggr, NearbyCellInfo{
+							Type:          "lte",
+							Role:          "scell",
+							PCI:           pci,
+							EARFCN:        earfcn,
+							Band:          bNum,
+							BandName:      bName,
+							RSRP:          rsrp,
+							RSRQ:          rsrq,
+							RSSI:          rssi,
+							TimingAdvance: -1,
+							DistanceMeter: -1,
+							DistanceStr:   "CA Secondary (SCell)",
+						})
+					}
+				}
+			}
+		}
+	}
+
+	total := len(result.Neighbors) + len(result.CarrierAggr)
+	if result.ServingCell != nil {
+		total++
+	}
+	result.TotalCells = total
+	logger.Get().Infof("Modem", "QMI 0x0043 received TLVs: %v (totalCells=%d, serving=%v)", foundTLVs, result.TotalCells, result.ServingCell != nil)
+
+	return result, nil
+}
+
+var (
+	scanCacheMu    sync.Mutex
+	cachedScanRes   *CellScanResult
+	cachedScanAt    time.Time
+	cachedScanSlot  int = -1
+)
+
+// ScanNearbyCells performs dynamic cell tower discovery combining NetMonster dumpsys telemetry and baseband QRTR.
+func ScanNearbyCells(simSlot int) (*CellScanResult, error) {
+	scanCacheMu.Lock()
+	if cachedScanRes != nil && time.Since(cachedScanAt) < 10*time.Second {
+		defer scanCacheMu.Unlock()
+		return cachedScanRes, nil
+	}
+	scanCacheMu.Unlock()
+
+	// 1. Gather all towers from NetMonster dumpsys parser (instant, zero lockups, guaranteed detection)
+	res := ScanCellsFromDumpsys(simSlot)
+
+	// 2. If QRTR baseband is available, query baseband modem for cell lock status & hardware measurements
+	if IsQRTRSupported() {
+		client, err := NewQRTRClient()
+		if err == nil {
+			defer client.Close()
+			if err := client.DiscoverAndConnect(NAS_SERVICE); err == nil {
+				if simSlot >= 0 {
+					_ = client.BindSim(simSlot)
+				}
+				// Correlate with current cell lock
+				if isLocked, lockEarfcn, lockPci, _ := client.GetLTECellLock(); isLocked {
+					if res.ServingCell != nil && res.ServingCell.EARFCN == lockEarfcn && res.ServingCell.PCI == lockPci {
+						res.ServingCell.IsCurrentLock = true
+					}
+					for i := range res.Neighbors {
+						if res.Neighbors[i].EARFCN == lockEarfcn && res.Neighbors[i].PCI == lockPci {
+							res.Neighbors[i].IsCurrentLock = true
+						}
+					}
+					for i := range res.CarrierAggr {
+						if res.CarrierAggr[i].EARFCN == lockEarfcn && res.CarrierAggr[i].PCI == lockPci {
+							res.CarrierAggr[i].IsCurrentLock = true
+						}
+					}
+				}
+
+				// Try QMI 0x0043 (Get Cell Location Info) if supported
+				if qrtrRes, err := client.GetCellLocation(); err == nil && qrtrRes != nil {
+					if qrtrRes.ServingCell != nil {
+						if res.ServingCell == nil {
+							res.ServingCell = qrtrRes.ServingCell
+						} else {
+							if qrtrRes.ServingCell.CellID > 0 {
+								res.ServingCell.CellID = qrtrRes.ServingCell.CellID
+							}
+							if qrtrRes.ServingCell.TAC > 0 {
+								res.ServingCell.TAC = qrtrRes.ServingCell.TAC
+							}
+							if qrtrRes.ServingCell.PCI > 0 {
+								res.ServingCell.PCI = qrtrRes.ServingCell.PCI
+							}
+						}
+					}
+					if len(qrtrRes.Neighbors) > 0 {
+						for _, qn := range qrtrRes.Neighbors {
+							dup := false
+							for i := range res.Neighbors {
+								if res.Neighbors[i].PCI == qn.PCI && res.Neighbors[i].EARFCN == qn.EARFCN {
+									dup = true
+									if qn.RSRP != 0 {
+										res.Neighbors[i].RSRP = qn.RSRP
+									}
+									break
+								}
+							}
+							if !dup {
+								res.Neighbors = append(res.Neighbors, qn)
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
+	total := 0
+	if res.ServingCell != nil {
+		total++
+	}
+	total += len(res.CarrierAggr) + len(res.Neighbors)
+	res.TotalCells = total
+
+	scanCacheMu.Lock()
+	cachedScanRes = res
+	cachedScanSlot = simSlot
+	cachedScanAt = time.Now()
+	scanCacheMu.Unlock()
+
+	return res, nil
+}
+
+// GetCachedScanResult returns the most recent cell tower scan result if available.
+func GetCachedScanResult() *CellScanResult {
+	scanCacheMu.Lock()
+	defer scanCacheMu.Unlock()
+	return cachedScanRes
+}
+

@@ -237,6 +237,11 @@ func RegisterRoutes(mux *http.ServeMux, authMgr *auth.Manager) {
 	mux.HandleFunc("/api/modem/sim/status", wrap(HandleModemSimStatus, true))
 	mux.HandleFunc("/api/modem/sim/switch", wrap(HandleModemSimSwitch, true))
 	mux.HandleFunc("/api/modem/thermal", wrap(HandleModemThermal, true))
+	mux.HandleFunc("/api/modem/cell_lock", wrap(HandleModemCellLock, true))
+	mux.HandleFunc("/api/modem/cell_lock/clear", wrap(HandleModemCellLockClear, true))
+	mux.HandleFunc("/api/modem/cell_scan", wrap(HandleModemCellScan, true))
+	mux.HandleFunc("/api/modem/plmn_lock", wrap(HandleModemPlmnLock, true))
+	mux.HandleFunc("/api/modem/hardware_bands", wrap(HandleModemHardwareBands, true))
 
 	// Samsung RIL URLs
 	mux.HandleFunc("/api/samsung/status", wrap(HandleSamsungStatus, true))
@@ -255,6 +260,11 @@ func RegisterRoutes(mux *http.ServeMux, authMgr *auth.Manager) {
 	mux.HandleFunc("/api/qualcomm/bands", wrap(HandleModemBands, true))
 	mux.HandleFunc("/api/qualcomm/bands/reset", wrap(HandleModemReset, true))
 	mux.HandleFunc("/api/qualcomm/reset", wrap(HandleModemReset, true))
+	mux.HandleFunc("/api/qualcomm/cell_lock", wrap(HandleModemCellLock, true))
+	mux.HandleFunc("/api/qualcomm/cell_lock/clear", wrap(HandleModemCellLockClear, true))
+	mux.HandleFunc("/api/qualcomm/cell_scan", wrap(HandleModemCellScan, true))
+	mux.HandleFunc("/api/qualcomm/plmn_lock", wrap(HandleModemPlmnLock, true))
+	mux.HandleFunc("/api/qualcomm/hardware_bands", wrap(HandleModemHardwareBands, true))
 
 	// Cloudflare / Remote Tunnel URLs
 	mux.HandleFunc("/api/tunnel/status", wrap(HandleTunnelStatus, true))
