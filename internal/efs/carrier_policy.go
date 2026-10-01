@@ -137,9 +137,7 @@ func ParseCarrierPolicyXML(xmlContent string) *CarrierPolicyParseResult {
 func parseQualcommComboString(raw string) *CarrierPolicyCombo {
 	clean := strings.TrimSpace(raw)
 	// Strip optional "e-" prefix
-	if strings.HasPrefix(clean, "e-") {
-		clean = clean[2:]
-	}
+	clean = strings.TrimPrefix(clean, "e-")
 
 	parts := strings.Split(clean, "-")
 	if len(parts) == 0 {
