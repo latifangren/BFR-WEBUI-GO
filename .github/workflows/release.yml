@@ -3,11 +3,8 @@ name: Release and Artifact Builder
 on:
   workflow_dispatch:
   push:
-    branches: [ main, dev ]
     tags:
       - 'v*.*.*'
-  pull_request:
-    branches: [ main, dev ]
 
 jobs:
   build:
@@ -47,6 +44,7 @@ jobs:
         with:
           go-version: '1.25.0'
           cache: true
+          cache-dependency-path: go.sum
 
       - name: Check Formatting & Golang Vet
         run: |

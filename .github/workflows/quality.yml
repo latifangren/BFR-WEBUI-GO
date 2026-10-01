@@ -68,6 +68,7 @@ jobs:
         with:
           go-version: '1.25.0'
           cache: true
+          cache-dependency-path: go.sum
 
       - name: Run All Package Tests
         run: go test -v ./...
@@ -102,6 +103,7 @@ jobs:
         with:
           go-version: '1.25.0'
           cache: true
+          cache-dependency-path: go.sum
 
       - name: GolangCI-Lint Static Verification
         uses: golangci/golangci-lint-action@v6
