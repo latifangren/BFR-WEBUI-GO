@@ -1,6 +1,7 @@
 # Binaries & Compiled Output
 bfr-webui-android-arm64
 bfr-webui-go
+bfr-webui-go-*
 bfr-webui-local.exe
 webui
 *.exe

@@ -342,7 +342,7 @@
         <h1 class="text-xl sm:text-2xl font-black uppercase tracking-wider text-foreground">
           Google Tensor Shannon Control
         </h1>
-        <Badge variant="info" class="text-[10px]">Pixel 6/7/8/9</Badge>
+        <Badge variant="info" class="text-[10px]">Pixel 6/7/8/9/10</Badge>
         {#if status.dm_available}
           <Badge variant="success" class="text-[9px]">CFUN-Free Apply</Badge>
         {/if}
@@ -378,7 +378,7 @@
             <Badge variant="warning" class="text-[9px]">Preview Mode</Badge>
           </div>
           <p class="text-[11px] text-amber-200/90 leading-relaxed">
-            Detected Hardware: <strong class="text-white font-bold">{status.device_model || 'Unknown'}</strong> (SoC: <strong class="text-white font-bold">{status.soc || 'Qualcomm'}</strong> — {status.modem_type || 'Qualcomm Snapdragon'}). This Shannon modem control suite is strictly engineered for <strong>Google Pixel 6/7/8/9 Series (Google Tensor GS101/GS201/G3/G4)</strong> utilizing Samsung Shannon baseband NV architecture.
+            Detected Hardware: <strong class="text-white font-bold">{status.device_model || 'Unknown'}</strong> (SoC: <strong class="text-white font-bold">{status.soc || 'Qualcomm'}</strong> — {status.modem_type || 'Qualcomm Snapdragon'}). This Shannon modem control suite is strictly engineered for <strong>Google Pixel 6/7/8/9/10 Series (Google Tensor GS101/GS201/G3/G4/G5)</strong> utilizing Samsung Shannon baseband NV architecture.
           </p>
           <p class="text-[10px] text-amber-300/80 font-mono">
             ℹ️ All modem NV write actions are locked to prevent baseband radio corruption. To configure bands or lock cell towers on this device, please switch to the <strong>Qualcomm Snapdragon</strong> tab.
@@ -439,7 +439,7 @@
       { id: 'bands', label: 'Band Lock (All RATs)', icon: Radio },
       { id: 'rat_mode', label: 'RAT Lock & 5G Mode', icon: Sliders },
       { id: 'vonr_diag', label: 'VoNR & Modem State', icon: PhoneCall },
-      { id: 'ca_combos', label: 'LTE CA Combos (Pixel 9/10)', icon: FileSpreadsheet },
+      { id: 'ca_combos', label: 'CA & UE Capability (Pixel 6–10)', icon: FileSpreadsheet },
     ] as tab}
       <button
         type="button"
@@ -453,6 +453,7 @@
       </button>
     {/each}
   </div>
+
 
   <!-- SUB-TAB 1: FREQUENCY BANDS -->
   {#if subTab === 'bands'}

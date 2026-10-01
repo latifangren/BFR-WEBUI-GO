@@ -176,8 +176,7 @@ func HandleEfsRead(w http.ResponseWriter, r *http.Request) {
 		textContent = string(data)
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	_ = json.NewEncoder(w).Encode(map[string]any{
+	resp := map[string]any{
 		"ok":           true,
 		"path":         filePath,
 		"size":         len(data),
@@ -185,8 +184,42 @@ func HandleEfsRead(w http.ResponseWriter, r *http.Request) {
 		"text_content": textContent,
 		"data_hex":     hex.EncodeToString(data),
 		"data_base64":  base64.StdEncoding.EncodeToString(data),
+	}
+
+	if !isBinary && (strings.HasSuffix(filePath, ".xml") || strings.Contains(textContent, "ca_band_combos")) {
+		parsed := efs.ParseCarrierPolicyXML(textContent)
+		if parsed != nil && parsed.TotalCombos > 0 {
+			resp["carrier_policy"] = parsed
+		}
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	_ = json.NewEncoder(w).Encode(resp)
+}
+
+// HandleEfsParseCarrierPolicy accepts XML or raw combo string in request body and returns parsed CA combos.
+func HandleEfsParseCarrierPolicy(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	var req struct {
+		Content string `json:"content"`
+	}
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		http.Error(w, "Invalid JSON payload", http.StatusBadRequest)
+		return
+	}
+
+	parsed := efs.ParseCarrierPolicyXML(req.Content)
+	w.Header().Set("Content-Type", "application/json")
+	_ = json.NewEncoder(w).Encode(map[string]any{
+		"ok":     true,
+		"result": parsed,
 	})
 }
+
 
 // HandleEfsWrite saves file contents or item file to EFS2.
 func HandleEfsWrite(w http.ResponseWriter, r *http.Request) {

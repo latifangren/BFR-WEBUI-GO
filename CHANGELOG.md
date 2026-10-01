@@ -10,7 +10,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **Shannon 5G NR & EN-DC UE Capability Visualizer (`internal/shannon/nr_*.go`, `ShannonCAEditor.svelte`)**:
+  - **100% Native Go Protobuf Engine for `ShannonNrUECap`**: Custom binary protobuf decoder for the Shannon modem 5G NR / EN-DC capability format (`.binarypb`) targeting Google Tensor G1–G5 (Pixel 6–10) without any external dependencies.
+  - **EN-DC, NR-CA, and NR-DC Combo Classification**: Automatically classifies each decoded combination as EN-DC (LTE anchor + NR secondary), NR-CA (pure NR carrier aggregation), or NR-DC (FR1+FR2 dual connectivity) from raw component vectors.
+  - **Full Component Decoding**: Resolves bandwidth class (A–G), MIMO streams (DL/UL), modulation order (QAM64/QAM256), subcarrier spacing (15/30/120 kHz), max bandwidth (MHz), and 90 MHz support flag for each LTE and NR component carrier.
+  - **Pixel 6–10 Scope Unified with LTE CA Editor**: Both 5G NR and 4G LTE CA editors are merged into a single `Shannon CA & UE Capability` tab with an inline mode switcher supporting device generations G1 through G5.
+  - **Load Demo Dataset (Pixel Sub-6)**: Built-in `sub6.binarypb` fixture embedded at compile-time via `go:embed` for instant offline demo of 515 EN-DC / NR-CA combinations (Pixel 6 series dataset) without requiring a physical device file.
+  - **Import `.binarypb` from Browser**: Upload any 5G NR capability file directly from browser storage for analysis and inspection.
+  - **Export / Download**: Streams the active decoded document back to the browser as `.binarypb` for archiving or comparison.
+  - **Combo Count Badges on Tab Switcher**: Mode switcher buttons ([5G NR & EN-DC] / [4G LTE CA]) show real-time loaded combo counts as inline badge indicators.
+
+- **Unload / Clear Dataset Feature (`internal/shannon/nr_manager.go`, `internal/shannon/ca_manager.go`)**:
+  - **`POST /api/shannon/nr/clear`**: New endpoint to unload the active 5G NR document from server memory without restarting the daemon, resetting all combo counts and active file path.
+  - **`POST /api/shannon/ca/clear`**: New endpoint to unload the active LTE CA document from server memory.
+  - **Frontend Unload Button**: Contextual `[Unload]` button (Trash2 icon) appears in the 5G NR card action bar only when a dataset is currently loaded; clicking it calls the clear endpoint and resets all local Svelte state with a toast notification.
+
+### Fixed
+- **Tab Switcher 5G NR ↔ 4G LTE Unresponsive After Navigation**: Mode switcher buttons (`viewMode = 'nr'` / `viewMode = 'lte'`) were unresponsive after switching to LTE view due to click events being absorbed by child elements (icon and span nodes). Fixed by adding `pointer-events-none` to all child elements and `e.preventDefault()` with explicit `z-10 select-none` to the button containers, ensuring event targets always resolve to the button itself.
+- **Null Array Serialization in 5G NR JSON Output**: `ParseShannonNrUECap` and `resolveRawCombo` now initialize all combo and component slices with `make([]T, 0)` instead of `nil`, ensuring JSON always serializes as `[]` instead of `null` — preventing frontend null-dereference errors when iterating `components_lte` or `components_nr`.
+- **Null-Safe Frontend Rendering**: Added `|| []` guards in `filteredNrCombos`, `filteredLteCombos`, and all `{#if !combo.components_lte || ...}` table row guards in `ShannonCAEditor.svelte` to prevent runtime errors after unloading datasets.
+
 - **Google Tensor Shannon LTE CA Combo Editor (`internal/shannon/`, `frontend/src/components/tabs/shannon/ShannonCAEditor.svelte`)**:
+
   - **100% Native Go Protobuf Engine for Shannon Baseband**: Native decoder and encoder for `ShannonLteUECap` protocol buffers (`.binarypb`) eliminating Python desktop dependencies.
   - **Pixel 9 & Pixel 10 Dedicated Scope**: Tailored for Google Tensor G4 (Pixel 9) and Tensor G5 (Pixel 10) basebands with prominent device compatibility warnings explaining why Pixel 6, 7, and 8 use internal legacy NV tables instead.
   - **Interactive Carrier Aggregation Explorer**: Searchable combo table rendering band combinations (e.g. `1A4[A]+3C4+8A2`), bandwidth classes (A–F), MIMO streams, and PLMN operator `conf_id` mappings.

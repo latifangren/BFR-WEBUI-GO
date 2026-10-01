@@ -34,29 +34,33 @@ func GetCAEditorStatus() CAEditorStatus {
 	model := strings.TrimSpace(st.DeviceModel)
 	soc := strings.ToUpper(strings.TrimSpace(st.SoC))
 
-	// Specifically evaluate compatibility for Pixel 9 and Pixel 10 (Tensor G4 & Tensor G5)
-	isPixel9 := strings.Contains(strings.ToLower(model), "pixel 9") || strings.Contains(soc, "ZUMA") || strings.Contains(soc, "G4")
+	// Evaluate compatibility across Google Tensor devices (Pixel 6 through Pixel 10)
+	isPixel6 := strings.Contains(strings.ToLower(model), "pixel 6") || strings.Contains(soc, "GS101") || strings.Contains(soc, "WHITECHAPEL")
+	isPixel7 := strings.Contains(strings.ToLower(model), "pixel 7") || strings.Contains(soc, "GS201") || strings.Contains(soc, "CLOUDRIPPER")
+	isPixel8 := strings.Contains(strings.ToLower(model), "pixel 8") || strings.Contains(soc, "ZUMA") && !strings.Contains(soc, "PRO")
+	isPixel9 := strings.Contains(strings.ToLower(model), "pixel 9") || strings.Contains(soc, "ZUMAPRO") || strings.Contains(soc, "G4")
 	isPixel10 := strings.Contains(strings.ToLower(model), "pixel 10") || strings.Contains(soc, "LAGUNA") || strings.Contains(soc, "G5")
 
-	tensorGen := "Unknown"
-	if isPixel9 {
-		tensorGen = "Tensor G4 (Pixel 9)"
-	} else if isPixel10 {
+	tensorGen := "Google Tensor Shannon Modem"
+	if isPixel10 {
 		tensorGen = "Tensor G5 (Pixel 10)"
-	} else if strings.Contains(strings.ToLower(model), "pixel 8") {
-		tensorGen = "Tensor G3 (Pixel 8) [Legacy NV Format]"
-	} else if strings.Contains(strings.ToLower(model), "pixel 7") {
-		tensorGen = "Tensor G2 (Pixel 7) [Legacy NV Format]"
-	} else if strings.Contains(strings.ToLower(model), "pixel 6") {
-		tensorGen = "Tensor GS101 (Pixel 6) [Legacy NV Format]"
+	} else if isPixel9 {
+		tensorGen = "Tensor G4 (Pixel 9)"
+	} else if isPixel8 {
+		tensorGen = "Tensor G3 (Pixel 8)"
+	} else if isPixel7 {
+		tensorGen = "Tensor G2 (Pixel 7)"
+	} else if isPixel6 {
+		tensorGen = "Tensor G1 (Pixel 6)"
 	}
 
-	supported := isPixel9 || isPixel10
+	supported := st.IsShannon || isPixel6 || isPixel7 || isPixel8 || isPixel9 || isPixel10
 
 	var warnMsg string
 	if !supported {
-		warnMsg = fmt.Sprintf("Notice: Device '%s' (%s) does not match Google Pixel 9 or Pixel 10. ShannonLteUECap binarypb format is strictly designed for Tensor G4 and Tensor G5 modems. Pixel 6, 7, and 8 utilize legacy Shannon baseband NV item tables without standalone binarypb combo files.", model, tensorGen)
+		warnMsg = fmt.Sprintf("Notice: Device '%s' (%s) does not match a Google Tensor device (Pixel 6–10). You can still analyze and visualize uploaded .binarypb capability files.", model, tensorGen)
 	}
+
 
 	detected := discoverCAPaths()
 
@@ -196,3 +200,13 @@ func UpdateCurrentDocument(combos []Combo) *ComboDocument {
 	currentDocument.Combos = combos
 	return currentDocument
 }
+
+// ClearCADocument unloads and clears the active in-memory LTE CA document.
+func ClearCADocument() {
+	caEditorMu.Lock()
+	defer caEditorMu.Unlock()
+	currentDocument = nil
+	currentFilePath = ""
+	logger.Get().Infof("ShannonCA", "Unloaded active LTE CA document")
+}
+

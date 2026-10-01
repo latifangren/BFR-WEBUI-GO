@@ -264,6 +264,18 @@ func RegisterRoutes(mux *http.ServeMux, authMgr *auth.Manager) {
 	mux.HandleFunc("/api/shannon/ca/validate", wrap(HandleShannonCAValidate, true))
 	mux.HandleFunc("/api/shannon/ca/autogen", wrap(HandleShannonCAAutoGen, true))
 	mux.HandleFunc("/api/shannon/ca/prune", wrap(HandleShannonCAPrune, true))
+	mux.HandleFunc("/api/shannon/ca/clear", wrap(HandleShannonCAClear, true))
+
+	// Google Tensor Shannon Modem 5G NR & EN-DC URLs
+	mux.HandleFunc("/api/shannon/nr/status", wrap(HandleShannonNRStatus, true))
+	mux.HandleFunc("/api/shannon/nr/document", wrap(HandleShannonNRGetDocument, true))
+	mux.HandleFunc("/api/shannon/nr/load", wrap(HandleShannonNRLoadFile, true))
+	mux.HandleFunc("/api/shannon/nr/upload", wrap(HandleShannonNRUpload, true))
+	mux.HandleFunc("/api/shannon/nr/demo", wrap(HandleShannonNRDemo, true))
+	mux.HandleFunc("/api/shannon/nr/download", wrap(HandleShannonNRDownload, true))
+	mux.HandleFunc("/api/shannon/nr/clear", wrap(HandleShannonNRClear, true))
+
+
 
 	// Qualcomm Snapdragon QMI URLs
 	mux.HandleFunc("/api/qualcomm/bands", wrap(HandleModemBands, true))
@@ -292,6 +304,7 @@ func RegisterRoutes(mux *http.ServeMux, authMgr *auth.Manager) {
 	mux.HandleFunc("/api/efs/spc", wrap(HandleEfsSPC, true))
 	mux.HandleFunc("/api/efs/ssr", wrap(HandleEfsSSR, true))
 	mux.HandleFunc("/api/efs/backup", wrap(HandleEfsBackup, true))
+	mux.HandleFunc("/api/efs/carrier-policy/parse", wrap(HandleEfsParseCarrierPolicy, true))
 
 	// Cloudflare / Remote Tunnel URLs
 	mux.HandleFunc("/api/tunnel/status", wrap(HandleTunnelStatus, true))

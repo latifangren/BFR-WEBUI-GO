@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"path/filepath"
 	"strings"
 
 	"bfr-webui-go/internal/logger"
@@ -280,3 +281,210 @@ func HandleShannonCAPrune(w http.ResponseWriter, r *http.Request) {
 		"combos":  pruned,
 	})
 }
+
+// HandleShannonNRStatus returns device capability and loaded 5G NR/EN-DC combo document stats.
+func HandleShannonNRStatus(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	st := shannon.GetNREditorStatus()
+	w.Header().Set("Content-Type", "application/json")
+	_ = json.NewEncoder(w).Encode(st)
+}
+
+// HandleShannonNRGetDocument returns the full active in-memory NRComboDocument.
+func HandleShannonNRGetDocument(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	doc := shannon.GetCurrentNRDocument()
+	w.Header().Set("Content-Type", "application/json")
+	if doc == nil {
+		_ = json.NewEncoder(w).Encode(map[string]interface{}{
+			"loaded": false,
+			"combos": []shannon.NRCombo{},
+		})
+		return
+	}
+
+	_ = json.NewEncoder(w).Encode(map[string]interface{}{
+		"loaded":       true,
+		"version":      doc.Version,
+		"id":           doc.ID,
+		"total_combos": doc.TotalCombos,
+		"endc_count":   doc.EndcCount,
+		"nrca_count":   doc.NrcaCount,
+		"nrdc_count":   doc.NrdcCount,
+		"source_file":  doc.SourceFile,
+		"combos":       doc.Combos,
+	})
+}
+
+// HandleShannonNRLoadFile loads a 5G NR / EN-DC .binarypb from disk.
+func HandleShannonNRLoadFile(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	var req struct {
+		Path string `json:"path"`
+	}
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil || strings.TrimSpace(req.Path) == "" {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusBadRequest)
+		_ = json.NewEncoder(w).Encode(map[string]interface{}{"error": "Valid file path required"})
+		return
+	}
+
+	doc, err := shannon.LoadNRCAFile(req.Path)
+	w.Header().Set("Content-Type", "application/json")
+	if err != nil {
+		logger.Get().Warnf("ShannonNR", "Failed to load NR CA file: %v", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		_ = json.NewEncoder(w).Encode(map[string]interface{}{
+			"success": false,
+			"error":   err.Error(),
+		})
+		return
+	}
+
+	_ = json.NewEncoder(w).Encode(map[string]interface{}{
+		"success": true,
+		"combos":  doc.Combos,
+		"status":  shannon.GetNREditorStatus(),
+	})
+}
+
+// HandleShannonNRUpload parses an uploaded 5G NR / EN-DC .binarypb file from multipart form.
+func HandleShannonNRUpload(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	if err := r.ParseMultipartForm(32 << 20); err != nil {
+		http.Error(w, "File too large", http.StatusBadRequest)
+		return
+	}
+
+	file, header, err := r.FormFile("file")
+	if err != nil {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusBadRequest)
+		_ = json.NewEncoder(w).Encode(map[string]interface{}{"error": "No file uploaded"})
+		return
+	}
+	defer file.Close()
+
+	data, err := io.ReadAll(file)
+	if err != nil {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusInternalServerError)
+		_ = json.NewEncoder(w).Encode(map[string]interface{}{"error": "Failed to read file"})
+		return
+	}
+
+	doc, err := shannon.LoadNRCARawBytes(header.Filename, data)
+	w.Header().Set("Content-Type", "application/json")
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		_ = json.NewEncoder(w).Encode(map[string]interface{}{
+			"success": false,
+			"error":   err.Error(),
+		})
+		return
+	}
+
+	_ = json.NewEncoder(w).Encode(map[string]interface{}{
+		"success": true,
+		"combos":  doc.Combos,
+		"status":  shannon.GetNREditorStatus(),
+	})
+}
+
+// HandleShannonNRDemo loads the built-in Pixel Sub-6 / EN-DC demo dataset.
+func HandleShannonNRDemo(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost && r.Method != http.MethodGet {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	doc, err := shannon.LoadDemoNRDocument()
+	w.Header().Set("Content-Type", "application/json")
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		_ = json.NewEncoder(w).Encode(map[string]interface{}{
+			"success": false,
+			"error":   err.Error(),
+		})
+		return
+	}
+
+	_ = json.NewEncoder(w).Encode(map[string]interface{}{
+		"success": true,
+		"combos":  doc.Combos,
+		"status":  shannon.GetNREditorStatus(),
+	})
+}
+
+// HandleShannonNRDownload streams the active 5G NR / EN-DC binary buffer.
+func HandleShannonNRDownload(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	data, sourcePath := shannon.GetCurrentNRBytes()
+	if len(data) == 0 {
+		http.Error(w, "No active NR document loaded", http.StatusNotFound)
+		return
+	}
+
+	filename := "shannon_nr_uecap.binarypb"
+	if sourcePath != "" {
+		base := strings.TrimSuffix(filepath.Base(sourcePath), ".binarypb")
+		filename = base + "_exported.binarypb"
+	}
+
+	w.Header().Set("Content-Disposition", fmt.Sprintf("attachment; filename=%s", filename))
+	w.Header().Set("Content-Type", "application/octet-stream")
+	w.Header().Set("Content-Length", fmt.Sprintf("%d", len(data)))
+	_, _ = w.Write(data)
+}
+
+// HandleShannonCAClear unloads and clears the active LTE CA document from memory.
+func HandleShannonCAClear(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost && r.Method != http.MethodGet {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	shannon.ClearCADocument()
+	w.Header().Set("Content-Type", "application/json")
+	_ = json.NewEncoder(w).Encode(map[string]interface{}{
+		"success": true,
+		"status":  shannon.GetCAEditorStatus(),
+	})
+}
+
+// HandleShannonNRClear unloads and clears the active 5G NR / EN-DC document from memory.
+func HandleShannonNRClear(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost && r.Method != http.MethodGet {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	shannon.ClearNRDocument()
+	w.Header().Set("Content-Type", "application/json")
+	_ = json.NewEncoder(w).Encode(map[string]interface{}{
+		"success": true,
+		"status":  shannon.GetNREditorStatus(),
+	})
+}
+
+
