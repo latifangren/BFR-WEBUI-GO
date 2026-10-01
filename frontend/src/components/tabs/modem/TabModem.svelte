@@ -409,6 +409,18 @@
             <span class="font-bold text-emerald-400">{String(signalInfo['pci'] && signalInfo['pci'] !== 'Unknown' ? signalInfo['pci'] : '--')}</span>
           </div>
           <div class="flex items-center justify-between p-2 rounded bg-card-sub border-2 border-border">
+            <span class="text-muted">Tower Distance (TA)</span>
+            <span class="font-bold text-foreground">
+              {#if signalInfo['distance_str']}
+                <span class="text-cyan-400 font-mono font-bold">{signalInfo['distance_str']}</span>
+              {:else if signalInfo['timing_advance'] && Number(signalInfo['timing_advance']) > 0}
+                <span class="text-cyan-400 font-mono font-bold">TA: {signalInfo['timing_advance']}</span>
+              {:else}
+                <span class="text-muted font-normal">N/A (No TA broadcast)</span>
+              {/if}
+            </span>
+          </div>
+          <div class="flex items-center justify-between p-2 rounded bg-card-sub border-2 border-border">
             <span class="text-muted">Cell ID / TAC</span>
             <span class="font-bold text-foreground">
               {signalInfo['cell_id'] && signalInfo['cell_id'] !== 'Unknown' && signalInfo['cell_id'] !== '0' && signalInfo['cell_id'] !== 'Protected' ? signalInfo['cell_id'] : '--'} / {signalInfo['tac'] && signalInfo['tac'] !== 'Unknown' && signalInfo['tac'] !== '0' && signalInfo['tac'] !== 'Protected' ? signalInfo['tac'] : '--'}

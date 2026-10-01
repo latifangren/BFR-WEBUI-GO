@@ -17,14 +17,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - **Tower Cell Scanning & Live Discovery (`QualcommCellScanner.svelte`, `internal/modem/qualcomm_qrtr.go`)**: Real-time discovery of serving, neighbor, and secondary Carrier Aggregation (CA) cell towers with live signal power metrics (RSRP, RSRQ, RSSI, SINR).
   - **eNodeB Tower Cell Locking (`QualcommCellLock.svelte`, `internal/modem/qualcomm_qrtr.go`)**: Hardware-level cell tower locking (`EARFCN` + `PCI`) via baseband QRTR to prevent frequent signal hopping.
   - **Quick Band Presets & Operator Profiles (`QualcommProfiles.svelte`)**: One-click frequency band presets for Indonesian telcos (Telkomsel, XL Axiata, Indosat Ooredoo, Smartfren, Tri), Speed Aggregation (B3+B1), and Wide Coverage (B8).
-  - **Google Tensor Shannon Modem Integration (`internal/shannon/`, `TabShannon.svelte`)**: Baseband communication via `/dev/umts_router` character device for Pixel 6, 7, 8, and 9 series devices.
+  - **Google Tensor Shannon Modem Suite (`internal/shannon/`, `TabShannon.svelte`)**:
+    - **Full Baseband Feature Port**: Ported engine and logic from `shannon-band-menu` for Google Pixel 6, 7, 8, and 9 series devices (Google Tensor GS101, GS201, G3, G4).
+    - **Comprehensive Multi-RAT Band Selection**: Independent multi-band selection for LTE (B1–B71), 5G NR-SA (n1–n261), 5G NR-NSA, 3G WCDMA (B1–B19), and 2G GSM (850, 900, 1800, 1900) directly manipulating baseband NV items (`!SAEL3.Manual.Band.Select`, `!NRRRC.MANUAL_NR_BAND_LIST`, `!LTE.NR Manual Band List`, `UL3.Etc.disabled_band`, `GL3.Edge_Band_Config`).
+    - **Independent RAT Locking & Presets**: 1-click radio presets (`5G Only`, `4G Only`, `LTE+5G`, `3G Only`, `2G Only`, `Auto`) and 5G NR mode switching (`both`, `sa`, `nsa`, `lte_only`) with dummy LTE Band 255 protection to prevent modem panics when LTE is disabled.
+    - **VoNR (Voice over 5G) Control**: Dedicated toggle for `OEM_GFEATURE_QMS_VONR_SAVE_AP_VALUE` and `OMC.BASED.VONR.PLMN.ENABLE` (`Carrier Default`, `Always ON`, `Always OFF`).
+    - **Zero-Drop Instant Reload via DM Interface (`/dev/umts_dm0`)**: Diagnostic port keypress injection into Shannon baseband menu to reload radio NV without disruptive `AT+CFUN` connection drops.
+    - **Modular Neo-Brutalist UI**: 3 sub-tabs matching Qualcomm's modular interface: *Band Lock (All RATs)*, *RAT Lock & 5G Mode*, and *VoNR & Modem State* with live NV memory inspection and NSG conflict detection.
   - **Samsung One UI SecRIL Band Locking (`TabSamsung.svelte`, `internal/samsung/`)**: Refocused interface for Samsung devices utilizing `ISemTelephony` (`0x02` OEM RIL).
   - **High-Fidelity Multi-SIM & eSIM Telemetry (`internal/modem/sim.go`)**: Accurate slot index mapping and eSIM/pSIM profile distinction parsing `dumpsys isub` internal state.
-- **NetMonster Core Telemetry Engine Port (`internal/modem/netmonster_parser.go`, `internal/modem/netmonster_bands.go`)**:
-  - **Physical Channel Parsing**: Extracted unredacted Physical Cell ID (`PCI`), downlink channel (`EARFCN`), and bandwidth from `mPhysicalChannelConfigs`.
-  - **Carrier Aggregation (CA) Detection**: Multi-band aggregation parsing detecting active CA states (e.g. `B5 + B3 [2CA Active]`).
-  - **Comprehensive 3GPP Database**: Native Go database mapping EARFCN channel numbers to 3GPP LTE and 5G NR frequency bands.
-  - **Smart Signal Telemetry Fallback**: Intelligent signal parser querying `mSignalStrength` when primary metrics report sentinel `2147483647` (`Integer.MAX_VALUE`).
+- **NetMonster Core Telemetry Engine Port (`internal/modem/netmonster_parser.go`, `internal/modem/netmonster_bands.go`, `internal/modem/netmonster_mcc.go`)**:
+  - **Timing Advance (TA) & Tower Distance Estimation**: Ported 3GPP Timing Advance formula (`1 TA = 78.12m`) with Samsung dummy-zero filtering, exposing live distance calculations (e.g. `~312 m (TA: 4)`) directly in the WebUI and cell scanner.
+  - **5G NR NSA & EN-DC State Detection (`DetectNrNsaState`)**: Ported `NrNsaStateParser.kt` to accurately detect 5G Non-Standalone (LTE Anchor + NR Secondary) even when Android 12–16 OS privacy masks `mNrState=****` or `NOT_RESTRICTED`.
+  - **Carrier Aggregation (CA) False-Positive Fix**: Eliminated neighbor cell band pollution from the CA aggregation chain; SCells are now strictly validated against `PhysicalChannelInfo` (`SecondaryServing`).
+  - **5G NR Frequency Raster & Band Hint Disambiguation**: Ported `BandTableNr.kt` 5000 kHz raster check `(startFreq - freq) % 5000 == 0` and `mBands` hints to correctly resolve overlapping NR bands (e.g. n78 vs n77, n1 vs n65, n38 vs n41).
+  - **MCC to ISO Alpha-2 & Offline PLMN Database (`netmonster_mcc.go`)**: Added 200+ global MCC-to-country mappings and Indonesian PLMN operator resolver (Telkomsel, XL Axiata, Indosat Ooredoo, Smartfren, Tri) for offline fallback.
+  - **Vendor Quirks Postprocessors**: Integrated Pixel Tensor GSM-as-LTE neighbor remapping and vendor negative signal inversion correction.
+  - **Dumpsys Buffer Expansion**: Expanded dumpsys line parsing limit from 120/140 to 350 lines to prevent premature truncation on Dual SIM and high-density radio environments.
 - **Native RFC 4918 WebDAV Server & LAN Clipboard (`TabNAS.svelte`, `internal/nas/`)**:
   - **Native WebDAV Server**: Fully native Go RFC 4918 WebDAV engine running on dynamic port 85 with cross-platform OS mounting support (Windows Map Network Drive, macOS Finder, Linux DAVFS, mobile file managers).
   - **Flexible Authentication Modes**: Configurable Basic Authentication or anonymous read/write access with customizable storage roots.

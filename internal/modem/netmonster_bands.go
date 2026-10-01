@@ -122,23 +122,53 @@ var nrBandTable = []BandEntity{
 	{790334, 795000, "5900", 47},
 }
 
-// GetLteBand resolves LTE band number and frequency string from EARFCN.
-func GetLteBand(earfcn int) (int, string) {
+// GetNrFrequencyKhz calculates downlink frequency in kHz from NR-ARFCN.
+// Ported from 3GPP 38.101-1 / 5.4.2.1 NR-ARFCN and channel raster.
+func GetNrFrequencyKhz(arfcn int) int {
+	if arfcn <= 600000 {
+		return 5 * arfcn
+	}
+	return 3000000 + 15*(arfcn-600000)
+}
+
+// NetMonster 16-bit integer overflow mapping: MCC -> list of invalid ranges where EARFCN = value + 65536.
+var earfcnOverflowRanges = map[string][][2]int{
+	"228": {{1950, 1999}, {3930, 4779}}, // Switzerland, b67 + b75
+	"302": {{1200, 1799}},                // Canada, b66
+	"310": {{1200, 1799}, {3050, 3399}}, // USA, b66 + b71
+	"311": {{1200, 1799}, {3050, 3399}}, // USA, b66 + b71
+	"466": {{900, 1199}},                // Taiwan, b66
+	"730": {{900, 1799}},                // Chile, b66
+}
+
+// GetLteBandWithMcc resolves LTE band number and frequency string from EARFCN, with optional MCC overflow correction.
+func GetLteBandWithMcc(earfcn int, mcc string) (int, string) {
 	if earfcn <= 0 || earfcn == 2147483647 {
 		return 0, ""
 	}
 
+	// Check if country-specific 16-bit overflow fix applies
+	fixedEarfcn := earfcn
+	if ranges, ok := earfcnOverflowRanges[mcc]; ok {
+		for _, r := range ranges {
+			if earfcn >= r[0] && earfcn <= r[1] {
+				fixedEarfcn = earfcn + 65536
+				break
+			}
+		}
+	}
+
 	for _, b := range lteBandTable {
-		if earfcn >= b.MinChannel && earfcn <= b.MaxChannel {
+		if fixedEarfcn >= b.MinChannel && fixedEarfcn <= b.MaxChannel {
 			return b.Number, fmt.Sprintf("B%d (%s MHz)", b.Number, b.Name)
 		}
 	}
 
-	// 16-bit overflow fix from NetMonster (e.g. Band 66 where earfcn is modulo 65536)
-	if earfcn < 65536 {
-		fixedEarfcn := earfcn + 65536
+	// Generic fallback if still unresolved and in 65536 range
+	if fixedEarfcn == earfcn && earfcn < 65536 {
+		cand := earfcn + 65536
 		for _, b := range lteBandTable {
-			if fixedEarfcn >= b.MinChannel && fixedEarfcn <= b.MaxChannel {
+			if cand >= b.MinChannel && cand <= b.MaxChannel {
 				return b.Number, fmt.Sprintf("B%d (%s MHz)", b.Number, b.Name)
 			}
 		}
@@ -147,19 +177,67 @@ func GetLteBand(earfcn int) (int, string) {
 	return 0, ""
 }
 
-// GetNrBand resolves 5G NR band number and frequency string from NR-ARFCN.
-func GetNrBand(nrarfcn int) (int, string) {
+// GetLteBand resolves LTE band number and frequency string from EARFCN.
+func GetLteBand(earfcn int) (int, string) {
+	return GetLteBandWithMcc(earfcn, "")
+}
+
+// GetNrBandWithHints resolves 5G NR band number and frequency string with band hint disambiguation & raster check.
+func GetNrBandWithHints(nrarfcn int, bandHints ...int) (int, string) {
 	if nrarfcn <= 0 || nrarfcn == 2147483647 {
 		return 0, ""
 	}
 
+	// 1. Gather all candidate bands matching ARFCN range
+	var candidates []BandEntity
 	for _, b := range nrBandTable {
 		if nrarfcn >= b.MinChannel && nrarfcn <= b.MaxChannel {
-			return b.Number, fmt.Sprintf("n%d (%s MHz)", b.Number, b.Name)
+			candidates = append(candidates, b)
 		}
 	}
 
-	return 0, ""
+	if len(candidates) == 0 {
+		return 0, ""
+	}
+
+	// 2. If band hints are provided (e.g. from mBands), match against them first
+	if len(bandHints) > 0 {
+		for _, hint := range bandHints {
+			for _, c := range candidates {
+				if c.Number == hint {
+					return c.Number, fmt.Sprintf("n%d (%s MHz)", c.Number, c.Name)
+				}
+			}
+		}
+	}
+
+	if len(candidates) == 1 {
+		return candidates[0].Number, fmt.Sprintf("n%d (%s MHz)", candidates[0].Number, candidates[0].Name)
+	}
+
+	// 3. Raster frequency check (NetMonster 5000 kHz raster rule)
+	freq := GetNrFrequencyKhz(nrarfcn)
+	var rasterMatches []BandEntity
+	for _, c := range candidates {
+		startFreq := GetNrFrequencyKhz(c.MinChannel)
+		if (startFreq-freq)%5000 == 0 {
+			rasterMatches = append(rasterMatches, c)
+		}
+	}
+
+	if len(rasterMatches) == 1 {
+		return rasterMatches[0].Number, fmt.Sprintf("n%d (%s MHz)", rasterMatches[0].Number, rasterMatches[0].Name)
+	} else if len(rasterMatches) > 1 {
+		return rasterMatches[0].Number, fmt.Sprintf("n%d (%s MHz)", rasterMatches[0].Number, rasterMatches[0].Name)
+	}
+
+	// Default fallback to first candidate
+	return candidates[0].Number, fmt.Sprintf("n%d (%s MHz)", candidates[0].Number, candidates[0].Name)
+}
+
+// GetNrBand resolves 5G NR band number and frequency string from NR-ARFCN.
+func GetNrBand(nrarfcn int) (int, string) {
+	return GetNrBandWithHints(nrarfcn)
 }
 
 // FormatBandWidthKhz converts kHz (e.g. 20000 or 10000) or Hz into a readable MHz string.

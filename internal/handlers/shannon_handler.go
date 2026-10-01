@@ -35,7 +35,7 @@ func HandleShannonLock(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err := shannon.LockBands(req.Slot, req.Mode, req.LTEBands, req.NRBands)
+	err := shannon.ApplyShannonSettings(req)
 	w.Header().Set("Content-Type", "application/json")
 	if err != nil {
 		logger.Get().Warnf("ShannonHandler", "Failed to lock bands: %v", err)

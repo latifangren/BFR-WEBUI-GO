@@ -35,9 +35,12 @@ type SignalInfo struct {
 	QualityRSRP string `json:"quality_rsrp"`
 	QualityRSRQ string `json:"quality_rsrq"`
 	QualitySINR string `json:"quality_sinr"`
-	RSRPPct     int    `json:"rsrp_pct"`
-	RSRQPct     int    `json:"rsrq_pct"`
-	SINRPct     int    `json:"sinr_pct"`
+	RSRPPct       int    `json:"rsrp_pct"`
+	RSRQPct       int    `json:"rsrq_pct"`
+	SINRPct       int    `json:"sinr_pct"`
+	TimingAdvance int    `json:"timing_advance,omitempty"`
+	DistanceMeter int    `json:"distance_meters,omitempty"`
+	DistanceStr   string `json:"distance_str,omitempty"`
 }
 
 type BandConfig struct {
