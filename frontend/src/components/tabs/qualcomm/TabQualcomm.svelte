@@ -8,6 +8,7 @@
     Sliders,
     AlertTriangle,
     Cpu,
+    HardDrive,
   } from '@lucide/svelte'
   import { api } from '../../../api/client'
   import Button from '../../ui/Button.svelte'
@@ -15,6 +16,7 @@
   import QualcommBands from './QualcommBands.svelte'
   import QualcommCellLock from './QualcommCellLock.svelte'
   import QualcommProfiles from './QualcommProfiles.svelte'
+  import QualcommEFS from './QualcommEFS.svelte'
 
   interface BandConfig {
     engine: 'qualcomm_qrtr' | 'universal' | 'qualcomm_at' | 'intent'
@@ -45,7 +47,7 @@
     slots: SimSlotInfo[]
   }
 
-  let subTab = $state<'bands' | 'cell_lock' | 'profiles'>('bands')
+  let subTab = $state<'bands' | 'cell_lock' | 'profiles' | 'efs'>('bands')
 
   let bandConfig = $state<BandConfig>({
     engine: 'qualcomm_qrtr',
@@ -202,6 +204,7 @@
       { id: 'bands', label: 'Band Locking', icon: Radio },
       { id: 'cell_lock', label: 'Cell & Tower Lock', icon: Search },
       { id: 'profiles', label: 'Hardware & Profiles', icon: Sliders },
+      { id: 'efs', label: 'EFS & NV Browser', icon: HardDrive },
     ] as tab}
       <button
         type="button"
@@ -233,5 +236,7 @@
     <QualcommProfiles
       simSlot={bandConfig.sim_slot ?? 0}
     />
+  {:else if subTab === 'efs'}
+    <QualcommEFS />
   {/if}
 </div>

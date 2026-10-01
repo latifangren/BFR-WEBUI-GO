@@ -266,6 +266,24 @@ func RegisterRoutes(mux *http.ServeMux, authMgr *auth.Manager) {
 	mux.HandleFunc("/api/qualcomm/plmn_lock", wrap(HandleModemPlmnLock, true))
 	mux.HandleFunc("/api/qualcomm/hardware_bands", wrap(HandleModemHardwareBands, true))
 
+	// Qualcomm Snapdragon EFS2 & DIAG URLs
+	mux.HandleFunc("/api/efs/status", wrap(HandleEfsStatus, true))
+	mux.HandleFunc("/api/efs/connect", wrap(HandleEfsConnect, true))
+	mux.HandleFunc("/api/efs/disconnect", wrap(HandleEfsDisconnect, true))
+	mux.HandleFunc("/api/efs/readonly", wrap(HandleEfsReadOnly, true))
+	mux.HandleFunc("/api/efs/list", wrap(HandleEfsList, true))
+	mux.HandleFunc("/api/efs/read", wrap(HandleEfsRead, true))
+	mux.HandleFunc("/api/efs/write", wrap(HandleEfsWrite, true))
+	mux.HandleFunc("/api/efs/mkdir", wrap(HandleEfsMkdir, true))
+	mux.HandleFunc("/api/efs/unlink", wrap(HandleEfsUnlink, true))
+	mux.HandleFunc("/api/efs/rename", wrap(HandleEfsRename, true))
+	mux.HandleFunc("/api/efs/chmod", wrap(HandleEfsChmod, true))
+	mux.HandleFunc("/api/efs/nv/read", wrap(HandleEfsNVRead, true))
+	mux.HandleFunc("/api/efs/nv/write", wrap(HandleEfsNVWrite, true))
+	mux.HandleFunc("/api/efs/spc", wrap(HandleEfsSPC, true))
+	mux.HandleFunc("/api/efs/ssr", wrap(HandleEfsSSR, true))
+	mux.HandleFunc("/api/efs/backup", wrap(HandleEfsBackup, true))
+
 	// Cloudflare / Remote Tunnel URLs
 	mux.HandleFunc("/api/tunnel/status", wrap(HandleTunnelStatus, true))
 	mux.HandleFunc("/api/tunnel/start", wrap(HandleTunnelStart, true))

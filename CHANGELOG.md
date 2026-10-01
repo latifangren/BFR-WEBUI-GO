@@ -10,6 +10,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **Qualcomm Snapdragon EFS2 & NV Memory Browser (`internal/efs/`, `frontend/src/components/tabs/qualcomm/QualcommEFS.svelte`)**:
+  - **100% Native Go Baseband DIAG Engine**: Direct Linux kernel `AF_QIPCRTR` IPC packet router communicating directly with Qualcomm DIAG service `4097` (`SUBSYS_FS` opcode `0x4B 0x13`) on Snapdragon devices without external C daemons (`qcom-efsd`).
+  - **Full EFS2 Filesystem Navigation**: Recursive tree traversal, directory listing (`opendir`/`readdir`), file statistics (`stat`), storage capacity gauge (`statfs`), mkdir, rename, unlink, and chmod permission modification.
+  - **EFS Item Files Protocol Support**: Native support for EFS item files (`/nv/item_files/...`) via atomic opcode `0x26`/`0x27` (`EFS2_GET`/`EFS2_PUT`), bypassing POSIX `open/read` limitations.
+  - **Direct NV Item Inspector**: Hex and text editor for reading and writing 128-byte Non-Volatile (NV) RAM memory structures (legacy opcode `0x26`/`0x27` & indexed opcode `0x4B 0x30`).
+  - **Integrated SPC Security Elevation**: Interactive modal to authenticate Service Programming Code (SPC, default `000000`, opcode `0x41`) to escalate baseband write privileges.
+  - **Modem Subsystem Restart (SSR)**: Direct modem baseband reboot trigger via DIAG transport (`0x25` cmd `3`) without requiring full Android system reboot.
+  - **Modem Filesystem Image Backup**: On-the-fly modem-generated TAR archive extraction (`EFS2_FS_IMAGE`, opcode `0x17`) streamed directly to user browser for safe EFS partitioning backup.
+  - **Safety Lock & Read-Only Protection**: Read-Only mode enforced by default with double-confirmation dialogs to prevent accidental baseband partition corruption.
+  - **Dedicated Sub-Tab in Qualcomm Snapdragon (`TabQualcomm.svelte`)**: Seamlessly integrated into `TabQualcomm.svelte` as sub-tab #4 alongside Band Locking, Cell & Tower Lock, and Hardware & Profiles.
+
 - **Multi-Vendor Cellular & Modem Control Overhaul (`TabModem.svelte`, `TabQualcomm.svelte`, `TabShannon.svelte`, `TabSamsung.svelte`)**:
   - **Modular Vendor Architecture**: Separated modem controls into dedicated hardware tabs: Universal Cellular Telemetry, Qualcomm Snapdragon (QMI/QRTR), Google Tensor (Shannon), and Samsung One UI (SecRIL).
   - **Qualcomm Snapdragon QRTR Baseband Engine (`internal/modem/qualcomm_qrtr.go`, `TabQualcomm.svelte`)**: Direct Linux kernel `AF_QIPCRTR` IPC socket interface communicating directly with the Qualcomm baseband modem.
