@@ -371,24 +371,144 @@ func (c *DiagClient) Xfer(req []byte, timeout time.Duration) ([]byte, error) {
 }
 
 // Spc sends a 6-digit Service Programming Code (SPC) to elevate the DIAG security session.
+// Tries ASCII digits first, and falls back to raw byte digits (0x00..0x09) if rejected.
 func (c *DiagClient) Spc(spc string, timeout time.Duration) (bool, error) {
 	if len(spc) != 6 {
 		return false, fmt.Errorf("SPC must be exactly 6 digits")
 	}
 
+	// Try format 1: ASCII digits ('0'..'9' = 0x30..0x39)
 	cmd := make([]byte, 7)
 	cmd[0] = 0x41
 	copy(cmd[1:7], []byte(spc))
 
 	resp, err := c.Xfer(cmd, timeout)
+	if err == nil && len(resp) >= 2 && resp[0] == 0x41 && resp[1] != 0 {
+		return true, nil
+	}
+
+	// Try format 2: Binary / BCD digit values (0..9)
+	cmdBin := make([]byte, 7)
+	cmdBin[0] = 0x41
+	for i := 0; i < 6; i++ {
+		cmdBin[1+i] = spc[i] - '0'
+	}
+
+	respBin, errBin := c.Xfer(cmdBin, timeout)
+	if errBin == nil && len(respBin) >= 2 && respBin[0] == 0x41 && respBin[1] != 0 {
+		return true, nil
+	}
+
 	if err != nil {
 		return false, err
 	}
-	if len(resp) < 2 || resp[0] != 0x41 {
-		return false, fmt.Errorf("invalid SPC response from modem")
-	}
+	return false, fmt.Errorf("SPC code rejected by modem")
+}
 
+// SendPassword sends a security password (DIAG_PASSWORD_F 0x46) to unlock protected NV items.
+// Packet format: [0x46][8 bytes password] = 9 bytes total.
+// Sourced from raw HDLC analysis of field bypass tools (e.g. QLM IMEI Repair).
+func (c *DiagClient) SendPassword(pwd string, timeout time.Duration) (bool, error) {
+	// Format: [0x46][8 bytes password] = 9 bytes total (no extra mode byte)
+	cmd := make([]byte, 9)
+	cmd[0] = 0x46
+
+	// Decode 16 hex chars → 8 bytes
+	if len(pwd) == 16 {
+		for i := 0; i < 8; i++ {
+			hi := hexVal(pwd[i*2])
+			lo := hexVal(pwd[i*2+1])
+			cmd[1+i] = (hi << 4) | lo
+		}
+	}
+	// else: bytes 1..8 stay zero
+
+	resp, err := c.Xfer(cmd, timeout)
+	if err != nil {
+		return false, err
+	}
+	if len(resp) < 2 || resp[0] != 0x46 {
+		return false, fmt.Errorf("invalid password response from modem (0x%02x)", resp[0])
+	}
 	return resp[1] != 0, nil
+}
+
+// knownQualcommPasswords holds raw DIAG payload bytes for all known Qualcomm engineering
+// security bypass sequences, decoded from field-verified HDLC frames used by repair tools.
+// Format per entry: complete payload bytes after HDLC unwrapping (CRC/framing stripped).
+var knownQualcommBypassPayloads = [][]byte{
+	{0x41, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30},         // SPC 000000 (ASCII)
+	{0x46, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF}, // PWD: FFFFFFFFFFFFFFFF
+	{0x46, 0x59, 0x03, 0x36, 0x51, 0x13, 0x72, 0x69, 0x13}, // PWD: 5903365113726913
+	{0x46, 0x20, 0x13, 0x05, 0x13, 0x20, 0x13, 0x09, 0x09}, // PWD: 2013051320130909
+	{0x46, 0x20, 0x12, 0x11, 0x21, 0x20, 0x13, 0x12, 0x19}, // PWD: 2012112120131219
+	{0x46, 0x20, 0x09, 0x03, 0x19, 0x20, 0x09, 0x06, 0x15}, // PWD: 2009031920090615
+	{0x46, 0x2F, 0xF8, 0x11, 0x28, 0x2F, 0xF9, 0xF3, 0x23}, // PWD: 2FF811282FF9F323
+	{0x46, 0x20, 0x14, 0x11, 0x24, 0x20, 0x15, 0x02, 0x02}, // PWD: 2014112420150202
+	{0x46, 0x20, 0x10, 0x03, 0x16, 0x19, 0x78, 0x07, 0x21}, // PWD: 2010031619780721
+	{0x46, 0x20, 0x13, 0x03, 0x27, 0x20, 0x13, 0x08, 0x23}, // PWD: 2013032720130823
+	{0x46, 0x20, 0x15, 0x06, 0x29, 0x20, 0x15, 0x08, 0x31}, // PWD: 2015062920150831
+}
+
+// BypassSecurity blasts all known Qualcomm engineering SPC/password sequences in
+// fire-and-forget mode (no response waiting between packets), exactly like field
+// IMEI repair tools do. Returns true if at least one 0x46 response was accepted.
+func (c *DiagClient) BypassSecurity(timeout time.Duration) bool {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+
+	accepted := false
+	for _, payload := range knownQualcommBypassPayloads {
+		if err := c.Send(payload); err != nil {
+			logger.Get().Infof("EFS", "BypassSecurity: send failed: %v", err)
+			continue
+		}
+
+		// Drain any modem response (50 ms window, non-blocking)
+		var resp []byte
+		ready, _ := pollRead(c.fd, 80)
+		if ready {
+			buf := make([]byte, 512)
+			n, _, _ := syscall.RawSyscall(
+				syscall.SYS_READ,
+				uintptr(c.fd),
+				uintptr(unsafe.Pointer(&buf[0])),
+				uintptr(len(buf)),
+			)
+			if n > 0 {
+				resp = unwrap(buf[:n])
+			}
+		}
+
+		if payload[0] == 0x46 {
+			if len(resp) >= 2 && resp[0] == 0x46 && resp[1] != 0 {
+				logger.Get().Infof("EFS", "BypassSecurity: 0x46 password accepted (payload[1]=0x%02x)", payload[1])
+				accepted = true
+			} else {
+				logger.Get().Infof("EFS", "BypassSecurity: 0x46 password[1]=0x%02x resp=%x", payload[1], resp)
+			}
+		} else if payload[0] == 0x41 {
+			if len(resp) >= 2 && resp[0] == 0x41 && resp[1] != 0 {
+				logger.Get().Infof("EFS", "BypassSecurity: SPC 000000 accepted")
+			} else {
+				logger.Get().Infof("EFS", "BypassSecurity: SPC resp=%x", resp)
+			}
+		}
+	}
+	return accepted
+}
+
+func hexVal(b byte) byte {
+	if b >= '0' && b <= '9' {
+		return b - '0'
+	}
+	if b >= 'a' && b <= 'f' {
+		return b - 'a' + 10
+	}
+	if b >= 'A' && b <= 'F' {
+		return b - 'A' + 10
+	}
+	return 0
 }
 
 // SSR issues a Subsystem Restart (SSR) to cleanly reboot the Qualcomm modem.

@@ -116,6 +116,29 @@ func (m *Manager) UnlockSPC(spc string) (bool, error) {
 	return ok, nil
 }
 
+// SendPassword sends a 16-hex/digit security password to unlock protected NV items.
+func (m *Manager) SendPassword(pwd string) (bool, error) {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+
+	if m.session == nil {
+		sess, err := m.openLocked()
+		if err != nil {
+			return false, err
+		}
+		m.session = sess
+	}
+
+	ok, err := m.sendPasswordLocked(pwd)
+	if err != nil {
+		return false, err
+	}
+	if ok {
+		logger.Get().Infof("EFS", "DIAG security password accepted")
+	}
+	return ok, nil
+}
+
 // RestartModem triggers an SSR (Subsystem Restart) over DIAG.
 func (m *Manager) RestartModem() error {
 	m.mu.Lock()

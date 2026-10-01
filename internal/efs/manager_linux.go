@@ -35,6 +35,13 @@ func (m *Manager) unlockSPCLocked(spc string) (bool, error) {
 	return m.session.diag.Spc(spc, 4000*time.Millisecond)
 }
 
+func (m *Manager) sendPasswordLocked(pwd string) (bool, error) {
+	if m.session == nil || m.session.diag == nil {
+		return false, fmt.Errorf("no active DIAG connection")
+	}
+	return m.session.diag.SendPassword(pwd, 4000*time.Millisecond)
+}
+
 func (m *Manager) restartModemLocked() error {
 	if m.session == nil || m.session.diag == nil {
 		return fmt.Errorf("no active DIAG connection")
