@@ -70,7 +70,6 @@ var (
 	reCi            = regexp.MustCompile(`(?:mCi|mNci|ci|nci)=([0-9]+)`)
 	reTac           = regexp.MustCompile(`(?:mTac|tac)=([0-9]+)`)
 	reAlphaLong     = regexp.MustCompile(`mAlphaLong=([^,;}\n\r]+)`)
-	reAlphaShort    = regexp.MustCompile(`mAlphaShort=([^,;}\n\r]+)`)
 	reMCC           = regexp.MustCompile(`mMcc=([0-9]+)`)
 	reMNC           = regexp.MustCompile(`mMnc=([0-9]+)`)
 	reCellWidths    = regexp.MustCompile(`mCellBandwidths=\[([^\]]+)\]`)

@@ -339,7 +339,7 @@
   <Card
     title="Saved & Favorite Cell Towers ({savedTowers.length})"
     subtitle="Personal list of bookmarked BTS towers for 1-click re-locking"
-    tone="amber"
+    tone="peach"
   >
     {#snippet action()}
       <Button

@@ -1221,7 +1221,7 @@ var (
 // ScanNearbyCells performs dynamic cell tower discovery combining NetMonster dumpsys telemetry and baseband QRTR.
 func ScanNearbyCells(simSlot int) (*CellScanResult, error) {
 	scanCacheMu.Lock()
-	if cachedScanRes != nil && time.Since(cachedScanAt) < 10*time.Second {
+	if cachedScanRes != nil && cachedScanSlot == simSlot && time.Since(cachedScanAt) < 10*time.Second {
 		defer scanCacheMu.Unlock()
 		return cachedScanRes, nil
 	}

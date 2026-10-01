@@ -337,21 +337,6 @@ func GetSignalInfo() (SignalInfo, error) {
 	return sig, nil
 }
 
-func extractStringValue(line string) string {
-	parts := strings.Split(line, "=")
-	if len(parts) > 1 {
-		val := parts[1]
-		if idx := strings.IndexAny(val, ",;"); idx != -1 {
-			val = val[:idx]
-		}
-		val = strings.Trim(val, "\"',[] \t\r\n")
-		if val != "" && val != "null" && val != "Unknown" && val != "3" {
-			return val
-		}
-	}
-	return ""
-}
-
 func extractIntFromLine(line, key string) int {
 	re := regexp.MustCompile(fmt.Sprintf(`%s[=:]\s*(-?\d+)`, key))
 	matches := re.FindStringSubmatch(line)

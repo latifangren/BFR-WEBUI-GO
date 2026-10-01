@@ -51,7 +51,7 @@
 
   let fileInputEl = $state<HTMLInputElement | null>(null)
   let isEditingPath = $state(false)
-  let inputPath = $state(pane.currentPath)
+  let inputPath = $state('')
 
   $effect(() => {
     inputPath = pane.currentPath
@@ -93,6 +93,7 @@
 
         {#if isEditingPath}
           <form onsubmit={(e) => { e.preventDefault(); submitPath() }} class="flex-1 flex items-center gap-1">
+            <!-- svelte-ignore a11y_autofocus -->
             <input
               type="text"
               bind:value={inputPath}

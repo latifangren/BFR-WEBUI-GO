@@ -14,6 +14,7 @@
     PhoneCall,
     Activity,
     Info,
+    FileSpreadsheet,
   } from '@lucide/svelte'
   import { api } from '../../../api/client'
   import { toastStore } from '../../../stores/toast.svelte'
@@ -21,6 +22,7 @@
   import Button from '../../ui/Button.svelte'
   import Badge from '../../ui/Badge.svelte'
   import Modal from '../../ui/Modal.svelte'
+  import ShannonCAEditor from './ShannonCAEditor.svelte'
 
   interface ShannonStatus {
     is_shannon: boolean
@@ -51,7 +53,7 @@
     status_message?: string
   }
 
-  let subTab = $state<'bands' | 'rat_mode' | 'vonr_diag'>('bands')
+  let subTab = $state<'bands' | 'rat_mode' | 'vonr_diag' | 'ca_combos'>('bands')
   let bandCategory = $state<'lte' | 'sa' | 'nsa' | 'wcdma' | 'gsm'>('lte')
 
   let status = $state<ShannonStatus>({
@@ -437,6 +439,7 @@
       { id: 'bands', label: 'Band Lock (All RATs)', icon: Radio },
       { id: 'rat_mode', label: 'RAT Lock & 5G Mode', icon: Sliders },
       { id: 'vonr_diag', label: 'VoNR & Modem State', icon: PhoneCall },
+      { id: 'ca_combos', label: 'LTE CA Combos (Pixel 9/10)', icon: FileSpreadsheet },
     ] as tab}
       <button
         type="button"
@@ -963,6 +966,11 @@
         </div>
       </Card>
     </div>
+  {/if}
+
+  <!-- SUB-TAB 4: CARRIER AGGREGATION COMBOS (PIXEL 9 & PIXEL 10) -->
+  {#if subTab === 'ca_combos'}
+    <ShannonCAEditor />
   {/if}
 </div>
 

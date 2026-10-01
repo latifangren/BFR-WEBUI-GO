@@ -4,6 +4,7 @@
   interface Props {
     open?: boolean
     title?: string
+    size?: 'sm' | 'md' | 'lg' | 'xl'
     class?: string
     onclose?: () => void
     children?: Snippet
@@ -11,19 +12,29 @@
   }
 
   let {
-    open = false,
+    open = $bindable(false),
     title,
+    size = 'md',
     class: className = '',
     onclose,
     children,
     footer,
   }: Props = $props()
 
+  function handleClose() {
+    open = false
+    onclose?.()
+  }
+
   function handleKeydown(e: KeyboardEvent) {
     if (e.key === 'Escape' && open) {
-      onclose?.()
+      handleClose()
     }
   }
+
+  const sizeClass = $derived(
+    size === 'sm' ? 'max-w-md' : size === 'lg' ? 'max-w-3xl' : size === 'xl' ? 'max-w-5xl' : 'max-w-lg'
+  )
 </script>
 
 <svelte:window onkeydown={handleKeydown} />
@@ -35,12 +46,12 @@
     <!-- svelte-ignore a11y_no_static_element_interactions -->
     <div
       class="fixed inset-0 bg-black/80 backdrop-blur-sm transition-opacity"
-      onclick={() => onclose?.()}
+      onclick={handleClose}
     ></div>
 
     <!-- Modal Box -->
     <div
-      class="relative w-full max-w-lg bg-card border-2 border-border shadow-neobrutal rounded-lg p-5 z-10 space-y-4 max-h-[90vh] overflow-y-auto {className}"
+      class="relative w-full {sizeClass} bg-card border-2 border-border shadow-neobrutal rounded-lg p-5 z-10 space-y-4 max-h-[90vh] overflow-y-auto {className}"
     >
       {#if title}
         <div class="flex items-center justify-between border-b border-border pb-3">
@@ -50,7 +61,7 @@
           <button
             type="button"
             class="text-muted hover:text-foreground font-mono text-lg leading-none cursor-pointer"
-            onclick={() => onclose?.()}
+            onclick={handleClose}
           >
             &times;
           </button>

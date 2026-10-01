@@ -34,6 +34,10 @@ class ToastStore {
     this.show(message, 'error', title)
   }
 
+  danger(message: string, title = 'Error') {
+    this.show(message, 'error', title)
+  }
+
   warning(message: string, title = 'Warning') {
     this.show(message, 'warning', title)
   }

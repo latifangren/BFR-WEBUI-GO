@@ -255,6 +255,15 @@ func RegisterRoutes(mux *http.ServeMux, authMgr *auth.Manager) {
 	mux.HandleFunc("/api/shannon/status", wrap(HandleShannonStatus, true))
 	mux.HandleFunc("/api/shannon/lock", wrap(HandleShannonLock, true))
 	mux.HandleFunc("/api/shannon/reset", wrap(HandleShannonReset, true))
+	mux.HandleFunc("/api/shannon/ca/status", wrap(HandleShannonCAStatus, true))
+	mux.HandleFunc("/api/shannon/ca/document", wrap(HandleShannonCAGetDocument, true))
+	mux.HandleFunc("/api/shannon/ca/load", wrap(HandleShannonCALoadFile, true))
+	mux.HandleFunc("/api/shannon/ca/upload", wrap(HandleShannonCAUpload, true))
+	mux.HandleFunc("/api/shannon/ca/save", wrap(HandleShannonCASaveFile, true))
+	mux.HandleFunc("/api/shannon/ca/download", wrap(HandleShannonCADownload, true))
+	mux.HandleFunc("/api/shannon/ca/validate", wrap(HandleShannonCAValidate, true))
+	mux.HandleFunc("/api/shannon/ca/autogen", wrap(HandleShannonCAAutoGen, true))
+	mux.HandleFunc("/api/shannon/ca/prune", wrap(HandleShannonCAPrune, true))
 
 	// Qualcomm Snapdragon QMI URLs
 	mux.HandleFunc("/api/qualcomm/bands", wrap(HandleModemBands, true))

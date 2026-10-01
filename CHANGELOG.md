@@ -10,6 +10,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **Google Tensor Shannon LTE CA Combo Editor (`internal/shannon/`, `frontend/src/components/tabs/shannon/ShannonCAEditor.svelte`)**:
+  - **100% Native Go Protobuf Engine for Shannon Baseband**: Native decoder and encoder for `ShannonLteUECap` protocol buffers (`.binarypb`) eliminating Python desktop dependencies.
+  - **Pixel 9 & Pixel 10 Dedicated Scope**: Tailored for Google Tensor G4 (Pixel 9) and Tensor G5 (Pixel 10) basebands with prominent device compatibility warnings explaining why Pixel 6, 7, and 8 use internal legacy NV tables instead.
+  - **Interactive Carrier Aggregation Explorer**: Searchable combo table rendering band combinations (e.g. `1A4[A]+3C4+8A2`), bandwidth classes (A–F), MIMO streams, and PLMN operator `conf_id` mappings.
+  - **Auto Combo Generator & Fallback Subsets**: Generates subset combinations from large multi-band configurations up to 5CC with automated spatial stream nerfing (limiting total DL streams to 24) and uplink assignments (FDD/TDD A+A).
+  - **Combo Pruning (128 Combo Cap)**: Filters essential frequency bands and excludes redundant intra-band configurations to fit within cellular network `requestedFrequencyBands-r11` constraints.
+  - **Hardware Rule Validation Engine**: Pre-save verification guarding against invalid low-band combinations (only `20+28` allowed), low-band 4x4 MIMO violations, uplink assignments on SDL bands (B29/B32/B75), and RF duplexer conflicts (B7+B38 UL).
+  - **Direct Device File IO & Browser Import/Export**: Load/save directly to `/vendor/firmware/.../uecap.binarypb` on device or import/export `.binarypb` files via web browser.
+
 - **Qualcomm Snapdragon EFS2 & NV Memory Browser (`internal/efs/`, `frontend/src/components/tabs/qualcomm/QualcommEFS.svelte`)**:
   - **100% Native Go Baseband DIAG Engine**: Direct Linux kernel `AF_QIPCRTR` IPC packet router communicating directly with Qualcomm DIAG service `4097` (`SUBSYS_FS` opcode `0x4B 0x13`) on Snapdragon devices without external C daemons (`qcom-efsd`).
   - **Full EFS2 Filesystem Navigation**: Recursive tree traversal, directory listing (`opendir`/`readdir`), file statistics (`stat`), storage capacity gauge (`statfs`), mkdir, rename, unlink, and chmod permission modification.

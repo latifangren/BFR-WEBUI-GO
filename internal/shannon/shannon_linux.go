@@ -27,15 +27,6 @@ const (
 var (
 	mu sync.Mutex
 
-	// DM Session protocol payloads ported from shannon-band-menu (CFUN-free instant reload)
-	dmProbeEnable = []byte{0x7f, 0x12, 0, 0, 0x0f, 0, 0, 0, 0xa0, 0, 0x52, 0, 0, 0, 0, 1, 0, 0, 0, 0x7e}
-	dmStreamStop  = []byte{0x7f, 0x12, 0, 0, 0x0f, 0, 0, 0, 0xa0, 0, 0x90, 0, 0, 0, 0, 0, 0, 0, 0, 0x7e}
-	dmProbeQuery  = []byte{0x7f, 0x16, 0, 0, 0x13, 0, 0, 0, 0xa0, 0, 0, 0, 0, 0, 0, 0x34, 0xdc, 0x12, 0xfe, 0, 0, 0, 0xc0, 0x7e}
-	dmI172        = []byte{0x7f, 0x0e, 0, 0, 0x0b, 0, 0, 0, 0xa0, 0, 0x72, 0, 0, 0, 0, 0x7e}
-	dmI106        = []byte{0x7f, 0x10, 0, 0, 0x0d, 0, 0, 0, 0xa0, 0, 0x06, 0, 0, 0, 0, 3, 3, 0x7e}
-	dmI1A0        = []byte{0x7f, 0x1b, 0, 0, 0x18, 0, 0, 0, 0xa0, 0, 0xa0, 0, 0, 0, 0, 0, 0x3e, 0, 0, 0, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x3f, 0x7e}
-	dmForcingsOn  = []byte{0x7f, 0x12, 0, 0, 0x0f, 0, 0, 0, 0xa0, 0, 0x9a, 0, 0, 0, 0, 1, 1, 0x16, 0x10, 0x7e}
-
 	// Default supported bands for Shannon modem
 	defaultSupportedLTE   = []int{1, 2, 3, 4, 5, 7, 8, 12, 13, 14, 17, 18, 19, 20, 25, 26, 28, 29, 30, 32, 38, 39, 40, 41, 46, 48, 66, 71}
 	defaultSupportedWCDMA = []int{1, 2, 4, 5, 8}

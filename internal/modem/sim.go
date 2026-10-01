@@ -50,7 +50,6 @@ var (
 	modemCountRe  = regexp.MustCompile(`(?i)Active modem count=(\d+)`)
 	activeDataRe  = regexp.MustCompile(`(?i)(?:activeDataSubId|defaultDataSubId)=(\d+)`)
 	simStateRe    = regexp.MustCompile(`(?i)mSimState\[(\d+)\]=(\w+)`)
-	subInternalRe = regexp.MustCompile(`\[SubscriptionInfoInternal:[^\]]+\]`)
 	subIdRe       = regexp.MustCompile(`\bid=(\d+)`)
 	slotIndexRe   = regexp.MustCompile(`\bsimSlotIndex=(-?\d+)`)
 	embeddedRe    = regexp.MustCompile(`\bisEmbedded=(\d+)`)

@@ -747,7 +747,7 @@
       <div class="flex items-center justify-between border-b border-border pb-2">
         <div class="flex items-center gap-2">
           <Badge variant="info">{formatBytes(activeFile.size)}</Badge>
-          <Badge variant={activeFile.is_binary ? 'warning' : 'neutral'}>
+          <Badge variant={activeFile.is_binary ? 'warning' : 'default'}>
             {activeFile.is_binary ? 'Binary / Item File' : 'Plain Text / XML'}
           </Badge>
         </div>
