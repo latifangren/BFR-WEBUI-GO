@@ -9,7 +9,6 @@ import (
 var (
 	lowBands   = map[int32]bool{5: true, 8: true, 12: true, 13: true, 14: true, 17: true, 18: true, 19: true, 20: true, 26: true, 28: true, 29: true, 71: true}
 	sdlBands   = map[int32]bool{29: true, 32: true, 75: true}
-	tddBands   = map[int32]bool{38: true, 39: true, 40: true, 41: true, 42: true, 48: true}
 	no4x4Bands = map[int32]bool{5: true, 8: true, 12: true, 13: true, 14: true, 17: true, 18: true, 19: true, 20: true, 21: true, 26: true, 28: true, 29: true, 71: true}
 )
 
