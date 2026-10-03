@@ -13,6 +13,7 @@
     Image,
     Loader2,
     RotateCcw,
+    Lock,
   } from '@lucide/svelte'
   import { themeStore } from '../../stores/theme.svelte'
   import {
@@ -619,7 +620,7 @@
                 {/if}
                 <input
                   type="file"
-                  accept="image/png,image/jpeg,image/webp,image/gif"
+                  accept="image/png,image/jpeg,image/webp,image/gif,image/avif,image/jfif,image/bmp"
                   class="hidden"
                   onchange={handleUploadWallpaper}
                   disabled={isUploading}
@@ -756,6 +757,144 @@
               </button>
             {/each}
           </div>
+        </div>
+
+        <!-- Section 5: Login Page Wallpaper (Static & Independent) -->
+        <div class="space-y-3 pt-3 border-t border-border">
+          <div class="flex items-center justify-between">
+            <div>
+              <span class="text-[11px] font-bold uppercase text-muted tracking-wider flex items-center gap-1.5">
+                <Lock class="w-3.5 h-3.5 text-accent" />
+                Login Screen Wallpaper (Static & Independent)
+              </span>
+              <p class="text-[10px] text-muted">
+                Khusus latar belakang halaman masuk. Tidak mempengaruhi warna tema, kartu, atau dashboard.
+              </p>
+            </div>
+            {#if themeStore.loginWallpaper && themeStore.loginWallpaper !== 'preset:none'}
+              <button
+                type="button"
+                onclick={() => themeStore.setLoginWallpaper('preset:none')}
+                class="text-[10px] font-bold text-red-400 hover:text-red-300 underline cursor-pointer"
+              >
+                Reset ke Polos
+              </button>
+            {/if}
+          </div>
+
+          <!-- Preset / Uploaded Wallpaper Gallery Grid -->
+          <div class="space-y-2">
+            <div class="flex items-center justify-between">
+              <span class="text-[10px] text-muted font-bold uppercase">Pilih Gambar Latar Login:</span>
+              <label class="cursor-pointer inline-flex items-center gap-1.5 text-[10px] font-bold py-1 px-2.5 rounded bg-accent/20 hover:bg-accent/30 text-accent border border-accent/40 transition-colors">
+                {#if isUploading}
+                  <Loader2 class="w-3 h-3 animate-spin" />
+                  <span>Uploading...</span>
+                {:else}
+                  <Upload class="w-3 h-3" />
+                  <span>+ Upload Wallpaper</span>
+                {/if}
+                <input
+                  type="file"
+                  accept="image/png,image/jpeg,image/webp,image/gif,image/avif,image/jfif,image/bmp"
+                  class="hidden"
+                  onchange={handleUploadWallpaper}
+                  disabled={isUploading}
+                />
+              </label>
+            </div>
+
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 max-h-44 overflow-y-auto pr-1">
+              <!-- Presets -->
+              {#each PRESETS as preset}
+                {@const isSelected = themeStore.loginWallpaper === preset.id || (!themeStore.loginWallpaper && preset.id === 'preset:none')}
+                <button
+                  type="button"
+                  class="relative flex flex-col items-center justify-center h-16 rounded-lg border-2 transition-all overflow-hidden p-1 text-center cursor-pointer {isSelected ? 'border-accent shadow-[2px_2px_0px_var(--neo-shadow)]' : 'border-border/60 hover:border-border'}"
+                  style="background: {preset.preview}; background-size: cover;"
+                  onclick={() => themeStore.setLoginWallpaper(preset.id)}
+                >
+                  <span class="text-[10px] font-bold bg-black/60 px-1.5 py-0.5 rounded text-white">
+                    {preset.name}
+                  </span>
+                  {#if isSelected}
+                    <span class="absolute top-1 right-1 w-3.5 h-3.5 rounded-full bg-accent text-accent-text flex items-center justify-center text-[9px] font-black">
+                      <Check class="w-2.5 h-2.5" />
+                    </span>
+                  {/if}
+                </button>
+              {/each}
+
+              <!-- User Uploaded Wallpapers -->
+              {#each wallpapers as item}
+                {@const isSelected = themeStore.loginWallpaper === item.url}
+                <div
+                  class="group relative flex flex-col items-center justify-end h-16 rounded-lg border-2 transition-all overflow-hidden p-1 text-center cursor-pointer {isSelected ? 'border-accent shadow-[2px_2px_0px_var(--neo-shadow)]' : 'border-border/60 hover:border-border'}"
+                  style="background-image: url('{item.url}'); background-size: cover; background-position: center;"
+                  role="button"
+                  tabindex="0"
+                  onclick={() => themeStore.setLoginWallpaper(item.url)}
+                  onkeydown={(e) => e.key === 'Enter' && themeStore.setLoginWallpaper(item.url)}
+                >
+                  <span class="text-[9px] font-mono bg-black/75 px-1 py-0.5 rounded text-white truncate max-w-[90%]">
+                    {item.name}
+                  </span>
+                  {#if isSelected}
+                    <span class="absolute top-1 right-1 w-3.5 h-3.5 rounded-full bg-accent text-accent-text flex items-center justify-center text-[9px] font-black">
+                      <Check class="w-2.5 h-2.5" />
+                    </span>
+                  {/if}
+                  <button
+                    type="button"
+                    class="absolute top-1 left-1 w-5 h-5 rounded bg-red-600/90 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-700 cursor-pointer"
+                    title="Hapus wallpaper dari galeri"
+                    onclick={(e) => handleDeleteWallpaper(item, e)}
+                  >
+                    <Trash2 class="w-3 h-3" />
+                  </button>
+                </div>
+              {/each}
+            </div>
+          </div>
+
+          <!-- Controls: Dim & Blur -->
+          {#if themeStore.loginWallpaper && themeStore.loginWallpaper !== 'preset:none'}
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 p-3 bg-card-sub border-2 border-border rounded-lg">
+              <!-- Dimming -->
+              <div class="space-y-1">
+                <div class="flex items-center justify-between text-[11px] font-mono">
+                  <span class="text-muted font-bold">Dimming (Keterbacaan):</span>
+                  <span class="font-bold text-accent">{Math.round(themeStore.loginWallpaperDim * 100)}%</span>
+                </div>
+                <input
+                  type="range"
+                  min="0"
+                  max="0.8"
+                  step="0.05"
+                  value={themeStore.loginWallpaperDim}
+                  oninput={(e) => themeStore.setLoginWallpaperDim(Number((e.target as HTMLInputElement).value))}
+                  class="w-full accent-accent cursor-pointer"
+                />
+              </div>
+
+              <!-- Blur -->
+              <div class="space-y-1">
+                <div class="flex items-center justify-between text-[11px] font-mono">
+                  <span class="text-muted font-bold">Latar Blur:</span>
+                  <span class="font-bold text-accent">{themeStore.loginWallpaperBlur}px</span>
+                </div>
+                <input
+                  type="range"
+                  min="0"
+                  max="16"
+                  step="1"
+                  value={themeStore.loginWallpaperBlur}
+                  oninput={(e) => themeStore.setLoginWallpaperBlur(Number((e.target as HTMLInputElement).value))}
+                  class="w-full accent-accent cursor-pointer"
+                />
+              </div>
+            </div>
+          {/if}
         </div>
         </div>
       </div>

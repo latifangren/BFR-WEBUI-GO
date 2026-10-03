@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 
 	"bfr-webui-go/internal/logger"
@@ -51,11 +50,15 @@ func HandleQoSApply(w http.ResponseWriter, r *http.Request) {
 	if err == nil {
 		logger.Get().Infof("QoS", "QoS settings updated and applied successfully")
 	}
+	errMsg := ""
+	if err != nil {
+		errMsg = err.Error()
+	}
 
 	w.Header().Set("Content-Type", "application/json")
 	_ = json.NewEncoder(w).Encode(map[string]interface{}{
 		"success": err == nil,
-		"error":   fmt.Sprintf("%v", err),
+		"error":   errMsg,
 		"status":  mgr.GetStatus(),
 	})
 }
@@ -71,11 +74,15 @@ func HandleQoSClear(w http.ResponseWriter, r *http.Request) {
 	if err == nil {
 		logger.Get().Infof("QoS", "QoS rules cleared successfully")
 	}
+	errMsg := ""
+	if err != nil {
+		errMsg = err.Error()
+	}
 
 	w.Header().Set("Content-Type", "application/json")
 	_ = json.NewEncoder(w).Encode(map[string]interface{}{
 		"success": err == nil,
-		"error":   fmt.Sprintf("%v", err),
+		"error":   errMsg,
 		"status":  mgr.GetStatus(),
 	})
 }

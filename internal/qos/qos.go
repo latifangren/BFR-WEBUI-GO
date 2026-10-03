@@ -28,6 +28,7 @@ type ClientLimit struct {
 type QoSConfig struct {
 	Enabled               bool          `json:"enabled"`
 	Engine                string        `json:"engine"` // "auto", "tc", "iptables"
+	Preset                string        `json:"preset"` // "custom", "gaming", "fair", "saver"
 	GlobalDownload        int           `json:"global_download"`
 	GlobalUpload          int           `json:"global_upload"`
 	PrioritizeGaming      bool          `json:"prioritize_gaming"`
@@ -151,9 +152,15 @@ func (m *Manager) SaveConfig(cfg *QoSConfig) error {
 
 	return nil
 }
-
 func detectHotspotInterface() string {
-	candidates := []string{"wlan1", "ap0", "wlan0", "rndis0"}
+	candidates := []string{"wlan1", "ap0", "wlan0", "rndis0", "usb0", "eth0"}
+	for _, iface := range candidates {
+		if ifc, err := net.InterfaceByName(iface); err == nil {
+			if (ifc.Flags & net.FlagUp) != 0 {
+				return iface
+			}
+		}
+	}
 	for _, iface := range candidates {
 		if _, err := net.InterfaceByName(iface); err == nil {
 			return iface
@@ -161,7 +168,6 @@ func detectHotspotInterface() string {
 	}
 	return "wlan1"
 }
-
 func hasTCCmd() bool {
 	if _, err := exec.LookPath("tc"); err == nil {
 		return true
@@ -179,16 +185,13 @@ func (m *Manager) ClearQoS() error {
 		iface = detectHotspotInterface()
 	}
 
-	// 1. Clear TC qdiscs on iface and ifb0
+	// 1. Clear TC qdiscs on iface
 	cmdTC := fmt.Sprintf(
 		"tc qdisc del dev %s root 2>/dev/null; "+
-			"tc qdisc del dev %s ingress 2>/dev/null; "+
-			"tc qdisc del dev ifb0 root 2>/dev/null; "+
-			"ip link set dev ifb0 down 2>/dev/null",
+			"tc qdisc del dev %s ingress 2>/dev/null",
 		iface, iface,
 	)
 	_, _ = config.ExecSuTimeout(5, cmdTC)
-
 	// 2. Clear iptables BFR_QOS mangle chains
 	cmdIPTables := "iptables -t mangle -D FORWARD -j BFR_QOS 2>/dev/null; " +
 		"iptables -t mangle -F BFR_QOS 2>/dev/null; " +
@@ -257,59 +260,79 @@ func (m *Manager) ApplyQoS(cfg *QoSConfig) error {
 }
 
 func (m *Manager) applyTCHTB(iface string, cfg *QoSConfig, rulesCount *int) error {
-	// Clean previous rules
+	// Clean previous rules on hotspot interface
 	cmdClean := fmt.Sprintf(
 		"tc qdisc del dev %s root 2>/dev/null; "+
-			"tc qdisc del dev %s ingress 2>/dev/null; "+
-			"tc qdisc del dev ifb0 root 2>/dev/null",
+			"tc qdisc del dev %s ingress 2>/dev/null",
 		iface, iface,
 	)
 	_, _ = config.ExecSuTimeout(5, cmdClean)
 
 	var cmds []string
 
-	// Root HTB Qdisc for egress (Upload)
-	globalUpMbps := cfg.GlobalUpload
-	if globalUpMbps <= 0 {
-		globalUpMbps = 1000 // Default 1Gbps unthrottled root
-	}
-	cmds = append(cmds, fmt.Sprintf("tc qdisc add dev %s root handle 1: htb default 30", iface))
-	cmds = append(cmds, fmt.Sprintf("tc class add dev %s parent 1: classid 1:1 htb rate %dmbit ceil %dmbit", iface, globalUpMbps, globalUpMbps))
-	cmds = append(cmds, fmt.Sprintf("tc class add dev %s parent 1:1 classid 1:30 htb rate %dmbit ceil %dmbit prio 3", iface, globalUpMbps/2+1, globalUpMbps))
-	*rulesCount++
-
-	// Setup IFB redirection for ingress (Download)
-	cmds = append(cmds,
-		"ip link add name ifb0 type ifb 2>/dev/null || true",
-		"ip link set dev ifb0 up",
-		fmt.Sprintf("tc qdisc add dev %s handle ffff: ingress 2>/dev/null || true", iface),
-		fmt.Sprintf("tc filter add dev %s parent ffff: protocol ip u32 match u32 0 0 action mirred egress redirect dev ifb0 2>/dev/null || true", iface),
-	)
-
+	// 1. Egress HTB on hotspot iface: regulates DOWNLOAD to connected clients
 	globalDownMbps := cfg.GlobalDownload
 	if globalDownMbps <= 0 {
-		globalDownMbps = 1000
+		globalDownMbps = 1000 // Default 1Gbps unthrottled root
 	}
-	cmds = append(cmds,
-		"tc qdisc add dev ifb0 root handle 1: htb default 30",
-		fmt.Sprintf("tc class add dev ifb0 parent 1: classid 1:1 htb rate %dmbit ceil %dmbit", globalDownMbps, globalDownMbps),
-		fmt.Sprintf("tc class add dev ifb0 parent 1:1 classid 1:30 htb rate %dmbit ceil %dmbit prio 3", globalDownMbps/2+1, globalDownMbps),
-	)
+	cmds = append(cmds, fmt.Sprintf("tc qdisc add dev %s root handle 1: htb default 30", iface))
+	cmds = append(cmds, fmt.Sprintf("tc class add dev %s parent 1: classid 1:1 htb rate %dmbit ceil %dmbit", iface, globalDownMbps, globalDownMbps))
 
-	// Apply Per-Client HTB Rules
+	// Class 1:10 (High Priority: Gaming & Real-time ICMP/DNS)
+	prioRate := globalDownMbps / 3
+	if prioRate < 5 {
+		prioRate = 5
+	}
+	cmds = append(cmds, fmt.Sprintf("tc class add dev %s parent 1:1 classid 1:10 htb rate %dmbit ceil %dmbit prio 1", iface, prioRate, globalDownMbps))
+
+	// Class 1:30 (Default traffic)
+	defaultRate := globalDownMbps / 2
+	if defaultRate < 2 {
+		defaultRate = 2
+	}
+	cmds = append(cmds, fmt.Sprintf("tc class add dev %s parent 1:1 classid 1:30 htb rate %dmbit ceil %dmbit prio 3", iface, defaultRate, globalDownMbps))
+	*rulesCount += 3
+
+	// Priority packet filters for Gaming & Low-Latency
+	if cfg.PrioritizeGaming {
+		cmds = append(cmds,
+			// ICMP (Ping)
+			fmt.Sprintf("tc filter add dev %s protocol ip parent 1:0 prio 1 u32 match ip protocol 1 0xff flowid 1:10", iface),
+			// DNS (UDP port 53)
+			fmt.Sprintf("tc filter add dev %s protocol ip parent 1:0 prio 1 u32 match ip protocol 17 0xff match ip sport 53 0xffff flowid 1:10", iface),
+			// Mobile & PC Gaming ports
+			fmt.Sprintf("tc filter add dev %s protocol ip parent 1:0 prio 1 u32 match ip protocol 17 0xff match ip dport 27015 0xffff flowid 1:10", iface),
+			fmt.Sprintf("tc filter add dev %s protocol ip parent 1:0 prio 1 u32 match ip protocol 17 0xff match ip dport 3478 0xffff flowid 1:10", iface),
+		)
+		*rulesCount += 4
+	}
+
+	if cfg.PrioritizeVoip {
+		cmds = append(cmds,
+			// VoIP & Discord / WhatsApp SIP
+			fmt.Sprintf("tc filter add dev %s protocol ip parent 1:0 prio 1 u32 match ip protocol 17 0xff match ip dport 5060 0xffff flowid 1:10", iface),
+		)
+		*rulesCount++
+	}
+
+	// 2. Ingress Qdisc on hotspot iface: regulates UPLOAD from connected clients via police
+	cmds = append(cmds, fmt.Sprintf("tc qdisc add dev %s handle ffff: ingress", iface))
+	*rulesCount++
+
+	globalUpMbps := cfg.GlobalUpload
+	if globalUpMbps > 0 {
+		cmds = append(cmds, fmt.Sprintf(
+			"tc filter add dev %s parent ffff: protocol ip prio 100 u32 match u32 0 0 action police rate %dmbit burst 200k drop",
+			iface, globalUpMbps,
+		))
+		*rulesCount++
+	}
+
+	// 3. Per-Client Rate Limits
 	classID := 100
 	for _, client := range cfg.ClientLimits {
-		if !client.Enabled || client.IP == "" {
+		if !client.Enabled || client.IP == "" || net.ParseIP(client.IP) == nil {
 			continue
-		}
-
-		if net.ParseIP(client.IP) == nil {
-			continue
-		}
-
-		upLimit := client.UploadLimit
-		if upLimit <= 0 {
-			upLimit = globalUpMbps
 		}
 
 		downLimit := client.DownloadLimit
@@ -327,22 +350,21 @@ func (m *Manager) applyTCHTB(iface string, cfg *QoSConfig, rulesCount *int) erro
 			prio = "5"
 		}
 
-		// Upload class + filter
-		cmds = append(cmds, fmt.Sprintf("tc class add dev %s parent 1:1 classid 1:%d htb rate %dmbit ceil %dmbit prio %s", iface, classID, upLimit, upLimit, prio))
-		cmds = append(cmds, fmt.Sprintf("tc filter add dev %s protocol ip parent 1:0 prio 1 u32 match ip src %s/32 flowid 1:%d", iface, client.IP, classID))
+		// Download limit for client (Egress)
+		cmds = append(cmds, fmt.Sprintf("tc class add dev %s parent 1:1 classid 1:%d htb rate %dmbit ceil %dmbit prio %s", iface, classID, downLimit, downLimit, prio))
+		cmds = append(cmds, fmt.Sprintf("tc filter add dev %s protocol ip parent 1:0 prio 2 u32 match ip dst %s/32 flowid 1:%d", iface, client.IP, classID))
+		*rulesCount += 2
 
-		// Download class + filter on ifb0
-		cmds = append(cmds, fmt.Sprintf("tc class add dev ifb0 parent 1:1 classid 1:%d htb rate %dmbit ceil %dmbit prio %s", classID, downLimit, downLimit, prio))
-		cmds = append(cmds, fmt.Sprintf("tc filter add dev ifb0 protocol ip parent 1:0 prio 1 u32 match ip dst %s/32 flowid 1:%d", client.IP, classID))
+		// Upload limit for client (Ingress Police)
+		if client.UploadLimit > 0 {
+			cmds = append(cmds, fmt.Sprintf(
+				"tc filter add dev %s parent ffff: protocol ip prio 10 u32 match ip src %s/32 action police rate %dmbit burst 50k drop",
+				iface, client.IP, client.UploadLimit,
+			))
+			*rulesCount++
+		}
 
 		classID++
-		*rulesCount += 2
-	}
-
-	// Priority TOS/DSCP tagging for Gaming & VoIP
-	if cfg.PrioritizeGaming {
-		cmds = append(cmds, fmt.Sprintf("tc filter add dev %s protocol ip parent 1:0 prio 1 u32 match ip protocol 17 0xff match ip dport 27015 0xffff flowid 1:1", iface))
-		*rulesCount++
 	}
 
 	execCmdStr := strings.Join(cmds, " && ")
@@ -355,7 +377,6 @@ func (m *Manager) applyTCHTB(iface string, cfg *QoSConfig, rulesCount *int) erro
 }
 
 func (m *Manager) applyIPTablesMangle(iface string, cfg *QoSConfig, rulesCount *int) error {
-	// Setup BFR_QOS chain in mangle table
 	cmds := []string{
 		"iptables -t mangle -D FORWARD -j BFR_QOS 2>/dev/null || true",
 		"iptables -t mangle -F BFR_QOS 2>/dev/null || true",
@@ -364,42 +385,59 @@ func (m *Manager) applyIPTablesMangle(iface string, cfg *QoSConfig, rulesCount *
 		"iptables -t mangle -A FORWARD -j BFR_QOS",
 	}
 
-	// TOS / DSCP priority marking for Gaming & VoIP
+	// MARK packet classification for low latency (Gaming & VoIP)
 	if cfg.PrioritizeGaming {
 		cmds = append(cmds,
-			"iptables -t mangle -A BFR_QOS -p udp --dport 27005:27015 -j TOS --set-tos 0x10",
-			"iptables -t mangle -A BFR_QOS -p udp --dport 3478:3479 -j TOS --set-tos 0x10",
+			"iptables -t mangle -A BFR_QOS -p udp --dport 53 -j MARK --set-mark 1",
+			"iptables -t mangle -A BFR_QOS -p icmp -j MARK --set-mark 1",
+			"iptables -t mangle -A BFR_QOS -p udp --dport 27005:27015 -j MARK --set-mark 1",
+			"iptables -t mangle -A BFR_QOS -p udp --dport 3478:3479 -j MARK --set-mark 1",
 		)
-		*rulesCount += 2
+		*rulesCount += 4
 	}
 	if cfg.PrioritizeVoip {
 		cmds = append(cmds,
-			"iptables -t mangle -A BFR_QOS -p udp --dport 5060:5061 -j DSCP --set-dscp-class EF",
+			"iptables -t mangle -A BFR_QOS -p udp --dport 5060:5061 -j MARK --set-mark 2",
+			"iptables -t mangle -A BFR_QOS -p udp --dport 5000:5500 -j MARK --set-mark 2",
 		)
+		*rulesCount += 2
+	}
+
+	// Global bandwidth shaping using hashlimit
+	if cfg.GlobalDownload > 0 {
+		cmds = append(cmds, fmt.Sprintf(
+			"iptables -t mangle -A BFR_QOS -o %s -m hashlimit --hashlimit-name qos_g_down --hashlimit-above %dmbit/sec -j DROP",
+			iface, cfg.GlobalDownload,
+		))
+		*rulesCount++
+	}
+	if cfg.GlobalUpload > 0 {
+		cmds = append(cmds, fmt.Sprintf(
+			"iptables -t mangle -A BFR_QOS -i %s -m hashlimit --hashlimit-name qos_g_up --hashlimit-above %dmbit/sec -j DROP",
+			iface, cfg.GlobalUpload,
+		))
 		*rulesCount++
 	}
 
-	// Per-client rate limit rules using hashlimit / limit match
+	// Per-client rate limit rules using hashlimit match
 	for _, client := range cfg.ClientLimits {
-		if !client.Enabled || client.IP == "" {
-			continue
-		}
-		if net.ParseIP(client.IP) == nil {
+		if !client.Enabled || client.IP == "" || net.ParseIP(client.IP) == nil {
 			continue
 		}
 
+		ipClean := strings.ReplaceAll(client.IP, ".", "_")
 		if client.DownloadLimit > 0 {
 			cmds = append(cmds, fmt.Sprintf(
-				"iptables -t mangle -A BFR_QOS -d %s -m hashlimit --hashlimit-name qos_down_%s --hashlimit-above %dmbit/sec -j DROP",
-				client.IP, strings.ReplaceAll(client.IP, ".", "_"), client.DownloadLimit,
+				"iptables -t mangle -A BFR_QOS -d %s -m hashlimit --hashlimit-name qos_d_%s --hashlimit-above %dmbit/sec -j DROP",
+				client.IP, ipClean, client.DownloadLimit,
 			))
 			*rulesCount++
 		}
 
 		if client.UploadLimit > 0 {
 			cmds = append(cmds, fmt.Sprintf(
-				"iptables -t mangle -A BFR_QOS -s %s -m hashlimit --hashlimit-name qos_up_%s --hashlimit-above %dmbit/sec -j DROP",
-				client.IP, strings.ReplaceAll(client.IP, ".", "_"), client.UploadLimit,
+				"iptables -t mangle -A BFR_QOS -s %s -m hashlimit --hashlimit-name qos_u_%s --hashlimit-above %dmbit/sec -j DROP",
+				client.IP, ipClean, client.UploadLimit,
 			))
 			*rulesCount++
 		}

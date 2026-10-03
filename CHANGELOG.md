@@ -22,6 +22,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Fixed `Button` variant typing and accessible form label tags in `QualcommNV.svelte`, achieving 0 errors and 0 warnings in `svelte-check`.
 
 ### Added
+- **Router-Grade QoS Bandwidth Manager & Simple Queue (`internal/qos/`, `TabQoS.svelte`)**:
+  - **1-Click Router Presets**: Quick traffic shaping profiles (*Gaming Anti-Lag*, *Fair Share*, *Quota Saver*, *Custom Tuner*).
+  - **Native Linux TC HTB & Ingress Police**: Optimized egress HTB shaping and ingress policing without `ifb0` kernel module dependency.
+  - **Live Client Discovery & Simple Queue**: Automatic detection of connected Hotspot devices with per-client download/upload rate limits and traffic class priority flags.
+- **Compact Smart Charging Limiter Bento (`TabCharger.svelte`)**:
+  - Mobile-first compact bento redesign reducing vertical card footprint by ~60% with inline daemon header toggle, side-by-side threshold sliders, and unified manual gate strip.
+- **30MB Wallpaper Uploads & Independent Login Screen Background (`AppearanceModal.svelte`, `LoginCard.svelte`, `theme_handler.go`, `router.go`)**:
+  - Increased wallpaper upload limit to 30MB with added format support for `.avif`, `.jfif`, `.bmp`, `.jpg`, `.jpeg`, `.png`, `.webp`, `.gif`, `.svg`.
+  - Added static independent login wallpaper background layer with customizable dimming (0–80%) and blur (0–16px) controls that never alter dashboard theme colors.
+  - Made wallpaper endpoints accessible pre-auth for seamless login screen theme configuration.
 - **Neo-Brutalist Theme Engine & ProjectX Cream Anti-Glare (`themes.css`, `theme.svelte.ts`, `AppearanceModal.svelte`)**:
   - **Warm Paper Base Theme**: Added `ProjectX Cream` (`#fff6e8` background, `#fffdf8` card paper, `#17151a` ink) as an anti-glare alternative to pure white while retaining Clean Light.
   - **Universal Accent Color Vibes (`data-color`)**: Introduced 6 modular accent vibes (Retro Pop, Synthwave, Toxic Lime, Arctic Frost, Sunset Fire, Lavender Pastel) selectable across dark, AMOLED, cream, and light modes.

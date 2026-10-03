@@ -611,73 +611,54 @@
   </Card>
 
   <div class="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-6">
-    <!-- KARTU 2: Pengaturan Ambang Batas Limiter (Threshold) -->
+    <!-- KARTU 2: Pengaturan Ambang Batas Limiter (Threshold) Compact -->
     <Card
-      title="Threshold & Protection Engine"
-      subtitle="Configure automatic battery cycle limits and manual override"
+      title="Smart Charging Limiter"
+      subtitle="Hardware cutoff threshold & AC bypass gate"
       tone="peach"
     >
       {#snippet action()}
-        <Badge variant={config.enabled ? 'success' : 'default'}>
-          {config.enabled ? 'AUTO ACTIVE' : 'AUTO DISABLED'}
-        </Badge>
-      {/snippet}
-
-      <div class="space-y-5 font-mono text-xs">
-        <!-- Master Auto-Limiter Switch -->
-        <div
-          class="flex items-center justify-between p-3.5 bg-card-sub border-2 border-border rounded-lg shadow-[2px_2px_0px_#000] dark:shadow-[2px_2px_0px_rgba(255,255,255,0.05)] cursor-pointer hover:border-accent transition-colors"
-          role="button"
-          tabindex="0"
-          onclick={toggleMasterEnabled}
-          onkeydown={(e) => {
-            if (e.key === 'Enter' || e.key === ' ') {
-              toggleMasterEnabled()
-            }
-          }}
-        >
-          <div class="space-y-0.5">
-            <span class="font-bold text-sm text-foreground block">
-              Automatic Limiter Daemon
-            </span>
-            <span class="text-[11px] text-muted block">
-              Monitors capacity every 10s and trips hardware switch at thresholds.
-            </span>
-          </div>
-
-          <div
-            class="relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-border transition-colors duration-200 ease-in-out {config.enabled
+        <div class="flex items-center gap-2">
+          <Badge variant={config.enabled ? 'success' : 'default'}>
+            {config.enabled ? 'AUTO ON' : 'DISABLED'}
+          </Badge>
+          <button
+            type="button"
+            onclick={toggleMasterEnabled}
+            class="relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-border transition-colors duration-200 ease-in-out {config.enabled
               ? 'bg-accent border-accent'
               : 'bg-zinc-800'}"
+            title="Toggle Automatic Daemon"
           >
             <span
-              class="pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-lg ring-0 transition duration-200 ease-in-out {config.enabled
-                ? 'translate-x-5'
+              class="pointer-events-none inline-block h-3.5 w-3.5 transform rounded-full bg-white shadow-md ring-0 transition duration-200 ease-in-out {config.enabled
+                ? 'translate-x-4'
                 : 'translate-x-0'}"
             ></span>
-          </div>
+          </button>
         </div>
+      {/snippet}
 
-        <!-- Threshold Sliders & Numeric Inputs -->
-        <div class="space-y-4 pt-1">
-          <!-- Stop Charging Threshold -->
-          <div class="p-3 bg-card-sub border-2 border-border rounded-lg space-y-2">
+      <div class="space-y-3.5 font-mono text-xs">
+        <!-- Compact Bento: Stop & Resume Sliders Side-by-Side -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+          <!-- Stop Threshold -->
+          <div class="p-2.5 sm:p-3 bg-card-sub border-2 border-border rounded-lg space-y-1.5 shadow-[2px_2px_0px_var(--neo-shadow)]">
             <div class="flex items-center justify-between">
-              <span class="font-bold uppercase text-amber-400 flex items-center gap-1.5">
-                <span class="w-2 h-2 rounded-full bg-amber-400"></span>
-                Stop Charging Threshold
+              <span class="font-bold text-[11px] uppercase text-amber-400 flex items-center gap-1.5">
+                <span class="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>
+                Stop Cutoff
               </span>
               <div class="flex items-center gap-1">
                 <input
                   type="number"
                   min="30"
                   max="100"
-                  class="w-16 px-2 py-1 text-center font-bold text-sm bg-background border border-border rounded text-foreground font-mono focus:outline-none focus:border-accent"
+                  class="w-12 px-1.5 py-0.5 text-center font-black text-xs bg-card border border-border rounded text-foreground font-mono focus:outline-none focus:border-accent"
                   bind:value={config.stop_percent}
-                  oninput={(e) =>
-                    onStopPercentChange(Number((e.target as HTMLInputElement).value))}
+                  oninput={(e) => onStopPercentChange(Number((e.target as HTMLInputElement).value))}
                 />
-                <span class="font-bold text-muted">%</span>
+                <span class="font-bold text-muted text-[10px]">%</span>
               </div>
             </div>
 
@@ -686,34 +667,33 @@
               min="50"
               max="95"
               step="1"
-              class="w-full accent-amber-400 cursor-pointer h-2 bg-background rounded-lg border border-border"
+              class="w-full accent-amber-400 cursor-pointer h-1.5 bg-background rounded-lg border border-border"
               bind:value={config.stop_percent}
-              oninput={(e) =>
-                onStopPercentChange(Number((e.target as HTMLInputElement).value))}
+              oninput={(e) => onStopPercentChange(Number((e.target as HTMLInputElement).value))}
             />
-            <p class="text-[10px] text-muted">
-              Charging will cut off immediately when battery capacity hits this level.
-            </p>
+            <div class="flex items-center justify-between text-[9px] text-muted">
+              <span>Trips at {config.stop_percent}%</span>
+              <span>Bypass AC</span>
+            </div>
           </div>
 
-          <!-- Start / Resume Charging Threshold -->
-          <div class="p-3 bg-card-sub border-2 border-border rounded-lg space-y-2">
+          <!-- Resume Threshold -->
+          <div class="p-2.5 sm:p-3 bg-card-sub border-2 border-border rounded-lg space-y-1.5 shadow-[2px_2px_0px_var(--neo-shadow)]">
             <div class="flex items-center justify-between">
-              <span class="font-bold uppercase text-emerald-400 flex items-center gap-1.5">
+              <span class="font-bold text-[11px] uppercase text-emerald-400 flex items-center gap-1.5">
                 <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
-                Resume Charging Threshold
+                Resume Charge
               </span>
               <div class="flex items-center gap-1">
                 <input
                   type="number"
                   min="20"
                   max="95"
-                  class="w-16 px-2 py-1 text-center font-bold text-sm bg-background border border-border rounded text-foreground font-mono focus:outline-none focus:border-accent"
+                  class="w-12 px-1.5 py-0.5 text-center font-black text-xs bg-card border border-border rounded text-foreground font-mono focus:outline-none focus:border-accent"
                   bind:value={config.start_percent}
-                  oninput={(e) =>
-                    onStartPercentChange(Number((e.target as HTMLInputElement).value))}
+                  oninput={(e) => onStartPercentChange(Number((e.target as HTMLInputElement).value))}
                 />
-                <span class="font-bold text-muted">%</span>
+                <span class="font-bold text-muted text-[10px]">%</span>
               </div>
             </div>
 
@@ -722,116 +702,102 @@
               min="20"
               max="90"
               step="1"
-              class="w-full accent-emerald-400 cursor-pointer h-2 bg-background rounded-lg border border-border"
+              class="w-full accent-emerald-400 cursor-pointer h-1.5 bg-background rounded-lg border border-border"
               bind:value={config.start_percent}
-              oninput={(e) =>
-                onStartPercentChange(Number((e.target as HTMLInputElement).value))}
+              oninput={(e) => onStartPercentChange(Number((e.target as HTMLInputElement).value))}
             />
-            <p class="text-[10px] text-muted">
-              Charging re-engages once battery discharges down to or below this level.
-            </p>
-          </div>
-
-          <!-- Quick Presets -->
-          <div class="space-y-1.5">
-            <span class="text-[10px] text-muted font-bold uppercase tracking-wider block">
-              Quick Threshold Presets
-            </span>
-            <div class="grid grid-cols-3 gap-2">
-              <button
-                type="button"
-                class="px-2.5 py-1.5 bg-card-sub hover:bg-card border border-border rounded text-[11px] font-mono font-bold text-foreground transition-colors cursor-pointer text-center {config.stop_percent === 80 && config.start_percent === 70 ? 'border-accent text-accent' : ''}"
-                onclick={() => applyPreset(80, 70)}
-              >
-                80% / 70%
-                <span class="block text-[9px] text-muted font-normal">Balanced Daily</span>
-              </button>
-              <button
-                type="button"
-                class="px-2.5 py-1.5 bg-card-sub hover:bg-card border border-border rounded text-[11px] font-mono font-bold text-foreground transition-colors cursor-pointer text-center {config.stop_percent === 85 && config.start_percent === 75 ? 'border-accent text-accent' : ''}"
-                onclick={() => applyPreset(85, 75)}
-              >
-                85% / 75%
-                <span class="block text-[9px] text-muted font-normal">Max Runtime</span>
-              </button>
-              <button
-                type="button"
-                class="px-2.5 py-1.5 bg-card-sub hover:bg-card border border-border rounded text-[11px] font-mono font-bold text-foreground transition-colors cursor-pointer text-center {config.stop_percent === 65 && config.start_percent === 60 ? 'border-accent text-accent' : ''}"
-                onclick={() => applyPreset(65, 60)}
-              >
-                65% / 60%
-                <span class="block text-[9px] text-muted font-normal">24/7 Plugged</span>
-              </button>
+            <div class="flex items-center justify-between text-[9px] text-muted">
+              <span>Reopens at &le; {config.start_percent}%</span>
+              <span>Hysteresis {config.stop_percent - config.start_percent}%</span>
             </div>
           </div>
+        </div>
 
-          <!-- Save Button -->
+        <!-- Quick Presets Row & Save Action -->
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pt-1 border-t border-border/60">
+          <div class="flex items-center gap-1.5 flex-wrap">
+            <span class="text-[9px] text-muted uppercase font-bold mr-0.5">Presets:</span>
+            <button
+              type="button"
+              class="px-2 py-1 bg-card-sub hover:bg-card border border-border rounded text-[10px] font-mono font-bold text-foreground transition cursor-pointer {config.stop_percent === 80 && config.start_percent === 70 ? 'border-accent text-accent shadow-[1px_1px_0px_var(--neo-shadow)]' : ''}"
+              onclick={() => applyPreset(80, 70)}
+            >
+              80% / 70% <span class="text-[8px] text-muted">Daily</span>
+            </button>
+            <button
+              type="button"
+              class="px-2 py-1 bg-card-sub hover:bg-card border border-border rounded text-[10px] font-mono font-bold text-foreground transition cursor-pointer {config.stop_percent === 85 && config.start_percent === 75 ? 'border-accent text-accent shadow-[1px_1px_0px_var(--neo-shadow)]' : ''}"
+              onclick={() => applyPreset(85, 75)}
+            >
+              85% / 75% <span class="text-[8px] text-muted">Max</span>
+            </button>
+            <button
+              type="button"
+              class="px-2 py-1 bg-card-sub hover:bg-card border border-border rounded text-[10px] font-mono font-bold text-foreground transition cursor-pointer {config.stop_percent === 65 && config.start_percent === 60 ? 'border-accent text-accent shadow-[1px_1px_0px_var(--neo-shadow)]' : ''}"
+              onclick={() => applyPreset(65, 60)}
+            >
+              65% / 60% <span class="text-[8px] text-muted">24/7 Desk</span>
+            </button>
+          </div>
+
           <Button
             variant="primary"
-            fullWidth
+            size="sm"
             disabled={isSaving}
             onclick={saveConfig}
-            class="shadow-[2px_2px_0px_#000] dark:shadow-[2px_2px_0px_rgba(255,255,255,0.05)]"
+            class="shadow-[2px_2px_0px_var(--neo-shadow)] shrink-0"
           >
             {#if isSaving}
-              <RefreshCw class="w-4 h-4 mr-2 animate-spin" />
-              <span>Saving Configuration...</span>
+              <RefreshCw class="w-3.5 h-3.5 mr-1.5 animate-spin" />
+              <span>Saving...</span>
             {:else}
-              <Check class="w-4 h-4 mr-2" />
-              <span>Save Limiter Thresholds</span>
+              <Check class="w-3.5 h-3.5 mr-1.5" />
+              <span>Save Limits</span>
             {/if}
           </Button>
         </div>
 
-        <!-- Manual Hardware Override Section -->
-        <div
-          class="p-3.5 bg-black/40 border-2 border-dashed border-border rounded-lg space-y-3"
-        >
-          <div class="flex items-center justify-between">
-            <span class="font-bold text-foreground uppercase tracking-wider flex items-center gap-1.5">
-              <Zap class="w-4 h-4 text-accent" />
-              Manual Hardware Override
-            </span>
-            {#if status.charging_disabled}
-              <Badge variant="danger">Forced Off</Badge>
-            {:else}
-              <Badge variant="success">Normal Gate</Badge>
-            {/if}
+        <!-- Compact Manual Hardware Override Strip -->
+        <div class="p-2.5 bg-card-sub/60 border border-border rounded-lg flex items-center justify-between gap-2.5 font-mono">
+          <div class="flex items-center gap-2 min-w-0">
+            <Zap class="w-4 h-4 text-accent shrink-0" />
+            <div class="truncate">
+              <div class="flex items-center gap-1.5">
+                <span class="font-bold text-[11px] text-foreground uppercase">Manual Gate</span>
+                {#if status.charging_disabled}
+                  <Badge variant="danger">Forced Off</Badge>
+                {:else}
+                  <Badge variant="success">Normal Gate</Badge>
+                {/if}
+              </div>
+              <span class="text-[9px] text-muted block truncate sm:max-w-none max-w-[180px]">
+                Flip hardware switch instantly without saving thresholds.
+              </span>
+            </div>
           </div>
-          <p class="text-[11px] text-muted">
-            Directly flip the hardware switch without modifying automatic limits. Use this to immediately test whether your device can bypass charging and draw from AC without heating.
-          </p>
 
           <div>
             {#if status.charging_disabled}
               <Button
                 variant="primary"
-                fullWidth
+                size="sm"
                 disabled={isToggling}
                 onclick={toggleManualCut}
+                class="shadow-[1px_1px_0px_var(--neo-shadow)] shrink-0 text-xs"
               >
-                {#if isToggling}
-                  <RefreshCw class="w-4 h-4 mr-2 animate-spin" />
-                  <span>Reopening Gate...</span>
-                {:else}
-                  <Zap class="w-4 h-4 mr-2" />
-                  <span>Restore Normal Charging</span>
-                {/if}
+                <Zap class="w-3.5 h-3.5 mr-1" />
+                <span>Restore</span>
               </Button>
             {:else}
               <Button
                 variant="danger"
-                fullWidth
+                size="sm"
                 disabled={isToggling}
                 onclick={toggleManualCut}
+                class="shadow-[1px_1px_0px_var(--neo-shadow)] shrink-0 text-xs"
               >
-                {#if isToggling}
-                  <RefreshCw class="w-4 h-4 mr-2 animate-spin" />
-                  <span>Cutting Power...</span>
-                {:else}
-                  <ZapOff class="w-4 h-4 mr-2" />
-                  <span>Force Cutoff / Bypass Now</span>
-                {/if}
+                <ZapOff class="w-3.5 h-3.5 mr-1" />
+                <span>Cut Off</span>
               </Button>
             {/if}
           </div>

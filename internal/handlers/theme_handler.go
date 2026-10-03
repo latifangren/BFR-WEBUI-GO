@@ -27,12 +27,14 @@ type WallpaperItem struct {
 var allowedWallpaperExts = map[string]bool{
 	".jpg":  true,
 	".jpeg": true,
+	".jfif": true,
 	".png":  true,
 	".webp": true,
 	".gif":  true,
 	".svg":  true,
+	".avif": true,
+	".bmp":  true,
 }
-
 // GetWallpapersDir returns the persistent directory for storing user wallpapers.
 func GetWallpapersDir() string {
 	dir := filepath.Join(config.GetPersistentDataDir(), "wallpapers")
@@ -119,14 +121,14 @@ func HandleThemeWallpaperUpload(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Max 20MB limit
-	r.Body = http.MaxBytesReader(w, r.Body, 20<<20)
-	if err := r.ParseMultipartForm(20 << 20); err != nil {
+	// Max 30MB limit
+	r.Body = http.MaxBytesReader(w, r.Body, 30<<20)
+	if err := r.ParseMultipartForm(30 << 20); err != nil {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusBadRequest)
 		_ = json.NewEncoder(w).Encode(map[string]interface{}{
 			"success": false,
-			"error":   "File too large (max 20MB) or invalid multipart body",
+			"error":   "File too large (max 30MB) or invalid multipart body",
 		})
 		return
 	}
@@ -149,7 +151,7 @@ func HandleThemeWallpaperUpload(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusBadRequest)
 		_ = json.NewEncoder(w).Encode(map[string]interface{}{
 			"success": false,
-			"error":   "Unsupported image format. Allowed: JPG, PNG, WEBP, GIF, SVG",
+			"error":   "Unsupported image format. Allowed: JPG, PNG, WEBP, GIF, SVG, AVIF, JFIF, BMP",
 		})
 		return
 	}

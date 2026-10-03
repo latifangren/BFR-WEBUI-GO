@@ -26,13 +26,15 @@ class ThemeStore {
   glassOpacity = $state<number>(0.65)
   glassDim = $state<number>(0.75)
   activeWallpaper = $state<string>('')
+  loginWallpaper = $state<string>('')
+  loginWallpaperDim = $state<number>(0.4)
+  loginWallpaperBlur = $state<number>(4)
   neoShadowSize = $state<number>(4)
   neoBorderWidth = $state<number>(2)
   neoRadius = $state<number>(4)
   neoPressDepth = $state<number>(2)
   neoPattern = $state<'dots' | 'grid' | 'none'>('dots')
   neoPatternOpacity = $state<number>(0.04)
-
   constructor() {
     if (typeof window !== 'undefined') {
       const storedTheme = localStorage.getItem('colorTheme') || localStorage.getItem('theme')
@@ -60,10 +62,16 @@ class ThemeStore {
 
       const storedWallpaper = localStorage.getItem('activeWallpaper')
       if (storedWallpaper) this.activeWallpaper = storedWallpaper
+      const storedLoginWp = localStorage.getItem('loginWallpaper')
+      if (storedLoginWp) this.loginWallpaper = storedLoginWp
 
+      const storedLoginDim = localStorage.getItem('loginWallpaperDim')
+      if (storedLoginDim) this.loginWallpaperDim = Math.max(0, Math.min(0.9, Number(storedLoginDim) || 0.4))
+
+      const storedLoginBlur = localStorage.getItem('loginWallpaperBlur')
+      if (storedLoginBlur) this.loginWallpaperBlur = Math.max(0, Math.min(24, Number(storedLoginBlur) || 4))
       const storedNeoShadow = localStorage.getItem('neoShadowSize')
       if (storedNeoShadow) this.neoShadowSize = Math.max(0, Math.min(8, Number(storedNeoShadow) || 4))
-
       const storedNeoBorder = localStorage.getItem('neoBorderWidth')
       if (storedNeoBorder) this.neoBorderWidth = Math.max(1, Math.min(4, Number(storedNeoBorder) || 2))
 
@@ -165,6 +173,44 @@ class ThemeStore {
     if (typeof window !== 'undefined') {
       localStorage.setItem('activeWallpaper', wallpaper)
     }
+  }
+
+  setLoginWallpaper(wallpaper: string) {
+    this.loginWallpaper = wallpaper
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('loginWallpaper', wallpaper)
+    }
+  }
+
+  setLoginWallpaperDim(dim: number) {
+    this.loginWallpaperDim = dim
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('loginWallpaperDim', String(dim))
+    }
+  }
+
+  setLoginWallpaperBlur(blur: number) {
+    this.loginWallpaperBlur = blur
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('loginWallpaperBlur', String(blur))
+    }
+  }
+
+  getLoginWallpaperBackground(): string {
+    if (!this.loginWallpaper || this.loginWallpaper === 'preset:none') return 'none'
+    if (this.loginWallpaper === 'preset:cyber-neon') {
+      return 'linear-gradient(135deg, #0d0f18 0%, #1a102f 40%, #0d273a 70%, #05141b 100%)'
+    }
+    if (this.loginWallpaper === 'preset:aurora-mesh') {
+      return 'radial-gradient(at 0% 0%, #120b29 0, transparent 50%), radial-gradient(at 50% 0%, #172554 0, transparent 50%), radial-gradient(at 100% 0%, #3b0764 0, transparent 50%), radial-gradient(at 0% 100%, #042f2e 0, transparent 50%), radial-gradient(at 100% 100%, #1e1b4b 0, transparent 50%), #090d16'
+    }
+    if (this.loginWallpaper === 'preset:sunset-glow') {
+      return 'linear-gradient(135deg, #1b0a2a 0%, #3d1445 35%, #5e1c43 70%, #200a18 100%)'
+    }
+    if (this.loginWallpaper === 'preset:dark-velvet') {
+      return 'linear-gradient(160deg, #18151e 0%, #2b1f38 50%, #110e16 100%)'
+    }
+    return `url('${this.loginWallpaper}')`
   }
 
   applyGlassTokens() {

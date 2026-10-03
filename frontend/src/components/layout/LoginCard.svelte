@@ -30,8 +30,21 @@
 </script>
 
 <div class="min-h-screen flex flex-col justify-between bg-background text-foreground relative font-sans select-none overflow-x-hidden">
+  <!-- Static Independent Login Wallpaper Layer -->
+  {#if themeStore.loginWallpaper && themeStore.loginWallpaper !== 'preset:none'}
+    <div
+      class="login-wallpaper-bg fixed inset-0 pointer-events-none z-0 bg-cover bg-center bg-no-repeat transition-all duration-300"
+      style="
+        background-image: {themeStore.getLoginWallpaperBackground()};
+        filter: brightness({1 - themeStore.loginWallpaperDim}) blur({themeStore.loginWallpaperBlur}px);
+        transform: scale(1.04);
+      "
+    ></div>
+    <div class="fixed inset-0 pointer-events-none z-0 bg-black/25"></div>
+  {/if}
+
   <!-- Top Minimal Header -->
-  <header class="w-full max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
+  <header class="relative z-10 w-full max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
     <!-- Brand Info -->
     <div class="flex items-center gap-2.5">
       <div class="w-8 h-8 rounded-lg bg-accent text-accent-text border-2 border-border flex items-center justify-center font-black text-sm shadow-[2px_2px_0px_0px_var(--neo-shadow)] shrink-0">
@@ -60,7 +73,7 @@
   </header>
 
   <!-- Main Center Stage Login Card -->
-  <main class="w-full max-w-md mx-auto px-4 py-6 my-auto">
+  <main class="relative z-10 w-full max-w-md mx-auto px-4 py-6 my-auto">
     <div
       class="w-full p-6 sm:p-8 space-y-6 bg-card border-2 border-border shadow-[5px_5px_0px_0px_var(--neo-shadow)] rounded-lg transition-all"
     >
@@ -213,7 +226,7 @@
   </main>
 
   <!-- Bottom Global Footer -->
-  <footer class="w-full py-4 text-center font-mono text-[10px] text-muted border-t border-border/40">
+  <footer class="relative z-10 w-full py-4 text-center font-mono text-[10px] text-muted border-t border-border/40">
     <span>BFR-WEBUI-GO &bull; Magisk / KernelSU / APatch Module</span>
   </footer>
 
