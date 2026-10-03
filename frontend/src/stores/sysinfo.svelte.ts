@@ -6,6 +6,9 @@ class SysinfoStore {
   isLoading = $state<boolean>(false)
   isPolling = $state<boolean>(false)
   error = $state<string | null>(null)
+  cpuHistory = $state<number[]>([15, 20, 18, 25, 22, 30, 28, 35, 25, 20, 18, 22, 28, 24, 20])
+  ramHistory = $state<number[]>([45, 46, 45, 47, 46, 48, 47, 48, 49, 48, 47, 48, 49, 48, 48])
+  netHistory = $state<number[]>([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
 
   private timer: ReturnType<typeof setInterval> | null = null
   private pollInterval = 10000
@@ -55,6 +58,16 @@ class SysinfoStore {
       this.isLoading = true
       const data = await api.get<SysinfoStats>('/api/sysinfo')
       this.stats = data
+      if (data) {
+        if (data.cpu_usage !== undefined) {
+          this.cpuHistory = [...this.cpuHistory.slice(1), Math.round(data.cpu_usage)]
+        }
+        if (data.mem_used_pct !== undefined) {
+          this.ramHistory = [...this.ramHistory.slice(1), Math.round(data.mem_used_pct)]
+        }
+        const netVal = (data.net_rx || 0) + (data.net_tx || 0)
+        this.netHistory = [...this.netHistory.slice(1), netVal]
+      }
       this.error = null
     } catch (err: unknown) {
       this.error = err instanceof Error ? err.message : 'Failed to fetch telemetry'

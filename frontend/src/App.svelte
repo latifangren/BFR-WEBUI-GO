@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { fly } from 'svelte/transition'
+  import { cubicOut } from 'svelte/easing'
   import { onMount } from 'svelte'
   import Header from './components/layout/Header.svelte'
   import Sidebar from './components/layout/Sidebar.svelte'
@@ -54,7 +56,11 @@
 </script>
 
 {#snippet tabContent()}
-  <ActiveTab />
+  {#key navigationStore.activeTab}
+    <div in:fly={{ y: 8, duration: 160, easing: cubicOut }} class="w-full">
+      <ActiveTab />
+    </div>
+  {/key}
 {/snippet}
 
 {#if !authStore.authenticated}

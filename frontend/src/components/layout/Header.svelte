@@ -100,6 +100,7 @@
           title="Battery: {sysinfoStore.stats.battery_level}% ({sysinfoStore.stats.battery_status || 'Discharging'})"
         >
           {#if sysinfoStore.stats.battery_status === 'Charging'}
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 beacon-pulse inline-block mr-0.5"></span>
             <BatteryCharging class="w-3.5 h-3.5 text-emerald-400 animate-pulse" />
           {:else}
             <Battery class="w-3.5 h-3.5 text-muted" />

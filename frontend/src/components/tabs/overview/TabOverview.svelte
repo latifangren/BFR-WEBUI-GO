@@ -31,6 +31,7 @@
   import Input from '../../ui/Input.svelte'
   import SparklineWave from '../../ui/SparklineWave.svelte'
   import NoticeBanner from '../../common/NoticeBanner.svelte'
+  import AnimatedNumber from '../../ui/AnimatedNumber.svelte'
 
   interface ShortcutItem {
     id: string
@@ -216,7 +217,7 @@
         </div>
         <div class="flex items-baseline justify-between">
           <span class="text-xl sm:text-2xl font-black font-mono text-foreground">
-            {stats ? stats.cpu_usage.toFixed(0) : '0'}%
+            <AnimatedNumber value={stats ? stats.cpu_usage : 0} decimals={0} suffix="%" />
           </span>
           {#if stats?.cpu_temp}
             <span class="text-xs font-mono text-amber-400 font-bold">
@@ -231,7 +232,7 @@
           ></div>
         </div>
       </div>
-      <SparklineWave value={stats ? stats.cpu_usage : 0} color="var(--color-mint, var(--neo-accent, #3b82f6))" height={20} class="mt-2" />
+      <SparklineWave history={sysinfoStore.cpuHistory} value={stats ? stats.cpu_usage : 0} color="var(--color-mint, var(--neo-accent, #3b82f6))" height={24} class="mt-2" />
     </div>
 
     <!-- RAM Gauge -->
@@ -251,7 +252,7 @@
         </div>
         <div class="flex items-baseline justify-between">
           <span class="text-xl sm:text-2xl font-black font-mono text-foreground">
-            {stats ? stats.mem_used_pct.toFixed(0) : '0'}%
+            <AnimatedNumber value={stats ? stats.mem_used_pct : 0} decimals={0} suffix="%" />
           </span>
           <div class="text-right font-mono">
             <div class="text-xs font-bold text-foreground">
@@ -269,7 +270,7 @@
           ></div>
         </div>
       </div>
-      <SparklineWave value={stats ? stats.mem_used_pct : 0} color="var(--color-lavender, #c084fc)" height={20} class="mt-2" />
+      <SparklineWave history={sysinfoStore.ramHistory} value={stats ? stats.mem_used_pct : 0} color="var(--color-lavender, #c084fc)" height={24} class="mt-2" />
     </div>
 
     <!-- Storage Gauge -->
@@ -289,7 +290,7 @@
         </div>
         <div class="flex items-baseline justify-between">
           <span class="text-xl sm:text-2xl font-black font-mono text-foreground">
-            {stats ? stats.disk_used_pct.toFixed(0) : '0'}%
+            <AnimatedNumber value={stats ? stats.disk_used_pct : 0} decimals={0} suffix="%" />
           </span>
           <div class="text-right font-mono">
             <div class="text-xs font-bold text-foreground">
@@ -324,8 +325,9 @@
             Battery
             <span class="text-[10px] text-accent font-mono opacity-80">↗</span>
           </span>
-          <div class="neo-icon-box">
+          <div class="neo-icon-box relative">
             {#if stats?.battery_status === 'Charging'}
+              <span class="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-emerald-400 beacon-pulse"></span>
               <BatteryCharging class="w-4 h-4 text-emerald-400 animate-pulse" />
             {:else}
               <Battery class="w-4 h-4 text-emerald-400" />
@@ -334,7 +336,7 @@
         </div>
         <div class="flex items-baseline justify-between">
           <span class="text-xl sm:text-2xl font-black font-mono text-foreground">
-            {stats?.battery_level ?? 0}%
+            <AnimatedNumber value={stats?.battery_level ?? 0} decimals={0} suffix="%" />
           </span>
           <span class="text-xs font-mono text-emerald-400 font-bold">
             {stats?.battery_status || 'OK'}

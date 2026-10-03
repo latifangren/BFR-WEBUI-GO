@@ -38,14 +38,23 @@
     md: 'px-3.5 py-1.5 text-sm',
     lg: 'px-5 py-2.5 text-base',
   }
+
+  function handleClick(e: MouseEvent) {
+    if (!disabled && typeof navigator !== 'undefined' && 'vibrate' in navigator) {
+      try {
+        navigator.vibrate(8)
+      } catch {}
+    }
+    onclick?.(e)
+  }
 </script>
 
 <button
   {type}
   {disabled}
   {title}
-  {onclick}
-  class="neo-button inline-flex items-center justify-center font-mono font-bold select-none cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed {variantClasses[variant]} {sizeClasses[size]} {fullWidth ? 'w-full' : ''} {className}"
+  onclick={handleClick}
+  class="neo-button inline-flex items-center justify-center font-mono font-bold select-none cursor-pointer active:scale-[0.98] active:translate-y-0.5 transition-transform disabled:opacity-50 disabled:cursor-not-allowed {variantClasses[variant]} {sizeClasses[size]} {fullWidth ? 'w-full' : ''} {className}"
 >
   {@render children?.()}
 </button>

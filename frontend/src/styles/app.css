@@ -24,4 +24,30 @@
       box-shadow: min(calc(var(--neo-shadow-size, 3px) * 0.75), 2px) min(calc(var(--neo-shadow-size, 3px) * 0.75), 2px) 0px 0px var(--neo-shadow) !important;
     }
   }
+
+  /* Hardware status beacon / radar pulse */
+  @keyframes beacon-ping {
+    0% {
+      transform: scale(1);
+      opacity: 0.8;
+    }
+    75%, 100% {
+      transform: scale(2.4);
+      opacity: 0;
+    }
+  }
+
+  .beacon-pulse {
+    position: relative;
+  }
+
+  .beacon-pulse::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: currentColor;
+    animation: beacon-ping 2s cubic-bezier(0, 0, 0.2, 1) infinite;
+    pointer-events: none;
+  }
 }
