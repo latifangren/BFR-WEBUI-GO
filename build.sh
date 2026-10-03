@@ -3,7 +3,7 @@
 set -e
 
 echo "1. Compiling frontend (Svelte 5 + Vite)..."
-(cd frontend && (pnpm build || npm run build))
+(cd frontend && (bun run build || pnpm build || npm run build))
 
 echo "2. Building Go binary for Android ARM64..."
 export GOOS=android

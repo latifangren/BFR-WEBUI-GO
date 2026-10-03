@@ -104,7 +104,7 @@ BFR-WEBUI-GO Architecture
 
 ### Prerequisites
 - **Go**: Version 1.22 or higher
-- **Node.js & pnpm**: Node.js 18+ and pnpm/npm installed
+- **Bun or Node.js**: Bun (recommended) or Node.js 18+ (pnpm/npm)
 
 ### Quick Build (Magisk ZIP Package)
 On Windows:

@@ -9,6 +9,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed & Refactored
+- **Domain-Modularized Backend Routing (`internal/handlers/`)**:
+  - Decomposed central monolithic `router.go` into dedicated domain routing registrars (`routes_system.go`, `routes_network.go`, `routes_modem.go`, `routes_services.go`), reducing `router.go` from ~400 lines to 176 lines while maintaining exact API endpoint parity.
+- **Dynamic Frontend Tab Registry (`frontend/src/`)**:
+  - Replaced 27 manual component imports and 60-line `if-else` ladder in `App.svelte` with a unified dynamic component registry (`frontend/src/components/tabs/registry.ts`), powered by Svelte 5 reactive derived runes.
+- **Frontend Toolchain Migration to Bun**:
+  - Transitioned package manager, local build scripts, and CI workflows from `pnpm` to `bun` (`bun.lock`, `oven-sh/setup-bun@v2`), delivering 2–3x faster compilation and check benchmarks.
+- **TypeScript & A11y Verification**:
+  - Resolved `SysinfoStats` property contract mismatches (`resolution`, `density`) in `TabSysinfo.svelte`.
+  - Fixed `Button` variant typing and accessible form label tags in `QualcommNV.svelte`, achieving 0 errors and 0 warnings in `svelte-check`.
+
 ### Added
 - **Mobile Layout Density & Bento Grid Overhaul (`TabOverview.svelte`, `TabSysinfo.svelte`, `TabModem.svelte`, `TabPower.svelte`, `TabModules.svelte`, `TabSpeedtest.svelte`, `TabNetwork.svelte`, `TabHotspot.svelte`, `TabAbout.svelte`, `Card.svelte`, `App.svelte`)**:
   - **Responsive 2-Column Mobile Grids**: Replaced single-column vertical stacks with compact 2-column bento grids across mobile viewports for quick telemetry gauges, hardware specification metrics, sysctl tweaks, and device action cards.

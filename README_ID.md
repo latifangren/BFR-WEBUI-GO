@@ -104,7 +104,7 @@ Arsitektur BFR-WEBUI-GO
 
 ### Prasyarat
 - **Go**: Versi 1.22 atau lebih baru
-- **Node.js & pnpm/npm**: Node.js 18+
+- **Bun atau Node.js**: Bun (direkomendasikan) atau Node.js 18+ (pnpm/npm)
 
 ### Membuat Paket ZIP Modul Magisk
 Pada Windows:

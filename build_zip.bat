@@ -9,7 +9,12 @@ for /f "tokens=2 delims==" %%i in ('findstr "^version=" module.prop') do set VER
 
 echo 2. Compiling frontend production bundle (Svelte 5 + Vite)...
 cd frontend
-call npm run build
+where bun >nul 2>nul
+if %errorlevel% equ 0 (
+    call bun run build
+) else (
+    call npm run build
+)
 if %errorlevel% neq 0 (
     echo [ERROR] Frontend build failed.
     cd ..

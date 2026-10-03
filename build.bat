@@ -1,7 +1,12 @@
 @echo off
 echo 1. Compiling frontend (Svelte 5 + Vite)...
 cd frontend
-call npm run build
+where bun >nul 2>nul
+if %errorlevel% equ 0 (
+    call bun run build
+) else (
+    call npm run build
+)
 if %errorlevel% neq 0 (
     echo [ERROR] Frontend build failed.
     cd ..

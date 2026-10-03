@@ -7,7 +7,7 @@ This guide explains how to set up, build, test, and contribute to **BFR-WEBUI-GO
 ## 🛠️ Development Prerequisites
 
 - **Go**: Version 1.22 or newer (1.25.0 recommended).
-- **Node.js & pnpm**: Node.js 20+ and pnpm 9+ (for frontend development & compilation).
+- **Bun or Node.js**: Bun (recommended) or Node.js 20+ (for frontend development & compilation).
 - **Git**: For source version control.
 - **Android Device or Emulator**: Rooted with Magisk, KernelSU, or APatch (for testing on real hardware over ADB).
 
@@ -20,8 +20,8 @@ The project uses Go's `embed.FS` (`frontend/embed.go`) to embed the compiled fro
 ### 1. Build the Frontend Distribution
 ```bash
 cd frontend
-pnpm install
-pnpm build
+bun install    # or: pnpm install / npm install
+bun run build  # or: pnpm build / npm run build
 cd ..
 ```
 This generates optimized static production assets inside `frontend/dist/`.
@@ -50,8 +50,7 @@ You can run the backend and frontend locally for UI & non-root feature developme
 - **Frontend Hot-Reloading (Vite Dev Server)**:
   ```bash
   cd frontend
-  pnpm dev
-  ```
+  bun run dev  # or: pnpm dev / npm run dev
   Vite will serve the frontend with HMR at `http://localhost:5173`, proxying API requests to the Go backend.
 
 ---
@@ -66,7 +65,7 @@ The codebase is split into modular Go backend packages and a modern Svelte 5 SPA
 3. **`internal/auth/`**: Cookie-based session authentication manager.
 4. **`internal/charger/`**: Hardware PMIC charging limitation controllers with auto-detection.
 5. **`internal/filemanager/`**: Path sanitization, directory listing, file CRUD, octal permissions, and zip archives.
-6. **`internal/handlers/`**: Web controllers and REST API routers.
+6. **`internal/handlers/`**: Web controllers and REST API routers, decomposed into modular domain route files (`routes_system.go`, `routes_network.go`, `routes_modem.go`, `routes_services.go`) orchestrated by `router.go`.
 7. **`internal/hotspot/`**: SoftAP controls, connected clients ARP parsing, and MAC filtering.
 8. **`internal/network/`**: Persistent sysctl values, DNS resolvers, and dynamic SDK-aware TTL configurations.
 9. **`internal/proxy/`**: Clash/Mihomo configurations and watchdog monitoring.
@@ -77,7 +76,7 @@ The codebase is split into modular Go backend packages and a modern Svelte 5 SPA
 14. **`internal/vnstat/`**: Vnstat bandwidth accounting and telemetry engine.
 
 ### Frontend Structure (`frontend/`)
-- **`frontend/src/App.svelte`**: Main application shell with responsive sidebar, header, and tab router.
+- **`frontend/src/App.svelte`**: Main application shell with dynamic reactive tab resolution via `frontend/src/components/tabs/registry.ts`.
 - **`frontend/src/components/layout/`**: Header, Sidebar, BottomNav, and Toast notifications.
 - **`frontend/src/components/tabs/`**: Individual tab components categorized under System, Network, Services, Connectivity, Diagnostics, and About.
 - **`frontend/src/components/ui/`**: Reusable Neo-Brutalist design components (Card, Button, Badge, Modal, Input, Toggle).
@@ -94,8 +93,8 @@ Run tests and verification before submitting code:
 ```bash
 # Frontend validation
 cd frontend
-pnpm check
-pnpm build
+bun run check
+bun run build
 cd ..
 
 # Go formatting and verification

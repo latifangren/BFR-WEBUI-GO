@@ -9,7 +9,7 @@ Dokumen ini menjelaskan arsitektur folder dan struktur berkas repositori **BFR-W
 ```text
 BFR-WEBUI-GO/
 ├── main.go                      # Entry point aplikasi, inisialisasi server & flag CLI
-├── module.prop                  # Metadata modul Android (id, name, version v1.2.2, author)
+├── module.prop                  # Metadata modul Android (id, name, version v1.2.5, author)
 ├── customize.sh                 # Script instalasi & setup izin saat di-flash via Root Manager
 ├── service.sh                   # Script startup otomatis saat booting perangkat Android
 ├── system.prop                  # System properties bawaan modul Android
@@ -34,7 +34,7 @@ BFR-WEBUI-GO/
 │   ├── charger/                 # Kontrol sysfs pengisian daya baterai & auto-detect PMIC
 │   ├── config/                  # Pengaturan Environment Variables terpusat (BFR_*)
 │   ├── filemanager/             # Modul operasi berkas (ops, archive, search, perm)
-│   ├── handlers/                # HTTP Routers & Middleware (body limit, security headers)
+│   ├── handlers/                # HTTP Routers & Modular Domain Handlers (routes_system, routes_network, routes_modem, routes_services)
 │   ├── hotspot/                 # Kontrol SoftAP hotspot, client ARP, & MAC filtering
 │   ├── logger/                  # Stream log sistem & audit aktivitas real-time
 │   ├── modem/                   # Kontrol modem seluler, kalkulasi sinyal RSRP/RSRQ/SINR
@@ -53,10 +53,9 @@ BFR-WEBUI-GO/
 │   ├── tunnel/                  # Cloudflare / Cloudflared tunnel manager
 │   └── vnstat/                  # Pemantauan penggunaan data lalu lintas jaringan proc
 │
-└── frontend/                    # Frontend Modern (Vite + Svelte 5 + TypeScript + Tailwind)
-    ├── embed.go                 # Go embed.FS (menanamkan frontend/dist ke biner Go tunggal)
-    ├── package.json             # Dependensi frontend & script kompilasi (v1.2.2)
-    ├── vite.config.ts           # Konfigurasi bundler Vite & chunk splitting
+└── frontend/                    # Frontend Single Page Application (Svelte 5 + Vite + Bun)
+    ├── bun.lock                 # Lockfile dependensi Bun
+    ├── package.json             # Manifest dependensi & script frontend
     ├── svelte.config.js         # Konfigurasi compiler Svelte 5
     ├── tsconfig.json            # TypeScript configuration
     ├── index.html               # Entry point HTML Single Page Application
@@ -73,7 +72,7 @@ BFR-WEBUI-GO/
         ├── components/          # Komponen Svelte 5 Berbasis Kategori
         │   ├── layout/          # Header, Sidebar, BottomNav, Toasts, AppearanceModal
         │   ├── ui/              # Komponen Reusable (Card, Button, Badge, Modal, Input)
-        │   └── tabs/            # Tab Views:
+        │   └── tabs/            # Tab Views & registry.ts (Pemetaan Dinamis Komponen Tab)
         │       ├── overview/    # Tab Overview & CasaOS Application Shortcuts
         │       ├── sysinfo/     # Tab System Info, Hardware Sensors, CPU Cores, Root Daemons
         │       ├── network/     # Tab Network Tweaks, DNS, TTL, MTU, Interfaces

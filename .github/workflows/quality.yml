@@ -14,29 +14,19 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: 9
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: 'pnpm'
-          cache-dependency-path: frontend/pnpm-lock.yaml
-
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
       - name: Install Frontend Dependencies
         working-directory: frontend
-        run: pnpm install --frozen-lockfile
+        run: bun install --frozen-lockfile
 
       - name: Type & Svelte Check
         working-directory: frontend
-        run: pnpm check
+        run: bun run check
 
       - name: Build Frontend Distribution
         working-directory: frontend
-        run: pnpm build
+        run: bun run build
 
   test:
     name: Run Unit Tests
@@ -45,23 +35,13 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: 9
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: 'pnpm'
-          cache-dependency-path: frontend/pnpm-lock.yaml
-
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
       - name: Build Frontend Assets
         working-directory: frontend
         run: |
-          pnpm install --frozen-lockfile
-          pnpm build
+          bun install --frozen-lockfile
+          bun run build
 
       - name: Setup Go Environment
         uses: actions/setup-go@v5
@@ -80,23 +60,13 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: 9
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: 'pnpm'
-          cache-dependency-path: frontend/pnpm-lock.yaml
-
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
       - name: Build Frontend Assets
         working-directory: frontend
         run: |
-          pnpm install --frozen-lockfile
-          pnpm build
+          bun install --frozen-lockfile
+          bun run build
 
       - name: Setup Go Environment
         uses: actions/setup-go@v5
