@@ -466,78 +466,90 @@
   </Card>
 
   <!-- Power Actions Grid -->
-  <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+  <div class="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-4 font-mono text-xs">
     <!-- Standard Reboot -->
-    <Card title="Standard Reboot" subtitle="Restart system services & Android framework" tone="peach">
-      <div class="space-y-3 font-mono text-xs">
-        <p class="text-muted">
-          Reboots Android OS normally. Modules and Magisk/KernelSU daemons will reload automatically on boot.
+    <div class="neo-card bg-card p-3 sm:p-4 rounded border-2 border-border flex flex-col justify-between space-y-3">
+      <div>
+        <div class="flex items-center gap-2 mb-1">
+          <RotateCcw class="w-4 h-4 text-accent shrink-0" />
+          <h3 class="font-bold text-xs sm:text-sm text-foreground uppercase truncate">Reboot</h3>
+        </div>
+        <p class="text-[10px] sm:text-[11px] text-muted line-clamp-2">
+          Restart Android OS and reload root daemons.
         </p>
-        <Button
-          variant="secondary"
-          size="md"
-          fullWidth={true}
-          onclick={() => (confirmAction = 'reboot')}
-        >
-          <RotateCcw class="w-4 h-4 mr-2 text-accent" />
-          <span>Reboot System</span>
-        </Button>
       </div>
-    </Card>
+      <Button
+        variant="secondary"
+        size="sm"
+        fullWidth={true}
+        onclick={() => (confirmAction = 'reboot')}
+      >
+        <span>Reboot System</span>
+      </Button>
+    </div>
 
     <!-- Recovery Reboot -->
-    <Card title="Recovery Mode" subtitle="Enter custom recovery environment" tone="peach">
-      <div class="space-y-3 font-mono text-xs">
-        <p class="text-muted">
-          Reboots directly to custom recovery partition (TWRP, OrangeFox, PBRP) for flashing zips or backups.
+    <div class="neo-card bg-card p-3 sm:p-4 rounded border-2 border-border flex flex-col justify-between space-y-3">
+      <div>
+        <div class="flex items-center gap-2 mb-1">
+          <Smartphone class="w-4 h-4 text-amber-400 shrink-0" />
+          <h3 class="font-bold text-xs sm:text-sm text-foreground uppercase truncate">Recovery</h3>
+        </div>
+        <p class="text-[10px] sm:text-[11px] text-muted line-clamp-2">
+          Enter custom recovery (TWRP/OrangeFox).
         </p>
-        <Button
-          variant="outline"
-          size="md"
-          fullWidth={true}
-          onclick={() => (confirmAction = 'recovery')}
-        >
-          <Smartphone class="w-4 h-4 mr-2 text-amber-400" />
-          <span>Reboot Recovery</span>
-        </Button>
       </div>
-    </Card>
+      <Button
+        variant="outline"
+        size="sm"
+        fullWidth={true}
+        onclick={() => (confirmAction = 'recovery')}
+      >
+        <span>Recovery Mode</span>
+      </Button>
+    </div>
 
     <!-- Bootloader / Fastboot -->
-    <Card title="Bootloader / Fastboot" subtitle="Enter bootloader partition" tone="peach">
-      <div class="space-y-3 font-mono text-xs">
-        <p class="text-muted">
-          Enters Fastboot mode for PC USB flashing, firmware upgrades, or kernel flashing via fastboot command.
+    <div class="neo-card bg-card p-3 sm:p-4 rounded border-2 border-border flex flex-col justify-between space-y-3">
+      <div>
+        <div class="flex items-center gap-2 mb-1">
+          <ShieldAlert class="w-4 h-4 text-purple-400 shrink-0" />
+          <h3 class="font-bold text-xs sm:text-sm text-foreground uppercase truncate">Fastboot</h3>
+        </div>
+        <p class="text-[10px] sm:text-[11px] text-muted line-clamp-2">
+          Enter bootloader partition for PC USB flashing.
         </p>
-        <Button
-          variant="outline"
-          size="md"
-          fullWidth={true}
-          onclick={() => (confirmAction = 'bootloader')}
-        >
-          <ShieldAlert class="w-4 h-4 mr-2 text-purple-400" />
-          <span>Reboot Bootloader</span>
-        </Button>
       </div>
-    </Card>
+      <Button
+        variant="outline"
+        size="sm"
+        fullWidth={true}
+        onclick={() => (confirmAction = 'bootloader')}
+      >
+        <span>Fastboot Mode</span>
+      </Button>
+    </div>
 
     <!-- Power Off -->
-    <Card title="Power Off Hardware" subtitle="Halt kernel and turn off device" tone="peach">
-      <div class="space-y-3 font-mono text-xs">
-        <p class="text-muted">
-          Shuts down Android completely. Physical power button will be required to turn the device back on.
+    <div class="neo-card bg-card p-3 sm:p-4 rounded border-2 border-border flex flex-col justify-between space-y-3">
+      <div>
+        <div class="flex items-center gap-2 mb-1">
+          <Power class="w-4 h-4 text-red-500 shrink-0" />
+          <h3 class="font-bold text-xs sm:text-sm text-foreground uppercase truncate">Power Off</h3>
+        </div>
+        <p class="text-[10px] sm:text-[11px] text-muted line-clamp-2">
+          Halt kernel and turn off device completely.
         </p>
-        <Button
-          variant="danger"
-          size="md"
-          fullWidth={true}
-          onclick={() => (confirmAction = 'poweroff')}
-        >
-          <Power class="w-4 h-4 mr-2" />
-          <span>Shut Down Device</span>
-        </Button>
       </div>
-    </Card>
+      <Button
+        variant="danger"
+        size="sm"
+        fullWidth={true}
+        onclick={() => (confirmAction = 'poweroff')}
+      >
+        <span>Shut Down</span>
+      </Button>
+    </div>
   </div>
 
   <!-- Explicit Confirmation Modal -->

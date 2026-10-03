@@ -289,8 +289,8 @@
       </div>
     {/snippet}
 
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 font-mono text-xs">
-      <label class="flex items-center justify-between p-3 bg-card-sub border border-border rounded cursor-pointer hover:border-accent transition-colors">
+    <div class="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-3 font-mono text-xs">
+      <label class="flex items-center justify-between p-2.5 sm:p-3 bg-card-sub border border-border rounded cursor-pointer hover:border-accent transition-colors">
         <div>
           <span class="font-bold text-foreground block">Carrier Aggregation</span>
           <span class="text-[10px] text-muted">LTE-A CA Band Lock</span>
@@ -298,7 +298,7 @@
         <input type="checkbox" bind:checked={tweaks.lte_carrier_aggregation} class="w-4 h-4 accent-accent" />
       </label>
 
-      <label class="flex items-center justify-between p-3 bg-card-sub border border-border rounded cursor-pointer hover:border-accent transition-colors">
+      <label class="flex items-center justify-between p-2.5 sm:p-3 bg-card-sub border border-border rounded cursor-pointer hover:border-accent transition-colors">
         <div>
           <span class="font-bold text-foreground block">TCP Buffer Optimization</span>
           <span class="text-[10px] text-muted">Auto-scale tcp wmem/rmem</span>
@@ -306,7 +306,7 @@
         <input type="checkbox" bind:checked={tweaks.tcp_buffer_optimization} class="w-4 h-4 accent-accent" />
       </label>
 
-      <label class="flex items-center justify-between p-3 bg-card-sub border border-border rounded cursor-pointer hover:border-accent transition-colors">
+      <label class="flex items-center justify-between p-2.5 sm:p-3 bg-card-sub border border-border rounded cursor-pointer hover:border-accent transition-colors">
         <div>
           <span class="font-bold text-foreground block">BBR / BBR2 Congestion</span>
           <span class="text-[10px] text-muted">High throughput, low bufferbloat</span>
@@ -314,7 +314,7 @@
         <input type="checkbox" bind:checked={tweaks.bbr2_congestion_control} class="w-4 h-4 accent-accent" />
       </label>
 
-      <label class="flex items-center justify-between p-3 bg-card-sub border border-border rounded cursor-pointer hover:border-accent transition-colors">
+      <label class="flex items-center justify-between p-2.5 sm:p-3 bg-card-sub border border-border rounded cursor-pointer hover:border-accent transition-colors">
         <div>
           <span class="font-bold text-foreground block">Core Kernel Buffers</span>
           <span class="text-[10px] text-muted">rmem_max & wmem_max tuning</span>
@@ -322,7 +322,7 @@
         <input type="checkbox" bind:checked={tweaks.sysctl_buffers_opt} class="w-4 h-4 accent-accent" />
       </label>
 
-      <label class="flex items-center justify-between p-3 bg-card-sub border border-border rounded cursor-pointer hover:border-accent transition-colors">
+      <label class="flex items-center justify-between p-2.5 sm:p-3 bg-card-sub border border-border rounded cursor-pointer hover:border-accent transition-colors">
         <div>
           <span class="font-bold text-foreground block">Dalvik Responsiveness</span>
           <span class="text-[10px] text-muted">VM dirty ratios & latency reduction</span>
@@ -330,7 +330,7 @@
         <input type="checkbox" bind:checked={tweaks.dalvik_responsiveness} class="w-4 h-4 accent-accent" />
       </label>
 
-      <label class="flex items-center justify-between p-3 bg-card-sub border border-border rounded cursor-pointer hover:border-accent transition-colors">
+      <label class="flex items-center justify-between p-2.5 sm:p-3 bg-card-sub border border-border rounded cursor-pointer hover:border-accent transition-colors">
         <div>
           <span class="font-bold text-foreground block">Android Settings Tweaks</span>
           <span class="text-[10px] text-muted">Disable mobile data throttling</span>
@@ -338,7 +338,7 @@
         <input type="checkbox" bind:checked={tweaks.settings_global_tweaks} class="w-4 h-4 accent-accent" />
       </label>
 
-      <label class="flex items-center justify-between p-3 bg-card-sub border border-border rounded cursor-pointer hover:border-accent transition-colors">
+      <label class="flex items-center justify-between p-2.5 sm:p-3 bg-card-sub border border-border rounded cursor-pointer hover:border-accent transition-colors">
         <div>
           <span class="font-bold text-foreground block">TTL Spoofing</span>
           <span class="text-[10px] text-muted">Bypass operator tether restrictions</span>
@@ -346,7 +346,7 @@
         <input type="checkbox" bind:checked={tweaks.ttl_spoofing} class="w-4 h-4 accent-accent" />
       </label>
 
-      <label class="flex items-center justify-between p-3 bg-card-sub border border-border rounded cursor-pointer hover:border-accent transition-colors">
+      <label class="flex items-center justify-between p-2.5 sm:p-3 bg-card-sub border border-border rounded cursor-pointer hover:border-accent transition-colors">
         <div>
           <span class="font-bold text-foreground block">RPS Packet Steering</span>
           <span class="text-[10px] text-muted">Distribute packet processing across CPU cores</span>
@@ -354,7 +354,7 @@
         <input type="checkbox" bind:checked={tweaks.packet_steering_rps} class="w-4 h-4 accent-accent" />
       </label>
 
-      <label class="flex items-center justify-between p-3 bg-card-sub border border-border rounded cursor-pointer hover:border-accent transition-colors">
+      <label class="flex items-center justify-between p-2.5 sm:p-3 bg-card-sub border border-border rounded cursor-pointer hover:border-accent transition-colors">
         <div>
           <span class="font-bold text-foreground block">Interface MTU Tuning</span>
           <span class="text-[10px] text-muted">Optimal MSS & MTU sizing</span>

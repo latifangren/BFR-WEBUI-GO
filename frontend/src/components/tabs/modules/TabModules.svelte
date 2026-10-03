@@ -141,11 +141,12 @@
 
   <div class="grid grid-cols-1 lg:grid-cols-3 gap-3 sm:gap-6">
     <!-- Module Installer Card -->
+    <!-- Module Installer Card (order-2 on mobile, order-1 on desktop) -->
     <Card
       title="Flash Module Archive"
       subtitle="Install Magisk / KernelSU / APatch ZIP"
       tone="lavender"
-      class="lg:col-span-1"
+      class="order-2 lg:order-1 lg:col-span-1"
     >
       <div class="space-y-4 font-mono text-xs">
         <!-- Hidden file input -->
@@ -161,7 +162,7 @@
         <!-- svelte-ignore a11y_click_events_have_key_events -->
         <!-- svelte-ignore a11y_no_static_element_interactions -->
         <div
-          class="border-2 border-dashed rounded-lg p-6 text-center transition-colors cursor-pointer {isDragOver ? 'border-accent bg-accent/10' : 'border-border bg-card-sub hover:border-accent'}"
+          class="border-2 border-dashed rounded-lg p-3.5 sm:p-6 text-center transition-colors cursor-pointer {isDragOver ? 'border-accent bg-accent/10' : 'border-border bg-card-sub hover:border-accent'}"
           ondragover={(e) => { e.preventDefault(); isDragOver = true }}
           ondragleave={() => { isDragOver = false }}
           ondrop={handleDrop}
@@ -204,12 +205,12 @@
       </div>
     </Card>
 
-    <!-- Installed Modules List Card -->
+    <!-- Installed Modules List Card (order-1 on mobile, order-2 on desktop) -->
     <Card
       title="Installed System Modules"
       subtitle="Active root overlays in /data/adb/modules"
       tone="lavender"
-      class="lg:col-span-2"
+      class="order-1 lg:order-2 lg:col-span-2"
     >
       {#if isLoading && modules.length === 0}
         <div class="p-8 text-center text-muted font-mono text-xs">

@@ -10,6 +10,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **Mobile Layout Density & Bento Grid Overhaul (`TabOverview.svelte`, `TabSysinfo.svelte`, `TabModem.svelte`, `TabPower.svelte`, `TabModules.svelte`, `TabSpeedtest.svelte`, `TabNetwork.svelte`, `TabHotspot.svelte`, `TabAbout.svelte`, `Card.svelte`, `App.svelte`)**:
+  - **Responsive 2-Column Mobile Grids**: Replaced single-column vertical stacks with compact 2-column bento grids across mobile viewports for quick telemetry gauges, hardware specification metrics, sysctl tweaks, and device action cards.
+  - **TabOverview & TabSysinfo Density**: 5 quick gauges, quick action shortcuts, device summary, and device hardware specifications formatted in a balanced 2-column mobile presentation to eliminate excessive vertical scrolling.
+  - **TabModem Optimization**: Target architecture spec boxes converted to 2-column layout and vendor band navigation buttons converted to dense horizontal pill buttons.
+  - **TabPower Reboot Action Matrix**: 5 large stacked reboot cards transformed into a dense 2-column action grid (`grid-cols-2 lg:grid-cols-4`), cutting card height by 65%.
+  - **TabModules Mobile Priority Reorder**: Reordered card sequence on mobile via flex/grid order (`order-1` for installed modules, `order-2` for ZIP installer) so active modules are immediately visible without scrolling past the dropzone.
+  - **TabSpeedtest Dual-Gauge Layout**: Download and upload speed gauges positioned side-by-side on mobile with a full-width ping & jitter status bar underneath.
+  - **TabNetwork Sysctl Tweak Grid**: 9 kernel and network optimization toggles formatted into a 2-column grid instead of 9 individual vertical rows.
+  - **TabHotspot Mobile Client Cards**: Eliminated horizontal table scrolling on mobile viewports by rendering connected client ARP bindings as clean, stacked cards while retaining full tabular view on tablet and desktop.
+  - **Global Spacing & Padding Tightening**: Reduced global card padding from `p-5` to `p-3 sm:p-5`, inner header spacing from `mb-4` to `mb-3 sm:mb-4`, and container gaps across 28 tabs from `gap-6`/`space-y-6` to `gap-3 sm:gap-6`/`space-y-3 sm:space-y-6`.
+
+- **ProjectX Dark Theme & Neobrutalism Fine-Tuning (`themes.css`, `theme.svelte.ts`, `AppearanceModal.svelte`, `common.ts`)**:
+  - **`projectx` Theme Preset**: Introduced Retro-Pop Neobrutalist design tokens ported from ProjectX Go backend featuring deep purple-toned backgrounds (`#18151e`, `#24202b`, `#302b38`, `#0d0b10`), bright accent yellow (`#ffe14a`), and warm cream foregrounds (`#fffaf4`).
+  - **Neobrutalism Extended Tuning Controls**: Sliders and controls in Appearance modal to customize shadow offset (0–8px), border width (1–4px), border radius (0–14px), button click depth (1–4px), and canvas texture overlays (Dots, Grid, None) with 1-click Reset to Defaults.
+
+- **Glassmorphism Style Paradigm & Wallpaper Gallery System (`internal/handlers/theme_handler.go`, `AppearanceModal.svelte`, `App.svelte`)**:
+  - **Glassmorphism UI Mode**: Added `[data-ui-style="glass"]` with translucent frosted-glass panels, backdrop blur filters, and customizable card opacity.
+  - **Real-Time Glass Tuning**: Independent sliders for Backdrop Blur (0–40px), Card Opacity (10%–100%), and Wallpaper Dimming (0%–80%).
+  - **Per-Device Wallpaper Gallery**: Built-in curated presets (Abstract Dark, Cyber Grid, Deep Space, Sunset Gradient) plus custom image uploads (`POST /api/theme/wallpapers`), custom image serving (`GET /api/theme/wallpapers/file`), and deletion (`DELETE /api/theme/wallpapers/delete`).
+  - **Persistent Root Module Storage**: Uploaded wallpapers are stored in `/data/adb/bfr_webui_go/data/wallpapers/` outside the Magisk module directory, surviving module updates and uninstalls. Active wallpaper and sliders persist in client `localStorage` for per-device personalization.
+
+- **Qualcomm Baseband NV Item Manager & Security Bypass (`internal/efs/`, `internal/handlers/nv_handler.go`, `QualcommNV.svelte`)**:
+  - **3-Tier NV Read/Write Fallback**: Automatically cascades through Standard NV (command `0x26`/`0x27`), Subsystem NV (command `0x4B`), and Extended NV (command `0x75`/`0x76`) for broad chipset compatibility.
+  - **Field-Verified Security Bypass**: Single-click `BypassSecurity()` firing all 11 known Qualcomm engineering service programming codes (SPC) and diag passwords (`000000`, `FFFFFFFF`, standard manufacturer keys) using exact HDLC payloads.
+  - **NV Item Database & Browser**: Database of common NV items with descriptions, data lengths, read-only protection flags, and categorizations (RF, LTE, 5G, IMS, SIM, System).
+  - **Read, Write, Backup & Restore**: REST API and interactive WebUI for reading/writing individual items by ID in hex format, downloading full or ranged NV backups as JSON, and restoring backups to baseband.
+
 - **Shannon 5G NR & EN-DC UE Capability Visualizer (`internal/shannon/nr_*.go`, `ShannonCAEditor.svelte`)**:
   - **100% Native Go Protobuf Engine for `ShannonNrUECap`**: Custom binary protobuf decoder for the Shannon modem 5G NR / EN-DC capability format (`.binarypb`) targeting Google Tensor G1–G5 (Pixel 6–10) without any external dependencies.
   - **EN-DC, NR-CA, and NR-DC Combo Classification**: Automatically classifies each decoded combination as EN-DC (LTE anchor + NR secondary), NR-CA (pure NR carrier aggregation), or NR-DC (FR1+FR2 dual connectivity) from raw component vectors.

@@ -251,7 +251,27 @@
         No active devices connected to the SoftAP network.
       </div>
     {:else}
-      <div class="overflow-x-auto">
+      <!-- Mobile Client Cards (sm:hidden) -->
+      <div class="sm:hidden space-y-2">
+        {#each clients as client}
+          <div class="p-2.5 bg-card-sub border border-border rounded-lg flex items-center justify-between font-mono text-xs">
+            <div class="min-w-0 pr-2">
+              <div class="font-bold text-foreground truncate">
+                {client.device || 'Unknown Client'}
+              </div>
+              <div class="flex items-center gap-2 text-[10px] text-muted mt-0.5">
+                <span class="text-accent font-bold">{client.ip}</span>
+                <span>•</span>
+                <span class="truncate">{client.mac}</span>
+              </div>
+            </div>
+            <Badge variant="success" class="text-[9px] shrink-0">Connected</Badge>
+          </div>
+        {/each}
+      </div>
+
+      <!-- Desktop Table View (hidden sm:block) -->
+      <div class="hidden sm:block overflow-x-auto">
         <table class="w-full text-left font-mono text-xs">
           <thead>
             <tr class="border-b border-border text-muted uppercase text-[10px]">

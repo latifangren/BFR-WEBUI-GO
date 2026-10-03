@@ -220,8 +220,8 @@
   </div>
 
   <!-- TARGET ARCHITECTURE & HARDWARE SPECIFICATIONS -->
-  <div class="p-4 bg-card-sub border-2 border-border rounded-lg space-y-3 shadow-neobrutal-sm">
-    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b-2 border-border/60 pb-3">
+  <div class="p-3 sm:p-4 bg-card-sub border-2 border-border rounded-lg space-y-2.5 sm:space-y-3 shadow-neobrutal-sm">
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 sm:gap-2 border-b-2 border-border/60 pb-2 sm:pb-3">
       <div class="flex items-center gap-2">
         <Cpu class="w-4 h-4 text-accent" />
         <span class="text-xs font-bold uppercase tracking-wider text-foreground">
@@ -234,76 +234,76 @@
       </Badge>
     </div>
 
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-xs">
-      <div class="p-2.5 bg-card border-2 border-border rounded">
-        <span class="text-[10px] text-muted uppercase font-bold block mb-1">Target Device</span>
-        <p class="font-bold text-foreground">All Android Smartphones (Universal / Brand-Agnostic)</p>
+    <div class="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3 text-xs">
+      <div class="p-2 sm:p-2.5 bg-card border-2 border-border rounded space-y-0.5">
+        <span class="text-[10px] text-muted uppercase font-bold block">Target Device</span>
+        <p class="font-bold text-foreground text-[11px] sm:text-xs">All Android (Universal)</p>
       </div>
-      <div class="p-2.5 bg-card border-2 border-border rounded">
-        <span class="text-[10px] text-muted uppercase font-bold block mb-1">Target ROM</span>
-        <p class="font-bold text-foreground">All Android 8.0 to Android 15+ System ROMs</p>
+      <div class="p-2 sm:p-2.5 bg-card border-2 border-border rounded space-y-0.5">
+        <span class="text-[10px] text-muted uppercase font-bold block">Target ROM</span>
+        <p class="font-bold text-foreground text-[11px] sm:text-xs">Android 8.0 - 15+ System</p>
       </div>
-      <div class="p-2.5 bg-card border-2 border-border rounded">
-        <span class="text-[10px] text-muted uppercase font-bold block mb-1">Target Chipset</span>
-        <p class="font-bold text-foreground">Qualcomm, MediaTek, Exynos, Google Tensor, Unisoc</p>
+      <div class="p-2 sm:p-2.5 bg-card border-2 border-border rounded space-y-0.5">
+        <span class="text-[10px] text-muted uppercase font-bold block">Target Chipset</span>
+        <p class="font-bold text-foreground text-[11px] sm:text-xs">Snapdragon, MTK, Exynos, Tensor</p>
       </div>
-      <div class="p-2.5 bg-card border-2 border-border rounded">
-        <span class="text-[10px] text-muted uppercase font-bold block mb-1">Target Modem</span>
-        <p class="font-bold text-foreground">Android Telephony Subsystem & Telemetry Services</p>
+      <div class="p-2 sm:p-2.5 bg-card border-2 border-border rounded space-y-0.5">
+        <span class="text-[10px] text-muted uppercase font-bold block">Target Modem</span>
+        <p class="font-bold text-foreground text-[11px] sm:text-xs">Telephony Subsystem & HAL</p>
       </div>
     </div>
   </div>
 
   <!-- DEDICATED BAND LOCKING NAVIGATION BANNER -->
-  <div class="p-4 bg-card-sub border-2 border-border rounded-lg space-y-3">
+  <div class="p-3 sm:p-4 bg-card-sub border-2 border-border rounded-lg space-y-2 sm:space-y-3">
     <div class="flex items-center justify-between">
-      <span class="text-xs font-bold uppercase text-foreground">Looking for Hardware Band Locking?</span>
-      <span class="text-[10px] text-muted font-bold">SELECT TARGET VENDOR TAB</span>
+      <span class="text-xs font-bold uppercase text-foreground">Hardware Band Locking</span>
+      <span class="text-[10px] text-muted font-bold hidden sm:inline">SELECT TARGET VENDOR TAB</span>
     </div>
-    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-3">
       <button
         type="button"
-        class="neo-button p-3 rounded-lg border-2 border-emerald-500/40 bg-emerald-950/20 text-left hover:border-emerald-500 transition-all cursor-pointer shadow-neobrutal-sm"
+        class="neo-button p-2.5 sm:p-3 rounded-lg border-2 border-emerald-500/40 bg-emerald-950/20 text-left hover:border-emerald-500 transition-all cursor-pointer shadow-neobrutal-sm"
         onclick={() => (navigationStore.activeTab = 'qualcomm')}
       >
-        <div class="flex items-center justify-between mb-1">
+        <div class="flex items-center justify-between mb-0.5 sm:mb-1">
           <span class="font-bold text-emerald-400 text-xs flex items-center gap-1.5">
             <Zap class="w-3.5 h-3.5" />
             <span>Snapdragon QMI</span>
           </span>
           <Badge variant="success" class="text-[9px]">QRTR</Badge>
         </div>
-        <p class="text-[10px] text-muted">Pixel 1-5, Xiaomi, POCO, OnePlus, AOSP Snapdragon</p>
+        <p class="text-[10px] text-muted">Pixel 1-5, Xiaomi, POCO, OnePlus Snapdragon</p>
       </button>
 
       <button
         type="button"
-        class="neo-button p-3 rounded-lg border-2 border-cyan-500/40 bg-cyan-950/20 text-left hover:border-cyan-500 transition-all cursor-pointer shadow-neobrutal-sm"
+        class="neo-button p-2.5 sm:p-3 rounded-lg border-2 border-cyan-500/40 bg-cyan-950/20 text-left hover:border-cyan-500 transition-all cursor-pointer shadow-neobrutal-sm"
         onclick={() => (navigationStore.activeTab = 'samsung')}
       >
-        <div class="flex items-center justify-between mb-1">
+        <div class="flex items-center justify-between mb-0.5 sm:mb-1">
           <span class="font-bold text-cyan-400 text-xs flex items-center gap-1.5">
             <Smartphone class="w-3.5 h-3.5" />
             <span>Samsung OneUI</span>
           </span>
           <Badge variant="info" class="text-[9px]">SecRIL</Badge>
         </div>
-        <p class="text-[10px] text-muted">Galaxy Z Flip 3-6, Fold, S20-S24 (Samsung OneUI)</p>
+        <p class="text-[10px] text-muted">Galaxy S/A Series Exynos & Shannon Radio</p>
       </button>
 
       <button
         type="button"
-        class="neo-button p-3 rounded-lg border-2 border-amber-500/40 bg-amber-950/20 text-left hover:border-amber-500 transition-all cursor-pointer shadow-neobrutal-sm"
+        class="neo-button p-2.5 sm:p-3 rounded-lg border-2 border-purple-500/40 bg-purple-950/20 text-left hover:border-purple-500 transition-all cursor-pointer shadow-neobrutal-sm"
         onclick={() => (navigationStore.activeTab = 'shannon')}
       >
-        <div class="flex items-center justify-between mb-1">
-          <span class="font-bold text-amber-400 text-xs flex items-center gap-1.5">
+        <div class="flex items-center justify-between mb-0.5 sm:mb-1">
+          <span class="font-bold text-purple-400 text-xs flex items-center gap-1.5">
             <Layers class="w-3.5 h-3.5" />
-            <span>Google Tensor</span>
+            <span>Tensor Shannon</span>
           </span>
-          <Badge variant="warning" class="text-[9px]">Shannon</Badge>
+          <Badge variant="warning" class="text-[9px]">NV/EFS</Badge>
         </div>
-        <p class="text-[10px] text-muted">Pixel 6, 7, 8, 9 Series (/dev/umts_router)</p>
+        <p class="text-[10px] text-muted">Google Pixel 6, 7, 8, 9 Series Shannon Modem</p>
       </button>
     </div>
   </div>

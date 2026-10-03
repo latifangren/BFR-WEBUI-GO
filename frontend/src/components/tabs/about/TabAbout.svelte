@@ -116,23 +116,23 @@
           </div>
 
           <!-- 4 Specifications Grid -->
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-            <div class="p-3 bg-card-sub border border-border rounded space-y-1">
+          <div class="grid grid-cols-2 sm:grid-cols-2 gap-2 sm:gap-2.5">
+            <div class="p-2.5 sm:p-3 bg-card-sub border border-border rounded space-y-0.5 sm:space-y-1">
               <span class="text-[10px] uppercase font-bold text-muted">App Version</span>
-              <p class="font-bold text-accent">GO v1.2.5 (Build 125)</p>
+              <p class="font-bold text-accent">GO v1.2.5 (125)</p>
             </div>
 
-            <div class="p-3 bg-card-sub border border-border rounded space-y-1">
+            <div class="p-2.5 sm:p-3 bg-card-sub border border-border rounded space-y-0.5 sm:space-y-1">
               <span class="text-[10px] uppercase font-bold text-muted">Environment</span>
-              <p class="font-bold text-foreground">Magisk / KernelSU / APatch</p>
+              <p class="font-bold text-foreground truncate">Root Overlay</p>
             </div>
 
-            <div class="p-3 bg-card-sub border border-border rounded space-y-1">
-              <span class="text-[10px] uppercase font-bold text-muted">Author / Maintainer</span>
+            <div class="p-2.5 sm:p-3 bg-card-sub border border-border rounded space-y-0.5 sm:space-y-1">
+              <span class="text-[10px] uppercase font-bold text-muted">Maintainer</span>
               <p class="font-bold text-foreground">latifangren</p>
             </div>
 
-            <div class="p-3 bg-card-sub border border-border rounded space-y-1">
+            <div class="p-2.5 sm:p-3 bg-card-sub border border-border rounded space-y-0.5 sm:space-y-1">
               <span class="text-[10px] uppercase font-bold text-muted">License</span>
               <p class="font-bold text-emerald-400">MIT Open Source</p>
             </div>
@@ -235,7 +235,7 @@
               src={qrisImg}
               alt="QRIS Donation"
               loading="eager"
-              class="w-full max-w-[220px] mx-auto rounded-xl border-2 border-border shadow-neobrutal-sm bg-white p-2"
+              class="w-full max-w-[180px] sm:max-w-[220px] mx-auto rounded-xl border-2 border-border shadow-neobrutal-sm bg-white p-2"
             />
           </div>
 

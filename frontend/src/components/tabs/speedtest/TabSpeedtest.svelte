@@ -184,41 +184,48 @@
   {/if}
 
   <!-- Gauges Grid -->
-  <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-6 font-mono">
+  <div class="grid grid-cols-2 sm:grid-cols-3 gap-2.5 sm:gap-6 font-mono">
     <!-- Download Speed -->
-    <div class="neo-card bg-card border-2 border-border shadow-neobrutal p-6 rounded flex flex-col items-center justify-center space-y-2 text-center">
-      <div class="p-3 rounded-full bg-accent/10 border border-accent text-accent">
-        <ArrowDown class="w-6 h-6" />
+    <div class="neo-card bg-card border-2 border-border p-3.5 sm:p-6 rounded flex flex-col items-center justify-center space-y-1 sm:space-y-2 text-center">
+      <div class="p-2 sm:p-3 rounded-full bg-accent/10 border border-accent text-accent">
+        <ArrowDown class="w-4 h-4 sm:w-6 sm:h-6" />
       </div>
-      <span class="text-xs text-muted uppercase font-bold tracking-wider">Download Speed</span>
-      <div class="text-3xl sm:text-4xl font-black text-foreground">
+      <span class="text-[10px] sm:text-xs text-muted uppercase font-bold tracking-wider">Download</span>
+      <div class="text-2xl sm:text-4xl font-black text-foreground">
         {result.download_mbps.toFixed(1)}
       </div>
-      <span class="text-xs text-muted">Mbps</span>
+      <span class="text-[10px] sm:text-xs text-muted">Mbps</span>
     </div>
 
     <!-- Upload Speed -->
-    <div class="neo-card bg-card border-2 border-border shadow-neobrutal p-6 rounded flex flex-col items-center justify-center space-y-2 text-center">
-      <div class="p-3 rounded-full bg-purple-500/10 border border-purple-500 text-purple-400">
-        <ArrowUp class="w-6 h-6" />
+    <div class="neo-card bg-card border-2 border-border p-3.5 sm:p-6 rounded flex flex-col items-center justify-center space-y-1 sm:space-y-2 text-center">
+      <div class="p-2 sm:p-3 rounded-full bg-purple-500/10 border border-purple-500 text-purple-400">
+        <ArrowUp class="w-4 h-4 sm:w-6 sm:h-6" />
       </div>
-      <span class="text-xs text-muted uppercase font-bold tracking-wider">Upload Speed</span>
-      <div class="text-3xl sm:text-4xl font-black text-foreground">
+      <span class="text-[10px] sm:text-xs text-muted uppercase font-bold tracking-wider">Upload</span>
+      <div class="text-2xl sm:text-4xl font-black text-foreground">
         {result.upload_mbps.toFixed(1)}
       </div>
-      <span class="text-xs text-muted">Mbps</span>
+      <span class="text-[10px] sm:text-xs text-muted">Mbps</span>
     </div>
 
     <!-- Ping & Jitter -->
-    <div class="neo-card bg-card border-2 border-border shadow-neobrutal p-6 rounded flex flex-col items-center justify-center space-y-2 text-center">
-      <div class="p-3 rounded-full bg-emerald-500/10 border border-emerald-500 text-emerald-400">
-        <Activity class="w-6 h-6" />
+    <div class="neo-card bg-card border-2 border-border col-span-2 sm:col-span-1 p-3 sm:p-6 rounded flex items-center justify-between sm:flex-col sm:justify-center sm:space-y-2 text-left sm:text-center">
+      <div class="flex items-center gap-2.5 sm:flex-col sm:gap-1">
+        <div class="p-2 sm:p-3 rounded-full bg-emerald-500/10 border border-emerald-500 text-emerald-400">
+          <Activity class="w-4 h-4 sm:w-6 sm:h-6" />
+        </div>
+        <div>
+          <span class="text-[10px] sm:text-xs text-muted uppercase font-bold tracking-wider block">Ping / Latency</span>
+          <span class="text-[10px] text-muted sm:hidden">Jitter: {result.jitter_ms.toFixed(0)} ms</span>
+        </div>
       </div>
-      <span class="text-xs text-muted uppercase font-bold tracking-wider">Latency / Ping</span>
-      <div class="text-3xl sm:text-4xl font-black text-foreground">
-        {result.ping_ms.toFixed(0)}
+      <div class="text-right sm:text-center">
+        <div class="text-xl sm:text-4xl font-black text-foreground">
+          {result.ping_ms.toFixed(0)} <span class="text-xs font-normal text-muted">ms</span>
+        </div>
+        <span class="text-xs text-muted hidden sm:inline">Jitter: {result.jitter_ms.toFixed(0)} ms</span>
       </div>
-      <span class="text-xs text-muted">ms (Jitter: {result.jitter_ms.toFixed(0)} ms)</span>
     </div>
   </div>
 
