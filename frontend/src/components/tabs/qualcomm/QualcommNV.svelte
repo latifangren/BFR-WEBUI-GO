@@ -585,9 +585,9 @@
     </div>
 
     <div class="space-y-1">
-      <label class="text-[10px] text-muted uppercase font-bold block">
+      <span class="text-[10px] text-muted uppercase font-bold block">
         Hex Data ({selectedItem?.size ?? 0} bytes expected)
-      </label>
+      </span>
       <input
         type="text"
         bind:value={writeHex}
@@ -649,13 +649,13 @@
     {#if backupMode === 'range'}
       <div class="grid grid-cols-2 gap-2">
         <div class="space-y-1">
-          <label class="text-[10px] text-muted uppercase font-bold block">Start ID</label>
+          <span class="text-[10px] text-muted uppercase font-bold block">Start ID</span>
           <input type="number" bind:value={backupRangeStart} min="0" max="65535"
             class="w-full px-3 py-1.5 text-xs bg-card border-2 border-border rounded
                    text-foreground focus:outline-none focus:border-accent transition-colors" />
         </div>
         <div class="space-y-1">
-          <label class="text-[10px] text-muted uppercase font-bold block">End ID</label>
+          <span class="text-[10px] text-muted uppercase font-bold block">End ID</span>
           <input type="number" bind:value={backupRangeEnd} min="0" max="65535"
             class="w-full px-3 py-1.5 text-xs bg-card border-2 border-border rounded
                    text-foreground focus:outline-none focus:border-accent transition-colors" />
@@ -669,7 +669,7 @@
     {/if}
 
     <div class="space-y-1">
-      <label class="text-[10px] text-muted uppercase font-bold block">Output File Path</label>
+      <span class="text-[10px] text-muted uppercase font-bold block">Output File Path</span>
       <input type="text" bind:value={backupFilename} placeholder="/sdcard/nv_backup.json"
         class="w-full px-3 py-1.5 text-xs font-mono bg-card border-2 border-border rounded
                text-foreground placeholder:text-muted focus:outline-none focus:border-accent transition-colors" />
@@ -704,7 +704,7 @@
 
     <div class="flex gap-2 pt-1">
       <Button variant="secondary" size="sm" class="flex-1" onclick={() => { backupModalOpen = false; backupStats = null }}>Close</Button>
-      <Button variant="accent" size="sm" class="flex-1" disabled={isBackingUp} onclick={runBackup}>
+      <Button variant="primary" size="sm" class="flex-1" disabled={isBackingUp} onclick={runBackup}>
         {#if isBackingUp}
           <RefreshCw class="w-3.5 h-3.5 animate-spin mr-1" />Backing up...
         {:else}
@@ -727,7 +727,7 @@
     </div>
 
     <div class="space-y-1">
-      <label class="text-[10px] text-muted uppercase font-bold block">Backup File Path</label>
+      <span class="text-[10px] text-muted uppercase font-bold block">Backup File Path</span>
       <input type="text" bind:value={restoreFilename} placeholder="/sdcard/nv_backup.json"
         class="w-full px-3 py-1.5 text-xs font-mono bg-card border-2 border-border rounded
                text-foreground placeholder:text-muted focus:outline-none focus:border-accent transition-colors" />

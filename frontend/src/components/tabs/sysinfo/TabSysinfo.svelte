@@ -180,7 +180,7 @@
           <div class="bg-card-sub border border-border p-2 sm:p-3 rounded space-y-0.5 sm:space-y-1">
             <span class="text-[10px] text-muted uppercase font-bold">Resolution & Density</span>
             <div class="text-xs font-bold text-foreground">
-              {stats.screen_res || 'N/A'} ({stats.screen_dpi || 'N/A'} dpi)
+              {stats.resolution || 'N/A'} ({stats.density || 'N/A'})
             </div>
           </div>
 
