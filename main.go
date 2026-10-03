@@ -14,6 +14,7 @@ import (
 	"bfr-webui-go/internal/auth"
 	"bfr-webui-go/internal/charger"
 	"bfr-webui-go/internal/handlers"
+	"bfr-webui-go/internal/kernel"
 	"bfr-webui-go/internal/logger"
 	"bfr-webui-go/internal/nas"
 	"bfr-webui-go/internal/network"
@@ -37,6 +38,10 @@ func main() {
 		log.Println("Applying system & network optimizations from tweaks.json...")
 		if err := network.ApplyAllTweaks(); err != nil {
 			log.Fatalf("Failed to apply tweaks: %v", err)
+		}
+		log.Println("Applying saved kernel parameters & governor policies...")
+		if err := kernel.GetManager().ApplySavedConfig(); err != nil {
+			log.Printf("Warning: applying saved kernel config: %v", err)
 		}
 		log.Println("Optimizations applied successfully.")
 		os.Exit(0)
@@ -88,6 +93,12 @@ func main() {
 
 	go func() {
 		_ = charger.GetManager()
+	}()
+
+	go func() {
+		if err := kernel.GetManager().ApplySavedConfig(); err != nil {
+			log.Printf("Kernel config restoration: %v", err)
+		}
 	}()
 
 	go func() {

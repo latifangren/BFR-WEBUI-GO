@@ -2,6 +2,7 @@ import type { Component } from 'svelte'
 
 import TabOverview from './overview/TabOverview.svelte'
 import TabSysinfo from './sysinfo/TabSysinfo.svelte'
+import TabKernel from './kernel/TabKernel.svelte'
 import TabNetwork from './network/TabNetwork.svelte'
 import TabHotspot from './hotspot/TabHotspot.svelte'
 import TabPower from './power/TabPower.svelte'
@@ -31,6 +32,7 @@ import TabSMS from './sms/TabSMS.svelte'
 export const TAB_COMPONENTS: Record<string, Component> = {
   overview: TabOverview,
   sysinfo: TabSysinfo,
+  kernel: TabKernel,
   network: TabNetwork,
   hotspot: TabHotspot,
   power: TabPower,

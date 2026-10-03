@@ -173,4 +173,5 @@ func RegisterRoutes(mux *http.ServeMux, authMgr *auth.Manager) {
 	registerSystemRoutes(rc)
 	registerNetworkRoutes(rc)
 	registerModemRoutes(rc)
+	registerKernelRoutes(rc)
 }

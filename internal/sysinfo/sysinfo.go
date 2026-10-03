@@ -100,6 +100,7 @@ type Stats struct {
 	MTU            string          `json:"mtu"`
 	DefaultTTL     string          `json:"default_ttl"`
 	Kernel         string          `json:"kernel"`
+	Governor       string          `json:"governor"`
 	ServerTime     string          `json:"server_time"`
 	LocalTime      string          `json:"local_time"`
 	Hostname       string          `json:"hostname"`
@@ -303,6 +304,7 @@ func buildStats() (Stats, error) {
 	s.Resolution = info.resolution
 	s.Density = info.density
 	s.Kernel = info.kernel
+	s.Governor = getGovernor()
 
 	s.SELinux = getSELinux()
 	s.MTU = getMTU()
@@ -938,6 +940,22 @@ func getKernelVersion() string {
 	}
 	return "Unknown Kernel"
 }
+func getGovernor() string {
+	paths := []string{
+		"/sys/devices/system/cpu/cpufreq/policy0/scaling_governor",
+		"/sys/devices/system/cpu/cpu0/cpufreq/scaling_governor",
+	}
+	for _, p := range paths {
+		if data, err := os.ReadFile(p); err == nil {
+			val := strings.TrimSpace(string(data))
+			if val != "" {
+				return val
+			}
+		}
+	}
+	return "Unknown"
+}
+
 
 func getScreenResolution() string {
 	out := runCmdTimeout(2*time.Second, "wm", "size")

@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
-	"path/filepath"
 	"strconv"
 	"strings"
 	"time"
@@ -26,18 +25,7 @@ type TweaksConfig struct {
 }
 
 func GetConfigPath() string {
-	// Try Magisk folder first, fallback to current dir
-	paths := []string{
-		filepath.Join(config.ModuleDir, "tweaks.json"),
-		"./tweaks.json",
-		"tweaks.json",
-	}
-	for _, p := range paths {
-		if _, err := os.Stat(p); err == nil {
-			return p
-		}
-	}
-	return "tweaks.json"
+	return config.GetPersistentFilePath("tweaks.json")
 }
 
 func LoadTweaks() (TweaksConfig, error) {

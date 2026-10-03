@@ -22,6 +22,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Fixed `Button` variant typing and accessible form label tags in `QualcommNV.svelte`, achieving 0 errors and 0 warnings in `svelte-check`.
 
 ### Added
+- **Hardware Kernel Manager & SoC Tuner (`internal/kernel/`, `TabKernel.svelte`)**:
+  - **Multi-Cluster CPU Scaling**: Automatic detection of CPU clusters (Little, Big, Prime) with policy-level scaling governor selection and granular min/max frequency clock bounds.
+  - **Virtual Memory & Sysctl Tuning**: Fine-grained control of VM Swappiness (`/proc/sys/vm/swappiness`), VFS Cache Pressure, Dirty Ratio, Dirty Background Ratio, and TCP Congestion Control algorithms (`bbr`, `cubic`, `reno`).
+  - **Preset Profiles**: Instant 1-click kernel profiles (*Battery Saver*, *Balanced*, *Performance*) with active beacon indicators.
+  - **Persistent Storage**: All custom kernel configurations and governor policies are saved to `/data/adb/bfr_webui_go/data/kernel_config.json`, surviving Magisk module ZIP updates and automatically re-applying on boot via `--apply-tweaks`.
+- **Persistent Tweaks Migration (`internal/network/config.go`)**:
+  - Migrated `tweaks.json` resolution to `config.GetPersistentFilePath("tweaks.json")` (`/data/adb/bfr_webui_go/data/tweaks.json`), preventing user network tweaks from being overwritten during full ZIP package updates.
+- **Sysinfo Telemetry Purity (`TabSysinfo.svelte`, `internal/sysinfo/sysinfo.go`)**:
+  - Extracted interactive governor controls out of Sysinfo into the dedicated Kernel Manager tab, transforming Sysinfo into a pure 100% telemetry monitor with live CPU scaling governor detection (`stats.governor`).
 - **Mobile Layout Density & Bento Grid Overhaul (`TabOverview.svelte`, `TabSysinfo.svelte`, `TabModem.svelte`, `TabPower.svelte`, `TabModules.svelte`, `TabSpeedtest.svelte`, `TabNetwork.svelte`, `TabHotspot.svelte`, `TabAbout.svelte`, `Card.svelte`, `App.svelte`)**:
   - **Responsive 2-Column Mobile Grids**: Replaced single-column vertical stacks with compact 2-column bento grids across mobile viewports for quick telemetry gauges, hardware specification metrics, sysctl tweaks, and device action cards.
   - **TabOverview & TabSysinfo Density**: 5 quick gauges, quick action shortcuts, device summary, and device hardware specifications formatted in a balanced 2-column mobile presentation to eliminate excessive vertical scrolling.

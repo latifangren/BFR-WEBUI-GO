@@ -41,7 +41,7 @@ export interface NavCategoryGroup {
 }
 
 export const NAV_CATEGORIES: NavCategoryGroup[] = [
-  { id: 'core', label: 'Core', icon: 'LayoutDashboard', tabs: ['overview', 'sysinfo', 'about'] },
+  { id: 'core', label: 'Core', icon: 'LayoutDashboard', tabs: ['overview', 'sysinfo', 'kernel', 'about'] },
   { id: 'network', label: 'Network', icon: 'Network', tabs: ['network', 'hotspot', 'proxy', 'modem', 'qualcomm', 'samsung', 'shannon', 'sms', 'qos', 'vnstat', 'tunnel'] },
   { id: 'system', label: 'System', icon: 'Cpu', tabs: ['power', 'charger', 'modules', 'partitions'] },
   { id: 'tools', label: 'Tools', icon: 'Wrench', tabs: ['terminal', 'ssh', 'scrcpy', 'files', 'logs', 'nas', 'speedtest', 'tools', 'telegram'] },
@@ -50,6 +50,7 @@ export const NAV_CATEGORIES: NavCategoryGroup[] = [
 export const AVAILABLE_TABS: TabItem[] = [
   { id: 'overview', label: 'Overview', icon: 'LayoutDashboard', category: 'core', badge: 'PRO', badgeColor: 'amber' },
   { id: 'sysinfo', label: 'Sysinfo', icon: 'Cpu', category: 'core', badge: 'CORE', badgeColor: 'mint' },
+  { id: 'kernel', label: 'Kernel', icon: 'Sliders', category: 'core', badge: 'NEW', badgeColor: 'mint' },
   { id: 'network', label: 'Network', icon: 'Network', category: 'network', badge: 'NET', badgeColor: 'ice' },
   { id: 'hotspot', label: 'Hotspot', icon: 'Wifi', category: 'network', badge: 'WIFI', badgeColor: 'mint' },
   { id: 'proxy', label: 'Proxy', icon: 'Shield', category: 'network', badge: 'CLASH', badgeColor: 'lavender' },
