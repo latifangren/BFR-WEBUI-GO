@@ -101,6 +101,16 @@ func maxBodySize(next http.HandlerFunc) http.HandlerFunc {
 	}
 }
 
+type routeContext struct {
+	mux     *http.ServeMux
+	authMgr *auth.Manager
+	wrap    func(h http.HandlerFunc, isProtected bool) http.HandlerFunc
+	authH   *AuthHandler
+	termH   *TerminalHandler
+	scrcpyH *ScrcpyHandler
+	logcatH *LogcatHandler
+}
+
 func RegisterRoutes(mux *http.ServeMux, authMgr *auth.Manager) {
 	distFS, err := frontend.GetFS()
 	if err != nil {
@@ -148,252 +158,19 @@ func RegisterRoutes(mux *http.ServeMux, authMgr *auth.Manager) {
 		return securityHeaders(maxBodySize(fn))
 	}
 
-	// Auth URLs
-	mux.HandleFunc("/api/auth/status", wrap(authH.Status, false))
-	mux.HandleFunc("/api/auth/login", wrap(authH.Login, false))
-	mux.HandleFunc("/api/auth/logout", wrap(authH.Logout, false))
-	mux.HandleFunc("/api/auth/change-password", wrap(authH.ChangePassword, true))
+	rc := &routeContext{
+		mux:     mux,
+		authMgr: authMgr,
+		wrap:    wrap,
+		authH:   authH,
+		termH:   termH,
+		scrcpyH: scrcpyH,
+		logcatH: logcatH,
+	}
 
-	// Sysinfo URLs
-	mux.HandleFunc("/api/stats", wrap(HandleSysinfo, true))
-	mux.HandleFunc("/api/sysinfo", wrap(HandleSysinfo, true))
-	mux.HandleFunc("/api/sysinfo/governor", wrap(func(w http.ResponseWriter, r *http.Request) {
-		if r.Method == http.MethodGet {
-			HandleGovernorStatus(w, r)
-		} else {
-			HandleGovernorSet(w, r)
-		}
-	}, true))
-
-	// Power URLs
-	mux.HandleFunc("/api/power", wrap(HandlePower, true))
-	mux.HandleFunc("/api/power/schedule", wrap(HandlePowerSchedule, true))
-
-	// Network URLs
-	mux.HandleFunc("/api/network/tweaks", wrap(HandleNetworkTweaks, true))
-	mux.HandleFunc("/api/network/tweaks/restore", wrap(HandleNetworkTweaksRestore, true))
-	mux.HandleFunc("/api/network/ping", wrap(HandlePing, true))
-	mux.HandleFunc("/api/network/dns", wrap(HandleDNS, true))
-	mux.HandleFunc("/api/network/rps", wrap(HandleRPS, true))
-	mux.HandleFunc("/api/network/ttl", wrap(HandleTTL, true))
-
-	// Proxy URLs
-	mux.HandleFunc("/api/proxy/status", wrap(HandleProxyStatus, true))
-	mux.HandleFunc("/api/proxy/control", wrap(HandleProxyControl, true))
-	mux.HandleFunc("/api/proxy/logs", wrap(HandleProxyLogs, true))
-	mux.HandleFunc("/api/proxy/watchdog", wrap(HandleProxyWatchdog, true))
-	mux.HandleFunc("/api/proxy/config", wrap(HandleProxyConfig, true))
-
-	// Files URLs
-	mux.HandleFunc("/api/files/list", wrap(HandleFilesList, true))
-	mux.HandleFunc("/api/files/read", wrap(HandleFilesRead, true))
-	mux.HandleFunc("/api/files/save", wrap(HandleFilesSave, true))
-	mux.HandleFunc("/api/files/upload", wrap(HandleFilesUpload, true))
-	mux.HandleFunc("/api/files/download", wrap(HandleFilesDownload, true))
-	mux.HandleFunc("/api/files/delete", wrap(HandleFilesDelete, true))
-	mux.HandleFunc("/api/files/mkdir", wrap(HandleFilesMkdir, true))
-	mux.HandleFunc("/api/files/rename", wrap(HandleFilesRename, true))
-	mux.HandleFunc("/api/files/create", wrap(HandleFilesCreate, true))
-	mux.HandleFunc("/api/files/copy", wrap(HandleFilesCopy, true))
-	mux.HandleFunc("/api/files/move", wrap(HandleFilesMove, true))
-	mux.HandleFunc("/api/files/batch", wrap(HandleFilesBatch, true))
-	mux.HandleFunc("/api/files/permissions", wrap(HandleFilesPermissions, true))
-	mux.HandleFunc("/api/files/compress", wrap(HandleFilesCompress, true))
-	mux.HandleFunc("/api/files/extract", wrap(HandleFilesExtract, true))
-	mux.HandleFunc("/api/files/search", wrap(HandleFilesSearch, true))
-	mux.HandleFunc("/api/files/storage", wrap(HandleFilesStorage, true))
-
-	// Hotspot URLs
-	mux.HandleFunc("/api/hotspot/status", wrap(HandleHotspotStatus, true))
-	mux.HandleFunc("/api/hotspot/control", wrap(HandleHotspotControl, true))
-	mux.HandleFunc("/api/hotspot/clients", wrap(HandleHotspotClients, true))
-	mux.HandleFunc("/api/hotspot/mac-filter", wrap(HandleHotspotMACFilter, true))
-
-	// Vnstat URLs
-	mux.HandleFunc("/api/vnstat/stats", wrap(HandleVnstatStats, true))
-	mux.HandleFunc("/api/vnstat/reset", wrap(HandleVnstatReset, true))
-
-	// Custom App Shortcuts URLs
-	mux.HandleFunc("/api/shortcuts/list", wrap(HandleShortcutsList, true))
-	mux.HandleFunc("/api/shortcuts/save", wrap(HandleShortcutsSave, true))
-	mux.HandleFunc("/api/shortcuts/delete", wrap(HandleShortcutsDelete, true))
-
-
-	// Theme Wallpaper URLs
-	mux.HandleFunc("/api/theme/wallpapers", wrap(HandleThemeWallpapers, true))
-	mux.HandleFunc("/api/theme/wallpapers/upload", wrap(HandleThemeWallpaperUpload, true))
-	mux.HandleFunc("/api/theme/wallpapers/file", wrap(HandleThemeWallpaperFile, false))
-	mux.HandleFunc("/api/theme/wallpapers/delete", wrap(HandleThemeWallpaperDelete, true))
-	// Smart Charger URLs
-	mux.HandleFunc("/api/charger/config", wrap(HandleChargerConfig, true))
-	mux.HandleFunc("/api/charger/toggle", wrap(HandleChargerToggle, true))
-	mux.HandleFunc("/api/charger/probe", wrap(HandleChargerProbe, true))
-
-	// QoS URLs
-	mux.HandleFunc("/api/qos/status", wrap(HandleQoSStatus, true))
-	mux.HandleFunc("/api/qos/apply", wrap(HandleQoSApply, true))
-	mux.HandleFunc("/api/qos/clear", wrap(HandleQoSClear, true))
-
-	// Modem / Band Control URLs
-	mux.HandleFunc("/api/modem/signal", wrap(HandleModemSignal, true))
-	mux.HandleFunc("/api/modem/bands", wrap(HandleModemBands, true))
-	mux.HandleFunc("/api/modem/at", wrap(HandleModemAT, true))
-	mux.HandleFunc("/api/modem/reset", wrap(HandleModemReset, true))
-	mux.HandleFunc("/api/modem/bands/reset", wrap(HandleModemReset, true))
-	mux.HandleFunc("/api/modem/sim/status", wrap(HandleModemSimStatus, true))
-	mux.HandleFunc("/api/modem/sim/switch", wrap(HandleModemSimSwitch, true))
-	mux.HandleFunc("/api/modem/thermal", wrap(HandleModemThermal, true))
-	mux.HandleFunc("/api/modem/cell_lock", wrap(HandleModemCellLock, true))
-	mux.HandleFunc("/api/modem/cell_lock/clear", wrap(HandleModemCellLockClear, true))
-	mux.HandleFunc("/api/modem/cell_scan", wrap(HandleModemCellScan, true))
-	mux.HandleFunc("/api/modem/plmn_lock", wrap(HandleModemPlmnLock, true))
-	mux.HandleFunc("/api/modem/hardware_bands", wrap(HandleModemHardwareBands, true))
-
-	// Samsung RIL URLs
-	mux.HandleFunc("/api/samsung/status", wrap(HandleSamsungStatus, true))
-	mux.HandleFunc("/api/samsung/bands", wrap(HandleSamsungBands, true))
-	mux.HandleFunc("/api/samsung/lock", wrap(HandleSamsungLock, true))
-	mux.HandleFunc("/api/samsung/auto", wrap(HandleSamsungAuto, true))
-	mux.HandleFunc("/api/samsung/sim/switch", wrap(HandleSamsungSimSwitch, true))
-	mux.HandleFunc("/api/samsung/thermal", wrap(HandleSamsungThermal, true))
-
-	// Google Tensor Shannon Modem URLs
-	mux.HandleFunc("/api/shannon/status", wrap(HandleShannonStatus, true))
-	mux.HandleFunc("/api/shannon/lock", wrap(HandleShannonLock, true))
-	mux.HandleFunc("/api/shannon/reset", wrap(HandleShannonReset, true))
-	mux.HandleFunc("/api/shannon/ca/status", wrap(HandleShannonCAStatus, true))
-	mux.HandleFunc("/api/shannon/ca/document", wrap(HandleShannonCAGetDocument, true))
-	mux.HandleFunc("/api/shannon/ca/load", wrap(HandleShannonCALoadFile, true))
-	mux.HandleFunc("/api/shannon/ca/upload", wrap(HandleShannonCAUpload, true))
-	mux.HandleFunc("/api/shannon/ca/save", wrap(HandleShannonCASaveFile, true))
-	mux.HandleFunc("/api/shannon/ca/download", wrap(HandleShannonCADownload, true))
-	mux.HandleFunc("/api/shannon/ca/validate", wrap(HandleShannonCAValidate, true))
-	mux.HandleFunc("/api/shannon/ca/autogen", wrap(HandleShannonCAAutoGen, true))
-	mux.HandleFunc("/api/shannon/ca/prune", wrap(HandleShannonCAPrune, true))
-	mux.HandleFunc("/api/shannon/ca/clear", wrap(HandleShannonCAClear, true))
-
-	// Google Tensor Shannon Modem 5G NR & EN-DC URLs
-	mux.HandleFunc("/api/shannon/nr/status", wrap(HandleShannonNRStatus, true))
-	mux.HandleFunc("/api/shannon/nr/document", wrap(HandleShannonNRGetDocument, true))
-	mux.HandleFunc("/api/shannon/nr/load", wrap(HandleShannonNRLoadFile, true))
-	mux.HandleFunc("/api/shannon/nr/upload", wrap(HandleShannonNRUpload, true))
-	mux.HandleFunc("/api/shannon/nr/demo", wrap(HandleShannonNRDemo, true))
-	mux.HandleFunc("/api/shannon/nr/download", wrap(HandleShannonNRDownload, true))
-	mux.HandleFunc("/api/shannon/nr/clear", wrap(HandleShannonNRClear, true))
-
-
-
-	// Qualcomm Snapdragon QMI URLs
-	mux.HandleFunc("/api/qualcomm/bands", wrap(HandleModemBands, true))
-	mux.HandleFunc("/api/qualcomm/bands/reset", wrap(HandleModemReset, true))
-	mux.HandleFunc("/api/qualcomm/reset", wrap(HandleModemReset, true))
-	mux.HandleFunc("/api/qualcomm/cell_lock", wrap(HandleModemCellLock, true))
-	mux.HandleFunc("/api/qualcomm/cell_lock/clear", wrap(HandleModemCellLockClear, true))
-	mux.HandleFunc("/api/qualcomm/cell_scan", wrap(HandleModemCellScan, true))
-	mux.HandleFunc("/api/qualcomm/plmn_lock", wrap(HandleModemPlmnLock, true))
-	mux.HandleFunc("/api/qualcomm/hardware_bands", wrap(HandleModemHardwareBands, true))
-
-	// Qualcomm Snapdragon EFS2 & DIAG URLs
-	mux.HandleFunc("/api/efs/status", wrap(HandleEfsStatus, true))
-	mux.HandleFunc("/api/efs/connect", wrap(HandleEfsConnect, true))
-	mux.HandleFunc("/api/efs/disconnect", wrap(HandleEfsDisconnect, true))
-	mux.HandleFunc("/api/efs/readonly", wrap(HandleEfsReadOnly, true))
-	mux.HandleFunc("/api/efs/list", wrap(HandleEfsList, true))
-	mux.HandleFunc("/api/efs/read", wrap(HandleEfsRead, true))
-	mux.HandleFunc("/api/efs/write", wrap(HandleEfsWrite, true))
-	mux.HandleFunc("/api/efs/mkdir", wrap(HandleEfsMkdir, true))
-	mux.HandleFunc("/api/efs/unlink", wrap(HandleEfsUnlink, true))
-	mux.HandleFunc("/api/efs/rename", wrap(HandleEfsRename, true))
-	mux.HandleFunc("/api/efs/chmod", wrap(HandleEfsChmod, true))
-	mux.HandleFunc("/api/efs/nv/items", wrap(HandleEfsNVItems, true))
-	mux.HandleFunc("/api/efs/nv/read", wrap(HandleEfsNVRead, true))
-	mux.HandleFunc("/api/efs/nv/write", wrap(HandleEfsNVWrite, true))
-	mux.HandleFunc("/api/efs/nv/backup", wrap(HandleEfsNVBackup, true))
-	mux.HandleFunc("/api/efs/nv/restore", wrap(HandleEfsNVRestore, true))
-	mux.HandleFunc("/api/efs/nv/format", wrap(HandleEfsNVFormat, true))
-	mux.HandleFunc("/api/efs/spc", wrap(HandleEfsSPC, true))
-	mux.HandleFunc("/api/efs/ssr", wrap(HandleEfsSSR, true))
-	mux.HandleFunc("/api/efs/backup", wrap(HandleEfsBackup, true))
-	mux.HandleFunc("/api/efs/carrier-policy/parse", wrap(HandleEfsParseCarrierPolicy, true))
-
-	// Cloudflare / Remote Tunnel URLs
-	mux.HandleFunc("/api/tunnel/status", wrap(HandleTunnelStatus, true))
-	mux.HandleFunc("/api/tunnel/start", wrap(HandleTunnelStart, true))
-	mux.HandleFunc("/api/tunnel/stop", wrap(HandleTunnelStop, true))
-	mux.HandleFunc("/api/tunnel/upload", wrap(HandleTunnelUploadBinary, true))
-
-	// Local NAS File Server URLs
-	mux.HandleFunc("/api/nas/status", wrap(HandleNASStatus, true))
-	mux.HandleFunc("/api/nas/start", wrap(HandleNASStart, true))
-	mux.HandleFunc("/api/nas/stop", wrap(HandleNASStop, true))
-
-	// Telegram URLs
-	mux.HandleFunc("/api/telegram/status", wrap(HandleTelegramStatus, true))
-	mux.HandleFunc("/api/telegram/config", wrap(HandleTelegramConfig, true))
-	mux.HandleFunc("/api/telegram/control", wrap(HandleTelegramControl, true))
-
-	// SSH URLs
-	mux.HandleFunc("/api/ssh/status", wrap(HandleSSHStatus, true))
-	mux.HandleFunc("/api/ssh/config", wrap(HandleSSHConfig, true))
-	mux.HandleFunc("/api/ssh/control", wrap(HandleSSHControl, true))
-
-	// Logs URLs
-	mux.HandleFunc("/api/logs", wrap(HandleLogs, true))
-	mux.HandleFunc("/api/logs/clear", wrap(HandleLogsClear, true))
-	mux.HandleFunc("/api/logs/logcat/stream", logcatH.HandleWS)
-
-	// Modules URLs
-	mux.HandleFunc("/api/modules", wrap(HandleModulesList, true))
-	mux.HandleFunc("/api/modules/toggle", wrap(HandleModulesToggle, true))
-	mux.HandleFunc("/api/modules/install", wrap(HandleModulesInstall, true))
-
-	// Backup URLs
-	mux.HandleFunc("/api/backup/export", wrap(HandleBackupExport, true))
-	mux.HandleFunc("/api/backup/import", wrap(HandleBackupImport, true))
-	mux.HandleFunc("/api/backup/cloud/config", wrap(HandleCloudBackupConfig, true))
-	mux.HandleFunc("/api/backup/cloud/sync", wrap(HandleCloudBackupSync, true))
-
-	// Partition URLs
-	mux.HandleFunc("/api/partitions", wrap(HandleListPartitions, true))
-	mux.HandleFunc("/api/partitions/backup", wrap(HandleBackupPartition, true))
-	mux.HandleFunc("/api/partitions/backup-group", wrap(HandleBackupGroup, true))
-	mux.HandleFunc("/api/partitions/backups", wrap(HandleListBackups, true))
-	mux.HandleFunc("/api/partitions/download", wrap(HandleDownloadBackup, true))
-	mux.HandleFunc("/api/partitions/backup/delete", wrap(HandleDeleteBackup, true))
-	mux.HandleFunc("/api/partitions/flash", wrap(HandleFlashPartition, true))
-
-	// Speedtest URLs
-	mux.HandleFunc("/api/speedtest/start", wrap(HandleSpeedtestStart, true))
-	mux.HandleFunc("/api/speedtest/status", wrap(HandleSpeedtestStatus, true))
-	mux.HandleFunc("/api/speedtest/stop", wrap(HandleSpeedtestStop, true))
-	mux.HandleFunc("/api/speedtest/history", wrap(HandleSpeedtestHistory, true))
-
-	// SMS Viewer URLs
-	mux.HandleFunc("/api/sms/inbox", wrap(HandleSMSInbox, true))
-
-	// Docs URL
-	mux.HandleFunc("/docs", wrap(func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Content-Type", "text/html; charset=utf-8")
-		html := `<!doctype html>
-<html>
-<head>
-  <title>BFR WEBUI GO API Docs</title>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <style>body { margin: 0; background: #0f172a; color: #fff; }</style>
-</head>
-<body>
-  <script id="api-reference" data-url="/openapi.json"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@scalar/api-reference"></script>
-  <noscript><p style="padding:20px;">OpenAPI specification is available at <a href="/openapi.json" style="color:#60a5fa">/openapi.json</a></p></noscript>
-</body>
-</html>`
-		_, _ = w.Write([]byte(html))
-	}, false))
-
-	// Remote Screen Scrcpy WS
-	mux.HandleFunc("/api/scrcpy/ws", scrcpyH.HandleWS)
-
-	// Terminal WS (WS connection does auth verification inside handle method)
-	mux.HandleFunc("/api/terminal/ws", termH.HandleWS)
+	// Modular route registration by domain
+	registerServiceRoutes(rc)
+	registerSystemRoutes(rc)
+	registerNetworkRoutes(rc)
+	registerModemRoutes(rc)
 }
