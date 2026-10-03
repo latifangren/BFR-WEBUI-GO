@@ -50,4 +50,95 @@
     animation: beacon-ping 2s cubic-bezier(0, 0, 0.2, 1) infinite;
     pointer-events: none;
   }
+
+  /* Organic Asymmetrical Neobrutalist Card Radius */
+  .neo-organic {
+    border-radius: 14px 18px 11px 15px !important;
+  }
+  @media (max-width: 639px) {
+    .neo-organic {
+      border-radius: 10px 14px 8px 12px !important;
+    }
+  }
+
+  /* High-Contrast Inset Progress Capsule */
+  .neo-progress {
+    height: 12px;
+    padding: 2px;
+    border: 2px solid var(--neo-border);
+    border-radius: 9999px;
+    background-color: var(--neo-card-sub);
+    box-shadow: 1px 1px 0px 0px var(--neo-shadow);
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+  }
+
+  .neo-progress-fill {
+    height: 100%;
+    border-radius: 9999px;
+    transition: width 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  /* Physical Neo-Brutalist Corner Sticker */
+  .neo-sticker {
+    position: absolute;
+    top: -10px;
+    right: 12px;
+    padding: 2px 7px;
+    border: 2px solid var(--neo-border);
+    border-radius: 6px;
+    box-shadow: 2px 2px 0px 0px var(--neo-shadow);
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: 8px;
+    font-weight: 900;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    transform: rotate(3deg);
+    transition: transform 0.15s ease-out;
+    z-index: 10;
+    pointer-events: none;
+    line-height: 1.2;
+  }
+
+  .neo-sticker-pink {
+    background-color: #ff5ca8;
+    color: #ffffff;
+  }
+  .neo-sticker-lime {
+    background-color: #b8f34a;
+    color: #000000;
+  }
+  .neo-sticker-yellow {
+    background-color: #ffe14a;
+    color: #000000;
+  }
+  .neo-sticker-cyan {
+    background-color: #55dfff;
+    color: #000000;
+  }
+  .neo-sticker-purple {
+    background-color: #9b7cff;
+    color: #ffffff;
+  }
+  .neo-sticker-orange {
+    background-color: #ff9955;
+    color: #000000;
+  }
+
+  /* Pulsing Live Eyebrow Chip */
+  .neo-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 3px 8px;
+    border: 2px solid var(--neo-border);
+    border-radius: 9999px;
+    box-shadow: 2px 2px 0px 0px var(--neo-shadow);
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: 9px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+  }
 }

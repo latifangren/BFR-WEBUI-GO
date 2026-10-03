@@ -22,6 +22,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Fixed `Button` variant typing and accessible form label tags in `QualcommNV.svelte`, achieving 0 errors and 0 warnings in `svelte-check`.
 
 ### Added
+- **Neo-Brutalist Theme Engine & ProjectX Cream Anti-Glare (`themes.css`, `theme.svelte.ts`, `AppearanceModal.svelte`)**:
+  - **Warm Paper Base Theme**: Added `ProjectX Cream` (`#fff6e8` background, `#fffdf8` card paper, `#17151a` ink) as an anti-glare alternative to pure white while retaining Clean Light.
+  - **Universal Accent Color Vibes (`data-color`)**: Introduced 6 modular accent vibes (Retro Pop, Synthwave, Toxic Lime, Arctic Frost, Sunset Fire, Lavender Pastel) selectable across dark, AMOLED, cream, and light modes.
+  - **Calm Tactile Cards**: Neutralized full-bleed card color tinting into a clean 80% neutral paper surface with subtle 3px top-border accent stripes and focused micro-accents on icon boxes and inset progress capsules.
+- **Overview Bento Grid & Hardware Matrix (`TabOverview.svelte`, `internal/sysinfo/`)**:
+  - **Symmetric 4-Gauge Bento**: Converted top gauge row to a balanced 4-card grid (CPU, Memory, Storage, Battery) with CPU load navigating directly to Kernel Manager.
+  - **8-Tile Hardware Platform Spec**: Expanded device status with real-time detection of ROM build ID (`ro.build.display.id`), root provider (KernelSU, Magisk, APatch), processor chipset, Android/SDK, system uptime, Linux kernel, SELinux, and WebUI version.
+- **Synchronized Tactile Login Card (`LoginCard.svelte`)**:
+  - Removed hardcoded static blue palettes in favor of dynamic theme accent synchronization, 3D tactile button press with haptic vibration, and clean neo-brutalist typography.
 - **Hardware Kernel Manager & SoC Tuner (`internal/kernel/`, `TabKernel.svelte`)**:
   - **Multi-Cluster CPU Scaling**: Automatic detection of CPU clusters (Little, Big, Prime) with policy-level scaling governor selection and granular min/max frequency clock bounds.
   - **Virtual Memory & Sysctl Tuning**: Fine-grained control of VM Swappiness (`/proc/sys/vm/swappiness`), VFS Cache Pressure, Dirty Ratio, Dirty Background Ratio, and TCP Congestion Control algorithms (`bbr`, `cubic`, `reno`).

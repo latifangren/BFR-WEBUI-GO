@@ -34,22 +34,18 @@
   <header class="w-full max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
     <!-- Brand Info -->
     <div class="flex items-center gap-2.5">
-      <div class="w-8 h-8 rounded-xl bg-blue-600 flex items-center justify-center font-black text-sm text-white shadow-md shadow-blue-500/30 shrink-0">
+      <div class="w-8 h-8 rounded-lg bg-accent text-accent-text border-2 border-border flex items-center justify-center font-black text-sm shadow-[2px_2px_0px_0px_var(--neo-shadow)] shrink-0">
         B
       </div>
       <div class="flex items-center gap-2">
         <span class="font-mono font-black text-sm tracking-wider uppercase text-foreground">
           BFR WEBUI
         </span>
-        <span
-          class="px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-wider select-none shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]"
-          style="background-color: #f59e0b !important; color: #000000 !important; border: 1.5px solid #000000 !important;"
-        >
+        <span class="px-1.5 py-0.5 rounded text-[10px] font-mono font-black uppercase bg-accent/20 text-accent border border-accent/40">
           PRO
         </span>
       </div>
     </div>
-
     <!-- Appearance Customization Button (Pre-auth customization) -->
     <button
       type="button"
@@ -66,27 +62,21 @@
   <!-- Main Center Stage Login Card -->
   <main class="w-full max-w-md mx-auto px-4 py-6 my-auto">
     <div
-      class="w-full p-6 sm:p-8 space-y-6 transition-all {themeStore.currentStyle === 'neobrutal' ? 'bg-card border-2 border-border shadow-[6px_6px_0px_0px_var(--neo-shadow)] rounded-lg' : 'bg-card/90 backdrop-blur-2xl border border-border/80 rounded-3xl shadow-2xl'}"
+      class="w-full p-6 sm:p-8 space-y-6 bg-card border-2 border-border shadow-[5px_5px_0px_0px_var(--neo-shadow)] rounded-lg transition-all"
     >
       <!-- Hero Branding -->
       <div class="text-center space-y-3">
-        <div class="w-14 h-14 rounded-2xl bg-blue-600 mx-auto flex items-center justify-center font-black text-2xl text-white shadow-xl shadow-blue-500/30 shrink-0">
+        <div class="w-14 h-14 rounded-xl bg-accent text-accent-text border-2 border-border mx-auto flex items-center justify-center font-black text-2xl shadow-[3px_3px_0px_0px_var(--neo-shadow)] shrink-0">
           B
         </div>
         <div>
-          <h2 class="text-xl font-extrabold text-foreground tracking-wide flex items-center justify-center gap-2 font-sans">
-            BFR WebUI
-            <span
-              class="px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-wider select-none shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]"
-              style="background-color: #f59e0b !important; color: #000000 !important; border: 1.5px solid #000000 !important;"
-            >
-              PRO
-            </span>
+          <h2 class="text-xl font-extrabold text-foreground tracking-wide flex items-center justify-center gap-2 font-mono uppercase">
+            BFR Control Panel
           </h2>
           <p class="text-xs text-muted font-mono mt-1 truncate max-w-[280px] sm:max-w-none mx-auto">
             {sysinfoStore.stats?.model
-              ? `${sysinfoStore.stats.model} (Android ${sysinfoStore.stats.android_ver || '12+'})`
-              : 'Android System WebUI'}
+              ? `${sysinfoStore.stats.model} • Android ${sysinfoStore.stats.android_ver || 'OS'}`
+              : 'Android Root Control Panel'}
           </p>
         </div>
       </div>
@@ -104,7 +94,7 @@
               bind:value={password}
               placeholder="Enter access password"
               required
-              class="w-full bg-card-sub border border-border pl-4 pr-11 py-3 text-sm text-foreground focus:outline-none focus:border-accent transition placeholder:text-muted font-mono {themeStore.currentStyle === 'neobrutal' ? 'border-2 border-border rounded focus:shadow-neobrutal-sm' : 'rounded-xl'}"
+              class="w-full bg-card-sub border-2 border-border pl-4 pr-11 py-3 text-sm text-foreground focus:outline-none focus:border-accent rounded font-mono transition placeholder:text-muted"
             />
             <button
               type="button"
@@ -151,10 +141,11 @@
         {/if}
 
         <!-- Submit Button -->
+        <!-- Tactile 3D Submit Button -->
         <button
           type="submit"
           disabled={authStore.isLoading || !password}
-          class="w-full bg-accent text-accent-text font-bold py-3 text-sm transition shadow-lg flex items-center justify-center gap-2 select-none disabled:opacity-50 cursor-pointer {themeStore.currentStyle === 'neobrutal' ? 'border-2 border-border shadow-neobrutal-sm hover:shadow-none hover:translate-x-0.5 hover:translate-y-0.5 rounded font-black uppercase tracking-wider' : 'rounded-xl hover:opacity-95 active:scale-[0.98]'}"
+          class="w-full bg-accent text-accent-text font-mono font-black py-3 text-sm border-2 border-border shadow-[3px_3px_0px_0px_var(--neo-shadow)] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] active:translate-x-[3px] active:translate-y-[3px] rounded transition-all flex items-center justify-center gap-2 select-none disabled:opacity-50 cursor-pointer uppercase tracking-wider"
         >
           {#if authStore.isLoading}
             <span class="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin"></span>

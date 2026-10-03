@@ -281,7 +281,6 @@
           {#each status.clusters as cluster (cluster.policy_id)}
             <Card
               title={cluster.label}
-              tone={cluster.policy_id === 0 ? 'mint' : cluster.policy_id === 1 ? 'ice' : 'lavender'}
             >
               {#snippet action()}
                 <Badge variant="default" class="text-[9px] font-mono">
@@ -368,7 +367,7 @@
     </div>
 
     <!-- Section 3: Virtual Memory & I/O Tuning -->
-    <Card title="Virtual Memory & Network Subsystem Tuning" tone="butter">
+    <Card title="Virtual Memory & Network Subsystem Tuning">
       {#snippet action()}
         <div class="neo-icon-box">
           <HardDrive class="w-4 h-4 text-accent" />

@@ -101,6 +101,11 @@ type Stats struct {
 	DefaultTTL     string          `json:"default_ttl"`
 	Kernel         string          `json:"kernel"`
 	Governor       string          `json:"governor"`
+	ROM            string          `json:"rom"`
+	RootType       string          `json:"root_type"`
+	Chipset        string          `json:"chipset"`
+	DeviceName     string          `json:"device_name"`
+	WebUIVersion   string          `json:"webui_version"`
 	ServerTime     string          `json:"server_time"`
 	LocalTime      string          `json:"local_time"`
 	Hostname       string          `json:"hostname"`
@@ -172,6 +177,11 @@ type staticHardwareInfo struct {
 	resolution    string
 	density       string
 	kernel        string
+	rom           string
+	rootType      string
+	chipset       string
+	deviceName    string
+	webuiVersion  string
 }
 
 func getStaticHardwareInfo() staticHardwareInfo {
@@ -188,6 +198,11 @@ func getStaticHardwareInfo() staticHardwareInfo {
 			resolution:    getScreenResolution(),
 			density:       getScreenDensity(),
 			kernel:        getKernelVersion(),
+			rom:           getROMBuild(),
+			rootType:      getRootProvider(),
+			chipset:       getChipset(),
+			deviceName:    getDeviceCodename(),
+			webuiVersion:  "v1.2.6 (126)",
 		}
 	})
 	return staticInfo
@@ -305,6 +320,11 @@ func buildStats() (Stats, error) {
 	s.Density = info.density
 	s.Kernel = info.kernel
 	s.Governor = getGovernor()
+	s.ROM = info.rom
+	s.RootType = info.rootType
+	s.Chipset = info.chipset
+	s.DeviceName = info.deviceName
+	s.WebUIVersion = info.webuiVersion
 
 	s.SELinux = getSELinux()
 	s.MTU = getMTU()
@@ -954,6 +974,65 @@ func getGovernor() string {
 		}
 	}
 	return "Unknown"
+}
+
+func getROMBuild() string {
+	if val := getProp("ro.build.display.id"); val != "" {
+		return val
+	}
+	if val := getProp("ro.build.version.incremental"); val != "" {
+		return val
+	}
+	if val := getProp("ro.system.build.version.incremental"); val != "" {
+		return val
+	}
+	return "Stock Android"
+}
+
+func getRootProvider() string {
+	if _, err := os.Stat("/data/adb/ksu/bin/ksud"); err == nil {
+		out := runCmdTimeout(1*time.Second, "/data/adb/ksu/bin/ksud", "-V")
+		if out != "" {
+			return "KernelSU " + strings.TrimSpace(out)
+		}
+		return "KernelSU"
+	}
+	if _, err := os.Stat("/data/adb/ap/bin/apd"); err == nil {
+		out := runCmdTimeout(1*time.Second, "/data/adb/ap/bin/apd", "-V")
+		if out != "" {
+			return "APatch " + strings.TrimSpace(out)
+		}
+		return "APatch"
+	}
+	if out := runCmdTimeout(1*time.Second, "magisk", "-v"); out != "" {
+		return "Magisk " + strings.TrimSpace(out)
+	}
+	if _, err := os.Stat("/data/adb/magisk"); err == nil {
+		return "Magisk"
+	}
+	return "Rooted (su)"
+}
+
+func getChipset() string {
+	soc := getProp("ro.soc.model")
+	if soc == "" {
+		soc = getProp("ro.board.platform")
+	}
+	if soc == "" {
+		soc = getProp("ro.hardware")
+	}
+	if soc == "" {
+		soc = "Generic ARM64"
+	}
+	return soc
+}
+
+func getDeviceCodename() string {
+	dev := getProp("ro.product.device")
+	if dev == "" {
+		dev = getProp("ro.product.name")
+	}
+	return dev
 }
 
 

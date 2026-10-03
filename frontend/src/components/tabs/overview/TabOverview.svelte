@@ -187,23 +187,16 @@
   const stats = $derived(sysinfoStore.stats)
 </script>
 
-<div class="space-y-3 sm:space-y-3 sm:space-y-6">
-  <!-- Retro System Notice Banner -->
-  <NoticeBanner
-    title="KERNEL SUPERVISOR ONLINE"
-    message={`Connected to Android root subsystem (${stats?.model || 'Android Device'} • Linux ${stats?.kernel || 'Kernel'}). Hardware telemetry & telemetry sensors active.`}
-    icon="bulb"
-  />
-
-  <!-- Bento Quick Gauges (5 Cards) -->
-  <div class="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-5 gap-2.5 sm:gap-4">
-    <!-- CPU Gauge (Interactive: Click for Core & Thermal details) -->
+<div class="space-y-3 sm:space-y-6">
+  <!-- Bento Quick Gauges (4 Cards) -->
+  <div class="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-4">
+    <!-- CPU Gauge (Interactive: Click opens Kernel Manager) -->
     <!-- svelte-ignore a11y_click_events_have_key_events -->
     <!-- svelte-ignore a11y_no_static_element_interactions -->
     <div
-      class="neo-card neo-tone-ice bg-card p-3 sm:p-4 rounded flex flex-col justify-between cursor-pointer hover:border-accent transition-colors group select-none overflow-hidden"
-      onclick={() => (showCpuModal = true)}
-      title="Click to inspect CPU Cores, Frequencies & Thermal sensors"
+      class="neo-card bg-card p-3 sm:p-4 rounded flex flex-col justify-between cursor-pointer hover:border-accent transition-colors group select-none overflow-hidden"
+      onclick={() => navigationStore.setTab('kernel')}
+      title="Click to open Kernel Manager (CPU Cores & Scaling)"
     >
       <div>
         <div class="flex items-center justify-between text-muted mb-2 font-mono text-xs">
@@ -211,8 +204,8 @@
             CPU Load
             <span class="text-[10px] text-accent font-mono opacity-80">↗</span>
           </span>
-          <div class="neo-icon-box">
-            <Cpu class="w-4 h-4 text-accent" />
+          <div class="neo-icon-box text-pink-500 bg-pink-500/10 border-pink-500/30">
+            <Cpu class="w-4 h-4 text-pink-500" />
           </div>
         </div>
         <div class="flex items-baseline justify-between">
@@ -225,9 +218,9 @@
             </span>
           {/if}
         </div>
-        <div class="w-full bg-card-sub border border-border h-1.5 rounded overflow-hidden mt-3">
+        <div class="neo-progress mt-3">
           <div
-            class="h-full bg-accent transition-all duration-300"
+            class="neo-progress-fill bg-[#ff5ca8]"
             style="width: {stats ? Math.min(stats.cpu_usage, 100) : 0}%"
           ></div>
         </div>
@@ -239,14 +232,14 @@
     <!-- svelte-ignore a11y_click_events_have_key_events -->
     <!-- svelte-ignore a11y_no_static_element_interactions -->
     <div
-      class="neo-card neo-tone-lavender bg-card p-3 sm:p-4 rounded flex flex-col justify-between cursor-pointer hover:border-accent transition-colors select-none overflow-hidden"
+      class="neo-card bg-card p-3 sm:p-4 rounded flex flex-col justify-between cursor-pointer hover:border-accent transition-colors select-none overflow-hidden"
       onclick={() => navigationStore.setTab('sysinfo')}
       title="Click to open full System & RAM information"
     >
       <div>
         <div class="flex items-center justify-between text-muted mb-2 font-mono text-xs">
           <span class="font-bold uppercase tracking-wider">Memory</span>
-          <div class="neo-icon-box">
+          <div class="neo-icon-box text-purple-400 bg-purple-500/10 border-purple-500/30">
             <HardDrive class="w-4 h-4 text-purple-400" />
           </div>
         </div>
@@ -263,9 +256,9 @@
             </div>
           </div>
         </div>
-        <div class="w-full bg-card-sub border border-border h-1.5 rounded overflow-hidden mt-3">
+        <div class="neo-progress mt-3">
           <div
-            class="h-full bg-purple-500 transition-all duration-300"
+            class="neo-progress-fill bg-[#9b7cff]"
             style="width: {stats ? Math.min(stats.mem_used_pct, 100) : 0}%"
           ></div>
         </div>
@@ -277,15 +270,15 @@
     <!-- svelte-ignore a11y_click_events_have_key_events -->
     <!-- svelte-ignore a11y_no_static_element_interactions -->
     <div
-      class="neo-card neo-tone-ice bg-card p-3 sm:p-4 rounded flex flex-col justify-between cursor-pointer hover:border-accent transition-colors select-none overflow-hidden"
+      class="neo-card bg-card p-3 sm:p-4 rounded flex flex-col justify-between cursor-pointer hover:border-accent transition-colors select-none overflow-hidden"
       onclick={() => navigationStore.setTab('files')}
       title="Click to open File Manager"
     >
       <div>
         <div class="flex items-center justify-between text-muted mb-2 font-mono text-xs">
           <span class="font-bold uppercase tracking-wider">Storage</span>
-          <div class="neo-icon-box">
-            <HardDrive class="w-4 h-4 text-blue-400" />
+          <div class="neo-icon-box text-cyan-400 bg-cyan-500/10 border-cyan-500/30">
+            <HardDrive class="w-4 h-4 text-cyan-400" />
           </div>
         </div>
         <div class="flex items-baseline justify-between">
@@ -301,9 +294,9 @@
             </div>
           </div>
         </div>
-        <div class="w-full bg-card-sub border border-border h-1.5 rounded overflow-hidden mt-3">
+        <div class="neo-progress mt-3">
           <div
-            class="h-full bg-blue-500 transition-all duration-300"
+            class="neo-progress-fill bg-[#55dfff]"
             style="width: {stats ? Math.min(stats.disk_used_pct, 100) : 0}%"
           ></div>
         </div>
@@ -315,7 +308,7 @@
     <!-- svelte-ignore a11y_click_events_have_key_events -->
     <!-- svelte-ignore a11y_no_static_element_interactions -->
     <div
-      class="neo-card neo-tone-peach bg-card p-3 sm:p-4 rounded flex flex-col justify-between cursor-pointer hover:border-accent transition-colors group select-none overflow-hidden"
+      class="neo-card bg-card p-3 sm:p-4 rounded flex flex-col justify-between cursor-pointer hover:border-accent transition-colors group select-none overflow-hidden"
       onclick={() => (showBatteryModal = true)}
       title="Click to view Battery Voltage, Current & Health diagnostics"
     >
@@ -325,7 +318,7 @@
             Battery
             <span class="text-[10px] text-accent font-mono opacity-80">↗</span>
           </span>
-          <div class="neo-icon-box relative">
+          <div class="neo-icon-box text-emerald-400 bg-emerald-500/10 border-emerald-500/30 relative">
             {#if stats?.battery_status === 'Charging'}
               <span class="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-emerald-400 beacon-pulse"></span>
               <BatteryCharging class="w-4 h-4 text-emerald-400 animate-pulse" />
@@ -342,40 +335,20 @@
             {stats?.battery_status || 'OK'}
           </span>
         </div>
-        <div class="w-full bg-card-sub border border-border h-1.5 rounded overflow-hidden mt-3">
+        <div class="neo-progress mt-3">
           <div
-            class="h-full bg-emerald-500 transition-all duration-300"
-            style="width: {stats ? stats.battery_level : 0}%"
+            class="neo-progress-fill bg-[#b8f34a]"
+            style="width: {stats ? Math.min(stats.battery_level, 100) : 0}%"
           ></div>
         </div>
       </div>
       <SparklineWave value={stats ? stats.battery_level : 0} color="var(--color-mint, #34d399)" height={20} class="mt-2" />
     </div>
 
-    <!-- Uptime Gauge -->
-    <div class="neo-card neo-tone-butter bg-card p-3 sm:p-4 rounded col-span-2 sm:col-span-1 lg:col-span-1 flex flex-col justify-between font-mono select-none overflow-hidden">
-      <div>
-        <div class="flex items-center justify-between text-muted mb-2 text-xs">
-          <span class="font-bold uppercase tracking-wider">Uptime</span>
-          <div class="neo-icon-box">
-            <Zap class="w-4 h-4 text-cyan-400" />
-          </div>
-        </div>
-        <div class="flex items-baseline justify-between">
-          <span class="text-lg sm:text-xl font-black text-foreground">
-            {stats ? formatUptime(stats.uptime) : '0m'}
-          </span>
-        </div>
-        <div class="text-[10px] text-muted mt-3 truncate">
-          Kernel: {stats ? stats.kernel : 'Linux'}
-        </div>
-      </div>
-      <SparklineWave value={stats ? Math.min((stats.uptime / (3600 * 24 * 7)) * 100, 100) : 50} color="var(--color-butter, #eab308)" height={20} class="mt-2" />
-    </div>
   </div>
 
   <!-- Application Shortcuts (CasaOS Style) -->
-  <Card title="Application Shortcuts" tone="ice">
+  <Card title="Application Shortcuts">
     {#snippet action()}
       <Button
         variant="secondary"
@@ -558,32 +531,85 @@
     </button>
   </div>
 
-  <!-- System Summary Card -->
-  <Card title="Device Status & Core Daemons" tone="butter">
+  <!-- Device Status & Platform Specs -->
+  <Card title="Device Status & Hardware Platform">
     <div class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-2 sm:gap-3 font-mono text-xs">
+      <!-- 1. Device Model -->
       <div class="bg-card-sub border border-border p-2.5 sm:p-3 rounded space-y-1">
-        <span class="text-[10px] text-muted uppercase font-bold">Device</span>
-        <p class="font-bold text-foreground truncate">{stats?.model || 'Android Device'}</p>
+        <span class="text-[10px] text-muted uppercase font-bold">Device Model</span>
+        <p class="font-bold text-foreground truncate" title={stats?.model}>
+          {stats?.model || 'Android Device'}
+          {#if stats?.device_name}
+            <span class="text-[10px] text-muted font-normal">({stats.device_name})</span>
+          {/if}
+        </p>
       </div>
 
+      <!-- 2. ROM / OS Build -->
       <div class="bg-card-sub border border-border p-2.5 sm:p-3 rounded space-y-1">
-        <span class="text-[10px] text-muted uppercase font-bold">Android / SDK</span>
+        <span class="text-[10px] text-muted uppercase font-bold">ROM / OS Build</span>
+        <p class="font-bold text-foreground truncate" title={stats?.rom}>
+          {stats?.rom || 'Stock Android'}
+        </p>
+      </div>
+
+      <!-- 3. Root Provider -->
+      <div class="bg-card-sub border border-border p-2.5 sm:p-3 rounded space-y-1">
+        <span class="text-[10px] text-muted uppercase font-bold">Root Environment</span>
+        <p class="font-bold text-emerald-400 flex items-center gap-1.5 truncate">
+          <span class="w-2 h-2 rounded-full bg-emerald-400 shrink-0"></span>
+          <span>{stats?.root_type || 'Rooted (su)'}</span>
+        </p>
+      </div>
+
+      <!-- 4. SoC / Chipset -->
+      <div class="bg-card-sub border border-border p-2.5 sm:p-3 rounded space-y-1">
+        <span class="text-[10px] text-muted uppercase font-bold">Chipset (SoC)</span>
+        <p class="font-bold text-foreground truncate" title={stats?.chipset}>
+          {stats?.chipset || 'Generic ARM64'}
+        </p>
+      </div>
+
+      <!-- 5. Android & SDK -->
+      <div class="bg-card-sub border border-border p-2.5 sm:p-3 rounded space-y-1">
+        <span class="text-[10px] text-muted uppercase font-bold">Android & SDK</span>
         <p class="font-bold text-foreground">
           Android {stats?.android_ver || 'N/A'} (API {stats?.sdk_ver || 'N/A'})
         </p>
       </div>
 
+      <!-- 6. System Uptime -->
       <div class="bg-card-sub border border-border p-2.5 sm:p-3 rounded space-y-1">
-        <span class="text-[10px] text-muted uppercase font-bold">Security Patch</span>
-        <p class="font-bold text-foreground">{stats?.security_patch || 'N/A'}</p>
+        <span class="text-[10px] text-muted uppercase font-bold">System Uptime</span>
+        <p class="font-bold text-accent">
+          {stats ? formatUptime(stats.uptime) : '0m'}
+        </p>
       </div>
 
+      <!-- 7. Kernel Version -->
       <div class="bg-card-sub border border-border p-2.5 sm:p-3 rounded space-y-1">
-        <span class="text-[10px] text-muted uppercase font-bold">SELinux Mode</span>
-        <p class="font-bold text-foreground capitalize">{stats?.selinux || 'Enforcing'}</p>
+        <span class="text-[10px] text-muted uppercase font-bold">Kernel Release</span>
+        <p class="font-bold text-foreground truncate" title={stats?.kernel}>
+          {stats?.kernel || 'Linux'}
+        </p>
+      </div>
+
+      <!-- 8. Platform & Security -->
+      <div class="bg-card-sub border border-border p-2.5 sm:p-3 rounded space-y-1">
+        <span class="text-[10px] text-muted uppercase font-bold">Security & WebUI</span>
+        <p class="font-bold text-foreground truncate">
+          {stats?.selinux || 'Enforcing'} • {stats?.webui_version || 'v1.2.6'}
+        </p>
       </div>
     </div>
   </Card>
+
+  <!-- System Notice Banner -->
+  <NoticeBanner
+    title="KERNEL SUPERVISOR ONLINE"
+    message={`Connected to Android root subsystem (${stats?.model || 'Android Device'} • Linux ${stats?.kernel || 'Kernel'}). Hardware telemetry & telemetry sensors active.`}
+    icon="bulb"
+  />
 </div>
 
 <!-- CPU Detail Telemetry Modal -->

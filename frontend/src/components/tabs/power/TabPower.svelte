@@ -468,7 +468,7 @@
   <!-- Power Actions Grid -->
   <div class="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-4 font-mono text-xs">
     <!-- Standard Reboot -->
-    <div class="neo-card bg-card p-3 sm:p-4 rounded border-2 border-border flex flex-col justify-between space-y-3">
+    <div class="neo-card neo-organic bg-card p-3 sm:p-4 rounded border-2 border-border flex flex-col justify-between space-y-3">
       <div>
         <div class="flex items-center gap-2 mb-1">
           <RotateCcw class="w-4 h-4 text-accent shrink-0" />
@@ -479,7 +479,7 @@
         </p>
       </div>
       <Button
-        variant="secondary"
+        variant="restart"
         size="sm"
         fullWidth={true}
         onclick={() => (confirmAction = 'reboot')}
@@ -489,7 +489,7 @@
     </div>
 
     <!-- Recovery Reboot -->
-    <div class="neo-card bg-card p-3 sm:p-4 rounded border-2 border-border flex flex-col justify-between space-y-3">
+    <div class="neo-card neo-organic bg-card p-3 sm:p-4 rounded border-2 border-border flex flex-col justify-between space-y-3">
       <div>
         <div class="flex items-center gap-2 mb-1">
           <Smartphone class="w-4 h-4 text-amber-400 shrink-0" />
@@ -500,7 +500,7 @@
         </p>
       </div>
       <Button
-        variant="outline"
+        variant="cyan"
         size="sm"
         fullWidth={true}
         onclick={() => (confirmAction = 'recovery')}
@@ -510,7 +510,7 @@
     </div>
 
     <!-- Bootloader / Fastboot -->
-    <div class="neo-card bg-card p-3 sm:p-4 rounded border-2 border-border flex flex-col justify-between space-y-3">
+    <div class="neo-card neo-organic bg-card p-3 sm:p-4 rounded border-2 border-border flex flex-col justify-between space-y-3">
       <div>
         <div class="flex items-center gap-2 mb-1">
           <ShieldAlert class="w-4 h-4 text-purple-400 shrink-0" />
@@ -521,7 +521,7 @@
         </p>
       </div>
       <Button
-        variant="outline"
+        variant="purple"
         size="sm"
         fullWidth={true}
         onclick={() => (confirmAction = 'bootloader')}
@@ -531,7 +531,7 @@
     </div>
 
     <!-- Power Off -->
-    <div class="neo-card bg-card p-3 sm:p-4 rounded border-2 border-border flex flex-col justify-between space-y-3">
+    <div class="neo-card neo-organic bg-card p-3 sm:p-4 rounded border-2 border-border flex flex-col justify-between space-y-3">
       <div>
         <div class="flex items-center gap-2 mb-1">
           <Power class="w-4 h-4 text-red-500 shrink-0" />
@@ -542,7 +542,7 @@
         </p>
       </div>
       <Button
-        variant="danger"
+        variant="stop"
         size="sm"
         fullWidth={true}
         onclick={() => (confirmAction = 'poweroff')}

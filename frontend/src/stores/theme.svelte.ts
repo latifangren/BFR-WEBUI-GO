@@ -1,9 +1,10 @@
-import type { ThemeMode, UIStyle } from '../types/common'
+import type { ColorVibe, ThemeMode, UIStyle } from '../types/common'
 
 const VALID_THEMES: ThemeMode[] = [
   'dark',
   'amoled',
   'light',
+  'projectx-light',
   'dracula',
   'nord',
   'cyberpunk',
@@ -14,10 +15,12 @@ const VALID_THEMES: ThemeMode[] = [
 ]
 
 const VALID_STYLES: UIStyle[] = ['neobrutal', 'modern', 'glass']
+const VALID_VIBES: ColorVibe[] = ['default', 'synthwave', 'toxic', 'arctic', 'sunset', 'lavender']
 
 class ThemeStore {
   currentTheme = $state<ThemeMode>('dark')
   currentStyle = $state<UIStyle>('neobrutal')
+  currentColorVibe = $state<ColorVibe>('default')
   showAppearanceModal = $state<boolean>(false)
   glassBlur = $state<number>(16)
   glassOpacity = $state<number>(0.65)
@@ -77,10 +80,14 @@ class ThemeStore {
 
       const storedNeoPatOp = localStorage.getItem('neoPatternOpacity')
       if (storedNeoPatOp) this.neoPatternOpacity = Math.max(0, Math.min(0.15, Number(storedNeoPatOp) || 0.04))
+      const storedVibe = localStorage.getItem('colorVibe')
+      const initialVibe = (VALID_VIBES.includes(storedVibe as ColorVibe) ? storedVibe : 'default') as ColorVibe
+
 
       this.setTheme(initialTheme)
       this.setStyle(initialStyle)
       this.applyGlassTokens()
+      this.setColorVibe(initialVibe)
       this.applyNeobrutalTokens()
     }
   }
@@ -98,7 +105,8 @@ class ThemeStore {
     if (typeof window !== 'undefined') {
       localStorage.setItem('colorTheme', theme)
       document.documentElement.setAttribute('data-theme', theme)
-      if (theme === 'light') {
+      const isLightFamily = theme === 'light' || theme === 'projectx-light' || theme === 'retro'
+      if (isLightFamily) {
         document.documentElement.classList.remove('dark')
         document.documentElement.classList.add('light')
       } else {
@@ -115,6 +123,18 @@ class ThemeStore {
       document.documentElement.setAttribute('data-ui-style', style)
     }
   }
+  setColorVibe(vibe: ColorVibe) {
+    this.currentColorVibe = vibe
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('colorVibe', vibe)
+      if (vibe === 'default') {
+        document.documentElement.removeAttribute('data-color')
+      } else {
+        document.documentElement.setAttribute('data-color', vibe)
+      }
+    }
+  }
+
 
   setGlassBlur(blur: number) {
     this.glassBlur = blur

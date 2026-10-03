@@ -121,6 +121,11 @@ export interface SysinfoStats {
   kernel: string
   soc: string
   governor: string
+  rom?: string
+  root_type?: string
+  chipset?: string
+  device_name?: string
+  webui_version?: string
   net_rx?: number
   net_tx?: number
   network_detail?: NetworkDetail

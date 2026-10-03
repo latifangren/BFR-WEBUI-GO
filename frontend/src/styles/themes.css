@@ -240,6 +240,117 @@
   --neo-shadow: rgba(8, 7, 10, 0.5);
 }
 
+/* 11. ProjectX Light (Warm Anti-Glare Cream Paper & Retro Pop) */
+[data-theme='projectx-light'] {
+  --color-bg: #fff6e8;
+  --color-card: #fffdf8;
+  --color-card-sub: #e8e5da;
+  --color-border: #17151a;
+  --color-border-sub: #d5d0c2;
+  --color-accent: #ff5ca8;
+  --color-accent-text: #ffffff;
+  --color-foreground: #17151a;
+  --color-muted: #77717a;
+
+  --neo-bg: #fff6e8;
+  --neo-card: #fffdf8;
+  --neo-card-sub: #e8e5da;
+  --neo-text: #17151a;
+  --neo-muted: #77717a;
+  --neo-border: #17151a;
+  --neo-accent: #ff5ca8;
+  --neo-accent-text: #ffffff;
+  --neo-shadow: #17151a;
+  --neo-badge-bg: #e8e5da;
+  --neo-badge-text: #17151a;
+  --neo-success: #16a34a;
+  --neo-warning: #d97706;
+  --neo-danger: #dc2626;
+  --neo-info: #0284c7;
+
+  /* ProjectX Pop Color Accents */
+  --color-pink: #ff5ca8;
+  --color-yellow: #ffe14a;
+  --color-cyan: #55dfff;
+  --color-lime: #b8f34a;
+  --color-purple: #9b7cff;
+  --color-orange: #ff9955;
+}
+
+[data-ui-style="neobrutal"][data-theme="projectx-light"],
+[data-ui-style="neobrutal"] [data-theme="projectx-light"] {
+  --neo-border: #17151a;
+  --neo-shadow: #17151a;
+}
+
+/* ========================================================= */
+/* ProjectX Accent Color Vibes (data-color)                  */
+/* ========================================================= */
+:root[data-color="synthwave"], [data-color="synthwave"] {
+  --neo-accent: #ff2d95;
+  --neo-accent-text: #ffffff;
+  --color-accent: #ff2d95;
+  --color-accent-text: #ffffff;
+  --color-pink: #ff2d95;
+  --color-yellow: #ff2d95;
+  --color-cyan: #00e5ff;
+  --color-lime: #ff2d95;
+  --color-purple: #c538ff;
+  --color-orange: #ff6b35;
+}
+
+:root[data-color="toxic"], [data-color="toxic"] {
+  --neo-accent: #39ff14;
+  --neo-accent-text: #000000;
+  --color-accent: #39ff14;
+  --color-accent-text: #000000;
+  --color-pink: #ff4444;
+  --color-yellow: #39ff14;
+  --color-cyan: #39ff14;
+  --color-lime: #39ff14;
+  --color-purple: #ff8800;
+  --color-orange: #ff6600;
+}
+
+:root[data-color="arctic"], [data-color="arctic"] {
+  --neo-accent: #40c4ff;
+  --neo-accent-text: #000000;
+  --color-accent: #40c4ff;
+  --color-accent-text: #000000;
+  --color-pink: #64b5f6;
+  --color-yellow: #40c4ff;
+  --color-cyan: #80d8ff;
+  --color-lime: #82b1ff;
+  --color-purple: #448aff;
+  --color-orange: #29b6f6;
+}
+
+:root[data-color="sunset"], [data-color="sunset"] {
+  --neo-accent: #ff6d00;
+  --neo-accent-text: #000000;
+  --color-accent: #ff6d00;
+  --color-accent-text: #000000;
+  --color-pink: #ff1744;
+  --color-yellow: #ff6d00;
+  --color-cyan: #ffab40;
+  --color-lime: #ff9100;
+  --color-purple: #ff5252;
+  --color-orange: #ff3d00;
+}
+
+:root[data-color="lavender"], [data-color="lavender"] {
+  --neo-accent: #b388ff;
+  --neo-accent-text: #000000;
+  --color-accent: #b388ff;
+  --color-accent-text: #000000;
+  --color-pink: #f48fb1;
+  --color-yellow: #b388ff;
+  --color-cyan: #ea80fc;
+  --color-lime: #ce93d8;
+  --color-purple: #7c4dff;
+  --color-orange: #e040fb;
+}
+
 /* ========================================================= */
 /* UI Style Paradigm: Neo-Brutalist                          */
 /* ========================================================= */
@@ -542,82 +653,42 @@
   justify-content: center !important;
 }
 
-/* Tone styles for Retro Deck */
-[data-theme='retro'] .neo-tone-ice,
-[data-theme='retro'] .neo-card.neo-tone-ice {
-  background-color: #c2e7ff !important;
-  color: #000000 !important;
-  border-color: #000000 !important;
+/* ========================================================= */
+/* CALM NEO-TONE: Neutral Paper Surfaces + Subtle Top Stripe */
+/* ========================================================= */
+
+/* Default Light Accents (Stripe on clean neutral paper) */
+.neo-tone-ice {
+  border-top: 3px solid #0284c7 !important;
+}
+.neo-tone-lavender {
+  border-top: 3px solid #9333ea !important;
+}
+.neo-tone-peach {
+  border-top: 3px solid #e11d48 !important;
+}
+.neo-tone-mint {
+  border-top: 3px solid #16a34a !important;
+}
+.neo-tone-butter {
+  border-top: 3px solid #d97706 !important;
 }
 
-[data-theme='retro'] .neo-tone-lavender,
-[data-theme='retro'] .neo-card.neo-tone-lavender {
-  background-color: #e2daf9 !important;
-  color: #000000 !important;
-  border-color: #000000 !important;
+/* Dark / AMOLED / ProjectX Dark Neon Stripes */
+.dark .neo-tone-ice, [data-theme]:not([data-theme='light']):not([data-theme='projectx-light']):not([data-theme='retro']) .neo-tone-ice {
+  border-top: 3px solid #38bdf8 !important;
 }
-
-[data-theme='retro'] .neo-tone-peach,
-[data-theme='retro'] .neo-card.neo-tone-peach {
-  background-color: #ffd5cc !important;
-  color: #000000 !important;
-  border-color: #000000 !important;
+.dark .neo-tone-lavender, [data-theme]:not([data-theme='light']):not([data-theme='projectx-light']):not([data-theme='retro']) .neo-tone-lavender {
+  border-top: 3px solid #c084fc !important;
 }
-
-[data-theme='retro'] .neo-tone-mint,
-[data-theme='retro'] .neo-card.neo-tone-mint {
-  background-color: #c8f5d0 !important;
-  color: #000000 !important;
-  border-color: #000000 !important;
+.dark .neo-tone-peach, [data-theme]:not([data-theme='light']):not([data-theme='projectx-light']):not([data-theme='retro']) .neo-tone-peach {
+  border-top: 3px solid #ff5ca8 !important;
 }
-
-[data-theme='retro'] .neo-tone-butter,
-[data-theme='retro'] .neo-card.neo-tone-butter {
-  background-color: #fff0a3 !important;
-  color: #000000 !important;
-  border-color: #000000 !important;
+.dark .neo-tone-mint, [data-theme]:not([data-theme='light']):not([data-theme='projectx-light']):not([data-theme='retro']) .neo-tone-mint {
+  border-top: 3px solid #4ade80 !important;
 }
-
-/* Ensure text and labels inside these tone cards in retro theme are crisp black #000000,
-   except for elements that are explicitly styled with white text or dark/black backgrounds */
-[data-theme='retro'] .neo-tone-ice *:not(.text-white):not([class*='text-white']):not(.bg-black):not(.bg-black *):not([class*='bg-red-']):not([class*='bg-red-'] *),
-[data-theme='retro'] .neo-tone-lavender *:not(.text-white):not([class*='text-white']):not(.bg-black):not(.bg-black *):not([class*='bg-red-']):not([class*='bg-red-'] *),
-[data-theme='retro'] .neo-tone-peach *:not(.text-white):not([class*='text-white']):not(.bg-black):not(.bg-black *):not([class*='bg-red-']):not([class*='bg-red-'] *),
-[data-theme='retro'] .neo-tone-mint *:not(.text-white):not([class*='text-white']):not(.bg-black):not(.bg-black *):not([class*='bg-red-']):not([class*='bg-red-'] *),
-[data-theme='retro'] .neo-tone-butter *:not(.text-white):not([class*='text-white']):not(.bg-black):not(.bg-black *):not([class*='bg-red-']):not([class*='bg-red-'] *) {
-  color: #000000;
-}
-
-/* Tone inner card elements in retro */
-[data-theme='retro'] [class*='neo-tone-'] .bg-card-sub {
-  background-color: rgba(0, 0, 0, 0.08) !important;
-  border-color: #000000 !important;
-}
-
-/* Progress-bar/meter tracks in tone cards get solid black, excluding interactive buttons */
-[data-theme='retro'] [class*='neo-tone-'] .bg-accent:not(.neo-button):not(button):not([role='button']),
-[data-theme='retro'] [class*='neo-tone-'] .bg-purple-500:not(.neo-button):not(button):not([role='button']),
-[data-theme='retro'] [class*='neo-tone-'] .bg-blue-500:not(.neo-button):not(button):not([role='button']),
-[data-theme='retro'] [class*='neo-tone-'] .bg-emerald-500:not(.neo-button):not(button):not([role='button']) {
-  background-color: #000000 !important;
-}
-
-/* Primary buttons in retro theme (both inside and outside tone cards) */
-[data-theme='retro'] .neo-button.bg-accent,
-[data-theme='retro'] button.bg-accent,
-[data-theme='retro'] [class*='neo-tone-'] .neo-button.bg-accent,
-[data-theme='retro'] [class*='neo-tone-'] button.bg-accent {
-  background-color: var(--neo-accent, #c8f5d0) !important;
-  color: #000000 !important;
-  border: 2px solid #000000 !important;
-  box-shadow: 2px 2px 0px #000000 !important;
-}
-
-[data-theme='retro'] .neo-button.bg-accent *,
-[data-theme='retro'] button.bg-accent *,
-[data-theme='retro'] [class*='neo-tone-'] .neo-button.bg-accent *,
-[data-theme='retro'] [class*='neo-tone-'] button.bg-accent * {
-  color: #000000 !important;
+.dark .neo-tone-butter, [data-theme]:not([data-theme='light']):not([data-theme='projectx-light']):not([data-theme='retro']) .neo-tone-butter {
+  border-top: 3px solid #facc15 !important;
 }
 
 /* Ensure any dark/black button or active toggle has high contrast white text and icons */

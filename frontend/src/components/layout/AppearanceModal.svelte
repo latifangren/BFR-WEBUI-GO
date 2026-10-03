@@ -20,7 +20,7 @@
   } from '../../stores/navigation.svelte'
   import { toastStore } from '../../stores/toast.svelte'
   import { request } from '../../api/client'
-  import type { ThemeMode, UIStyle, WallpaperItem } from '../../types/common'
+  import type { ColorVibe, ThemeMode, UIStyle, WallpaperItem } from '../../types/common'
   import Button from '../ui/Button.svelte'
 
   interface Props {
@@ -78,6 +78,16 @@
       border: '#0f172a',
       accent: '#2563eb',
       text: '#0f172a',
+    },
+    {
+      id: 'projectx-light',
+      name: 'ProjectX Cream',
+      tagline: 'Warm anti-glare paper & pop accents',
+      bg: '#fff6e8',
+      card: '#fffdf8',
+      border: '#17151a',
+      accent: '#ff5ca8',
+      text: '#17151a',
     },
     {
       id: 'dracula',
@@ -148,6 +158,52 @@
       border: '#0d0b10',
       accent: '#ffe14a',
       text: '#fffaf4',
+    },
+  ]
+
+  interface ColorVibeOption {
+    id: ColorVibe
+    name: string
+    description: string
+    colors: string[]
+  }
+
+  const colorVibes: ColorVibeOption[] = [
+    {
+      id: 'default',
+      name: 'Retro Pop',
+      description: 'Classic Pop: Pink, Yellow, Cyan, Lime',
+      colors: ['#ff5ca8', '#ffe14a', '#55dfff', '#b8f34a'],
+    },
+    {
+      id: 'synthwave',
+      name: 'Synthwave',
+      description: 'Cyber Neon: Pink, Cyan, Violet, Orange',
+      colors: ['#ff2d95', '#00e5ff', '#c538ff', '#ff6b35'],
+    },
+    {
+      id: 'toxic',
+      name: 'Toxic Lime',
+      description: 'Radioactive: Toxic Lime, Orange, Flame',
+      colors: ['#39ff14', '#ff6600', '#ff4444'],
+    },
+    {
+      id: 'arctic',
+      name: 'Arctic Frost',
+      description: 'Glacial: Sky Ice, Cyan, Deep Blue',
+      colors: ['#64b5f6', '#40c4ff', '#80d8ff', '#448aff'],
+    },
+    {
+      id: 'sunset',
+      name: 'Sunset Fire',
+      description: 'Dusk: Fiery Crimson, Sunset Amber',
+      colors: ['#ff1744', '#ff6d00', '#ffab40', '#ff3d00'],
+    },
+    {
+      id: 'lavender',
+      name: 'Lavender Pastel',
+      description: 'Dream: Pastel Lilac, Baby Rose, Violet',
+      colors: ['#b388ff', '#f48fb1', '#ea80fc', '#7c4dff'],
     },
   ]
 
@@ -662,6 +718,45 @@
               </div>
             </button>
           {/each}
+
+        <!-- Pop Accent Vibes (ProjectX inspired) -->
+        <div class="space-y-1.5 pt-3 border-t border-border/50">
+          <span class="text-[11px] font-bold uppercase text-muted tracking-wider flex items-center gap-1.5">
+            <Palette class="w-3.5 h-3.5 text-accent" />
+            Pop Accent Vibes ({colorVibes.length} Styles)
+          </span>
+          <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
+            {#each colorVibes as vibe}
+              {@const isSelected = themeStore.currentColorVibe === vibe.id}
+              <button
+                type="button"
+                class="p-2 rounded-lg border-2 text-left transition-all cursor-pointer relative flex flex-col justify-between gap-1.5 {isSelected ? 'border-accent bg-accent/10 shadow-neobrutal-sm' : 'border-border bg-card-sub hover:border-accent/60'}"
+                onclick={() => themeStore.setColorVibe(vibe.id)}
+              >
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center gap-1">
+                    {#each vibe.colors as c}
+                      <span class="w-3 h-3 rounded-full border border-black/20 shrink-0" style="background-color: {c};"></span>
+                    {/each}
+                  </div>
+                  {#if isSelected}
+                    <span class="w-4 h-4 rounded-full bg-accent text-accent-text flex items-center justify-center text-[10px] font-black">
+                      <Check class="w-2.5 h-2.5" />
+                    </span>
+                  {/if}
+                </div>
+                <div>
+                  <div class="font-bold text-xs text-foreground truncate">
+                    {vibe.name}
+                  </div>
+                  <div class="text-[10px] text-muted truncate">
+                    {vibe.description}
+                  </div>
+                </div>
+              </button>
+            {/each}
+          </div>
+        </div>
         </div>
       </div>
 

@@ -3,7 +3,7 @@
 
   interface Props {
     type?: 'button' | 'submit' | 'reset'
-    variant?: 'primary' | 'secondary' | 'danger' | 'outline' | 'ghost'
+    variant?: 'primary' | 'secondary' | 'danger' | 'outline' | 'ghost' | 'start' | 'stop' | 'restart' | 'cyan' | 'purple'
     size?: 'sm' | 'md' | 'lg'
     disabled?: boolean
     fullWidth?: boolean
@@ -31,6 +31,11 @@
     danger: 'bg-red-600 text-white hover:bg-red-700 border-red-800',
     outline: 'bg-transparent text-foreground hover:bg-card border-border',
     ghost: 'bg-transparent text-muted hover:text-foreground border-transparent shadow-none',
+    start: 'bg-[#b8f34a] text-[#000000] border-2 border-[#17151a] hover:brightness-105 shadow-[2px_2px_0px_#17151a]',
+    stop: 'bg-[#ff5ca8] text-[#ffffff] border-2 border-[#17151a] hover:brightness-105 shadow-[2px_2px_0px_#17151a]',
+    restart: 'bg-[#ffe14a] text-[#000000] border-2 border-[#17151a] hover:brightness-105 shadow-[2px_2px_0px_#17151a]',
+    cyan: 'bg-[#55dfff] text-[#000000] border-2 border-[#17151a] hover:brightness-105 shadow-[2px_2px_0px_#17151a]',
+    purple: 'bg-[#9b7cff] text-[#ffffff] border-2 border-[#17151a] hover:brightness-105 shadow-[2px_2px_0px_#17151a]',
   }
 
   const sizeClasses = {

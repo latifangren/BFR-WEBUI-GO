@@ -93,7 +93,6 @@
       <!-- Device Specs Bento Box -->
       <Card
         title="Device Specifications & Hardware Info"
-        tone="ice"
         class="lg:col-span-2"
       >
         {#snippet action()}
@@ -147,7 +146,7 @@
       </Card>
 
       <!-- Battery & Power State -->
-      <Card title="Battery & Power Subsystem" tone="peach">
+      <Card title="Battery & Power Subsystem">
         {#snippet action()}
           <div class="neo-icon-box">
             {#if stats.battery_status === 'Charging'}
@@ -171,9 +170,9 @@
           </div>
 
           <!-- Progress bar -->
-          <div class="w-full bg-card-sub border border-border h-3 rounded overflow-hidden">
+          <div class="neo-progress">
             <div
-              class="h-full transition-all duration-300 {stats.battery_level > 20 ? 'bg-emerald-500' : 'bg-red-500'}"
+              class="neo-progress-fill bg-[#b8f34a]"
               style="width: {stats.battery_level}%"
             ></div>
           </div>
@@ -207,7 +206,7 @@
 
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-6">
       <!-- CPU & Per-Core Telemetry -->
-      <Card title="CPU Core Activity & Thermals" tone="mint">
+      <Card title="CPU Core Activity & Thermals">
         {#snippet action()}
           <div class="neo-icon-box">
             <Cpu class="w-4 h-4 text-accent" />
@@ -228,9 +227,9 @@
             </div>
           </div>
 
-          <div class="w-full bg-card-sub border border-border h-3 rounded overflow-hidden">
+          <div class="neo-progress">
             <div
-              class="h-full bg-accent transition-all duration-300"
+              class="neo-progress-fill bg-[#ff5ca8]"
               style="width: {Math.min(stats.cpu_usage, 100)}%"
             ></div>
           </div>
@@ -267,7 +266,7 @@
       </Card>
 
       <!-- Memory & Swap Utilization -->
-      <Card title="RAM & Swap Memory" tone="lavender">
+      <Card title="RAM & Swap Memory">
         {#snippet action()}
           <div class="neo-icon-box">
             <Activity class="w-4 h-4 text-purple-400" />
@@ -282,9 +281,9 @@
                 {formatBytes(stats.mem_used)} / {formatBytes(stats.mem_total)}
               </span>
             </div>
-            <div class="w-full bg-card-sub border border-border h-3 rounded overflow-hidden">
+            <div class="neo-progress">
               <div
-                class="h-full bg-purple-500 transition-all duration-300"
+                class="neo-progress-fill bg-[#9b7cff]"
                 style="width: {Math.min(stats.mem_used_pct, 100)}%"
               ></div>
             </div>
@@ -317,7 +316,7 @@
     <!-- CPU Scaling Governor & Thermal Summary -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-6">
       <!-- CPU Scaling Governor -->
-      <Card title="CPU Scaling & Scheduling Policy" tone="butter">
+      <Card title="CPU Scaling & Scheduling Policy">
         <div class="space-y-4 font-mono text-xs">
           <div class="flex items-center justify-between">
             <span class="text-muted">Active Governor Policy</span>
@@ -345,7 +344,7 @@
       </Card>
 
       <!-- Thermal Sensors Monitor -->
-      <Card title="Thermal Sensors Telemetry" tone="peach">
+      <Card title="Thermal Sensors Telemetry">
         <div class="space-y-3 font-mono text-xs">
           <div class="flex items-center justify-between">
             <span class="text-muted">Primary SoC Temp</span>

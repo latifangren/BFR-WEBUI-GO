@@ -2,7 +2,7 @@
   import type { Snippet } from 'svelte'
 
   interface Props {
-    variant?: 'default' | 'success' | 'warning' | 'danger' | 'info'
+    variant?: 'default' | 'success' | 'warning' | 'danger' | 'info' | 'pop-pink' | 'pop-lime' | 'pop-yellow' | 'pop-cyan' | 'pop-purple'
     class?: string
     children?: Snippet
   }
@@ -19,6 +19,11 @@
     warning: 'bg-amber-950/60 text-amber-400 border-amber-800',
     danger: 'bg-red-950/60 text-red-400 border-red-800',
     info: 'bg-cyan-950/60 text-cyan-400 border-cyan-800',
+    'pop-pink': 'bg-[#ff5ca8] text-white border-[#17151a] shadow-[1px_1px_0px_#17151a]',
+    'pop-lime': 'bg-[#b8f34a] text-black border-[#17151a] shadow-[1px_1px_0px_#17151a]',
+    'pop-yellow': 'bg-[#ffe14a] text-black border-[#17151a] shadow-[1px_1px_0px_#17151a]',
+    'pop-cyan': 'bg-[#55dfff] text-black border-[#17151a] shadow-[1px_1px_0px_#17151a]',
+    'pop-purple': 'bg-[#9b7cff] text-white border-[#17151a] shadow-[1px_1px_0px_#17151a]',
   }
 </script>
 
