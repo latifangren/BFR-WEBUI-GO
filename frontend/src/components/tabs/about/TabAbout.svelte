@@ -70,7 +70,7 @@
           PRO
         </span>
         <Badge variant="default" class="text-[10px]">
-          v1.2.5 (Build 125)
+          v1.2.6 (Build 126)
         </Badge>
       </div>
     </div>
@@ -119,7 +119,7 @@
           <div class="grid grid-cols-2 sm:grid-cols-2 gap-2 sm:gap-2.5">
             <div class="p-2.5 sm:p-3 bg-card-sub border border-border rounded space-y-0.5 sm:space-y-1">
               <span class="text-[10px] uppercase font-bold text-muted">App Version</span>
-              <p class="font-bold text-accent">GO v1.2.5 (125)</p>
+              <p class="font-bold text-accent">GO v1.2.6 (126)</p>
             </div>
 
             <div class="p-2.5 sm:p-3 bg-card-sub border border-border rounded space-y-0.5 sm:space-y-1">

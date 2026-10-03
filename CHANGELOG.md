@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.2.6] - 2026-10-03
 ### Changed & Refactored
 - **Domain-Modularized Backend Routing (`internal/handlers/`)**:
   - Decomposed central monolithic `router.go` into dedicated domain routing registrars (`routes_system.go`, `routes_network.go`, `routes_modem.go`, `routes_services.go`), reducing `router.go` from ~400 lines to 176 lines while maintaining exact API endpoint parity.

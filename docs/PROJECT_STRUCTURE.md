@@ -9,7 +9,7 @@ Dokumen ini menjelaskan arsitektur folder dan struktur berkas repositori **BFR-W
 ```text
 BFR-WEBUI-GO/
 ├── main.go                      # Entry point aplikasi, inisialisasi server & flag CLI
-├── module.prop                  # Metadata modul Android (id, name, version v1.2.5, author)
+├── module.prop                  # Metadata modul Android (id, name, version v1.2.6, author)
 ├── customize.sh                 # Script instalasi & setup izin saat di-flash via Root Manager
 ├── service.sh                   # Script startup otomatis saat booting perangkat Android
 ├── system.prop                  # System properties bawaan modul Android
