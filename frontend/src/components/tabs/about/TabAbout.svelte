@@ -55,7 +55,7 @@
   }
 </script>
 
-<div class="space-y-6">
+<div class="space-y-3 sm:space-y-6">
   <!-- 1. Header Hero -->
   <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-2 border-b border-border font-mono">
     <div class="flex items-center gap-2.5 flex-wrap">
@@ -90,9 +90,9 @@
   </div>
 
   <!-- Main Content Grid -->
-  <div class="space-y-6">
+  <div class="space-y-3 sm:space-y-6">
     <!-- Top Row: Card 1 & Card 2 in 2-Column Desktop Grid -->
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-6 items-start">
       <!-- 2. Card 1: Project Overview & Specs (tone="ice") -->
       <Card
         title="Project Overview & Specs"
@@ -216,7 +216,7 @@
       subtitle="Help support active maintenance, new features & continuous updates"
       tone="peach"
     >
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 font-mono text-xs">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-6 font-mono text-xs">
         <!-- Left Column: Scan QRIS -->
         <div class="flex flex-col items-center justify-between p-4 bg-card-sub border border-border rounded-lg text-center space-y-4">
           <div class="space-y-1">

@@ -333,7 +333,7 @@
   }
 </script>
 
-<div class="space-y-6 pb-12 font-mono">
+<div class="space-y-3 sm:space-y-6 pb-12 font-mono">
   <!-- TOP HERO & REFRESH -->
   <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b-2 border-border pb-4">
     <div>
@@ -747,7 +747,7 @@
 
   <!-- SUB-TAB 2: RAT LOCK & 5G NR MODE -->
   {#if subTab === 'rat_mode'}
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-6">
       <!-- RAT Lock Card -->
       <Card title="Radio Access Technology (RAT) Lock" subtitle="Disable unwanted network generations independently" tone="ice">
         <div class="space-y-4 text-xs">
@@ -874,7 +874,7 @@
 
   <!-- SUB-TAB 3: VONR & DIAGNOSTICS -->
   {#if subTab === 'vonr_diag'}
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-6">
       <!-- VoNR Configuration -->
       <Card title="VoNR (Voice over New Radio)" subtitle="Native HD voice calls over 5G Standalone infrastructure" tone="ice">
         <div class="space-y-4 text-xs">

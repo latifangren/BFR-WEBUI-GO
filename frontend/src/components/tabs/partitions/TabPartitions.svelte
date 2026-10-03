@@ -199,7 +199,7 @@
   }
 </script>
 
-<div class="space-y-6">
+<div class="space-y-3 sm:space-y-6">
   <PartitionHeader
     {slotInfo}
     totalPartitions={partitions.length}

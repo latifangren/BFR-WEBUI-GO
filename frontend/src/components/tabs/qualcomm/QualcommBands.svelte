@@ -262,7 +262,7 @@
 </script>
 
 <Card title="Frequency Band Configuration" subtitle="Modulate active cellular frequencies instantly without reboot" tone="mint">
-  <div class="space-y-6 text-xs">
+  <div class="space-y-3 sm:space-y-6 text-xs">
     <!-- TARGET SIM SLOT & ACTIVE DATA STATUS -->
     <div class="space-y-3 p-3.5 bg-card-sub border-2 border-border rounded-lg">
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">

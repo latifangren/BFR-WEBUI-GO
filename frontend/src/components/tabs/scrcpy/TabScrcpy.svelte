@@ -658,7 +658,7 @@
   }
 </script>
 
-<div class="space-y-6">
+<div class="space-y-3 sm:space-y-6">
   <!-- Top Bar Controls (Header) -->
   <div class="neo-card bg-card p-4 rounded-xl border-2 border-border shadow-neobrutal">
     <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
@@ -774,7 +774,7 @@
   </div>
 
   <!-- Screen View & Remote Controls Layout -->
-  <div class="grid grid-cols-1 {showSettings ? 'lg:grid-cols-12' : ''} gap-6 items-start">
+  <div class="grid grid-cols-1 {showSettings ? 'lg:grid-cols-12' : ''} gap-3 sm:gap-6 items-start">
     <!-- Left/Main Stage: Phone Screen Frame -->
     <div class="{showSettings ? 'lg:col-span-7 xl:col-span-8' : 'w-full'} flex flex-col items-center">
       <div

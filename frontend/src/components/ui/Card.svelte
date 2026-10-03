@@ -24,9 +24,9 @@
   }: Props = $props()
 </script>
 
-<div class="neo-card bg-card p-4 sm:p-5 text-foreground {tone && tone !== 'none' ? 'neo-tone-' + tone : ''} {className}">
+<div class="neo-card bg-card p-3 sm:p-5 text-foreground {tone && tone !== 'none' ? 'neo-tone-' + tone : ''} {className}">
   {#if title || action}
-    <div class="flex items-center justify-between border-b border-border pb-3 mb-4 {headerClass}">
+    <div class="flex items-center justify-between border-b border-border pb-2 mb-3 sm:pb-3 sm:mb-4 {headerClass}">
       <div>
         {#if title}
           <h3 class="text-xs sm:text-sm font-bold font-mono tracking-wider uppercase text-foreground">
@@ -34,7 +34,7 @@
           </h3>
         {/if}
         {#if subtitle}
-          <p class="text-xs text-muted mt-0.5">{subtitle}</p>
+          <p class="text-[11px] sm:text-xs text-muted mt-0.5">{subtitle}</p>
         {/if}
       </div>
       {#if action}

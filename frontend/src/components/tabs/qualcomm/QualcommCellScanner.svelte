@@ -151,7 +151,7 @@
   }
 </script>
 
-<div class="space-y-6 font-mono">
+<div class="space-y-3 sm:space-y-6 font-mono">
   <!-- SCANNER CARD -->
   <Card
     title="Nearby Cell Towers & Signal Scanner"

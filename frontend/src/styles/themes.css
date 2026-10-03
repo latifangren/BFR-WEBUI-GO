@@ -191,12 +191,63 @@
   --color-ice: #c2e7ff;
 }
 
+/* 10. ProjectX (Retro-Pop Neobrutalism) */
+[data-theme='projectx'] {
+  --color-bg: #18151e;
+  --color-card: #24202b;
+  --color-card-sub: #302b38;
+  --color-border: #0d0b10;
+  --color-border-sub: #2a2433;
+  --color-accent: #ffe14a;
+  --color-accent-text: #000000;
+  --color-foreground: #fffaf4;
+  --color-muted: #aaa2ad;
+
+  --neo-bg: #18151e;
+  --neo-card: #24202b;
+  --neo-card-sub: #302b38;
+  --neo-text: #fffaf4;
+  --neo-muted: #aaa2ad;
+  --neo-border: #0d0b10;
+  --neo-accent: #ffe14a;
+  --neo-accent-text: #000000;
+  --neo-shadow: #08070a;
+  --neo-badge-bg: #302b38;
+  --neo-badge-text: #55dfff;
+  --neo-success: #b8f34a;
+  --neo-warning: #ffe14a;
+  --neo-danger: #ff3b30;
+  --neo-info: #55dfff;
+
+  /* ProjectX Pop Color Accents */
+  --color-pink: #ff5ca8;
+  --color-yellow: #ffe14a;
+  --color-cyan: #55dfff;
+  --color-lime: #b8f34a;
+  --color-purple: #9b7cff;
+  --color-orange: #ff9955;
+}
+
+[data-ui-style="neobrutal"][data-theme="projectx"],
+[data-ui-style="neobrutal"] [data-theme="projectx"] {
+  --neo-border: #0d0b10;
+  --neo-shadow: #08070a;
+}
+
+[data-ui-style="modern"][data-theme="projectx"],
+[data-ui-style="modern"] [data-theme="projectx"] {
+  --neo-border: #383142;
+  --neo-shadow: rgba(8, 7, 10, 0.5);
+}
+
 /* ========================================================= */
 /* UI Style Paradigm: Neo-Brutalist                          */
 /* ========================================================= */
 
 /* Micro-dots background texture */
-[data-ui-style="neobrutal"] body::before {
+/* Background texture: dots, grid, or none */
+[data-ui-style="neobrutal"][data-pattern="dots"] body::before,
+[data-ui-style="neobrutal"]:not([data-pattern]) body::before {
   content: "";
   position: fixed;
   inset: 0;
@@ -204,9 +255,28 @@
   height: 100%;
   background-image: radial-gradient(var(--neo-border) 1px, transparent 1px);
   background-size: 24px 24px;
-  opacity: 0.04;
+  opacity: var(--neo-pattern-opacity, 0.04);
   pointer-events: none;
   z-index: 1;
+}
+
+[data-ui-style="neobrutal"][data-pattern="grid"] body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  background-image: 
+    linear-gradient(to right, var(--neo-border) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--neo-border) 1px, transparent 1px);
+  background-size: 24px 24px;
+  opacity: var(--neo-pattern-opacity, 0.04);
+  pointer-events: none;
+  z-index: 1;
+}
+
+[data-ui-style="neobrutal"][data-pattern="none"] body::before {
+  display: none !important;
 }
 
 /* Neo-Brutalist Light Mode High-Contrast Override */
@@ -217,36 +287,36 @@
 }
 
 [data-ui-style="neobrutal"] .neo-card {
-  border: 2px solid var(--neo-border) !important;
-  box-shadow: 4px 4px 0px 0px var(--neo-shadow) !important;
-  border-radius: 4px !important;
+  border: var(--neo-border-width, 2px) solid var(--neo-border) !important;
+  box-shadow: var(--neo-shadow-size, 4px) var(--neo-shadow-size, 4px) 0px 0px var(--neo-shadow) !important;
+  border-radius: var(--neo-radius, 4px) !important;
   transition: transform 0.15s cubic-bezier(0.32, 0.72, 0, 1), box-shadow 0.15s cubic-bezier(0.32, 0.72, 0, 1);
 }
 
 [data-ui-style="neobrutal"] .neo-button {
-  border: 2px solid var(--neo-border) !important;
-  box-shadow: 3px 3px 0px 0px var(--neo-shadow) !important;
-  border-radius: 4px !important;
+  border: var(--neo-border-width, 2px) solid var(--neo-border) !important;
+  box-shadow: calc(var(--neo-shadow-size, 4px) * 0.75) calc(var(--neo-shadow-size, 4px) * 0.75) 0px 0px var(--neo-shadow) !important;
+  border-radius: var(--neo-radius, 4px) !important;
   font-weight: 700 !important;
   transition: transform 0.1s cubic-bezier(0.32, 0.72, 0, 1), box-shadow 0.1s cubic-bezier(0.32, 0.72, 0, 1), background-color 0.1s ease !important;
 }
 
 [data-ui-style="neobrutal"] .neo-button:hover:not(:disabled) {
   transform: translate(-1px, -1px);
-  box-shadow: 4px 4px 0px 0px var(--neo-shadow) !important;
+  box-shadow: var(--neo-shadow-size, 4px) var(--neo-shadow-size, 4px) 0px 0px var(--neo-shadow) !important;
 }
 
 [data-ui-style="neobrutal"] .neo-button:active:not(:disabled) {
-  transform: translate(2px, 2px) !important;
-  box-shadow: 1px 1px 0px 0px var(--neo-shadow) !important;
+  transform: translate(var(--neo-press-depth, 2px), var(--neo-press-depth, 2px)) !important;
+  box-shadow: 0px 0px 0px 0px var(--neo-shadow) !important;
 }
 
 [data-ui-style="neobrutal"] .neo-input,
 [data-ui-style="neobrutal"] input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
 [data-ui-style="neobrutal"] select,
 [data-ui-style="neobrutal"] textarea {
-  border: 2px solid var(--neo-border) !important;
-  border-radius: 4px !important;
+  border: var(--neo-border-width, 2px) solid var(--neo-border) !important;
+  border-radius: var(--neo-radius, 4px) !important;
 }
 
 /* ========================================================= */
@@ -284,6 +354,101 @@
 [data-ui-style="modern"] textarea {
   border: 1px solid var(--neo-border) !important;
   border-radius: 10px !important;
+}
+
+/* ========================================================= */
+/* UI Style Paradigm: Glassmorphism (Frosted Glass & Acrylic)*/
+/* ========================================================= */
+
+:root {
+  --glass-blur: 16px;
+  --glass-opacity: 0.65;
+  --glass-dim: 0.75;
+}
+
+[data-ui-style="glass"] body {
+  background-color: var(--neo-bg);
+  position: relative;
+}
+
+/* Wallpaper background container */
+.glass-wallpaper-container {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+  background-size: cover;
+  background-position: center center;
+  background-repeat: no-repeat;
+  transition: opacity 0.3s ease, filter 0.3s ease;
+}
+
+[data-ui-style="glass"] .neo-card,
+[data-ui-style="glass"] aside,
+[data-ui-style="glass"] header {
+  background-color: color-mix(in srgb, var(--neo-card) calc(var(--glass-opacity, 0.65) * 100%), transparent) !important;
+  backdrop-filter: blur(var(--glass-blur, 16px)) saturate(160%) !important;
+  -webkit-backdrop-filter: blur(var(--glass-blur, 16px)) saturate(160%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.25) !important;
+  border-radius: 16px !important;
+}
+
+[data-ui-style="glass"] .bg-card {
+  background-color: color-mix(in srgb, var(--neo-card) calc(var(--glass-opacity, 0.65) * 100%), transparent) !important;
+  backdrop-filter: blur(var(--glass-blur, 16px)) !important;
+  -webkit-backdrop-filter: blur(var(--glass-blur, 16px)) !important;
+}
+
+[data-ui-style="glass"] .bg-card-sub {
+  background-color: color-mix(in srgb, var(--neo-card-sub) calc(var(--glass-opacity, 0.65) * 100%), transparent) !important;
+  backdrop-filter: blur(var(--glass-blur, 16px)) !important;
+  -webkit-backdrop-filter: blur(var(--glass-blur, 16px)) !important;
+}
+
+[data-ui-style="glass"] .neo-button {
+  background-color: color-mix(in srgb, var(--neo-card-sub) 75%, transparent) !important;
+  backdrop-filter: blur(8px) !important;
+  -webkit-backdrop-filter: blur(8px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  border-radius: 12px !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+[data-ui-style="glass"] .neo-button:hover:not(:disabled) {
+  background-color: color-mix(in srgb, var(--neo-card-sub) 90%, transparent) !important;
+  border-color: rgba(255, 255, 255, 0.25) !important;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15) !important;
+}
+
+[data-ui-style="glass"] .neo-button:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+[data-ui-style="glass"] .neo-input,
+[data-ui-style="glass"] input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+[data-ui-style="glass"] select,
+[data-ui-style="glass"] textarea {
+  background-color: color-mix(in srgb, var(--neo-card-sub) 60%, transparent) !important;
+  backdrop-filter: blur(8px) !important;
+  -webkit-backdrop-filter: blur(8px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  border-radius: 10px !important;
+}
+
+[data-ui-style="glass"][data-theme="light"] .neo-card,
+[data-ui-style="glass"] [data-theme="light"] .neo-card,
+[data-ui-style="glass"][data-theme="light"] aside,
+[data-ui-style="glass"] [data-theme="light"] aside,
+[data-ui-style="glass"][data-theme="light"] header,
+[data-ui-style="glass"] [data-theme="light"] header {
+  border: 1px solid rgba(0, 0, 0, 0.08) !important;
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.08) !important;
 }
 
 /* ========================================================= */

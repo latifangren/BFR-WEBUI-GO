@@ -186,7 +186,7 @@
   const stats = $derived(sysinfoStore.stats)
 </script>
 
-<div class="space-y-6">
+<div class="space-y-3 sm:space-y-3 sm:space-y-6">
   <!-- Retro System Notice Banner -->
   <NoticeBanner
     title="KERNEL SUPERVISOR ONLINE"
@@ -195,12 +195,12 @@
   />
 
   <!-- Bento Quick Gauges (5 Cards) -->
-  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+  <div class="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-5 gap-2.5 sm:gap-4">
     <!-- CPU Gauge (Interactive: Click for Core & Thermal details) -->
     <!-- svelte-ignore a11y_click_events_have_key_events -->
     <!-- svelte-ignore a11y_no_static_element_interactions -->
     <div
-      class="neo-card neo-tone-ice bg-card p-4 rounded flex flex-col justify-between cursor-pointer hover:border-accent transition-colors group select-none overflow-hidden"
+      class="neo-card neo-tone-ice bg-card p-3 sm:p-4 rounded flex flex-col justify-between cursor-pointer hover:border-accent transition-colors group select-none overflow-hidden"
       onclick={() => (showCpuModal = true)}
       title="Click to inspect CPU Cores, Frequencies & Thermal sensors"
     >
@@ -215,7 +215,7 @@
           </div>
         </div>
         <div class="flex items-baseline justify-between">
-          <span class="text-2xl font-black font-mono text-foreground">
+          <span class="text-xl sm:text-2xl font-black font-mono text-foreground">
             {stats ? stats.cpu_usage.toFixed(0) : '0'}%
           </span>
           {#if stats?.cpu_temp}
@@ -231,14 +231,14 @@
           ></div>
         </div>
       </div>
-      <SparklineWave value={stats ? stats.cpu_usage : 0} color="var(--color-mint, var(--neo-accent, #3b82f6))" height={26} class="mt-2" />
+      <SparklineWave value={stats ? stats.cpu_usage : 0} color="var(--color-mint, var(--neo-accent, #3b82f6))" height={20} class="mt-2" />
     </div>
 
     <!-- RAM Gauge -->
     <!-- svelte-ignore a11y_click_events_have_key_events -->
     <!-- svelte-ignore a11y_no_static_element_interactions -->
     <div
-      class="neo-card neo-tone-lavender bg-card p-4 rounded flex flex-col justify-between cursor-pointer hover:border-accent transition-colors select-none overflow-hidden"
+      class="neo-card neo-tone-lavender bg-card p-3 sm:p-4 rounded flex flex-col justify-between cursor-pointer hover:border-accent transition-colors select-none overflow-hidden"
       onclick={() => navigationStore.setTab('sysinfo')}
       title="Click to open full System & RAM information"
     >
@@ -250,7 +250,7 @@
           </div>
         </div>
         <div class="flex items-baseline justify-between">
-          <span class="text-2xl font-black font-mono text-foreground">
+          <span class="text-xl sm:text-2xl font-black font-mono text-foreground">
             {stats ? stats.mem_used_pct.toFixed(0) : '0'}%
           </span>
           <div class="text-right font-mono">
@@ -269,14 +269,14 @@
           ></div>
         </div>
       </div>
-      <SparklineWave value={stats ? stats.mem_used_pct : 0} color="var(--color-lavender, #c084fc)" height={26} class="mt-2" />
+      <SparklineWave value={stats ? stats.mem_used_pct : 0} color="var(--color-lavender, #c084fc)" height={20} class="mt-2" />
     </div>
 
     <!-- Storage Gauge -->
     <!-- svelte-ignore a11y_click_events_have_key_events -->
     <!-- svelte-ignore a11y_no_static_element_interactions -->
     <div
-      class="neo-card neo-tone-mint bg-card p-4 rounded flex flex-col justify-between cursor-pointer hover:border-accent transition-colors select-none overflow-hidden"
+      class="neo-card neo-tone-ice bg-card p-3 sm:p-4 rounded flex flex-col justify-between cursor-pointer hover:border-accent transition-colors select-none overflow-hidden"
       onclick={() => navigationStore.setTab('files')}
       title="Click to open File Manager"
     >
@@ -288,7 +288,7 @@
           </div>
         </div>
         <div class="flex items-baseline justify-between">
-          <span class="text-2xl font-black font-mono text-foreground">
+          <span class="text-xl sm:text-2xl font-black font-mono text-foreground">
             {stats ? stats.disk_used_pct.toFixed(0) : '0'}%
           </span>
           <div class="text-right font-mono">
@@ -307,14 +307,14 @@
           ></div>
         </div>
       </div>
-      <SparklineWave value={stats ? stats.disk_used_pct : 0} color="var(--color-ice, #60a5fa)" height={26} class="mt-2" />
+      <SparklineWave value={stats ? stats.disk_used_pct : 0} color="var(--color-ice, #60a5fa)" height={20} class="mt-2" />
     </div>
 
     <!-- Battery Gauge (Interactive: Click for Voltage, Current & Health) -->
     <!-- svelte-ignore a11y_click_events_have_key_events -->
     <!-- svelte-ignore a11y_no_static_element_interactions -->
     <div
-      class="neo-card neo-tone-peach bg-card p-4 rounded flex flex-col justify-between cursor-pointer hover:border-accent transition-colors group select-none overflow-hidden"
+      class="neo-card neo-tone-peach bg-card p-3 sm:p-4 rounded flex flex-col justify-between cursor-pointer hover:border-accent transition-colors group select-none overflow-hidden"
       onclick={() => (showBatteryModal = true)}
       title="Click to view Battery Voltage, Current & Health diagnostics"
     >
@@ -333,8 +333,8 @@
           </div>
         </div>
         <div class="flex items-baseline justify-between">
-          <span class="text-2xl font-black font-mono text-foreground">
-            {stats ? stats.battery_level : '0'}%
+          <span class="text-xl sm:text-2xl font-black font-mono text-foreground">
+            {stats?.battery_level ?? 0}%
           </span>
           <span class="text-xs font-mono text-emerald-400 font-bold">
             {stats?.battery_status || 'OK'}
@@ -347,11 +347,11 @@
           ></div>
         </div>
       </div>
-      <SparklineWave value={stats ? stats.battery_level : 0} color="var(--color-mint, #34d399)" height={26} class="mt-2" />
+      <SparklineWave value={stats ? stats.battery_level : 0} color="var(--color-mint, #34d399)" height={20} class="mt-2" />
     </div>
 
     <!-- Uptime Gauge -->
-    <div class="neo-card neo-tone-butter bg-card p-4 rounded flex flex-col justify-between font-mono select-none overflow-hidden">
+    <div class="neo-card neo-tone-butter bg-card p-3 sm:p-4 rounded col-span-2 sm:col-span-1 lg:col-span-1 flex flex-col justify-between font-mono select-none overflow-hidden">
       <div>
         <div class="flex items-center justify-between text-muted mb-2 text-xs">
           <span class="font-bold uppercase tracking-wider">Uptime</span>
@@ -360,7 +360,7 @@
           </div>
         </div>
         <div class="flex items-baseline justify-between">
-          <span class="text-xl font-black text-foreground">
+          <span class="text-lg sm:text-xl font-black text-foreground">
             {stats ? formatUptime(stats.uptime) : '0m'}
           </span>
         </div>
@@ -368,7 +368,7 @@
           Kernel: {stats ? stats.kernel : 'Linux'}
         </div>
       </div>
-      <SparklineWave value={stats ? Math.min((stats.uptime / (3600 * 24 * 7)) * 100, 100) : 50} color="var(--color-butter, #eab308)" height={26} class="mt-2" />
+      <SparklineWave value={stats ? Math.min((stats.uptime / (3600 * 24 * 7)) * 100, 100) : 50} color="var(--color-butter, #eab308)" height={20} class="mt-2" />
     </div>
   </div>
 
@@ -470,20 +470,20 @@
   </Card>
 
   <!-- Quick Action Jump Cards -->
-  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+  <div class="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-4">
     <!-- Network & Traffic Telemetry Card (Interactive) -->
     <!-- svelte-ignore a11y_click_events_have_key_events -->
     <!-- svelte-ignore a11y_no_static_element_interactions -->
     <div
-      class="neo-button bg-card hover:bg-card-sub p-4 rounded border-2 border-border text-left flex items-center justify-between cursor-pointer hover:border-accent group select-none transition-colors"
+      class="neo-button bg-card hover:bg-card-sub p-2.5 sm:p-4 rounded border-2 border-border text-left flex items-center justify-between cursor-pointer hover:border-accent group select-none transition-colors"
       onclick={() => (showNetworkModal = true)}
       title="Click to inspect Network Interface & Telemetry"
       role="button"
       tabindex="0"
     >
-      <div class="flex items-center gap-3">
-        <div class="p-2.5 rounded bg-card-sub border border-border text-accent group-hover:scale-105 transition-transform">
-          <Activity class="w-5 h-5" />
+      <div class="flex items-center gap-2 sm:gap-3">
+        <div class="p-2 sm:p-2.5 rounded bg-card-sub border border-border text-accent group-hover:scale-105 transition-transform">
+          <Activity class="w-4 h-4 sm:w-5 sm:h-5" />
         </div>
         <div>
           <h4 class="font-mono font-bold text-xs uppercase text-foreground flex items-center gap-1 group-hover:text-accent transition-colors">
@@ -501,82 +501,82 @@
           </p>
         </div>
       </div>
-      <ArrowRight class="w-4 h-4 text-muted group-hover:text-foreground transition-colors" />
+      <ArrowRight class="w-4 h-4 text-muted group-hover:text-foreground transition-colors hidden sm:block" />
     </div>
 
     <button
       type="button"
-      class="neo-button bg-card hover:bg-card-sub p-4 rounded border-2 border-border text-left flex items-center justify-between cursor-pointer group"
+      class="neo-button bg-card hover:bg-card-sub p-2.5 sm:p-4 rounded border-2 border-border text-left flex items-center justify-between cursor-pointer group"
       onclick={() => navigationStore.setTab('hotspot')}
     >
-      <div class="flex items-center gap-3">
-        <div class="p-2.5 rounded bg-card-sub border border-border text-emerald-400 group-hover:scale-105 transition-transform">
-          <Wifi class="w-5 h-5" />
+      <div class="flex items-center gap-2 sm:gap-3">
+        <div class="p-2 sm:p-2.5 rounded bg-card-sub border border-border text-amber-400 group-hover:scale-105 transition-transform">
+          <Wifi class="w-4 h-4 sm:w-5 sm:h-5" />
         </div>
         <div>
           <h4 class="font-mono font-bold text-xs uppercase text-foreground">SoftAP Hotspot</h4>
           <p class="text-[11px] font-mono text-muted">Clients & Tethering</p>
         </div>
       </div>
-      <ArrowRight class="w-4 h-4 text-muted group-hover:text-foreground transition-colors" />
+      <ArrowRight class="w-4 h-4 text-muted group-hover:text-foreground transition-colors hidden sm:block" />
     </button>
 
     <button
       type="button"
-      class="neo-button bg-card hover:bg-card-sub p-4 rounded border-2 border-border text-left flex items-center justify-between cursor-pointer group"
+      class="neo-button bg-card hover:bg-card-sub p-2.5 sm:p-4 rounded border-2 border-border text-left flex items-center justify-between cursor-pointer group"
       onclick={() => navigationStore.setTab('proxy')}
     >
-      <div class="flex items-center gap-3">
-        <div class="p-2.5 rounded bg-card-sub border border-border text-purple-400 group-hover:scale-105 transition-transform">
-          <Shield class="w-5 h-5" />
+      <div class="flex items-center gap-2 sm:gap-3">
+        <div class="p-2 sm:p-2.5 rounded bg-card-sub border border-border text-purple-400 group-hover:scale-105 transition-transform">
+          <Shield class="w-4 h-4 sm:w-5 sm:h-5" />
         </div>
         <div>
           <h4 class="font-mono font-bold text-xs uppercase text-foreground">Clash Core</h4>
           <p class="text-[11px] font-mono text-muted">Routing & Rules</p>
         </div>
       </div>
-      <ArrowRight class="w-4 h-4 text-muted group-hover:text-foreground transition-colors" />
+      <ArrowRight class="w-4 h-4 text-muted group-hover:text-foreground transition-colors hidden sm:block" />
     </button>
 
     <button
       type="button"
-      class="neo-button bg-card hover:bg-card-sub p-4 rounded border-2 border-border text-left flex items-center justify-between cursor-pointer group"
+      class="neo-button bg-card hover:bg-card-sub p-2.5 sm:p-4 rounded border-2 border-border text-left flex items-center justify-between cursor-pointer group"
       onclick={() => navigationStore.setTab('power')}
     >
-      <div class="flex items-center gap-3">
-        <div class="p-2.5 rounded bg-card-sub border border-border text-red-400 group-hover:scale-105 transition-transform">
-          <Power class="w-5 h-5" />
+      <div class="flex items-center gap-2 sm:gap-3">
+        <div class="p-2 sm:p-2.5 rounded bg-card-sub border border-border text-red-400 group-hover:scale-105 transition-transform">
+          <Power class="w-4 h-4 sm:w-5 sm:h-5" />
         </div>
         <div>
           <h4 class="font-mono font-bold text-xs uppercase text-foreground">Power Actions</h4>
           <p class="text-[11px] font-mono text-muted">Reboot, Recovery</p>
         </div>
       </div>
-      <ArrowRight class="w-4 h-4 text-muted group-hover:text-foreground transition-colors" />
+      <ArrowRight class="w-4 h-4 text-muted group-hover:text-foreground transition-colors hidden sm:block" />
     </button>
   </div>
 
   <!-- System Summary Card -->
   <Card title="Device Status & Core Daemons" tone="butter">
-    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 font-mono text-xs">
-      <div class="bg-card-sub border border-border p-3 rounded space-y-1">
+    <div class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-2 sm:gap-3 font-mono text-xs">
+      <div class="bg-card-sub border border-border p-2.5 sm:p-3 rounded space-y-1">
         <span class="text-[10px] text-muted uppercase font-bold">Device</span>
         <p class="font-bold text-foreground truncate">{stats?.model || 'Android Device'}</p>
       </div>
 
-      <div class="bg-card-sub border border-border p-3 rounded space-y-1">
+      <div class="bg-card-sub border border-border p-2.5 sm:p-3 rounded space-y-1">
         <span class="text-[10px] text-muted uppercase font-bold">Android / SDK</span>
         <p class="font-bold text-foreground">
           Android {stats?.android_ver || 'N/A'} (API {stats?.sdk_ver || 'N/A'})
         </p>
       </div>
 
-      <div class="bg-card-sub border border-border p-3 rounded space-y-1">
+      <div class="bg-card-sub border border-border p-2.5 sm:p-3 rounded space-y-1">
         <span class="text-[10px] text-muted uppercase font-bold">Security Patch</span>
         <p class="font-bold text-foreground">{stats?.security_patch || 'N/A'}</p>
       </div>
 
-      <div class="bg-card-sub border border-border p-3 rounded space-y-1">
+      <div class="bg-card-sub border border-border p-2.5 sm:p-3 rounded space-y-1">
         <span class="text-[10px] text-muted uppercase font-bold">SELinux Mode</span>
         <p class="font-bold text-foreground capitalize">{stats?.selinux || 'Enforcing'}</p>
       </div>

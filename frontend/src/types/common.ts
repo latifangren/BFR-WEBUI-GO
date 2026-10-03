@@ -1,5 +1,13 @@
-export type ThemeMode = 'dark' | 'amoled' | 'light' | 'dracula' | 'nord' | 'cyberpunk' | 'emerald' | 'sunset' | 'retro'
-export type UIStyle = 'neobrutal' | 'modern'
+export type ThemeMode = 'dark' | 'amoled' | 'light' | 'dracula' | 'nord' | 'cyberpunk' | 'emerald' | 'sunset' | 'retro' | 'projectx'
+export type UIStyle = 'neobrutal' | 'modern' | 'glass'
+
+export interface WallpaperItem {
+  id: string
+  name: string
+  size: number
+  url: string
+  updated_at: number
+}
 
 export interface ApiResponse<T = unknown> {
   success: boolean

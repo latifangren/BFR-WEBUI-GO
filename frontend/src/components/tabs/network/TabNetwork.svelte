@@ -242,7 +242,7 @@
   }
 </script>
 
-<div class="space-y-6">
+<div class="space-y-3 sm:space-y-6">
   <!-- Top Bar Controls -->
   <div class="flex items-center justify-between">
     <div class="flex items-center gap-2">
@@ -364,7 +364,7 @@
     </div>
   </Card>
 
-  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-6">
     <!-- TTL Modifier Card -->
     <Card title="Dynamic TTL Modifier" subtitle="Bypass operator hotspot quota restriction" tone="mint">
       <div class="space-y-4 font-mono text-xs">

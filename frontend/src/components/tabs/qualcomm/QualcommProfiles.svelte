@@ -129,7 +129,7 @@
   }
 </script>
 
-<div class="space-y-6 font-mono text-xs">
+<div class="space-y-3 sm:space-y-6 font-mono text-xs">
   <!-- HARDWARE RF CAPABILITIES CARD -->
   <Card title="Hardware RF Physical Capabilities" subtitle="Exact radio frequency bands physically wired to the modem baseband transceiver" tone="mint">
     {#snippet action()}

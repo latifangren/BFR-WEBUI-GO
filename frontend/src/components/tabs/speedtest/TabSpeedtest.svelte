@@ -139,7 +139,7 @@
   }
 </script>
 
-<div class="space-y-6">
+<div class="space-y-3 sm:space-y-6">
   <!-- Top Bar Controls -->
   <div class="flex items-center justify-between">
     <div class="flex items-center gap-2">
@@ -184,7 +184,7 @@
   {/if}
 
   <!-- Gauges Grid -->
-  <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 font-mono">
+  <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-6 font-mono">
     <!-- Download Speed -->
     <div class="neo-card bg-card border-2 border-border shadow-neobrutal p-6 rounded flex flex-col items-center justify-center space-y-2 text-center">
       <div class="p-3 rounded-full bg-accent/10 border border-accent text-accent">

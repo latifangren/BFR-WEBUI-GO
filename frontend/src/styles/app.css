@@ -13,3 +13,15 @@
     overflow-x: hidden;
   }
 }
+
+@layer components {
+  /* Mobile-first compact density for small touchscreens (<640px) */
+  @media (max-width: 639px) {
+    .neo-card {
+      box-shadow: min(var(--neo-shadow-size, 3px), 3px) min(var(--neo-shadow-size, 3px), 3px) 0px 0px var(--neo-shadow) !important;
+    }
+    .neo-button {
+      box-shadow: min(calc(var(--neo-shadow-size, 3px) * 0.75), 2px) min(calc(var(--neo-shadow-size, 3px) * 0.75), 2px) 0px 0px var(--neo-shadow) !important;
+    }
+  }
+}

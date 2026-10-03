@@ -190,7 +190,7 @@
   )
 </script>
 
-<div class="space-y-6 pb-12 font-mono">
+<div class="space-y-3 sm:space-y-6 pb-12 font-mono">
   <!-- TOP HERO & REFRESH -->
   <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b-2 border-border pb-4">
     <div>
@@ -331,7 +331,7 @@
 
   <!-- SUB-TAB 1: Signal & Radio -->
   {#if subTab === 'signal'}
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-3 sm:gap-6">
       <Card title="Cellular Radio Signal" tone="mint" class="lg:col-span-2">
         {#snippet action()}
           <Button
@@ -434,7 +434,7 @@
 
   <!-- SUB-TAB 2: DUAL SIM & MOBILE DATA ROUTING -->
   {#if subTab === 'sim'}
-    <div class="space-y-6">
+    <div class="space-y-3 sm:space-y-6">
       <Card
         title="Universal Dual-SIM & Mobile Data Routing"
         subtitle="Manage active cellular data slot across physical SIMs and eSIMs"
@@ -542,7 +542,7 @@
 
   <!-- SUB-TAB 3: MODEM & 5G THERMAL TELEMETRY -->
   {#if subTab === 'thermal'}
-    <div class="space-y-6">
+    <div class="space-y-3 sm:space-y-6">
       <Card
         title="Universal Modem & 5G Thermal Telemetry"
         subtitle="Real-time thermal zone sensor telemetry, Power Amps (PA), and Thermal HAL state"

@@ -218,6 +218,12 @@ func RegisterRoutes(mux *http.ServeMux, authMgr *auth.Manager) {
 	mux.HandleFunc("/api/shortcuts/save", wrap(HandleShortcutsSave, true))
 	mux.HandleFunc("/api/shortcuts/delete", wrap(HandleShortcutsDelete, true))
 
+
+	// Theme Wallpaper URLs
+	mux.HandleFunc("/api/theme/wallpapers", wrap(HandleThemeWallpapers, true))
+	mux.HandleFunc("/api/theme/wallpapers/upload", wrap(HandleThemeWallpaperUpload, true))
+	mux.HandleFunc("/api/theme/wallpapers/file", wrap(HandleThemeWallpaperFile, false))
+	mux.HandleFunc("/api/theme/wallpapers/delete", wrap(HandleThemeWallpaperDelete, true))
 	// Smart Charger URLs
 	mux.HandleFunc("/api/charger/config", wrap(HandleChargerConfig, true))
 	mux.HandleFunc("/api/charger/toggle", wrap(HandleChargerToggle, true))

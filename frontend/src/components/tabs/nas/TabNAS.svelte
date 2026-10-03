@@ -360,7 +360,7 @@
   }
 </script>
 
-<div class="space-y-6">
+<div class="space-y-3 sm:space-y-6">
   <!-- Top Bar Controls -->
   <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
     <div class="flex items-center gap-2.5 flex-wrap">
@@ -432,7 +432,7 @@
     </div>
   </div>
 
-  <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+  <div class="grid grid-cols-1 lg:grid-cols-12 gap-3 sm:gap-6">
     <!-- KARTU 1: Server Configuration -->
     <Card
       title="Server Configuration"

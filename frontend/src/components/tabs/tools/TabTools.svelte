@@ -160,7 +160,7 @@
   }
 </script>
 
-<div class="space-y-6 font-mono">
+<div class="space-y-3 sm:space-y-6 font-mono">
   <!-- Top Bar Controls -->
   <div class="flex items-center justify-between flex-wrap gap-3">
     <div class="flex items-center gap-2">

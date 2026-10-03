@@ -156,7 +156,7 @@
   }
 </script>
 
-<div class="space-y-6 font-mono">
+<div class="space-y-3 sm:space-y-6 font-mono">
   <!-- CELL LOCK STATUS HERO -->
   <Card title="Instant Cell & Tower Locking" subtitle="Pin baseband modem to a specific Physical Cell ID (PCI) and radio frequency channel (EARFCN)" tone="mint">
     {#snippet action()}
@@ -171,7 +171,7 @@
       </Button>
     {/snippet}
 
-    <div class="space-y-6 text-xs">
+    <div class="space-y-3 sm:space-y-6 text-xs">
       <!-- Target Slot Indicator -->
       <div class="p-3 bg-card-sub border-2 border-border rounded flex flex-col sm:flex-row sm:items-center justify-between gap-2">
         <div class="flex items-center gap-2">

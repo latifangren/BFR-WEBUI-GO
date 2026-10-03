@@ -97,7 +97,7 @@
   const stats = $derived(sysinfoStore.stats)
 </script>
 
-<div class="space-y-6">
+<div class="space-y-3 sm:space-y-3 sm:space-y-6">
   <!-- Top Bar Controls -->
   <div class="flex items-center justify-between">
     <div class="flex items-center gap-2">
@@ -136,7 +136,7 @@
     </div>
   {:else if stats}
     <!-- Grid 1: Device Details & Quick Metrics -->
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-3 sm:gap-3 sm:gap-6">
       <!-- Device Specs Bento Box -->
       <Card
         title="Device Specifications & Hardware Info"
@@ -148,43 +148,43 @@
             <Cpu class="w-4 h-4 text-accent" />
           </div>
         {/snippet}
-        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 font-mono text-xs">
-          <div class="bg-card-sub border border-border p-3 rounded space-y-1">
+        <div class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 gap-2 sm:gap-3 font-mono text-xs">
+          <div class="bg-card-sub border border-border p-2 sm:p-3 rounded space-y-0.5 sm:space-y-1">
             <span class="text-[10px] text-muted uppercase font-bold">Device Model</span>
             <div class="text-xs font-bold text-foreground truncate" title={stats.model}>
               {stats.model || 'Android Device'}
             </div>
           </div>
 
-          <div class="bg-card-sub border border-border p-3 rounded space-y-1">
+          <div class="bg-card-sub border border-border p-2 sm:p-3 rounded space-y-0.5 sm:space-y-1">
             <span class="text-[10px] text-muted uppercase font-bold">Android Version</span>
             <div class="text-xs font-bold text-foreground">
               Android {stats.android_ver || 'N/A'} (API {stats.sdk_ver || 'N/A'})
             </div>
           </div>
 
-          <div class="bg-card-sub border border-border p-3 rounded space-y-1">
-            <span class="text-[10px] text-muted uppercase font-bold">Kernel</span>
+          <div class="bg-card-sub border border-border p-2 sm:p-3 rounded space-y-0.5 sm:space-y-1">
+            <span class="text-[10px] text-muted uppercase font-bold">Kernel Release</span>
             <div class="text-xs font-bold text-foreground truncate" title={stats.kernel}>
               {stats.kernel || 'Linux'}
             </div>
           </div>
 
-          <div class="bg-card-sub border border-border p-3 rounded space-y-1">
+          <div class="bg-card-sub border border-border p-2 sm:p-3 rounded space-y-0.5 sm:space-y-1">
             <span class="text-[10px] text-muted uppercase font-bold">Security Patch</span>
             <div class="text-xs font-bold text-foreground">
               {stats.security_patch || 'N/A'}
             </div>
           </div>
 
-          <div class="bg-card-sub border border-border p-3 rounded space-y-1">
+          <div class="bg-card-sub border border-border p-2 sm:p-3 rounded space-y-0.5 sm:space-y-1">
             <span class="text-[10px] text-muted uppercase font-bold">Resolution & Density</span>
             <div class="text-xs font-bold text-foreground">
-              {stats.resolution || 'Unknown'} @ {stats.density || 'N/A'}
+              {stats.screen_res || 'N/A'} ({stats.screen_dpi || 'N/A'} dpi)
             </div>
           </div>
 
-          <div class="bg-card-sub border border-border p-3 rounded space-y-1">
+          <div class="bg-card-sub border border-border p-2 sm:p-3 rounded space-y-0.5 sm:space-y-1">
             <span class="text-[10px] text-muted uppercase font-bold">System Uptime</span>
             <div class="text-xs font-bold text-foreground">
               {formatUptime(stats.uptime)}
@@ -204,7 +204,7 @@
             {/if}
           </div>
         {/snippet}
-        <div class="space-y-4 font-mono text-xs">
+        <div class="space-y-3 sm:space-y-4 font-mono text-xs">
           <div class="flex items-center justify-between">
             <span class="text-muted">Charge Level</span>
             <div class="flex items-center gap-1.5">
@@ -252,8 +252,7 @@
       </Card>
     </div>
 
-    <!-- Grid 2: CPU, Thermals & Memory -->
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-6">
       <!-- CPU & Per-Core Telemetry -->
       <Card title="CPU Core Activity & Thermals" tone="mint">
         {#snippet action()}
@@ -261,7 +260,7 @@
             <Cpu class="w-4 h-4 text-accent" />
           </div>
         {/snippet}
-        <div class="space-y-4 font-mono text-xs">
+        <div class="space-y-3 sm:space-y-4 font-mono text-xs">
           <!-- Overall CPU Usage -->
           <div class="flex items-center justify-between">
             <span class="text-muted">Total CPU Utilization</span>
@@ -321,7 +320,7 @@
             <Activity class="w-4 h-4 text-purple-400" />
           </div>
         {/snippet}
-        <div class="space-y-5 font-mono text-xs">
+        <div class="space-y-3 sm:space-y-5 font-mono text-xs">
           <!-- Physical RAM -->
           <div class="space-y-2">
             <div class="flex items-center justify-between">
@@ -363,7 +362,7 @@
     </div>
 
     <!-- CPU Scaling Governor & Thermal Summary -->
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-6">
       <!-- CPU Scaling Governor -->
       <Card title="CPU Scaling Governor Policy" tone="butter">
         <div class="space-y-4 font-mono text-xs">
@@ -447,7 +446,7 @@
     </div>
 
     <!-- Grid 3: Storage Partitions & Services -->
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-3 sm:gap-6">
       <!-- Disks & Partitions -->
       <Card title="Storage Filesystems" tone="ice">
         {#if stats.disks && stats.disks.length > 0}

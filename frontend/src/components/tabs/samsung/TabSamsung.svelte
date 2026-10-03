@@ -253,7 +253,7 @@
   }
 </script>
 
-<div class="space-y-6 pb-12 font-mono">
+<div class="space-y-3 sm:space-y-6 pb-12 font-mono">
   <!-- TOP HERO & REFRESH -->
   <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b-2 border-border pb-4">
     <div>

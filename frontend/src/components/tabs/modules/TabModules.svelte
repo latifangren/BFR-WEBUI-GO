@@ -113,7 +113,7 @@
   }
 </script>
 
-<div class="space-y-6">
+<div class="space-y-3 sm:space-y-6">
   <!-- Top Bar Controls -->
   <div class="flex items-center justify-between">
     <div class="flex items-center gap-2">
@@ -139,7 +139,7 @@
     </div>
   </div>
 
-  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-3 sm:gap-6">
     <!-- Module Installer Card -->
     <Card
       title="Flash Module Archive"

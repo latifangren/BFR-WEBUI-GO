@@ -7,12 +7,20 @@
     Layers,
     LayoutGrid,
     PanelLeft,
+    Upload,
+    Trash2,
+    Sliders,
+    Image,
+    Loader2,
+    RotateCcw,
   } from '@lucide/svelte'
   import { themeStore } from '../../stores/theme.svelte'
   import {
     navigationStore,
   } from '../../stores/navigation.svelte'
-  import type { ThemeMode, UIStyle } from '../../types/common'
+  import { toastStore } from '../../stores/toast.svelte'
+  import { request } from '../../api/client'
+  import type { ThemeMode, UIStyle, WallpaperItem } from '../../types/common'
   import Button from '../ui/Button.svelte'
 
   interface Props {
@@ -131,6 +139,16 @@
       accent: '#c8f5d0',
       text: '#111827',
     },
+    {
+      id: 'projectx',
+      name: 'ProjectX Dark',
+      tagline: 'Retro-pop neobrutalism on purple charcoal',
+      bg: '#18151e',
+      card: '#24202b',
+      border: '#0d0b10',
+      accent: '#ffe14a',
+      text: '#fffaf4',
+    },
   ]
 
   function handleKeydown(e: KeyboardEvent) {
@@ -145,6 +163,80 @@
 
   function selectStyle(style: UIStyle) {
     themeStore.setStyle(style)
+  }
+
+  let wallpapers = $state<WallpaperItem[]>([])
+  let isLoadingWallpapers = $state(false)
+  let isUploading = $state(false)
+
+  const PRESETS = [
+    { id: 'preset:none', name: 'None (Pure Tint)', preview: 'linear-gradient(135deg, rgba(255,255,255,0.05), rgba(255,255,255,0.02))' },
+    { id: 'preset:cyber-neon', name: 'Cyber Neon', preview: 'linear-gradient(135deg, #0d0f18, #1a102f, #0d273a)' },
+    { id: 'preset:aurora-mesh', name: 'Aurora Mesh', preview: 'linear-gradient(135deg, #120b29, #172554, #3b0764, #042f2e)' },
+    { id: 'preset:sunset-glow', name: 'Sunset Glow', preview: 'linear-gradient(135deg, #1b0a2a, #3d1445, #5e1c43)' },
+    { id: 'preset:dark-velvet', name: 'Dark Velvet', preview: 'linear-gradient(160deg, #18151e, #2b1f38, #110e16)' },
+  ]
+
+  async function loadWallpapers() {
+    isLoadingWallpapers = true
+    try {
+      const res = await request<{ success: boolean; data: WallpaperItem[] }>('/api/theme/wallpapers')
+      if (res && res.success && Array.isArray(res.data)) {
+        wallpapers = res.data
+      }
+    } catch (err) {
+      console.error('Failed to load wallpapers', err)
+    } finally {
+      isLoadingWallpapers = false
+    }
+  }
+
+  $effect(() => {
+    if (isOpen) {
+      loadWallpapers()
+    }
+  })
+
+  async function handleUploadWallpaper(e: Event) {
+    const input = e.target as HTMLInputElement
+    if (!input.files || input.files.length === 0) return
+    const file = input.files[0]
+    isUploading = true
+    try {
+      const fd = new FormData()
+      fd.append('file', file)
+      const res = await request<{ success: boolean; data: WallpaperItem }>('/api/theme/wallpapers/upload', {
+        method: 'POST',
+        body: fd,
+      })
+      if (res && res.success && res.data) {
+        wallpapers = [res.data, ...wallpapers]
+        themeStore.setActiveWallpaper(res.data.url)
+        toastStore.success(`Wallpaper "${res.data.name}" berhasil diunggah!`)
+      }
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Gagal mengunggah wallpaper'
+      toastStore.error(msg)
+    } finally {
+      isUploading = false
+      input.value = ''
+    }
+  }
+
+  async function handleDeleteWallpaper(item: WallpaperItem, e: MouseEvent) {
+    e.stopPropagation()
+    if (!confirm(`Hapus wallpaper "${item.name}" dari galeri?`)) return
+    try {
+      await request(`/api/theme/wallpapers/delete?id=${encodeURIComponent(item.id)}`, { method: 'DELETE' })
+      wallpapers = wallpapers.filter((w) => w.id !== item.id)
+      if (themeStore.activeWallpaper === item.url) {
+        themeStore.setActiveWallpaper('')
+      }
+      toastStore.success(`Wallpaper "${item.name}" dihapus`)
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Gagal menghapus wallpaper'
+      toastStore.error(msg)
+    }
   }
 </script>
 
@@ -220,7 +312,7 @@
           <Layers class="w-3.5 h-3.5 text-accent" />
           UI Paradigm Style
         </span>
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 bg-card-sub p-1 border border-border rounded-lg">
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 bg-card-sub p-1 border border-border rounded-lg">
           <button
             type="button"
             class="flex flex-col items-center justify-center py-2 px-3 rounded text-xs font-bold transition-all cursor-pointer {themeStore.currentStyle === 'neobrutal' ? 'bg-accent text-accent-text shadow-neobrutal-sm' : 'text-muted hover:text-foreground'}"
@@ -237,14 +329,312 @@
             <span>Modern Clean</span>
             <span class="text-[10px] font-normal opacity-80">1px borders, smooth curves</span>
           </button>
+          <button
+            type="button"
+            class="flex flex-col items-center justify-center py-2 px-3 rounded text-xs font-bold transition-all cursor-pointer {themeStore.currentStyle === 'glass' ? 'bg-accent text-accent-text shadow-neobrutal-sm' : 'text-muted hover:text-foreground'}"
+            onclick={() => selectStyle('glass')}
+          >
+            <span>Glassmorphism</span>
+            <span class="text-[10px] font-normal opacity-80">Frosted acrylic & blur</span>
+          </button>
         </div>
       </div>
+
+      <!-- Section 2.4: Neobrutalism Extended Tuning -->
+      {#if themeStore.currentStyle === 'neobrutal'}
+        <div class="p-3.5 bg-card-sub border border-border rounded-xl space-y-3.5">
+          <div class="flex items-center justify-between border-b border-border/50 pb-2">
+            <span class="text-xs font-bold uppercase text-foreground flex items-center gap-1.5">
+              <Sliders class="w-3.5 h-3.5 text-accent" />
+              Neobrutalism Extended Tuning
+            </span>
+            <button
+              type="button"
+              class="inline-flex items-center gap-1 text-[10px] font-bold py-1 px-2 rounded bg-card hover:bg-card-sub text-muted hover:text-foreground border border-border transition-colors cursor-pointer"
+              title="Reset ke pengaturan awal Neobrutalism"
+              onclick={() => {
+                themeStore.resetNeobrutalSettings()
+                toastStore.success('Pengaturan Neobrutalism dikembalikan ke default')
+              }}
+            >
+              <RotateCcw class="w-2.5 h-2.5" />
+              <span>Reset Default</span>
+            </button>
+          </div>
+
+          <!-- Sliders Grid (4 sliders) -->
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            <!-- Shadow Depth -->
+            <div class="space-y-1">
+              <div class="flex justify-between text-[10px]">
+                <span class="text-muted font-bold">Shadow</span>
+                <span class="text-accent font-mono font-bold">{themeStore.neoShadowSize}px</span>
+              </div>
+              <input
+                type="range"
+                min="0"
+                max="8"
+                step="1"
+                value={themeStore.neoShadowSize}
+                oninput={(e) => themeStore.setNeoShadowSize(Number((e.target as HTMLInputElement).value))}
+                class="w-full accent-accent cursor-pointer"
+              />
+            </div>
+
+            <!-- Border Thickness -->
+            <div class="space-y-1">
+              <div class="flex justify-between text-[10px]">
+                <span class="text-muted font-bold">Border</span>
+                <span class="text-accent font-mono font-bold">{themeStore.neoBorderWidth}px</span>
+              </div>
+              <input
+                type="range"
+                min="1"
+                max="4"
+                step="1"
+                value={themeStore.neoBorderWidth}
+                oninput={(e) => themeStore.setNeoBorderWidth(Number((e.target as HTMLInputElement).value))}
+                class="w-full accent-accent cursor-pointer"
+              />
+            </div>
+
+            <!-- Corner Radius -->
+            <div class="space-y-1">
+              <div class="flex justify-between text-[10px]">
+                <span class="text-muted font-bold">Radius</span>
+                <span class="text-accent font-mono font-bold">{themeStore.neoRadius}px</span>
+              </div>
+              <input
+                type="range"
+                min="0"
+                max="14"
+                step="1"
+                value={themeStore.neoRadius}
+                oninput={(e) => themeStore.setNeoRadius(Number((e.target as HTMLInputElement).value))}
+                class="w-full accent-accent cursor-pointer"
+              />
+            </div>
+
+            <!-- Press Depth -->
+            <div class="space-y-1">
+              <div class="flex justify-between text-[10px]">
+                <span class="text-muted font-bold">Click Pop</span>
+                <span class="text-accent font-mono font-bold">{themeStore.neoPressDepth}px</span>
+              </div>
+              <input
+                type="range"
+                min="1"
+                max="4"
+                step="1"
+                value={themeStore.neoPressDepth}
+                oninput={(e) => themeStore.setNeoPressDepth(Number((e.target as HTMLInputElement).value))}
+                class="w-full accent-accent cursor-pointer"
+              />
+            </div>
+          </div>
+
+          <!-- Pattern Texture Options -->
+          <div class="space-y-2 pt-1 border-t border-border/50">
+            <div class="flex items-center justify-between">
+              <span class="text-[11px] font-bold uppercase text-muted">Canvas Pattern Texture</span>
+              <div class="flex items-center gap-2">
+                <span class="text-[10px] text-muted">Opacity:</span>
+                <span class="text-[10px] font-mono text-accent font-bold">{Math.round(themeStore.neoPatternOpacity * 100)}%</span>
+                <input
+                  type="range"
+                  min="0"
+                  max="0.12"
+                  step="0.01"
+                  value={themeStore.neoPatternOpacity}
+                  oninput={(e) => themeStore.setNeoPatternOpacity(Number((e.target as HTMLInputElement).value))}
+                  class="w-20 accent-accent cursor-pointer"
+                />
+              </div>
+            </div>
+
+            <div class="grid grid-cols-3 gap-2">
+              <button
+                type="button"
+                class="py-1.5 px-2 rounded-lg border text-xs font-bold transition-all cursor-pointer {themeStore.neoPattern === 'dots' ? 'bg-accent text-accent-text border-accent shadow-neobrutal-sm' : 'bg-card text-muted hover:text-foreground border-border'}"
+                onclick={() => themeStore.setNeoPattern('dots')}
+              >
+                Dots (Titik)
+              </button>
+              <button
+                type="button"
+                class="py-1.5 px-2 rounded-lg border text-xs font-bold transition-all cursor-pointer {themeStore.neoPattern === 'grid' ? 'bg-accent text-accent-text border-accent shadow-neobrutal-sm' : 'bg-card text-muted hover:text-foreground border-border'}"
+                onclick={() => themeStore.setNeoPattern('grid')}
+              >
+                Grid (Petak)
+              </button>
+              <button
+                type="button"
+                class="py-1.5 px-2 rounded-lg border text-xs font-bold transition-all cursor-pointer {themeStore.neoPattern === 'none' ? 'bg-accent text-accent-text border-accent shadow-neobrutal-sm' : 'bg-card text-muted hover:text-foreground border-border'}"
+                onclick={() => themeStore.setNeoPattern('none')}
+              >
+                Polos (Clean)
+              </button>
+            </div>
+          </div>
+        </div>
+      {/if}
+
+      <!-- Section 2.5: Glassmorphism Customizer (Only shown when Glass style active) -->
+      {#if themeStore.currentStyle === 'glass'}
+        <div class="p-3.5 bg-card-sub border border-border rounded-xl space-y-3.5">
+          <div class="flex items-center justify-between border-b border-border/50 pb-2">
+            <span class="text-xs font-bold uppercase text-foreground flex items-center gap-1.5">
+              <Sliders class="w-3.5 h-3.5 text-accent" />
+              Glass & Wallpaper Tuning
+            </span>
+            <span class="text-[10px] text-muted">Per-Device Customization</span>
+          </div>
+
+          <!-- Sliders Grid -->
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <!-- Blur Slider -->
+            <div class="space-y-1">
+              <div class="flex justify-between text-[10px]">
+                <span class="text-muted font-bold">Blur Amount</span>
+                <span class="text-accent font-mono font-bold">{themeStore.glassBlur}px</span>
+              </div>
+              <input
+                type="range"
+                min="4"
+                max="32"
+                step="2"
+                value={themeStore.glassBlur}
+                oninput={(e) => themeStore.setGlassBlur(Number((e.target as HTMLInputElement).value))}
+                class="w-full accent-accent cursor-pointer"
+              />
+            </div>
+
+            <!-- Opacity Slider -->
+            <div class="space-y-1">
+              <div class="flex justify-between text-[10px]">
+                <span class="text-muted font-bold">Card Opacity</span>
+                <span class="text-accent font-mono font-bold">{Math.round(themeStore.glassOpacity * 100)}%</span>
+              </div>
+              <input
+                type="range"
+                min="0.2"
+                max="0.95"
+                step="0.05"
+                value={themeStore.glassOpacity}
+                oninput={(e) => themeStore.setGlassOpacity(Number((e.target as HTMLInputElement).value))}
+                class="w-full accent-accent cursor-pointer"
+              />
+            </div>
+
+            <!-- Dim Slider -->
+            <div class="space-y-1">
+              <div class="flex justify-between text-[10px]">
+                <span class="text-muted font-bold">Wallpaper Dim</span>
+                <span class="text-accent font-mono font-bold">{Math.round(themeStore.glassDim * 100)}%</span>
+              </div>
+              <input
+                type="range"
+                min="0.2"
+                max="1.0"
+                step="0.05"
+                value={themeStore.glassDim}
+                oninput={(e) => themeStore.setGlassDim(Number((e.target as HTMLInputElement).value))}
+                class="w-full accent-accent cursor-pointer"
+              />
+            </div>
+          </div>
+
+          <!-- Wallpaper Gallery & Presets -->
+          <div class="space-y-2 pt-1 border-t border-border/50">
+            <div class="flex items-center justify-between">
+              <span class="text-[11px] font-bold uppercase text-muted flex items-center gap-1.5">
+                <Image class="w-3.5 h-3.5 text-accent" />
+                Active Wallpaper
+              </span>
+
+              <!-- Upload Button -->
+              <label class="cursor-pointer inline-flex items-center gap-1.5 text-[10px] font-bold py-1 px-2.5 rounded bg-accent/20 hover:bg-accent/30 text-accent border border-accent/40 transition-colors">
+                {#if isUploading}
+                  <Loader2 class="w-3 h-3 animate-spin" />
+                  <span>Uploading...</span>
+                {:else}
+                  <Upload class="w-3 h-3" />
+                  <span>+ Upload Baru</span>
+                {/if}
+                <input
+                  type="file"
+                  accept="image/png,image/jpeg,image/webp,image/gif"
+                  class="hidden"
+                  onchange={handleUploadWallpaper}
+                  disabled={isUploading}
+                />
+              </label>
+            </div>
+
+            <!-- Preset / Uploaded Grid -->
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 max-h-48 overflow-y-auto pr-1">
+              <!-- Presets -->
+              {#each PRESETS as preset}
+                {@const isSelected = themeStore.activeWallpaper === preset.id || (!themeStore.activeWallpaper && preset.id === 'preset:none')}
+                <button
+                  type="button"
+                  class="relative flex flex-col items-center justify-center h-16 rounded-lg border-2 transition-all overflow-hidden p-1 text-center cursor-pointer {isSelected ? 'border-accent shadow-neobrutal-sm' : 'border-border/60 hover:border-border'}"
+                  style="background: {preset.preview}; background-size: cover;"
+                  onclick={() => themeStore.setActiveWallpaper(preset.id)}
+                >
+                  <span class="text-[10px] font-bold bg-black/60 px-1.5 py-0.5 rounded text-white">
+                    {preset.name}
+                  </span>
+                  {#if isSelected}
+                    <div class="absolute top-1 right-1 w-4 h-4 bg-accent text-accent-text rounded-full flex items-center justify-center">
+                      <Check class="w-2.5 h-2.5" />
+                    </div>
+                  {/if}
+                </button>
+              {/each}
+
+              <!-- Uploaded Wallpapers from HP / Server -->
+              {#each wallpapers as item}
+                {@const isSelected = themeStore.activeWallpaper === item.url}
+                <div
+                  class="group relative flex flex-col items-center justify-end h-16 rounded-lg border-2 transition-all overflow-hidden p-1 text-center cursor-pointer {isSelected ? 'border-accent shadow-neobrutal-sm' : 'border-border/60 hover:border-border'}"
+                  style="background-image: url('{item.url}'); background-size: cover; background-position: center;"
+                  onclick={() => themeStore.setActiveWallpaper(item.url)}
+                  role="button"
+                  tabindex="0"
+                  onkeydown={(e) => e.key === 'Enter' && themeStore.setActiveWallpaper(item.url)}
+                >
+                  <span class="text-[9px] font-bold bg-black/70 px-1.5 py-0.5 rounded text-white truncate max-w-full">
+                    {item.name}
+                  </span>
+
+                  {#if isSelected}
+                    <div class="absolute top-1 right-1 w-4 h-4 bg-accent text-accent-text rounded-full flex items-center justify-center">
+                      <Check class="w-2.5 h-2.5" />
+                    </div>
+                  {/if}
+
+                  <!-- Delete Button -->
+                  <button
+                    type="button"
+                    class="absolute top-1 left-1 w-5 h-5 bg-red-600/90 hover:bg-red-600 text-white rounded flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer shadow"
+                    title="Hapus wallpaper dari galeri"
+                    onclick={(e) => handleDeleteWallpaper(item, e)}
+                  >
+                    <Trash2 class="w-3 h-3" />
+                  </button>
+                </div>
+              {/each}
+            </div>
+          </div>
+        </div>
+      {/if}
 
       <!-- Section 3: Color Themes (9 Palettes) -->
       <div class="space-y-1.5">
         <span class="text-[11px] font-bold uppercase text-muted tracking-wider flex items-center gap-1.5">
           <Sparkles class="w-3.5 h-3.5 text-accent" />
-          Color Themes (9 Palettes)
+          Color Themes ({themes.length} Palettes)
         </span>
         <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
           {#each themes as t}
