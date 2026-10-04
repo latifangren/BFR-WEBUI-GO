@@ -69,10 +69,10 @@ jobs:
           bun run build
 
       - name: Setup Go Environment
+        uses: actions/setup-go@v5
         with:
           go-version: '1.26.0'
           cache: false
-
       - name: GolangCI-Lint Static Verification
         uses: golangci/golangci-lint-action@v6
         with:
