@@ -8,9 +8,7 @@ import TabHotspot from './hotspot/TabHotspot.svelte'
 import TabPower from './power/TabPower.svelte'
 import TabCharger from './charger/TabCharger.svelte'
 import TabModem from './modem/TabModem.svelte'
-import TabQualcomm from './qualcomm/TabQualcomm.svelte'
-import TabSamsung from './samsung/TabSamsung.svelte'
-import TabShannon from './shannon/TabShannon.svelte'
+import { VENDOR_TABS } from './vendor_tabs'
 import TabTerminal from './terminal/TabTerminal.svelte'
 import TabScrcpy from './scrcpy/TabScrcpy.svelte'
 import TabFileManager from './files/TabFileManager.svelte'
@@ -38,9 +36,7 @@ export const TAB_COMPONENTS: Record<string, Component> = {
   power: TabPower,
   charger: TabCharger,
   modem: TabModem,
-  qualcomm: TabQualcomm,
-  samsung: TabSamsung,
-  shannon: TabShannon,
+  ...VENDOR_TABS,
   terminal: TabTerminal,
   scrcpy: TabScrcpy,
   files: TabFileManager,

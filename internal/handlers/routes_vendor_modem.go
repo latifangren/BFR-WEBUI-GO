@@ -1,3 +1,5 @@
+//go:build !nomodem
+
 package handlers
 
 // registerVendorModemRoutes registers proprietary vendor modem controls (Qualcomm, Samsung, Shannon, EFS).
