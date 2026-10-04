@@ -2,8 +2,6 @@ package modem
 
 import (
 	"fmt"
-	"os"
-	"path/filepath"
 	"regexp"
 	"strconv"
 	"strings"
@@ -260,23 +258,7 @@ func GetSimStatus() *SimStatus {
 		strings.TrimSpace(string(simOpProp)),
 	)
 }
-
-func findSimSwitcherDex() string {
-	candidates := []string{
-		filepath.Join(config.ModuleDir, "bin", "sim_switcher.dex"),
-		"/data/adb/modules/bfr_webui_go/bin/sim_switcher.dex",
-		"./bin/sim_switcher.dex",
-		"bin/sim_switcher.dex",
-	}
-	for _, p := range candidates {
-		if fi, err := os.Stat(p); err == nil && !fi.IsDir() {
-			return p
-		}
-	}
-	return candidates[0]
-}
-
-// SwitchDataSim executes a SIM switch to slot 0 or 1 using the accurate subscription ID.
+// SwitchDataSim executes a SIM switch to slot 0 or 1 using the accurate subscription ID via native Android IPC.
 func SwitchDataSim(slot int) (*SimSwitchResult, error) {
 	if slot < 0 || slot > 1 {
 		return nil, fmt.Errorf("invalid slot %d, must be 0 or 1", slot)
@@ -294,30 +276,7 @@ func SwitchDataSim(slot int) (*SimSwitchResult, error) {
 		}
 	}
 
-	tmpDir := "/data/local/tmp/radiotmp"
-	targetDex := filepath.Join(tmpDir, "sim_switcher.dex")
-	srcDex := findSimSwitcherDex()
-
-	// 1. Prepare tmp directory and copy DEX if needed
-	setupCmd := fmt.Sprintf(
-		"mkdir -p %q && chown -R 1001:1001 %q && chmod 770 %q",
-		tmpDir, tmpDir, tmpDir,
-	)
-	_, _ = config.ExecSuTimeout(2*time.Second, setupCmd)
-
-	if srcDex != "" {
-		copyCmd := fmt.Sprintf("cp -f %q %q && chown 1001:1001 %q && chmod 444 %q", srcDex, targetDex, targetDex, targetDex)
-		_, _ = config.ExecSuTimeout(2*time.Second, copyCmd)
-	}
-
-	// 2. Execute Java SimSwitcher via app_process (AOSP ISub reflection)
-	appCmd := fmt.Sprintf(
-		"ANDROID_DATA=%q CLASSPATH=%q app_process / com.qmanager.tools.SimSwitcher %d %d",
-		tmpDir, targetDex, targetSubID, slot,
-	)
-	_, _ = config.ExecSuTimeout(5*time.Second, appCmd)
-
-	// 3. Apply standard AOSP ISub service call transaction & settings updates
+	// Apply standard AOSP ISub service call transaction & settings updates directly
 	serviceCmd := fmt.Sprintf(
 		"service call isub 31 i32 %d ; "+
 			"settings put global multi_sim_data_call %d ; "+

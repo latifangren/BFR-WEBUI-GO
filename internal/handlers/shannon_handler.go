@@ -1,3 +1,5 @@
+//go:build !nomodem
+
 package handlers
 
 import (
