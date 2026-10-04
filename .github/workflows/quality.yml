@@ -50,9 +50,10 @@ jobs:
           cache: true
           cache-dependency-path: go.sum
 
-      - name: Run All Package Tests
-        run: go test -v ./...
-
+      - name: Run All Package Tests (Full & No-Modem)
+        run: |
+          go test -v ./...
+          go test -v -tags nomodem ./...
   golangci:
     name: Lint & Static Check
     runs-on: ubuntu-latest

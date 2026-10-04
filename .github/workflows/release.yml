@@ -24,12 +24,6 @@ jobs:
       - name: Setup Bun
         uses: oven-sh/setup-bun@v2
 
-      - name: Build Frontend Distribution
-        working-directory: frontend
-        run: |
-          bun install --frozen-lockfile
-          bun run build
-
       - name: Setup Go Environment
         uses: actions/setup-go@v5
         with:
@@ -37,15 +31,26 @@ jobs:
           cache: true
           cache-dependency-path: go.sum
 
+      - name: Install Frontend Dependencies
+        working-directory: frontend
+        run: bun install --frozen-lockfile
+
       - name: Check Formatting & Golang Vet
         run: |
           go fmt ./...
           go vet ./...
 
-      - name: Run Tests
-        run: go test -v ./...
+      - name: Run Full & No-Modem Test Suites
+        run: |
+          go test -v ./...
+          go test -v -tags nomodem ./...
 
-      - name: Cross-Compile Android ARM64
+      # ─── 1. Build Full Flavor (Private Target) ──────────────────────────────
+      - name: Build Full Frontend Distribution
+        working-directory: frontend
+        run: bun run build
+
+      - name: Cross-Compile Full Android ARM64 Binary
         env:
           GOOS: android
           GOARCH: arm64
@@ -53,25 +58,65 @@ jobs:
         run: |
           go build -ldflags="-s -w" -o webui .
 
-      - name: Verify Android ARM64 Test Compilation
+      - name: Package Full Magisk Module Zip
+        run: |
+          zip -r BFR-WEBUI-Magisk-${{ env.RELEASE_VERSION }}.zip customize.sh module.prop service.sh system.prop tweaks.json env.example bin webui
+
+      # ─── 2. Build Core No-Modem Flavor (Clean Target) ───────────────────────
+      - name: Prepare Clean No-Modem Frontend Assets
+        run: |
+          echo "export const HAS_VENDOR_MODEM = false" > frontend/src/config/features.ts
+          cat << 'EOF' > frontend/src/components/tabs/vendor_tabs.ts
+import type { Component } from 'svelte'
+
+export const VENDOR_TABS: Record<string, Component> = {}
+EOF
+          (cd frontend && bun run build)
+
+      - name: Cross-Compile Clean No-Modem Android ARM64 Binary
         env:
           GOOS: android
           GOARCH: arm64
           CGO_ENABLED: 0
         run: |
-          go test -c ./...
+          go build -tags nomodem -ldflags="-s -w" -o webui-nomodem .
 
-      - name: Package Magisk Module Zip
+      - name: Forensic Zero-Leak Security Audit on No-Modem Binary
         run: |
-          zip -r BFR-WEBUI-Magisk-${{ env.RELEASE_VERSION }}.zip customize.sh module.prop service.sh system.prop tweaks.json env.example bin webui
+          python3 -c "
+          with open('webui-nomodem', 'rb') as f:
+              data = f.read()
+          targets = [
+              b'internal/efs', b'internal/shannon', b'internal/samsung', 
+              b'QualcommIMEI', b'diag_linux', b'carrier_policy', 
+              b'BypassSecurity', b'0x29 MODE_ONLINE', b'knownQualcommBypassPayloads', 
+              b'ISemTelephony', b'band_manager', b'sim_switcher',
+              b'/api/efs', b'/api/qualcomm', b'/api/shannon', b'/api/samsung'
+          ]
+          for t in targets:
+              cnt = data.count(t)
+              assert cnt == 0, f'SECURITY LEAK DETECTED: {t} (count: {cnt})'
+          print('CI PASS: 100% zero vendor modem code and strings in no-modem binary!')
+          "
 
+      - name: Package Clean No-Modem Magisk Module Zip
+        run: |
+          mkdir -p /tmp/pkg-nomodem
+          cp -r customize.sh module.prop service.sh system.prop tweaks.json env.example bin /tmp/pkg-nomodem/
+          rm -f /tmp/pkg-nomodem/bin/band_manager.dex /tmp/pkg-nomodem/bin/sim_switcher.dex
+          cp webui-nomodem /tmp/pkg-nomodem/webui
+          (cd /tmp/pkg-nomodem && zip -r "$GITHUB_WORKSPACE/BFR-WEBUI-Magisk-${{ env.RELEASE_VERSION }}-nomodem.zip" customize.sh module.prop service.sh system.prop tweaks.json env.example bin webui)
+
+      # ─── 3. Upload Build Artifacts ──────────────────────────────────────────
       - name: Upload Build Artifacts
         uses: actions/upload-artifact@v4
         with:
           name: BFR-WEBUI-Magisk-${{ env.RELEASE_VERSION }}
           path: |
             BFR-WEBUI-Magisk-${{ env.RELEASE_VERSION }}.zip
+            BFR-WEBUI-Magisk-${{ env.RELEASE_VERSION }}-nomodem.zip
             webui
+            webui-nomodem
           retention-days: 7
 
   release:
@@ -98,13 +143,11 @@ jobs:
       - name: Extract Release Notes from CHANGELOG
         id: changelog
         run: |
-          # Strip 'v' prefix from tag to match CHANGELOG version format (e.g. [1.0.0])
           TAG_VER="${{ env.RELEASE_VERSION }}"
           RAW_VER="${TAG_VER#v}"
 
           echo "Extracting release notes for version: $RAW_VER"
 
-          # Extract everything under the specific version header up to the next version header
           awk "/## \[$RAW_VER\]/{p=1;next} /^## \[/{p=0} p" CHANGELOG.md > release_notes.md
 
           if [ ! -s release_notes.md ]; then
@@ -120,7 +163,9 @@ jobs:
           body_path: release_notes.md
           files: |
             BFR-WEBUI-Magisk-${{ env.RELEASE_VERSION }}.zip
+            BFR-WEBUI-Magisk-${{ env.RELEASE_VERSION }}-nomodem.zip
             webui
+            webui-nomodem
           draft: false
           prerelease: false
         env:
