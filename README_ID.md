@@ -100,33 +100,42 @@ Arsitektur BFR-WEBUI-GO
 
 ---
 
-## 📦 Kompilasi & Pembuatan Paket
+## 📦 Kompilasi & Varian Rilis (Dual Build Flavors)
+
+`BFR-WEBUI-GO` menyediakan 2 varian rilis resmi:
+1. **Full Private Flavor (Branch `dev`)**: Termasuk seluruh perangkat baseband diagnostik hardware Qualcomm QRTR/DIAG/EFS2, Samsung One UI SecRIL, dan Google Tensor Shannon.
+2. **Public Core Flavor (Branch `release/no-modem`)**: 100% bebas dari kode maupun string modem privat vendor, tetap menyertakan Telemetri Seluler & Radio universal (`dumpsys`, routing SIM, termal 5G) dan SMS.
 
 ### Prasyarat
 - **Go**: Versi 1.22 atau lebih baru
 - **Bun atau Node.js**: Bun (direkomendasikan) atau Node.js 18+ (pnpm/npm)
 
-### Membuat Paket ZIP Modul Magisk
-Pada Windows:
-```powershell
-.\build_zip.bat
-```
-Pada Linux / macOS:
-```bash
-chmod +x build.sh
-./build.sh
-```
-Paket ZIP modul Magisk (`BFR-WEBUI-Magisk-v1.2.6-local.zip`) akan dihasilkan di root proyek, siap diflash melalui Magisk, KernelSU, atau APatch manager.
+### Kompilasi & Packaging Satu Perintah
+Skrip build secara otomatis mendeteksi branch Git aktif dan menerapkan build tag yang sesuai:
+- Pada Windows:
+  ```cmd
+  :: Otomatis deteksi branch (atau berikan argumen 'full' / 'nomodem')
+  build_zip.bat
+  ```
+- Pada Linux / macOS / Android Termux:
+  ```bash
+  chmod +x build.sh
+  ./build.sh
+  ```
 
-### Kompilasi Biner Standalone (Cross-Compile)
-Untuk mengompilasi biner Android ARM64 langsung:
-```powershell
-cd frontend
-npm run build
-cd ..
-$env:CGO_ENABLED="0"; $env:GOOS="android"; $env:GOARCH="arm64"; go build -ldflags "-s -w" -o webui .
-```
+### Kompilasi Biner Standalone (Manual)
+- **Build Penuh (Private)**:
+  ```bash
+  cd frontend && bun run build && cd ..
+  CGO_ENABLED=0 GOOS=android GOARCH=arm64 go build -ldflags "-s -w" -o webui .
+  ```
+- **Build Publik Non-Modem**:
+  ```bash
+  cd frontend && bun run build && cd ..
+  CGO_ENABLED=0 GOOS=android GOARCH=arm64 go build -tags nomodem -ldflags "-s -w" -o webui .
+  ```
 
+Untuk dokumentasi spesifikasi arsitektur isolasi dan uji forensik string, silakan baca [`docs/MODEM-ISOLATION.md`](docs/MODEM-ISOLATION.md).
 ---
 
 ## 🔒 Arsitektur Keamanan
