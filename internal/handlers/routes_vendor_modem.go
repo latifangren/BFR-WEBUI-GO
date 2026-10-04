@@ -1,83 +1,91 @@
 package handlers
 
-// registerVendorModemRoutes registers proprietary vendor modem controls (Qualcomm, Samsung, Shannon, EFS).
-// In the dev branch, this registers all vendor baseband endpoints.
-// In the release/no-modem branch, this can be swapped or stubbed without touching routes_modem.go.
+import (
+	"encoding/json"
+	"net/http"
+)
+
+// registerVendorModemRoutes stubs out proprietary vendor modem controls in public/no-modem builds.
 func registerVendorModemRoutes(rc *routeContext) {
-	// Generic Band Locking & AT URLs
-	rc.mux.HandleFunc("/api/modem/bands", rc.wrap(HandleModemBands, true))
-	rc.mux.HandleFunc("/api/modem/at", rc.wrap(HandleModemAT, true))
-	rc.mux.HandleFunc("/api/modem/reset", rc.wrap(HandleModemReset, true))
-	rc.mux.HandleFunc("/api/modem/bands/reset", rc.wrap(HandleModemReset, true))
-	rc.mux.HandleFunc("/api/modem/cell_lock", rc.wrap(HandleModemCellLock, true))
-	rc.mux.HandleFunc("/api/modem/cell_lock/clear", rc.wrap(HandleModemCellLockClear, true))
-	rc.mux.HandleFunc("/api/modem/plmn_lock", rc.wrap(HandleModemPlmnLock, true))
-	rc.mux.HandleFunc("/api/modem/hardware_bands", rc.wrap(HandleModemHardwareBands, true))
+	privateHandler := func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusForbidden)
+		_ = json.NewEncoder(w).Encode(map[string]any{
+			"ok":      false,
+			"error":   "Vendor modem controls are private features not included in this build",
+			"private": true,
+		})
+	}
 
-	// Samsung RIL URLs
-	rc.mux.HandleFunc("/api/samsung/status", rc.wrap(HandleSamsungStatus, true))
-	rc.mux.HandleFunc("/api/samsung/bands", rc.wrap(HandleSamsungBands, true))
-	rc.mux.HandleFunc("/api/samsung/lock", rc.wrap(HandleSamsungLock, true))
-	rc.mux.HandleFunc("/api/samsung/auto", rc.wrap(HandleSamsungAuto, true))
-	rc.mux.HandleFunc("/api/samsung/sim/switch", rc.wrap(HandleSamsungSimSwitch, true))
-	rc.mux.HandleFunc("/api/samsung/thermal", rc.wrap(HandleSamsungThermal, true))
+	routes := []string{
+		"/api/modem/bands",
+		"/api/modem/at",
+		"/api/modem/reset",
+		"/api/modem/bands/reset",
+		"/api/modem/cell_lock",
+		"/api/modem/cell_lock/clear",
+		"/api/modem/plmn_lock",
+		"/api/modem/hardware_bands",
+		"/api/samsung/status",
+		"/api/samsung/bands",
+		"/api/samsung/lock",
+		"/api/samsung/auto",
+		"/api/samsung/sim/switch",
+		"/api/samsung/thermal",
+		"/api/shannon/status",
+		"/api/shannon/lock",
+		"/api/shannon/reset",
+		"/api/shannon/ca/status",
+		"/api/shannon/ca/document",
+		"/api/shannon/ca/load",
+		"/api/shannon/ca/upload",
+		"/api/shannon/ca/save",
+		"/api/shannon/ca/download",
+		"/api/shannon/ca/validate",
+		"/api/shannon/ca/autogen",
+		"/api/shannon/ca/prune",
+		"/api/shannon/ca/clear",
+		"/api/shannon/nr/status",
+		"/api/shannon/nr/document",
+		"/api/shannon/nr/load",
+		"/api/shannon/nr/upload",
+		"/api/shannon/nr/demo",
+		"/api/shannon/nr/download",
+		"/api/shannon/nr/clear",
+		"/api/qualcomm/bands",
+		"/api/qualcomm/bands/reset",
+		"/api/qualcomm/reset",
+		"/api/qualcomm/cell_lock",
+		"/api/qualcomm/cell_lock/clear",
+		"/api/qualcomm/cell_scan",
+		"/api/qualcomm/plmn_lock",
+		"/api/qualcomm/hardware_bands",
+		"/api/efs/status",
+		"/api/efs/connect",
+		"/api/efs/disconnect",
+		"/api/efs/readonly",
+		"/api/efs/list",
+		"/api/efs/read",
+		"/api/efs/write",
+		"/api/efs/mkdir",
+		"/api/efs/unlink",
+		"/api/efs/rename",
+		"/api/efs/chmod",
+		"/api/efs/nv/items",
+		"/api/efs/nv/read",
+		"/api/efs/nv/write",
+		"/api/efs/nv/backup",
+		"/api/efs/nv/restore",
+		"/api/efs/nv/format",
+		"/api/efs/spc",
+		"/api/efs/ssr",
+		"/api/efs/backup",
+		"/api/efs/carrier-policy/parse",
+		"/api/efs/imei",
+		"/api/efs/imei/write",
+	}
 
-	// Google Tensor Shannon Modem URLs
-	rc.mux.HandleFunc("/api/shannon/status", rc.wrap(HandleShannonStatus, true))
-	rc.mux.HandleFunc("/api/shannon/lock", rc.wrap(HandleShannonLock, true))
-	rc.mux.HandleFunc("/api/shannon/reset", rc.wrap(HandleShannonReset, true))
-	rc.mux.HandleFunc("/api/shannon/ca/status", rc.wrap(HandleShannonCAStatus, true))
-	rc.mux.HandleFunc("/api/shannon/ca/document", rc.wrap(HandleShannonCAGetDocument, true))
-	rc.mux.HandleFunc("/api/shannon/ca/load", rc.wrap(HandleShannonCALoadFile, true))
-	rc.mux.HandleFunc("/api/shannon/ca/upload", rc.wrap(HandleShannonCAUpload, true))
-	rc.mux.HandleFunc("/api/shannon/ca/save", rc.wrap(HandleShannonCASaveFile, true))
-	rc.mux.HandleFunc("/api/shannon/ca/download", rc.wrap(HandleShannonCADownload, true))
-	rc.mux.HandleFunc("/api/shannon/ca/validate", rc.wrap(HandleShannonCAValidate, true))
-	rc.mux.HandleFunc("/api/shannon/ca/autogen", rc.wrap(HandleShannonCAAutoGen, true))
-	rc.mux.HandleFunc("/api/shannon/ca/prune", rc.wrap(HandleShannonCAPrune, true))
-	rc.mux.HandleFunc("/api/shannon/ca/clear", rc.wrap(HandleShannonCAClear, true))
-
-	// Google Tensor Shannon Modem 5G NR & EN-DC URLs
-	rc.mux.HandleFunc("/api/shannon/nr/status", rc.wrap(HandleShannonNRStatus, true))
-	rc.mux.HandleFunc("/api/shannon/nr/document", rc.wrap(HandleShannonNRGetDocument, true))
-	rc.mux.HandleFunc("/api/shannon/nr/load", rc.wrap(HandleShannonNRLoadFile, true))
-	rc.mux.HandleFunc("/api/shannon/nr/upload", rc.wrap(HandleShannonNRUpload, true))
-	rc.mux.HandleFunc("/api/shannon/nr/demo", rc.wrap(HandleShannonNRDemo, true))
-	rc.mux.HandleFunc("/api/shannon/nr/download", rc.wrap(HandleShannonNRDownload, true))
-	rc.mux.HandleFunc("/api/shannon/nr/clear", rc.wrap(HandleShannonNRClear, true))
-
-	// Qualcomm Snapdragon QMI URLs
-	rc.mux.HandleFunc("/api/qualcomm/bands", rc.wrap(HandleModemBands, true))
-	rc.mux.HandleFunc("/api/qualcomm/bands/reset", rc.wrap(HandleModemReset, true))
-	rc.mux.HandleFunc("/api/qualcomm/reset", rc.wrap(HandleModemReset, true))
-	rc.mux.HandleFunc("/api/qualcomm/cell_lock", rc.wrap(HandleModemCellLock, true))
-	rc.mux.HandleFunc("/api/qualcomm/cell_lock/clear", rc.wrap(HandleModemCellLockClear, true))
-	rc.mux.HandleFunc("/api/qualcomm/cell_scan", rc.wrap(HandleModemCellScan, true))
-	rc.mux.HandleFunc("/api/qualcomm/plmn_lock", rc.wrap(HandleModemPlmnLock, true))
-	rc.mux.HandleFunc("/api/qualcomm/hardware_bands", rc.wrap(HandleModemHardwareBands, true))
-
-	// Qualcomm Snapdragon EFS2 & DIAG URLs
-	rc.mux.HandleFunc("/api/efs/status", rc.wrap(HandleEfsStatus, true))
-	rc.mux.HandleFunc("/api/efs/connect", rc.wrap(HandleEfsConnect, true))
-	rc.mux.HandleFunc("/api/efs/disconnect", rc.wrap(HandleEfsDisconnect, true))
-	rc.mux.HandleFunc("/api/efs/readonly", rc.wrap(HandleEfsReadOnly, true))
-	rc.mux.HandleFunc("/api/efs/list", rc.wrap(HandleEfsList, true))
-	rc.mux.HandleFunc("/api/efs/read", rc.wrap(HandleEfsRead, true))
-	rc.mux.HandleFunc("/api/efs/write", rc.wrap(HandleEfsWrite, true))
-	rc.mux.HandleFunc("/api/efs/mkdir", rc.wrap(HandleEfsMkdir, true))
-	rc.mux.HandleFunc("/api/efs/unlink", rc.wrap(HandleEfsUnlink, true))
-	rc.mux.HandleFunc("/api/efs/rename", rc.wrap(HandleEfsRename, true))
-	rc.mux.HandleFunc("/api/efs/chmod", rc.wrap(HandleEfsChmod, true))
-	rc.mux.HandleFunc("/api/efs/nv/items", rc.wrap(HandleEfsNVItems, true))
-	rc.mux.HandleFunc("/api/efs/nv/read", rc.wrap(HandleEfsNVRead, true))
-	rc.mux.HandleFunc("/api/efs/nv/write", rc.wrap(HandleEfsNVWrite, true))
-	rc.mux.HandleFunc("/api/efs/nv/backup", rc.wrap(HandleEfsNVBackup, true))
-	rc.mux.HandleFunc("/api/efs/nv/restore", rc.wrap(HandleEfsNVRestore, true))
-	rc.mux.HandleFunc("/api/efs/nv/format", rc.wrap(HandleEfsNVFormat, true))
-	rc.mux.HandleFunc("/api/efs/spc", rc.wrap(HandleEfsSPC, true))
-	rc.mux.HandleFunc("/api/efs/ssr", rc.wrap(HandleEfsSSR, true))
-	rc.mux.HandleFunc("/api/efs/backup", rc.wrap(HandleEfsBackup, true))
-	rc.mux.HandleFunc("/api/efs/carrier-policy/parse", rc.wrap(HandleEfsParseCarrierPolicy, true))
-	rc.mux.HandleFunc("/api/efs/imei", rc.wrap(HandleEfsIMEIRead, true))
-	rc.mux.HandleFunc("/api/efs/imei/write", rc.wrap(HandleEfsIMEIWrite, true))
+	for _, pattern := range routes {
+		rc.mux.HandleFunc(pattern, rc.wrap(privateHandler, true))
+	}
 }
