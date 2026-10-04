@@ -328,32 +328,29 @@
         class="neo-button p-2.5 sm:p-3 rounded-lg border-2 border-purple-500/40 bg-purple-950/20 text-left hover:border-purple-500 transition-all cursor-pointer shadow-neobrutal-sm {!HAS_VENDOR_MODEM ? 'opacity-85' : ''}"
         onclick={() => {
           if (HAS_VENDOR_MODEM) {
-            toastStore.info(
-              'MediaTek (MTK) Engineer Mode Band Locking: Silakan gunakan engineer mode via *#*#3646633#*#* atau MTK HAL controller.',
-            )
+            navigationStore.activeTab = 'shannon'
           } else {
-            toastStore.info('MediaTek Hardware Band Locking is a private feature only.')
+            toastStore.info('Google Tensor Shannon Hardware Band Locking is a private feature only.')
           }
         }}
       >
         <div class="flex items-center justify-between mb-0.5 sm:mb-1">
           <span class="font-bold text-purple-400 text-xs flex items-center gap-1.5">
-            <Radio class="w-3.5 h-3.5" />
-            <span>Mediatek MTK</span>
+            <Layers class="w-3.5 h-3.5" />
+            <span>Tensor Shannon</span>
           </span>
           {#if HAS_VENDOR_MODEM}
-            <Badge variant="pop-purple" class="text-[9px]">EMode</Badge>
+            <Badge variant="warning" class="text-[9px]">NV/EFS</Badge>
           {:else}
             <Badge variant="default" class="text-[9px] border-amber-500/40 text-amber-400">PRIVATE</Badge>
           {/if}
         </div>
         <p class="text-[10px] text-muted">
-          {HAS_VENDOR_MODEM ? 'Helio & Dimensity Engineer Mode' : 'Private feature only (MediaTek Engineer Mode)'}
+          {HAS_VENDOR_MODEM ? 'Google Pixel 6, 7, 8, 9 Series Shannon Modem' : 'Private feature only (Google Tensor Shannon Modem)'}
         </p>
       </button>
     </div>
   </div>
-
   <!-- SUB-TAB SWITCHER -->
   <div class="flex items-center gap-2 border-b-2 border-border pb-2 overflow-x-auto text-xs">
     {#each [
