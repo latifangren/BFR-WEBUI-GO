@@ -64,8 +64,11 @@ if /i "%FLAVOR%"=="nomodem" (
 )
 
 if exist "%ZIP_NAME%" del "%ZIP_NAME%"
-tar.exe -a -c -f "%ZIP_NAME%" customize.sh module.prop service.sh system.prop tweaks.json update.json env.example bin webui
-if %errorlevel% neq 0 (
+if /i "%FLAVOR%"=="nomodem" (
+    tar.exe -a -c --exclude="band_manager.dex" --exclude="sim_switcher.dex" -f "%ZIP_NAME%" customize.sh module.prop service.sh system.prop tweaks.json update.json env.example bin webui
+) else (
+    tar.exe -a -c -f "%ZIP_NAME%" customize.sh module.prop service.sh system.prop tweaks.json update.json env.example bin webui
+)
     echo [ERROR] Packing failed.
     del webui
     pause
