@@ -18,7 +18,7 @@ echo 2. Building Go binary for Android ARM64...
 set GOOS=android
 set GOARCH=arm64
 set CGO_ENABLED=0
-go build -ldflags "-s -w" -o bfr-webui-android-arm64 .
+go build -tags nomodem -ldflags "-s -w" -o bfr-webui-android-arm64 .
 if %errorlevel% neq 0 (
     echo Build failed.
     exit /b %errorlevel%
