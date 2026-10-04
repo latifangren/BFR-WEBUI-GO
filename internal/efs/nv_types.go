@@ -146,13 +146,15 @@ func FormatNVValue(id uint16, data []byte) string {
 // If hasLengthPrefix is true, byte[0] is treated as a length hint and skipped.
 func decodeBCDNibbles(data []byte, hasLengthPrefix bool) string {
 	start := 0
-	if hasLengthPrefix && len(data) > 1 && data[0] > 0 && data[0] < 16 {
+	limit := len(data)
+	if hasLengthPrefix && len(data) > 1 && data[0] > 0 && int(data[0]) < len(data) {
 		start = 1
+		limit = 1 + int(data[0])
 	}
 	var sb strings.Builder
-	for i := start; i < len(data); i++ {
+	for i := start; i < limit; i++ {
 		b := data[i]
-		if b == 0x00 || b == 0xFF {
+		if b == 0xFF {
 			continue
 		}
 		lo := b & 0x0F
@@ -164,10 +166,11 @@ func decodeBCDNibbles(data []byte, hasLengthPrefix bool) string {
 			sb.WriteByte('0' + hi)
 		}
 	}
-	if sb.Len() == 0 {
+	str := sb.String()
+	if len(str) == 0 || strings.Trim(str, "0") == "" {
 		return "Not Set"
 	}
-	return sb.String()
+	return str
 }
 
 func formatSPC(data []byte) string {

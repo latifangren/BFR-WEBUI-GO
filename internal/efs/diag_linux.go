@@ -450,23 +450,62 @@ var knownQualcommBypassPayloads = [][]byte{
 	{0x46, 0x20, 0x15, 0x06, 0x29, 0x20, 0x15, 0x08, 0x31}, // PWD: 2015062920150831
 }
 
-// BypassSecurity blasts all known Qualcomm engineering SPC/password sequences in
-// fire-and-forget mode (no response waiting between packets), exactly like field
-// IMEI repair tools do. Returns true if at least one 0x46 response was accepted.
+// Mode control constants for DIAG_CONTROL_F (0x29)
+const (
+	MODE_OFFLINE_A_F = 0x0000 // Offline Analog
+	MODE_OFFLINE_D_F = 0x0001 // Offline Digital (suspends cellular RF operations)
+	MODE_RESET_F     = 0x0002 // Reset modem
+	MODE_FTM_F       = 0x0003 // Factory Test Mode
+	MODE_ONLINE_F    = 0x0004 // Online
+	MODE_LPM_F       = 0x0005 // Low Power Mode
+	MODE_POWER_OFF_F = 0x0006 // Power Off
+)
+
+// SetMode sends DIAG_CONTROL_F (0x29) to set modem operating state (e.g. Offline-D, Reset, Online).
+func (c *DiagClient) SetMode(mode uint16) error {
+	req := make([]byte, 3)
+	req[0] = 0x29
+	binary.LittleEndian.PutUint16(req[1:3], mode)
+
+	resp, err := c.Xfer(req, 2*time.Second)
+	if err != nil {
+		return err
+	}
+	if len(resp) < 1 || resp[0] != 0x29 {
+		return fmt.Errorf("unexpected mode change response: %x", resp)
+	}
+	return nil
+}
+
+// BypassSecurity attempts all known Qualcomm engineering SPC and password sequences.
+// Crucially, it stops IMMEDIATELY when an unlock is accepted so subsequent incorrect
+// keys do not relock the baseband DIAG session.
 func (c *DiagClient) BypassSecurity(timeout time.Duration) bool {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 
-	accepted := false
 	for _, payload := range knownQualcommBypassPayloads {
+		// Flush any leftover bytes in the socket
+		for {
+			ready, _ := pollRead(c.fd, 10)
+			if !ready {
+				break
+			}
+			var drain [512]byte
+			n, _, _ := syscall.RawSyscall(syscall.SYS_READ, uintptr(c.fd), uintptr(unsafe.Pointer(&drain[0])), uintptr(len(drain)))
+			if n <= 0 {
+				break
+			}
+		}
+
 		if err := c.Send(payload); err != nil {
 			logger.Get().Infof("EFS", "BypassSecurity: send failed: %v", err)
 			continue
 		}
 
-		// Drain any modem response (50 ms window, non-blocking)
+		// Wait up to 120ms for modem response
 		var resp []byte
-		ready, _ := pollRead(c.fd, 80)
+		ready, _ := pollRead(c.fd, 120)
 		if ready {
 			buf := make([]byte, 512)
 			n, _, _ := syscall.RawSyscall(
@@ -482,20 +521,21 @@ func (c *DiagClient) BypassSecurity(timeout time.Duration) bool {
 
 		if payload[0] == 0x46 {
 			if len(resp) >= 2 && resp[0] == 0x46 && resp[1] != 0 {
-				logger.Get().Infof("EFS", "BypassSecurity: 0x46 password accepted (payload[1]=0x%02x)", payload[1])
-				accepted = true
+				logger.Get().Infof("EFS", "BypassSecurity: 0x46 password accepted (payload[1]=0x%02x) - stopping loop", payload[1])
+				return true
 			} else {
 				logger.Get().Infof("EFS", "BypassSecurity: 0x46 password[1]=0x%02x resp=%x", payload[1], resp)
 			}
 		} else if payload[0] == 0x41 {
 			if len(resp) >= 2 && resp[0] == 0x41 && resp[1] != 0 {
-				logger.Get().Infof("EFS", "BypassSecurity: SPC 000000 accepted")
+				logger.Get().Infof("EFS", "BypassSecurity: SPC 000000 accepted - stopping loop")
+				return true
 			} else {
 				logger.Get().Infof("EFS", "BypassSecurity: SPC resp=%x", resp)
 			}
 		}
 	}
-	return accepted
+	return false
 }
 
 func hexVal(b byte) byte {

@@ -80,6 +80,8 @@ func registerModemRoutes(rc *routeContext) {
 	rc.mux.HandleFunc("/api/efs/ssr", rc.wrap(HandleEfsSSR, true))
 	rc.mux.HandleFunc("/api/efs/backup", rc.wrap(HandleEfsBackup, true))
 	rc.mux.HandleFunc("/api/efs/carrier-policy/parse", rc.wrap(HandleEfsParseCarrierPolicy, true))
+	rc.mux.HandleFunc("/api/efs/imei", rc.wrap(HandleEfsIMEIRead, true))
+	rc.mux.HandleFunc("/api/efs/imei/write", rc.wrap(HandleEfsIMEIWrite, true))
 
 	// SMS Viewer URLs
 	rc.mux.HandleFunc("/api/sms/inbox", rc.wrap(HandleSMSInbox, true))

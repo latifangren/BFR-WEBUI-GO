@@ -10,6 +10,7 @@
     Cpu,
     HardDrive,
     Database,
+    Smartphone,
   } from '@lucide/svelte'
   import { api } from '../../../api/client'
   import Button from '../../ui/Button.svelte'
@@ -19,6 +20,7 @@
   import QualcommProfiles from './QualcommProfiles.svelte'
   import QualcommEFS from './QualcommEFS.svelte'
   import QualcommNV from './QualcommNV.svelte'
+  import QualcommIMEI from './QualcommIMEI.svelte'
 
   interface BandConfig {
     engine: 'qualcomm_qrtr' | 'universal' | 'qualcomm_at' | 'intent'
@@ -49,7 +51,7 @@
     slots: SimSlotInfo[]
   }
 
-  let subTab = $state<'bands' | 'cell_lock' | 'profiles' | 'efs' | 'nv'>('bands')
+  let subTab = $state<'bands' | 'cell_lock' | 'profiles' | 'efs' | 'nv' | 'imei'>('bands')
 
   let bandConfig = $state<BandConfig>({
     engine: 'qualcomm_qrtr',
@@ -208,6 +210,7 @@
       { id: 'profiles', label: 'Hardware & Profiles', icon: Sliders },
       { id: 'efs', label: 'EFS & NV Browser', icon: HardDrive },
       { id: 'nv', label: 'NV Manager', icon: Database },
+      { id: 'imei', label: 'IMEI Tool', icon: Smartphone },
     ] as tab}
       <button
         type="button"
@@ -243,5 +246,7 @@
     <QualcommEFS />
   {:else if subTab === 'nv'}
     <QualcommNV />
+  {:else if subTab === 'imei'}
+    <QualcommIMEI />
   {/if}
 </div>
