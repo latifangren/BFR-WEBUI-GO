@@ -27,13 +27,25 @@ jobs:
       - name: Setup Go Environment
         uses: actions/setup-go@v5
         with:
-          go-version: '1.25.0'
-          cache: true
-          cache-dependency-path: go.sum
+          go-version: '1.26.0'
+          cache: false
 
       - name: Install Frontend Dependencies
         working-directory: frontend
         run: bun install --frozen-lockfile
+
+      # ─── 1. Build Full Frontend Assets First (Pre-requisite for embed.go) ──
+      - name: Build Full Frontend Distribution
+        working-directory: frontend
+        run: bun run build
+
+      - name: Verify Full Frontend Build Output
+        run: |
+          if [ ! -d "frontend/dist" ] || [ ! -f "frontend/dist/index.html" ]; then
+            echo "Error: frontend/dist or index.html missing!" >&2
+            exit 1
+          fi
+          ls -la frontend/dist/
 
       - name: Check Formatting & Golang Vet
         run: |
@@ -45,11 +57,7 @@ jobs:
           go test -v ./...
           go test -v -tags nomodem ./...
 
-      # ─── 1. Build Full Flavor (Private Target) ──────────────────────────────
-      - name: Build Full Frontend Distribution
-        working-directory: frontend
-        run: bun run build
-
+      # ─── 2. Cross-Compile Full Flavor (Private Target) ──────────────────────
       - name: Cross-Compile Full Android ARM64 Binary
         env:
           GOOS: android
@@ -62,12 +70,20 @@ jobs:
         run: |
           zip -r BFR-WEBUI-Magisk-${{ env.RELEASE_VERSION }}.zip customize.sh module.prop service.sh system.prop tweaks.json env.example bin webui
 
-      # ─── 2. Build Core No-Modem Flavor (Clean Target) ───────────────────────
+      # ─── 3. Build Core No-Modem Flavor (Clean Target) ───────────────────────
       - name: Prepare Clean No-Modem Frontend Assets
         run: |
           echo "export const HAS_VENDOR_MODEM = false" > frontend/src/config/features.ts
           printf "import type { Component } from 'svelte'\n\nexport const VENDOR_TABS: Record<string, Component> = {}\n" > frontend/src/components/tabs/vendor_tabs.ts
           cd frontend && bun run build
+
+      - name: Verify Clean No-Modem Frontend Output
+        run: |
+          if [ ! -d "frontend/dist" ] || [ ! -f "frontend/dist/index.html" ]; then
+            echo "Error: frontend/dist or index.html missing for nomodem build!" >&2
+            exit 1
+          fi
+          ls -la frontend/dist/
 
       - name: Cross-Compile Clean No-Modem Android ARM64 Binary
         env:
@@ -89,7 +105,7 @@ jobs:
           cp webui-nomodem /tmp/pkg-nomodem/webui
           (cd /tmp/pkg-nomodem && zip -r "$GITHUB_WORKSPACE/BFR-WEBUI-Magisk-${{ env.RELEASE_VERSION }}-nomodem.zip" customize.sh module.prop service.sh system.prop tweaks.json env.example bin webui)
 
-      # ─── 3. Upload Build Artifacts ──────────────────────────────────────────
+      # ─── 4. Upload Build Artifacts ──────────────────────────────────────────
       - name: Upload Build Artifacts
         uses: actions/upload-artifact@v4
         with:
