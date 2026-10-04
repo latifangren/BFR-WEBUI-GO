@@ -66,12 +66,8 @@ jobs:
       - name: Prepare Clean No-Modem Frontend Assets
         run: |
           echo "export const HAS_VENDOR_MODEM = false" > frontend/src/config/features.ts
-          cat << 'EOF' > frontend/src/components/tabs/vendor_tabs.ts
-import type { Component } from 'svelte'
-
-export const VENDOR_TABS: Record<string, Component> = {}
-EOF
-          (cd frontend && bun run build)
+          printf "import type { Component } from 'svelte'\n\nexport const VENDOR_TABS: Record<string, Component> = {}\n" > frontend/src/components/tabs/vendor_tabs.ts
+          cd frontend && bun run build
 
       - name: Cross-Compile Clean No-Modem Android ARM64 Binary
         env:
@@ -83,21 +79,7 @@ EOF
 
       - name: Forensic Zero-Leak Security Audit on No-Modem Binary
         run: |
-          python3 -c "
-          with open('webui-nomodem', 'rb') as f:
-              data = f.read()
-          targets = [
-              b'internal/efs', b'internal/shannon', b'internal/samsung', 
-              b'QualcommIMEI', b'diag_linux', b'carrier_policy', 
-              b'BypassSecurity', b'0x29 MODE_ONLINE', b'knownQualcommBypassPayloads', 
-              b'ISemTelephony', b'band_manager', b'sim_switcher',
-              b'/api/efs', b'/api/qualcomm', b'/api/shannon', b'/api/samsung'
-          ]
-          for t in targets:
-              cnt = data.count(t)
-              assert cnt == 0, f'SECURITY LEAK DETECTED: {t} (count: {cnt})'
-          print('CI PASS: 100% zero vendor modem code and strings in no-modem binary!')
-          "
+          python3 scripts/audit_nomodem.py webui-nomodem
 
       - name: Package Clean No-Modem Magisk Module Zip
         run: |
