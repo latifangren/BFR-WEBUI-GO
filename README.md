@@ -100,33 +100,42 @@ BFR-WEBUI-GO Architecture
 
 ---
 
-## 📦 Building & Packaging
+## 📦 Building & Packaging (Dual Build Flavors)
+
+`BFR-WEBUI-GO` supports two official build flavors:
+1. **Full Private Flavor (`dev` branch)**: Includes all baseband diagnostics, Qualcomm QRTR/DIAG/EFS2, Samsung SecRIL, and Google Tensor Shannon tools.
+2. **Public Core Flavor (`release/no-modem` branch)**: 100% zero proprietary vendor baseband code or strings, retaining generic Cellular & Radio Telemetry (`dumpsys`, SIM routing, 5G thermals) and SMS.
 
 ### Prerequisites
 - **Go**: Version 1.22 or higher
 - **Bun or Node.js**: Bun (recommended) or Node.js 18+ (pnpm/npm)
 
-### Quick Build (Magisk ZIP Package)
-On Windows:
-```powershell
-.\build_zip.bat
-```
-On Linux / macOS:
-```bash
-chmod +x build.sh
-./build.sh
-```
-The output Magisk module ZIP (`BFR-WEBUI-Magisk-v1.2.6-local.zip`) will be generated at the workspace root, ready to flash via Magisk, KernelSU, or APatch manager.
+### One-Click Build & Packaging
+The build scripts automatically detect your active Git branch and compile with the appropriate build tags:
+- On Windows:
+  ```cmd
+  :: Auto-detects branch (or pass 'full' / 'nomodem')
+  build_zip.bat
+  ```
+- On Linux / macOS / Android Termux:
+  ```bash
+  chmod +x build.sh
+  ./build.sh
+  ```
 
-### Cross-Compiling Standalone Binary
-To compile the Android ARM64 binary directly:
-```powershell
-cd frontend
-npm run build
-cd ..
-$env:CGO_ENABLED="0"; $env:GOOS="android"; $env:GOARCH="arm64"; go build -ldflags "-s -w" -o webui .
-```
+### Manual Cross-Compilation
+- **Full Private Build**:
+  ```bash
+  cd frontend && bun run build && cd ..
+  CGO_ENABLED=0 GOOS=android GOARCH=arm64 go build -ldflags "-s -w" -o webui .
+  ```
+- **Public Clean Non-Modem Build**:
+  ```bash
+  cd frontend && bun run build && cd ..
+  CGO_ENABLED=0 GOOS=android GOARCH=arm64 go build -tags nomodem -ldflags "-s -w" -o webui .
+  ```
 
+For detailed architectural isolation specs and zero-leak forensic verification, see [`docs/MODEM-ISOLATION.md`](docs/MODEM-ISOLATION.md).
 ---
 
 ## 🔒 Security Architecture

@@ -1,7 +1,25 @@
 @echo off
+setlocal enabledelayedexpansion
+
+set FLAVOR=%1
+if "%FLAVOR%"=="" (
+    set CURRENT_BRANCH=dev
+    for /f %%b in ('git branch --show-current 2^>nul') do set CURRENT_BRANCH=%%b
+    echo !CURRENT_BRANCH! | findstr /i "no-modem" >nul
+    if !errorlevel! equ 0 (
+        set FLAVOR=nomodem
+    ) else (
+        set FLAVOR=full
+    )
+)
+
 set GOOS=android
 set GOARCH=arm64
 set CGO_ENABLED=0
+
+echo ========================================================
+echo  BFR-WEBUI-GO Magisk Zip Packager [Flavor: %FLAVOR%]
+echo ========================================================
 
 echo 1. Reading version from module.prop...
 set VER=local
@@ -24,7 +42,15 @@ if %errorlevel% neq 0 (
 cd ..
 
 echo 3. Building Go binary for Android ARM64 (webui)...
-go build -ldflags "-s -w" -o webui .
+set BUILD_TAGS=
+if /i "%FLAVOR%"=="nomodem" (
+    echo [INFO] Applying build tag: nomodem
+    set BUILD_TAGS=-tags nomodem
+) else (
+    echo [INFO] Full private build
+)
+
+go build %BUILD_TAGS% -ldflags "-s -w" -o webui .
 if %errorlevel% neq 0 (
     echo [ERROR] Go build failed.
     pause
@@ -32,8 +58,13 @@ if %errorlevel% neq 0 (
 )
 
 echo 4. Packaging Magisk zip using tar.exe...
-if exist "BFR-WEBUI-Magisk-%VER%-local.zip" del "BFR-WEBUI-Magisk-%VER%-local.zip"
-tar.exe -a -c -f "BFR-WEBUI-Magisk-%VER%-local.zip" customize.sh module.prop service.sh system.prop tweaks.json update.json env.example bin webui
+set ZIP_NAME=BFR-WEBUI-Magisk-%VER%-local.zip
+if /i "%FLAVOR%"=="nomodem" (
+    set ZIP_NAME=BFR-WEBUI-Magisk-%VER%-nomodem.zip
+)
+
+if exist "%ZIP_NAME%" del "%ZIP_NAME%"
+tar.exe -a -c -f "%ZIP_NAME%" customize.sh module.prop service.sh system.prop tweaks.json update.json env.example bin webui
 if %errorlevel% neq 0 (
     echo [ERROR] Packing failed.
     del webui
@@ -44,5 +75,5 @@ if %errorlevel% neq 0 (
 echo 5. Cleaning up temporary binary...
 del webui
 
-echo [SUCCESS] BFR-WEBUI-Magisk-%VER%-local.zip created successfully!
-pause
+echo [SUCCESS] %ZIP_NAME% created successfully!
+endlocal

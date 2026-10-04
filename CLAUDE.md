@@ -55,3 +55,19 @@
 - **Handling Inquiries, Analyses, and Feature Requests**:
   - If a user request involves analysis, proposes a new feature, ends with a "?" (indicating a question or exploratory intent), or has a tone representing an inquiry or questioning command, the agent **MUST NOT** directly modify the codebase.
   - Present clear recommendations or design candidates, detailing the pros, cons, and trade-offs of each option, and await explicit design/implementation approval from the user.
+
+---
+
+## 5. Strict Modem vs Non-Modem Isolation Rules (Dual-Flavor Distribution)
+- **Branch Target Invariants**:
+  - `dev`: Full private build containing all proprietary baseband tools (Qualcomm QRTR/DIAG/EFS2, Samsung SecRIL, Tensor Shannon). Uses `HAS_VENDOR_MODEM = true` and full routes in `routes_vendor_modem.go`.
+  - `release/no-modem`: Public core release. 100% zero proprietary baseband code. Retains Cellular & Radio Telemetry (`/api/modem/signal`, SIM status, thermal) and SMS. Built with `-tags nomodem`.
+- **Seam Preservation Rules**:
+  - NEVER register proprietary vendor routes directly in `routes_modem.go`. All vendor routes MUST go through `routes_vendor_modem.go` (tagged `//go:build !nomodem`).
+  - `routes_vendor_stub.go` (tagged `//go:build nomodem`) must remain a clean no-op without importing `efs`, `samsung`, or `shannon`.
+  - Any new handler or package dealing with proprietary baseband hardware MUST include `//go:build !nomodem`.
+  - In frontend, all vendor tabs MUST be registered exclusively through `vendor_tabs.ts` and gated by `HAS_VENDOR_MODEM` in `features.ts`.
+  - `bin/sim_switcher.dex` is deprecated and deleted; SIM switching must remain pure native Android IPC (`service call isub 31`).
+  - `bin/band_manager.dex` is strictly excluded from `release/no-modem`.
+- **Merge Safety**:
+  - When merging `dev` into `release/no-modem`, ensure the seams (`features.ts`, `vendor_tabs.ts`, build tags) remain intact so the resulting binary on `release/no-modem` has zero vendor strings or symbols.
