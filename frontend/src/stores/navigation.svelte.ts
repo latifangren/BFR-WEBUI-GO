@@ -1,3 +1,5 @@
+import { HAS_VENDOR_MODEM } from '../config/features'
+
 export type BadgeColor = 'mint' | 'peach' | 'ice' | 'yellow' | 'lavender' | 'amber'
 
 export interface TabItem {
@@ -42,12 +44,27 @@ export interface NavCategoryGroup {
 
 export const NAV_CATEGORIES: NavCategoryGroup[] = [
   { id: 'core', label: 'Core', icon: 'LayoutDashboard', tabs: ['overview', 'sysinfo', 'kernel', 'about'] },
-  { id: 'network', label: 'Network', icon: 'Network', tabs: ['network', 'hotspot', 'proxy', 'modem', 'qualcomm', 'samsung', 'shannon', 'sms', 'qos', 'vnstat', 'tunnel'] },
+  {
+    id: 'network',
+    label: 'Network',
+    icon: 'Network',
+    tabs: [
+      'network',
+      'hotspot',
+      'proxy',
+      'modem',
+      ...(HAS_VENDOR_MODEM ? ['qualcomm', 'samsung', 'shannon'] : []),
+      'sms',
+      'qos',
+      'vnstat',
+      'tunnel',
+    ],
+  },
   { id: 'system', label: 'System', icon: 'Cpu', tabs: ['power', 'charger', 'modules', 'partitions'] },
   { id: 'tools', label: 'Tools', icon: 'Wrench', tabs: ['terminal', 'ssh', 'scrcpy', 'files', 'logs', 'nas', 'speedtest', 'tools', 'telegram'] },
 ]
 
-export const AVAILABLE_TABS: TabItem[] = [
+const RAW_TABS: TabItem[] = [
   { id: 'overview', label: 'Overview', icon: 'LayoutDashboard', category: 'core', badge: 'PRO', badgeColor: 'amber' },
   { id: 'sysinfo', label: 'Sysinfo', icon: 'Cpu', category: 'core', badge: 'CORE', badgeColor: 'mint' },
   { id: 'kernel', label: 'Kernel', icon: 'Sliders', category: 'core', badge: 'NEW', badgeColor: 'mint' },
@@ -77,6 +94,13 @@ export const AVAILABLE_TABS: TabItem[] = [
   { id: 'telegram', label: 'Telegram', icon: 'Send', category: 'tools', badge: 'BOT', badgeColor: 'ice' },
   { id: 'about', label: 'About', icon: 'Info', category: 'core', badge: 'INFO', badgeColor: 'mint' },
 ]
+
+export const AVAILABLE_TABS: TabItem[] = RAW_TABS.filter((tab) => {
+  if (!HAS_VENDOR_MODEM && (tab.id === 'qualcomm' || tab.id === 'samsung' || tab.id === 'shannon')) {
+    return false
+  }
+  return true
+})
 
 class NavigationStore {
   activeTab = $state<string>('sysinfo') // Default to sysinfo for PoC

@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { HAS_VENDOR_MODEM } from '../../../config/features'
   import { onMount } from 'svelte'
   import {
     Radio,
@@ -257,53 +258,98 @@
   <!-- DEDICATED BAND LOCKING NAVIGATION BANNER -->
   <div class="p-3 sm:p-4 bg-card-sub border-2 border-border rounded-lg space-y-2 sm:space-y-3">
     <div class="flex items-center justify-between">
-      <span class="text-xs font-bold uppercase text-foreground">Hardware Band Locking</span>
-      <span class="text-[10px] text-muted font-bold hidden sm:inline">SELECT TARGET VENDOR TAB</span>
+      <div class="flex items-center gap-2">
+        <span class="text-xs font-bold uppercase text-foreground">Hardware Band Locking</span>
+        {#if !HAS_VENDOR_MODEM}
+          <Badge variant="warning" class="text-[9px] font-black">PRIVATE FEATURE ONLY</Badge>
+        {/if}
+      </div>
+      <span class="text-[10px] text-muted font-bold hidden sm:inline">
+        {HAS_VENDOR_MODEM ? 'SELECT TARGET VENDOR TAB' : 'EXCLUSIVE CORE MODULE'}
+      </span>
     </div>
     <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-3">
       <button
         type="button"
-        class="neo-button p-2.5 sm:p-3 rounded-lg border-2 border-emerald-500/40 bg-emerald-950/20 text-left hover:border-emerald-500 transition-all cursor-pointer shadow-neobrutal-sm"
-        onclick={() => (navigationStore.activeTab = 'qualcomm')}
+        class="neo-button p-2.5 sm:p-3 rounded-lg border-2 border-emerald-500/40 bg-emerald-950/20 text-left hover:border-emerald-500 transition-all cursor-pointer shadow-neobrutal-sm {!HAS_VENDOR_MODEM ? 'opacity-85' : ''}"
+        onclick={() => {
+          if (HAS_VENDOR_MODEM) {
+            navigationStore.activeTab = 'qualcomm'
+          } else {
+            toastStore.info('Snapdragon Hardware Band Locking is a private feature only.')
+          }
+        }}
       >
         <div class="flex items-center justify-between mb-0.5 sm:mb-1">
           <span class="font-bold text-emerald-400 text-xs flex items-center gap-1.5">
             <Zap class="w-3.5 h-3.5" />
             <span>Snapdragon QMI</span>
           </span>
-          <Badge variant="success" class="text-[9px]">QRTR</Badge>
+          {#if HAS_VENDOR_MODEM}
+            <Badge variant="success" class="text-[9px]">QRTR</Badge>
+          {:else}
+            <Badge variant="default" class="text-[9px] border-amber-500/40 text-amber-400">PRIVATE</Badge>
+          {/if}
         </div>
-        <p class="text-[10px] text-muted">Pixel 1-5, Xiaomi, POCO, OnePlus Snapdragon</p>
+        <p class="text-[10px] text-muted">
+          {HAS_VENDOR_MODEM ? 'Pixel 1-5, Xiaomi, POCO, OnePlus Snapdragon' : 'Private feature only (Snapdragon QRTR Baseband)'}
+        </p>
       </button>
 
       <button
         type="button"
-        class="neo-button p-2.5 sm:p-3 rounded-lg border-2 border-cyan-500/40 bg-cyan-950/20 text-left hover:border-cyan-500 transition-all cursor-pointer shadow-neobrutal-sm"
-        onclick={() => (navigationStore.activeTab = 'samsung')}
+        class="neo-button p-2.5 sm:p-3 rounded-lg border-2 border-cyan-500/40 bg-cyan-950/20 text-left hover:border-cyan-500 transition-all cursor-pointer shadow-neobrutal-sm {!HAS_VENDOR_MODEM ? 'opacity-85' : ''}"
+        onclick={() => {
+          if (HAS_VENDOR_MODEM) {
+            navigationStore.activeTab = 'samsung'
+          } else {
+            toastStore.info('Samsung Hardware Band Locking is a private feature only.')
+          }
+        }}
       >
         <div class="flex items-center justify-between mb-0.5 sm:mb-1">
           <span class="font-bold text-cyan-400 text-xs flex items-center gap-1.5">
             <Smartphone class="w-3.5 h-3.5" />
             <span>Samsung OneUI</span>
           </span>
-          <Badge variant="info" class="text-[9px]">SecRIL</Badge>
+          {#if HAS_VENDOR_MODEM}
+            <Badge variant="info" class="text-[9px]">SecRIL</Badge>
+          {:else}
+            <Badge variant="default" class="text-[9px] border-amber-500/40 text-amber-400">PRIVATE</Badge>
+          {/if}
         </div>
-        <p class="text-[10px] text-muted">Galaxy S/A Series Exynos & Shannon Radio</p>
+        <p class="text-[10px] text-muted">
+          {HAS_VENDOR_MODEM ? 'Galaxy S/A Series Exynos & Shannon Radio' : 'Private feature only (Samsung SecRIL Radio)'}
+        </p>
       </button>
 
       <button
         type="button"
-        class="neo-button p-2.5 sm:p-3 rounded-lg border-2 border-purple-500/40 bg-purple-950/20 text-left hover:border-purple-500 transition-all cursor-pointer shadow-neobrutal-sm"
-        onclick={() => (navigationStore.activeTab = 'shannon')}
+        class="neo-button p-2.5 sm:p-3 rounded-lg border-2 border-purple-500/40 bg-purple-950/20 text-left hover:border-purple-500 transition-all cursor-pointer shadow-neobrutal-sm {!HAS_VENDOR_MODEM ? 'opacity-85' : ''}"
+        onclick={() => {
+          if (HAS_VENDOR_MODEM) {
+            toastStore.info(
+              'MediaTek (MTK) Engineer Mode Band Locking: Silakan gunakan engineer mode via *#*#3646633#*#* atau MTK HAL controller.',
+            )
+          } else {
+            toastStore.info('MediaTek Hardware Band Locking is a private feature only.')
+          }
+        }}
       >
         <div class="flex items-center justify-between mb-0.5 sm:mb-1">
           <span class="font-bold text-purple-400 text-xs flex items-center gap-1.5">
-            <Layers class="w-3.5 h-3.5" />
-            <span>Tensor Shannon</span>
+            <Radio class="w-3.5 h-3.5" />
+            <span>Mediatek MTK</span>
           </span>
-          <Badge variant="warning" class="text-[9px]">NV/EFS</Badge>
+          {#if HAS_VENDOR_MODEM}
+            <Badge variant="pop-purple" class="text-[9px]">EMode</Badge>
+          {:else}
+            <Badge variant="default" class="text-[9px] border-amber-500/40 text-amber-400">PRIVATE</Badge>
+          {/if}
         </div>
-        <p class="text-[10px] text-muted">Google Pixel 6, 7, 8, 9 Series Shannon Modem</p>
+        <p class="text-[10px] text-muted">
+          {HAS_VENDOR_MODEM ? 'Helio & Dimensity Engineer Mode' : 'Private feature only (MediaTek Engineer Mode)'}
+        </p>
       </button>
     </div>
   </div>
