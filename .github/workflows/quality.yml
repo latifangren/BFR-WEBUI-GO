@@ -46,9 +46,8 @@ jobs:
       - name: Setup Go Environment
         uses: actions/setup-go@v5
         with:
-          go-version: '1.25.0'
-          cache: true
-          cache-dependency-path: go.sum
+          go-version: '1.26.0'
+          cache: false
 
       - name: Run All Package Tests (Full & No-Modem)
         run: |
@@ -70,11 +69,9 @@ jobs:
           bun run build
 
       - name: Setup Go Environment
-        uses: actions/setup-go@v5
         with:
-          go-version: '1.25.0'
-          cache: true
-          cache-dependency-path: go.sum
+          go-version: '1.26.0'
+          cache: false
 
       - name: GolangCI-Lint Static Verification
         uses: golangci/golangci-lint-action@v6
