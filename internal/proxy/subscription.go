@@ -90,7 +90,7 @@ func UpdateSubscriptionNow(targetURL string) (string, error) {
 	if err != nil {
 		return "", fmt.Errorf("invalid URL: %w", err)
 	}
-	req.Header.Set("User-Agent", "ClashMeta/1.18.0 Mihomo/1.18.0 BFR/1.2.6")
+	req.Header.Set("User-Agent", "ClashMeta/1.18.0 Mihomo/1.18.0 BFR/1.2.7")
 
 	client := &http.Client{Timeout: 30 * time.Second}
 	resp, err := client.Do(req)

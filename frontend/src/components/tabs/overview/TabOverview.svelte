@@ -598,7 +598,7 @@
       <div class="bg-card-sub border border-border p-2.5 sm:p-3 rounded space-y-1">
         <span class="text-[10px] text-muted uppercase font-bold">Security & WebUI</span>
         <p class="font-bold text-foreground truncate">
-          {stats?.selinux || 'Enforcing'} • {stats?.webui_version || 'v1.2.6'}
+          {stats?.selinux || 'Enforcing'} • {stats?.webui_version || 'v1.2.7'}
         </p>
       </div>
     </div>
