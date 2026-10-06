@@ -27,7 +27,7 @@
 ## 3. Strict Routing & Verification Rules
 - **No Direct UI Over-Editing**: The frontend uses a carefully calibrated Neo-Brutalist (AMOLED/Light) style. Follow the designer instructions strictly.
 - **Cross-Compilation Checks**: Always verify modifications compile targeting `GOOS=android GOARCH=arm64` cleanly with zero syntax/type errors.
-- **Tuning Config isolation**: Any system-level tweaks must be driven by variables defined within `tweaks.json` and resolved in `internal/network/config.go` dynamically. Never hardcode network config values or execute raw sysctl commands outside these properties.
+- **Tuning Config isolation**: Any system-level network tweaks must be driven by variables defined within `network_config.json` and resolved in `internal/network/config.go` dynamically. Never hardcode network config values or execute raw sysctl commands outside these properties.
 - **Background specialist rules**:
   - Refactoring/implementation runs via **@fixer** (re-use session when possible).
   - Web research and references check runs via **@librarian** or **@explorer**.

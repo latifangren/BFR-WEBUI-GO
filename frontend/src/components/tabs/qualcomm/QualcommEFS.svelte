@@ -30,6 +30,8 @@
   import Button from '../../ui/Button.svelte'
   import Badge from '../../ui/Badge.svelte'
   import Modal from '../../ui/Modal.svelte'
+  import EfsEditorModal from './EfsEditorModal.svelte'
+  import EfsModals from './EfsModals.svelte'
 
   interface EfsEntry {
     name: string
@@ -881,555 +883,62 @@
 </div>
 
 <!-- FILE VIEWER / EDITOR MODAL -->
-<Modal
-  bind:open={showEditorModal}
-  title={activeFile ? `EFS File: ${activeFile.path}` : 'View File'}
-  size="xl"
->
-  {#if activeFile}
-    <div class="space-y-3 font-mono text-xs">
-      <div class="flex items-center justify-between border-b border-border pb-2">
-        <div class="flex items-center gap-2">
-          <Badge variant="info">{formatBytes(activeFile.size)}</Badge>
-          <Badge variant={activeFile.is_binary ? 'warning' : 'default'}>
-            {activeFile.is_binary ? 'Binary / Item File' : 'Plain Text / XML'}
-          </Badge>
-        </div>
+  <EfsEditorModal
+    bind:open={showEditorModal}
+    activeFile={activeFile}
+    status={status}
+    bind:editorMode={editorMode}
+    bind:editorTextContent={editorTextContent}
+    filteredCaCombos={filteredCaCombos}
+    bind:caSearchBand={caSearchBand}
+    bind:caMimoFilter={caMimoFilter}
+    bind:caUlFilter={caUlFilter}
+    isSavingFile={isSavingFile}
+    formatBytes={formatBytes}
+    downloadFile={downloadFile}
+    saveFile={saveFile}
+    copySingleCombo={copySingleCombo}
+    copyAllCombos={copyAllCombos}
+    exportCombosJson={exportCombosJson}
+  />
 
-        <div class="flex items-center gap-1.5">
-          <button
-            type="button"
-            class="px-2 py-1 rounded font-bold {editorMode === 'text' ? 'bg-accent text-accent-text' : 'bg-card-sub text-muted'} cursor-pointer"
-            onclick={() => (editorMode = 'text')}
-          >
-            Text
-          </button>
-          <button
-            type="button"
-            class="px-2 py-1 rounded font-bold {editorMode === 'hex' ? 'bg-accent text-accent-text' : 'bg-card-sub text-muted'} cursor-pointer"
-            onclick={() => (editorMode = 'hex')}
-          >
-            Hex
-          </button>
-          {#if activeFile.carrier_policy && activeFile.carrier_policy.total_combos > 0}
-            <button
-              type="button"
-              class="px-2.5 py-1 rounded font-bold flex items-center gap-1.5 {editorMode === 'ca' ? 'bg-cyan-500 text-black shadow' : 'bg-cyan-950/40 text-cyan-300 border border-cyan-800/50'} cursor-pointer transition-colors"
-              onclick={() => (editorMode = 'ca')}
-            >
-              <Radio class="w-3.5 h-3.5" />
-              <span>CA Combos ({activeFile.carrier_policy.total_combos})</span>
-            </button>
-          {/if}
-        </div>
-      </div>
+  <EfsModals
+    status={status}
+    bind:showSpcModal={showSpcModal}
+    bind:spcInput={spcInput}
+    isUnlockingSpc={isUnlockingSpc}
+    submitSpcUnlock={submitSpcUnlock}
 
-      {#if editorMode === 'ca' && activeFile.carrier_policy}
-        {@const policy = activeFile.carrier_policy}
-        <div class="space-y-3">
-          <!-- Policy Summary Cards -->
-          <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
-            <div class="bg-zinc-950 p-2 rounded border border-border">
-              <span class="text-[10px] text-muted uppercase font-bold block">Policy / Config</span>
-              <span class="text-xs font-bold text-foreground truncate block">
-                {policy.policy_name || 'Carrier Policy'} {policy.policy_ver ? `(v${policy.policy_ver})` : ''}
-              </span>
-            </div>
+    bind:showNvModal={showNvModal}
+    bind:nvItemInput={nvItemInput}
+    bind:nvIndexInput={nvIndexInput}
+    isLoadingNv={isLoadingNv}
+    nvResult={nvResult}
+    bind:nvHexInput={nvHexInput}
+    isWritingNv={isWritingNv}
+    readNvItem={readNvItem}
+    writeNvItem={writeNvItem}
 
-            <div class="bg-zinc-950 p-2 rounded border border-border">
-              <span class="text-[10px] text-muted uppercase font-bold block">Total Combos</span>
-              <span class="text-xs font-bold text-cyan-400 block">{policy.total_combos} combinations</span>
-            </div>
+    bind:showSsrModal={showSsrModal}
+    isRestartingModem={isRestartingModem}
+    triggerSsr={triggerSsr}
 
-            <div class="bg-zinc-950 p-2 rounded border border-border">
-              <span class="text-[10px] text-muted uppercase font-bold block">Max DL Streams</span>
-              <span class="text-xs font-bold text-amber-400 block">
-                {policy.max_streams} Streams {policy.max_streams >= 4 ? '(4x4 MIMO)' : '(2x2 MIMO)'}
-              </span>
-            </div>
+    bind:showUnlockWarningModal={showUnlockWarningModal}
+    setReadOnlyMode={setReadOnlyMode}
 
-            <div class="bg-zinc-950 p-2 rounded border border-border">
-              <span class="text-[10px] text-muted uppercase font-bold block">Supported Bands</span>
-              <span class="text-xs font-bold text-emerald-400 block truncate">
-                {policy.bands_supported.length} bands (B{policy.bands_supported.slice(0, 5).join(', B')}{policy.bands_supported.length > 5 ? '...' : ''})
-              </span>
-            </div>
-          </div>
+    bind:showMkdirModal={showMkdirModal}
+    bind:newDirName={newDirName}
+    isCreatingDir={isCreatingDir}
+    createDirectory={createDirectory}
 
-          <!-- Quick Band Filter Chips -->
-          {#if policy.bands_supported.length > 0}
-            <div class="flex items-center gap-1.5 flex-wrap bg-zinc-950/70 p-2 rounded border border-border/60">
-              <span class="text-[10px] font-bold text-muted uppercase mr-1">Quick Band:</span>
-              <button
-                type="button"
-                class="px-2 py-0.5 rounded text-[10px] font-bold cursor-pointer transition-colors {caSearchBand === '' ? 'bg-cyan-500 text-black' : 'bg-card-sub text-muted hover:text-foreground'}"
-                onclick={() => (caSearchBand = '')}
-              >
-                All
-              </button>
-              {#each policy.bands_supported as b}
-                <button
-                  type="button"
-                  class="px-2 py-0.5 rounded text-[10px] font-bold cursor-pointer transition-colors {caSearchBand === b.toString() ? 'bg-cyan-500 text-black' : 'bg-card-sub text-cyan-300 border border-cyan-900/40 hover:border-cyan-500/50'}"
-                  onclick={() => (caSearchBand = caSearchBand === b.toString() ? '' : b.toString())}
-                >
-                  B{b}
-                </button>
-              {/each}
-            </div>
-          {/if}
+    bind:showDeleteModal={showDeleteModal}
+    entryToDelete={entryToDelete}
+    isDeleting={isDeleting}
+    confirmDelete={confirmDelete}
 
-          <!-- Search & Filter Controls -->
-          <div class="flex flex-wrap items-center justify-between gap-2 bg-card-sub/50 p-2 rounded border border-border">
-            <div class="flex flex-wrap items-center gap-2 flex-1 min-w-[240px]">
-              <!-- Search -->
-              <div class="relative flex-1 min-w-[140px]">
-                <Search class="w-3.5 h-3.5 absolute left-2.5 top-1/2 -translate-y-1/2 text-muted" />
-                <input
-                  type="text"
-                  bind:value={caSearchBand}
-                  placeholder="Filter band (e.g. 3, 28, 66)..."
-                  class="w-full bg-zinc-950 border border-border rounded pl-8 pr-3 py-1.5 text-xs text-foreground placeholder:text-muted focus:outline-none focus:border-cyan-500"
-                />
-              </div>
-
-              <!-- MIMO Filter -->
-              <div class="flex items-center rounded border border-border overflow-hidden text-[11px] font-bold">
-                <button
-                  type="button"
-                  class="px-2 py-1 cursor-pointer {caMimoFilter === 'all' ? 'bg-cyan-500 text-black' : 'bg-zinc-950 text-muted'}"
-                  onclick={() => (caMimoFilter = 'all')}
-                >
-                  All MIMO
-                </button>
-                <button
-                  type="button"
-                  class="px-2 py-1 cursor-pointer {caMimoFilter === '4x4' ? 'bg-cyan-500 text-black' : 'bg-zinc-950 text-muted'}"
-                  onclick={() => (caMimoFilter = '4x4')}
-                >
-                  4x4 Only
-                </button>
-                <button
-                  type="button"
-                  class="px-2 py-1 cursor-pointer {caMimoFilter === '2x2' ? 'bg-cyan-500 text-black' : 'bg-zinc-950 text-muted'}"
-                  onclick={() => (caMimoFilter = '2x2')}
-                >
-                  2x2 Only
-                </button>
-              </div>
-
-              <!-- UL CA Checkbox -->
-              <label class="flex items-center gap-1.5 text-xs text-muted cursor-pointer select-none bg-zinc-950 px-2 py-1 rounded border border-border">
-                <input type="checkbox" bind:checked={caUlFilter} class="rounded border-border accent-cyan-500" />
-                <span>Uplink CA Only</span>
-              </label>
-            </div>
-
-            <!-- Action Buttons -->
-            <div class="flex items-center gap-1.5">
-              <button
-                type="button"
-                class="px-2.5 py-1 bg-zinc-900 hover:bg-zinc-800 text-foreground border border-border rounded text-[11px] font-bold flex items-center gap-1 cursor-pointer"
-                onclick={copyAllCombos}
-                title="Copy raw combination list"
-              >
-                <Copy class="w-3.5 h-3.5 text-cyan-400" />
-                <span>Copy List</span>
-              </button>
-              <button
-                type="button"
-                class="px-2.5 py-1 bg-zinc-900 hover:bg-zinc-800 text-foreground border border-border rounded text-[11px] font-bold flex items-center gap-1 cursor-pointer"
-                onclick={exportCombosJson}
-                title="Export combination data as JSON"
-              >
-                <Download class="w-3.5 h-3.5 text-emerald-400" />
-                <span>JSON</span>
-              </button>
-            </div>
-          </div>
-
-          <!-- Table of Combinations -->
-          <div class="border-2 border-border rounded overflow-hidden max-h-[380px] overflow-y-auto">
-            <table class="w-full text-left text-xs border-collapse">
-              <thead class="bg-card-sub sticky top-0 border-b-2 border-border z-10 text-[10px] uppercase font-bold text-muted">
-                <tr>
-                  <th class="p-2 w-12 text-center">#</th>
-                  <th class="p-2">Component Carriers (Bands & MIMO)</th>
-                  <th class="p-2 w-28 text-center">DL Streams</th>
-                  <th class="p-2 w-32 text-center">BCS</th>
-                  <th class="p-2 w-16 text-right">Action</th>
-                </tr>
-              </thead>
-              <tbody class="divide-y divide-border bg-zinc-950 font-mono">
-                {#if filteredCaCombos.length === 0}
-                  <tr>
-                    <td colspan="5" class="p-8 text-center text-muted">
-                      <span>No carrier policy combinations match your filter criteria.</span>
-                    </td>
-                  </tr>
-                {:else}
-                  {#each filteredCaCombos as combo, idx}
-                    <tr class="hover:bg-zinc-900/80 transition-colors">
-                      <!-- Index -->
-                      <td class="p-2 text-center text-muted text-[11px]">
-                        {idx + 1}
-                      </td>
-
-                      <!-- Components -->
-                      <td class="p-2">
-                        <div class="flex items-center gap-1.5 flex-wrap">
-                          {#each combo.components as comp, cIdx}
-                            {#if cIdx > 0}
-                              <span class="text-muted font-bold text-xs">+</span>
-                            {/if}
-                            <div class="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-zinc-900 border border-zinc-700/60 shadow-sm">
-                              <!-- Band & Class -->
-                              <span class="font-bold text-cyan-300">
-                                B{comp.band}{comp.dl_class}
-                              </span>
-
-                              <!-- MIMO Badge -->
-                              {#if comp.dl_mimo.includes('4')}
-                                <span class="px-1 py-0.2 rounded text-[9px] font-bold bg-cyan-950 text-cyan-300 border border-cyan-700/50">
-                                  {comp.dl_mimo === '44' ? '4x4+4x4' : '4x4'}
-                                </span>
-                              {:else}
-                                <span class="px-1 py-0.2 rounded text-[9px] font-bold bg-zinc-800 text-zinc-400">
-                                  {comp.dl_mimo === '22' ? '2x2+2x2' : '2x2'}
-                                </span>
-                              {/if}
-
-                              <!-- UL Badge -->
-                              {#if comp.ul_class && comp.ul_class !== 'None'}
-                                <span class="px-1 py-0.2 rounded text-[9px] font-bold bg-amber-950/80 text-amber-300 border border-amber-600/40">
-                                  UL:{comp.ul_class}
-                                </span>
-                              {/if}
-                            </div>
-                          {/each}
-                        </div>
-                      </td>
-
-                      <!-- DL Streams -->
-                      <td class="p-2 text-center">
-                        <span class="px-2 py-0.5 rounded text-[10px] font-bold {combo.total_streams >= 8 ? 'bg-cyan-950 text-cyan-300 border border-cyan-600/40' : combo.total_streams >= 4 ? 'bg-emerald-950 text-emerald-300 border border-emerald-600/40' : 'bg-zinc-800 text-zinc-300'}">
-                          {combo.total_streams} Streams
-                        </span>
-                      </td>
-
-                      <!-- BCS -->
-                      <td class="p-2 text-center text-muted text-[11px] truncate" title={combo.bcs}>
-                        <span class="px-1.5 py-0.5 rounded text-[9px] font-bold bg-zinc-900 border border-zinc-800 text-foreground">
-                          {combo.bcs}
-                        </span>
-                      </td>
-
-                      <!-- Copy Single Action -->
-                      <td class="p-2 text-right">
-                        <button
-                          type="button"
-                          class="p-1 hover:text-cyan-400 rounded cursor-pointer text-muted transition-colors"
-                          title="Copy combination string"
-                          onclick={() => copySingleCombo(combo.raw_combo_string)}
-                        >
-                          <Copy class="w-3.5 h-3.5" />
-                        </button>
-                      </td>
-                    </tr>
-                  {/each}
-                {/if}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      {:else if editorMode === 'text'}
-        <textarea
-          bind:value={editorTextContent}
-          rows="18"
-          class="neo-input w-full bg-zinc-950 border-2 border-border rounded p-3 font-mono text-xs text-foreground focus:outline-none focus:border-accent"
-          placeholder="File content..."
-        ></textarea>
-      {:else}
-        <div class="bg-zinc-950 p-3 rounded border-2 border-border max-h-[350px] overflow-y-auto break-all font-mono text-[11px] leading-relaxed text-cyan-300">
-          {activeFile.data_hex}
-        </div>
-      {/if}
-
-      {#if status.readonly}
-        <div class="p-2 bg-amber-950/30 border border-amber-600/40 rounded text-amber-300 text-[11px] flex items-center gap-2">
-          <AlertTriangle class="w-4 h-4 shrink-0 text-amber-400" />
-          <span>Modem filesystem is in Read-Only mode. Unlock write access in the toolbar to save changes.</span>
-        </div>
-      {/if}
-    </div>
-  {/if}
-
-  {#snippet footer()}
-    <div class="flex items-center justify-between w-full">
-      <Button
-        variant="outline"
-        size="sm"
-        onclick={() => downloadFile(activeFile?.path || '')}
-      >
-        <Download class="w-3.5 h-3.5 mr-1" />
-        <span>Download File</span>
-      </Button>
-
-      <div class="flex items-center gap-2">
-        {#if editorMode === 'ca'}
-          <span class="text-[11px] text-muted hidden sm:inline">
-            Carrier Policy View Mode. Switch to Text mode to edit XML directly.
-          </span>
-        {/if}
-        <Button variant="secondary" size="sm" onclick={() => (showEditorModal = false)}>
-          Cancel
-        </Button>
-        <Button
-          variant="primary"
-          size="sm"
-          disabled={status.readonly || isSavingFile || editorMode === 'ca'}
-          onclick={saveFile}
-        >
-          <span>{isSavingFile ? 'Saving...' : 'Save to EFS'}</span>
-        </Button>
-      </div>
-    </div>
-  {/snippet}
-
-</Modal>
-
-<!-- SPC UNLOCK MODAL -->
-<Modal bind:open={showSpcModal} title="Unlock DIAG Security Session (SPC)" size="sm">
-  <div class="space-y-3 font-mono text-xs">
-    <p class="text-muted text-[11px]">
-      Qualcomm NV item writes require raising the DIAG security level via the 6-digit Service Programming Code (SPC). Default is usually <code>000000</code>.
-    </p>
-
-    <div>
-      <label class="block text-[10px] text-muted uppercase font-bold mb-1">
-        <span>Service Programming Code (6 Digits)</span>
-        <input
-          type="text"
-          maxlength="6"
-          bind:value={spcInput}
-          class="neo-input mt-1 w-full bg-card-sub border-2 border-border rounded px-3 py-2 font-mono text-sm tracking-widest text-center text-foreground focus:outline-none focus:border-accent"
-          placeholder="000000"
-        />
-      </label>
-    </div>
-  </div>
-
-  {#snippet footer()}
-    <Button variant="secondary" size="sm" onclick={() => (showSpcModal = false)}>Cancel</Button>
-    <Button variant="primary" size="sm" disabled={isUnlockingSpc} onclick={submitSpcUnlock}>
-      <span>{isUnlockingSpc ? 'Verifying...' : 'Submit Code'}</span>
-    </Button>
-  {/snippet}
-</Modal>
-
-<!-- NV ITEM INSPECTOR MODAL -->
-<Modal bind:open={showNvModal} title="Qualcomm NV Item Inspector" size="lg">
-  <div class="space-y-4 font-mono text-xs">
-    <div class="grid grid-cols-2 gap-3">
-      <div>
-        <label class="block text-[10px] text-muted uppercase font-bold mb-1">
-          <span>NV Item ID (0-65535)</span>
-          <input
-            type="number"
-            bind:value={nvItemInput}
-            class="neo-input mt-1 w-full bg-card-sub border-2 border-border rounded px-2.5 py-1.5 text-foreground focus:outline-none focus:border-accent"
-            placeholder="550"
-          />
-        </label>
-      </div>
-      <div>
-        <label class="block text-[10px] text-muted uppercase font-bold mb-1">
-          <span>Subsystem Index (-1 for Default)</span>
-          <input
-            type="number"
-            bind:value={nvIndexInput}
-            class="neo-input mt-1 w-full bg-card-sub border-2 border-border rounded px-2.5 py-1.5 text-foreground focus:outline-none focus:border-accent"
-            placeholder="-1"
-          />
-        </label>
-      </div>
-    </div>
-
-    <div class="flex items-center justify-end gap-2">
-      <Button variant="secondary" size="sm" disabled={isLoadingNv} onclick={readNvItem}>
-        <RefreshCw class="w-3.5 h-3.5 mr-1 {isLoadingNv ? 'animate-spin' : ''}" />
-        <span>Read NV Item</span>
-      </Button>
-    </div>
-
-    {#if nvResult}
-      <div class="p-3 bg-zinc-950 border-2 border-border rounded space-y-2">
-        <div class="flex items-center justify-between text-[11px]">
-          <span class="text-muted">Return Status:</span>
-          <Badge variant={nvResult.status === 0 ? 'success' : 'danger'}>
-            {nvResult.status_str} ({nvResult.status})
-          </Badge>
-        </div>
-
-        <div>
-          <label class="block text-[10px] text-muted uppercase font-bold mb-1">
-            <span>NV Payload (128 Bytes Hex)</span>
-            <textarea
-              bind:value={nvHexInput}
-              rows="4"
-              class="neo-input mt-1 w-full bg-zinc-900 border border-border rounded p-2 text-cyan-300 font-mono text-[11px] focus:outline-none focus:border-accent"
-            ></textarea>
-          </label>
-        </div>
-      </div>
-    {/if}
-  </div>
-
-  {#snippet footer()}
-    <Button variant="secondary" size="sm" onclick={() => (showNvModal = false)}>Close</Button>
-    <Button
-      variant="danger"
-      size="sm"
-      disabled={status.readonly || isWritingNv || !nvResult}
-      onclick={writeNvItem}
-    >
-      <span>{isWritingNv ? 'Writing...' : 'Write NV to Modem'}</span>
-    </Button>
-  {/snippet}
-</Modal>
-
-<!-- RESTART MODEM (SSR) MODAL -->
-<Modal bind:open={showSsrModal} title="Confirm Modem Subsystem Restart (SSR)" size="sm">
-  <div class="space-y-3 font-mono text-xs">
-    <div class="p-3 bg-amber-950/40 border-2 border-amber-600 rounded text-amber-200 space-y-1">
-      <p class="font-bold flex items-center gap-1.5 text-amber-300">
-        <AlertTriangle class="w-4 h-4 text-amber-400" />
-        <span>Temporary Cellular Interruption</span>
-      </p>
-      <p class="text-[11px] text-amber-200/90 leading-relaxed">
-        This command flushes the dirty EFS journal to flash and issues a hardware-level Subsystem Restart (SSR) to the Qualcomm modem. Cellular data and calls will reset for approximately 2 to 3 seconds.
-      </p>
-    </div>
-  </div>
-
-  {#snippet footer()}
-    <Button variant="secondary" size="sm" onclick={() => (showSsrModal = false)}>Cancel</Button>
-    <Button variant="danger" size="sm" disabled={isRestartingModem} onclick={triggerSsr}>
-      <span>{isRestartingModem ? 'Rebooting Modem...' : 'Restart Radio Now'}</span>
-    </Button>
-  {/snippet}
-</Modal>
-
-<!-- UNLOCK WRITE ACCESS WARNING MODAL -->
-<Modal bind:open={showUnlockWarningModal} title="Unlock Modem Write Access" size="sm">
-  <div class="space-y-3 font-mono text-xs">
-    <div class="p-3 bg-red-950/40 border-2 border-red-600 rounded text-red-200 space-y-1">
-      <p class="font-bold flex items-center gap-1.5 text-red-300">
-        <AlertTriangle class="w-4 h-4 text-red-400" />
-        <span>Caution: Raw Baseband Filesystem</span>
-      </p>
-      <p class="text-[11px] text-red-200/90 leading-relaxed">
-        Writing incorrect or corrupt configurations directly to Qualcomm EFS2 can cause modem bootloops or loss of IMEI / radio calibrations.
-      </p>
-      <p class="text-[10px] text-red-300/80 mt-1 font-bold">
-        Always download a .TAR backup before making modifications!
-      </p>
-    </div>
-  </div>
-
-  {#snippet footer()}
-    <Button variant="secondary" size="sm" onclick={() => (showUnlockWarningModal = false)}>
-      Keep Read-Only
-    </Button>
-    <Button variant="danger" size="sm" onclick={() => setReadOnlyMode(false)}>
-      I Understand, Unlock
-    </Button>
-  {/snippet}
-</Modal>
-
-<!-- CREATE DIRECTORY MODAL -->
-<Modal bind:open={showMkdirModal} title="Create Directory" size="sm">
-  <div class="space-y-3 font-mono text-xs">
-    <div>
-      <label class="block text-[10px] text-muted uppercase font-bold mb-1">
-        <span>Directory Name</span>
-        <input
-          type="text"
-          bind:value={newDirName}
-          class="neo-input mt-1 w-full bg-card-sub border-2 border-border rounded px-3 py-2 text-foreground focus:outline-none focus:border-accent"
-          placeholder="my_folder"
-        />
-      </label>
-    </div>
-  </div>
-
-  {#snippet footer()}
-    <Button variant="secondary" size="sm" onclick={() => (showMkdirModal = false)}>Cancel</Button>
-    <Button variant="primary" size="sm" disabled={isCreatingDir || !newDirName.trim()} onclick={createDirectory}>
-      <span>{isCreatingDir ? 'Creating...' : 'Create Folder'}</span>
-    </Button>
-  {/snippet}
-</Modal>
-
-<!-- DELETE CONFIRM MODAL -->
-<Modal bind:open={showDeleteModal} title="Confirm Deletion" size="sm">
-  <div class="space-y-3 font-mono text-xs">
-    <p>
-      Are you sure you want to permanently delete <strong class="text-red-400">{entryToDelete?.path}</strong> from the Qualcomm modem filesystem?
-    </p>
-  </div>
-
-  {#snippet footer()}
-    <Button variant="secondary" size="sm" onclick={() => (showDeleteModal = false)}>Cancel</Button>
-    <Button variant="danger" size="sm" disabled={isDeleting} onclick={confirmDelete}>
-      <span>{isDeleting ? 'Deleting...' : 'Delete Permanently'}</span>
-    </Button>
-  {/snippet}
-</Modal>
-
-<!-- STANDALONE CARRIER POLICY / CA COMBOS MODAL -->
-<Modal bind:open={showCaModal} title="Qualcomm Carrier Policy / CA Combos Visualizer" size="lg">
-  <div class="space-y-3 font-mono text-xs">
-    <div class="flex items-center justify-between">
-      <p class="text-muted text-[11px]">
-        Paste raw carrier policy XML, <code>&lt;ca_band_combos&gt;</code> tag, or semicolon-separated combo list below:
-      </p>
-      <button
-        type="button"
-        class="text-[10px] text-cyan-400 hover:underline font-bold cursor-pointer"
-        onclick={loadSampleCarrierPolicy}
-      >
-        Load Demo Combos
-      </button>
-    </div>
-
-    <div>
-      <textarea
-        rows="9"
-        bind:value={caInputContent}
-        class="neo-input w-full bg-zinc-950 border-2 border-border rounded p-3 font-mono text-xs text-foreground focus:outline-none focus:border-cyan-500 placeholder:text-muted"
-        placeholder="Paste carrier_policy.xml or ca_band_combos string here..."
-      ></textarea>
-    </div>
-
-    <div class="p-2.5 bg-card-sub rounded border border-border text-[11px] text-muted space-y-1">
-      <div class="font-bold text-foreground">Supported Formats:</div>
-      <div>• Qualcomm carrier policy XML: <code>&lt;ca_band_combos string="..." /&gt;</code></div>
-      <div>• Raw combo list: <code>4A2A-2A2-mAll; 66C44A-2A4-m3; 5B22A-m1; ...</code></div>
-    </div>
-  </div>
-
-  {#snippet footer()}
-    <Button variant="secondary" size="sm" onclick={() => (showCaModal = false)}>Cancel</Button>
-    <Button
-      variant="primary"
-      size="sm"
-      disabled={isParsingCa || !caInputContent.trim()}
-      onclick={parseCustomCarrierPolicy}
-    >
-      <Radio class="w-3.5 h-3.5 mr-1 text-black" />
-      <span>{isParsingCa ? 'Analyzing...' : 'Parse & Visualize Combos'}</span>
-    </Button>
-  {/snippet}
-</Modal>
-
+    bind:showCaModal={showCaModal}
+    bind:caInputContent={caInputContent}
+    isParsingCa={isParsingCa}
+    loadSampleCarrierPolicy={loadSampleCarrierPolicy}
+    parseCustomCarrierPolicy={parseCustomCarrierPolicy}
+  />

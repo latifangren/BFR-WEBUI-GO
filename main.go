@@ -36,7 +36,7 @@ func main() {
 	flag.Parse()
 
 	if *applyTweaks {
-		log.Println("Applying system & network optimizations from tweaks.json...")
+		log.Println("Applying system & network optimizations from network_config.json...")
 		if err := network.ApplyAllTweaks(); err != nil {
 			log.Fatalf("Failed to apply tweaks: %v", err)
 		}
