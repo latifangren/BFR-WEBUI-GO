@@ -16,6 +16,7 @@ import (
 	"bfr-webui-go/internal/handlers"
 	"bfr-webui-go/internal/kernel"
 	"bfr-webui-go/internal/logger"
+	"bfr-webui-go/internal/modem"
 	"bfr-webui-go/internal/nas"
 	"bfr-webui-go/internal/network"
 	"bfr-webui-go/internal/power"
@@ -42,6 +43,10 @@ func main() {
 		log.Println("Applying saved kernel parameters & governor policies...")
 		if err := kernel.GetManager().ApplySavedConfig(); err != nil {
 			log.Printf("Warning: applying saved kernel config: %v", err)
+		}
+		log.Println("Applying saved cell lock configuration...")
+		if err := modem.ApplySavedCellLock(); err != nil {
+			log.Printf("Notice: applying saved cell lock: %v", err)
 		}
 		log.Println("Optimizations applied successfully.")
 		os.Exit(0)
@@ -93,6 +98,11 @@ func main() {
 
 	go func() {
 		_ = charger.GetManager()
+	}()
+
+	go func() {
+		time.Sleep(3 * time.Second)
+		_ = modem.ApplySavedCellLock()
 	}()
 
 	go func() {

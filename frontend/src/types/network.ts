@@ -111,30 +111,6 @@ export interface ATCommandResult {
   success?: boolean
 }
 
-export interface TweaksConfig {
-  lte_carrier_aggregation: boolean
-  tcp_buffer_optimization: boolean
-  bbr2_congestion_control: boolean
-  sysctl_buffers_opt: boolean
-  dalvik_responsiveness: boolean
-  settings_global_tweaks: boolean
-  ttl_spoofing: boolean
-  packet_steering_rps: boolean
-  mtu_tuning: boolean
-}
-
-export interface NetworkTweaksStatus {
-  enabled: boolean
-  tweaks?: Record<string, string>
-  tweaks_json?: TweaksConfig
-  active_dns1?: string
-  active_dns2?: string
-}
-
-export interface RPSConfig {
-  interface: string
-  bitmask: string
-}
 
 export type ScheduleMode = 'disabled' | 'interval' | 'clock'
 

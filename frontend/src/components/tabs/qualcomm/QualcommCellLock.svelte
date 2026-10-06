@@ -41,6 +41,9 @@
     nr_arfcn?: number
     nr_pci?: number
     message?: string
+    persistent_enabled?: boolean
+    persistent_earfcn?: number
+    persistent_pci?: number
   }
 
   let {
@@ -75,8 +78,11 @@
       if (res) {
         cellState = res
         if (res.active_lock) {
-          lteEarfcn = res.earfcn > 0 ? String(res.earfcn) : ''
-          ltePci = res.pci >= 0 ? String(res.pci) : ''
+          lteEarfcn = String(res.earfcn)
+          ltePci = String(res.pci)
+        } else if (res.persistent_enabled && res.persistent_earfcn) {
+          lteEarfcn = String(res.persistent_earfcn)
+          ltePci = String(res.persistent_pci || '')
         }
       }
     } catch {
@@ -160,15 +166,23 @@
   <!-- CELL LOCK STATUS HERO -->
   <Card title="Instant Cell & Tower Locking" subtitle="Pin baseband modem to a specific Physical Cell ID (PCI) and radio frequency channel (EARFCN)" tone="mint">
     {#snippet action()}
-      <Button
-        variant="secondary"
-        size="sm"
-        disabled={isLoading || isLocking || isClearing}
-        onclick={fetchCellLockState}
-      >
-        <RefreshCw class="w-3.5 h-3.5 mr-1.5 {isLoading ? 'animate-spin' : ''}" />
-        <span>Refresh</span>
-      </Button>
+      <div class="flex items-center gap-2 flex-wrap">
+        {#if cellState.active_lock || cellState.persistent_enabled}
+          <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-emerald-500/15 text-emerald-500 border border-emerald-500/30">
+            <ShieldCheck class="w-3 h-3" />
+            <span>Persistent Boot</span>
+          </span>
+        {/if}
+        <Button
+          variant="secondary"
+          size="sm"
+          disabled={isLoading || isLocking || isClearing}
+          onclick={fetchCellLockState}
+        >
+          <RefreshCw class="w-3.5 h-3.5 mr-1.5 {isLoading ? 'animate-spin' : ''}" />
+          <span>Refresh</span>
+        </Button>
+      </div>
     {/snippet}
 
     <div class="space-y-3 sm:space-y-6 text-xs">
@@ -191,17 +205,24 @@
         {/if}
       </div>
 
-      <!-- Information Notice -->
-      <div class="p-3 rounded bg-blue-950/20 border-2 border-blue-800 text-blue-300 text-xs flex items-start gap-2.5">
-        <Info class="w-4 h-4 shrink-0 text-blue-400 mt-0.5" />
-        <div class="space-y-1">
-          <p class="font-bold text-foreground">How Cell Locking Works:</p>
-          <p class="text-[11px] text-muted leading-relaxed">
-            Cell locking forces the Qualcomm baseband modem to connect exclusively to the designated eNodeB transmitter cell tower. This eliminates ping spikes and prevents tower-hopping on borderline cellular signals.
+      <!-- Multi-CA and Coverage Warning Notice (English) -->
+      <div class="p-3.5 bg-card-sub border-2 border-amber-500/50 rounded-lg space-y-2 text-xs">
+        <div class="flex items-center gap-2 text-amber-400 font-bold">
+          <AlertTriangle class="w-4 h-4 shrink-0" />
+          <span>Carrier Aggregation (CA) & Coverage Warning</span>
+        </div>
+        <div class="space-y-1.5 text-[11px] text-muted leading-relaxed pl-6">
+          <p>
+            <strong class="text-foreground">• Primary Anchor (PCC) Only:</strong> Cell Lock pins only the Primary Component Carrier (PCell). Secondary Carriers (SCCs) are dynamically aggregated by the serving eNodeB mast scheduler and cannot be locked individually.
+          </p>
+          <p>
+            <strong class="text-foreground">• Multi-CA Coexistence:</strong> To preserve speed aggregation (e.g. B3+B1 / B3+B8), do not restrict other bands in the <em>Band Lock</em> tab.
+          </p>
+          <p>
+            <strong class="text-foreground">• Handover Restriction:</strong> The modem will reject handover to adjacent towers. If you move out of range or this sector goes offline, the modem will drop to <em>Out of Service</em> until reset.
           </p>
         </div>
       </div>
-
       <!-- Cell Lock Inputs -->
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4 bg-card-sub border-2 border-border rounded-lg">
         <div class="space-y-1.5">
@@ -253,11 +274,12 @@
           <Button
             variant="outline"
             size="sm"
-            disabled={isClearing || isLocking || !cellState.active_lock}
+            disabled={isClearing || isLocking}
             onclick={clearCellLock}
+            title="Reset cell lock to automatic carrier selection"
           >
-            <Unlock class="w-3.5 h-3.5 mr-1" />
-            <span>{isClearing ? 'Clearing...' : 'Clear Cell Lock'}</span>
+            <RotateCcw class="w-3.5 h-3.5 mr-1 {isClearing ? 'animate-spin' : ''}" />
+            <span>{isClearing ? 'Resetting...' : 'Reset to Auto'}</span>
           </Button>
           <Button
             variant="primary"

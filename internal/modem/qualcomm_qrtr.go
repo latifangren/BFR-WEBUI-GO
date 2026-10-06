@@ -490,6 +490,8 @@ func (c *QRTRClient) SetRATMode(rat string) error {
 	switch rat {
 	case "5g_only":
 		ratMask = 64
+	case "5g_4g", "4g_5g", "nr_lte":
+		ratMask = 80 // 64 (NR) | 16 (LTE) = 80 (0x50)
 	case "4g_only", "lte_only":
 		ratMask = 16
 	case "3g_only":

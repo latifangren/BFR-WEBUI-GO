@@ -21,7 +21,6 @@ import (
 	"bfr-webui-go/internal/hotspot"
 	"bfr-webui-go/internal/logger"
 	"bfr-webui-go/internal/modules"
-	"bfr-webui-go/internal/network"
 	"bfr-webui-go/internal/power"
 	"bfr-webui-go/internal/proxy"
 	"bfr-webui-go/internal/smsviewer"
@@ -1239,7 +1238,6 @@ func (m *Manager) handleMessage(chatID int64, text string) {
 			"/hotspot - Connected hotspot clients\n" +
 			"/modules - Active system modules\n" +
 			"/ip - Public IP address\n" +
-			"/tweak - Tweaks status\n" +
 			"/autoreboot - Auto-reboot scheduler settings\n" +
 			"/cmd <command> - Execute shell command\n" +
 			"/reboot - Reboot device"
@@ -1425,39 +1423,7 @@ func (m *Manager) handleMessage(chatID int64, text string) {
 		m.sendMessageFull(chatID, msg, kb)
 
 	case "/tweak":
-		tweaks, err := network.LoadTweaks()
-		if err != nil {
-			m.sendMessage(chatID, fmt.Sprintf("❌ Error loading tweaks.json: %v", err))
-			return
-		}
-		formatBool := func(v bool) string {
-			if v {
-				return "ENABLED"
-			}
-			return "DISABLED"
-		}
-		msg := fmt.Sprintf("⚙️ *Tweaks Status (tweaks.json)*\n\n"+
-			"• LTE Carrier Aggregation: %s\n"+
-			"• TCP Buffer Optimization: %s\n"+
-			"• BBR2 Congestion Control: %s\n"+
-			"• Sysctl Buffers Opt: %s\n"+
-			"• Dalvik Responsiveness: %s\n"+
-			"• Settings Global Tweaks: %s\n"+
-			"• TTL Spoofing: %s\n"+
-			"• Packet Steering RPS: %s\n"+
-			"• MTU Tuning: %s",
-			formatBool(tweaks.LTECarrierAggregation),
-			formatBool(tweaks.TCPBufferOptimization),
-			formatBool(tweaks.BBR2CongestionControl),
-			formatBool(tweaks.SysctlBuffersOpt),
-			formatBool(tweaks.DalvikResponsiveness),
-			formatBool(tweaks.SettingsGlobalTweaks),
-			formatBool(tweaks.TTLSpoofing),
-			formatBool(tweaks.PacketSteeringRPS),
-			formatBool(tweaks.MTUTuning),
-		)
-		m.sendMessage(chatID, msg)
-
+		m.sendMessage(chatID, "ℹ️ *Dynamic Optimizations & tweaks.json* telah dihapus dari sistem.")
 	case "/cmd":
 		m.mu.RLock()
 		allowCmd := m.config.AllowShellCommands

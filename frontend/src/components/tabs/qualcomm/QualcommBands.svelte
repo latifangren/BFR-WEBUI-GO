@@ -21,7 +21,7 @@
 
   interface BandConfig {
     engine: 'qualcomm_qrtr' | 'universal' | 'qualcomm_at' | 'intent'
-    preferred_rat: 'hybrid' | '5g_only' | '4g_only' | '3g_only'
+    preferred_rat: 'hybrid' | '5g_only' | '4g_only' | '5g_4g' | '3g_only'
     lte_bands: number[]
     nr_bands: number[]
     hex_bitmask?: string
@@ -382,11 +382,12 @@
     <!-- PREFERRED NETWORK MODE (RAT) -->
     <div class="space-y-2 p-3 bg-card-sub border-2 border-border rounded-lg">
       <span class="text-[10px] text-muted uppercase font-bold block">Preferred Network Technology (RAT)</span>
-      <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+      <div class="grid grid-cols-2 sm:grid-cols-5 gap-2">
         {#each [
           { id: 'hybrid', label: 'Hybrid (Auto)', badge: '5G/4G/3G' },
-          { id: '5g_only', label: '5G NR Only', badge: 'SA/NSA' },
+          { id: '5g_4g', label: '5G & 4G Only', badge: 'Dual Lock' },
           { id: '4g_only', label: '4G LTE Only', badge: 'LTE-A' },
+          { id: '5g_only', label: '5G NR Only', badge: 'SA/NSA' },
           { id: '3g_only', label: '3G Only', badge: 'WCDMA' }
         ] as rat}
           <button

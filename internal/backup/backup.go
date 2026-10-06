@@ -20,7 +20,8 @@ var backupFiles = []string{
 	"ssh_config.json",
 	"telegram_config.json",
 	"vnstat_data.json",
-	"tweaks.json",
+	"network_config.json",
+	"cell_lock.json",
 }
 
 func ExportBackup() ([]byte, error) {
@@ -62,7 +63,8 @@ func ImportBackup(data []byte) error {
 		"ssh_config.json":      true,
 		"telegram_config.json": true,
 		"vnstat_data.json":     true,
-		"tweaks.json":          true,
+		"network_config.json":  true,
+		"cell_lock.json":       true,
 	}
 
 	destDir := config.ModuleDir

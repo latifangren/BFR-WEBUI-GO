@@ -42,22 +42,20 @@ var (
 		listeners: make(map[chan string]bool),
 	}
 
-	// L-4: allow overriding hardcoded base paths via environment variables.
-	boxBasePath   = envOrDefault("BFR_BOX_BASE", "/data/adb/box")
-	clashBasePath = envOrDefault("BFR_CLASH_BASE", "/data/adb/clash")
-
-	possibleCores = []string{
-		boxBasePath + "/bin/mihomo",
-		clashBasePath + "/clash",
-		"/data/adb/modules/box4magisk/bin/mihomo",
-		"/data/adb/modules/clash_for_magisk/bin/clash",
-		"/system/bin/mihomo",
-		"/system/bin/clash",
-	}
-
+	// L-4: allow overriding hardcoded base paths dynamically via environment variables.
 	watchdogEnabled = false
 	watchdogMux     sync.Mutex
 )
+
+// GetBoxBasePath returns the Box for Magisk base directory dynamically.
+func GetBoxBasePath() string {
+	return envOrDefault("BFR_BOX_BASE", "/data/adb/box")
+}
+
+// GetClashBasePath returns the Clash base directory dynamically.
+func GetClashBasePath() string {
+	return envOrDefault("BFR_CLASH_BASE", "/data/adb/clash")
+}
 
 // envOrDefault returns the value of the environment variable if set, else the fallback.
 func envOrDefault(key, fallback string) string {
@@ -104,14 +102,20 @@ func runWatchdog() {
 }
 
 func getCandidateCorePaths() []string {
-	paths := make([]string, len(possibleCores))
-	copy(paths, possibleCores)
-
+	boxPath := GetBoxBasePath()
+	clashPath := GetClashBasePath()
+	paths := []string{
+		boxPath + "/bin/mihomo",
+		clashPath + "/clash",
+		"/data/adb/modules/box4magisk/bin/mihomo",
+		"/data/adb/modules/clash_for_magisk/bin/clash",
+		"/system/bin/mihomo",
+		"/system/bin/clash",
+	}
 	seen := make(map[string]bool)
 	for _, p := range paths {
 		seen[p] = true
 	}
-
 	// 1. Dynamic PATH lookup
 	for _, coreName := range []string{"mihomo", "clash"} {
 		if path, err := exec.LookPath(coreName); err == nil && path != "" {
@@ -264,22 +268,27 @@ func ControlService(action string) error {
 		if _, ok := checkRunning("clash"); ok {
 			return nil
 		}
+		boxPath := GetBoxBasePath()
+		clashPath := GetClashBasePath()
 		cmdStr = fmt.Sprintf(
 			"if [ -f %s/scripts/box.service ]; then %s/scripts/box.service start; elif [ -f %s/scripts/clash.service ]; then %s/scripts/clash.service start; else %s -c mihomo -d %s/bin/ & fi",
-			boxBasePath, boxBasePath, clashBasePath, clashBasePath, config.SUBin, boxBasePath,
+			boxPath, boxPath, clashPath, clashPath, config.SUBin, boxPath,
 		)
 	case "stop":
 		SetWatchdog(false)
+		boxPath := GetBoxBasePath()
+		clashPath := GetClashBasePath()
 		cmdStr = fmt.Sprintf(
 			"if [ -f %s/scripts/box.service ]; then %s/scripts/box.service stop; elif [ -f %s/scripts/clash.service ]; then %s/scripts/clash.service stop; else killall mihomo clash 2>/dev/null || true; fi",
-			boxBasePath, boxBasePath, clashBasePath, clashBasePath,
+			boxPath, boxPath, clashPath, clashPath,
 		)
 	case "restart":
+		boxPath := GetBoxBasePath()
+		clashPath := GetClashBasePath()
 		cmdStr = fmt.Sprintf(
 			"if [ -f %s/scripts/box.service ]; then %s/scripts/box.service restart; elif [ -f %s/scripts/clash.service ]; then %s/scripts/clash.service restart; else killall mihomo clash 2>/dev/null; sleep 1; mihomo -d %s/bin/ & fi",
-			boxBasePath, boxBasePath, clashBasePath, clashBasePath, boxBasePath,
+			boxPath, boxPath, clashPath, clashPath, boxPath,
 		)
-	default:
 		return fmt.Errorf("unknown action: %s", action)
 	}
 
@@ -328,9 +337,9 @@ func StreamLogs(w http.ResponseWriter, r *http.Request) {
 	}()
 
 	// L-4: use env-overridable base path for log file detection.
-	logFile := boxBasePath + "/run/runs.log"
+	logFile := GetBoxBasePath() + "/run/runs.log"
 	if _, err := os.Stat(logFile); err != nil {
-		logFile = clashBasePath + "/run/runs.log"
+		logFile = GetClashBasePath() + "/run/runs.log"
 	}
 
 	cmd := exec.Command(config.SUBin, "-c", "tail -n 50 -f "+logFile)
@@ -401,10 +410,12 @@ func SetMode(mode string) error {
 
 func DetectConfigPath() string {
 	// L-4: allow overriding base paths via environment variables.
+	boxPath := GetBoxBasePath()
+	clashPath := GetClashBasePath()
 	paths := []string{
-		boxBasePath + "/clash/config.yaml",
-		boxBasePath + "/config.yaml",
-		clashBasePath + "/config.yaml",
+		boxPath + "/clash/config.yaml",
+		boxPath + "/config.yaml",
+		clashPath + "/config.yaml",
 		"/data/adb/modules/box4magisk/config.yaml",
 	}
 	for _, p := range paths {

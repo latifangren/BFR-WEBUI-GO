@@ -1,14 +1,11 @@
 package handlers
 
 func registerNetworkRoutes(rc *routeContext) {
-	// Network Tweaks, Ping, DNS, RPS, TTL URLs
-	rc.mux.HandleFunc("/api/network/tweaks", rc.wrap(HandleNetworkTweaks, true))
-	rc.mux.HandleFunc("/api/network/tweaks/restore", rc.wrap(HandleNetworkTweaksRestore, true))
+	// Ping, DNS, TTL URLs
 	rc.mux.HandleFunc("/api/network/ping", rc.wrap(HandlePing, true))
 	rc.mux.HandleFunc("/api/network/dns", rc.wrap(HandleDNS, true))
-	rc.mux.HandleFunc("/api/network/rps", rc.wrap(HandleRPS, true))
+	rc.mux.HandleFunc("/api/network/dns/reset", rc.wrap(HandleDNSReset, true))
 	rc.mux.HandleFunc("/api/network/ttl", rc.wrap(HandleTTL, true))
-
 	// SoftAP / Hotspot URLs
 	rc.mux.HandleFunc("/api/hotspot/status", rc.wrap(HandleHotspotStatus, true))
 	rc.mux.HandleFunc("/api/hotspot/control", rc.wrap(HandleHotspotControl, true))
@@ -18,6 +15,13 @@ func registerNetworkRoutes(rc *routeContext) {
 	// Proxy / Clash / Mihomo URLs
 	rc.mux.HandleFunc("/api/proxy/status", rc.wrap(HandleProxyStatus, true))
 	rc.mux.HandleFunc("/api/proxy/control", rc.wrap(HandleProxyControl, true))
+	rc.mux.HandleFunc("/api/proxy/settings", rc.wrap(HandleProxySettings, true))
+	rc.mux.HandleFunc("/api/proxy/apps", rc.wrap(HandleProxyApps, true))
+	rc.mux.HandleFunc("/api/proxy/hotspot", rc.wrap(HandleProxyHotspot, true))
+	rc.mux.HandleFunc("/api/proxy/subs", rc.wrap(HandleProxySubs, true))
+	rc.mux.HandleFunc("/api/proxy/nodes", rc.wrap(HandleProxyNodes, true))
+	rc.mux.HandleFunc("/api/proxy/nodes/select", rc.wrap(HandleProxyNodeSelect, true))
+	rc.mux.HandleFunc("/api/proxy/delay", rc.wrap(HandleProxyDelay, true))
 	rc.mux.HandleFunc("/api/proxy/logs", rc.wrap(HandleProxyLogs, true))
 	rc.mux.HandleFunc("/api/proxy/watchdog", rc.wrap(HandleProxyWatchdog, true))
 	rc.mux.HandleFunc("/api/proxy/config", rc.wrap(HandleProxyConfig, true))

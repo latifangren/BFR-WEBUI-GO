@@ -19,7 +19,11 @@ Hasil pengukuran empiris langsung pada hardware Android target:
 
 ---
 
-## ⚡ Fitur Unggulan
+## ⚡ Fitur Unggulan Proyek
+
+<details>
+<summary><b>✨ Klik untuk melihat / menyembunyikan semua fitur lengkap proyek</b></summary>
+<br>
 
 ### 📁 File Manager Modular Dual-Pane (Dual Commander)
 - **Tampilan Split Dual-Pane**: Tampilan dua panel berdampingan (side-by-side) pada desktop/tablet, dan tab pill switcher responsif (`[ Panel A | Panel B ]`) pada layar HP.
@@ -38,24 +42,40 @@ Hasil pengukuran empiris langsung pada hardware Android target:
   - **Classic Top Bar**: Header pills kategori dengan dropdown flyout di desktop; bilah navigasi 5-kolom di HP dengan popover ramah sentuhan.
   - **Modern Sidebar**: Accordion drawer yang dapat diciutkan (Core, Network, System, Tools) di desktop; slide-over drawer di HP.
 
-### 🚀 Optimasi Kernel & Sistem
-- **BBR2 TCP Congestion Control**: Kontrol kongesti otomatis untuk jaringan nirkabel latensi rendah dan bandwidth tinggi.
-- **System Optimizer Tweaks**: Tuning sysctl kernel permanen, TCP FastOpen, alokasi batas antrean, dan spoofing TTL cerdas (kompatibel Android 11+).
-- **Dynamic Hardware Charge Limiter**: Pemindai sysfs otomatis dengan pemutus arus Qualcomm PMIC (`force_main_fcc` 0 mA) untuk menjaga keawetan baterai.
-- **Telemetri Resource Root Daemon**: Pelacakan riil PID, persentase CPU ternormalisasi multi-core, dan konsumsi RAM (MB/KB) untuk `webui`, `mihomo`, `dropbear`, dan `adbd`.
+### 🚀 Kontrol Kernel, Daya & Perangkat Keras
+- **Dynamic Hardware Charge Limiter**: Pemindai otomatis node sysfs multi-vendor dengan bypass hardware PMIC Qualcomm (`force_main_fcc` 0 mA) serta dukungan override sysfs manual.
+- **Jadwal Reboot Otomatis**: Dual-mode scheduler (`Uptime Interval` sejak boot atau `Waktu Spesifik Setiap Hari`) dengan countdown timer riil dan kontrol daya instan (`Reboot`, `Recovery`, `Bootloader`, `Power Off`).
+- **SoC & Governor Tuner**: Penskalaan CPU multi-cluster, kebijakan governor, dan pemantau distribusi frekuensi inti prosesor secara langsung.
+- **Telemetri Layanan Daemon Root**: Pemantauan PID riil, persentase CPU ternormalisasi, dan konsumsi RAM fisik (MB/KB) untuk `webui`, `mihomo`, `dropbear`, dan `adbd`.
 
-### 🌐 Jaringan & Konektivitas
-- **Modem Seluler & Penguncian Band**: Penguncian frekuensi multi-engine via AT serial Qualcomm (`/dev/smd11`, `/dev/ttyUSB*`), `cmd phone`, dan kode rahasia. Metrik sinyal instan RSRP, RSRQ, SINR, dan EARFCN.
-- **Kontroler Core Proxy**: Pengelola daemon Clash / Mihomo dengan log live streaming, editor konfigurasi, watchdog, dan pergantian mode rule/global/direct.
-- **Pencatatan Kuota VnStat**: Pengukur bandwidth real-time, grafik konsumsi harian/bulanan, dan monitor batas kuota siklus tagihan.
-- **Terminal Web & Scrcpy Screen Mirroring**: Root terminal interaktif berbasis WebSocket (`xterm.js`) dan mirroring layar H.264 latensi rendah dengan kontrol gestur sentuh.
+### 📶 Modem Baseband, Carrier Aggregation & Cell Locking
+- **Multi-Tier RAT Locking (Android 7–15)**: Penguncian mutlak **4G LTE Only** via binary bitmask native Android 11+ tanpa kebocoran degradasi ke 3G/GSM, mode **5G & 4G Dual Lock** khusus, serta fallback cerdas untuk Android versi lawas.
+- **eNodeB Tower Cell Locking**: Penguncian menara BTS fisik tingkat hardware (`EARFCN` + `PCI`) dengan deteksi multi-CA Primary Component Carrier (PCC) dan penyimpanan persisten saat reboot (`cell_lock.json`).
+- **Pemindai Menara Seluler (Cell Scanner)**: Penemuan serving cell, agregasi sekunder CA, dan sel tetangga secara real-time dengan metrik kekuatan sinyal radio (RSRP, RSRQ, RSSI, SINR).
+- **Proprietary Vendor Baseband Engines**: Dukungan kompilasi penuh untuk Qualcomm QRTR/DIAG/EFS2, Samsung SecRIL (`band_manager.dex`), dan modem Google Tensor Shannon.
 
-### 🤖 Manajemen Jarak Jauh & Sinkronisasi Cloud
-- **Bot Telegram Interaktif**: Perintah kendali jarak jauh (`/stats`, `/charger`, `/ssh`, `/proxy`, `/reboot`), menu keyboard 4 baris, dan notifikasi keamanan otomatis (overheat, baterai, pergantian IP, login SSH).
-- **Backup Cloud WebDAV**: Kompresi otomatis dan sinkronisasi berkas konfigurasi (`charger`, `ssh`, `telegram`, `tweaks`) ke server cloud WebDAV pribadi.
-- **Dropbear SSH Terintegrasi**: Daemon static ARM64 bawaan dengan pembuatan kunci host otomatis dan autentikasi root (`bfr`).
-- **Pusat Dukungan & Donasi**: Barcode pembayaran QRIS (`qris.jpg`) dan konfirmasi donatur instan via Telegram dan Facebook developer.
+### 🛡️ Suite Proxy Box for Magisk (BFM)
+- **Pengontrol Daemon Multi-Core**: Pengelola terpadu untuk `mihomo`, `sing-box`, dan `clash` dengan pelacakan memori RSS real-time, kontrol siklus hidup, dan pengawas otomatis watchdog.
+- **Mode Routing Transparan**: Dukungan mode `TPROXY`, `REDIRECT`, `TUN`, dan `MIXED` dengan pengalihan transparan IPv6 serta pemblokir QUIC UDP 443.
+- **Matriks Routing Per-App**: Pengatur kebijakan Blacklist vs Whitelist interaktif dengan pencarian instan pada seluruh aplikasi pihak ketiga yang terpasang di Android.
+- **Proxying Hotspot / Tethering**: Pengalihan langsung lalu lintas klien hotspot Wi-Fi dan USB tethering melalui core proxy via `ap.list.cfg`.
+- **Sinkronisasi Subscription & GeoX**: Pengunduh remote subscription instan, pembaruan otomatis GeoIP (`Country.mmdb`) dan GeoSite, lengkap dengan tautan rilis upstream resmi MetaCubeX.
+- **Integrasi File Manager**: Pintasan 1-klik dari tab Proxy langsung menuju folder `/data/adb/box` di File Manager BFR.
 
+### 🌐 Jaringan, DNS & Diagnostik
+- **Setelan Jaringan Persisten**: Pengubah Dynamic TTL persisten (melewati batas kuota tethering operator) dan Custom DNS resolver (Cloudflare, Google, AdGuard, Quad9) tersimpan di `network_config.json`.
+- **Reset DNS ke Default**: 1-klik tombol reset untuk membersihkan aturan NAT iptables kustom dan memulihkan DNS bawaan DHCP / operator seluler.
+- **Mesin Diagnostik Ping Tangguh**: Engine ping multi-platform dengan batas waktu 7 detik, toleransi packet loss, dan fallback eksekusi ICMP root.
+- **QoS Bandwidth Manager Router-Grade**: Profil pembentuk lalu lintas 1-klik (*Gaming Anti-Lag*, *Fair Share*, *Quota Saver*) melalui Linux TC HTB native dan ingress policing.
+- **Pencatatan Bandwidth VnStat**: Pengukur kecepatan transfer antarmuka real-time, grafik konsumsi harian/bulanan, dan pelacak kuota siklus tagihan.
+
+### 📺 Akses Jarak Jauh, Layar & Shell
+- **Terminal Web Interaktif & Scrcpy Screen Mirror**: PTY terminal root penuh melalui WebSockets (`xterm.js`) dan pencerminan layar H.264 latensi rendah dengan injeksi sentuhan gestur.
+- **Bundled Dropbear SSH**: Daemon ARM64 statis dengan pembuatan kunci host otomatis dan autentikasi root (`bfr`).
+- **Bot Telegram Interaktif**: Perintah jarak jauh (`/stats`, `/charger`, `/ssh`, `/proxy`, `/reboot`), menu keyboard tetap, dan notifikasi keamanan instan (overheat, baterai, pergantian IP, login SSH).
+- **Dukungan Donasi Interaktif**: Kartu mengambang bertema kartu Pokemon TCG dan modal inspeksi zoom QRIS beresolusi tinggi dengan tombol unduh gambar 1-klik.
+
+</details>
 ---
 
 ## 🛠️ Arsitektur & Tech Stack
@@ -79,7 +99,7 @@ Arsitektur BFR-WEBUI-GO
 
 ## 📥 Panduan Pemasangan
 
-1. Unduh file `BFR-WEBUI-Magisk-v1.2.6.zip` dari halaman [Releases](https://github.com/latifangren/BFR-WEBUI-GO/releases).
+1. Unduh file `BFR-WEBUI-Magisk-v1.2.7.zip` dari halaman [Releases](https://github.com/latifangren/BFR-WEBUI-GO-release/releases).
 2. Buka aplikasi **Magisk / KernelSU / APatch** -> buka tab **Modul** -> pilih **Pasang dari penyimpanan (Install from storage)** -> pilih file ZIP yang telah diunduh -> tunggu hingga proses selesai -> **Reboot HP**.
 3. Buka browser di perangkat lain yang terhubung ke jaringan Wi-Fi / hotspot yang sama dan akses:
    - **HTTP**: `http://<IP-HP>` (port standar 80 default)
@@ -151,4 +171,4 @@ Untuk dokumentasi spesifikasi arsitektur isolasi dan uji forensik string, silaka
 
 - **Pengembang / Pemelihara**: [latifangren](https://github.com/latifangren)
 - **Lisensi**: MIT Open Source License
-- **Repositori Proyek**: [https://github.com/latifangren/BFR-WEBUI-GO](https://github.com/latifangren/BFR-WEBUI-GO)
+- **Repositori Proyek**: [https://github.com/latifangren/BFR-WEBUI-GO-release](https://github.com/latifangren/BFR-WEBUI-GO-release)

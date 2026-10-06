@@ -19,7 +19,11 @@ Benchmarked directly on live Android target hardware:
 
 ---
 
-## ⚡ Core Feature Highlights
+## ⚡ Feature Highlights
+
+<details>
+<summary><b>✨ Click to expand / collapse all project features</b></summary>
+<br>
 
 ### 📁 Modular Dual-Pane File Manager (Dual Commander)
 - **Dual-Pane Split View**: True side-by-side two-column explorer on desktop/tablet, touch-friendly tab switcher (`[ Panel A | Panel B ]`) on mobile devices.
@@ -38,24 +42,40 @@ Benchmarked directly on live Android target hardware:
   - **Classic Top Bar**: Desktop category pills with hover flyouts; mobile 5-column bottom navigation with touch-friendly popovers.
   - **Modern Sidebar**: Desktop collapsible accordion drawer groups (Core, Network, System, Tools); mobile clean slide-over drawer.
 
-### 🚀 Kernel & System Optimization
-- **BBR2 TCP Congestion Control**: Automated socket optimization tailored for high-bandwidth, low-latency wireless networks.
-- **System Optimizer Tweaks**: Persistent kernel sysctl tuning, TCP FastOpen, Queue limit allocations, and dynamic SDK-aware TTL spoofing (Android 11+ compatible).
+### 🚀 Kernel, Power & Hardware Controls
 - **Dynamic Hardware Charge Limiter**: Multi-vendor sysfs auto-scanner with Qualcomm PMIC hardware bypass (`force_main_fcc` 0 mA) and custom sysfs override support.
+- **Automated System Reboot Scheduler**: Dual-mode scheduler (`Uptime Interval` from boot or `Specific Time Daily`) with live countdown timer and instant power controls (`Reboot`, `Recovery`, `Bootloader`, `Power Off`).
+- **SoC & Governor Tuner**: Multi-cluster CPU scaling, governor policies, and real-time frequency distribution tracking.
 - **Root Daemon Services Telemetry**: Real-time PID, multi-core normalized CPU %, and resident RAM (MB/KB) tracking for `webui`, `mihomo`, `dropbear`, and `adbd`.
 
-### 🌐 Connectivity & Networking
-- **Cellular Modem & Band Locking**: Hybrid multi-engine band locking via Qualcomm AT serial (`/dev/smd11`, `/dev/ttyUSB*`), `cmd phone`, and secret codes. Real-time RSRP, RSRQ, SINR, and EARFCN signal metrics.
-- **Proxy Core Controller**: Daemon manager for Clash / Mihomo with live stream logs, config editing, watchdog loop, and rule/global/direct mode switching.
+### 📶 Baseband Modem, Carrier Aggregation & Cell Locking
+- **Multi-Tier RAT Locking (Android 7–15)**: Strict **4G LTE Only** via native binary bitmasks eliminating 3G/GSM fallback leaks, dedicated **5G & 4G Dual Lock** mode, and graceful legacy fallback.
+- **eNodeB Tower Cell Locking**: Hardware-level cell tower locking (`EARFCN` + `PCI`) with multi-CA Primary Component Carrier (PCC) awareness and persistent storage across reboots (`cell_lock.json`).
+- **Tower Cell Scanner**: Real-time discovery of serving, secondary CA, and neighbor cell towers with live signal power metrics (RSRP, RSRQ, RSSI, SINR).
+- **Proprietary Vendor Baseband Engines**: Full private build support for Qualcomm QRTR/DIAG/EFS2, Samsung SecRIL (`band_manager.dex`), and Tensor Shannon modems.
+
+### 🛡️ Box for Magisk (BFM) Proxy Suite
+- **Multi-Core Daemon Controller**: Unified manager for `mihomo`, `sing-box`, and `clash` with real-time memory RSS tracking, lifecycle controls, and watchdog auto-restart.
+- **Transparent Routing Modes**: Support for `TPROXY`, `REDIRECT`, `TUN`, and `MIXED` with IPv6 transparent redirection and UDP 443 QUIC blocking.
+- **Per-App Routing Matrix**: Interactive Blacklist vs Whitelist policy editor with instant search across installed 3rd-party Android user applications.
+- **Hotspot / Tethering Proxying**: Direct Wi-Fi and USB tethered client transparent interception via `ap.list.cfg`.
+- **Remote Subscription & GeoX Synchronizer**: Instant subscription URL updater, automated GeoIP (`Country.mmdb`) and GeoSite sync, with direct links to upstream MetaCubeX releases.
+- **File Manager Integration**: 1-click shortcut from Proxy tab directly into `/data/adb/box` in BFR File Manager.
+
+### 🌐 Networking & Diagnostics
+- **Persistent Network Settings**: Persistent Dynamic TTL modifier (bypassing carrier hotspot quota limits) and Custom DNS resolver (Cloudflare, Google, AdGuard, Quad9) saved in `network_config.json`.
+- **DNS Reset to Default**: 1-click flush to cleanly purge custom iptables NAT redirections and restore carrier/DHCP resolution.
+- **Hardened Ping Diagnostics**: Multi-platform ping engine with 7-second timeout context, packet loss resilience, and root ICMP execution fallback.
+- **Router-Grade QoS Bandwidth Manager**: 1-click router traffic shaping profiles (*Gaming Anti-Lag*, *Fair Share*, *Quota Saver*) via native Linux TC HTB and ingress policing.
 - **VnStat Traffic Accounting**: Real-time interface bandwidth rate meters, daily/monthly consumption charts, and billing cycle quota trackers.
+
+### 📺 Remote Management, Screen & Shell
 - **Interactive Web Terminal & Scrcpy Screen Mirror**: Full PTY root terminal over WebSockets (`xterm.js`) and low-latency H.264 canvas screen mirror with gesture touch injection.
+- **Bundled Dropbear SSH**: Static ARM64 daemon with automated host-key generation and root authentication (`bfr`).
+- **Interactive Telegram Bot**: Remote commands (`/stats`, `/charger`, `/ssh`, `/proxy`, `/reboot`), keyboard menus, and instant security push alerts (overheat, battery, IP change, SSH login).
+- **Interactive Supporter Hub**: Pokemon TCG-style floating idle card and inspection zoom modal for QRIS supporter contributions with 1-click image download.
 
-### 🤖 Remote Management & Cloud Sync
-- **Interactive Telegram Bot**: Remote commands (`/stats`, `/charger`, `/ssh`, `/proxy`, `/reboot`), persistent 4-row keyboard menus, and instant security push alerts (overheat, battery, IP change, SSH login).
-- **WebDAV Cloud Backup**: Automated background compression and encrypted sync of configuration bundles (`charger`, `ssh`, `telegram`, `tweaks`) to private cloud servers.
-- **Bundled Dropbear SSH**: Precompiled static ARM64 daemon with automated host-key generation and root authentication (`bfr`).
-- **Support & Donation Hub**: Clean QRIS donation showcase (`qris.jpg`) and direct 1-tap confirmation via Telegram and Facebook.
-
+</details>
 ---
 
 ## 🛠️ Tech Stack & Architecture
@@ -79,7 +99,7 @@ BFR-WEBUI-GO Architecture
 
 ## 📥 Installation
 
-1. Download `BFR-WEBUI-Magisk-v1.2.6.zip` from the [Releases](https://github.com/latifangren/BFR-WEBUI-GO/releases) page.
+1. Download `BFR-WEBUI-Magisk-v1.2.7.zip` from the [Releases](https://github.com/latifangren/BFR-WEBUI-GO-release/releases) page.
 2. Open the **Magisk / KernelSU / APatch** app -> navigate to the **Modules** tab -> select **Install from storage** -> choose the downloaded ZIP file -> wait for the installation process to complete -> **Reboot** your device.
 3. Open a browser on any device connected to the same Wi-Fi or hotspot network and navigate to:
    - **HTTP**: `http://<DEVICE-IP>` (standard port 80 default)
@@ -151,4 +171,4 @@ For detailed architectural isolation specs and zero-leak forensic verification, 
 
 - **Author / Maintainer**: [latifangren](https://github.com/latifangren)
 - **License**: MIT Open Source License
-- **Project Repository**: [https://github.com/latifangren/BFR-WEBUI-GO](https://github.com/latifangren/BFR-WEBUI-GO)
+- **Project Repository**: [https://github.com/latifangren/BFR-WEBUI-GO-release](https://github.com/latifangren/BFR-WEBUI-GO-release)

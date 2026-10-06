@@ -1,8 +1,8 @@
 id=bfr_webui_go
 name=BFR WEBUI GO
-version=v1.2.6
-versionCode=126
+version=v1.2.7
+versionCode=127
 author=latifangren
-github=https://github.com/latifangren/BFR-WEBUI-GO
+github=https://github.com/latifangren/BFR-WEBUI-GO-release
 description=High-performance Android System WebUI & Control Panel built in Go & Svelte 5.
-updateJson=https://raw.githubusercontent.com/latifangren/BFR-WEBUI-GO/main/update.json
+updateJson=https://raw.githubusercontent.com/latifangren/BFR-WEBUI-GO-release/main/update.json
