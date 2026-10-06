@@ -24,7 +24,7 @@
 
   interface BandConfig {
     engine: 'qualcomm_qrtr' | 'universal' | 'qualcomm_at' | 'intent'
-    preferred_rat: 'hybrid' | '5g_only' | '4g_only' | '3g_only'
+    preferred_rat: 'hybrid' | '5g_only' | '4g_only' | '5g_4g' | '3g_only'
     lte_bands: number[]
     nr_bands: number[]
     hex_bitmask?: string

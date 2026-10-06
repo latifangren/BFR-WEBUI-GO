@@ -6,39 +6,6 @@ import (
 	"bfr-webui-go/internal/network"
 )
 
-func TestLoadAndSaveTweaks(t *testing.T) {
-	tempDir := t.TempDir()
-	t.Setenv("BFR_DATA_DIR", tempDir)
-
-	// Load tweaks when file doesn't exist returns default config
-	cfg, err := network.LoadTweaks()
-	if err != nil {
-		t.Fatalf("unexpected error loading non-existent tweaks: %v", err)
-	}
-
-	// Modify config and save
-	cfg.LTECarrierAggregation = true
-	cfg.BBR2CongestionControl = true
-	cfg.TCPBufferOptimization = true
-
-	if err := network.SaveTweaks(cfg); err != nil {
-		t.Fatalf("failed to save tweaks: %v", err)
-	}
-
-	// Reload and verify persistence
-	reloaded, err := network.LoadTweaks()
-	if err != nil {
-		t.Fatalf("failed to reload tweaks: %v", err)
-	}
-
-	if !reloaded.LTECarrierAggregation {
-		t.Errorf("expected LTECarrierAggregation to be true")
-	}
-	if !reloaded.BBR2CongestionControl {
-		t.Errorf("expected BBR2CongestionControl to be true")
-	}
-}
-
 func TestGetInterfaces(t *testing.T) {
 	ifaces, err := network.GetInterfaces()
 	if err != nil {
@@ -58,16 +25,46 @@ func TestGetSysctlKeyValidation(t *testing.T) {
 	}
 }
 
-func TestApplyAllTweaks(t *testing.T) {
+func TestGetDefaultTTL(t *testing.T) {
+	ttl := network.GetDefaultTTL()
+	if ttl != 64 && ttl != 65 {
+		t.Errorf("expected default TTL to be 64 or 65, got %d", ttl)
+	}
+}
+
+func TestNetworkSettingsPersistence(t *testing.T) {
 	tempDir := t.TempDir()
 	t.Setenv("BFR_DATA_DIR", tempDir)
 
-	// Save a test configuration
-	_ = network.SaveTweaks(network.TweaksConfig{
-		LTECarrierAggregation: true,
-		BBR2CongestionControl: true,
-	})
+	settings, err := network.LoadNetworkSettings()
+	if err != nil {
+		t.Fatalf("unexpected error loading empty settings: %v", err)
+	}
 
-	// Run ApplyAllTweaks (which executes su commands; should not crash)
-	_ = network.ApplyAllTweaks()
+	settings.TTLEnabled = true
+	settings.TargetTTL = 65
+	settings.DNSEnabled = true
+	settings.DNSPrimary = "1.1.1.1"
+	settings.DNSSecondary = "1.0.0.1"
+
+	if err := network.SaveNetworkSettings(settings); err != nil {
+		t.Fatalf("failed to save network settings: %v", err)
+	}
+
+	reloaded, err := network.LoadNetworkSettings()
+	if err != nil {
+		t.Fatalf("failed to reload network settings: %v", err)
+	}
+	if !reloaded.TTLEnabled || reloaded.TargetTTL != 65 {
+		t.Errorf("expected TTL enabled 65, got %+v", reloaded)
+	}
+	if !reloaded.DNSEnabled || reloaded.DNSPrimary != "1.1.1.1" {
+		t.Errorf("expected DNS primary 1.1.1.1, got %+v", reloaded)
+	}
+}
+
+func TestApplyAllTweaks(t *testing.T) {
+	if err := network.ApplyAllTweaks(); err != nil {
+		t.Errorf("expected ApplyAllTweaks to return nil, got %v", err)
+	}
 }

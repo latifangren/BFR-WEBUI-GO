@@ -184,7 +184,7 @@
         <div class="grid grid-cols-3 gap-2">
           <!-- Telegram Button -->
           <a
-            href="https://t.me/Latifan_id"
+            href="https://t.me/skrprojects"
             target="_blank"
             rel="noopener noreferrer"
             class="p-2.5 rounded-xl bg-card-sub border border-border/70 text-muted hover:text-foreground hover:border-sky-500/40 hover:bg-sky-500/10 transition flex items-center justify-center gap-1.5 text-xs font-bold select-none cursor-pointer group"
@@ -194,7 +194,6 @@
             </svg>
             <span class="truncate">Telegram</span>
           </a>
-
           <!-- Facebook Button -->
           <a
             href="https://www.facebook.com/latifan.latifan.latifan.latif"
@@ -210,7 +209,7 @@
 
           <!-- GitHub Button -->
           <a
-            href="https://github.com/latifangren/BFR-WEBUI-GO"
+            href="https://github.com/latifangren/BFR-WEBUI-GO-release"
             target="_blank"
             rel="noopener noreferrer"
             class="p-2.5 rounded-xl bg-card-sub border border-border/70 text-muted hover:text-foreground hover:border-accent/40 hover:bg-accent/10 transition flex items-center justify-center gap-1.5 text-xs font-bold select-none cursor-pointer group"

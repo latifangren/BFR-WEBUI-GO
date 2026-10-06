@@ -223,12 +223,16 @@ func HandleModemCellLock(w http.ResponseWriter, r *http.Request) {
 		}
 
 		active, earfcn, pci, err := modem.GetLTECellLockStatus(targetSlot)
+		savedCfg, _ := modem.LoadCellLockConfig()
 		resp := map[string]interface{}{
-			"supported":   true,
-			"active_lock": active,
-			"earfcn":      earfcn,
-			"pci":         pci,
-			"slot":        targetSlot,
+			"supported":          true,
+			"active_lock":        active,
+			"earfcn":             earfcn,
+			"pci":                pci,
+			"slot":               targetSlot,
+			"persistent_enabled": savedCfg.Enabled,
+			"persistent_earfcn":  savedCfg.EARFCN,
+			"persistent_pci":     savedCfg.PCI,
 		}
 		if err != nil {
 			resp["message"] = err.Error()
@@ -276,7 +280,14 @@ func HandleModemCellLock(w http.ResponseWriter, r *http.Request) {
 			resp["message"] = "Modem rejected cell lock command: " + err.Error()
 		} else {
 			logger.Get().Infof("Modem", "Cell lock applied successfully: slot=%d, earfcn=%d, pci=%d", req.Slot, req.EARFCN, req.PCI)
-			resp["message"] = "LTE Cell Lock applied successfully"
+			_ = modem.SaveCellLockConfig(modem.CellLockConfig{
+				Enabled: true,
+				Slot:    req.Slot,
+				Type:    "lte",
+				EARFCN:  req.EARFCN,
+				PCI:     req.PCI,
+			})
+			resp["message"] = "LTE Cell Lock applied and saved persistently"
 		}
 		_ = json.NewEncoder(w).Encode(resp)
 		return
@@ -299,6 +310,7 @@ func HandleModemCellLockClear(w http.ResponseWriter, r *http.Request) {
 	_ = json.NewDecoder(r.Body).Decode(&req)
 
 	err := modem.ClearLTECellLock(req.Slot)
+	_ = modem.ClearSavedCellLockConfig()
 	resp := map[string]interface{}{
 		"success": err == nil,
 		"slot":    req.Slot,

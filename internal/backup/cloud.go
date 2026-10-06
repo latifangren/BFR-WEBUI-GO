@@ -123,8 +123,9 @@ func CreateTarGzBackup() ([]byte, error) {
 		"charger_config.json",
 		"ssh_config.json",
 		"telegram_config.json",
-		"tweaks.json",
 		"vnstat_data.json",
+		"network_config.json",
+		"cell_lock.json",
 	}
 
 	for _, fname := range files {

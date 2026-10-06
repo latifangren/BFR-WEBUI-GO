@@ -76,8 +76,6 @@ func RestoreSysctlDefaults() error {
 		return fmt.Errorf("failed to restore sysctl defaults: %s", strings.Join(errs, "; "))
 	}
 
-	// Persistently save disabled/default state to tweaks.json
-	_ = SaveTweaks(TweaksConfig{})
 
 	logger.Get().Infof("network", "Restored initial sysctl defaults successfully")
 	return nil
@@ -257,8 +255,54 @@ func SetDNS(primary, secondary string) error {
 			}
 		}
 	}
+	// Persist DNS state
+	settings, _ := LoadNetworkSettings()
+	settings.DNSEnabled = true
+	settings.DNSPrimary = primary
+	settings.DNSSecondary = secondary
+	_ = SaveNetworkSettings(settings)
 
 	logger.Get().Infof("network", "DNS updated successfully: primary=%s, secondary=%s", primary, secondary)
+	return nil
+}
+
+// ResetDNS clears custom DNS redirections and restores network default/DHCP resolution.
+func ResetDNS() error {
+	cmds := []string{
+		"setprop net.dns1 \"\"",
+		"setprop net.dns2 \"\"",
+		"while iptables -t nat -D OUTPUT -p udp --dport 53 -j DNAT 2>/dev/null; do :; done",
+		"while iptables -t nat -D OUTPUT -p tcp --dport 53 -j DNAT 2>/dev/null; do :; done",
+		"while ip6tables -t nat -D OUTPUT -p udp --dport 53 -j DNAT 2>/dev/null; do :; done",
+		"while ip6tables -t nat -D OUTPUT -p tcp --dport 53 -j DNAT 2>/dev/null; do :; done",
+		"iptables -t nat -D OUTPUT -p udp --dport 53 -j REDIRECT --to-ports 53 2>/dev/null || true",
+		"iptables -t nat -D OUTPUT -p tcp --dport 53 -j REDIRECT --to-ports 53 2>/dev/null || true",
+	}
+
+	cmdStr := strings.Join(cmds, " ; ")
+	out, err := exec.Command(config.SUBin, "-c", cmdStr).CombinedOutput()
+	if err != nil {
+		logger.Get().Warnf("network", "ResetDNS warning: %v, out: %s", err, string(out))
+	}
+
+	if ifaces, err := net.Interfaces(); err == nil {
+		for _, ifc := range ifaces {
+			name := strings.ToLower(ifc.Name)
+			if strings.Contains(name, "wlan") || strings.Contains(name, "rmnet") {
+				ndcCmd := fmt.Sprintf("ndc resolver clearnetdns %s 2>/dev/null || true", ifc.Name)
+				_ = exec.Command(config.SUBin, "-c", ndcCmd).Run()
+			}
+		}
+	}
+
+	// Persist reset state
+	settings, _ := LoadNetworkSettings()
+	settings.DNSEnabled = false
+	settings.DNSPrimary = ""
+	settings.DNSSecondary = ""
+	_ = SaveNetworkSettings(settings)
+
+	logger.Get().Infof("network", "Custom DNS reset to default/DHCP successfully")
 	return nil
 }
 

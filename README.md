@@ -79,7 +79,7 @@ BFR-WEBUI-GO Architecture
 
 ## 📥 Installation
 
-1. Download `BFR-WEBUI-Magisk-v1.2.6.zip` from the [Releases](https://github.com/latifangren/BFR-WEBUI-GO/releases) page.
+1. Download `BFR-WEBUI-Magisk-v1.2.6.zip` from the [Releases](https://github.com/latifangren/BFR-WEBUI-GO-release/releases) page.
 2. Open the **Magisk / KernelSU / APatch** app -> navigate to the **Modules** tab -> select **Install from storage** -> choose the downloaded ZIP file -> wait for the installation process to complete -> **Reboot** your device.
 3. Open a browser on any device connected to the same Wi-Fi or hotspot network and navigate to:
    - **HTTP**: `http://<DEVICE-IP>` (standard port 80 default)
@@ -151,4 +151,4 @@ For detailed architectural isolation specs and zero-leak forensic verification, 
 
 - **Author / Maintainer**: [latifangren](https://github.com/latifangren)
 - **License**: MIT Open Source License
-- **Project Repository**: [https://github.com/latifangren/BFR-WEBUI-GO](https://github.com/latifangren/BFR-WEBUI-GO)
+- **Project Repository**: [https://github.com/latifangren/BFR-WEBUI-GO-release](https://github.com/latifangren/BFR-WEBUI-GO-release)

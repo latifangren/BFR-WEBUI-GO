@@ -646,7 +646,7 @@ func getThermalZones() []ThermalZone {
 
 var rePingHost = regexp.MustCompile(`^[a-zA-Z0-9.-]+$`)
 
-// H-3: RunPing validates host ensuring net.ParseIP(host) != nil or regexp ^[a-zA-Z0-9.-]+$ (and no leading -).
+// RunPing executes ICMP ping with a strict timeout, platform awareness, and packet loss resilience.
 func RunPing(host string, count int) (string, error) {
 	if host == "" || strings.HasPrefix(host, "-") {
 		return "", fmt.Errorf("invalid ping host")
@@ -657,9 +657,36 @@ func RunPing(host string, count int) (string, error) {
 	if count <= 0 || count > 10 {
 		count = 4
 	}
-	cmd := exec.Command("ping", "-c", strconv.Itoa(count), host)
-	out, err := cmd.CombinedOutput()
-	return string(out), err
+
+	ctx, cancel := context.WithTimeout(context.Background(), 7*time.Second)
+	defer cancel()
+
+	var out []byte
+	var err error
+
+	if runtime.GOOS == "windows" {
+		cmd := exec.CommandContext(ctx, "ping", "-n", strconv.Itoa(count), "-w", "1500", host)
+		out, err = cmd.CombinedOutput()
+	} else {
+		cmd := exec.CommandContext(ctx, "ping", "-c", strconv.Itoa(count), "-W", "2", host)
+		out, err = cmd.CombinedOutput()
+		if len(out) == 0 && config.SUBin != "" {
+			// Fallback to su root execution if non-root ping lacks ICMP privileges
+			cmdRoot := exec.CommandContext(ctx, config.SUBin, "-c", fmt.Sprintf("ping -c %d -W 2 %s", count, host))
+			out, err = cmdRoot.CombinedOutput()
+		}
+	}
+
+	if len(out) > 0 {
+		return string(out), nil
+	}
+	if err != nil {
+		if ctx.Err() == context.DeadlineExceeded {
+			return "Ping request timed out (7s limit reached).", fmt.Errorf("ping timeout")
+		}
+		return "", err
+	}
+	return "No ping response received.", nil
 }
 
 func RunSpeedtest() (map[string]interface{}, error) {

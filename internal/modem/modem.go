@@ -8,6 +8,7 @@ import (
 	"math/big"
 	"net"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"regexp"
 	"strconv"
@@ -497,22 +498,53 @@ func (m *Manager) ApplyBandLock(cfg BandConfig) (*BandLockVerificationResult, er
 		_ = ExecuteATCommand(fmt.Sprintf("AT^SYSCONFIG=14,2,2,4,%s", hexMask))
 	}
 
-	// 3. Determine Android radio network mode value & apply global Android settings
-	ratVal := "9" // Hybrid/Auto default
+	// 3. Multi-tier SDK-aware RAT lock & Radio Framework controls
+	ratVal := "9"                         // Legacy fallback (Hybrid/Auto default)
+	modernBitmask := "11001111101111111111" // Modern Android 11+ bitmask (All types allowed)
+
 	switch cfg.PreferredRAT {
 	case "5g_only":
 		ratVal = "26" // NR 5G Only
+		modernBitmask = "10000000000000000000"
+	case "5g_4g", "4g_5g", "nr_lte":
+		ratVal = "28" // NR + LTE (NETWORK_MODE_NR_LTE)
+		modernBitmask = "11000001000000000000" // NR | LTE | LTE_CA
 	case "4g_only", "lte_only":
 		ratVal = "11" // LTE Only
+		modernBitmask = "01000001000000000000" // LTE | LTE_CA
 	case "3g_only":
 		ratVal = "2" // WCDMA Only
+		modernBitmask = "00001111101111111111" // GSM | WCDMA
+	default:
+		ratVal = "9"
+		modernBitmask = "11001111101111111111"
 	}
 
 	var cmds []string
-	cmds = append(cmds, fmt.Sprintf("settings put global preferred_network_mode %s 2>/dev/null || true", ratVal))
-	cmds = append(cmds, fmt.Sprintf("settings put global preferred_network_mode1 %s 2>/dev/null || true", ratVal))
-	cmds = append(cmds, fmt.Sprintf("settings put global preferred_network_mode2 %s 2>/dev/null || true", ratVal))
-	cmds = append(cmds, fmt.Sprintf("cmd phone set-preferred-network-type %s 2>/dev/null || true", ratVal))
+
+	// Inspect Android SDK level to execute correct native Telephony API command
+	sdkStr := getProp("ro.build.version.sdk")
+	sdk, _ := strconv.Atoi(sdkStr)
+
+	if sdk >= 30 {
+		// Tier 2: Modern Android (Android 11, 12, 13, 14, 15 | SDK >= 30)
+		// Execute binary bitmask to eliminate GSM/3G fallback leaks
+		cmds = append(cmds,
+			fmt.Sprintf("cmd phone set-allowed-network-types-for-users -s %d %s 2>/dev/null || true", cfg.SimSlot, modernBitmask),
+			fmt.Sprintf("cmd phone set-allowed-network-types-for-users %s 2>/dev/null || true", modernBitmask),
+		)
+	} else {
+		// Tier 3: Legacy Android (Android 7, 8, 9, 10 | SDK < 30)
+		cmds = append(cmds, fmt.Sprintf("cmd phone set-preferred-network-type %s 2>/dev/null || true", ratVal))
+	}
+
+	// Sync Global Settings database across all Android versions
+	cmds = append(cmds,
+		fmt.Sprintf("settings put global preferred_network_mode %s 2>/dev/null || true", ratVal),
+		fmt.Sprintf("settings put global preferred_network_mode%d %s 2>/dev/null || true", cfg.SimSlot, ratVal),
+		fmt.Sprintf("settings put global preferred_network_mode1 %s 2>/dev/null || true", ratVal),
+		fmt.Sprintf("settings put global preferred_network_mode2 %s 2>/dev/null || true", ratVal),
+	)
 
 	// If not QRTR (legacy universal engine or intent), trigger airplane mode cycle fallback
 	if !IsQRTRSupported() || cfg.Engine == "intent" {
@@ -564,10 +596,15 @@ func (m *Manager) ResetBandLock() error {
 	// Reset AT / Qualcomm band mask fallback
 	_ = ExecuteATCommand("AT+QNWPREFCFG=\"lte_band\",1:3:5:8:40")
 
-	// Reset Universal network type to Auto (mode 9/10)
-	cmdReset := "cmd phone set-preferred-network-type 9 2>/dev/null || true"
-	_, _ = config.ExecSuTimeout(5*time.Second, cmdReset)
-
+	// Reset Universal network type to Auto (mode 9/10 / bitmask all)
+	resetCmds := []string{
+		"cmd phone set-allowed-network-types-for-users 11001111101111111111 2>/dev/null || true",
+		"cmd phone set-preferred-network-type 9 2>/dev/null || true",
+		"settings put global preferred_network_mode 9 2>/dev/null || true",
+		"settings put global preferred_network_mode1 9 2>/dev/null || true",
+		"settings put global preferred_network_mode2 9 2>/dev/null || true",
+	}
+	_, _ = config.ExecSuTimeout(5*time.Second, strings.Join(resetCmds, " && "))
 	logger.Get().Infof("Modem", "Reset modem band locking to default settings")
 	return nil
 }
@@ -576,3 +613,11 @@ func (m *Manager) ResetBandLock() error {
 var _ = bytes.TrimSpace
 var _ = hex.EncodeToString
 var _ = net.ParseIP
+
+func getProp(prop string) string {
+	out, err := exec.Command("getprop", prop).Output()
+	if err != nil {
+		return ""
+	}
+	return strings.TrimSpace(string(out))
+}

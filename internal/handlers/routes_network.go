@@ -1,14 +1,11 @@
 package handlers
 
 func registerNetworkRoutes(rc *routeContext) {
-	// Network Tweaks, Ping, DNS, RPS, TTL URLs
-	rc.mux.HandleFunc("/api/network/tweaks", rc.wrap(HandleNetworkTweaks, true))
-	rc.mux.HandleFunc("/api/network/tweaks/restore", rc.wrap(HandleNetworkTweaksRestore, true))
+	// Ping, DNS, TTL URLs
 	rc.mux.HandleFunc("/api/network/ping", rc.wrap(HandlePing, true))
 	rc.mux.HandleFunc("/api/network/dns", rc.wrap(HandleDNS, true))
-	rc.mux.HandleFunc("/api/network/rps", rc.wrap(HandleRPS, true))
+	rc.mux.HandleFunc("/api/network/dns/reset", rc.wrap(HandleDNSReset, true))
 	rc.mux.HandleFunc("/api/network/ttl", rc.wrap(HandleTTL, true))
-
 	// SoftAP / Hotspot URLs
 	rc.mux.HandleFunc("/api/hotspot/status", rc.wrap(HandleHotspotStatus, true))
 	rc.mux.HandleFunc("/api/hotspot/control", rc.wrap(HandleHotspotControl, true))
