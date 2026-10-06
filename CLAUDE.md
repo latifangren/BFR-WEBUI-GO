@@ -37,7 +37,7 @@
 ## 3. Strict Routing & Verification Rules
 - **UI Architecture**: Supports modular UI paradigms (Neobrutal & Modern Clean). Follow design instructions strictly without breaking CSS scoping (`[data-ui-style="..."]`).
 - **Cross-Compilation Verification**: Always verify code modifications compile cleanly targeting `GOOS=android GOARCH=arm64` with zero syntax/type errors (`go test ./...` and `GOOS=android GOARCH=arm64 CGO_ENABLED=0 go test -c ./...`).
-- **Tuning Config Isolation**: System-level network tweaks must be driven by variables defined within `tweaks.json` and resolved in `internal/network/config.go` dynamically. Never hardcode network config values or execute raw sysctl commands outside these properties.
+- **Tuning Config Isolation**: System-level network tweaks must be driven by variables defined within `network_config.json` and resolved in `internal/network/config.go` dynamically. Never hardcode network config values or execute raw sysctl commands outside these properties.
 
 ---
 
