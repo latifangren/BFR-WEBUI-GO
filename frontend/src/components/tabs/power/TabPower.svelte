@@ -280,7 +280,7 @@
               : 'border-border bg-card-sub text-muted hover:text-foreground'}"
           >
             <Timer class="w-4 h-4 {selectedMode === 'interval' ? 'text-accent' : 'text-muted'}" />
-            <span>Interval sejak Boot</span>
+            <span>Uptime Interval</span>
           </button>
           <button
             type="button"
@@ -290,12 +290,10 @@
               : 'border-border bg-card-sub text-muted hover:text-foreground'}"
           >
             <Clock class="w-4 h-4 {selectedMode === 'clock' ? 'text-accent' : 'text-muted'}" />
-            <span>Jam Tertentu (Setiap Hari)</span>
+            <span>Specific Time (Daily)</span>
           </button>
         </div>
       </div>
-
-      <!-- Mode Specific Configuration -->
       {#if selectedMode === 'interval'}
         <div class="space-y-4 p-4 bg-card-sub/60 border-2 border-border rounded-md">
           <div class="space-y-1.5">
@@ -362,10 +360,9 @@
           <div class="flex flex-col sm:flex-row sm:items-end gap-4">
             <div class="space-y-1.5">
               <label for="clock-time-input" class="block text-[11px] font-bold uppercase text-muted tracking-wider">
-                Waktu Reboot (24 Jam)
+                Reboot Time (24 Hours)
               </label>
               <input
-                id="clock-time-input"
                 type="time"
                 bind:value={clockTime}
                 class="neo-input bg-card border-2 border-border rounded px-3 py-1.5 text-sm font-mono font-bold text-foreground focus:outline-none focus:border-accent"
@@ -378,13 +375,12 @@
               </span>
               <div class="flex flex-wrap gap-2">
                 {#each [
-                  { time: '03:00', label: '03:00 Subuh' },
-                  { time: '04:00', label: '04:00 Subuh' },
-                  { time: '05:00', label: '05:00 Subuh' },
-                  { time: '00:00', label: '00:00 Malam' }
+                  { time: '03:00', label: '03:00 AM' },
+                  { time: '04:00', label: '04:00 AM' },
+                  { time: '05:00', label: '05:00 AM' },
+                  { time: '00:00', label: '12:00 AM' },
                 ] as chip}
                   <button
-                    type="button"
                     onclick={() => (clockTime = chip.time)}
                     class="neo-button text-xs font-mono px-3 py-1.5 rounded border-2 transition-all cursor-pointer {clockTime === chip.time
                       ? 'border-accent bg-accent text-accent-text font-bold shadow-neobrutal-sm'

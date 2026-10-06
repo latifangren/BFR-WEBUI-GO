@@ -82,9 +82,9 @@
       selectedTTL = ttl
       await api.post('/api/network/ttl', { enable: true, ttl: parseInt(ttl, 10) })
       currentTTL = ttl
-      toastStore.success(`TTL set to ${ttl}. Tersimpan permanen (persistent boot).`)
+      toastStore.success(`TTL set to ${ttl}. Persistently saved across reboots.`)
     } catch (err: unknown) {
-      toastStore.error(err instanceof Error ? err.message : 'Gagal menerapkan TTL')
+      toastStore.error(err instanceof Error ? err.message : 'Failed to apply TTL')
     } finally {
       isApplyingTTL = false
     }
@@ -96,9 +96,9 @@
       await api.post('/api/network/dns', { primary, secondary })
       activeDNS1 = primary
       activeDNS2 = secondary
-      toastStore.success(`DNS disetel ke ${primary} / ${secondary}. Tersimpan permanen!`)
+      toastStore.success(`DNS updated to ${primary} / ${secondary}. Persistently saved!`)
     } catch (err: unknown) {
-      toastStore.error(err instanceof Error ? err.message : 'Gagal menyetel DNS')
+      toastStore.error(err instanceof Error ? err.message : 'Failed to set DNS')
     } finally {
       isApplyingDNS = false
     }
@@ -113,12 +113,12 @@
         activeDNS2 = res.secondary || 'None'
         customDNS1 = ''
         customDNS2 = ''
-        toastStore.success('DNS berhasil di-reset ke default DHCP!')
+        toastStore.success('DNS reset to default operator DHCP!')
       } else {
-        toastStore.error('Gagal mereset DNS ke default')
+        toastStore.error('Failed to reset DNS')
       }
     } catch (err: unknown) {
-      toastStore.error(err instanceof Error ? err.message : 'Gagal mereset DNS')
+      toastStore.error(err instanceof Error ? err.message : 'Reset DNS error')
     } finally {
       isResettingDNS = false
     }
@@ -130,9 +130,9 @@
       isPinging = true
       pingResult = null
       const res = await api.post<{ output: string; success?: boolean }>('/api/network/ping', { host: pingHost.trim() })
-      pingResult = res.output || 'Tidak ada respons ping.'
+      pingResult = res.output || 'No ping response received.'
     } catch (err: unknown) {
-      pingResult = `Ping error: ${err instanceof Error ? err.message : 'Gagal terhubung ke host target'}`
+      pingResult = `Ping error: ${err instanceof Error ? err.message : 'Failed to reach target host'}`
     } finally {
       isPinging = false
     }
@@ -175,7 +175,7 @@
         <div class="flex items-center justify-between p-3 bg-card-sub border border-border rounded">
           <div>
             <span class="text-muted uppercase font-bold block">Active System TTL:</span>
-            <span class="text-[10px] text-muted">Otomatis aktif kembali saat boot / update module</span>
+            <span class="text-[10px] text-muted">Automatically restored on device boot & updates</span>
           </div>
           <span class="text-base font-black text-accent">{currentTTL}</span>
         </div>
@@ -235,7 +235,7 @@
           size="sm"
           disabled={isResettingDNS || isApplyingDNS}
           onclick={resetDNS}
-          title="Kembalikan DNS ke default bawaan DHCP / Operator"
+          title="Restore DNS resolution to default DHCP / Mobile carrier"
         >
           <RotateCcw class="w-3 h-3 mr-1.5 {isResettingDNS ? 'animate-spin' : ''}" />
           <span>Reset Default</span>
@@ -246,7 +246,7 @@
         <div class="flex items-center justify-between p-3 bg-card-sub border border-border rounded">
           <div>
             <span class="text-muted uppercase font-bold block">Active DNS Servers:</span>
-            <span class="text-[10px] text-muted">Override sistem iptables port 53 & netd</span>
+            <span class="text-[10px] text-muted">System iptables port 53 & netd override</span>
           </div>
           <span class="text-xs font-bold text-accent">{activeDNS1} / {activeDNS2}</span>
         </div>

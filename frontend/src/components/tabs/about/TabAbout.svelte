@@ -39,7 +39,7 @@
       if (typeof navigator !== 'undefined' && navigator.clipboard) {
         await navigator.clipboard.writeText(text)
       }
-      toastStore.success('Detail donasi disalin ke clipboard! Membuka Telegram...')
+      toastStore.success('Donation details copied to clipboard! Opening Telegram...')
       window.open(`https://t.me/skrprojects`, '_blank')
     } catch {
       window.open(`https://t.me/skrprojects`, '_blank')
@@ -52,7 +52,7 @@
       if (typeof navigator !== 'undefined' && navigator.clipboard) {
         await navigator.clipboard.writeText(text)
       }
-      toastStore.success('Detail donasi disalin ke clipboard! Membuka Facebook...')
+      toastStore.success('Donation details copied to clipboard! Opening Facebook...')
       window.open('https://www.facebook.com/latifan.latifan.latifan.latif', '_blank')
     } catch {
       window.open('https://www.facebook.com/latifan.latifan.latifan.latif', '_blank')
@@ -80,7 +80,7 @@
     document.body.appendChild(link)
     link.click()
     document.body.removeChild(link)
-    toastStore.success('Gambar QRIS berhasil diunduh!')
+    toastStore.success('QRIS image downloaded successfully!')
   }
 </script>
 
@@ -276,7 +276,7 @@
               type="button"
               onclick={openZoom}
               class="pokemon-idle-card group relative p-3 rounded-2xl bg-card border-2 border-amber-400/70 shadow-neobrutal-md hover:shadow-neobrutal-lg hover:border-amber-400 cursor-pointer transition-all duration-300 text-left focus:outline-none focus:ring-2 focus:ring-amber-400/50"
-              title="Klik untuk perbesar dan download QRIS (Pokemon card inspection style)"
+              title="Click to zoom and download QRIS (Pokemon card inspection style)"
             >
               <!-- Foil Shimmer Layer -->
               <div class="holo-shimmer absolute inset-0 rounded-2xl pointer-events-none opacity-60 group-hover:opacity-100 transition-opacity"></div>
@@ -306,7 +306,7 @@
               <!-- Card Footer Hint -->
               <div class="mt-2 text-center">
                 <p class="text-[10px] font-mono text-muted group-hover:text-accent font-bold transition-colors">
-                  🔍 Klik untuk perbesar & scan
+                  🔍 Click to zoom & scan
                 </p>
               </div>
             </button>
@@ -316,7 +316,7 @@
               type="button"
               onclick={downloadQR}
               class="mt-3 inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-mono font-bold rounded-lg bg-card border border-border text-foreground hover:border-emerald-400 hover:text-emerald-400 hover:bg-emerald-500/10 cursor-pointer transition-colors shadow-neobrutal-sm"
-              title="Download gambar QRIS langsung"
+              title="Download QRIS image directly"
             >
               <Download class="w-3.5 h-3.5 text-emerald-400" />
               <span>Download QRIS</span>
@@ -395,7 +395,7 @@
       <div class="mt-4 pt-4 border-t border-border">
         <div class="flex items-center justify-between gap-3 flex-wrap">
           <div class="text-[11px] font-mono text-muted">
-            <span class="font-bold text-foreground">Official Community Hub:</span> Bergabung dan laporkan feedback di repository publik atau Telegram.
+            <span class="font-bold text-foreground">Official Community Hub:</span> Join discussions, submit issues, or chat on Telegram.
           </div>
           <div class="flex items-center gap-2 flex-wrap">
             <a
@@ -483,14 +483,14 @@
           />
           <div class="mt-2 text-center">
             <span class="text-[10px] font-bold text-neutral-800 tracking-wider uppercase font-mono">
-              • Scan via Semua E-Wallet & Mobile Banking •
+              • Scan via Indonesian QRIS E-Wallets & Mobile Banking •
             </span>
           </div>
         </div>
 
         <!-- Scan Instructions Note -->
         <p class="relative text-[11px] text-center text-muted mt-3 leading-relaxed">
-          Buka aplikasi GoPay, OVO, DANA, BCA, Mandiri, atau bank lain lalu arahkan kamera HP ke kode QR di atas.
+          Open GoPay, OVO, DANA, BCA, Mandiri, or any banking app and point your phone camera at the QR code above.
         </p>
 
         <!-- Modal Actions: Download & Close -->
@@ -510,7 +510,7 @@
             class="neo-button flex items-center justify-center gap-2 py-2 px-3 rounded-xl bg-card-sub hover:bg-card border border-border text-foreground font-bold cursor-pointer transition shadow-neobrutal-sm"
           >
             <X class="w-4 h-4 text-muted" />
-            <span>Tutup</span>
+            <span>Close</span>
           </button>
         </div>
       </div>
