@@ -289,6 +289,7 @@ func ControlService(action string) error {
 			"if [ -f %s/scripts/box.service ]; then %s/scripts/box.service restart; elif [ -f %s/scripts/clash.service ]; then %s/scripts/clash.service restart; else killall mihomo clash 2>/dev/null; sleep 1; mihomo -d %s/bin/ & fi",
 			boxPath, boxPath, clashPath, clashPath, boxPath,
 		)
+	default:
 		return fmt.Errorf("unknown action: %s", action)
 	}
 
