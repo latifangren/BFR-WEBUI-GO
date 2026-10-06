@@ -30,8 +30,12 @@ type BoxSettings struct {
 
 // GetSettingsPath returns the path to BFM settings.ini.
 func GetSettingsPath() string {
+	if custom := os.Getenv("BFR_BOX_BASE"); custom != "" {
+		return filepath.Join(custom, "settings.ini")
+	}
+	base := GetBoxBasePath()
 	candidates := []string{
-		boxBasePath + "/settings.ini",
+		base + "/settings.ini",
 		"/data/adb/box/settings.ini",
 		"/data/adb/modules/box4magisk/settings.ini",
 	}
@@ -40,7 +44,7 @@ func GetSettingsPath() string {
 			return p
 		}
 	}
-	return boxBasePath + "/settings.ini"
+	return base + "/settings.ini"
 }
 
 // LoadBoxSettings parses settings.ini into BoxSettings struct.
@@ -54,7 +58,7 @@ func LoadBoxSettings() (BoxSettings, error) {
 		CgroupMemcg: false,
 		MemcgLimit:  "150M",
 		Quic:        "enable",
-		BoxDir:      boxBasePath,
+		BoxDir:      GetBoxBasePath(),
 	}
 
 	path := GetSettingsPath()
@@ -131,10 +135,9 @@ func LoadBoxSettings() (BoxSettings, error) {
 func SaveBoxSettings(settings BoxSettings) error {
 	path := GetSettingsPath()
 	dir := filepath.Dir(path)
-	if err := os.MkdirAll(dir, 0755); err != nil {
+	if err := os.MkdirAll(dir, 0755); err != nil && config.SUBin != "" && os.Getenv("CI") == "" {
 		_ = exec.Command(config.SUBin, "-c", fmt.Sprintf("mkdir -p %s", dir)).Run()
 	}
-
 	// Read existing file to preserve comments and extra variables
 	var lines []string
 	keysSet := make(map[string]bool)
@@ -219,12 +222,14 @@ func SaveBoxSettings(settings BoxSettings) error {
 	content := strings.Join(lines, "\n") + "\n"
 	tmpPath := path + ".tmp"
 	if err := os.WriteFile(tmpPath, []byte(content), 0644); err != nil {
-		// Fallback via su root
-		cmd := fmt.Sprintf("cat << 'EOF' > %s\n%sEOF\nchmod 644 %s", path, content, path)
-		if out, err := exec.Command(config.SUBin, "-c", cmd).CombinedOutput(); err != nil {
-			return fmt.Errorf("failed to save settings: %v, out: %s", err, string(out))
+		if config.SUBin != "" && os.Getenv("CI") == "" {
+			cmd := fmt.Sprintf("cat << 'EOF' > %s\n%sEOF\nchmod 644 %s", path, content, path)
+			if out, err := exec.Command(config.SUBin, "-c", cmd).CombinedOutput(); err != nil {
+				return fmt.Errorf("failed to save settings: %v, out: %s", err, string(out))
+			}
+			return nil
 		}
-		return nil
+		return err
 	}
 
 	_ = os.Rename(tmpPath, path)
@@ -234,7 +239,11 @@ func SaveBoxSettings(settings BoxSettings) error {
 
 // ApplyIptablesRenew reloads transparent iptables rules in BFM.
 func ApplyIptablesRenew() error {
-	cmdStr := fmt.Sprintf("if [ -f %s/scripts/box.iptables ]; then %s/scripts/box.iptables renew 2>/dev/null || %s/scripts/box.iptables enable; fi", boxBasePath, boxBasePath, boxBasePath)
+	if os.Getenv("CI") != "" || os.Getenv("BFR_BOX_BASE") != "" || config.SUBin == "" {
+		return nil
+	}
+	boxPath := GetBoxBasePath()
+	cmdStr := fmt.Sprintf("if [ -f %s/scripts/box.iptables ]; then %s/scripts/box.iptables renew 2>/dev/null || %s/scripts/box.iptables enable; fi", boxPath, boxPath, boxPath)
 	out, err := exec.Command(config.SUBin, "-c", cmdStr).CombinedOutput()
 	if err != nil {
 		logger.Get().Warnf("proxy", "iptables renew warning: %v, out: %s", err, string(out))

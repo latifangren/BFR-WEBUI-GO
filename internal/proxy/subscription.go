@@ -59,8 +59,8 @@ func GetSubsConfig() SubsConfig {
 // UpdateSubscriptionNow triggers subscription update via box.tool subs or direct HTTP download.
 func UpdateSubscriptionNow(targetURL string) (string, error) {
 	// 1. Try box.tool if present in BFM scripts
-	boxTool := boxBasePath + "/scripts/box.tool"
-	if _, err := os.Stat(boxTool); err == nil {
+	boxTool := GetBoxBasePath() + "/scripts/box.tool"
+	if _, err := os.Stat(boxTool); err == nil && config.SUBin != "" && os.Getenv("CI") == "" {
 		cmdStr := fmt.Sprintf("%s -c '%s subs'", config.SUBin, boxTool)
 		out, err := exec.Command(config.SUBin, "-c", cmdStr).CombinedOutput()
 		if err == nil {
@@ -83,7 +83,7 @@ func UpdateSubscriptionNow(targetURL string) (string, error) {
 
 	destConfig := DetectConfigPath()
 	if destConfig == "" {
-		destConfig = boxBasePath + "/clash/config.yaml"
+		destConfig = GetBoxBasePath() + "/clash/config.yaml"
 	}
 
 	req, err := http.NewRequest(http.MethodGet, targetURL, nil)
@@ -138,8 +138,8 @@ func UpdateSubscriptionNow(targetURL string) (string, error) {
 // UpdateGeoXNow updates GeoIP and GeoSite database files.
 func UpdateGeoXNow() (string, error) {
 	// 1. Try box.tool geox
-	boxTool := boxBasePath + "/scripts/box.tool"
-	if _, err := os.Stat(boxTool); err == nil {
+	boxTool := GetBoxBasePath() + "/scripts/box.tool"
+	if _, err := os.Stat(boxTool); err == nil && config.SUBin != "" && os.Getenv("CI") == "" {
 		cmdStr := fmt.Sprintf("%s -c '%s geox'", config.SUBin, boxTool)
 		out, err := exec.Command(config.SUBin, "-c", cmdStr).CombinedOutput()
 		if err == nil {
@@ -149,7 +149,7 @@ func UpdateGeoXNow() (string, error) {
 	}
 
 	// 2. Direct download of GeoIP/GeoSite via curl / wget
-	downloadDir := boxBasePath + "/clash"
+	downloadDir := GetBoxBasePath() + "/clash"
 	_ = os.MkdirAll(downloadDir, 0755)
 
 	cmdStr := fmt.Sprintf(

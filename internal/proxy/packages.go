@@ -27,10 +27,13 @@ type InstalledApp struct {
 	IsProxy     bool   `json:"is_proxy"` // true if currently enabled in package list
 }
 
-// GetPackageConfigPath returns the path to BFM package.list.cfg.
 func GetPackageConfigPath() string {
+	if custom := os.Getenv("BFR_BOX_BASE"); custom != "" {
+		return filepath.Join(custom, "package.list.cfg")
+	}
+	base := GetBoxBasePath()
 	candidates := []string{
-		boxBasePath + "/package.list.cfg",
+		base + "/package.list.cfg",
 		"/data/adb/box/package.list.cfg",
 		"/data/adb/modules/box4magisk/package.list.cfg",
 	}
@@ -39,7 +42,7 @@ func GetPackageConfigPath() string {
 			return p
 		}
 	}
-	return boxBasePath + "/package.list.cfg"
+	return base + "/package.list.cfg"
 }
 
 // LoadAppProxyConfig reads package.list.cfg into AppProxyConfig struct.
@@ -91,7 +94,7 @@ func LoadAppProxyConfig() (AppProxyConfig, error) {
 func SaveAppProxyConfig(cfg AppProxyConfig) error {
 	path := GetPackageConfigPath()
 	dir := filepath.Dir(path)
-	if err := os.MkdirAll(dir, 0755); err != nil {
+	if err := os.MkdirAll(dir, 0755); err != nil && config.SUBin != "" && os.Getenv("CI") == "" {
 		_ = exec.Command(config.SUBin, "-c", fmt.Sprintf("mkdir -p %s", dir)).Run()
 	}
 
@@ -119,10 +122,14 @@ func SaveAppProxyConfig(cfg AppProxyConfig) error {
 	content := sb.String()
 	tmpPath := path + ".tmp"
 	if err := os.WriteFile(tmpPath, []byte(content), 0644); err != nil {
-		cmd := fmt.Sprintf("cat << 'EOF' > %s\n%sEOF\nchmod 644 %s", path, content, path)
-		if out, err := exec.Command(config.SUBin, "-c", cmd).CombinedOutput(); err != nil {
-			return fmt.Errorf("failed to save package config: %v, out: %s", err, string(out))
+		if config.SUBin != "" && os.Getenv("CI") == "" {
+			cmd := fmt.Sprintf("cat << 'EOF' > %s\n%sEOF\nchmod 644 %s", path, content, path)
+			if out, err := exec.Command(config.SUBin, "-c", cmd).CombinedOutput(); err != nil {
+				return fmt.Errorf("failed to save package config: %v, out: %s", err, string(out))
+			}
+			return nil
 		}
+		return err
 	} else {
 		_ = os.Rename(tmpPath, path)
 	}

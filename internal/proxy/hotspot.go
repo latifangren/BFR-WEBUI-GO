@@ -18,10 +18,13 @@ type HotspotProxyConfig struct {
 	ApList       []string `json:"ap_list"`       // Explicit interfaces (ap0, wlan1, rndis0)
 }
 
-// GetApListPath returns the path to BFM ap.list.cfg.
 func GetApListPath() string {
+	if custom := os.Getenv("BFR_BOX_BASE"); custom != "" {
+		return filepath.Join(custom, "ap.list.cfg")
+	}
+	base := GetBoxBasePath()
 	candidates := []string{
-		boxBasePath + "/ap.list.cfg",
+		base + "/ap.list.cfg",
 		"/data/adb/box/ap.list.cfg",
 	}
 	for _, p := range candidates {
@@ -29,7 +32,7 @@ func GetApListPath() string {
 			return p
 		}
 	}
-	return boxBasePath + "/ap.list.cfg"
+	return base + "/ap.list.cfg"
 }
 
 // LoadHotspotProxyConfig reads ap.list.cfg.
@@ -73,7 +76,7 @@ func LoadHotspotProxyConfig() (HotspotProxyConfig, error) {
 func SaveHotspotProxyConfig(cfg HotspotProxyConfig) error {
 	path := GetApListPath()
 	dir := filepath.Dir(path)
-	if err := os.MkdirAll(dir, 0755); err != nil {
+	if err := os.MkdirAll(dir, 0755); err != nil && config.SUBin != "" && os.Getenv("CI") == "" {
 		_ = exec.Command(config.SUBin, "-c", fmt.Sprintf("mkdir -p %s", dir)).Run()
 	}
 
@@ -91,10 +94,14 @@ func SaveHotspotProxyConfig(cfg HotspotProxyConfig) error {
 	content := sb.String()
 	tmpPath := path + ".tmp"
 	if err := os.WriteFile(tmpPath, []byte(content), 0644); err != nil {
-		cmd := fmt.Sprintf("cat << 'EOF' > %s\n%sEOF\nchmod 644 %s", path, content, path)
-		if out, err := exec.Command(config.SUBin, "-c", cmd).CombinedOutput(); err != nil {
-			return fmt.Errorf("failed to save ap.list.cfg: %v, out: %s", err, string(out))
+		if config.SUBin != "" && os.Getenv("CI") == "" {
+			cmd := fmt.Sprintf("cat << 'EOF' > %s\n%sEOF\nchmod 644 %s", path, content, path)
+			if out, err := exec.Command(config.SUBin, "-c", cmd).CombinedOutput(); err != nil {
+				return fmt.Errorf("failed to save ap.list.cfg: %v, out: %s", err, string(out))
+			}
+			return nil
 		}
+		return err
 	} else {
 		_ = os.Rename(tmpPath, path)
 	}

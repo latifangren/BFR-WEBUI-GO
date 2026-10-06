@@ -499,8 +499,8 @@ func (m *Manager) ApplyBandLock(cfg BandConfig) (*BandLockVerificationResult, er
 	}
 
 	// 3. Multi-tier SDK-aware RAT lock & Radio Framework controls
-	ratVal := "9"                         // Legacy fallback (Hybrid/Auto default)
-	modernBitmask := "11001111101111111111" // Modern Android 11+ bitmask (All types allowed)
+	var ratVal string
+	var modernBitmask string
 
 	switch cfg.PreferredRAT {
 	case "5g_only":
@@ -516,8 +516,8 @@ func (m *Manager) ApplyBandLock(cfg BandConfig) (*BandLockVerificationResult, er
 		ratVal = "2" // WCDMA Only
 		modernBitmask = "00001111101111111111" // GSM | WCDMA
 	default:
-		ratVal = "9"
-		modernBitmask = "11001111101111111111"
+		ratVal = "9"                         // Legacy fallback (Hybrid/Auto default)
+		modernBitmask = "11001111101111111111" // Modern Android 11+ bitmask (All types allowed)
 	}
 
 	var cmds []string
