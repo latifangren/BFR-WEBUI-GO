@@ -102,7 +102,13 @@ func (m *Manager) loadConfig(envPass string) {
 	if data, err := os.ReadFile(m.dataPath); err == nil {
 		data = bytes.TrimPrefix(data, []byte("\xef\xbb\xbf"))
 		var cfg AuthConfig
-		if err := json.Unmarshal(data, &cfg); err == nil && cfg.PasswordHash != "" {
+		if err := json.Unmarshal(data, &cfg); err != nil {
+			m.passwordHash = HashPassword(DefaultPassword, "")
+			m.isDefault = true
+			_ = m.saveConfigLocked()
+			return
+		}
+		if cfg.PasswordHash != "" {
 			m.passwordHash = cfg.PasswordHash
 			m.isDefault = cfg.IsDefault
 			return

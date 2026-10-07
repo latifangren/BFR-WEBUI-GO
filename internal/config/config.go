@@ -73,7 +73,7 @@ func GetPersistentDataDir() string {
 	}
 
 	dir := "/data/adb/bfr_webui_go/data"
-	if _, err := os.Stat("/data/adb"); os.IsNotExist(err) {
+	if _, err := os.Stat("/data/adb"); err != nil || os.Geteuid() != 0 {
 		if ModuleDir != "" {
 			dir = filepath.Join(ModuleDir, "data")
 		} else {

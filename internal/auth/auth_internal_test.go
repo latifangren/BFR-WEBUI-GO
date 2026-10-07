@@ -39,11 +39,12 @@ func TestChangePasswordValidation(t *testing.T) {
 
 func TestLoadConfigCorruptedAndExpiredSession(t *testing.T) {
 	tempDir := t.TempDir()
+	t.Setenv("BFR_DATA_DIR", tempDir)
 	authFile := filepath.Join(tempDir, "auth.json")
 
 	// Corrupted file -> fallback to default
 	_ = os.WriteFile(authFile, []byte("invalid json {{"), 0644)
-	mgr := NewManager(authFile)
+	mgr := NewManager("")
 	if !mgr.IsDefaultPassword() {
 		t.Error("expected default password on corrupted config file")
 	}

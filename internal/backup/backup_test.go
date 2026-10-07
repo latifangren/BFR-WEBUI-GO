@@ -78,6 +78,8 @@ func TestCreateTarGzBackup(t *testing.T) {
 }
 
 func TestCloudManagerConfig(t *testing.T) {
+	tempDir := t.TempDir()
+	t.Setenv("BFR_DATA_DIR", tempDir)
 	mgr := GetCloudManager()
 	if mgr == nil {
 		t.Fatal("expected non-nil CloudManager")

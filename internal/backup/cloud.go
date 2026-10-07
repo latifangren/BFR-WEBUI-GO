@@ -62,8 +62,12 @@ func GetCloudManager() *CloudManager {
 }
 
 func (m *CloudManager) loadConfig() {
-	data, err := os.ReadFile(m.dataPath)
-	if err != nil && m.dataPath != "cloud_config.json" {
+	path := m.dataPath
+	if envDir := os.Getenv("BFR_DATA_DIR"); envDir != "" {
+		path = filepath.Join(envDir, "cloud_config.json")
+	}
+	data, err := os.ReadFile(path)
+	if err != nil && path != "cloud_config.json" {
 		data, err = os.ReadFile("cloud_config.json")
 	}
 	if err == nil {
@@ -86,9 +90,15 @@ func (m *CloudManager) saveConfigLocked() error {
 	if err != nil {
 		return err
 	}
-	dir := filepath.Dir(m.dataPath)
-	_ = os.MkdirAll(dir, 0755)
-	return config.WriteFileAtomic(m.dataPath, data, 0644)
+	path := m.dataPath
+	if envDir := os.Getenv("BFR_DATA_DIR"); envDir != "" {
+		path = filepath.Join(envDir, "cloud_config.json")
+	}
+	dir := filepath.Dir(path)
+	if err := os.MkdirAll(dir, 0755); err != nil {
+		return err
+	}
+	return config.WriteFileAtomic(path, data, 0600)
 }
 
 func (m *CloudManager) GetConfig() CloudConfig {
