@@ -161,3 +161,29 @@ func TestDailyHistory_MaxSevenDays(t *testing.T) {
 		}
 	}
 }
+
+func TestGetSnapshotAndReset(t *testing.T) {
+	tempDir := t.TempDir()
+	t.Setenv("BFR_DATA_DIR", tempDir)
+
+	tr := vnstat.GetTracker()
+	snap := tr.GetSnapshot()
+	if snap.Daily.Interfaces == nil {
+		t.Error("expected initialized daily interfaces in snapshot")
+	}
+
+	snapGlobal := vnstat.GetSnapshot()
+	if snapGlobal.Daily.Interfaces == nil {
+		t.Error("expected initialized daily interfaces in global snapshot")
+	}
+
+	res := tr.ResetStats()
+	if res.Daily.Interfaces == nil {
+		t.Error("expected initialized interfaces after ResetStats")
+	}
+
+	resGlobal := vnstat.ResetStats()
+	if resGlobal.Daily.Interfaces == nil {
+		t.Error("expected initialized interfaces after ResetStats global")
+	}
+}

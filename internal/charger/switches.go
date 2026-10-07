@@ -292,6 +292,9 @@ func GetExistingSwitchProfiles() []SwitchProfile {
 
 	// Dynamic sysfs auto-scanner fallback for custom/vendor devices
 	psDir := "/sys/class/power_supply"
+	if mockPS := os.Getenv("BFR_MOCK_SYSFS_POWER_SUPPLY_ROOT"); mockPS != "" {
+		psDir = mockPS
+	}
 	if entries, err := os.ReadDir(psDir); err == nil {
 		keywords := []string{"charging", "suspend", "limit", "fcc", "store_mode", "switch"}
 		for _, entry := range entries {

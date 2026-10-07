@@ -315,3 +315,227 @@ func TestDeleteMultipleAndAllBackups(t *testing.T) {
 		t.Errorf("expected f3 to be deleted")
 	}
 }
+
+func TestGetBackupDirectory(t *testing.T) {
+	tempDir := t.TempDir()
+	t.Setenv("BFR_BACKUP_DIR", tempDir)
+
+	dir := partition.GetBackupDirectory()
+	if dir != tempDir {
+		t.Errorf("expected %s, got %s", tempDir, dir)
+	}
+
+	t.Setenv("BFR_BACKUP_DIR", "")
+	defDir := partition.GetBackupDirectory()
+	if defDir == "" {
+		t.Error("expected non-empty default backup dir")
+	}
+}
+
+func TestBackupGroupValidation(t *testing.T) {
+	// Unknown group
+	_, err := partition.BackupGroup("invalid_unknown_group", false)
+	if err == nil {
+		t.Error("expected error for invalid group")
+	}
+}
+
+func TestDeleteMultipleBackupsEdgeCases(t *testing.T) {
+	tempDir := t.TempDir()
+	t.Setenv("BFR_BACKUP_DIR", tempDir)
+
+	// Delete empty list
+	deleted, err := partition.DeleteMultipleBackups([]string{})
+	if err != nil || deleted != 0 {
+		t.Errorf("expected 0 deleted for empty list, got %d, err: %v", deleted, err)
+	}
+
+	// Delete non-existent
+	deleted, err = partition.DeleteMultipleBackups([]string{"non_existent_file.img"})
+	if err == nil {
+		t.Errorf("expected error for non-existent file, deleted: %d", deleted)
+	}
+}
+
+func TestFlashPartitionValidation(t *testing.T) {
+	// 1. IsFlashablePartition
+	if !partition.IsFlashablePartition("boot") {
+		t.Error("expected boot to be flashable")
+	}
+	if !partition.IsFlashablePartition("recovery") {
+		t.Error("expected recovery to be flashable")
+	}
+	if partition.IsFlashablePartition("system") {
+		t.Error("expected system to NOT be flashable")
+	}
+
+	// 2. FlashPartition invalid name
+	_, err := partition.FlashPartition("invalid;name!", strings.NewReader("data"), 4, false)
+	if err == nil {
+		t.Error("expected error for invalid partition name")
+	}
+
+	// 3. FlashPartition prohibited partition
+	_, err = partition.FlashPartition("system", strings.NewReader("data"), 4, false)
+	if err == nil {
+		t.Error("expected safety policy prohibition error for system")
+	}
+
+	// 4. FlashPartition device not found
+	_, err = partition.FlashPartition("boot", strings.NewReader("data"), 4, false)
+	if err == nil {
+		t.Error("expected error when block device not found on host")
+	}
+}
+
+func TestDiscoveryAndCategorization(t *testing.T) {
+	// FindPartitionDevice invalid name
+	_, err := partition.FindPartitionDevice("invalid;name!")
+	if err == nil {
+		t.Error("expected error for invalid partition device name")
+	}
+
+	// FindBlockDeviceRoot
+	root, err := partition.FindBlockDeviceRoot()
+	t.Logf("FindBlockDeviceRoot returned: %s, err: %v", root, err)
+
+	// GetSlotInfo
+	slot := partition.GetSlotInfo()
+	t.Logf("GetSlotInfo: %+v", slot)
+
+	// CategorizePartition
+	cases := []string{"boot", "recovery", "modem", "system", "userdata", "misc_unknown"}
+	for _, c := range cases {
+		cat, isCrit := partition.CategorizePartition(c)
+		t.Logf("CategorizePartition(%s): cat=%s, crit=%v", c, cat, isCrit)
+	}
+}
+
+func TestFullBackupAndFlashWithMockBlockDevice(t *testing.T) {
+	tempDir := t.TempDir()
+	blockDir := filepath.Join(tempDir, "by-name")
+	backupDir := filepath.Join(tempDir, "backups")
+	_ = os.MkdirAll(blockDir, 0755)
+	_ = os.MkdirAll(backupDir, 0755)
+
+	t.Setenv("BFR_BLOCK_DEV_ROOT", blockDir)
+	t.Setenv("BFR_BACKUP_DIR", backupDir)
+
+	// Create mock partition block files
+	bootA := filepath.Join(blockDir, "boot_a")
+	modemA := filepath.Join(blockDir, "modem_a")
+	dummyData := []byte("mock partition block device data header")
+	_ = os.WriteFile(bootA, dummyData, 0644)
+	_ = os.WriteFile(modemA, dummyData, 0644)
+
+	// 1. ListPartitions
+	parts, slot, err := partition.ListPartitions()
+	if err != nil {
+		t.Fatalf("ListPartitions failed: %v", err)
+	}
+	if len(parts) < 2 {
+		t.Fatalf("expected at least 2 partitions, got %d", len(parts))
+	}
+	t.Logf("Found %d partitions, current slot: %s", len(parts), slot.CurrentSlot)
+
+	// 2. BackupPartition raw and compressed
+	resRaw, err := partition.BackupPartition("boot_a", false)
+	if err != nil {
+		t.Fatalf("BackupPartition raw failed: %v", err)
+	}
+	if resRaw.Filename == "" {
+		t.Error("expected non-empty backup filename")
+	}
+
+	resGz, err := partition.BackupPartition("boot_a", true)
+	if err != nil {
+		t.Fatalf("BackupPartition compressed failed: %v", err)
+	}
+	if resGz.Filename == "" {
+		t.Error("expected non-empty gzip backup filename")
+	}
+
+	// 3. BackupGroup radio_efs
+	groupResults, err := partition.BackupGroup("radio_efs", false)
+	if err != nil {
+		t.Fatalf("BackupGroup failed: %v", err)
+	}
+	t.Logf("BackupGroup created %d results", len(groupResults))
+
+	// BackupGroupZip
+	zipRes, err := partition.BackupGroupZip("radio_efs")
+	if err != nil {
+		t.Fatalf("BackupGroupZip failed: %v", err)
+	}
+	t.Logf("BackupGroupZip result: %+v", zipRes)
+
+	// 4. FlashPartition
+	newData := strings.NewReader("new flashed image kernel data")
+	flashRes, err := partition.FlashPartition("boot_a", newData, 29, true)
+	if err != nil {
+		t.Fatalf("FlashPartition failed: %v", err)
+	}
+	if !flashRes.Success {
+		t.Errorf("expected flash success, got %+v", flashRes)
+	}
+}
+
+func TestDeleteBackupAndListEdgeCases(t *testing.T) {
+	tempDir := t.TempDir()
+	backupDir := filepath.Join(tempDir, "backups")
+	_ = os.MkdirAll(backupDir, 0755)
+	t.Setenv("BFR_BACKUP_DIR", backupDir)
+
+	// 1. DeleteBackup invalid names
+	if err := partition.DeleteBackup(""); err == nil {
+		t.Error("expected error deleting empty filename")
+	}
+	if err := partition.DeleteBackup("sub/file.img"); err == nil {
+		t.Error("expected error deleting filename with slash")
+	}
+	if err := partition.DeleteBackup("../file.img"); err == nil {
+		t.Error("expected error deleting filename with ..")
+	}
+	if err := partition.DeleteBackup("file.txt"); err == nil {
+		t.Error("expected error deleting non-backup extension")
+	}
+
+	// 2. Delete valid file
+	testBackup := filepath.Join(backupDir, "boot_20260101_120000.img")
+	testSidecar := testBackup + ".sha256"
+	_ = os.WriteFile(testBackup, []byte("data"), 0644)
+	_ = os.WriteFile(testSidecar, []byte("hash"), 0644)
+
+	err := partition.DeleteBackup("boot_20260101_120000.img")
+	if err != nil {
+		t.Fatalf("DeleteBackup failed: %v", err)
+	}
+
+	// 3. ListBackups
+	// Create mock backup files (.img, .img.gz, .zip) and a subfolder and a non-backup file
+	_ = os.WriteFile(filepath.Join(backupDir, "modem_20260102_130000.img.gz"), []byte("gzdata"), 0644)
+	_ = os.WriteFile(filepath.Join(backupDir, "bfr_backup_radio_efs_20260102_140000.zip"), []byte("zipdata"), 0644)
+	_ = os.WriteFile(filepath.Join(backupDir, "other.txt"), []byte("txt"), 0644)
+	_ = os.MkdirAll(filepath.Join(backupDir, "sub_folder"), 0755)
+
+	backups, err := partition.ListBackups()
+	if err != nil {
+		t.Fatalf("ListBackups failed: %v", err)
+	}
+	if len(backups) != 2 {
+		t.Errorf("expected 2 backup entries, got %d", len(backups))
+	}
+
+	// 4. DeleteAllBackups
+	delCount, err := partition.DeleteAllBackups()
+	if err != nil || delCount != 2 {
+		t.Errorf("DeleteAllBackups expected 2 deleted, got %d (err: %v)", delCount, err)
+	}
+
+	// 5. ListBackups on non-existent dir
+	t.Setenv("BFR_BACKUP_DIR", filepath.Join(tempDir, "non_existent"))
+	emptyBackups, err := partition.ListBackups()
+	if err != nil || len(emptyBackups) != 0 {
+		t.Errorf("expected empty list for non-existent backup dir, got %d (err: %v)", len(emptyBackups), err)
+	}
+}

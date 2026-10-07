@@ -180,7 +180,11 @@ func (t *Tracker) saveLocked() {
 
 func parseProcNetDev() map[string]rawDevStat {
 	res := make(map[string]rawDevStat)
-	file, err := os.Open("/proc/net/dev")
+	devPath := "/proc/net/dev"
+	if mockPath := os.Getenv("BFR_MOCK_PROC_NET_DEV"); mockPath != "" {
+		devPath = mockPath
+	}
+	file, err := os.Open(devPath)
 	if err != nil {
 		return res
 	}

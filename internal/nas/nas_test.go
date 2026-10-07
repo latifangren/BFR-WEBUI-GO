@@ -297,3 +297,40 @@ func TestStartAndStopNAS_HTTPFallback(t *testing.T) {
 		t.Errorf("expected 'Fallback HTTP' with status 200, got status %d body %s", resp.StatusCode, string(body))
 	}
 }
+
+func TestNASConfigEdgeCases(t *testing.T) {
+	tempDir := t.TempDir()
+	t.Setenv("BFR_DATA_DIR", tempDir)
+	mgr := nas.GetManager()
+
+	// Save nil config
+	err := mgr.SaveConfig(nil)
+	if err == nil {
+		t.Error("expected error saving nil config")
+	}
+
+	// Save config with zero values -> auto-defaults
+	err = mgr.SaveConfig(&nas.NASConfig{
+		Port:      0,
+		SharePath: "",
+		Protocol:  "",
+	})
+	if err != nil {
+		t.Fatalf("unexpected error saving config: %v", err)
+	}
+
+	cfg, _ := mgr.LoadConfig()
+	if cfg.Port != 85 || cfg.SharePath != "/sdcard" || cfg.Protocol != "webdav" {
+		t.Errorf("expected defaulted fields, got %+v", cfg)
+	}
+}
+
+func TestGetPrimaryIPAndLocalIPs(t *testing.T) {
+	primary := nas.GetPrimaryIP()
+	if primary == "" {
+		t.Error("expected non-empty primary IP")
+	}
+
+	ips := nas.GetLocalIPs()
+	t.Logf("Local IPs: %+v", ips)
+}

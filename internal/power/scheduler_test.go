@@ -179,3 +179,51 @@ func TestScheduler_TriggerCallback(t *testing.T) {
 		t.Errorf("expected custom reboot executor to be called")
 	}
 }
+
+func TestSchedulerStartStop(t *testing.T) {
+	tempDir := t.TempDir()
+	t.Setenv("BFR_DATA_DIR", tempDir)
+	s := power.GetScheduler()
+
+	// Multiple Start calls
+	s.Start()
+	s.Start()
+
+	time.Sleep(50 * time.Millisecond)
+
+	// Multiple Stop calls
+	s.Stop()
+	s.Stop()
+}
+
+func TestPowerExecuteInvalidAction(t *testing.T) {
+	err := power.Execute(power.Action("unknown_nonexistent_action"))
+	if err == nil {
+		t.Error("expected error for invalid power action")
+	}
+}
+
+func TestSchedulerUpdateConfigDisabled(t *testing.T) {
+	tempDir := t.TempDir()
+	t.Setenv("BFR_DATA_DIR", tempDir)
+	s := power.GetScheduler()
+
+	_ = s.LoadConfig()
+
+	err := s.UpdateConfig(power.ScheduleConfig{
+		Enabled:       false,
+		Mode:          power.ScheduleModeInterval,
+		IntervalHours: 4,
+	})
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	err = s.UpdateConfig(power.ScheduleConfig{
+		Enabled: true,
+		Mode:    power.ScheduleModeDisabled,
+	})
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+}

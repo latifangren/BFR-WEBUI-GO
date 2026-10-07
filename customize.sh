@@ -24,7 +24,7 @@ fi
 OLD_DIR="/data/adb/modules/bfr_webui_go"
 if [ -d "$OLD_DIR" ]; then
     ui_print "- Preserving existing configuration files..."
-    for cfg in tweaks.json charger_config.json ssh_config.json telegram_config.json qos.json shortcuts.json nas_config.json tunnel_config.json auth_config.json; do
+    for cfg in network_config.json cell_lock.json kernel_config.json modem_config.json hotspot_mac_filter.json charger_config.json ssh_config.json telegram_config.json qos.json shortcuts.json nas.json nas_config.json tunnel.json tunnel_config.json auth.json auth_config.json cloud_config.json power_schedule.json; do
         if [ -f "$OLD_DIR/$cfg" ]; then
             cp -f "$OLD_DIR/$cfg" "$MODPATH/$cfg"
             ui_print "- Preserved: $cfg"

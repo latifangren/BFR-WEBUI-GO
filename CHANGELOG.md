@@ -9,6 +9,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.2.7] - 2026-10-06
 ### Added
+- **Comprehensive Backend Unit Testing & High Coverage (>=85% across 11 packages)**:
+  - Added structured internal unit tests across core subsystems: `auth`, `backup`, `bufferpool`, `charger`, `config`, `filemanager`, `hotspot`, `logger`, `nas`, `partition`, `power`, `qos`, `samsung`, `speedtest`, `ssh`, `tlsgen`, `vnstat`, and `worker`.
+  - Reached 100.0% coverage on `bufferpool` and `worker`, 91.4% on `logger`, 89.8% on `auth`, 88.5% on `hotspot`, 88.3% on `vnstat`, 88.1% on `power`, 87.5% on `qos`, 85.8% on `filemanager`, 85.7% on `charger`, and 85.1% on `backup`.
+  - `partition` coverage elevated to 78.8% via mock block device and slot suffix isolation.
+- **Modular Parser Decoupling & Testability**:
+  - `internal/hotspot`: Extracted `parseIPNeigh` and `parseArp` with `io.Reader` support for deterministic ARP table testing.
+  - `internal/filemanager`: Decoupled `parseDfOutput` from filesystem execution for isolated storage calculation tests.
+  - `internal/charger`: Introduced testable mock sysfs hooks (`BFR_MOCK_SYSFS_POWER_SUPPLY`, `BFR_MOCK_SYSFS_POWER_SUPPLY_ROOT`).
+  - `internal/vnstat`: Added `BFR_MOCK_PROC_NET_DEV` support for zero-side-effect network interface parsing.
+- **Module Upgrade Preservation (`customize.sh`)**:
+  - Expanded configuration preservation list to maintain `network_config.json`, `cell_lock.json`, `kernel_config.json`, `modem_config.json`, `hotspot_mac_filter.json`, `nas.json`, `tunnel.json`, `auth.json`, `cloud_config.json`, and `power_schedule.json` across Magisk module updates.
+### Added
 - **Box for Magisk (BFM) Proxy Suite Overhaul (`internal/proxy/`, `TabProxy.svelte`)**:
   - **Modular Architecture (<800 lines/file)**: Decomposed proxy logic into `settings.go`, `packages.go`, `hotspot.go`, `subscription.go`, and `clash_api.go`. Frontend decomposed into `ProxyHero`, `ProxyNodes`, `ProxyRouting`, `ProxyApps`, `ProxySubscription`, and `ProxyLogs`.
   - **Bi-directional BFM Config Sync**: Direct synchronization with `/data/adb/box/settings.ini`, `package.list.cfg`, and `ap.list.cfg`.

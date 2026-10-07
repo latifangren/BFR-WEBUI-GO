@@ -3,6 +3,7 @@ package hotspot
 import (
 	"bufio"
 	"fmt"
+	"io"
 	"net"
 	"os"
 	"os/exec"
@@ -84,37 +85,67 @@ func ToggleHotspot(enable bool, ssid string, pass string) error {
 	return nil
 }
 
-func GetConnectedClients() ([]ConnectedClient, error) {
+func parseIPNeigh(out string) []ConnectedClient {
 	var clients []ConnectedClient
+	lines := strings.Split(strings.TrimSpace(out), "\n")
+	for _, line := range lines {
+		fields := strings.Fields(line)
+		if len(fields) >= 4 {
+			ip := fields[0]
+			var mac string
+			state := fields[len(fields)-1]
 
+			for i, f := range fields {
+				if f == "lladdr" && i+1 < len(fields) {
+					mac = fields[i+1]
+					break
+				}
+			}
+
+			if mac != "" && state != "FAILED" {
+				clients = append(clients, ConnectedClient{
+					IP:     ip,
+					MAC:    mac,
+					Device: resolveDeviceName(ip),
+					State:  state,
+				})
+			}
+		}
+	}
+	return clients
+}
+
+func parseArp(r io.Reader) []ConnectedClient {
+	var clients []ConnectedClient
+	scanner := bufio.NewScanner(r)
+	isFirst := true
+	for scanner.Scan() {
+		if isFirst {
+			isFirst = false
+			continue
+		}
+		fields := strings.Fields(scanner.Text())
+		if len(fields) >= 6 {
+			ip := fields[0]
+			mac := fields[3]
+			if mac != "00:00:00:00:00:00" {
+				clients = append(clients, ConnectedClient{
+					IP:     ip,
+					MAC:    mac,
+					Device: resolveDeviceName(ip),
+					State:  "REACHABLE",
+				})
+			}
+		}
+	}
+	return clients
+}
+
+func GetConnectedClients() ([]ConnectedClient, error) {
 	// Try ip neigh show
 	out, err := exec.Command(config.SUBin, "-c", "ip neigh show 2>/dev/null").Output()
 	if err == nil {
-		lines := strings.Split(strings.TrimSpace(string(out)), "\n")
-		for _, line := range lines {
-			fields := strings.Fields(line)
-			if len(fields) >= 4 {
-				ip := fields[0]
-				var mac string
-				state := fields[len(fields)-1]
-
-				for i, f := range fields {
-					if f == "lladdr" && i+1 < len(fields) {
-						mac = fields[i+1]
-						break
-					}
-				}
-
-				if mac != "" && state != "FAILED" {
-					clients = append(clients, ConnectedClient{
-						IP:     ip,
-						MAC:    mac,
-						Device: resolveDeviceName(ip),
-						State:  state,
-					})
-				}
-			}
-		}
+		clients := parseIPNeigh(string(out))
 		if len(clients) > 0 {
 			return clients, nil
 		}
@@ -124,30 +155,10 @@ func GetConnectedClients() ([]ConnectedClient, error) {
 	file, err := os.Open("/proc/net/arp")
 	if err == nil {
 		defer file.Close()
-		scanner := bufio.NewScanner(file)
-		isFirst := true
-		for scanner.Scan() {
-			if isFirst {
-				isFirst = false
-				continue
-			}
-			fields := strings.Fields(scanner.Text())
-			if len(fields) >= 6 {
-				ip := fields[0]
-				mac := fields[3]
-				if mac != "00:00:00:00:00:00" {
-					clients = append(clients, ConnectedClient{
-						IP:     ip,
-						MAC:    mac,
-						Device: resolveDeviceName(ip),
-						State:  "REACHABLE",
-					})
-				}
-			}
-		}
+		return parseArp(file), nil
 	}
 
-	return clients, nil
+	return []ConnectedClient{}, nil
 }
 
 func resolveDeviceName(ip string) string {

@@ -73,7 +73,10 @@ func GetStorageUsage() (total, free, used int64, percent float64, err error) {
 			return 0, 0, 0, 0, fmt.Errorf("storage usage stat error: %w", err)
 		}
 	}
+	return parseDfOutput(out)
+}
 
+func parseDfOutput(out []byte) (total, free, used int64, percent float64, err error) {
 	scanner := bufio.NewScanner(bytes.NewReader(out))
 	lines := make([]string, 0)
 	for scanner.Scan() {

@@ -133,6 +133,9 @@ func FindBlockDeviceRoot() (string, error) {
 // GetSlotInfo detects A/B slot info from getprop or /proc/cmdline.
 func GetSlotInfo() SystemSlotInfo {
 	slot := ""
+	if mockSlot := os.Getenv("BFR_MOCK_SLOT_SUFFIX"); mockSlot != "" {
+		slot = mockSlot
+	}
 	if out, err := exec.Command("getprop", "ro.boot.slot_suffix").Output(); err == nil {
 		slot = strings.TrimSpace(string(out))
 	}

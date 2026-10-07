@@ -19,6 +19,9 @@ func GetBatteryInfo() BatteryInfo {
 		"/sys/class/power_supply/bms",
 		"/sys/class/power_supply/main",
 	}
+	if mockBase := os.Getenv("BFR_MOCK_SYSFS_POWER_SUPPLY"); mockBase != "" {
+		baseCandidates = []string{mockBase}
+	}
 
 	var activeBase string
 	for _, cand := range baseCandidates {
@@ -162,6 +165,9 @@ func GetBatteryInfo() BatteryInfo {
 		"/sys/class/power_supply/ac/online",
 		"/sys/class/power_supply/charger/online",
 		"/sys/class/power_supply/wireless/online",
+	}
+	if mockBase := os.Getenv("BFR_MOCK_SYSFS_POWER_SUPPLY"); mockBase != "" {
+		onlinePaths = append(onlinePaths, mockBase+"/online")
 	}
 	for _, p := range onlinePaths {
 		if val, err := readSysfs(p); err == nil && val == "1" {

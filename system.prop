@@ -1,2 +1,2 @@
 # BFR-WEBUI-GO System Properties Placeholder
-# All system optimizations are dynamically controlled via tweaks.json & WebUI
+# All system optimizations are dynamically controlled via network_config.json & WebUI

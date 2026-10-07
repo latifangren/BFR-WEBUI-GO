@@ -29,7 +29,7 @@ func SanitizePath(userPath string) (string, error) {
 		return "", fmt.Errorf("empty path")
 	}
 	clean := filepath.Clean(userPath)
-	if !strings.HasPrefix(clean, "/") {
+	if !filepath.IsAbs(clean) && !strings.HasPrefix(clean, "/") && !strings.HasPrefix(clean, "\\") {
 		clean = "/" + clean
 		clean = filepath.Clean(clean)
 	}
@@ -60,13 +60,14 @@ func SanitizePath(userPath string) (string, error) {
 			evalBase = target
 		}
 
+		sep := string(filepath.Separator)
 		cleanBasePrefix := cleanBase
-		if !strings.HasSuffix(cleanBasePrefix, "/") {
-			cleanBasePrefix += "/"
+		if !strings.HasSuffix(cleanBasePrefix, sep) && !strings.HasSuffix(cleanBasePrefix, "/") {
+			cleanBasePrefix += sep
 		}
 		evalBasePrefix := evalBase
-		if !strings.HasSuffix(evalBasePrefix, "/") {
-			evalBasePrefix += "/"
+		if !strings.HasSuffix(evalBasePrefix, sep) && !strings.HasSuffix(evalBasePrefix, "/") {
+			evalBasePrefix += sep
 		}
 
 		if evalPath == cleanBase || strings.HasPrefix(evalPath, cleanBasePrefix) ||
