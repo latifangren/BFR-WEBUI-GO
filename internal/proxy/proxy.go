@@ -45,7 +45,71 @@ var (
 	// L-4: allow overriding hardcoded base paths dynamically via environment variables.
 	watchdogEnabled = false
 	watchdogMux     sync.Mutex
+
+	// Shared tail -f process feeding all SSE log viewers. Started lazily
+	// on the first viewer and stopped when the last one disconnects, so N
+	// viewers share one tail instead of spawning N processes whose output
+	// was cross-broadcast N times.
+	tailMu      sync.Mutex
+	tailCmd     *exec.Cmd
+	tailViewers int
 )
+
+// acquireTailLog starts the shared tail process if needed and registers a viewer.
+func acquireTailLog() {
+	tailMu.Lock()
+	defer tailMu.Unlock()
+	if tailCmd != nil {
+		tailViewers++
+		return
+	}
+	// L-4: use env-overridable base path for log file detection.
+	logFile := GetBoxBasePath() + "/run/runs.log"
+	if _, err := os.Stat(logFile); err != nil {
+		logFile = GetClashBasePath() + "/run/runs.log"
+	}
+	cmd := exec.Command(config.SUBin, "-c", "tail -n 50 -f "+logFile)
+	stdout, err := cmd.StdoutPipe()
+	if err != nil {
+		return
+	}
+	if err := cmd.Start(); err != nil {
+		return
+	}
+	tailCmd = cmd
+	tailViewers = 1
+	// Reap: if the tail dies on its own, clear state so a later viewer restarts it.
+	go func() {
+		_ = cmd.Wait()
+		tailMu.Lock()
+		if tailCmd == cmd {
+			tailCmd = nil
+			tailViewers = 0
+		}
+		tailMu.Unlock()
+	}()
+	go func() {
+		scanner := bufio.NewScanner(stdout)
+		// Tolerate log lines larger than bufio's 64KB default.
+		scanner.Buffer(make([]byte, 64*1024), 256*1024)
+		for scanner.Scan() {
+			BroadcastLog(scanner.Text())
+		}
+	}()
+}
+
+// releaseTailLog unregisters a viewer, stopping the shared tail when none remain.
+func releaseTailLog() {
+	tailMu.Lock()
+	defer tailMu.Unlock()
+	if tailViewers > 0 {
+		tailViewers--
+	}
+	if tailViewers == 0 && tailCmd != nil {
+		_ = tailCmd.Process.Kill()
+		tailCmd = nil
+	}
+}
 
 // GetBoxBasePath returns the Box for Magisk base directory dynamically.
 func GetBoxBasePath() string {
@@ -321,43 +385,22 @@ func StreamLogs(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/event-stream")
 	w.Header().Set("Cache-Control", "no-cache")
 	w.Header().Set("Connection", "keep-alive")
-	if origin := r.Header.Get("Origin"); origin != "" {
-		w.Header().Set("Access-Control-Allow-Origin", origin)
-	}
+	// Same-origin only: do not reflect the request Origin.
 
 	logChan := make(chan string, 50)
 	hub.mu.Lock()
 	hub.listeners[logChan] = true
 	hub.mu.Unlock()
 
+	acquireTailLog()
+
 	defer func() {
 		hub.mu.Lock()
 		delete(hub.listeners, logChan)
 		hub.mu.Unlock()
 		close(logChan)
+		releaseTailLog()
 	}()
-
-	// L-4: use env-overridable base path for log file detection.
-	logFile := GetBoxBasePath() + "/run/runs.log"
-	if _, err := os.Stat(logFile); err != nil {
-		logFile = GetClashBasePath() + "/run/runs.log"
-	}
-
-	cmd := exec.Command(config.SUBin, "-c", "tail -n 50 -f "+logFile)
-	stdout, err := cmd.StdoutPipe()
-	if err == nil {
-		if err := cmd.Start(); err == nil {
-			defer func() {
-				_ = cmd.Process.Kill()
-			}()
-			go func() {
-				scanner := bufio.NewScanner(stdout)
-				for scanner.Scan() {
-					BroadcastLog(scanner.Text())
-				}
-			}()
-		}
-	}
 
 	notify := r.Context().Done()
 	for {
@@ -365,7 +408,11 @@ func StreamLogs(w http.ResponseWriter, r *http.Request) {
 		case <-notify:
 			return
 		case msg := <-logChan:
-			fmt.Fprintf(w, "data: %s\n\n", msg)
+			// Split on newlines so multi-line messages keep valid SSE framing.
+			for _, line := range strings.Split(msg, "\n") {
+				fmt.Fprintf(w, "data: %s\n", line)
+			}
+			fmt.Fprintf(w, "\n")
 			flusher.Flush()
 		}
 	}
