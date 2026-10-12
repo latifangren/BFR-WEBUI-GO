@@ -3,3 +3,4 @@
 *.sh text eol=lf
 *.prop text eol=lf
 *.json text eol=lf
+META-INF/com/google/android/update-binary text eol=lf
