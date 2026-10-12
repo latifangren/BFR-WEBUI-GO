@@ -1,6 +1,10 @@
 #!/system/bin/sh
 SKIPUNZIP=0
 
+# Config files preserved across module updates. Add new JSON config
+# filenames here so they survive reinstalls/updates.
+PRESERVE_CONFIGS="network_config.json cell_lock.json kernel_config.json modem_config.json hotspot_mac_filter.json charger_config.json ssh_config.json telegram_config.json qos.json shortcuts.json nas.json nas_config.json tunnel.json tunnel_config.json auth.json auth_config.json cloud_config.json power_schedule.json"
+
 ui_print "*************************************"
 ui_print "*        BFR WEBUI GO               *"
 ui_print "*   High-performance Control Panel   *"
@@ -15,6 +19,7 @@ ui_print "- Prior instances terminated."
 ui_print "- Installing module to: $MODPATH"
 ui_print "- Setting up execution permissions..."
 set_perm "$MODPATH/service.sh" 0 0 0755
+set_perm "$MODPATH/uninstall.sh" 0 0 0755
 set_perm "$MODPATH/webui" 0 0 0755
 if [ -d "$MODPATH/bin" ]; then
     set_perm_recursive "$MODPATH/bin" 0 0 0755 0755
@@ -24,7 +29,7 @@ fi
 OLD_DIR="/data/adb/modules/bfr_webui_go"
 if [ -d "$OLD_DIR" ]; then
     ui_print "- Preserving existing configuration files..."
-    for cfg in network_config.json cell_lock.json kernel_config.json modem_config.json hotspot_mac_filter.json charger_config.json ssh_config.json telegram_config.json qos.json shortcuts.json nas.json nas_config.json tunnel.json tunnel_config.json auth.json auth_config.json cloud_config.json power_schedule.json; do
+    for cfg in $PRESERVE_CONFIGS; do
         if [ -f "$OLD_DIR/$cfg" ]; then
             cp -f "$OLD_DIR/$cfg" "$MODPATH/$cfg"
             ui_print "- Preserved: $cfg"
@@ -36,5 +41,12 @@ ui_print "- Launching WebUI dynamically..."
 chmod 755 "$MODPATH/webui"
 nohup "$MODPATH/webui" > "$MODPATH/webui.log" 2>&1 &
 
-ui_print "- Server started in background."
+# Health check: fail the install instead of claiming success
+# if the daemon died immediately (e.g. port already in use).
+sleep 2
+if pgrep -f "$MODPATH/webui" >/dev/null 2>&1; then
+    ui_print "- Server started in background."
+else
+    abort "! Failed to start WebUI daemon. Check $MODPATH/webui.log for details."
+fi
 ui_print "- Web Panel URL: http://127.0.0.1:80 or http://[your-ip-address]:80"
