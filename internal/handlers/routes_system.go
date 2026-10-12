@@ -43,11 +43,12 @@ func registerSystemRoutes(rc *routeContext) {
 	rc.mux.HandleFunc("/api/partitions/backup/delete", rc.wrap(HandleDeleteBackup, true))
 	rc.mux.HandleFunc("/api/partitions/flash", rc.wrap(HandleFlashPartition, true))
 
-	// Theme Wallpaper URLs (Accessible pre-auth so login screen can preview and customize wallpapers)
+	// Theme Wallpaper URLs (list/file stay public so the login screen can preview
+	// wallpapers; upload/delete require authentication to prevent disk-fill abuse)
 	rc.mux.HandleFunc("/api/theme/wallpapers", rc.wrap(HandleThemeWallpapers, false))
-	rc.mux.HandleFunc("/api/theme/wallpapers/upload", rc.wrap(HandleThemeWallpaperUpload, false))
+	rc.mux.HandleFunc("/api/theme/wallpapers/upload", rc.wrap(HandleThemeWallpaperUpload, true))
 	rc.mux.HandleFunc("/api/theme/wallpapers/file", rc.wrap(HandleThemeWallpaperFile, false))
-	rc.mux.HandleFunc("/api/theme/wallpapers/delete", rc.wrap(HandleThemeWallpaperDelete, false))
+	rc.mux.HandleFunc("/api/theme/wallpapers/delete", rc.wrap(HandleThemeWallpaperDelete, true))
 
 	// System Logs URLs
 	rc.mux.HandleFunc("/api/logs", rc.wrap(HandleLogs, true))

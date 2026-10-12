@@ -31,10 +31,10 @@ var allowedWallpaperExts = map[string]bool{
 	".png":  true,
 	".webp": true,
 	".gif":  true,
-	".svg":  true,
 	".avif": true,
 	".bmp":  true,
 }
+
 // GetWallpapersDir returns the persistent directory for storing user wallpapers.
 func GetWallpapersDir() string {
 	dir := filepath.Join(config.GetPersistentDataDir(), "wallpapers")
@@ -53,6 +53,24 @@ func sanitizeWallpaperName(name string) string {
 		return "wallpaper.jpg"
 	}
 	return clean
+}
+
+// maxWallpaperDirBytes caps total stored wallpapers at 200MB to prevent
+// disk-fill abuse on the phone's /data partition.
+const maxWallpaperDirBytes = 200 << 20
+
+func wallpapersDirSize() int64 {
+	var total int64
+	entries, err := os.ReadDir(GetWallpapersDir())
+	if err != nil {
+		return 0
+	}
+	for _, entry := range entries {
+		if info, err := entry.Info(); err == nil && !info.IsDir() {
+			total += info.Size()
+		}
+	}
+	return total
 }
 
 // HandleThemeWallpapers handles GET /api/theme/wallpapers (list).
@@ -151,7 +169,17 @@ func HandleThemeWallpaperUpload(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusBadRequest)
 		_ = json.NewEncoder(w).Encode(map[string]interface{}{
 			"success": false,
-			"error":   "Unsupported image format. Allowed: JPG, PNG, WEBP, GIF, SVG, AVIF, JFIF, BMP",
+			"error":   "Unsupported image format. Allowed: JPG, JPEG, JFIF, PNG, WEBP, GIF, AVIF, BMP",
+		})
+		return
+	}
+
+	if wallpapersDirSize() > maxWallpaperDirBytes {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusInsufficientStorage)
+		_ = json.NewEncoder(w).Encode(map[string]interface{}{
+			"success": false,
+			"error":   "Wallpaper storage quota exceeded (200MB). Delete old wallpapers first.",
 		})
 		return
 	}

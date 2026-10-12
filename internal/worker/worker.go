@@ -1,7 +1,9 @@
 package worker
 
 import (
+	"errors"
 	"sync"
+	"time"
 
 	"bfr-webui-go/internal/logger"
 )
@@ -40,22 +42,30 @@ func (p *Pool) start(numWorkers int) {
 	})
 }
 
+// ErrQueueFull is returned by Submit when no queue slot frees up in time.
+var ErrQueueFull = errors.New("worker queue full")
+
+// submitTimeout bounds how long Submit waits for a free queue slot when the
+// queue is full.
+const submitTimeout = 5 * time.Second
+
 // Submit enqueues a background task to be processed by the 2-worker pool safely.
-func Submit(fn func()) {
+// If the queue is full it waits up to submitTimeout for a slot; if none frees
+// up it returns ErrQueueFull instead of spawning an unbounded fallback
+// goroutine (which under sustained load could exhaust memory on the phone).
+func Submit(fn func()) error {
 	if fn == nil {
-		return
+		return nil
 	}
 	select {
 	case globalPool.queue <- fn:
+		return nil
 	default:
-		// Queue full, execute in background goroutine as fallback with panic recovery
-		go func() {
-			defer func() {
-				if r := recover(); r != nil {
-					logger.Get().Errorf("Worker", "Recovered from fallback background worker panic: %v", r)
-				}
-			}()
-			fn()
-		}()
+	}
+	select {
+	case globalPool.queue <- fn:
+		return nil
+	case <-time.After(submitTimeout):
+		return ErrQueueFull
 	}
 }

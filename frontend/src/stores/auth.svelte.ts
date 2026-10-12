@@ -2,7 +2,9 @@ import { api } from '../api/client'
 import type { AuthStatus, LoginPayload, LoginResponse } from '../types/auth'
 
 class AuthStore {
-  authenticated = $state<boolean>(true)
+  // null = status unknown (initial page load); avoids flashing the dashboard
+  // before /api/auth/status responds.
+  authenticated = $state<boolean | null>(null)
   isDefaultPass = $state<boolean>(false)
   isLoading = $state<boolean>(false)
   loginError = $state<string | null>(null)
@@ -23,6 +25,8 @@ class AuthStore {
       this.isDefaultPass = res.is_default_pass
     } catch (err) {
       console.error('[AuthStore] Failed to check status:', err)
+      // Don't hang on the splash screen forever on network errors.
+      this.authenticated = false
     } finally {
       this.isLoading = false
     }
@@ -35,6 +39,10 @@ class AuthStore {
       const res = await api.post<LoginResponse>('/api/auth/login', payload)
       if (res.success) {
         this.authenticated = true
+        if (typeof window !== 'undefined') {
+          // Lets background stores (e.g. sysinfo polling) resume.
+          window.dispatchEvent(new CustomEvent('bfr:authenticated'))
+        }
         return true
       }
       this.loginError = res.message || 'Login failed'

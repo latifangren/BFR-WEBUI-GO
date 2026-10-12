@@ -9,6 +9,7 @@ import (
 
 	"bfr-webui-go/frontend"
 	"bfr-webui-go/internal/auth"
+	"bfr-webui-go/internal/bufferpool"
 )
 
 type gzipResponseWriter struct {
@@ -23,7 +24,7 @@ func (g *gzipResponseWriter) initGzip() {
 		g.Header().Del("Content-Length")
 		g.Header().Set("Content-Encoding", "gzip")
 		g.Header().Add("Vary", "Accept-Encoding")
-		g.Writer = gzip.NewWriter(g.ResponseWriter)
+		g.Writer = bufferpool.GetGzipWriter(g.ResponseWriter)
 	}
 }
 
@@ -53,6 +54,8 @@ func (g *gzipResponseWriter) Flush() {
 func (g *gzipResponseWriter) Close() {
 	if g.Writer != nil {
 		_ = g.Writer.Close()
+		bufferpool.PutGzipWriter(g.Writer)
+		g.Writer = nil
 	}
 }
 

@@ -2,6 +2,8 @@ package bufferpool
 
 import (
 	"bytes"
+	"compress/gzip"
+	"io"
 	"sync"
 )
 
@@ -78,4 +80,28 @@ func PutBytes(b []byte) {
 		slice := b[:32768]
 		slicePool32K.Put(&slice)
 	}
+}
+
+var gzipWriterPool = sync.Pool{
+	New: func() interface{} {
+		return gzip.NewWriter(io.Discard)
+	},
+}
+
+// GetGzipWriter returns a pooled gzip.Writer writing to w.
+func GetGzipWriter(w io.Writer) *gzip.Writer {
+	gz := gzipWriterPool.Get().(*gzip.Writer)
+	gz.Reset(w)
+	return gz
+}
+
+// PutGzipWriter returns a gzip.Writer to the pool. The writer must already
+// be closed (Close flushes it); PutGzipWriter only detaches the underlying
+// writer before pooling.
+func PutGzipWriter(gz *gzip.Writer) {
+	if gz == nil {
+		return
+	}
+	gz.Reset(io.Discard)
+	gzipWriterPool.Put(gz)
 }

@@ -18,9 +18,6 @@ func NewTerminalHandler(authMgr *auth.Manager) *TerminalHandler {
 
 func (h *TerminalHandler) HandleWS(w http.ResponseWriter, r *http.Request) {
 	token := h.authMgr.GetTokenFromRequest(r)
-	if token == "" {
-		token = r.URL.Query().Get("token")
-	}
 	if !h.authMgr.ValidateSession(token) {
 		http.Error(w, "Unauthorized", http.StatusUnauthorized)
 		return

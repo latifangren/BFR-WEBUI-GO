@@ -62,6 +62,8 @@ var AllowedDirs = func() []string {
 		}
 		return parts
 	}
+	// Root "/" is permitted by default for full Android root file navigation;
+	// boundary restrictions can still be customized via BFR_ALLOWED_DIRS.
 	return []string{"/", "/sdcard", "/storage", "/data", "/data/adb", "/data/local/tmp", "/data/system"}
 }()
 

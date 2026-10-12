@@ -116,7 +116,16 @@ func HandleFilesUpload(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
+	// Bound the total upload size: ParseMultipartForm's 32MB only caps
+	// in-memory buffering, the rest would spool to disk unbounded.
+	r.Body = http.MaxBytesReader(w, r.Body, 32<<20)
 	err := r.ParseMultipartForm(32 << 20) // 32MB max
+	// Remove spooled temp files when the handler returns.
+	defer func() {
+		if r.MultipartForm != nil {
+			_ = r.MultipartForm.RemoveAll()
+		}
+	}()
 	if err != nil {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusBadRequest)

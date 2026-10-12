@@ -6,7 +6,8 @@
   import Sidebar from './components/layout/Sidebar.svelte'
   import BottomPopoverNav from './components/layout/BottomPopoverNav.svelte'
   import LoginCard from './components/layout/LoginCard.svelte'
-  import { TAB_COMPONENTS, DEFAULT_TAB_COMPONENT } from './components/tabs/registry'
+  import { TAB_LOADERS, DEFAULT_TAB_LOADER, TERMINAL_TAB_LOADER } from './components/tabs/registry'
+  import type { TabModule } from './components/tabs/registry'
   import ToastContainer from './components/ui/ToastContainer.svelte'
   import { authStore } from './stores/auth.svelte'
   import { navigationStore, AVAILABLE_TABS } from './stores/navigation.svelte'
@@ -50,20 +51,68 @@
       themeStore.activeWallpaper !== 'preset:none'
   )
 
-  const ActiveTab = $derived(
-    TAB_COMPONENTS[navigationStore.activeTab] ?? DEFAULT_TAB_COMPONENT
-  )
+  // Memoize loader promises per tab id: a snippet re-render must never
+  // restart a tab load (new promise identity would remount the component).
+  const tabModuleCache = new Map<string, Promise<TabModule>>()
+  const activeTabPromise = $derived.by(() => {
+    const id = navigationStore.activeTab
+    let p = tabModuleCache.get(id)
+    if (!p) {
+      p = (TAB_LOADERS[id] ?? DEFAULT_TAB_LOADER)()
+      tabModuleCache.set(id, p)
+    }
+    return p
+  })
+
+  // Terminal keep-alive: mount the terminal on first visit and keep it mounted
+  // (hidden via CSS) across tab switches so the PTY/WebSocket session survives.
+  // The loader promise is memoized so the {#await} block below never resets.
+  let terminalMounted = $state(false)
+  let terminalModulePromise: Promise<TabModule> | null = $state(null)
+  $effect(() => {
+    if (navigationStore.activeTab === 'terminal' && !terminalModulePromise) {
+      terminalMounted = true
+      terminalModulePromise = TERMINAL_TAB_LOADER()
+    }
+  })
 </script>
 
 {#snippet tabContent()}
-  {#key navigationStore.activeTab}
-    <div in:fly={{ y: 8, duration: 160, easing: cubicOut }} class="w-full">
-      <ActiveTab />
-    </div>
-  {/key}
+  {#if terminalMounted && terminalModulePromise}
+    {#await terminalModulePromise then terminalModule}
+      <div class="w-full" class:hidden={navigationStore.activeTab !== 'terminal'}>
+        <svelte:component this={terminalModule.default} />
+      </div>
+    {/await}
+  {/if}
+  {#if navigationStore.activeTab !== 'terminal'}
+    {#key navigationStore.activeTab}
+      {#await activeTabPromise}
+        <div class="w-full flex items-center justify-center py-16 text-muted">
+          <span class="animate-pulse text-sm">Loading…</span>
+        </div>
+      {:then module}
+        <div in:fly={{ y: 8, duration: 160, easing: cubicOut }} class="w-full">
+          <svelte:component this={module.default} />
+        </div>
+      {:catch}
+        <div class="w-full text-center py-16 text-red-400 text-sm">
+          Failed to load this tab. Please try again.
+        </div>
+      {/await}
+    {/key}
+  {/if}
 {/snippet}
 
-{#if !authStore.authenticated}
+{#if authStore.authenticated === null}
+  <!-- Auth status still unknown: splash instead of flashing the dashboard -->
+  <div class="min-h-screen flex items-center justify-center bg-background text-foreground">
+    <div class="flex flex-col items-center gap-3">
+      <div class="w-8 h-8 rounded-full border-2 border-accent border-t-transparent animate-spin"></div>
+      <span class="text-sm text-muted">Connecting…</span>
+    </div>
+  </div>
+{:else if authStore.authenticated === false}
   <!-- Full Screen Authentic Login Page (Matching Legacy WebUI) -->
   <LoginCard />
 {:else if navigationStore.layout === 'sidebar'}

@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"crypto/rand"
 	"crypto/sha256"
+	"crypto/subtle"
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
@@ -14,6 +15,8 @@ import (
 	"strings"
 	"sync"
 	"time"
+
+	"golang.org/x/crypto/bcrypt"
 
 	"bfr-webui-go/internal/config"
 	"bfr-webui-go/internal/logger"
@@ -62,7 +65,17 @@ func extractIP(remoteAddr string) string {
 	return strings.TrimSpace(host)
 }
 
-func HashPassword(password string, salt string) string {
+// isBcryptHash reports whether stored looks like a bcrypt hash.
+func isBcryptHash(stored string) bool {
+	return strings.HasPrefix(stored, "$2a$") ||
+		strings.HasPrefix(stored, "$2b$") ||
+		strings.HasPrefix(stored, "$2y$")
+}
+
+// legacySHA256Hash reproduces the pre-bcrypt "salt:hex" scheme. It is only
+// used as an emergency fallback if bcrypt itself fails (practically
+// unreachable) and to document the old format for VerifyPassword.
+func legacySHA256Hash(password, salt string) string {
 	if salt == "" {
 		b := make([]byte, 16)
 		_, _ = rand.Read(b)
@@ -72,18 +85,36 @@ func HashPassword(password string, salt string) string {
 	return fmt.Sprintf("%s:%s", salt, hex.EncodeToString(hash[:]))
 }
 
+// HashPassword creates a bcrypt hash of the password. The salt parameter is
+// ignored — bcrypt generates a unique salt per hash — and is kept only for
+// backward compatibility with existing callers.
+func HashPassword(password string, salt string) string {
+	_ = salt
+	hash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	if err != nil {
+		return legacySHA256Hash(password, "")
+	}
+	return string(hash)
+}
+
+// VerifyPassword checks a password against a stored hash. It accepts bcrypt
+// hashes (current), legacy "salt:hex" SHA256 hashes, and — for very old
+// configs — plaintext. Legacy formats are upgraded to bcrypt on the next
+// successful login (see Authenticate).
 func VerifyPassword(password string, stored string) bool {
 	if stored == "" {
 		return false
 	}
-	parts := strings.SplitN(stored, ":", 2)
-	if len(parts) != 2 {
-		return password == stored
+	if isBcryptHash(stored) {
+		return bcrypt.CompareHashAndPassword([]byte(stored), []byte(password)) == nil
 	}
-	salt := parts[0]
-	expectedHash := parts[1]
-	hash := sha256.Sum256([]byte(salt + password))
-	return hex.EncodeToString(hash[:]) == expectedHash
+	if parts := strings.SplitN(stored, ":", 2); len(parts) == 2 {
+		sum := sha256.Sum256([]byte(parts[0] + password))
+		got := hex.EncodeToString(sum[:])
+		return subtle.ConstantTimeCompare([]byte(got), []byte(parts[1])) == 1
+	}
+	// Very old plaintext fallback (kept for backward compatibility).
+	return subtle.ConstantTimeCompare([]byte(password), []byte(stored)) == 1
 }
 
 func NewManager(password string) *Manager {
@@ -169,15 +200,27 @@ func (m *Manager) Authenticate(password, remoteAddr string) (token string, ok bo
 	}
 
 	valid := false
+	upgradeHash := false
 	if m.isDefault && password == DefaultPassword {
 		valid = true
 	} else if VerifyPassword(password, m.passwordHash) {
 		valid = true
+		// Upgrade legacy hashes to bcrypt on successful login. The default
+		// password is deliberately left alone so the UI keeps nagging the
+		// user to change it.
+		if !m.isDefault && !isBcryptHash(m.passwordHash) {
+			m.passwordHash = HashPassword(password, "")
+			upgradeHash = true
+		}
 	}
 
 	if !valid {
 		lim.failedAttempts++
 		return "", false, false
+	}
+
+	if upgradeHash {
+		_ = m.saveConfigLocked()
 	}
 
 	// Reset failed attempts counter on successful login

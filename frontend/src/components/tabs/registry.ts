@@ -1,59 +1,56 @@
 import type { Component } from 'svelte'
 
-import TabOverview from './overview/TabOverview.svelte'
-import TabSysinfo from './sysinfo/TabSysinfo.svelte'
-import TabKernel from './kernel/TabKernel.svelte'
-import TabNetwork from './network/TabNetwork.svelte'
-import TabHotspot from './hotspot/TabHotspot.svelte'
-import TabPower from './power/TabPower.svelte'
-import TabCharger from './charger/TabCharger.svelte'
-import TabModem from './modem/TabModem.svelte'
 import { VENDOR_TABS } from './vendor_tabs'
-import TabTerminal from './terminal/TabTerminal.svelte'
-import TabScrcpy from './scrcpy/TabScrcpy.svelte'
-import TabFileManager from './files/TabFileManager.svelte'
-import TabLogs from './logs/TabLogs.svelte'
-import TabProxy from './proxy/TabProxy.svelte'
-import TabQoS from './qos/TabQoS.svelte'
-import TabVnstat from './vnstat/TabVnstat.svelte'
-import TabNAS from './nas/TabNAS.svelte'
-import TabTunnel from './tunnel/TabTunnel.svelte'
-import TabSpeedtest from './speedtest/TabSpeedtest.svelte'
-import TabTools from './tools/TabTools.svelte'
-import TabTelegram from './telegram/TabTelegram.svelte'
-import TabAbout from './about/TabAbout.svelte'
-import TabSSH from './ssh/TabSSH.svelte'
-import TabModules from './modules/TabModules.svelte'
-import TabPartitions from './partitions/TabPartitions.svelte'
-import TabSMS from './sms/TabSMS.svelte'
 
-export const TAB_COMPONENTS: Record<string, Component> = {
-  overview: TabOverview,
-  sysinfo: TabSysinfo,
-  kernel: TabKernel,
-  network: TabNetwork,
-  hotspot: TabHotspot,
-  power: TabPower,
-  charger: TabCharger,
-  modem: TabModem,
-  ...VENDOR_TABS,
-  terminal: TabTerminal,
-  scrcpy: TabScrcpy,
-  files: TabFileManager,
-  logs: TabLogs,
-  proxy: TabProxy,
-  qos: TabQoS,
-  vnstat: TabVnstat,
-  nas: TabNAS,
-  tunnel: TabTunnel,
-  speedtest: TabSpeedtest,
-  tools: TabTools,
-  telegram: TabTelegram,
-  about: TabAbout,
-  ssh: TabSSH,
-  modules: TabModules,
-  partitions: TabPartitions,
-  sms: TabSMS,
+export interface TabModule {
+  default: Component
 }
 
-export const DEFAULT_TAB_COMPONENT: Component = TabOverview
+export type TabLoader = () => Promise<TabModule>
+
+// Vendor tabs stay statically imported (per-flavor file, overwritten at build
+// time for the nomodem variant). Wrap them so every tab resolves through the
+// same async loader interface.
+const vendorLoaders: Record<string, TabLoader> = Object.fromEntries(
+  Object.entries(VENDOR_TABS).map(([id, component]) => [
+    id,
+    () => Promise.resolve({ default: component }),
+  ])
+)
+
+// Dynamic per-tab imports: each tab becomes its own chunk so the initial
+// bundle stays small on the phone's WebUI. The terminal chunk (xterm) in
+// particular is only fetched when the tab is first opened.
+export const TAB_LOADERS: Record<string, TabLoader> = {
+  overview: () => import('./overview/TabOverview.svelte'),
+  sysinfo: () => import('./sysinfo/TabSysinfo.svelte'),
+  kernel: () => import('./kernel/TabKernel.svelte'),
+  network: () => import('./network/TabNetwork.svelte'),
+  hotspot: () => import('./hotspot/TabHotspot.svelte'),
+  power: () => import('./power/TabPower.svelte'),
+  charger: () => import('./charger/TabCharger.svelte'),
+  modem: () => import('./modem/TabModem.svelte'),
+  ...vendorLoaders,
+  terminal: () => import('./terminal/TabTerminal.svelte'),
+  scrcpy: () => import('./scrcpy/TabScrcpy.svelte'),
+  files: () => import('./files/TabFileManager.svelte'),
+  logs: () => import('./logs/TabLogs.svelte'),
+  proxy: () => import('./proxy/TabProxy.svelte'),
+  qos: () => import('./qos/TabQoS.svelte'),
+  vnstat: () => import('./vnstat/TabVnstat.svelte'),
+  nas: () => import('./nas/TabNAS.svelte'),
+  tunnel: () => import('./tunnel/TabTunnel.svelte'),
+  speedtest: () => import('./speedtest/TabSpeedtest.svelte'),
+  tools: () => import('./tools/TabTools.svelte'),
+  telegram: () => import('./telegram/TabTelegram.svelte'),
+  about: () => import('./about/TabAbout.svelte'),
+  ssh: () => import('./ssh/TabSSH.svelte'),
+  modules: () => import('./modules/TabModules.svelte'),
+  partitions: () => import('./partitions/TabPartitions.svelte'),
+  sms: () => import('./sms/TabSMS.svelte'),
+}
+
+export const DEFAULT_TAB_LOADER: TabLoader = TAB_LOADERS.overview
+
+// Dedicated loader for the keep-alive terminal tab (see App.svelte).
+export const TERMINAL_TAB_LOADER: TabLoader = TAB_LOADERS.terminal

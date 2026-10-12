@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"net/url"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -56,6 +57,27 @@ func GetSubsConfig() SubsConfig {
 	return cfg
 }
 
+// maxSubscriptionBytes caps a downloaded subscription file at 10MB.
+const maxSubscriptionBytes = 10 << 20
+
+// validateSubscriptionURL allows only https URLs whose host is not a
+// loopback, private, link-local or unspecified address. This keeps the
+// validateSubscriptionURL checks that the URL is a valid http or https URL.
+func validateSubscriptionURL(raw string) error {
+	u, err := url.Parse(raw)
+	if err != nil {
+		return fmt.Errorf("invalid URL: %w", err)
+	}
+	scheme := strings.ToLower(u.Scheme)
+	if scheme != "http" && scheme != "https" {
+		return fmt.Errorf("only http and https subscription URLs are allowed")
+	}
+	if strings.TrimSpace(u.Hostname()) == "" {
+		return fmt.Errorf("URL missing host")
+	}
+	return nil
+}
+
 // UpdateSubscriptionNow triggers subscription update via box.tool subs or direct HTTP download.
 func UpdateSubscriptionNow(targetURL string) (string, error) {
 	// 1. Try box.tool if present in BFM scripts
@@ -81,6 +103,10 @@ func UpdateSubscriptionNow(targetURL string) (string, error) {
 		return "", fmt.Errorf("no subscription URL configured")
 	}
 
+	if err := validateSubscriptionURL(targetURL); err != nil {
+		return "", err
+	}
+
 	destConfig := DetectConfigPath()
 	if destConfig == "" {
 		destConfig = GetBoxBasePath() + "/clash/config.yaml"
@@ -103,7 +129,7 @@ func UpdateSubscriptionNow(targetURL string) (string, error) {
 		return "", fmt.Errorf("HTTP %d: %s", resp.StatusCode, resp.Status)
 	}
 
-	body, err := io.ReadAll(resp.Body)
+	body, err := io.ReadAll(io.LimitReader(resp.Body, maxSubscriptionBytes+1))
 	if err != nil {
 		return "", fmt.Errorf("failed to read response: %w", err)
 	}
@@ -111,18 +137,23 @@ func UpdateSubscriptionNow(targetURL string) (string, error) {
 	if len(body) < 100 {
 		return "", fmt.Errorf("downloaded file too small or invalid")
 	}
+	if len(body) > maxSubscriptionBytes {
+		return "", fmt.Errorf("downloaded file too large (max 10MB)")
+	}
 
 	dir := filepath.Dir(destConfig)
 	_ = os.MkdirAll(dir, 0755)
 
+	// Write atomically via temp file + rename. There is intentionally no
+	// shell fallback here: interpolating remote content into a shell
+	// heredoc would be a remote-code-execution primitive.
 	tmpPath := destConfig + ".tmp"
 	if err := os.WriteFile(tmpPath, body, 0644); err != nil {
-		cmd := fmt.Sprintf("cat << 'EOF' > %s\n%sEOF\nchmod 644 %s", destConfig, string(body), destConfig)
-		if out, err := exec.Command(config.SUBin, "-c", cmd).CombinedOutput(); err != nil {
-			return "", fmt.Errorf("write error: %v, out: %s", err, string(out))
-		}
-	} else {
-		_ = os.Rename(tmpPath, destConfig)
+		return "", fmt.Errorf("write error: %w", err)
+	}
+	if err := os.Rename(tmpPath, destConfig); err != nil {
+		_ = os.Remove(tmpPath)
+		return "", fmt.Errorf("write error: %w", err)
 	}
 
 	logger.Get().Infof("proxy", "Successfully downloaded subscription from %s (%d bytes)", targetURL, len(body))
