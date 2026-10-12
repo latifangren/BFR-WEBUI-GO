@@ -21,8 +21,11 @@ export default defineConfig({
     emptyOutDir: true,
     rollupOptions: {
       output: {
-        entryFileNames: `assets/[name]-[hash]-${Date.now()}.js`,
-        chunkFileNames: `assets/[name]-[hash]-${Date.now()}.js`,
+        // NOTE: [hash] alone is enough for cache-busting. A timestamp was
+        // removed here to keep builds reproducible (identical content must
+        // produce identical filenames, otherwise every release churns).
+        entryFileNames: `assets/[name]-[hash].js`,
+        chunkFileNames: `assets/[name]-[hash].js`,
         assetFileNames: `assets/[name]-[hash].[ext]`,
         manualChunks(id) {
           if (id.includes('@xterm')) {
@@ -36,4 +39,3 @@ export default defineConfig({
     },
   },
 })
-
