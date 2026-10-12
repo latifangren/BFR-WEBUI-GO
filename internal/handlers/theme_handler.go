@@ -34,6 +34,7 @@ var allowedWallpaperExts = map[string]bool{
 	".avif": true,
 	".bmp":  true,
 }
+
 // GetWallpapersDir returns the persistent directory for storing user wallpapers.
 func GetWallpapersDir() string {
 	dir := filepath.Join(config.GetPersistentDataDir(), "wallpapers")
