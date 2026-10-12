@@ -28,8 +28,8 @@ func TestHashAndVerifyPassword(t *testing.T) {
 	if hashed == "" {
 		t.Fatalf("expected non-empty hash string")
 	}
-	if !strings.Contains(hashed, ":") {
-		t.Errorf("expected hash format 'salt:hash', got: %s", hashed)
+	if !strings.HasPrefix(hashed, "$2a$") {
+		t.Errorf("expected bcrypt hash format, got: %s", hashed)
 	}
 
 	// Verify valid password
@@ -51,6 +51,16 @@ func TestHashAndVerifyPassword(t *testing.T) {
 	legacyStored := "plainTextPass"
 	if !auth.VerifyPassword("plainTextPass", legacyStored) {
 		t.Errorf("expected legacy plain text verification to succeed")
+	}
+
+	// Test legacy salted SHA256 ("salt:hex") hash still verifies.
+	// sha256("testsalt"+ "legacyPass") hex:
+	legacySalted := "testsalt:e604f0e0063dbbdc07c009214ed783b86f2b5588157120b321154a16b7a501af"
+	if !auth.VerifyPassword("legacyPass", legacySalted) {
+		t.Errorf("expected legacy salted SHA256 verification to succeed")
+	}
+	if auth.VerifyPassword("wrongPass", legacySalted) {
+		t.Errorf("expected legacy salted SHA256 verification to fail for wrong password")
 	}
 }
 
