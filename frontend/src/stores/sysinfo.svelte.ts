@@ -30,6 +30,16 @@ class SysinfoStore {
         }
       })
     }
+    if (typeof window !== 'undefined') {
+      // Stop hammering the API once the session dies (401s); the auth store
+      // dispatches 'bfr:authenticated' after a fresh login to resume.
+      window.addEventListener('bfr:unauthorized', () => {
+        this.stopPolling()
+      })
+      window.addEventListener('bfr:authenticated', () => {
+        this.init()
+      })
+    }
   }
 
   init(): void {
@@ -54,6 +64,9 @@ class SysinfoStore {
   }
 
   async refresh(): Promise<void> {
+    // Skip overlapping ticks: on a slow phone a /api/sysinfo round-trip can
+    // take longer than the poll interval, which used to pile up requests.
+    if (this.isLoading) return
     try {
       this.isLoading = true
       const data = await api.get<SysinfoStats>('/api/sysinfo')
