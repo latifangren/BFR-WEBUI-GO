@@ -122,8 +122,12 @@ func main() {
 
 	addr := ":" + *port
 	server := &http.Server{
-		Addr:    addr,
-		Handler: handlers.GzipMiddleware(mux),
+		Addr:              addr,
+		Handler:           handlers.GzipMiddleware(mux),
+		ReadHeaderTimeout: 10 * time.Second,
+		ReadTimeout:       30 * time.Second,
+		WriteTimeout:      60 * time.Second,
+		IdleTimeout:       120 * time.Second,
 	}
 
 	var httpsServer *http.Server
@@ -134,9 +138,13 @@ func main() {
 		} else {
 			httpsAddr := ":" + *httpsPort
 			httpsServer = &http.Server{
-				Addr:      httpsAddr,
-				Handler:   handlers.GzipMiddleware(mux),
-				TLSConfig: &tls.Config{MinVersion: tls.VersionTLS12},
+				Addr:              httpsAddr,
+				Handler:           handlers.GzipMiddleware(mux),
+				TLSConfig:         &tls.Config{MinVersion: tls.VersionTLS12},
+				ReadHeaderTimeout: 10 * time.Second,
+				ReadTimeout:       30 * time.Second,
+				WriteTimeout:      60 * time.Second,
+				IdleTimeout:       120 * time.Second,
 			}
 			go func() {
 				log.Printf("BFR WEBUI GO HTTPS starting on %s...", httpsAddr)
@@ -153,9 +161,19 @@ func main() {
 
 	go func() {
 		log.Printf("BFR WEBUI GO starting on %s...", addr)
-		if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-			log.Fatalf("Server error: %v", err)
+		var err error
+		for attempt := 1; attempt <= 3; attempt++ {
+			err = server.ListenAndServe()
+			if err == nil || err == http.ErrServerClosed {
+				return
+			}
+			log.Printf("HTTP server error (attempt %d/3): %v", attempt, err)
+			if attempt < 3 {
+				time.Sleep(time.Duration(attempt*2) * time.Second)
+			}
 		}
+		log.Printf("HTTP server failed after 3 attempts, exiting: %v", err)
+		os.Exit(1)
 	}()
 
 	<-quit
