@@ -73,13 +73,13 @@ var upgrader = websocket.Upgrader{
 }
 
 func HandleWebsocket(w http.ResponseWriter, r *http.Request) {
-	// Verify session authentication token before upgrading WS
+	// Verify session authentication token before upgrading WS.
+	// Cookie only: accepting the token via URL query would leak it into
+	// server/proxy logs, browser history and referrers. Same-origin WS
+	// clients (browsers) send the HttpOnly cookie automatically.
 	token := ""
 	if cookie, err := r.Cookie(auth.CookieName); err == nil && cookie.Value != "" {
 		token = cookie.Value
-	}
-	if token == "" {
-		token = r.URL.Query().Get("token")
 	}
 	if token == "" || !auth.GetManager().ValidateSession(token) {
 		http.Error(w, "Unauthorized session", http.StatusUnauthorized)
