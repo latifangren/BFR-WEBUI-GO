@@ -98,7 +98,7 @@ func TestWorkerQueueOverflowFallback(t *testing.T) {
 
 	select {
 	case <-done:
-	case <-time.After(5 * time.Second):
+	case <-time.After(10 * time.Second):
 		t.Fatal("timed out waiting for overflow tasks")
 	}
 
@@ -107,37 +107,53 @@ func TestWorkerQueueOverflowFallback(t *testing.T) {
 	}
 }
 
-func TestWorkerFallbackPanic(t *testing.T) {
+func TestWorkerQueueFullReturnsError(t *testing.T) {
 	blockChan := make(chan struct{})
 	var unblockWg sync.WaitGroup
 
 	// Block the pool workers
 	for range 2 {
 		unblockWg.Add(1)
-		Submit(func() {
+		if err := Submit(func() {
 			unblockWg.Done()
 			<-blockChan
-		})
+		}); err != nil {
+			t.Fatalf("unexpected submit error: %v", err)
+		}
 	}
 	unblockWg.Wait()
 
 	// Fill the queue channel to 100
 	for range 100 {
-		Submit(func() {
+		if err := Submit(func() {
 			<-blockChan
-		})
+		}); err != nil {
+			t.Fatalf("unexpected submit error: %v", err)
+		}
 	}
 
-	// Next submit will hit default: fallback goroutine. Send one that panics
-	var fallbackWg sync.WaitGroup
-	fallbackWg.Add(1)
-	Submit(func() {
-		defer fallbackWg.Done()
-		panic("fallback goroutine panic")
-	})
-
-	fallbackWg.Wait()
+	// Queue is full and workers are blocked: Submit must wait for a slot
+	// and then return ErrQueueFull instead of spawning a goroutine.
+	start := time.Now()
+	err := Submit(func() {})
+	if err != ErrQueueFull {
+		t.Errorf("expected ErrQueueFull, got %v", err)
+	}
+	if elapsed := time.Since(start); elapsed < submitTimeout {
+		t.Errorf("expected Submit to wait ~%v for a slot, returned after %v", submitTimeout, elapsed)
+	}
 
 	// Unblock all workers and drained tasks
 	close(blockChan)
+
+	// After the queue drains, Submit works again.
+	done := make(chan struct{})
+	if err := Submit(func() { close(done) }); err != nil {
+		t.Fatalf("unexpected submit error after drain: %v", err)
+	}
+	select {
+	case <-done:
+	case <-time.After(5 * time.Second):
+		t.Fatal("timed out waiting for task after drain")
+	}
 }
