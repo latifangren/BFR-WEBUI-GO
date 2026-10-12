@@ -95,6 +95,8 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 		Value:    token,
 		Path:     "/",
 		HttpOnly: true,
+		// Secure only when served over TLS so plain-HTTP LAN / WebUI use keeps working.
+		Secure:   r.TLS != nil,
 		Expires:  time.Now().Add(auth.SessionDuration),
 		SameSite: http.SameSiteLaxMode, // Lax mode for network access.
 	})
@@ -121,6 +123,7 @@ func (h *AuthHandler) Logout(w http.ResponseWriter, r *http.Request) {
 		Value:    "",
 		Path:     "/",
 		HttpOnly: true,
+		Secure:   r.TLS != nil,
 		MaxAge:   -1,
 		SameSite: http.SameSiteLaxMode,
 	})
