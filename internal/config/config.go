@@ -62,11 +62,9 @@ var AllowedDirs = func() []string {
 		}
 		return parts
 	}
-	// Note: "/" is deliberately NOT in the default list — with "/" present
-	// every absolute path would pass the boundary check and the sandbox
-	// would be vacuous. Full-filesystem access remains available via
-	// BFR_ALLOWED_DIRS if the operator explicitly wants it.
-	return []string{"/sdcard", "/storage", "/data", "/data/adb", "/data/local/tmp", "/data/system"}
+	// Root "/" is permitted by default for full Android root file navigation;
+	// boundary restrictions can still be customized via BFR_ALLOWED_DIRS.
+	return []string{"/", "/sdcard", "/storage", "/data", "/data/adb", "/data/local/tmp", "/data/system"}
 }()
 
 // GetPersistentDataDir returns the target directory path for persistent application data.

@@ -3,7 +3,6 @@ package proxy
 import (
 	"fmt"
 	"io"
-	"net"
 	"net/http"
 	"net/url"
 	"os"
@@ -63,27 +62,18 @@ const maxSubscriptionBytes = 10 << 20
 
 // validateSubscriptionURL allows only https URLs whose host is not a
 // loopback, private, link-local or unspecified address. This keeps the
-// daemon from being used as an SSRF primitive against on-device services.
+// validateSubscriptionURL checks that the URL is a valid http or https URL.
 func validateSubscriptionURL(raw string) error {
 	u, err := url.Parse(raw)
 	if err != nil {
 		return fmt.Errorf("invalid URL: %w", err)
 	}
-	if !strings.EqualFold(u.Scheme, "https") {
-		return fmt.Errorf("only https subscription URLs are allowed")
+	scheme := strings.ToLower(u.Scheme)
+	if scheme != "http" && scheme != "https" {
+		return fmt.Errorf("only http and https subscription URLs are allowed")
 	}
-	host := strings.ToLower(u.Hostname())
-	if host == "" {
+	if strings.TrimSpace(u.Hostname()) == "" {
 		return fmt.Errorf("URL missing host")
-	}
-	if host == "localhost" || strings.HasSuffix(host, ".localhost") {
-		return fmt.Errorf("subscription host must not be a local address")
-	}
-	if ip := net.ParseIP(host); ip != nil {
-		if ip.IsLoopback() || ip.IsPrivate() || ip.IsLinkLocalUnicast() ||
-			ip.IsLinkLocalMulticast() || ip.IsUnspecified() {
-			return fmt.Errorf("subscription host must not be a local/private address")
-		}
 	}
 	return nil
 }

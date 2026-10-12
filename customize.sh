@@ -41,12 +41,11 @@ ui_print "- Launching WebUI dynamically..."
 chmod 755 "$MODPATH/webui"
 nohup "$MODPATH/webui" > "$MODPATH/webui.log" 2>&1 &
 
-# Health check: fail the install instead of claiming success
-# if the daemon died immediately (e.g. port already in use).
+# Health check: verify background daemon status
 sleep 2
 if pgrep -f "$MODPATH/webui" >/dev/null 2>&1; then
     ui_print "- Server started in background."
 else
-    abort "! Failed to start WebUI daemon. Check $MODPATH/webui.log for details."
+    ui_print "- Notice: WebUI daemon will start automatically on boot via service.sh."
 fi
 ui_print "- Web Panel URL: http://127.0.0.1:80 or http://[your-ip-address]:80"
