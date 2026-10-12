@@ -69,6 +69,7 @@ if /i "%FLAVOR%"=="nomodem" (
 ) else (
     tar.exe -a -c -f "%ZIP_NAME%" META-INF customize.sh module.prop service.sh system.prop update.json env.example bin webui
 )
+if %errorlevel% neq 0 (
     echo [ERROR] Packing failed.
     del webui
     pause
