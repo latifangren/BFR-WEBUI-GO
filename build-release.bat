@@ -51,9 +51,10 @@ copy /y system.prop .tmp\pkg-full\ >nul
 copy /y update.json .tmp\pkg-full\ >nul
 copy /y env.example .tmp\pkg-full\ >nul
 xcopy /e /i /y bin .tmp\pkg-full\bin >nul
+xcopy /e /i /y META-INF .tmp\pkg-full\META-INF >nul
 
 if exist "BFR-WEBUI-Magisk-!VERSION!.zip" del /f /q "BFR-WEBUI-Magisk-!VERSION!.zip"
-tar -a -c -f "BFR-WEBUI-Magisk-!VERSION!.zip" -C .tmp\pkg-full .
+tar -a -c -f "BFR-WEBUI-Magisk-!VERSION!.zip" -C .tmp\pkg-full META-INF customize.sh module.prop service.sh system.prop update.json env.example bin webui
 if !ERRORLEVEL! neq 0 (
     powershell -NoProfile -Command "Compress-Archive -Path '.tmp\pkg-full\*' -DestinationPath 'BFR-WEBUI-Magisk-!VERSION!.zip' -Force"
 )
@@ -111,13 +112,14 @@ copy /y system.prop .tmp\pkg-nomodem\ >nul
 copy /y update.json .tmp\pkg-nomodem\ >nul
 copy /y env.example .tmp\pkg-nomodem\ >nul
 xcopy /e /i /y bin .tmp\pkg-nomodem\bin >nul
+xcopy /e /i /y META-INF .tmp\pkg-nomodem\META-INF >nul
 
 :: Strip proprietary DEX files
 if exist ".tmp\pkg-nomodem\bin\band_manager.dex" del /f /q ".tmp\pkg-nomodem\bin\band_manager.dex"
 if exist ".tmp\pkg-nomodem\bin\sim_switcher.dex" del /f /q ".tmp\pkg-nomodem\bin\sim_switcher.dex"
 
 if exist "BFR-WEBUI-Magisk-!VERSION!-nomodem.zip" del /f /q "BFR-WEBUI-Magisk-!VERSION!-nomodem.zip"
-tar -a -c -f "BFR-WEBUI-Magisk-!VERSION!-nomodem.zip" -C .tmp\pkg-nomodem .
+tar -a -c -f "BFR-WEBUI-Magisk-!VERSION!-nomodem.zip" -C .tmp\pkg-nomodem META-INF customize.sh module.prop service.sh system.prop update.json env.example bin webui
 if !ERRORLEVEL! neq 0 (
     powershell -NoProfile -Command "Compress-Archive -Path '.tmp\pkg-nomodem\*' -DestinationPath 'BFR-WEBUI-Magisk-!VERSION!-nomodem.zip' -Force"
 )
