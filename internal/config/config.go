@@ -62,7 +62,11 @@ var AllowedDirs = func() []string {
 		}
 		return parts
 	}
-	return []string{"/", "/sdcard", "/storage", "/data", "/data/adb", "/data/local/tmp", "/data/system"}
+	// Note: "/" is deliberately NOT in the default list — with "/" present
+	// every absolute path would pass the boundary check and the sandbox
+	// would be vacuous. Full-filesystem access remains available via
+	// BFR_ALLOWED_DIRS if the operator explicitly wants it.
+	return []string{"/sdcard", "/storage", "/data", "/data/adb", "/data/local/tmp", "/data/system"}
 }()
 
 // GetPersistentDataDir returns the target directory path for persistent application data.
