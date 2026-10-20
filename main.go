@@ -14,6 +14,7 @@ import (
 	"bfr-webui-go/internal/auth"
 	"bfr-webui-go/internal/charger"
 	"bfr-webui-go/internal/handlers"
+	"bfr-webui-go/internal/hotspot"
 	"bfr-webui-go/internal/kernel"
 	"bfr-webui-go/internal/logger"
 	"bfr-webui-go/internal/modem"
@@ -118,6 +119,28 @@ func main() {
 				log.Printf("NAS startup initialization failed: %v", err)
 			}
 		}
+	}()
+
+	// Hook Tethering state change to QoS auto re-apply
+	hotspot.SetTetheringStateChangeHook(func(activeIface string) {
+		qos.GetManager().OnTetheringChanged(activeIface)
+	})
+
+	go func() {
+		time.Sleep(2 * time.Second)
+		if err := hotspot.ApplySavedMACFilter(); err != nil {
+			log.Printf("Hotspot MAC filter restoration: %v", err)
+		}
+	}()
+
+	go func() {
+		// Reconcile persisted router settings with the live tethering state
+		// after Android networking has settled, then keep it in sync.
+		time.Sleep(8 * time.Second)
+		if err := hotspot.ReconcileRouterSettings(); err != nil {
+			log.Printf("Router settings reconciliation: %v", err)
+		}
+		hotspot.GetReconciler().Start()
 	}()
 
 	addr := ":" + *port

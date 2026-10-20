@@ -55,7 +55,6 @@ export const NAV_CATEGORIES: NavCategoryGroup[] = [
       'modem',
       ...(HAS_VENDOR_MODEM ? ['qualcomm', 'samsung', 'shannon'] : []),
       'sms',
-      'qos',
       'vnstat',
       'tunnel',
     ],
@@ -69,7 +68,7 @@ const RAW_TABS: TabItem[] = [
   { id: 'sysinfo', label: 'Sysinfo', icon: 'Cpu', category: 'core', badge: 'CORE', badgeColor: 'mint' },
   { id: 'kernel', label: 'Kernel', icon: 'Sliders', category: 'core', badge: 'NEW', badgeColor: 'mint' },
   { id: 'network', label: 'Network', icon: 'Network', category: 'network', badge: 'NET', badgeColor: 'ice' },
-  { id: 'hotspot', label: 'Hotspot', icon: 'Wifi', category: 'network', badge: 'WIFI', badgeColor: 'mint' },
+  { id: 'hotspot', label: 'Tethering & QoS', icon: 'Wifi', category: 'network', badge: 'ROUTER', badgeColor: 'mint' },
   { id: 'proxy', label: 'Proxy', icon: 'Shield', category: 'network', badge: 'CLASH', badgeColor: 'lavender' },
   { id: 'modem', label: 'Cellular Dashboard', icon: 'Radio', category: 'network', badge: 'CELL', badgeColor: 'ice' },
   { id: 'qualcomm', label: 'Snapdragon QMI', icon: 'Zap', category: 'network', badge: 'QCOM', badgeColor: 'mint' },
@@ -85,7 +84,6 @@ const RAW_TABS: TabItem[] = [
   { id: 'scrcpy', label: 'Scrcpy', icon: 'Smartphone', category: 'tools', badge: 'LIVE', badgeColor: 'mint' },
   { id: 'files', label: 'Files', icon: 'FolderOpen', category: 'tools', badge: 'FS', badgeColor: 'yellow' },
   { id: 'logs', label: 'Logs', icon: 'FileText', category: 'tools', badge: 'LOGS', badgeColor: 'ice' },
-  { id: 'qos', label: 'QoS', icon: 'Gauge', category: 'network', badge: 'QOS', badgeColor: 'lavender' },
   { id: 'vnstat', label: 'Vnstat', icon: 'Activity', category: 'network', badge: 'STATS', badgeColor: 'mint' },
   { id: 'nas', label: 'NAS', icon: 'HardDrive', category: 'tools', badge: 'NAS', badgeColor: 'ice' },
   { id: 'tunnel', label: 'Tunnel', icon: 'Globe', category: 'network', badge: 'WAN', badgeColor: 'yellow' },
@@ -109,13 +107,15 @@ class NavigationStore {
 
   constructor() {
     if (typeof window !== 'undefined') {
-      const hash = window.location.hash.replace('#', '')
+      let hash = window.location.hash.replace('#', '')
+      if (hash === 'qos') hash = 'hotspot'
       if (hash && AVAILABLE_TABS.some((t) => t.id === hash)) {
         this.activeTab = hash
       }
 
       window.addEventListener('hashchange', () => {
-        const h = window.location.hash.replace('#', '')
+        let h = window.location.hash.replace('#', '')
+        if (h === 'qos') h = 'hotspot'
         if (h && AVAILABLE_TABS.some((t) => t.id === h)) {
           this.activeTab = h
         }
@@ -148,10 +148,11 @@ class NavigationStore {
   }
 
   setTab(tabId: string) {
-    this.activeTab = tabId
+    const target = tabId === 'qos' ? 'hotspot' : tabId
+    this.activeTab = target
     this.sidebarOpen = false
     if (typeof window !== 'undefined') {
-      window.location.hash = tabId
+      window.location.hash = target
     }
   }
 

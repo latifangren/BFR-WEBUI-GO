@@ -11,6 +11,7 @@ func registerNetworkRoutes(rc *routeContext) {
 	rc.mux.HandleFunc("/api/hotspot/control", rc.wrap(HandleHotspotControl, true))
 	rc.mux.HandleFunc("/api/hotspot/clients", rc.wrap(HandleHotspotClients, true))
 	rc.mux.HandleFunc("/api/hotspot/mac-filter", rc.wrap(HandleHotspotMACFilter, true))
+	rc.mux.HandleFunc("/api/hotspot/settings", rc.wrap(HandleHotspotSettings, true))
 
 	// Proxy / Clash / Mihomo URLs
 	rc.mux.HandleFunc("/api/proxy/status", rc.wrap(HandleProxyStatus, true))

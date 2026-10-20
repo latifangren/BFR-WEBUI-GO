@@ -152,8 +152,11 @@ func (m *Manager) SaveConfig(cfg *QoSConfig) error {
 
 	return nil
 }
+// detectHotspotInterface returns a tether interface candidate. It deliberately
+// excludes the station/WAN interfaces (wlan0, rmnet) so QoS never shapes the
+// phone's own uplink instead of the clients' downlink.
 func detectHotspotInterface() string {
-	candidates := []string{"wlan1", "ap0", "wlan0", "rndis0", "usb0", "eth0"}
+	candidates := []string{"wlan1", "ap0", "softap0", "rndis0", "usb0", "eth0"}
 	for _, iface := range candidates {
 		if ifc, err := net.InterfaceByName(iface); err == nil {
 			if (ifc.Flags & net.FlagUp) != 0 {
@@ -161,12 +164,7 @@ func detectHotspotInterface() string {
 			}
 		}
 	}
-	for _, iface := range candidates {
-		if _, err := net.InterfaceByName(iface); err == nil {
-			return iface
-		}
-	}
-	return "wlan1"
+	return ""
 }
 func hasTCCmd() bool {
 	if _, err := exec.LookPath("tc"); err == nil {
@@ -207,6 +205,12 @@ func (m *Manager) ClearQoS() error {
 }
 
 func (m *Manager) ApplyQoS(cfg *QoSConfig) error {
+	return m.ApplyQoSOnInterface(cfg, "")
+}
+
+// ApplyQoSOnInterface applies the QoS rules to an explicit interface. When
+// iface is empty the manager falls back to auto-detection.
+func (m *Manager) ApplyQoSOnInterface(cfg *QoSConfig, iface string) error {
 	if cfg == nil {
 		return fmt.Errorf("invalid config")
 	}
@@ -219,10 +223,18 @@ func (m *Manager) ApplyQoS(cfg *QoSConfig) error {
 		return m.ClearQoS()
 	}
 
+	if iface == "" {
+		iface = detectHotspotInterface()
+	}
+	if iface == "" {
+		// No tether interface is up: clear BFR-owned state and stay inactive.
+		_ = m.ClearQoS()
+		return fmt.Errorf("no active tether interface available for QoS")
+	}
+
 	m.mu.Lock()
 	defer m.mu.Unlock()
 
-	iface := detectHotspotInterface()
 	m.detectedIface = iface
 	rulesCount := 0
 
@@ -462,4 +474,36 @@ func (m *Manager) GetStatus() QoSStatus {
 		ActiveRulesCount: m.activeRulesCount,
 		DetectedIface:    m.detectedIface,
 	}
+}
+
+// OnTetheringChanged handles interface state changes from the hotspot/tethering
+// engine. The interface reported by the tethering layer is authoritative.
+func (m *Manager) OnTetheringChanged(activeIface string) {
+	m.mu.RLock()
+	cfg := m.config
+	previousIface := m.detectedIface
+	m.mu.RUnlock()
+
+	if !cfg.Enabled {
+		return
+	}
+
+	// No tether interface is up: remove BFR-owned rules and mark inactive.
+	if activeIface == "" {
+		if previousIface != "" {
+			logger.Get().Infof("QoS", "No tether interface active, clearing QoS rules from %s", previousIface)
+		}
+		_ = m.ClearQoS()
+		return
+	}
+
+	// Interface changed: clear the old interface before installing on the new one.
+	if previousIface != "" && previousIface != activeIface {
+		logger.Get().Infof("QoS", "Tethering interface changed %s -> %s, re-applying QoS rules", previousIface, activeIface)
+		_ = m.ClearQoS()
+	} else {
+		logger.Get().Infof("QoS", "Tethering interface %s active, re-applying QoS rules", activeIface)
+	}
+
+	_ = m.ApplyQoSOnInterface(&cfg, activeIface)
 }

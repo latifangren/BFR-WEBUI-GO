@@ -155,12 +155,17 @@ func ApplyMACFilter(cfg *MACFilterConfig) error {
 	macFilterMu.Lock()
 	defer macFilterMu.Unlock()
 
-	// Clear existing BFR_HOTSPOT_MAC chain hooks
+	// Clear and recreate existing BFR_HOTSPOT_MAC chain hooks on IPv4 and IPv6
 	cmdClean := "iptables -D FORWARD -j BFR_HOTSPOT_MAC 2>/dev/null || true; " +
 		"iptables -F BFR_HOTSPOT_MAC 2>/dev/null || true; " +
 		"iptables -X BFR_HOTSPOT_MAC 2>/dev/null || true; " +
 		"iptables -N BFR_HOTSPOT_MAC; " +
-		"iptables -I FORWARD 1 -j BFR_HOTSPOT_MAC"
+		"iptables -I FORWARD 1 -j BFR_HOTSPOT_MAC; " +
+		"ip6tables -D FORWARD -j BFR_HOTSPOT_MAC 2>/dev/null || true; " +
+		"ip6tables -F BFR_HOTSPOT_MAC 2>/dev/null || true; " +
+		"ip6tables -X BFR_HOTSPOT_MAC 2>/dev/null || true; " +
+		"ip6tables -N BFR_HOTSPOT_MAC; " +
+		"ip6tables -I FORWARD 1 -j BFR_HOTSPOT_MAC"
 
 	rulesCount := 0
 	var cmds []string
@@ -171,8 +176,11 @@ func ApplyMACFilter(cfg *MACFilterConfig) error {
 		for _, mac := range cfg.BlockedMACs {
 			cleanMAC := strings.TrimSpace(mac)
 			if isValidMAC(cleanMAC) {
-				cmds = append(cmds, fmt.Sprintf("iptables -A BFR_HOTSPOT_MAC -m mac --mac-source %s -j DROP", cleanMAC))
-				rulesCount++
+				cmds = append(cmds,
+					fmt.Sprintf("iptables -A BFR_HOTSPOT_MAC -m mac --mac-source %s -j DROP", cleanMAC),
+					fmt.Sprintf("ip6tables -A BFR_HOTSPOT_MAC -m mac --mac-source %s -j DROP", cleanMAC),
+				)
+				rulesCount += 2
 			}
 		}
 
@@ -180,24 +188,43 @@ func ApplyMACFilter(cfg *MACFilterConfig) error {
 		for _, mac := range cfg.AllowedMACs {
 			cleanMAC := strings.TrimSpace(mac)
 			if isValidMAC(cleanMAC) {
-				cmds = append(cmds, fmt.Sprintf("iptables -A BFR_HOTSPOT_MAC -m mac --mac-source %s -j ACCEPT", cleanMAC))
-				rulesCount++
+				cmds = append(cmds,
+					fmt.Sprintf("iptables -A BFR_HOTSPOT_MAC -m mac --mac-source %s -j ACCEPT", cleanMAC),
+					fmt.Sprintf("ip6tables -A BFR_HOTSPOT_MAC -m mac --mac-source %s -j ACCEPT", cleanMAC),
+				)
+				rulesCount += 2
 			}
 		}
-		// Default rule for whitelist: drop all other clients
-		cmds = append(cmds, "iptables -A BFR_HOTSPOT_MAC -j DROP")
-		rulesCount++
+		// Default rule for whitelist: drop all other clients on both IPv4 and IPv6
+		cmds = append(cmds,
+			"iptables -A BFR_HOTSPOT_MAC -j DROP",
+			"ip6tables -A BFR_HOTSPOT_MAC -j DROP",
+		)
+		rulesCount += 2
 	}
 
 	execCmdStr := strings.Join(cmds, " && ")
 	out, err := config.ExecSuTimeout(5*time.Second, execCmdStr)
 	if err != nil {
 		activeRules = 0
-		return fmt.Errorf("failed to apply iptables MAC filter rules: %v, out: %s", err, string(out))
+		return fmt.Errorf("failed to apply iptables/ip6tables MAC filter rules: %v, out: %s", err, string(out))
 	}
 
 	activeRules = rulesCount
-	logger.Get().Infof("hotspot", "Applied MAC filter rules (mode: %s, rules: %d)", cfg.Mode, rulesCount)
+	logger.Get().Infof("hotspot", "Applied dual-stack MAC filter rules (mode: %s, rules: %d)", cfg.Mode, rulesCount)
+	return nil
+}
+
+// ApplySavedMACFilter loads and re-applies persisted MAC filter rules at startup.
+func ApplySavedMACFilter() error {
+	cfg, err := LoadMACFilterConfig()
+	if err != nil {
+		return err
+	}
+	if cfg != nil && cfg.Mode != "" && cfg.Mode != "disabled" {
+		logger.Get().Infof("hotspot", "Restoring saved MAC filter on boot (mode: %s)", cfg.Mode)
+		return ApplyMACFilter(cfg)
+	}
 	return nil
 }
 

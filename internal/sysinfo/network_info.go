@@ -495,14 +495,17 @@ func buildNetworkDetail() NetworkDetail {
 		nd.Roaming = "No"
 	}
 
-	// 6. Hotspot clients via /proc/net/arp (no subprocess)
+	// 6. Hotspot clients via /proc/net/arp (filtered by tether interfaces)
 	var arpCount int
 	if f, err := os.Open("/proc/net/arp"); err == nil {
 		scanner := bufio.NewScanner(f)
 		for scanner.Scan() {
-			txt := scanner.Text()
-			if strings.Contains(txt, "0x2") && !strings.Contains(txt, "00:00:00:00:00:00") {
-				arpCount++
+			fields := strings.Fields(scanner.Text())
+			if len(fields) >= 6 && fields[2] == "0x2" && fields[3] != "00:00:00:00:00:00" {
+				dev := strings.ToLower(fields[5])
+				if strings.HasPrefix(dev, "ap") || strings.HasPrefix(dev, "softap") || strings.HasPrefix(dev, "wlan1") || strings.HasPrefix(dev, "rndis") || strings.HasPrefix(dev, "usb") || strings.HasPrefix(dev, "eth") {
+					arpCount++
+				}
 			}
 		}
 		f.Close()

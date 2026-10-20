@@ -489,8 +489,8 @@
           <Wifi class="w-4 h-4 sm:w-5 sm:h-5" />
         </div>
         <div>
-          <h4 class="font-mono font-bold text-xs uppercase text-foreground">SoftAP Hotspot</h4>
-          <p class="text-[11px] font-mono text-muted">Clients & Tethering</p>
+          <h4 class="font-mono font-bold text-xs uppercase text-foreground">Tethering & QoS</h4>
+          <p class="text-[11px] font-mono text-muted">SoftAP, USB & QoS</p>
         </div>
       </div>
       <ArrowRight class="w-4 h-4 text-muted group-hover:text-foreground transition-colors hidden sm:block" />
