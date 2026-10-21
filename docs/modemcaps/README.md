@@ -14,6 +14,10 @@ Dokumentasi ini adalah bahan mentah di balik spek implementasi [`../modemcaps-qu
 | `kamus-string.tsv` | Kamus lengkap string hasil dekripsi (3.103 konstanta unik → 3.092 plaintext): kolom ID konstanta + string. Bahan rujukan saat menelusuri perilaku yang belum terpetakan |
 | `referensi-efs-token.md` | Lembar rujukan cepat buat implementor: daftar path EFS, token kapabilitas, format pengepakan searcher, tata bahasa filter band-combo, path MCFG/PDC |
 | `peta-ke-bfr.md` | Pemetaan fitur ModemCaps ↔ status di BFR (sudah ada / Gap 1–10 / fitur spek A–F / bukan gap) |
+| `laporan-alur-java.md` | Laporan alur Java rinci (382 baris) dengan sitasi file:line per klaim — lapisan bukti di balik `analisis-utama.md`: peta menu lengkap 24 item, kontrak editor, dispatcher posisional, siklus hidup sesi |
+| `catatan-native-ghidra.md` | Catatan bedah Ghidra per-fungsi: protokol byte-level mode executable `liba.so` (handshake stdin/stdout, ioctl `0x8010C305`/`0xC014C302`, lookup layanan QRTR) dan bukti kode peran `libb.so` |
+
+**Sengaja tidak dimasukkan ke repo** (artefak mesin, tersimpan di arsip kerja `~/workspace/modemcaps-analysis/`): JSON Evidence REA (`rea-*.json`, `liba-snap.json`), `callsites.json` (431 KB peta titik dekripsi), dump pseudocode C Ghidra (`ghidra-out/`), hasil dekompilasi JADX + smali, dan TSV dekripsi putaran antara (versi finalnya = `kamus-string.tsv` di sini). Draf awal native juga tidak dimasukkan — isinya sudah terserap ke dokumen final.
 
 ## Fakta kunci (satu layar)
 
