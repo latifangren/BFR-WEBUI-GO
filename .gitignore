@@ -45,3 +45,6 @@ openspec/
 .slim/deepwork/
 
 /.playwright-mcp
+/.ua
+package.json
+pnpm-lock.yaml
