@@ -125,13 +125,42 @@ Padanan halaman **PDC Preferences** ModemCaps — fitur yang di BFR belum ada sa
 - **Frontend:** `frontend/src/components/tabs/qualcomm/QualcommMBN.svelte`, sub-tab di `TabQualcomm.svelte` (keputusan terkunci yang sama dengan Fitur A/B).
 - **Pengaman:** aktivasi profil yang salah bisa membuat modem gagal registrasi sampai dikembalikan — UI wajib menampilkan profil aktif sebelumnya dan menyediakan jalan pulang satu klik; tidak ada aktivasi tanpa konfirmasi.
 
-## 8. Di luar cakupan
+## 8. Fitur E — RAT Priority & RAT/Band Preferences (Gap 6 + 7)
+
+Dua editor per slot dari menu utama ModemCaps yang belum ada padanannya di BFR:
+
+- **RAT Priority** (`menu_rat_prio` → editor `pc`): daftar prioritas RAT *berurutan* per slot — kandidat diberi penanda status dari perbandingan bit dengan pilihan saat ini. BFR hanya punya enum kasar `PreferredRAT` (`5g_only`/`4g_only`/`hybrid`/`3g_only`) di `BandConfig`; itu bukan urutan akuisisi.
+- **RAT/Band Preferences** (`menu_rbp_config`): matriks preferensi band per slot untuk semua RAT, dengan reset tersendiri ("🗑 RAT/Band preferences"). Berbeda sifat dari band lock QMI BFR (mengunci) — ini preferensi yang disimpan sebagai matriks `byte[][]` per slot di state ModemCaps.
+
+**Titik keputusan desain (wajib diputus sebelum implementasi):** kalau dua-duanya hidup, mana sumber kebenaran — matriks preferensi atau `BandConfig` band lock? Rekomendasi spek: dataset terpisah, UI memberi peringatan bila band lock sedang aktif saat preferensi diubah, dan keduanya tidak menulis sasaran yang sama tanpa sepengetahuan user.
+
+**Yang belum terkunci:** jalur tulis persis kedua editor ini (alur perintah generik lewat sesi frame di ModemCaps). Verifikasinya mengikuti pola Fase 0/Fase R Fitur D: telusur smali pemakaian menunya + diff state EFS/NV di perangkat sebelum/sesudah. Implementasi tidak dimulai sebelum mekanismenya terbukti.
+
+### Desain (sesudah mekanisme terkunci)
+
+- **Backend:** mengikuti tempat mekanismenya terbukti tinggal — data matriks per slot kemungkinan besar berbasis EFS/NV sehingga di `internal/efs` (file baru `ratprefs.go`, tag `!nomodem`); bila terbukti QMI, pindah ke `internal/modem`.
+- **Handler/route:** `GET/POST /api/qualcomm/rat-priority` dan `GET/POST /api/qualcomm/band-preferences` di `routes_vendor_modem.go`, handler `internal/handlers/ratprefs_handler.go`.
+- **Frontend:** `QualcommRatPriority.svelte` (dua daftar bertumpuk seperti aslinya: kandidat di atas, pilihan berurutan di bawah) + seksi matriks preferensi di komponen yang sama; sub-tab TabQualcomm.
+
+## 9. Fitur F — Band GSM/UMTS & Status IMS (Gap 8 + 9)
+
+- **Band mask GERAN/UTRAN (Gap 8).** Editor band ModemCaps mencakup grup GSM/UMTS; `QRTRClient` BFR hanya menyetel LTE/NR (`SetLTEBands`/`SetNRBands`) — band GSM/WCDMA di BFR sebatas info hardware. Di ModemCaps penyetelannya lewat data EFS/NV (bukan QMI band lock), jadi backend-nya di `internal/efs` dan nama file/datanya ditambahkan ke daftar verifikasi Fase 0. UI: perluasan `QualcommBands.svelte` dengan seksi GSM/WCDMA (bukan komponen baru).
+- **IMS Service Status (Gap 9).** Penampil status layanan IMS ModemCaps (grup menu `menu_ims`; laporan utamanya juga memuat baris Voice over LTE / Voice over Wi-Fi). Di BFR belum ada sama sekali (nol `ims` di `internal/modem`, `internal/efs`, handlers). Sifatnya read-only. Mekanisme query statusnya (kanal frame/DIAG) ditelusuri bersama riset Fitur E. Desain: `GET /api/qualcomm/ims/status`, panel kecil `QualcommIMS.svelte` sebagai sub-tab TabQualcomm — tanpa aksi tulis apa pun di versi pertama.
+
+## 10. Lampiran riset — belum komitmen implementasi
+
+Dua temuan yang keberadaannya pasti tapi isinya belum terpetakan; dicatat supaya tidak hilang, dikerjakan sebagai riset statis (tidak butuh perangkat) kapan saja:
+
+- **Data Preferences (Gap 10).** Menu `menu_dfp_config` + string "Data Preferences" ada di ModemCaps, tapi tidak ada editor khusus — alur perintah generik. Target riset: telusuri dispatch posisional menunya di smali `am`/`a.z` sampai ketemu data apa yang dibaca/ditulis; sesudah itu baru dinilai layak jadi fitur atau tidak.
+- **Keluarga laporan HW (perluasan Gap 4).** Selain CA combos (LTE CA Combos, RRC CA Combos — sudah di luar cakupan), ModemCaps punya **ICC Misc Files**, **EFS Misc Files**, **RFC Report** (info kalibrasi RF), dan **RFFE Components**. Target riset: petakan sumber data tiap laporan — yang berbasis baca file EFS/ICC berpotensi ringan (BFR sudah punya EFS browser + kanal baca by-name), yang berbasis query protokol tetap berat dan mengikuti nasib Gap 4.
+
+## 11. Di luar cakupan
 
 - **Laporan CA combos (Gap 4)** — butuh query kapabilitas QMI (protokol baru di `QRTRClient`); riset terpisah, bukan bagian spek ini.
 - Perubahan apa pun di `internal/shannon`, `internal/samsung`, route `/api/shannon/*` dan `/api/samsung/*`, dan tab `shannon/` + `samsung/`.
 - Flavor `nomodem` tidak berubah perilaku: tidak ada route/handler/komponen baru yang bocor ke build `nomodem` (build tag `!nomodem` + stub + `vendor_tabs.ts` dijaga).
 
-## 9. Urutan pengerjaan
+## 12. Urutan pengerjaan
 
 0. Fondasi EFS Write (Seksi 3) — kode + unit test bisa jalan tanpa perangkat; verifikasi baca-balik & restore diuji begitu ada perangkat.
 1. Fase 0 — verifikasi format file di perangkat (Fitur A).
@@ -139,9 +168,12 @@ Padanan halaman **PDC Preferences** ModemCaps — fitur yang di BFR belum ada sa
 3. Fitur A LTE — tulis per file yang formatnya sudah terkunci di Fase 0.
 4. Fitur A NR — 4 file `nr5g/RRC/cap_*`.
 5. Fitur D — fase riset R1–R3 bisa berjalan sejajar dengan langkah 3–4 (statis dulu); implementasi hanya sesudah mekanismenya terkunci.
-6. Uji end-to-end di perangkat: tulis → SSR → baca balik → bandingkan dengan ModemCaps di perangkat yang sama.
+6. Fitur E — sesudah verifikasi mekanismenya (pola Fase 0/R); titik keputusan sumber-kebenaran vs band lock diputus user dulu.
+7. Fitur F — band GSM/UMTS mengikuti daftar verifikasi Fase 0; status IMS read-only bisa menyusul kapan saja sesudah query-nya terbukti.
+8. Lampiran riset (Data Preferences, laporan HW) — pekerjaan statis, boleh dicicil kapan saja tanpa perangkat; hasilnya menentukan apakah naik jadi fitur.
+9. Uji end-to-end di perangkat: tulis → SSR → baca balik → bandingkan dengan ModemCaps di perangkat yang sama.
 
-## 10. Risiko & mitigasi
+## 13. Risiko & mitigasi
 
 - **Format file salah tebak** → mitigasi Fase 0 + backup wajib sebelum tulis pertama per file; restore = tulis balik backup.
 - **File tidak ada di perangkat tertentu** → `ReadCapability` toleran; UI menandai "tidak didukung perangkat ini" (mengikuti penjelasan footer ModemCaps: hardware/supplemental connectivity/airplane mode).
