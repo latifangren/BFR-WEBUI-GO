@@ -13,17 +13,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **File and Command Safety**: Added upload size limits and multipart cleanup, hardened archive extraction path containment, removed shell injection from subscription updates, and restricted default file-manager access.
 
 ### Added
+- **ModemCaps-Derived Qualcomm Advanced Suite**:
+  - **EFS Write Foundation (`internal/efs`)**: Robust EFS atomic item vs regular file detection, automatic pre-write backup (`.bak` with timestamp), read-back verification (byte-by-byte SHA-256 integrity check), and explicit Subsystem Restart (SSR) execution.
+  - **Searcher Preferences & RAT Locks (`internal/efs/searcher.go`, `QualcommSearcher.svelte`)**: High-performance bit-packed `long[30]` decoder/encoder supporting RAT blacklist/whitelist (CDMA, HDR, GSM, WCDMA, LTE, TDSCDMA, NR5G), EARFCN/UARFCN list, and PCI/PSC locking.
+  - **RRC Capabilities Editor (`internal/efs/capability_linux.go`, `QualcommCapability.svelte`)**: Interactive capability toggle matrix for 38 RRC feature tokens across `/nv/item_files/modem/rrc/cap/` and `/policyman/` (VoLTE, VoWiFi, ViLTE, CA, NR DC, UL CA, DL 256QAM, UL 64QAM, HPUE).
+  - **MBN & PDC Profile Manager (`internal/efs/mbn.go`, `QualcommMBN.svelte`)**: Full carrier MBN configuration catalog supporting multi-source scanning across OS partitions, merged catalogs, and EFS fallbacks. Features 1-click PDC profile activation with rollback safety shield (`Revert to Previous`), autoselect mode toggling, and PixelParts mode switching.
+  - **Custom User MBN Directory**: Dynamic scanner for custom carrier MBN files located in `/data/adb/modules/bfr_webui_go/custom_mbn`, automatically categorized with pink Neo-Brutalist badge styling.
+  - **Active Carrier Resolver (`internal/handlers/mbn_handler.go`)**: Intelligent IMSI and SIM operator name fallback matching for active carrier profile reporting on SIM 1 and SIM 2.
+  - **Comprehensive Reverse-Engineering Documentation (`docs/modemcaps/`, `docs/modemcaps-qualcomm-spec.md`)**: Complete teardown analysis of ModemCaps v2402-1, 3,092 decrypted strings, flow reports, and architecture specifications.
 - **Hotspot Router Suite**: Added managed router controls with verified status reporting and cleanup limited to state owned by the application.
 - **Release and Installation Tooling**: Added dual-variant release packaging, Magisk installer metadata, and daemon shutdown during module uninstall; ensured all local, Makefile, and CI packages include `META-INF` and the `uninstall.sh` hook.
 - **SMS Message Pagination**: Added incremental message loading and improved parsing for message bodies containing commas.
-
 ### Changed & Refactored
 - **Frontend Startup Performance**: Split tabs into dynamically loaded chunks, added asynchronous tab rendering and terminal keep-alive, and prevented overlapping sysinfo polling while handling expired sessions cleanly.
 - **Backend Performance and Resilience**: Reused gzip writers, shared proxy log streaming, bounded worker queue submissions, and improved server startup and SSE timeout handling.
 - **Build and Module Lifecycle**: Repaired Windows and Android release packaging, improved boot readiness and health checks, and preserved user configuration across module upgrades.
 - **vnStat Accuracy**: Count only selected Wi-Fi and cellular interfaces, keep RX and TX accounting separate, persist counter baselines, and clarify calendar period labels.
+- **Qualcomm Sub-Tabs & Styling**: Refactored Qualcomm sub-tabs (`QualcommSearcher`, `QualcommCapability`, `QualcommMBN`) with responsive badge styling, clean status indicators, and consistent modal dialogs.
+- **Backend Clean Code & Optimization**: Eliminated `/bin/sh` shell invocation overhead on `setprop` calls, decoupled `DiscoverMbnConfigs` into a clean package function with nil-safe session handling.
 - **SSH and NAS Defaults**: Require safer authentication defaults, keep SSH bound to localhost by default, and make NAS sharing authenticated and read-only by default.
-
 ### Fixed
 - **Security and Data Handling**: Fixed archive extraction containment, subscription update command construction, wallpaper access controls, and upload resource cleanup.
 - **SMS and Traffic Reporting**: Fixed SMS pagination and body parsing; excluded virtual and hotspot interfaces from vnStat accounting to reduce duplicate traffic totals.

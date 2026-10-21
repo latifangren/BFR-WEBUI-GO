@@ -38,14 +38,9 @@ func HandleQualcommMbnOverview(w http.ResponseWriter, r *http.Request) {
 		if autoStatus, err := sess.ReadMbnAutoselect(); err == nil {
 			overview.Autoselect = autoStatus
 		}
-		overview.SwConfigs = sess.DiscoverMbnConfigs("sw")
-		overview.HwConfigs = sess.DiscoverMbnConfigs("hw")
-	} else {
-		// Even without active DIAG session, discover directly from OS filesystem
-		var dummySess *efs.EfsSession
-		overview.SwConfigs = dummySess.DiscoverMbnConfigs("sw")
-		overview.HwConfigs = dummySess.DiscoverMbnConfigs("hw")
 	}
+	overview.SwConfigs = efs.DiscoverMbnConfigs(sess, "sw")
+	overview.HwConfigs = efs.DiscoverMbnConfigs(sess, "hw")
 
 	// 1. Try querying active profile over QMI PDC
 	matchedActive := false
@@ -292,8 +287,7 @@ func HandleQualcommMbnPixelParts(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	cmdStr := fmt.Sprintf("setprop persist.sys.pixelparts.mbn %s", req.Mode)
-	if err := exec.Command("sh", "-c", cmdStr).Run(); err != nil {
+	if err := exec.Command("setprop", "persist.sys.pixelparts.mbn", req.Mode).Run(); err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		_ = json.NewEncoder(w).Encode(map[string]any{"ok": false, "error": err.Error()})
 		return

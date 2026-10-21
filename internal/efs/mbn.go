@@ -57,8 +57,8 @@ var OsMcfgCandidatePaths = []string{
 }
 
 // DiscoverMbnConfigs scans the host OS filesystem (RFS/vendor/firmware partitions) first,
-// and falls back to modem EFS if no local files are discovered.
-func (s *EfsSession) DiscoverMbnConfigs(configType string) []MbnConfigItem {
+// and falls back to modem EFS if no local files are discovered and s != nil.
+func DiscoverMbnConfigs(s *EfsSession, configType string) []MbnConfigItem {
 	var results []MbnConfigItem
 	seen := make(map[string]bool)
 
@@ -206,6 +206,10 @@ func (s *EfsSession) DiscoverMbnConfigs(configType string) []MbnConfigItem {
 	}
 
 	return results
+}
+
+func (s *EfsSession) DiscoverMbnConfigs(configType string) []MbnConfigItem {
+	return DiscoverMbnConfigs(s, configType)
 }
 
 func parseMbnHierarchy(relPath string) (category string, friendlyName string) {
