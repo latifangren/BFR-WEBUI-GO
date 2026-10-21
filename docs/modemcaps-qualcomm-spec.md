@@ -88,21 +88,47 @@ Satu pola dengan cell lock yang sudah ada, file-file:
 
 Backend di `internal/efs/searcher.go` atau file `locks.go` terpisah; UI menyatu di `QualcommSearcher.svelte` sebagai seksi "Kunci tambahan".
 
-## 6. Di luar cakupan
+## 6. Fitur D — Switch Profil MBN / PDC (Gap 5)
+
+Padanan halaman **PDC Preferences** ModemCaps — fitur yang di BFR belum ada sama sekali (tidak ada `mbn`/`mcfg`/`pdc` di backend maupun frontend; `QualcommProfiles` yang ada adalah profil band lock, bukan MBN). Permukaan fitur dari kamus string hasil dekripsi:
+
+- Dua daftar konfigurasi MBN yang terpasang di modem: **SW configs** (`_pdc_sw_listview`) dan **HW configs** (`_pdc_hw_listview`), direktori modem `/mcfg_sw/generic` dan `/mcfg_hw/generic`
+- Profil PDC aktif saat ini ("PDC profile", "PDC configs: …") dan pergantiannya
+- Toggle **autoselect on SIM change**: file EFS `/nv/item_files/mcfg/mcfg_autoselect_by_uim` + varian `mcfg_autoselect_by_uim_Subscription01`
+- Mode pembaruan "with MBN update only"
+
+**Yang belum diketahui (jujur):** jalur aktivasi persisnya di ModemCaps belum tertelusur ujung-ke-ujung — fitur ini tertangkap dari dekripsi string, bukan bedah alur. Di ekosistem Qualcomm, pengelolaan konfigurasi MBN umumnya berjalan lewat layanan QMI MCFG/PDC (list/activate/deactivate) dan/atau file EFS `mcfg`, dan ModemCaps kemungkinan menggerakkannya lewat kanal frame native-nya. Karena itu Fitur D punya fase riset sendiri:
+
+- **Fase R1 (statis):** telusuri pemakaian layar PDC di smali `a.z`/`a.an` dan laporan alur Java — frame apa yang dikirim saat profil diganti.
+- **Fase R2 (perangkat):** di perangkat uji, ganti profil lewat ModemCaps lalu diff isi EFS sebelum/sesudah memakai EFS browser BFR yang sudah ada; catat file & byte yang berubah.
+- **Fase R3 (protokol):** kalau jalurnya QMI, petakan service/message MCFG-PDC dari referensi publik dan cocokkan dengan `QRTRClient` yang ada.
+
+### Desain (sesudah fase riset mengunci mekanisme)
+
+- **Backend:** pembacaan daftar + aktivasi di sisi QMI masuk `internal/modem` (file baru `qualcomm_pdc.go`, sejajar `qualcomm_qrtr.go` — wilayah QMI/QRTR); toggle autoselect adalah file EFS sehingga ditulis lewat sesi `internal/efs`. File baru mana pun yang menyentuh baseband wajib `//go:build !nomodem`.
+- **Handler:** `internal/handlers/mbn_handler.go`; route di seksi Qualcomm `routes_vendor_modem.go`:
+  - `GET /api/qualcomm/mbn` — daftar SW + HW configs, profil aktif, status autoselect
+  - `POST /api/qualcomm/mbn/activate` — ganti profil aktif (selalu catat profil sebelumnya; SSR sesudahnya opsional-eksplisit seperti pola IMEI)
+  - `POST /api/qualcomm/mbn/autoselect` — toggle autoselect by UIM per subscription
+- **Frontend:** `frontend/src/components/tabs/qualcomm/QualcommMBN.svelte`, sub-tab di `TabQualcomm.svelte` (keputusan terkunci yang sama dengan Fitur A/B).
+- **Pengaman:** aktivasi profil yang salah bisa membuat modem gagal registrasi sampai dikembalikan — UI wajib menampilkan profil aktif sebelumnya dan menyediakan jalan pulang satu klik; tidak ada aktivasi tanpa konfirmasi.
+
+## 7. Di luar cakupan
 
 - **Laporan CA combos (Gap 4)** — butuh query kapabilitas QMI (protokol baru di `QRTRClient`); riset terpisah, bukan bagian spek ini.
 - Perubahan apa pun di `internal/shannon`, `internal/samsung`, route `/api/shannon/*` dan `/api/samsung/*`, dan tab `shannon/` + `samsung/`.
 - Flavor `nomodem` tidak berubah perilaku: tidak ada route/handler/komponen baru yang bocor ke build `nomodem` (build tag `!nomodem` + stub + `vendor_tabs.ts` dijaga).
 
-## 7. Urutan pengerjaan
+## 8. Urutan pengerjaan
 
 1. Fase 0 — verifikasi format file di perangkat (Fitur A).
 2. Fitur B + C — format datanya paling pasti; pack/unpack + unit test dulu, baru I/O + UI.
 3. Fitur A LTE — tulis per file yang formatnya sudah terkunci di Fase 0.
 4. Fitur A NR — 4 file `nr5g/RRC/cap_*`.
-5. Uji end-to-end di perangkat: tulis → SSR → baca balik → bandingkan dengan ModemCaps di perangkat yang sama.
+5. Fitur D — fase riset R1–R3 bisa berjalan sejajar dengan langkah 3–4 (statis dulu); implementasi hanya sesudah mekanismenya terkunci.
+6. Uji end-to-end di perangkat: tulis → SSR → baca balik → bandingkan dengan ModemCaps di perangkat yang sama.
 
-## 8. Risiko & mitigasi
+## 9. Risiko & mitigasi
 
 - **Format file salah tebak** → mitigasi Fase 0 + backup wajib sebelum tulis pertama per file; restore = tulis balik backup.
 - **File tidak ada di perangkat tertentu** → `ReadCapability` toleran; UI menandai "tidak didukung perangkat ini" (mengikuti penjelasan footer ModemCaps: hardware/supplemental connectivity/airplane mode).
