@@ -18,6 +18,7 @@
   import Card from '../../ui/Card.svelte'
   import Button from '../../ui/Button.svelte'
   import Badge from '../../ui/Badge.svelte'
+  import Modal from '../../ui/Modal.svelte'
 
   interface MbnConfigItem {
     name: string
@@ -216,14 +217,14 @@
         <div class="flex items-center border-2 border-border rounded overflow-hidden text-xs font-bold">
           <button
             type="button"
-            class="px-2.5 py-1 cursor-pointer transition-all {selectedSlot === 0 ? 'bg-accent text-accent-foreground' : 'bg-card text-muted hover:text-foreground'}"
+            class="px-2.5 py-1 cursor-pointer transition-all {selectedSlot === 0 ? 'bg-accent text-accent-text' : 'bg-card text-muted hover:text-foreground'}"
             onclick={() => { selectedSlot = 0; loadOverview(); }}
           >
             SIM 1
           </button>
           <button
             type="button"
-            class="px-2.5 py-1 cursor-pointer transition-all {selectedSlot === 1 ? 'bg-accent text-accent-foreground' : 'bg-card text-muted hover:text-foreground'}"
+            class="px-2.5 py-1 cursor-pointer transition-all {selectedSlot === 1 ? 'bg-accent text-accent-text' : 'bg-card text-muted hover:text-foreground'}"
             onclick={() => { selectedSlot = 1; loadOverview(); }}
           >
             SIM 2
@@ -297,10 +298,10 @@
     {#if overview.previous_profile}
       <div class="p-3 bg-amber-500/10 border-2 border-amber-500/30 rounded text-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div class="flex items-start gap-2">
-          <ShieldAlert class="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
+          <ShieldAlert class="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
           <div>
-            <span class="font-bold text-amber-300 block">Rollback Safety Shield:</span>
-            <span class="text-muted">Profil sebelumnya tersimpan: <strong class="text-foreground font-mono">{overview.previous_profile}</strong></span>
+            <span class="font-bold text-amber-800 dark:text-amber-300 block">Rollback Safety Shield:</span>
+            <span class="text-muted">Previous active profile recorded: <strong class="text-foreground font-mono">{overview.previous_profile}</strong></span>
           </div>
         </div>
         <Button
@@ -308,7 +309,7 @@
           size="sm"
           onclick={revertPreviousProfile}
           disabled={isReverting}
-          class="border-amber-500/50 text-amber-300 hover:bg-amber-500/20 gap-1.5 shrink-0"
+          class="border-amber-500/50 text-amber-700 dark:text-amber-300 hover:bg-amber-500/20 gap-1.5 shrink-0"
         >
           <RotateCcw class="w-3.5 h-3.5" />
           <span>{isReverting ? 'Reverting...' : 'Revert to Previous'}</span>
@@ -428,39 +429,34 @@
 </div>
 
 <!-- CONFIRMATION MODAL -->
-{#if showConfirmModal && pendingConfig}
-  <div class="fixed inset-0 z-50 bg-black/70 backdrop-blur-xs flex items-center justify-center p-4">
-    <div class="p-5 bg-card border-2 border-border rounded-lg shadow-neobrutal-md max-w-md w-full space-y-4">
-      <div class="flex items-center gap-2 border-b-2 border-border/60 pb-3">
-        <AlertTriangle class="w-5 h-5 text-amber-400" />
-        <h4 class="text-sm font-bold uppercase tracking-wider text-foreground">
-          Konfirmasi Pergantian Profil MBN
-        </h4>
-      </div>
-
-      <div class="space-y-2 text-xs text-foreground">
-        <p>Anda akan mengaktifkan profil baseband berikut pada <strong>SIM {selectedSlot + 1}</strong>:</p>
+{#if pendingConfig}
+  <Modal bind:open={showConfirmModal} title="Confirm MBN Carrier Profile Switch" size="md">
+    {#snippet children()}
+      <div class="space-y-3 text-xs text-foreground">
+        <p>You are about to activate the following baseband carrier profile on <strong>SIM {selectedSlot + 1}</strong>:</p>
         <div class="p-2.5 bg-card-sub border-2 border-border rounded font-mono break-all font-bold">
-          {pendingConfig.name}
+          {pendingConfig?.name || ''}
         </div>
         <p class="text-muted">
-          Profil saat ini ({overview.active_profile || 'Default'}) akan dicatat di penyimpanan rollback otomatis. Jika modem kehilangan sinyal sesudah pergantian, Anda dapat menggunakan tombol <strong>Revert to Previous</strong>.
+          The current active profile ({overview.active_profile || 'Default'}) will be recorded for one-click rollback. If modem connectivity is lost, you can use the <strong>Revert to Previous</strong> button.
         </p>
+
+        <label class="flex items-center gap-2 text-xs font-bold text-foreground cursor-pointer pt-2 border-t border-border/60">
+          <input type="checkbox" bind:checked={restartSSR} class="w-4 h-4 accent-accent" />
+          <span>Perform Subsystem Restart (SSR) after activation</span>
+        </label>
       </div>
+    {/snippet}
 
-      <label class="flex items-center gap-2 text-xs font-bold text-foreground cursor-pointer pt-2 border-t border-border/60">
-        <input type="checkbox" bind:checked={restartSSR} class="w-4 h-4 accent-accent" />
-        <span>Jalankan Restart Modem (SSR) sesudah aktivasi</span>
-      </label>
-
-      <div class="flex items-center justify-end gap-2 pt-2">
+    {#snippet footer()}
+      <div class="flex items-center justify-end gap-2">
         <Button variant="outline" size="sm" onclick={() => (showConfirmModal = false)}>
-          Batal
+          Cancel
         </Button>
-        <Button variant="default" size="sm" onclick={confirmActivate} disabled={isActivating}>
-          {isActivating ? 'Mengaktifkan...' : 'Ya, Aktifkan Profil'}
+        <Button variant="primary" size="sm" onclick={confirmActivate} disabled={isActivating}>
+          {isActivating ? 'Activating...' : 'Confirm & Activate Profile'}
         </Button>
       </div>
-    </div>
-  </div>
+    {/snippet}
+  </Modal>
 {/if}

@@ -263,13 +263,13 @@
     </div>
 
     <!-- STATIC WARNING NOTE AS IN MODEMCAPS SPEC -->
-    <div class="p-3 bg-amber-500/10 border-2 border-amber-500/30 rounded text-xs text-amber-200 flex items-start gap-2.5">
-      <ShieldAlert class="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
+    <div class="p-3 bg-amber-500/10 border-2 border-amber-500/30 rounded text-xs text-amber-900 dark:text-amber-200 flex items-start gap-2.5">
+      <ShieldAlert class="w-4 h-4 text-amber-700 dark:text-amber-400 shrink-0 mt-0.5" />
       <div class="space-y-1">
-        <span class="font-bold uppercase tracking-wider block text-amber-400">Peringatan Efek Samping:</span>
+        <span class="font-bold uppercase tracking-wider block text-amber-800 dark:text-amber-400">Side Effect Warning:</span>
         <p>
-          Perubahan pada Searcher Preferences atau Cell Locks memicu <strong>modem power cycle / restart subsistem modem (SSR)</strong>.
-          Mengisi daftar prioritas UMTS (3G) akan otomatis menggeser preferensi modem ke mode <strong>UMTS-only</strong>.
+          Modifying Searcher Preferences or Cell Locks triggers a <strong>modem power cycle / subsystem restart (SSR)</strong>.
+          Filling the UMTS (3G) priority list shifts the modem preference to <strong>UMTS-only</strong> mode.
         </p>
       </div>
     </div>
@@ -311,7 +311,7 @@
         <div class="p-3 bg-card-sub border-2 border-border rounded space-y-3">
           <div class="flex items-center justify-between">
             <span class="text-xs font-bold text-foreground">Cell Blacklist</span>
-            <Badge variant="outline">{searcherPrefs[selectedRat].cell_blacklist.length}/6</Badge>
+            <Badge variant="default">{searcherPrefs[selectedRat].cell_blacklist.length}/6</Badge>
           </div>
 
           <div class="space-y-1.5 max-h-48 overflow-y-auto">
@@ -359,7 +359,7 @@
         <div class="p-3 bg-card-sub border-2 border-border rounded space-y-3">
           <div class="flex items-center justify-between">
             <span class="text-xs font-bold text-foreground">Channel Blacklist</span>
-            <Badge variant="outline">{searcherPrefs[selectedRat].channel_blacklist.length}/6</Badge>
+            <Badge variant="default">{searcherPrefs[selectedRat].channel_blacklist.length}/6</Badge>
           </div>
 
           <div class="space-y-1.5 max-h-48 overflow-y-auto">
@@ -401,7 +401,7 @@
         <div class="p-3 bg-card-sub border-2 border-border rounded space-y-3">
           <div class="flex items-center justify-between">
             <span class="text-xs font-bold text-foreground">Priority Channels</span>
-            <Badge variant="outline">{searcherPrefs[selectedRat].priority_channels.length}/{selectedRat === 'umts' ? 1 : 6}</Badge>
+            <Badge variant="default">{searcherPrefs[selectedRat].priority_channels.length}/{selectedRat === 'umts' ? 1 : 6}</Badge>
           </div>
 
           <div class="space-y-1.5 max-h-48 overflow-y-auto">
@@ -443,11 +443,11 @@
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-3 border-t-2 border-border/60">
         <label class="flex items-center gap-2 cursor-pointer text-xs font-bold text-foreground">
           <input type="checkbox" bind:checked={restartSSR} class="w-4 h-4 accent-accent" />
-          <span>Restart Modem (SSR) sesudah penulisan berhasil</span>
+          <span>Restart modem (SSR) after write</span>
         </label>
-        <Button variant="default" onclick={saveSearcherPreferences} disabled={isSaving} class="gap-2">
+        <Button variant="primary" onclick={saveSearcherPreferences} disabled={isSaving} class="gap-2">
           <Save class="w-4 h-4" />
-          <span>{isSaving ? 'Menyimpan ke EFS...' : 'Apply Searcher Preferences'}</span>
+          <span>{isSaving ? 'Writing to EFS...' : 'Apply Searcher Preferences'}</span>
         </Button>
       </div>
     </Card>
@@ -458,7 +458,7 @@
     <div class="flex items-center gap-2 border-b-2 border-border/60 pb-3">
       <Lock class="w-4 h-4 text-accent" />
       <span class="text-xs font-black uppercase tracking-wider text-foreground">
-        Kunci Tambahan / Extra Locks (GERAN, WCDMA & CSP)
+        Extra Locks (GERAN, WCDMA & CSP)
       </span>
     </div>
 
@@ -548,9 +548,9 @@
     </div>
 
     <div class="flex items-center justify-end pt-3 border-t-2 border-border/60">
-      <Button variant="default" onclick={saveExtraLocks} disabled={isSaving} class="gap-2">
+      <Button variant="primary" onclick={saveExtraLocks} disabled={isSaving} class="gap-2">
         <Lock class="w-4 h-4" />
-        <span>{isSaving ? 'Menyimpan Kunci...' : 'Apply Extra Locks'}</span>
+        <span>{isSaving ? 'Saving Locks...' : 'Apply Extra Locks'}</span>
       </Button>
     </div>
   </Card>

@@ -250,6 +250,7 @@
   {:else if subTab === 'mbn'}
     <QualcommMBN />
   {:else if subTab === 'profiles'}
+    <QualcommProfiles
       simSlot={bandConfig.sim_slot ?? 0}
     />
   {:else if subTab === 'efs'}
