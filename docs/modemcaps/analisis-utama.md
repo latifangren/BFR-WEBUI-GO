@@ -54,7 +54,7 @@ Launcher ──► a.am  (state global modem di field statis, per slot/SIM [5])
                         ├─ a.ca  switch kapabilitas
                         ├─ a.sc  editor searcher (cell/channel)
                         ├─ a.pc  prioritas RAT
-                        └─ a.ba  penampil laporan (RRC CA, ICC, RFC, restart MPSS)
+                        └─ a.ba  penampil laporan (RFFE, EFS Misc, ICC, LTE CA)
 
 Binary pendamping (di dalam APK, menyamar sebagai .so):
   libb.so  = utilitas file gaya busybox/toybox (stat/ls/chmod/chown)
@@ -80,7 +80,7 @@ Tiga prinsip desain yang konsisten di seluruh kode:
    - `p(id)` / `u()` — membaca string per-id / identitas perangkat global.
 4. **Data diterjemahkan** → ±11 dekoder di `a.m` mengubah ByteBuffer mentah menjadi tabel band, token fitur, dan teks laporan; tabel pemetaan nomor band 1–256 (LTE/NR) ke label juga ada di kelas ini.
 5. **Laporan dirender** oleh routine raksasa `m45a()` (±3.200 baris) ke TextView badan, dengan Toast untuk hasil/error operasi (66 titik Toast).
-6. **Pengguna memilih menu** → dispatcher `onOptionsItemSelected` (±8.400 baris, sebagian dispatch-nya *posisional* per slot, bukan per id menu) membuka editor atau laporan yang sesuai.
+6. **Pengguna memilih menu** → dispatcher `onOptionsItemSelected` (±8.400 baris, sebagian dispatch-nya *posisional* per slot, bukan per id menu) membuka editor atau laporan yang sesuai. Satu jebakan besar: id item digeser **+1** sebelum dibandingkan (`am.java:15964`), jadi label menu ≠ aksi — mis. label "Data Preferences" membuka editor kapabilitas, label "RAT Priority" membuka Debug Info (tabel terkoreksi: laporan alur §2.5).
 7. **Editor bekerja** di atas salinan state (lihat Bagian 5), lalu saat Back: hasil ditulis kembali ke Intent yang sama dan dikembalikan dengan result code khas (0 = batal, 21 = reset dari `em`, 12 = reset dari `sc`).
 8. **Perubahan diterapkan** → `onActivityResult` menyerahkan hasil ke coroutine `a.av`, yang memperbarui statics dan menulisnya ke modem lewat native. Untuk jenis perubahan tertentu (preferensi searcher), modem di-*power cycle*/restart MPSS — persis seperti peringatan di UI (±1 menit, kadang memicu reboot ponsel, aplikasi terputus sampai restart).
 9. **Laporan dapat dibagikan** — disalin ke clipboard dari dialog hasil, atau dibagikan lewat share sheet Android dari penampil `ba`. Ini satu-satunya jalur data keluar perangkat, dan hanya atas tindakan eksplisit pengguna.
@@ -96,11 +96,13 @@ Penyimpanan persisten di sisi Java hanya SharedPreferences `"g"` (kunci `x` tero
 - **Peran:** satu-satunya pintu ke modem; memegang state per slot (array berukuran [5]); merender laporan kapabilitas; menampung dispatcher menu 24 item.
 - **Threading:** tanpa Executor/Handler — Kotlin coroutines (12 titik peluncuran) + 1 thread mentah startup + 1 `Semaphore` (1 permit) untuk serialisasi akses modem. `onDestroy` menunggu semaphore sampai 5 detik sebelum cleanup buffer sesi native.
 - **Menu dan jebakan penamaannya** (terverifikasi dari kode, bukan dari judul menu):
-  - `menu_efs_clear` berjudul *"Clear RMTEFS"* sebenarnya **membuka halaman switch kapabilitas `ca`**;
-  - `menu_csp_config` berjudul *"Searcher Preferences"* membuka editor `sc`;
-  - editor checklist band `em` justru dibuka dari item kapabilitas, bukan dari menu Config;
-  - grup *Test Commands* selalu dipaksa tidak terlihat; command 2–5 adalah no-op;
-  - item *About* tidak punya dispatch by-id (jatuh ke alur laporan generik).
+  - dispatcher menggeser id item **+1** sebelum membandingkan (`am.java:15964`) — obfuskasi disengaja; pemetaan label di bawah ini adalah hasil koreksi 2026-10-21 (rincian + bukti: laporan alur §2.5);
+  - label *"Data Preferences"* (`menu_dfp_config`) sebenarnya **membuka halaman switch kapabilitas `ca`** — judul window `ca` memang "Data Preferences"; cabang kodenya bernama `menu_efs_clear`/"Clear RMTEFS";
+  - label *"Clear RMTEFS"* sendiri tidak menghapus apa-apa (jatuh ke alur generik → laporan Debug Info); label *"RFC Report"* juga tanpa implementasi;
+  - label *"RAT Priority"* membuka laporan Debug Info; picker prioritas RAT `pc` dijangkau lewat label *"PDC Preferences"*; label *"RAT/Band Preferences"* membuka editor checklist band `em`;
+  - `menu_csp_config` berjudul *"Searcher Preferences"* membuka editor `sc` (cabang yang dipakai bernama `menu_debug`);
+  - grup *Test Commands* selalu dipaksa tidak terlihat; command 1–5 semuanya no-op;
+  - item *About* membuka dialog char-decode (`f809a=-2`) — dialog yang semula dikira milik "Deny ⚡ connect"; kedua opsi checkable ("Deny ⚡ connect", "Shitty kernel") ternyata cuma toggle flag statis, tanpa dialog.
 - **Dialog hasil:** tombol dialog dapat (0) menyalin laporan ke clipboard, (1) menyalin teks debug ke clipboard, (2) **menjalankan jalur shell** (Bagian 8).
 
 ### 5.2 Editor band `a.em` — checklist band per RAT
@@ -142,7 +144,7 @@ Footer halaman ini — ditulis pengembangnya sendiri di XML — menjelaskan kont
 
 ### 5.6 Penampil laporan `a.ba`
 
-- Menampilkan laporan besar (RRC CA Combos, LTE CA Combos, ICC Misc. Files, EFS Misc. Files, RFC Report, Restart MPSS) sebagai teks monospace yang bisa diseleksi.
+- Menampilkan laporan besar (RFFE Components, EFS Misc. Files, ICC Misc. Files, LTE CA Combos — label→isi bergeser +1, lihat laporan alur §2.5) sebagai teks monospace yang bisa diseleksi.
 - String ≥ 16.384 karakter tidak dikirim lewat Intent/Binder, melainkan disimpan di registry statis `am` dan hanya hash-nya yang dikirim; penerima mengambil **dan menghapusnya** (one-shot).
 - Dilengkapi pencarian teks (lompat ke hasil berikutnya, plat pencarian memerah bila tidak ketemu) dan tombol share — **satu-satunya implicit intent di seluruh aplikasi**.
 
@@ -221,6 +223,7 @@ Material kuncinya hanya dua: konstanta per call site dan blob itu sendiri; tidak
 3. **Perilaku runtime tidak diuji** — tidak ada perangkat/emulator yang menjalankan APK ini; urutan persis frame perintah modem (`o()`) dan peran tiap method native disimpulkan dari pola pemakaian dan pseudocode Ghidra, bukan dari observasi langsung.
 4. **Peran `libb.so`/`libc.so`** — naik bukti di putaran kedua tanpa menjalankan prosesnya: pseudocode Ghidra `libb.so` memuat implementasi listing direktori gaya `ls` yang utuh, dan `libc.so` terbukti menyimpan tabel pointer ke `/sys/fs/selinux/policy`. Temuan native terbesar putaran kedua: **`liba.so` juga executable mandiri** — entry point-nya menjalankan worker lookup layanan QRTR/QMI berprotokol pipa stdin/stdout untuk proses induk (dirinci di `ModemCaps-Pendalaman-2.md`). Alur `main` persis `libc.so` masih belum tertelusur (dekompilasi ARM32-nya buruk), dan pemetaan 17 method JNI ↔ alamat fungsi masih sebagian.
 5. Tanda tangan APK tidak diverifikasi terhadap sertifikat penerbit mana pun (`signature_verification: not_performed` dari REA).
+6. ~~**Peta dispatch menu salah satu langkah.**~~ **TERTUTUP 2026-10-21** — putaran koreksi menemukan `onOptionsItemSelected` menggeser id item +1 (`am.java:15964`); tabel label→aksi di laporan alur §2.5 sudah diganti versi terkoreksi (diverifikasi silang menu XML, `public.xml`, kode cabang, dan kamus terdekripsi). Efek sampingnya: "Data Preferences" terpecahkan (= editor kapabilitas `ca`, padanan Fitur A di spek) dan sumber laporan HW terpetakan (RFFE dari `/rfc/rffe_scan/rffe_scan.dat`; ICC Misc parser on-demand; RFC Report tidak ada). Yang tetap terbuka dari koreksi ini: baris pembangun spesifik string statis laporan `c`/`d`/`e` belum dipetakan, dan referensi `/rfc/rfdevice_report.dat` belum ketemu di kode ter-decompile.
 
 ---
 

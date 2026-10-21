@@ -28,4 +28,4 @@ Dokumentasi ini adalah bahan mentah di balik spek implementasi [`../modemcaps-qu
 
 ## Yang masih belum terverifikasi (jujur)
 
-Perilaku runtime tidak pernah diuji di perangkat; urutan persis frame perintah modem disimpulkan dari pola pemakaian + pseudocode; jalur aktivasi PDC/MBN dan isi Data Preferences belum tertelusur ujung-ke-ujung. Rincian di Bagian 9 `analisis-utama.md` dan Seksi 10 spek (lampiran riset).
+Perilaku runtime tidak pernah diuji di perangkat; urutan persis frame perintah modem disimpulkan dari pola pemakaian + pseudocode; jalur aktivasi PDC/MBN belum tertelusur ujung-ke-ujung. Rincian di Bagian 9 `analisis-utama.md` dan Seksi 10 spek (lampiran riset). **Koreksi 2026-10-21:** dispatch menu ternyata bergeser +1 (`am.java:15964`) — tabel label→aksi di `laporan-alur-java.md` §2.5 sudah terkoreksi, dan "Data Preferences" terpecahkan (= editor kapabilitas `ca`).

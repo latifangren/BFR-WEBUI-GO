@@ -105,7 +105,7 @@ Cara kerja kode (`a/sc.java`):
 - **Data masuk (`pc.java:103-140`, semua kunci terenkripsi):** `byte[][]` nilai kandidat, dua `String[]` label (untuk daftar atas dan bawah), `byte[][]` pilihan saat ini, dan dua `byte[][]` set referensi pembanding. Extra wajib null → exception.
 - **Binder (`pc.java:146-200`):** tiap kandidat diberi flag bit di SparseIntArray: bit 1 = sama dengan pilihan saat ini, bit 2 = sama dengan set referensi C, bit 4 = sama dengan set referensi D; widget `a.i` merender glif status ⭐/⏳ (`pc.java:71-77`) dan menangani long-click sendiri (`a/i.java:20`).
 - **Hasil (`pc.java:45-65`):** per halaman, posisi tercentang di daftar bawah menggantikan `f592b[page]` dengan kandidat terpilih dan array itu ditulis balik ke Intent (kunci terenkripsi yang sama dengan kunci token di `ca`). Return 3 bila semua halaman punya pilihan, -1 bila ada yang kosong.
-- Dipakai `am` untuk menu RAT Priority (lihat 2.5). Tanpa menu/dialog/aktivitas keluar.
+- Dipakai `am` sebagai picker prioritas RAT — dijangkau pengguna lewat label menu **"PDC Preferences"** (dispatch bergeser +1, lihat 2.5); label "RAT Priority" sendiri justru membuka laporan Debug Info. Tanpa menu/dialog/aktivitas keluar.
 
 ### 1.5 `a.ba` — Penampil teks read-only + pencarian + share
 
@@ -116,7 +116,7 @@ Cara kerja kode (`a/sc.java`):
 - Rendering asinkron: coroutine `a.az` mengubah string menjadi `Spannable` dengan pewarnaan glif status (lewat `a.a(String)`), menempelkannya ke body di UI thread, dan menyiapkan salinan lowercase untuk pencarian (`az` di `a/az.java`).
 - **Pencarian (`a/bb.java:13`):** submit query (>1 char) mencari kemunculan berikutnya case-insensitive dari posisi kursor, menyeleksi teksnya di body; tidak ketemu → pelat SearchView diwarnai merah. Change query mewarnai ulang pelat.
 - **Menu share** (`ba.java:112-138`): satu item ikon `ic_menu_share`; memilihnya membangun Intent kirim (action, MIME type, dan kunci extra semuanya string terenkripsi) berisi teks body dengan satu substring terenkripsi dibuang, lalu `startActivity(Intent.createChooser(...))`. Ini **satu-satunya implicit intent di seluruh sisi Java** — berbagi laporan lewat aplikasi lain.
-- Dipakai `am` untuk menampilkan: RRC CA combos, ICC Misc files, LTE CA combos, "Restart MPSS", dan laporan internal dari `m45a()` (lihat 2.5). Tidak mengembalikan result (Back = perilaku Activity biasa).
+- Dipakai `am` untuk menampilkan laporan: RFFE Components, EFS Misc Files, ICC Misc Files, LTE CA Combos (label→isi bergeser +1, lihat 2.5), dan laporan internal dari `m45a()`. Tidak mengembalikan result (Back = perilaku Activity biasa).
 
 ---
 
@@ -147,7 +147,7 @@ Hampir semua field adalah array primitif/string berukuran **[5]** (per slot/SIM)
 ### 2.3 Threading & konkurensi
 
 - **Tanpa ExecutorService/AsyncTask/Handler.** Polanya: Kotlin coroutines (obfuscated `kotlinx.coroutines`, peluncur `cs.a`) + 1 Thread mentah + 1 Semaphore.
-- 12 titik peluncuran coroutine: konstruktor (Job utama `a/l`, `am.java:1068`), startup (`a/y`), operasi baca/tulis modem (`a/u` ×3 — `am.java:4992, 5895, 7176`), hasil aktivitas (`a/av`), IMS (`a/ax`), laporan RFC (`a/ay`), dan dispatch ulang menu per slot (`a/aw` ×2).
+- 12 titik peluncuran coroutine: konstruktor (Job utama `a/l`, `am.java:1068`), startup (`a/y`), operasi baca/tulis modem (`a/u` ×3 — `am.java:4992, 5895, 7176`), hasil aktivitas (`a/av`), regenerasi laporan kapabilitas (`a/ax` → `m45a()`; cabang bernama `menu_ims` tapi dipicu label "RRC CA Combos"), restart MPSS (`a/ay` → `m42g()`; cabang bernama `menu_hw_rfc_report` tapi dipicu label "Restart MPSS"), dan dispatch ulang menu per slot (`a/aw` ×2).
 - ±90 `runOnUiThread` di `m45a()` (routine render hasil raksasa, `am.java:10895-14123`): pekerjaan dilakukan di luar UI thread, lalu Toast/teks diposting lewat Runnable `a.g`; di banyak titik kode memeriksa `Looper.getMainLooper().getThread() == Thread.currentThread()` untuk memilih sentuh-UI-langsung vs posting.
 - `Semaphore f307a`: dipakai di `onDestroy` — `tryAcquire(5 detik)` bila sesi modem aktif sebelum cleanup native (14879-14888).
 
@@ -181,39 +181,40 @@ Pola pemakaian inti — pasangan `o()` + `no()` dibungkus wrapper privat (`am.ja
 
 `onCreateOptionsMenu` (14864-14872) meng-inflate `R.menu.am`. `onOptionsItemSelected` adalah monster 15554-23961 (±8.400 baris — mayoritas file ini). `onPrepareOptionsMenu` (23963-24051) mengatur visibilitas secara programatik **berdasarkan indeks item** dan state kapabilitas (`f302a`, isi string statis, `f319b`), bukan berdasarkan id.
 
-Struktur menu XML → perilaku kode:
+> **KOREKSI 2026-10-21 — dispatch bergeser +1 (penting, menggantikan pembacaan awal tabel ini).** `onOptionsItemSelected` menghitung `int itemId = menuItem.getItemId() + 1;` SATU KALI di `am.java:15964` dan tidak pernah meng-assign ulang sampai akhir method — semua cabang `if (itemId == R.id.X)` membandingkan nilai yang sudah digeser. Akibatnya **label yang diklik pengguna selalu menjalankan aksi milik id resource BERIKUTNYA** (urutan id di `res/values/public.xml` 0x7f010030–0x7f01004e persis mengikuti urutan menu). Ini obfuskasi yang disengaja, bukan bug. Tabel di bawah adalah versi TERKOREKSI (label terlihat → aksi sebenarnya), diverifikasi silang `res/menu/am.xml`, `public.xml`, kode cabang, dan kamus string terdekripsi.
+
+Struktur menu XML → perilaku kode (terkoreksi):
 
 | Grup/Item (id, judul XML) | Visibel awal | Perilaku |
 |---|---|---|
 | `menu_config` "Config" | — | grup; diaktifkan hanya bila `f302a != 0` (`am.java:23970`) |
-| `menu_rbp_config` "RAT/Band Preferences" | ya | alur generik perintah (lewat `f330c`/method sesi, bukan dispatch by-id) |
-| `menu_rat_prio` "RAT Priority" | **false** | → `pc.class`, extras dibangun inline: `"*"` judul, `"#"`=`f317b`, + 7 extra matriks (`byte[][]` f275c/f277d/f279e/f280f/f281g + `String[]` f284i/f287j) — `am.java:15974-15985` |
-| `menu_csp_config` "Searcher Preferences" | ya | → `sc.class` via serializer `d.b(...)` (`am.java:15968-15970`) — **judul menunya "Searcher", isinya editor cell/channel Bagian 1.3** |
-| `menu_dfp_config` "Data Preferences" | **false** | alur generik perintah |
-| `menu_pdc_config` "PDC Preferences" | **false** | alur generik perintah |
-| `menu_efs_clear` "Clear RMTEFS" | **false** | → `ca.class` via serializer `d.c(...)` (`am.java:15971-15973`) — **id-nya menyesatkan: yang dibuka adalah halaman switch kapabilitas Bagian 1.2** |
+| `menu_rbp_config` "RAT/Band Preferences" | ya | → **editor checklist band `em.class`** via serializer `d.a(...)` (cabang `nr_ard_enabled`, `am.java:15965-15967`) |
+| `menu_rat_prio` "RAT Priority" | **false** | **tidak membuka picker** — jatuh ke alur generik → laporan Debug Info. Picker `pc` dijangkau lewat label "PDC Preferences" (baris `menu_pdc_config`) |
+| `menu_csp_config` "Searcher Preferences" | ya | → `sc.class` via serializer `d.b(...)` (cabang bernama `menu_debug`, `am.java:15968-15970`) — **judul menunya "Searcher", isinya editor cell/channel Bagian 1.3; satu-satunya item Config yang label dan isinya cocok** |
+| `menu_dfp_config` "Data Preferences" | **false** | → **editor switch kapabilitas `ca.class`** via serializer `d.c(...)` (cabang `menu_efs_clear`, `am.java:15971-15973`) — judul window `ca` memang "Data Preferences" (`d.java:493`, konstanta terdekripsi persis). Tidak ada fitur data terpisah |
+| `menu_pdc_config` "PDC Preferences" | **false** | → **picker RAT Priority `pc.class`**, extras dibangun inline: `"*"` judul, `"#"`=`f317b`, + 7 extra matriks (`byte[][]` f275c/f277d/f279e/f280f/f281g + `String[]` f284i/f287j) (cabang `menu_rat_prio`, `am.java:15974-15985`) — bukan halaman PDC/MBN |
+| `menu_efs_clear` "Clear RMTEFS" | **false** | **tidak menghapus apa-apa** — id hasil gesernya (`menu_hw`, grup) tidak punya cabang; jatuh ke alur generik → laporan Debug Info. Editor `ca` yang dulu dikira milik id ini dibuka label "Data Preferences" |
 | `menu_ims` "IMS" (grup) | **false** | grup; terlihat bila flag `f308a` (23963+) |
-| `menu_ims1` / `menu_ims_status` "IMS Service Status" | false/ya | → coroutine `a/ax` (`am.java:23389`) |
+| `menu_ims1` / `menu_ims_status` "IMS Service Status" | false/ya | → **dialog laporan kapabilitas raksasa** (`f809a=-3`, blok `am.java:15989-23340`; cabang `menu_kacke`) — BUKAN penampil status IMS |
 | `menu_hw` "HW Info" (grup) | **false** | grup info hardware |
-| `menu_hw_rffe` "RFFE Components (deprecated)" | ya | tidak ada dispatch by-id di `am.java` (alur generik) |
-| `menu_hw_efs_misc` "EFS Misc. Files" | ya | idem |
-| `menu_hw_icc_misc` "ICC Misc. Files" | ya | → `ba.class`, extras `"*"` + `"!"`=string statis `e` (`am.java:23368-23373`) |
-| `menu_hw_lte_ca` "LTE CA Combos (deprecated)" | ya | → `ba.class` via serializer `d.d(...)`, `startActivityForResult` (`am.java:23375-23380`) |
-| `menu_hw_rrc_ca` "RRC CA Combos (deprecated)" | ya | → `ba.class`, `"!"`=string statis `c` (`am.java:23361-23366`) |
-| `menu_hw_rfc_report` "RFC Report" | ya | → coroutine `a/ay` (`am.java:23392-23395`) |
-| `menu_hw_reboot` "Restart MPSS" | ya | → `ba.class`, `"!"`=string statis `d` (`am.java:23381-23387`) |
+| `menu_hw_rffe` "RFFE Components (deprecated)" | ya | → `ba.class`, judul "RFFE Components", isi string statis `c` (cabang `menu_hw_rrc_ca`, `am.java:23361-23366`); salah satu sumber string `c`: file modem `/rfc/rffe_scan/rffe_scan.dat` yang dibaca di `a.an` |
+| `menu_hw_efs_misc` "EFS Misc. Files" | ya | → `ba.class`, judul "EFS Misc. Files", isi string statis `e` (cabang `menu_hw_icc_misc`, `am.java:23368-23373`) |
+| `menu_hw_icc_misc` "ICC Misc. Files" | ya | → `ba.class` via serializer `d.d(...)`, `startActivityForResult` (cabang `menu_hw_lte_ca`, `am.java:23375-23380`) — isi dibangun on-demand: parser CA-combo dari blob biner `am.f285i` (`d.java:1068-2146`); class `ai` memformat bagian kartu [EF.IMSI_M]/[EF.KEYS] |
+| `menu_hw_lte_ca` "LTE CA Combos (deprecated)" | ya | → `ba.class`, judul "LTE CA Combos", isi string statis `d` (cabang `menu_hw_reboot`, `am.java:23381-23387`) |
+| `menu_hw_rrc_ca` "RRC CA Combos (deprecated)" | ya | → coroutine `a/ax` → `m45a()` (cabang `menu_ims`, `am.java:23389-23391`; `a/ax.java:25`) — meregenerasi laporan kapabilitas utama, bukan penampil combo tersendiri |
+| `menu_hw_rfc_report` "RFC Report" | ya | **tidak ada implementasinya** — id hasil gesernya (`menu_hw_rffe`) tidak punya cabang; jatuh ke alur generik → laporan Debug Info |
+| `menu_hw_reboot` "Restart MPSS" | ya | → coroutine `a/ay` → `m42g()` (cabang `menu_hw_rfc_report`, `am.java:23392-23395`; `a/ay.java:25`) — restart modem beneran ✓ label dan efek cocok |
 | `menu_debug_status` "Debug" (grup) | **false** | terlihat bila teks debug `f292m` tidak kosong |
-| `menu_debug` "Debug Info" | ya | membangun laporan debug (`f809a=-2`, termasuk pemetaan `Build.VERSION.SDK_INT` dan nilai "⚡ blitz") |
-| `menu_options` "Options" (grup) | ya | memilih grup = toggle statis `f278e` (`am.java:23403-23405`) |
-| `menu_blitz` "Deny ⚡ connect" (checkable) | ya | jalur laporan/dialog dengan judul terdekripsi (`am.java:23406+`); status centang diterapkan di 23484-23491 |
-| `menu_kacke` "Shitty �� kernel" (checkable) | ya | membangun laporan kapabilitas per slot ke mesin dialog (`f809a=-3`, blok raksasa 15989-23340); string laporan didekode dengan tukar pasangan char dan pengurangan kunci `m43a()` per char |
-| `menu_about` "About" | ya | tidak ada dispatch by-id yang ditemukan (kemungkinan jatuh ke alur generik/laporan) |
+| `menu_debug` "Debug Info" | ya | → jalur generik cabang `menu_debug_status`: query modem `b()` — "system selection prefs" / "modes: 0x…" — BUKAN dump debug; laporan Debug Info justru jadi fall-through label lain ("RAT Priority", "Clear RMTEFS", "RFC Report") |
+| `menu_options` "Options" (grup) | ya | grup — tidak bisa diklik; cabang `menu_options` (toggle statis `f278e`, `am.java:23403-23405`) tercapai dari label "Shitty kernel" |
+| `menu_blitz` "Deny ⚡ connect" (checkable) | ya | **cuma toggle flag statis `f276d`** (cabang `menu_command1`, `am.java:23397-23401`) — tidak ada dialog sama sekali |
+| `menu_kacke` "Shitty kernel" (checkable) | ya | **cuma toggle flag statis `f278e`** (cabang `menu_options`, `am.java:23403-23405`) — laporan kapabilitas raksasa `f809a=-3` yang dulu dikira milik item ini dipicu label "IMS Service Status" |
+| `menu_about` "About" | ya | → dialog char-decode (`f809a=-2`, cabang `menu_blitz`, `am.java:23406+`) — dialog yang dulu dikira milik "Deny ⚡ connect" |
 | `menu_commands` "Test Commands" (grup) | **false** | selalu dipaksa tak terlihat di `onPrepareOptionsMenu` (`am.java:23983`) |
-| `menu_command1` | (grup di atas) | toggle statis `f276d = !f276d` (`am.java:23397-23401`) |
-| `menu_command2..5` | | **no-op** — `return true` (`am.java:15986-15988`) |
-| (item kapabilitas, bukan di menu XML) `nr_ard_enabled` | — | → `em.class` via serializer `d.a(...)` (`am.java:15965-15967`) — ini pintu masuk editor checklist band Bagian 1.1 |
+| `menu_command1..5` "Test Commands 1–5" | (grup di atas) | **semua no-op** — klik TC1–TC5 mendarat di cabang `menu_command2..5` / `menu_commands` yang `return true` (`am.java:15986-15988`). Toggle `f276d` yang dulu dikira milik command1 dipicu label "Deny ⚡ connect" |
+| (bukan item menu) `nr_ard_enabled` | — | cabang pertama dispatcher (→ `em.class` via `d.a`, `am.java:15965-15967`); id-nya tepat sesudah `menu_rbp_config`, jadi cabang ini tercapai justru dari klik label "RAT/Band Preferences" |
 
-Catatan dispatch: id item dibaca sebagai `getItemId() + 1` (`am.java:15964`); beberapa perintah tidak di-dispatch per id melainkan **posisional**: untuk kode perintah `10 <= f809a < 20`, dispatcher memanggil ulang `onOptionsItemSelected(null)` sekali per slot dengan `f330c` diganti, atau meluncurkan coroutine `a/aw` (`am.java:23658-23676, 23852`). Semua `startActivityForResult` memakai requestCode **0** dari satu titik bersama (`am.java:23492-23493`).
+Catatan dispatch: **id item digeser `+1` satu kali** di `am.java:15964` — konsekuensinya seluruh tabel di atas (label → cabang id berikutnya); label yang id hasil gesernya tidak punya cabang ("RAT Priority", "Clear RMTEFS", "RFC Report") jatuh ke alur generik di ekor method yang menampilkan laporan Debug Info. Beberapa perintah juga tidak di-dispatch per id melainkan **posisional**: untuk kode perintah `10 <= f809a < 20`, dispatcher memanggil ulang `onOptionsItemSelected(null)` sekali per slot dengan `f330c` diganti, atau meluncurkan coroutine `a/aw` (`am.java:23658-23676, 23852`). Semua `startActivityForResult` memakai requestCode **0** dari satu titik bersama (`am.java:23492-23493`).
 
 ### 2.6 Dialog, clipboard, toast di `am`
 
@@ -306,23 +307,23 @@ Sebagian dari 312 kelas adalah library yang ikut ter-obfuscate: `a/jd.java` = ko
 | # | Fitur yang terlihat pengguna | Aktivitas | Layout | Bukti kode |
 |---|---|---|---|---|
 | 1 | Laporan kapabilitas modem utama (header + teks hasil, bisa diseleksi/disalin) | `am` | programatik (layout `am.xml` tidak dipakai) | `am.java:14825-14862`, render `m45a()` 10895-14123 |
-| 2 | RAT/Band Preferences — edit matriks preferensi band per slot | `am` (alur generik) + editor | menu `menu_rbp_config` | `res/menu/am.xml`; dispatch posisional `am.java:23494+, 23566-23573` |
+| 2 | RAT/Band Preferences — label menunya membuka editor checklist band (baris 3) | `em` via `am` | menu `menu_rbp_config` | `am.java:15965-15967` (cabang `nr_ard_enabled`, geser +1); `res/menu/am.xml` |
 | 3 | Checklist band/RAT per grup (GSM/UMTS/LTE/NR…), centang massal via long-press, reset | `em` | `em.xml` + baris `el.xml` | `em.java:292-921, 1390-1412`; widget `a/el.java:16` |
 | 4 | Switch kapabilitas LTE (CA, UL/DL 256-QAM, UL CA, DL MIMO, VoLTE, filter combo band, Rx chain 0-3, D#0-7, ARD) | `ca` | `ca.xml` seksi LTE | `ca.java:467-753, serializer 25-192` |
 | 5 | Switch kapabilitas NSA (LTE+NSA, DSDA, NDDS, DSS) | `ca` | `ca.xml` seksi NSA | `ca.java:103-112` (serializer), layout :144-160 |
 | 6 | Switch kapabilitas NR (NR CA, NR-DC, DSDA, UL/DL 256-QAM, UL/DL MIMO, VoNR, RedCap, Rx, ARD) | `ca` | `ca.xml` seksi NR | `ca.java:115-150`, layout :165-240 |
 | 7 | Editor blacklist/whitelist cell & channel GSM/UMTS/LTE/NR (maks 6 entri, format ARFCN/BSIC/PSC/PCI/SCS/LAC/TAC/CID) | `sc` | `sc.xml` | `sc.java:269-575` binder, parser `34-212` |
-| 8 | RAT Priority picker (dua daftar, pilihan tunggal, penanda status ⭐/⏳) | `pc` | programatik | `pc.java:66-200`; widget `a/i.java:20` |
-| 9 | Penampil laporan teks: RRC CA Combos, ICC Misc Files, LTE CA Combos, EFS Misc Files, RFC Report | `ba` | programatik | `ba.java:36-111`; pemicu `am.java:23361-23395` |
+| 8 | RAT Priority picker (dua daftar, pilihan tunggal, penanda status ⭐/⏳) — diakses via label menu "PDC Preferences" | `pc` | programatik | `pc.java:66-200`; widget `a/i.java:20`; pemicu `am.java:15974-15985` |
+| 9 | Penampil laporan teks: RFFE Components, EFS Misc Files, ICC Misc Files, LTE CA Combos | `ba` | programatik | `ba.java:36-111`; pemicu `am.java:23361-23387` (label bergeser +1 dari nama cabangnya) |
 | 10 | Pencarian teks di dalam laporan (highlight + loncati ke hasil) | `ba` | SearchView programatik | `a/bb.java:13`; `ba.java:62-69` |
 | 11 | Bagikan laporan lewat share sheet Android | `ba` | menu share | `ba.java:112-138` |
 | 12 | Salin laporan / teks debug ke clipboard dari dialog hasil | `am` | AlertDialog | `am.java:1636-1690, 23574-23612` |
-| 13 | Restart MPSS (modem) | `am` → `ba` | menu `menu_hw_reboot` | `am.java:23381-23387` |
+| 13 | Restart MPSS (modem) | `am` → coroutine `a/ay` → `m42g()` | label menu `menu_hw_reboot` (cabang `menu_hw_rfc_report`) | `am.java:23392-23395`; `a/ay.java:25` |
 | 14 | Restart modem power cycle otomatis saat preferensi searcher diubah (peringatan di UI) | `sc` | label statis `sc.xml` | `res/layout/sc.xml` teks peringatan; penulisan hasil `sc.java:231-254` → diproses `am`/`av` |
-| 15 | IMS Service Status | `am` (coroutine `ax`) | menu `menu_ims*` | `am.java:23388-23391` |
-| 16 | Debug Info (laporan diagnostik internal) | `am` | menu `menu_debug`, dialog | `am.java:23396, 23455+` |
-| 17 | Opsi "Deny ⚡ connect" (`menu_blitz`) dan "Shitty kernel" (`menu_kacke`), keduanya checkable | `am` | grup `menu_options` | `am.java:15989+, 23403-23491` |
-| 18 | Toggle internal command1; command2-5 (dinonaktifkan/tidak terlihat) | `am` | grup `menu_commands` (visible=false) | `am.java:15986-15988, 23397-23401, 23983` |
+| 15 | Label "IMS Service Status" → dialog laporan kapabilitas raksasa (`f809a=-3`) — bukan penampil status IMS | `am` | menu `menu_ims_status` (cabang `menu_kacke`) | `am.java:15989-23340` |
+| 16 | Label "Debug Info" → query modem `b()`: "system selection prefs" / "modes: 0x…" | `am` | menu `menu_debug` (jalur generik cabang `menu_debug_status`) | `am.java:2281` (`b()`) |
+| 17 | Opsi "Deny ⚡ connect" (`menu_blitz`) dan "Shitty kernel" (`menu_kacke`), keduanya checkable — cuma toggle flag statis (`f276d` / `f278e`), tanpa dialog | `am` | grup `menu_options` | `am.java:23397-23405` (geser +1) |
+| 18 | Test Commands 1–5 — semua no-op (`return true`) | `am` | grup `menu_commands` (visible=false) | `am.java:15986-15988, 23983` |
 | 19 | Tutorial/hint animasi saat pertama membuka editor band | `em` | Toast terjadwal + auto-swipe pager | `em.java:82-148, 297-374` |
 | 20 | Tema gelap/terang mengikuti Settings sistem | semua (via `bd`/`ba.getTheme`) | — | `a/a.java:99-252` (`a(Activity)`), `ba.java:31-34` |
 | 21 | Simpan/pulihkan state antar rotasi & proses (Bundle ±50 kunci + SharedPreferences "g") | `am` | — | `am.java:14462-14746, 24053-24144` |

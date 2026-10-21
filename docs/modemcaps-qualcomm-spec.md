@@ -102,7 +102,7 @@ Backend di `internal/efs/searcher.go` atau file `locks.go` terpisah; UI menyatu 
 
 ## 7. Fitur D — Switch Profil MBN / PDC (Gap 5)
 
-Padanan halaman **PDC Preferences** ModemCaps — fitur yang di BFR belum ada sama sekali (tidak ada `mbn`/`mcfg`/`pdc` di backend maupun frontend; `QualcommProfiles` yang ada adalah profil band lock, bukan MBN). Permukaan fitur dari kamus string hasil dekripsi:
+Padanan kemampuan konfigurasi MBN/PDC ModemCaps — fitur yang di BFR belum ada sama sekali (tidak ada `mbn`/`mcfg`/`pdc` di backend maupun frontend; `QualcommProfiles` yang ada adalah profil band lock, bukan MBN). **Koreksi dispatch 2026-10-21:** label menu "PDC Preferences" di ModemCaps TIDAK membuka halaman ini — akibat geser +1 (`am.java:15964`) label itu membuka picker RAT Priority `pc` (lihat Fitur E). Permukaan fitur di bawah ini tertangkap dari kamus string hasil dekripsi; pintu masuk UI-nya di aplikasi asli belum terpetakan (bagian dari fase riset R1):
 
 - Dua daftar konfigurasi MBN yang terpasang di modem: **SW configs** (`_pdc_sw_listview`) dan **HW configs** (`_pdc_hw_listview`), direktori modem `/mcfg_sw/generic` dan `/mcfg_hw/generic`
 - Profil PDC aktif saat ini ("PDC profile", "PDC configs: …") dan pergantiannya
@@ -129,8 +129,8 @@ Padanan halaman **PDC Preferences** ModemCaps — fitur yang di BFR belum ada sa
 
 Dua editor per slot dari menu utama ModemCaps yang belum ada padanannya di BFR:
 
-- **RAT Priority** (`menu_rat_prio` → editor `pc`): daftar prioritas RAT *berurutan* per slot — kandidat diberi penanda status dari perbandingan bit dengan pilihan saat ini. BFR hanya punya enum kasar `PreferredRAT` (`5g_only`/`4g_only`/`hybrid`/`3g_only`) di `BandConfig`; itu bukan urutan akuisisi.
-- **RAT/Band Preferences** (`menu_rbp_config`): matriks preferensi band per slot untuk semua RAT, dengan reset tersendiri ("🗑 RAT/Band preferences"). Berbeda sifat dari band lock QMI BFR (mengunci) — ini preferensi yang disimpan sebagai matriks `byte[][]` per slot di state ModemCaps.
+- **RAT Priority** (editor `pc` — dijangkau lewat label menu **"PDC Preferences"**; label "RAT Priority" sendiri membuka laporan Debug Info — koreksi dispatch +1, 2026-10-21): daftar prioritas RAT *berurutan* per slot — kandidat diberi penanda status dari perbandingan bit dengan pilihan saat ini. BFR hanya punya enum kasar `PreferredRAT` (`5g_only`/`4g_only`/`hybrid`/`3g_only`) di `BandConfig`; itu bukan urutan akuisisi.
+- **RAT/Band Preferences** (label `menu_rbp_config` → editor checklist band `em`): checklist band per grup RAT per slot, dengan reset tersendiri ("🗑 RAT/Band preferences"). Berbeda sifat dari band lock QMI BFR (mengunci) — ini preferensi yang disimpan sebagai matriks `byte[][]`/`long[]` per slot di state ModemCaps.
 
 **Titik keputusan desain (wajib diputus sebelum implementasi):** kalau dua-duanya hidup, mana sumber kebenaran — matriks preferensi atau `BandConfig` band lock? Rekomendasi spek: dataset terpisah, UI memberi peringatan bila band lock sedang aktif saat preferensi diubah, dan keduanya tidak menulis sasaran yang sama tanpa sepengetahuan user.
 
@@ -145,14 +145,14 @@ Dua editor per slot dari menu utama ModemCaps yang belum ada padanannya di BFR:
 ## 9. Fitur F — Band GSM/UMTS & Status IMS (Gap 8 + 9)
 
 - **Band mask GERAN/UTRAN (Gap 8).** Editor band ModemCaps mencakup grup GSM/UMTS; `QRTRClient` BFR hanya menyetel LTE/NR (`SetLTEBands`/`SetNRBands`) — band GSM/WCDMA di BFR sebatas info hardware. Di ModemCaps penyetelannya lewat data EFS/NV (bukan QMI band lock), jadi backend-nya di `internal/efs` dan nama file/datanya ditambahkan ke daftar verifikasi Fase 0. UI: perluasan `QualcommBands.svelte` dengan seksi GSM/WCDMA (bukan komponen baru).
-- **IMS Service Status (Gap 9).** Penampil status layanan IMS ModemCaps (grup menu `menu_ims`; laporan utamanya juga memuat baris Voice over LTE / Voice over Wi-Fi). Di BFR belum ada sama sekali (nol `ims` di `internal/modem`, `internal/efs`, handlers). Sifatnya read-only. Mekanisme query statusnya (kanal frame/DIAG) ditelusuri bersama riset Fitur E. Desain: `GET /api/qualcomm/ims/status`, panel kecil `QualcommIMS.svelte` sebagai sub-tab TabQualcomm — tanpa aksi tulis apa pun di versi pertama.
+- **IMS Service Status (Gap 9).** Status layanan IMS di ModemCaps dibaca dari laporan kapabilitas utamanya (memuat baris Voice over LTE / Voice over Wi-Fi). Catatan koreksi 2026-10-21: label menu "IMS Service Status" membuka dialog laporan kapabilitas raksasa (`f809a=-3`), bukan penampil status khusus — jadi yang ditiru adalah query statusnya, bukan halaman menu itu. Di BFR belum ada sama sekali (nol `ims` di `internal/modem`, `internal/efs`, handlers). Sifatnya read-only. Mekanisme query statusnya (kanal frame/DIAG) ditelusuri bersama riset Fitur E. Desain: `GET /api/qualcomm/ims/status`, panel kecil `QualcommIMS.svelte` sebagai sub-tab TabQualcomm — tanpa aksi tulis apa pun di versi pertama.
 
 ## 10. Lampiran riset — belum komitmen implementasi
 
-Dua temuan yang keberadaannya pasti tapi isinya belum terpetakan; dicatat supaya tidak hilang, dikerjakan sebagai riset statis (tidak butuh perangkat) kapan saja:
+Dua topik yang semula dicatat sebagai riset terbuka — **keduanya sudah terjawab oleh riset statis 2026-10-21** (koreksi dispatch +1); disimpan di sini sebagai catatan tertutup:
 
-- **Data Preferences (Gap 10).** Menu `menu_dfp_config` + string "Data Preferences" ada di ModemCaps, tapi tidak ada editor khusus — alur perintah generik. Target riset: telusuri dispatch posisional menunya di smali `am`/`a.z` sampai ketemu data apa yang dibaca/ditulis; sesudah itu baru dinilai layak jadi fitur atau tidak.
-- **Keluarga laporan HW (perluasan Gap 4).** Selain CA combos (LTE CA Combos, RRC CA Combos — sudah di luar cakupan), ModemCaps punya **ICC Misc Files**, **EFS Misc Files**, **RFC Report** (info kalibrasi RF), dan **RFFE Components**. Target riset: petakan sumber data tiap laporan — yang berbasis baca file EFS/ICC berpotensi ringan (BFR sudah punya EFS browser + kanal baca by-name), yang berbasis query protokol tetap berat dan mengikuti nasib Gap 4.
+- **Data Preferences (Gap 10) — TERTUTUP.** Bukan fitur terpisah: label menu "Data Preferences" membuka editor switch kapabilitas `ca` (judul window-nya memang "Data Preferences", `d.java:493`) — padanannya adalah **Fitur A**. Terbongkar saat menelusuri dispatch: id item digeser +1 di `am.java:15964`, jadi cabang `menu_efs_clear` yang membuka `ca` tercapai dari label sebelumnya. Tidak ada riset lanjutan.
+- **Keluarga laporan HW (perluasan Gap 4) — sumber data TERPETAKAN.** **RFFE Components**: string statis yang salah satu sumbernya file modem `/rfc/rffe_scan/rffe_scan.dat` → bisa ditiru ringan via EFS browser BFR yang sudah ada. **ICC Misc Files**: dibangun on-demand oleh parser CA-combo `d.d()` dari blob biner `am.f285i`. **EFS Misc Files / LTE CA Combos**: string statis runtime. **RFC Report: tidak ada implementasinya** di ModemCaps (labelnya jatuh ke laporan Debug Info) — jangan dikejar. Batas sisa: baris pembangun spesifik string statis belum dipetakan; referensi `/rfc/rfdevice_report.dat` belum ketemu di kode ter-decompile.
 
 ## 11. Di luar cakupan
 
@@ -170,7 +170,7 @@ Dua temuan yang keberadaannya pasti tapi isinya belum terpetakan; dicatat supaya
 5. Fitur D — fase riset R1–R3 bisa berjalan sejajar dengan langkah 3–4 (statis dulu); implementasi hanya sesudah mekanismenya terkunci.
 6. Fitur E — sesudah verifikasi mekanismenya (pola Fase 0/R); titik keputusan sumber-kebenaran vs band lock diputus user dulu.
 7. Fitur F — band GSM/UMTS mengikuti daftar verifikasi Fase 0; status IMS read-only bisa menyusul kapan saja sesudah query-nya terbukti.
-8. Lampiran riset (Data Preferences, laporan HW) — pekerjaan statis, boleh dicicil kapan saja tanpa perangkat; hasilnya menentukan apakah naik jadi fitur.
+8. ~~Lampiran riset (Data Preferences, laporan HW)~~ — SELESAI 2026-10-21: Data Preferences = Fitur A; sumber laporan HW terpetakan; RFC Report tidak ada.
 9. Uji end-to-end di perangkat: tulis → SSR → baca balik → bandingkan dengan ModemCaps di perangkat yang sama.
 
 ## 13. Risiko & mitigasi
