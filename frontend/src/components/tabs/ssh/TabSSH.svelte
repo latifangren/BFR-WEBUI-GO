@@ -20,9 +20,8 @@
   let portInput = $state('2222')
   let config = $state<SSHConfig>({
     port: 2222,
-    root_login: true,
-    password_auth: true,
-    authorized_keys: '',
+    bind: '127.0.0.1',
+    key_auth_only: true,
   })
 
   let isLoading = $state(false)
@@ -43,9 +42,8 @@
         portInput = String(p)
         config.port = p
         if (res.config) {
-          config.root_login = res.config.root_login ?? true
-          config.password_auth = res.config.password_auth ?? true
-          config.authorized_keys = res.config.authorized_keys || ''
+          config.bind = res.config.bind || '127.0.0.1'
+          config.key_auth_only = res.config.key_auth_only ?? true
         }
       }
     } catch {
@@ -148,42 +146,26 @@
         </div>
 
         <div class="space-y-3 pt-2 border-t border-border">
+          <Input
+            label="Bind Address"
+            placeholder="127.0.0.1"
+            bind:value={config.bind}
+            disabled={isSaving}
+          />
+          <p class="text-[10px] text-muted">
+            SSH listens only on this address. Keep 127.0.0.1 for local access; use 0.0.0.0 only when LAN access is needed.
+          </p>
           <label class="flex items-center justify-between p-3 bg-card-sub border border-border rounded cursor-pointer hover:border-accent transition-colors">
             <div>
-              <span class="font-bold text-foreground block">Allow Root Login</span>
-              <span class="text-[10px] text-muted">Permit root user access via SSH</span>
+              <span class="font-bold text-foreground block">Public Key Authentication Only</span>
+              <span class="text-[10px] text-muted">Disable password login. Configure authorized keys in the SSH daemon environment.</span>
             </div>
             <input
               type="checkbox"
-              bind:checked={config.root_login}
+              bind:checked={config.key_auth_only}
               class="w-4 h-4 accent-accent"
             />
           </label>
-
-          <label class="flex items-center justify-between p-3 bg-card-sub border border-border rounded cursor-pointer hover:border-accent transition-colors">
-            <div>
-              <span class="font-bold text-foreground block">Password Authentication</span>
-              <span class="text-[10px] text-muted">Allow password-based logins</span>
-            </div>
-            <input
-              type="checkbox"
-              bind:checked={config.password_auth}
-              class="w-4 h-4 accent-accent"
-            />
-          </label>
-        </div>
-
-        <div class="space-y-1.5 pt-2 border-t border-border">
-          <label class="block text-muted uppercase font-bold text-[11px]" for="auth-keys">
-            Authorized Public Keys (`authorized_keys`)
-          </label>
-          <textarea
-            id="auth-keys"
-            bind:value={config.authorized_keys}
-            rows="4"
-            placeholder="ssh-rsa AAAAB3NzaC1yc2E... user@machine"
-            class="w-full bg-card-sub border border-border rounded p-2.5 font-mono text-xs text-foreground focus:outline-none focus:border-accent resize-y"
-          ></textarea>
         </div>
       </div>
     </Card>

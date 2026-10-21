@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"encoding/json"
+	"io"
 	"net/http"
 
 	"bfr-webui-go/internal/logger"
@@ -24,8 +25,13 @@ func HandleSSHConfig(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
+	body, err := io.ReadAll(r.Body)
+	if err != nil {
+		http.Error(w, "Invalid request payload", http.StatusBadRequest)
+		return
+	}
 	var cfg ssh.Config
-	if err := json.NewDecoder(r.Body).Decode(&cfg); err != nil {
+	if err := json.Unmarshal(body, &cfg); err != nil {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusBadRequest)
 		_ = json.NewEncoder(w).Encode(map[string]string{"error": "Invalid request payload"})

@@ -8,6 +8,7 @@ import (
 	"image/png"
 	"log"
 	"net/http"
+	"net/url"
 	"os/exec"
 	"strconv"
 	"strings"
@@ -33,7 +34,14 @@ type InputEvent struct {
 }
 
 var upgrader = websocket.Upgrader{
-	CheckOrigin: func(r *http.Request) bool { return true },
+	CheckOrigin: func(r *http.Request) bool {
+		origin := r.Header.Get("Origin")
+		if origin == "" {
+			return true
+		}
+		u, err := url.Parse(origin)
+		return err == nil && u.Host != "" && strings.EqualFold(u.Host, r.Host)
+	},
 }
 
 func captureScreenFrame() ([]byte, error) {

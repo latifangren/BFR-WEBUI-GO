@@ -6,7 +6,7 @@ echo  BFR-WEBUI-GO Dual-Variant Release Builder
 echo ========================================================
 
 :: Extract version from module.prop
-set "VERSION=v1.2.7"
+set "VERSION=v1.2.8"
 for /f "tokens=2 delims==" %%I in ('findstr "version=" module.prop 2^>nul') do (
     set "VERSION=%%I"
 )

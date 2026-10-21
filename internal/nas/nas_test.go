@@ -79,7 +79,9 @@ func TestStartAndStopNAS_WebDAV(t *testing.T) {
 		SharePath:    tempDir,
 		Port:         18099,
 		ReadOnly:     false,
-		AuthRequired: false,
+		AuthRequired: true,
+		Username:     "test-user",
+		Password:     "test-password",
 		Protocol:     "webdav",
 	}
 
@@ -104,6 +106,7 @@ func TestStartAndStopNAS_WebDAV(t *testing.T) {
 
 	// 1. Test OPTIONS (WebDAV RFC 4918 returns DAV header)
 	reqOpt, _ := http.NewRequest("OPTIONS", baseURL+"/", nil)
+	reqOpt.SetBasicAuth("test-user", "test-password")
 	respOpt, err := http.DefaultClient.Do(reqOpt)
 	if err != nil {
 		t.Fatalf("OPTIONS request failed: %v", err)
@@ -118,6 +121,7 @@ func TestStartAndStopNAS_WebDAV(t *testing.T) {
 
 	// 2. Test PROPFIND
 	reqProp, _ := http.NewRequest("PROPFIND", baseURL+"/", nil)
+	reqProp.SetBasicAuth("test-user", "test-password")
 	reqProp.Header.Set("Depth", "1")
 	respProp, err := http.DefaultClient.Do(reqProp)
 	if err != nil {
@@ -129,7 +133,9 @@ func TestStartAndStopNAS_WebDAV(t *testing.T) {
 	}
 
 	// 3. Test GET file
-	respGet, err := http.Get(baseURL + "/hello.txt")
+	reqGet, _ := http.NewRequest(http.MethodGet, baseURL+"/hello.txt", nil)
+	reqGet.SetBasicAuth("test-user", "test-password")
+	respGet, err := http.DefaultClient.Do(reqGet)
 	if err != nil {
 		t.Fatalf("GET file failed: %v", err)
 	}
@@ -141,6 +147,7 @@ func TestStartAndStopNAS_WebDAV(t *testing.T) {
 
 	// 4. Test PUT file
 	reqPut, _ := http.NewRequest("PUT", baseURL+"/upload.txt", bytes.NewBufferString("Uploaded via WebDAV"))
+	reqPut.SetBasicAuth("test-user", "test-password")
 	respPut, err := http.DefaultClient.Do(reqPut)
 	if err != nil {
 		t.Fatalf("PUT request failed: %v", err)
@@ -168,7 +175,9 @@ func TestNAS_ReadOnly(t *testing.T) {
 		SharePath:    tempDir,
 		Port:         18100,
 		ReadOnly:     true,
-		AuthRequired: false,
+		AuthRequired: true,
+		Username:     "test-user",
+		Password:     "test-password",
 		Protocol:     "webdav",
 	}
 
@@ -182,6 +191,7 @@ func TestNAS_ReadOnly(t *testing.T) {
 
 	// PUT must be rejected with 403 Forbidden
 	reqPut, _ := http.NewRequest("PUT", baseURL+"/forbidden.txt", bytes.NewBufferString("test"))
+	reqPut.SetBasicAuth("test-user", "test-password")
 	respPut, err := http.DefaultClient.Do(reqPut)
 	if err != nil {
 		t.Fatalf("PUT request failed: %v", err)
@@ -193,6 +203,7 @@ func TestNAS_ReadOnly(t *testing.T) {
 
 	// MKCOL must be rejected with 403 Forbidden
 	reqMkcol, _ := http.NewRequest("MKCOL", baseURL+"/newdir", nil)
+	reqMkcol.SetBasicAuth("test-user", "test-password")
 	respMkcol, err := http.DefaultClient.Do(reqMkcol)
 	if err != nil {
 		t.Fatalf("MKCOL request failed: %v", err)
@@ -204,6 +215,7 @@ func TestNAS_ReadOnly(t *testing.T) {
 
 	// DELETE must be rejected with 403 Forbidden
 	reqDel, _ := http.NewRequest("DELETE", baseURL+"/forbidden.txt", nil)
+	reqDel.SetBasicAuth("test-user", "test-password")
 	respDel, err := http.DefaultClient.Do(reqDel)
 	if err != nil {
 		t.Fatalf("DELETE request failed: %v", err)
@@ -276,7 +288,9 @@ func TestStartAndStopNAS_HTTPFallback(t *testing.T) {
 		SharePath:    tempDir,
 		Port:         18102,
 		ReadOnly:     false,
-		AuthRequired: false,
+		AuthRequired: true,
+		Username:     "test-user",
+		Password:     "test-password",
 		Protocol:     "http",
 	}
 
@@ -287,7 +301,9 @@ func TestStartAndStopNAS_HTTPFallback(t *testing.T) {
 	defer mgr.StopNAS()
 
 	status := mgr.GetStatus()
-	resp, err := http.Get(status.URL + "/fallback.txt")
+	req, _ := http.NewRequest(http.MethodGet, status.URL+"/fallback.txt", nil)
+	req.SetBasicAuth("test-user", "test-password")
+	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
 		t.Fatalf("GET fallback failed: %v", err)
 	}

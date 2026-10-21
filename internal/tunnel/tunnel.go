@@ -96,6 +96,25 @@ func (m *Manager) log(msg string) {
 	}
 }
 
+func (m *Manager) monitorOutput(readers []io.Reader, urlPattern *regexp.Regexp, label string) {
+	for _, reader := range readers {
+		go func(reader io.Reader) {
+			scanner := bufio.NewScanner(reader)
+			for scanner.Scan() {
+				if match := urlPattern.FindString(scanner.Text()); match != "" {
+					m.mu.Lock()
+					m.publicURL = match
+					m.log(fmt.Sprintf("%s Public URL: %s", label, match))
+					m.mu.Unlock()
+				}
+			}
+			if err := scanner.Err(); err != nil {
+				logger.Get().Warnf("Tunnel", "%s output scan failed: %v", label, err)
+			}
+		}(reader)
+	}
+}
+
 func (m *Manager) LoadConfig() (*TunnelConfig, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -331,20 +350,8 @@ func (m *Manager) StartTunnel(cfg TunnelConfig) error {
 		m.active = true
 		m.log(fmt.Sprintf("Started Cloudflare Tunnel (%s)", binPath))
 
-		// Monitor output for quick tunnel URL parsing
-		reader := io.MultiReader(stdout, stderr)
-		go func() {
-			scanner := bufio.NewScanner(reader)
-			for scanner.Scan() {
-				line := scanner.Text()
-				if match := reURL.FindString(line); match != "" {
-					m.mu.Lock()
-					m.publicURL = match
-					m.log(fmt.Sprintf("Cloudflare Public URL: %s", match))
-					m.mu.Unlock()
-				}
-			}
-		}()
+		// Drain stdout and stderr concurrently so neither pipe can block the process.
+		m.monitorOutput([]io.Reader{stdout, stderr}, reURL, "Cloudflare")
 
 	case "tailscale":
 		var args []string
@@ -421,19 +428,7 @@ func (m *Manager) StartTunnel(cfg TunnelConfig) error {
 		m.active = true
 		m.log(fmt.Sprintf("Started Ngrok Tunnel (%s)", binPath))
 
-		reader := io.MultiReader(stdout, stderr)
-		go func() {
-			scanner := bufio.NewScanner(reader)
-			for scanner.Scan() {
-				line := scanner.Text()
-				if match := reNgrokURL.FindString(line); match != "" {
-					m.mu.Lock()
-					m.publicURL = match
-					m.log(fmt.Sprintf("Ngrok Public URL: %s", match))
-					m.mu.Unlock()
-				}
-			}
-		}()
+		m.monitorOutput([]io.Reader{stdout, stderr}, reNgrokURL, "Ngrok")
 
 	case "pinggy":
 		userHost := "a.pinggy.io"
@@ -461,19 +456,7 @@ func (m *Manager) StartTunnel(cfg TunnelConfig) error {
 		m.active = true
 		m.log(fmt.Sprintf("Started Pinggy SSH Tunnel (%s)", binPath))
 
-		reader := io.MultiReader(stdout, stderr)
-		go func() {
-			scanner := bufio.NewScanner(reader)
-			for scanner.Scan() {
-				line := scanner.Text()
-				if match := rePinggyURL.FindString(line); match != "" {
-					m.mu.Lock()
-					m.publicURL = match
-					m.log(fmt.Sprintf("Pinggy Public URL: %s", match))
-					m.mu.Unlock()
-				}
-			}
-		}()
+		m.monitorOutput([]io.Reader{stdout, stderr}, rePinggyURL, "Pinggy")
 	}
 
 	logger.Get().Infof("Tunnel", "Tunnel started successfully using engine %s", cfg.Engine)

@@ -165,6 +165,10 @@ func TestManager_ChangePassword(t *testing.T) {
 	}
 
 	// Succeed change password from default
+	oldToken, ok, _ := m.Authenticate(auth.DefaultPassword, "127.0.0.1:9998")
+	if !ok || !m.ValidateSession(oldToken) {
+		t.Fatal("expected initial session to be valid")
+	}
 	err = m.ChangePassword(auth.DefaultPassword, "newSecret123")
 	if err != nil {
 		t.Fatalf("unexpected error changing password: %v", err)
@@ -172,6 +176,9 @@ func TestManager_ChangePassword(t *testing.T) {
 
 	if m.IsDefaultPassword() {
 		t.Errorf("expected IsDefaultPassword() to be false after password change")
+	}
+	if m.ValidateSession(oldToken) {
+		t.Error("expected password change to revoke existing sessions")
 	}
 
 	// Verify persistence: auth.json created

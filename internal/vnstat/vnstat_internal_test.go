@@ -43,15 +43,23 @@ func TestParseProcNetDevMock(t *testing.T) {
     lo: 12345       10    0    0    0     0          0         0    12345       10    0    0    0     0       0          0
  wlan0: 1000000    100    0    0    0     0          0         0   500000       50    0    0    0     0       0          0
 rmnet0: 2000000    200    0    0    0     0          0         0  1000000      100    0    0    0     0       0          0
+ tun0: 9000000    200    0    0    0     0          0         0  8000000      100    0    0    0     0       0          0
+ ap0: 7000000    200    0    0    0     0          0         0  6000000      100    0    0    0     0       0          0
 `
 	_ = os.WriteFile(mockDev, []byte(content), 0644)
 	t.Setenv("BFR_MOCK_PROC_NET_DEV", mockDev)
 
 	raw := parseProcNetDev()
 	if len(raw) != 2 {
-		t.Fatalf("expected 2 interfaces (excluding lo), got %d", len(raw))
+		t.Fatalf("expected only wlan0 and rmnet0, got %d interfaces: %+v", len(raw), raw)
 	}
-	if raw["wlan0"].rxBytes != 1000000 || raw["wlan0"].txBytes != 500000 {
+	if _, ok := raw["tun0"]; ok {
+		t.Fatal("VPN interface should not be included in accounting")
+	}
+	if _, ok := raw["ap0"]; ok {
+		t.Fatal("hotspot interface should not be included in accounting")
+	}
+	if raw["wlan0"].RxBytes != 1000000 || raw["wlan0"].TxBytes != 500000 {
 		t.Errorf("wlan0 mismatch: %+v", raw["wlan0"])
 	}
 
@@ -72,7 +80,16 @@ rmnet0: 2500000    250    0    0    0     0          0         0  1250000      1
 	stats := tr.getStatsLocked()
 	tr.mu.Unlock()
 
-	if stats.Daily.Total.Total == 0 {
-		t.Error("expected non-zero daily stats after update")
+	if stats.Daily.Total.RxBytes != 1000000 {
+		t.Errorf("expected RX total 1000000 bytes, got %d", stats.Daily.Total.RxBytes)
+	}
+	if stats.Daily.Total.TxBytes != 500000 {
+		t.Errorf("expected TX total 500000 bytes, got %d", stats.Daily.Total.TxBytes)
+	}
+	if _, ok := stats.Daily.Interfaces["tun0"]; ok {
+		t.Fatal("VPN interface should not be included in accounting")
+	}
+	if _, ok := stats.Daily.Interfaces["ap0"]; ok {
+		t.Fatal("hotspot interface should not be included in accounting")
 	}
 }

@@ -1,6 +1,7 @@
 package filemanager
 
 import (
+	"archive/zip"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -340,6 +341,44 @@ func TestFilemanagerEdgeCasesAndErrors(t *testing.T) {
 	}
 	if err := BatchDelete([]string{}); err != nil {
 		t.Errorf("unexpected error for empty BatchDelete: %v", err)
+	}
+}
+
+func TestExtractZipRejectsTraversalOutsideDestination(t *testing.T) {
+	tempDir := t.TempDir()
+	origAllowed := config.AllowedDirs
+	config.AllowedDirs = []string{tempDir}
+	defer func() { config.AllowedDirs = origAllowed }()
+
+	zipPath := filepath.Join(tempDir, "traversal.zip")
+	file, err := os.Create(zipPath)
+	if err != nil {
+		t.Fatal(err)
+	}
+	archive := zip.NewWriter(file)
+	entry, err := archive.Create("../escape.txt")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err := entry.Write([]byte("outside")); err != nil {
+		t.Fatal(err)
+	}
+	if err := archive.Close(); err != nil {
+		t.Fatal(err)
+	}
+	if err := file.Close(); err != nil {
+		t.Fatal(err)
+	}
+
+	dest := filepath.Join(tempDir, "dest")
+	if err := os.MkdirAll(dest, 0755); err != nil {
+		t.Fatal(err)
+	}
+	if err := ExtractZip(zipPath, dest); err == nil {
+		t.Fatal("expected traversal archive entry to be rejected")
+	}
+	if _, err := os.Stat(filepath.Join(tempDir, "escape.txt")); !os.IsNotExist(err) {
+		t.Fatal("traversal archive wrote outside its destination")
 	}
 }
 

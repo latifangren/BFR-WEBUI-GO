@@ -7,6 +7,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.2.8] - 2026-10-21
+### Security
+- **Authentication Hardening**: Replaced new password hashes with bcrypt while preserving legacy hash verification, secured wallpaper upload and deletion routes, enabled secure session cookies over TLS, and removed query-string session token authentication from WebSocket endpoints.
+- **File and Command Safety**: Added upload size limits and multipart cleanup, hardened archive extraction path containment, removed shell injection from subscription updates, and restricted default file-manager access.
+
+### Added
+- **Hotspot Router Suite**: Added managed router controls with verified status reporting and cleanup limited to state owned by the application.
+- **Release and Installation Tooling**: Added dual-variant release packaging, Magisk installer metadata, and daemon shutdown during module uninstall.
+- **SMS Message Pagination**: Added incremental message loading and improved parsing for message bodies containing commas.
+
+### Changed & Refactored
+- **Frontend Startup Performance**: Split tabs into dynamically loaded chunks, added asynchronous tab rendering and terminal keep-alive, and prevented overlapping sysinfo polling while handling expired sessions cleanly.
+- **Backend Performance and Resilience**: Reused gzip writers, shared proxy log streaming, bounded worker queue submissions, and improved server startup and SSE timeout handling.
+- **Build and Module Lifecycle**: Repaired Windows and Android release packaging, improved boot readiness and health checks, and preserved user configuration across module upgrades.
+- **vnStat Accuracy**: Count only selected Wi-Fi and cellular interfaces, keep RX and TX accounting separate, persist counter baselines, and clarify calendar period labels.
+- **SSH and NAS Defaults**: Require safer authentication defaults, keep SSH bound to localhost by default, and make NAS sharing authenticated and read-only by default.
+
+### Fixed
+- **Security and Data Handling**: Fixed archive extraction containment, subscription update command construction, wallpaper access controls, and upload resource cleanup.
+- **SMS and Traffic Reporting**: Fixed SMS pagination and body parsing; excluded virtual and hotspot interfaces from vnStat accounting to reduce duplicate traffic totals.
+- **Core Stability**: Fixed worker queue growth, session handling, proxy log streaming lifecycle, and several build and installation script failures.
+
 ## [1.2.7] - 2026-10-06
 ### Added
 - **Comprehensive Backend Unit Testing & High Coverage (>=85% across 11 packages)**:
@@ -20,7 +42,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `internal/vnstat`: Added `BFR_MOCK_PROC_NET_DEV` support for zero-side-effect network interface parsing.
 - **Module Upgrade Preservation (`customize.sh`)**:
   - Expanded configuration preservation list to maintain `network_config.json`, `cell_lock.json`, `kernel_config.json`, `modem_config.json`, `hotspot_mac_filter.json`, `nas.json`, `tunnel.json`, `auth.json`, `cloud_config.json`, and `power_schedule.json` across Magisk module updates.
-### Added
 - **Box for Magisk (BFM) Proxy Suite Overhaul (`internal/proxy/`, `TabProxy.svelte`)**:
   - **Modular Architecture (<800 lines/file)**: Decomposed proxy logic into `settings.go`, `packages.go`, `hotspot.go`, `subscription.go`, and `clash_api.go`. Frontend decomposed into `ProxyHero`, `ProxyNodes`, `ProxyRouting`, `ProxyApps`, `ProxySubscription`, and `ProxyLogs`.
   - **Bi-directional BFM Config Sync**: Direct synchronization with `/data/adb/box/settings.ini`, `package.list.cfg`, and `ap.list.cfg`.

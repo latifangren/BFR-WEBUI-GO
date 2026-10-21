@@ -89,14 +89,7 @@ func getDBPath() (string, func(), error) {
 	return targetPath, func() {}, nil
 }
 
-func ReadSMSViaContentProvider(limit int, offset int, searchQuery string) (SMSResponse, error) {
-	// Execute Android content query command via su
-	cmdStr := "content query --uri content://sms --projection _id,address,body,date,read,type"
-	out, err := exec.Command(config.SUBin, "-c", cmdStr).CombinedOutput()
-	if err != nil {
-		return SMSResponse{Messages: []SMSMessage{}, Limit: limit, Offset: offset, Search: searchQuery, Error: fmt.Sprintf("content query failed: %v", err)}, nil
-	}
-
+func ParseContentProviderOutput(out []byte, limit int, offset int, searchQuery string) SMSResponse {
 	lines := strings.Split(string(out), "\n")
 	allMessages := make([]SMSMessage, 0)
 
@@ -107,7 +100,12 @@ func ReadSMSViaContentProvider(limit int, offset int, searchQuery string) (SMSRe
 		}
 
 		var msg SMSMessage
-		// Parse Row format: Row: 0 _id=1, address=+628123, body=Hello, date=1710000000000, read=1, type=1
+		// Keep the body last so commas inside message text remain intact.
+		bodyIndex := strings.Index(line, ", body=")
+		if bodyIndex >= 0 {
+			msg.Body = line[bodyIndex+len(", body="):]
+			line = line[:bodyIndex]
+		}
 		parts := strings.Split(line, ", ")
 		for _, part := range parts {
 			kv := strings.SplitN(part, "=", 2)
@@ -171,7 +169,16 @@ func ReadSMSViaContentProvider(limit int, offset int, searchQuery string) (SMSRe
 		Limit:    limit,
 		Offset:   offset,
 		Search:   searchQuery,
-	}, nil
+	}
+}
+
+func ReadSMSViaContentProvider(limit int, offset int, searchQuery string) (SMSResponse, error) {
+	cmdStr := "content query --uri content://sms --projection _id,address,date,read,type,body --sort 'date DESC'"
+	out, err := exec.Command(config.SUBin, "-c", cmdStr).CombinedOutput()
+	if err != nil {
+		return SMSResponse{Messages: []SMSMessage{}, Limit: limit, Offset: offset, Search: searchQuery, Error: fmt.Sprintf("content query failed: %v", err)}, nil
+	}
+	return ParseContentProviderOutput(out, limit, offset, searchQuery), nil
 }
 
 func ReadSMSInbox(limit int, offset int, searchQuery string) (SMSResponse, error) {

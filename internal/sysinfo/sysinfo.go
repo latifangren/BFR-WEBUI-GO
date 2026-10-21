@@ -132,7 +132,7 @@ func getStaticHardwareInfo() staticHardwareInfo {
 			rootType:      getRootProvider(),
 			chipset:       getChipset(),
 			deviceName:    getDeviceCodename(),
-			webuiVersion:  "v1.2.7 (127)",
+			webuiVersion:  "v1.2.8 (128)",
 		}
 	})
 	return staticInfo

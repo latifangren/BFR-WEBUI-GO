@@ -257,14 +257,19 @@ func (m *Manager) ChangePassword(currentPass, newPass string) error {
 		return fmt.Errorf("incorrect current password")
 	}
 
+	previousHash := m.passwordHash
+	previousDefault := m.isDefault
 	m.passwordHash = HashPassword(newPass, "")
 	m.isDefault = false
 
 	if err := m.saveConfigLocked(); err != nil {
+		m.passwordHash = previousHash
+		m.isDefault = previousDefault
 		logger.Get().Errorf("auth", "Failed to save auth.json: %v", err)
 		return fmt.Errorf("failed to save new password: %w", err)
 	}
 
+	clear(m.sessions)
 	logger.Get().Infof("auth", "Password updated successfully")
 	return nil
 }

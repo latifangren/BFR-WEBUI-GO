@@ -5,7 +5,9 @@ import (
 	"context"
 	"log"
 	"net/http"
+	"net/url"
 	"os/exec"
+	"strings"
 	"sync"
 
 	"bfr-webui-go/internal/auth"
@@ -15,7 +17,14 @@ import (
 )
 
 var upgraderLogcat = websocket.Upgrader{
-	CheckOrigin: func(r *http.Request) bool { return true },
+	CheckOrigin: func(r *http.Request) bool {
+		origin := r.Header.Get("Origin")
+		if origin == "" {
+			return true
+		}
+		u, err := url.Parse(origin)
+		return err == nil && u.Host != "" && strings.EqualFold(u.Host, r.Host)
+	},
 }
 
 type LogcatHandler struct {
@@ -28,9 +37,6 @@ func NewLogcatHandler(authMgr *auth.Manager) *LogcatHandler {
 
 func (h *LogcatHandler) HandleWS(w http.ResponseWriter, r *http.Request) {
 	token := h.authMgr.GetTokenFromRequest(r)
-	if token == "" {
-		token = r.URL.Query().Get("token")
-	}
 	if !h.authMgr.ValidateSession(token) {
 		http.Error(w, "Unauthorized", http.StatusUnauthorized)
 		return
@@ -99,5 +105,8 @@ func (h *LogcatHandler) HandleWS(w http.ResponseWriter, r *http.Request) {
 		if err := writeWS(line + "\n"); err != nil {
 			break
 		}
+	}
+	if err := scanner.Err(); err != nil {
+		logger.Get().Warnf("logcat", "Logcat output scan failed: %v", err)
 	}
 }

@@ -20,6 +20,8 @@
 
   let messages = $state<SMSMessage[]>([])
   let totalCount = $state(0)
+  const pageSize = 20
+  let loadedOffset = $state(0)
   let isLoading = $state(false)
   let searchQuery = $state('')
   let copiedOTP = $state<string | null>(null)
@@ -28,14 +30,18 @@
     await fetchInbox()
   })
 
-  async function fetchInbox() {
+  async function fetchInbox(loadMore = false) {
+    if (isLoading) return
+    const offset = loadMore ? loadedOffset : 0
     try {
       isLoading = true
-      const q = searchQuery ? `?q=${encodeURIComponent(searchQuery)}` : ''
-      const res = await api.get<SMSResponse | { messages: SMSMessage[]; total: number }>(`/api/sms/inbox${q}`)
+      const params = new URLSearchParams({ limit: String(pageSize), offset: String(offset) })
+      if (searchQuery) params.set('q', searchQuery)
+      const res = await api.get<SMSResponse | { messages: SMSMessage[]; total: number }>(`/api/sms/inbox?${params}`)
       if (res && Array.isArray(res.messages)) {
-        messages = res.messages
-        totalCount = res.total || res.messages.length
+        messages = loadMore ? [...messages, ...res.messages] : res.messages
+        totalCount = res.total ?? res.messages.length
+        loadedOffset = offset + res.messages.length
       }
     } catch (err: unknown) {
       toastStore.error(err instanceof Error ? err.message : 'Failed to load SMS inbox')
@@ -104,7 +110,7 @@
         SMS Messages & Verification Inbox
       </h2>
       <Badge variant="default">
-        {totalCount} Total
+        {messages.length} / {totalCount} Loaded
       </Badge>
     </div>
 
@@ -113,7 +119,7 @@
         variant="secondary"
         size="sm"
         disabled={isLoading}
-        onclick={fetchInbox}
+        onclick={() => fetchInbox()}
       >
         <RefreshCw class="w-3.5 h-3.5 mr-1.5 {isLoading ? 'animate-spin' : ''}" />
         <span>Refresh</span>
@@ -127,10 +133,10 @@
       <Input
         placeholder="Filter by sender number or keyword..."
         bind:value={searchQuery}
-        onchange={fetchInbox}
+        onchange={() => fetchInbox()}
       />
     </div>
-    <Button variant="secondary" size="md" onclick={fetchInbox}>
+    <Button variant="secondary" size="md" onclick={() => fetchInbox()}>
       <Search class="w-3.5 h-3.5 mr-1.5" />
       <span>Search</span>
     </Button>
@@ -203,6 +209,18 @@
           {/if}
         </div>
       {/each}
+    </div>
+  {/if}
+
+  {#if loadedOffset < totalCount && messages.length > 0}
+    <div class="flex justify-center">
+      <Button
+        variant="secondary"
+        disabled={isLoading}
+        onclick={() => fetchInbox(true)}
+      >
+        <span>{isLoading ? 'Loading…' : 'Load more messages'}</span>
+      </Button>
     </div>
   {/if}
 </div>

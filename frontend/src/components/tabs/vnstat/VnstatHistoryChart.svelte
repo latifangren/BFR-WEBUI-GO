@@ -89,7 +89,7 @@
               <span class="text-[10px] text-muted hidden sm:inline">({record.date})</span>
             </div>
             <div class="flex items-center gap-2">
-              <span class="text-muted text-[10px]">Peak Share:</span>
+              <span class="text-muted text-[10px]">Of Peak Day:</span>
               <span class="font-bold text-foreground">{totalPct.toFixed(1)}%</span>
               <span class="text-accent font-bold text-sm ml-1">{formatBytes(total)}</span>
             </div>

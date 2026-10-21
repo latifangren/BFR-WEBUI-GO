@@ -40,7 +40,7 @@
     {
       id: 'today',
       title: 'Today (Daily)',
-      subtitle: 'Last 24 Hours Active',
+      subtitle: 'Since Local Midnight',
       badge: 'TODAY',
       badgeVariant: 'info',
       icon: Calendar,
@@ -51,7 +51,7 @@
     {
       id: 'yesterday',
       title: 'Yesterday',
-      subtitle: 'Previous 24 Hours',
+      subtitle: 'Previous Calendar Day',
       badge: 'YESTERDAY',
       badgeVariant: 'default',
       icon: History,
@@ -62,7 +62,7 @@
     {
       id: 'weekly',
       title: 'This Week',
-      subtitle: 'Current 7-Day Window',
+      subtitle: 'Current ISO Week',
       badge: 'WEEKLY',
       badgeVariant: 'success',
       icon: CalendarDays,
@@ -73,7 +73,7 @@
     {
       id: 'monthly',
       title: 'This Month',
-      subtitle: 'Billing Cycle Quota',
+      subtitle: 'Calendar Month',
       badge: 'MONTHLY',
       badgeVariant: 'warning',
       icon: Database,

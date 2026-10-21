@@ -7,6 +7,24 @@ import (
 	"bfr-webui-go/internal/smsviewer"
 )
 
+func TestParseContentProviderOutputPreservesCommaBodyAndOrder(t *testing.T) {
+	output := []byte("Row: 0 _id=2, address=+1002, date=1710000000000, read=1, type=1, body=Second, with commas\n" +
+		"Row: 1 _id=1, address=+1001, date=1700000000000, read=0, type=1, body=First message\n")
+
+	resp := smsviewer.ParseContentProviderOutput(output, 1, 0, "")
+	if resp.Total != 2 || len(resp.Messages) != 1 {
+		t.Fatalf("expected first page of two messages, got total=%d messages=%d", resp.Total, len(resp.Messages))
+	}
+	if resp.Messages[0].ID != 2 || resp.Messages[0].Body != "Second, with commas" {
+		t.Fatalf("unexpected parsed message: %+v", resp.Messages[0])
+	}
+
+	next := smsviewer.ParseContentProviderOutput(output, 1, 1, "")
+	if len(next.Messages) != 1 || next.Messages[0].ID != 1 {
+		t.Fatalf("expected second message on next page, got %+v", next.Messages)
+	}
+}
+
 func TestSMSMessage_Struct(t *testing.T) {
 	msg := smsviewer.SMSMessage{
 		ID:       1,

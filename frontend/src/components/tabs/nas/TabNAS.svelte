@@ -66,8 +66,8 @@
     enabled: false,
     share_path: '/sdcard',
     port: 85,
-    read_only: false,
-    auth_required: false,
+    read_only: true,
+    auth_required: true,
     username: 'admin',
     password: 'bfr',
     protocol: 'webdav',
@@ -185,10 +185,10 @@
           enabled: res.config.enabled ?? false,
           share_path: res.config.share_path || '/sdcard',
           port: res.config.port || 85,
-          read_only: res.config.read_only ?? false,
-          auth_required: res.config.auth_required ?? false,
-          username: res.config.username || 'admin',
-          password: res.config.password || 'bfr',
+          read_only: res.config.read_only ?? true,
+          auth_required: res.config.auth_required ?? true,
+          username: res.config.username || '',
+          password: res.config.password || '',
           protocol: res.config.protocol || 'webdav',
         }
       }
@@ -217,6 +217,10 @@
   }
 
   async function startNAS() {
+    if (config.auth_required && (!config.username?.trim() || !config.password)) {
+      toastStore.error('Set a NAS username and password before starting the authenticated share.')
+      return
+    }
     try {
       isToggling = true
       const payload: NASConfig = {
@@ -280,6 +284,10 @@
   }
 
   async function saveConfig() {
+    if (config.auth_required && (!config.username?.trim() || !config.password)) {
+      toastStore.error('Set a NAS username and password before saving an authenticated share.')
+      return
+    }
     try {
       isSaving = true
       const payload: NASConfig = {
@@ -555,6 +563,16 @@
               class="w-4 h-4 accent-accent cursor-pointer"
             />
           </label>
+          {#if !config.read_only}
+            <div class="rounded-lg border border-amber-500/50 bg-amber-500/10 p-3 text-[11px] text-amber-200">
+              Writable sharing lets network clients create, change, and delete files in the selected directory. Enable it only on a trusted network.
+            </div>
+          {/if}
+          {#if !config.auth_required}
+            <div class="rounded-lg border border-amber-500/50 bg-amber-500/10 p-3 text-[11px] text-amber-200">
+              Authentication is disabled. Anyone who can reach this port can access the shared files.
+            </div>
+          {/if}
 
           <!-- Authentication Required Toggle -->
           <label

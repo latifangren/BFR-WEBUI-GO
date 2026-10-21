@@ -12,6 +12,7 @@ import (
 	"time"
 
 	"bfr-webui-go/internal/config"
+	"bfr-webui-go/internal/logger"
 )
 
 // DayRecord represents daily total bandwidth consumption for a single day.
@@ -56,12 +57,13 @@ type PersistentData struct {
 	Weekly       map[string]InterfaceStat `json:"weekly"`
 	Monthly      map[string]InterfaceStat `json:"monthly"`
 	DailyHistory []DayRecord              `json:"daily_history"`
+	LastRaw      map[string]rawDevStat    `json:"last_raw"`
 	Updated      time.Time                `json:"updated"`
 }
 
 type rawDevStat struct {
-	rxBytes uint64
-	txBytes uint64
+	RxBytes uint64 `json:"rx_bytes"`
+	TxBytes uint64 `json:"tx_bytes"`
 }
 
 type Tracker struct {
@@ -129,19 +131,22 @@ func (t *Tracker) load() {
 			t.lastWeek = pd.LastWeek
 			t.lastMonth = pd.LastMonth
 			if pd.Daily != nil {
-				t.daily = pd.Daily
+				t.daily = filterAccountingInterfaces(pd.Daily)
 			}
 			if pd.Yesterday != nil {
-				t.yesterday = pd.Yesterday
+				t.yesterday = filterAccountingInterfaces(pd.Yesterday)
 			}
 			if pd.Weekly != nil {
-				t.weekly = pd.Weekly
+				t.weekly = filterAccountingInterfaces(pd.Weekly)
 			}
 			if pd.Monthly != nil {
-				t.monthly = pd.Monthly
+				t.monthly = filterAccountingInterfaces(pd.Monthly)
 			}
 			if pd.DailyHistory != nil {
 				t.dailyHistory = pd.DailyHistory
+			}
+			if pd.LastRaw != nil {
+				t.lastRaw = filterRawAccountingInterfaces(pd.LastRaw)
 			}
 			if !pd.Updated.IsZero() {
 				t.lastUpdated = pd.Updated
@@ -160,6 +165,7 @@ func (t *Tracker) saveLocked() {
 		Weekly:       t.weekly,
 		Monthly:      t.monthly,
 		DailyHistory: t.dailyHistory,
+		LastRaw:      t.lastRaw,
 		Updated:      time.Now(),
 	}
 	buf, err := json.MarshalIndent(data, "", "  ")
@@ -176,6 +182,35 @@ func (t *Tracker) saveLocked() {
 			_ = config.WriteFileAtomic(t.dataPath, buf, 0644)
 		}
 	}
+}
+
+func isAccountingInterface(iface string) bool {
+	name := strings.ToLower(strings.TrimSpace(iface))
+	return strings.HasPrefix(name, "wlan") ||
+		strings.HasPrefix(name, "wifi") ||
+		strings.HasPrefix(name, "rmnet") ||
+		strings.HasPrefix(name, "ccmni") ||
+		strings.HasPrefix(name, "wwan")
+}
+
+func filterAccountingInterfaces(stats map[string]InterfaceStat) map[string]InterfaceStat {
+	filtered := make(map[string]InterfaceStat)
+	for iface, stat := range stats {
+		if isAccountingInterface(iface) {
+			filtered[iface] = stat
+		}
+	}
+	return filtered
+}
+
+func filterRawAccountingInterfaces(stats map[string]rawDevStat) map[string]rawDevStat {
+	filtered := make(map[string]rawDevStat)
+	for iface, stat := range stats {
+		if isAccountingInterface(iface) {
+			filtered[iface] = stat
+		}
+	}
+	return filtered
 }
 
 func parseProcNetDev() map[string]rawDevStat {
@@ -198,18 +233,21 @@ func parseProcNetDev() map[string]rawDevStat {
 			continue
 		}
 		iface := strings.TrimSpace(parts[0])
-		if iface == "lo" || iface == "" {
+		if !isAccountingInterface(iface) {
 			continue
 		}
 		fields := strings.Fields(parts[1])
 		if len(fields) >= 9 {
-			rxBytes, _ := strconv.ParseUint(fields[0], 10, 64)
-			txBytes, _ := strconv.ParseUint(fields[8], 10, 64)
+			RxBytes, _ := strconv.ParseUint(fields[0], 10, 64)
+			TxBytes, _ := strconv.ParseUint(fields[8], 10, 64)
 			res[iface] = rawDevStat{
-				rxBytes: rxBytes,
-				txBytes: txBytes,
+				RxBytes: RxBytes,
+				TxBytes: TxBytes,
 			}
 		}
+	}
+	if err := scanner.Err(); err != nil {
+		logger.Get().Warnf("vnstat", "Failed reading /proc/net/dev: %v", err)
 	}
 	return res
 }
@@ -259,6 +297,11 @@ func (t *Tracker) updateLocked() {
 	t.checkRolloverLocked(now)
 
 	currentDevStats := parseProcNetDev()
+	for iface := range t.lastRaw {
+		if _, exists := currentDevStats[iface]; !exists {
+			delete(t.lastRaw, iface)
+		}
+	}
 
 	for iface, curr := range currentDevStats {
 		prev, exists := t.lastRaw[iface]
@@ -268,16 +311,16 @@ func (t *Tracker) updateLocked() {
 		}
 
 		var deltaRX, deltaTX uint64
-		if curr.rxBytes >= prev.rxBytes {
-			deltaRX = curr.rxBytes - prev.rxBytes
+		if curr.RxBytes >= prev.RxBytes {
+			deltaRX = curr.RxBytes - prev.RxBytes
 		} else {
-			deltaRX = curr.rxBytes
+			deltaRX = curr.RxBytes
 		}
 
-		if curr.txBytes >= prev.txBytes {
-			deltaTX = curr.txBytes - prev.txBytes
+		if curr.TxBytes >= prev.TxBytes {
+			deltaTX = curr.TxBytes - prev.TxBytes
 		} else {
-			deltaTX = curr.txBytes
+			deltaTX = curr.TxBytes
 		}
 
 		t.lastRaw[iface] = curr
@@ -381,53 +424,6 @@ func (t *Tracker) getStatsLocked() StatsResponse {
 		copy(resp.DailyHistory, t.dailyHistory)
 	} else {
 		resp.DailyHistory = make([]DayRecord, 0)
-	}
-
-	dailyEmpty := (len(t.daily) == 0 || resp.Daily.Total.Total == 0)
-	weeklyEmpty := (len(t.weekly) == 0 || resp.Weekly.Total.Total == 0)
-	monthlyEmpty := (len(t.monthly) == 0 || resp.Monthly.Total.Total == 0)
-
-	if dailyEmpty || weeklyEmpty || monthlyEmpty {
-		rawStats := parseProcNetDev()
-		for iface, raw := range rawStats {
-			lower := strings.ToLower(iface)
-			isPhysical := strings.HasPrefix(lower, "wlan") ||
-				strings.HasPrefix(lower, "ap") ||
-				strings.HasPrefix(lower, "softap") ||
-				strings.HasPrefix(lower, "rmnet") ||
-				strings.HasPrefix(lower, "ccmni") ||
-				strings.HasPrefix(lower, "wwan")
-
-			if isPhysical {
-				if dailyEmpty {
-					resp.Daily.Interfaces[iface] = InterfaceStat{
-						RxBytes: raw.rxBytes,
-						TxBytes: raw.txBytes,
-					}
-					resp.Daily.Total.RxBytes += raw.rxBytes
-					resp.Daily.Total.TxBytes += raw.txBytes
-				}
-				if weeklyEmpty {
-					resp.Weekly.Interfaces[iface] = InterfaceStat{
-						RxBytes: raw.rxBytes,
-						TxBytes: raw.txBytes,
-					}
-					resp.Weekly.Total.RxBytes += raw.rxBytes
-					resp.Weekly.Total.TxBytes += raw.txBytes
-				}
-				if monthlyEmpty {
-					resp.Monthly.Interfaces[iface] = InterfaceStat{
-						RxBytes: raw.rxBytes,
-						TxBytes: raw.txBytes,
-					}
-					resp.Monthly.Total.RxBytes += raw.rxBytes
-					resp.Monthly.Total.TxBytes += raw.txBytes
-				}
-			}
-		}
-		resp.Daily.Total.Total = resp.Daily.Total.RxBytes + resp.Daily.Total.TxBytes
-		resp.Weekly.Total.Total = resp.Weekly.Total.RxBytes + resp.Weekly.Total.TxBytes
-		resp.Monthly.Total.Total = resp.Monthly.Total.RxBytes + resp.Monthly.Total.TxBytes
 	}
 
 	resp.LastUpdated = t.lastUpdated

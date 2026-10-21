@@ -18,9 +18,6 @@ func NewScrcpyHandler(authMgr *auth.Manager) *ScrcpyHandler {
 
 func (h *ScrcpyHandler) HandleWS(w http.ResponseWriter, r *http.Request) {
 	token := h.authMgr.GetTokenFromRequest(r)
-	if token == "" {
-		token = r.URL.Query().Get("token")
-	}
 	if !h.authMgr.ValidateSession(token) {
 		http.Error(w, "Unauthorized", http.StatusUnauthorized)
 		return

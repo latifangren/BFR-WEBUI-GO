@@ -70,10 +70,10 @@ func newManager() *Manager {
 			Enabled:      false,
 			SharePath:    "/sdcard",
 			Port:         85,
-			ReadOnly:     false,
-			AuthRequired: false,
-			Username:     "admin",
-			Password:     "bfr",
+			ReadOnly:     true,
+			AuthRequired: true,
+			Username:     "",
+			Password:     "",
 			Protocol:     "webdav",
 		},
 	}
@@ -193,6 +193,15 @@ func (m *Manager) LoadConfig() (*NASConfig, error) {
 		buf = bytes.TrimPrefix(buf, []byte("\xef\xbb\xbf"))
 		var cfg NASConfig
 		if err := json.Unmarshal(buf, &cfg); err == nil {
+			var fields map[string]json.RawMessage
+			if err := json.Unmarshal(buf, &fields); err == nil {
+				if _, exists := fields["read_only"]; !exists {
+					cfg.ReadOnly = true
+				}
+				if _, exists := fields["auth_required"]; !exists {
+					cfg.AuthRequired = true
+				}
+			}
 			if cfg.Port <= 0 {
 				cfg.Port = 85
 			}
@@ -279,6 +288,9 @@ func (m *Manager) StartNAS(cfg NASConfig) error {
 
 	if !cfg.Enabled {
 		return m.StopNAS()
+	}
+	if cfg.AuthRequired && (strings.TrimSpace(cfg.Username) == "" || cfg.Password == "") {
+		return fmt.Errorf("NAS authentication requires a non-empty username and password")
 	}
 
 	_ = m.StopNAS()

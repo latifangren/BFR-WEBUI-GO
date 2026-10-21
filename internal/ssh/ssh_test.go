@@ -1,6 +1,7 @@
 package ssh
 
 import (
+	"os"
 	"path/filepath"
 	"testing"
 )
@@ -51,8 +52,22 @@ func TestSSHConfigValidationAndSave(t *testing.T) {
 	}
 	mgr2.loadConfig()
 	st2 := mgr2.GetStatus()
-	if st2.Config.Port != 2222 || st2.Config.Bind != "127.0.0.1" {
+	if st2.Config.Port != 2222 || st2.Config.Bind != "127.0.0.1" || !st2.Config.KeyAuthOnly {
 		t.Errorf("reloaded config mismatch: %+v", st2.Config)
+	}
+}
+
+func TestSSHLegacyConfigDefaultsToKeyOnly(t *testing.T) {
+	tempDir := t.TempDir()
+	dataPath := filepath.Join(tempDir, "ssh_config.json")
+	if err := os.WriteFile(dataPath, []byte(`{"enabled":true,"port":2222,"bind":"0.0.0.0"}`), 0600); err != nil {
+		t.Fatal(err)
+	}
+
+	mgr := &Manager{dataPath: dataPath}
+	mgr.loadConfig()
+	if !mgr.config.KeyAuthOnly {
+		t.Fatal("legacy SSH config must default to key-only authentication")
 	}
 }
 

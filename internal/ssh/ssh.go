@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"net"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -85,6 +86,18 @@ func (m *Manager) loadConfig() {
 	data = bytes.TrimPrefix(data, []byte("\xef\xbb\xbf"))
 	var cfg Config
 	if err := json.Unmarshal(data, &cfg); err == nil {
+		var fields map[string]json.RawMessage
+		if err := json.Unmarshal(data, &fields); err == nil {
+			if _, exists := fields["key_auth_only"]; !exists {
+				cfg.KeyAuthOnly = true
+			}
+		}
+		if cfg.Port <= 0 {
+			cfg.Port = 2222
+		}
+		if cfg.Bind == "" {
+			cfg.Bind = "127.0.0.1"
+		}
 		m.config = cfg
 	}
 }
@@ -143,16 +156,6 @@ func (m *Manager) detectSshBinary() string {
 		}
 	}
 	return ""
-}
-
-func ensurePasswd() {
-	_ = exec.Command(config.SUBin, "-c", "mkdir -p /data/ssh").Run()
-
-	// Default root SSH password is set to "bfr" (MD5 crypt hash for "bfr" with salt "12345678")
-	// Shell /bin/sh is natively accepted by Dropbear (musl) default getusershell list.
-	passwdEntry := "root:$1$12345678$AnOalxy58Pt6NMyuN0T54.:0:0:root:/data/local/tmp:/bin/sh"
-	cmdPasswd := fmt.Sprintf("echo '%s' > /data/ssh/passwd && chmod 644 /data/ssh/passwd && mount -o bind /data/ssh/passwd /etc/passwd 2>/dev/null", passwdEntry)
-	_ = exec.Command(config.SUBin, "-c", cmdPasswd).Run()
 }
 
 func ensureDropbearHostKeys(bin string) string {
@@ -244,6 +247,12 @@ func (m *Manager) SaveConfig(cfg Config) (StatusResponse, error) {
 	if cfg.Port < 1 || cfg.Port > 65535 {
 		return m.GetStatus(), fmt.Errorf("invalid port: must be between 1 and 65535")
 	}
+	if cfg.Bind == "" {
+		cfg.Bind = "127.0.0.1"
+	}
+	if net.ParseIP(cfg.Bind) == nil {
+		return m.GetStatus(), fmt.Errorf("bind address must be a valid IP address")
+	}
 
 	m.mu.Lock()
 	m.config = cfg
@@ -283,7 +292,6 @@ func (m *Manager) Start() error {
 	var cmdStr string
 
 	if isDropbear {
-		ensurePasswd()
 		keyPath := ensureDropbearHostKeys(bin)
 		var addr string
 		if m.config.Bind == "" || m.config.Bind == "0.0.0.0" {
@@ -292,10 +300,17 @@ func (m *Manager) Start() error {
 			addr = fmt.Sprintf("%s:%d", m.config.Bind, m.config.Port)
 		}
 		cmdStr = fmt.Sprintf("%s -p %s -r %s", bin, addr, keyPath)
+		if m.config.KeyAuthOnly {
+			cmdStr += " -s"
+		}
 	} else {
 		// Termux OpenSSH sshd — ensure RSA host key exists before calling sshd.
 		ensureOpenSSHHostKeys()
-		cmdStr = fmt.Sprintf("%s -h /data/ssh/ssh_host_rsa_key -p %d -o \"ListenAddress %s\" -o \"PasswordAuthentication yes\"", bin, m.config.Port, m.config.Bind)
+		passwordAuth := "no"
+		if !m.config.KeyAuthOnly {
+			passwordAuth = "yes"
+		}
+		cmdStr = fmt.Sprintf("%s -h /data/ssh/ssh_host_rsa_key -p %d -o \"ListenAddress %s\" -o \"PasswordAuthentication %s\"", bin, m.config.Port, m.config.Bind, passwordAuth)
 	}
 
 	// Use nohup for clean daemon detach — prevents SIGHUP kill when su exits

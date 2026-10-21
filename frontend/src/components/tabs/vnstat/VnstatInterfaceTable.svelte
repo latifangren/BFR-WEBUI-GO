@@ -27,7 +27,7 @@
   function getCategory(name: string): 'cellular' | 'wifi' | 'softap' | 'other' {
     const lower = name.toLowerCase()
     if (lower.startsWith('rmnet') || lower.startsWith('ccmni') || lower.startsWith('wwan')) return 'cellular'
-    if (lower.startsWith('wlan') || lower.startsWith('ra')) return 'wifi'
+    if (lower.startsWith('wlan') || lower.startsWith('wifi') || lower.startsWith('ra')) return 'wifi'
     if (lower.startsWith('ap') || lower.startsWith('softap')) return 'softap'
     return 'other'
   }

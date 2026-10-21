@@ -1,6 +1,6 @@
 {
-  "version": "v1.2.7",
-  "versionCode": 127,
-  "zipUrl": "https://github.com/latifangren/BFR-WEBUI-GO-release/releases/latest/download/BFR-WEBUI-Magisk-v1.2.7-nomodem.zip",
+  "version": "v1.2.8",
+  "versionCode": 128,
+  "zipUrl": "https://github.com/latifangren/BFR-WEBUI-GO-release/releases/latest/download/BFR-WEBUI-Magisk-v1.2.8-nomodem.zip",
   "changelog": "https://raw.githubusercontent.com/latifangren/BFR-WEBUI-GO-release/main/CHANGELOG.md"
 }

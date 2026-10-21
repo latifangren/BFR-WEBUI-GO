@@ -26,12 +26,15 @@ func TestTerminalAndScrcpyHandlers_Unauthorized(t *testing.T) {
 		t.Errorf("expected status 401 Unauthorized for unauthenticated terminal request, got %d", rrTerm.Code)
 	}
 
-	// 2. Scrcpy unauthorized request
-	reqScrcpy := httptest.NewRequest("GET", "/ws/scrcpy", nil)
+	// Query parameters cannot authenticate a Scrcpy WebSocket request.
+	token, ok, _ := authMgr.Authenticate(auth.DefaultPassword, "127.0.0.1:1234")
+	if !ok {
+		t.Fatal("expected test session authentication to succeed")
+	}
+	reqScrcpy := httptest.NewRequest("GET", "/ws/scrcpy?token="+token, nil)
 	rrScrcpy := httptest.NewRecorder()
 	scrcpyHandler.HandleWS(rrScrcpy, reqScrcpy)
-
 	if rrScrcpy.Code != http.StatusUnauthorized {
-		t.Errorf("expected status 401 Unauthorized for unauthenticated scrcpy request, got %d", rrScrcpy.Code)
+		t.Errorf("expected query token to be rejected, got %d", rrScrcpy.Code)
 	}
 }

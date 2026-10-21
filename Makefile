@@ -2,7 +2,7 @@
 
 VERSION ?= $(shell grep '^version=' module.prop | cut -d= -f2)
 ifeq ($(VERSION),)
-  VERSION := v1.2.7
+  VERSION := v1.2.8
 endif
 
 GOOS ?= android
