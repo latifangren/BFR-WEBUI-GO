@@ -137,6 +137,14 @@ var AllSwitchProfiles = []SwitchProfile{
 
 	// Samsung
 	{
+		ID:          "samsung_charging_enabled",
+		Name:        "Samsung (charging_enabled)",
+		Description: "Samsung direct charging enable/disable gate",
+		Nodes: []SwitchNode{
+			{Path: "/sys/class/power_supply/battery/charging_enabled", OnValue: "1", OffValue: "0"},
+		},
+	},
+	{
 		ID:          "samsung_batt_slate_mode",
 		Name:        "Samsung (batt_slate_mode)",
 		Description: "Samsung kiosk slate mode battery bypass switch",
@@ -153,15 +161,6 @@ var AllSwitchProfiles = []SwitchProfile{
 			{Path: "/sys/class/power_supply/battery/store_mode", OnValue: "0", OffValue: "1"},
 		},
 		IsBypass: true,
-	},
-	{
-		ID:          "samsung_siop_level",
-		Name:        "Samsung (siop_level)",
-		Description: "Samsung SIOP battery charge throttling level",
-		Nodes: []SwitchNode{
-			{Path: "/sys/class/power_supply/battery/siop_level", OnValue: "100", OffValue: "0"},
-		},
-		IsBypass: false,
 	},
 
 	// MediaTek
@@ -206,11 +205,12 @@ var AllSwitchProfiles = []SwitchProfile{
 
 	// Universal fallback
 	{
-		ID:          "universal_charge_control_limit",
-		Name:        "Universal (charge_control_limit)",
-		Description: "Linux kernel charge control limit switch",
+		ID:                "universal_charge_control_limit",
+		Name:              "Universal (charge_control_limit)",
+		Description:       "Linux kernel charge control percentage limit",
+		IsPercentageLimit: true,
 		Nodes: []SwitchNode{
-			{Path: "/sys/class/power_supply/battery/charge_control_limit", OnValue: "1", OffValue: "0"},
+			{Path: "/sys/class/power_supply/battery/charge_control_limit", OnValue: "100", OffValue: "80"},
 		},
 		IsBypass: false,
 	},
@@ -275,6 +275,9 @@ func GetExistingSwitchProfiles() []SwitchProfile {
 	seenPaths := make(map[string]bool)
 
 	for _, p := range AllSwitchProfiles {
+		if strings.Contains(p.ID, "siop_level") {
+			continue
+		}
 		allWritable := true
 		for _, n := range p.Nodes {
 			if !fileExistsAndWritable(n.Path) {
@@ -303,7 +306,7 @@ func GetExistingSwitchProfiles() []SwitchProfile {
 				for _, f := range files {
 					name := strings.ToLower(f.Name())
 					fullPath := filepath.Join(subPath, f.Name())
-					if seenPaths[fullPath] {
+					if seenPaths[fullPath] || strings.Contains(name, "siop_level") || strings.Contains(name, "charge_control_limit") {
 						continue
 					}
 					for _, kw := range keywords {

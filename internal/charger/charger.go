@@ -31,6 +31,7 @@ type Manager struct {
 	logs             []string
 	stopCh           chan struct{}
 	stopOnce         sync.Once
+	probeMu          sync.Mutex
 }
 
 func getStoragePath() string {
@@ -178,7 +179,7 @@ func (m *Manager) autoScanLocked() {
 	// 2. Selected Switch Profile ID
 	if m.config.SelectedSwitch != "" {
 		for _, p := range available {
-			if p.ID == m.config.SelectedSwitch {
+			if p.ID == m.config.SelectedSwitch && p.ID != "samsung_siop_level_disabled" {
 				cp := p
 				m.activeProfile = &cp
 				if len(cp.Nodes) > 0 {
@@ -190,6 +191,9 @@ func (m *Manager) autoScanLocked() {
 			}
 		}
 		for _, p := range AllSwitchProfiles {
+			if p.ID == "samsung_siop_level_disabled" {
+				continue
+			}
 			if p.ID == m.config.SelectedSwitch {
 				cp := p
 				m.activeProfile = &cp
@@ -219,34 +223,48 @@ func (m *Manager) autoScanLocked() {
 }
 
 // applySwitchLocked applies either the ON or OFF values to all nodes in the active profile.
-func (m *Manager) applySwitchLocked(disable bool) {
+func (m *Manager) applySwitchLocked(disable bool) bool {
 	if m.activeProfile == nil {
-		return
+		return false
 	}
 	for _, node := range m.activeProfile.Nodes {
 		val := node.OnValue
 		if disable {
 			val = node.OffValue
 		}
-		_ = writeSysfs(node.Path, val)
+		if err := writeSysfs(node.Path, val); err != nil {
+			m.logLocked(fmt.Sprintf("Failed to write charging node %s: %v", node.Path, err))
+			return false
+		}
 	}
+	return true
 }
 
 // setChargingStateLocked sets the internal charging disabled flag and updates hardware nodes.
 func (m *Manager) setChargingStateLocked(disable bool) {
-	m.chargingDisabled = disable
-	actionStr := "enabled"
-	if disable {
-		actionStr = "disabled/limited"
-	}
-
 	if m.activeProfile == nil {
-		m.logLocked(fmt.Sprintf("Charging %s (no active profile on device)", actionStr))
+		m.chargingDisabled = disable
+		m.logLocked("Charging state updated in software only: no active profile")
 		return
 	}
-
-	m.applySwitchLocked(disable)
-	m.logLocked(fmt.Sprintf("Charging %s via profile: %s", actionStr, m.activeProfile.Name))
+	if m.activeProfile.IsPercentageLimit {
+		value := 100
+		if disable {
+			value = m.config.StopPercent
+		}
+		if len(m.activeProfile.Nodes) == 0 || writeSysfs(m.activeProfile.Nodes[0].Path, strconv.Itoa(value)) != nil {
+			m.logLocked("Failed to apply charge percentage limit")
+			return
+		}
+	} else if !m.applySwitchLocked(disable) {
+		return
+	}
+	m.chargingDisabled = disable
+	action := "enabled"
+	if disable {
+		action = "limited"
+	}
+	m.logLocked(fmt.Sprintf("Charging %s via profile: %s", action, m.activeProfile.Name))
 }
 
 // evaluateLocked checks battery capacity against StartPercent/StopPercent limits.
@@ -274,15 +292,8 @@ func (m *Manager) evaluateLocked() {
 		return
 	}
 
-	// Percentage-threshold kernels: write target percentage directly
-	if m.detectedType == "charge_limit" ||
-		m.detectedType == "universal_charge_control_limit" || m.detectedType == "charge_control_limit" {
-		expectedVal := strconv.Itoa(m.config.StopPercent)
-		if !m.chargingDisabled {
-			m.setChargingStateLocked(true)
-		} else if len(m.activeProfile.Nodes) > 0 {
-			_ = writeSysfs(m.activeProfile.Nodes[0].Path, expectedVal)
-		}
+	if m.activeProfile.IsPercentageLimit {
+		m.setChargingStateLocked(level >= m.config.StopPercent)
 		return
 	}
 
@@ -316,11 +327,13 @@ func (m *Manager) start() {
 			case <-m.stopCh:
 				return
 			case <-ticker.C:
+				m.probeMu.Lock()
 				m.mu.Lock()
-				if m.config.Enabled && m.chargingDisabled && m.activeProfile != nil {
+				if m.config.Enabled && m.chargingDisabled && m.activeProfile != nil && !m.activeProfile.IsPercentageLimit {
 					m.applySwitchLocked(true)
 				}
 				m.mu.Unlock()
+				m.probeMu.Unlock()
 			}
 		}
 	}()
@@ -334,11 +347,13 @@ func (m *Manager) start() {
 			case <-m.stopCh:
 				return
 			case <-ticker.C:
+				m.probeMu.Lock()
 				m.mu.Lock()
 				if m.config.Enabled || m.chargingDisabled {
 					m.evaluateLocked()
 				}
 				m.mu.Unlock()
+				m.probeMu.Unlock()
 			}
 		}
 	}()
@@ -372,6 +387,8 @@ func (m *Manager) getStatusLocked() StatusResponse {
 
 // UpdateConfig updates the manager configuration, saves to persistent storage, and evaluates state.
 func (m *Manager) UpdateConfig(cfg Config) StatusResponse {
+	m.probeMu.Lock()
+	defer m.probeMu.Unlock()
 	m.mu.Lock()
 	defer m.mu.Unlock()
 
@@ -398,6 +415,8 @@ func (m *Manager) UpdateConfig(cfg Config) StatusResponse {
 
 // ToggleCharging manually toggles the chargingDisabled state.
 func (m *Manager) ToggleCharging() StatusResponse {
+	m.probeMu.Lock()
+	defer m.probeMu.Unlock()
 	m.mu.Lock()
 	defer m.mu.Unlock()
 

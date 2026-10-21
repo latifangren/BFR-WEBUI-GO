@@ -11,11 +11,12 @@ type SwitchNode struct {
 
 // SwitchProfile represents an ACC charging control profile, containing one or more nodes.
 type SwitchProfile struct {
-	ID          string       `json:"id"`
-	Name        string       `json:"name"`
-	Description string       `json:"description"`
-	Nodes       []SwitchNode `json:"nodes"`
-	IsBypass    bool         `json:"is_bypass"`
+	ID                string       `json:"id"`
+	Name              string       `json:"name"`
+	Description       string       `json:"description"`
+	Nodes             []SwitchNode `json:"nodes"`
+	IsBypass          bool         `json:"is_bypass"`
+	IsPercentageLimit bool         `json:"is_percentage_limit,omitempty"`
 }
 
 // Config represents the persistent configuration for the smart charger limiter.
