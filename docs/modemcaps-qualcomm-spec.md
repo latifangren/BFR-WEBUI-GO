@@ -24,7 +24,19 @@ ModemCaps adalah aplikasi Qualcomm murni (EFS modem Qualcomm). Tidak ada satu pu
 - SSR: `Manager.RestartModem()` + endpoint `/api/efs/ssr` — dipakai sebagai langkah opsional sesudah tulis (pola sama seperti alur IMEI `RebootModem`).
 - UI: `TabQualcomm.svelte` + komponen `frontend/src/components/tabs/qualcomm/` (EFS, NV, IMEI, Bands, CellLock, CellScanner, Profiles) — fitur baru masuk sebagai sub-tab di sini, mengikuti pola modal & state yang ada.
 
-## 3. Fitur A — Editor Kapabilitas RRC (Gap 1)
+## 3. Fondasi — Perbaikan EFS Write (prasyarat semua fitur)
+
+Semua fitur di spek ini menulis file EFS, dan jalur tulis yang ada sekarang (`EfsSession.WriteFile`, `internal/efs/efs2_linux.go:496`, lewat `POST /api/efs/write`) punya kelemahan terverifikasi dari pembacaan kode. Pola acuan dari QPST dan ModemCaps: **susun file utuh di luar modem → timpa sekali jadi → verifikasi → restart modem supaya file dikonsumsi**. BFR sudah menimpa penuh (`O_TRUNC` di kedua jalur; item ≤6.144 byte malah satu PUT atomik), tapi pendampingnya belum ada. Yang diperbaiki di fondasi ini:
+
+1. **Klasifikasi item file jangan percaya frontend.** Sekarang `QualcommEFS.svelte` mengirim `force_item: 1` hanya bila path mengandung `/nv/item_files/`; path item sah lain (`/nv/reg_files/…`, `/cgps/nv/item_files/…` — keduanya dikenali `IsItemPath` di server) terkirim `0`, dan di `WriteFile` nilai `0` *memaksa* mode reguler tanpa `O_ITEMFILE`. Perbaikan: default server = auto (`-1`, putuskan dari `IsItemPath`); field JSON yang tidak dikirim tidak boleh terbaca sebagai `0` (pakai pointer/sentinel); frontend cukup mengirim auto kecuali user menimpa manual.
+2. **Backup otomatis sebelum timpa.** Setiap tulis ke path yang sudah ada wajib menyimpan salinan lama lebih dulu (pola backup NV yang sudah ada di repo), lengkap dengan path + timestamp, dan tersedia endpoint/UI restore per file. File yang sudah ter-TRUNC tidak boleh tertinggal setengah jadi tanpa jalan pulang.
+3. **Verifikasi baca-balik.** Sesudah tulis: baca ulang file dari modem, bandingkan byte/hash dengan yang dikirim; mismatch = error eksplisit ke UI, bukan sukses semu. Error pada CLOSE tidak boleh lagi diabaikan, dan urutan yang benar adalah CLOSE → sync (sekarang sync dipanggil sebelum close selesai). Kegagalan jalur PUT harus tercatat di hasil, bukan jatuh diam-diam ke jalur OPEN/WRITE.
+4. **Opsi "tulis + SSR" satu aksi.** Flag opsional pada request tulis (pola `RebootModem` di alur IMEI): sesudah verifikasi lolos, jalankan `RestartModem()`. Default mati, tidak pernah otomatis — tapi user tidak perlu lagi berburu tombol SSR terpisah supaya editnya "berpengaruh".
+5. **Catatan item file besar.** Item file >6.144 byte jatuh ke jalur OPEN/WRITE ber-chunk; sebagian firmware menolak tulis parsial pada item file. Perilaku per perangkat dicatat di Fase 0 Fitur A; bila terbukti menolak, strategi alternatifnya dirumuskan di sana (bukan ditebak sekarang).
+
+**Kriteria selesai fondasi:** unit test klasifikasi path (item vs reguler, termasuk `reg_files`/`cgps`); di perangkat uji: tulis → baca-balik identik; tulis sengaja digagalkan di tengah → backup bisa di-restore dan file kembali utuh; tulis + SSR membuat perubahan yang tadinya "tidak berpengaruh" terlihat efeknya.
+
+## 4. Fitur A — Editor Kapabilitas RRC (Gap 1)
 
 Halaman switch setara halaman kapabilitas ModemCaps: 38 token dalam 3 seksi.
 
@@ -65,7 +77,7 @@ Layout byte persis tiap file di atas adalah format sisi modem yang disimpulkan d
 2. Bandingkan dengan keadaan fitur yang diketahui (mis. perangkat dengan RedCap aktif vs tidak).
 3. Kunci format per file di dokumen ini (endianness, satuan, nilai enable/disable) — satu file, satu baris kesimpulan + hex dump contoh.
 
-## 4. Fitur B — Searcher Preferences (Gap 2)
+## 5. Fitur B — Searcher Preferences (Gap 2)
 
 Editor daftar per RAT (GSM/UMTS/LTE/NR), masing-masing: cell blacklist, channel blacklist, channel code whitelist, priority channel list (maks 6 entri; UMTS 1).
 
@@ -77,7 +89,7 @@ Editor daftar per RAT (GSM/UMTS/LTE/NR), masing-masing: cell blacklist, channel 
 - **Handler/route:** `GET/POST /api/efs/searcher` di `internal/handlers/searcher_handler.go`.
 - **Frontend:** `QualcommSearcher.svelte` — 4 seksi RAT, 8 kolom, peringatan statis yang sama seperti aslinya: perubahan memicu modem power cycle; mengisi prioritas UMTS menggeser preferensi RAT ke UMTS-only.
 
-## 5. Fitur C — Kunci ekstra di luar LTE (Gap 3)
+## 6. Fitur C — Kunci ekstra di luar LTE (Gap 3)
 
 Satu pola dengan cell lock yang sudah ada, file-file:
 
@@ -88,7 +100,7 @@ Satu pola dengan cell lock yang sudah ada, file-file:
 
 Backend di `internal/efs/searcher.go` atau file `locks.go` terpisah; UI menyatu di `QualcommSearcher.svelte` sebagai seksi "Kunci tambahan".
 
-## 6. Fitur D — Switch Profil MBN / PDC (Gap 5)
+## 7. Fitur D — Switch Profil MBN / PDC (Gap 5)
 
 Padanan halaman **PDC Preferences** ModemCaps — fitur yang di BFR belum ada sama sekali (tidak ada `mbn`/`mcfg`/`pdc` di backend maupun frontend; `QualcommProfiles` yang ada adalah profil band lock, bukan MBN). Permukaan fitur dari kamus string hasil dekripsi:
 
@@ -113,14 +125,15 @@ Padanan halaman **PDC Preferences** ModemCaps — fitur yang di BFR belum ada sa
 - **Frontend:** `frontend/src/components/tabs/qualcomm/QualcommMBN.svelte`, sub-tab di `TabQualcomm.svelte` (keputusan terkunci yang sama dengan Fitur A/B).
 - **Pengaman:** aktivasi profil yang salah bisa membuat modem gagal registrasi sampai dikembalikan — UI wajib menampilkan profil aktif sebelumnya dan menyediakan jalan pulang satu klik; tidak ada aktivasi tanpa konfirmasi.
 
-## 7. Di luar cakupan
+## 8. Di luar cakupan
 
 - **Laporan CA combos (Gap 4)** — butuh query kapabilitas QMI (protokol baru di `QRTRClient`); riset terpisah, bukan bagian spek ini.
 - Perubahan apa pun di `internal/shannon`, `internal/samsung`, route `/api/shannon/*` dan `/api/samsung/*`, dan tab `shannon/` + `samsung/`.
 - Flavor `nomodem` tidak berubah perilaku: tidak ada route/handler/komponen baru yang bocor ke build `nomodem` (build tag `!nomodem` + stub + `vendor_tabs.ts` dijaga).
 
-## 8. Urutan pengerjaan
+## 9. Urutan pengerjaan
 
+0. Fondasi EFS Write (Seksi 3) — kode + unit test bisa jalan tanpa perangkat; verifikasi baca-balik & restore diuji begitu ada perangkat.
 1. Fase 0 — verifikasi format file di perangkat (Fitur A).
 2. Fitur B + C — format datanya paling pasti; pack/unpack + unit test dulu, baru I/O + UI.
 3. Fitur A LTE — tulis per file yang formatnya sudah terkunci di Fase 0.
@@ -128,7 +141,7 @@ Padanan halaman **PDC Preferences** ModemCaps — fitur yang di BFR belum ada sa
 5. Fitur D — fase riset R1–R3 bisa berjalan sejajar dengan langkah 3–4 (statis dulu); implementasi hanya sesudah mekanismenya terkunci.
 6. Uji end-to-end di perangkat: tulis → SSR → baca balik → bandingkan dengan ModemCaps di perangkat yang sama.
 
-## 9. Risiko & mitigasi
+## 10. Risiko & mitigasi
 
 - **Format file salah tebak** → mitigasi Fase 0 + backup wajib sebelum tulis pertama per file; restore = tulis balik backup.
 - **File tidak ada di perangkat tertentu** → `ReadCapability` toleran; UI menandai "tidak didukung perangkat ini" (mengikuti penjelasan footer ModemCaps: hardware/supplemental connectivity/airplane mode).
