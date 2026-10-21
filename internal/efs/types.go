@@ -2,8 +2,17 @@ package efs
 
 import (
 	"fmt"
+	"strings"
 	"time"
 )
+
+// IsItemPath checks if a path belongs to known Qualcomm NV item file directories.
+func IsItemPath(p string) bool {
+	return strings.HasPrefix(p, "/nv/item_files/") ||
+		strings.HasPrefix(p, "/nv/reg_files/") ||
+		strings.HasPrefix(p, "/cgps/nv/item_files/") ||
+		strings.HasPrefix(p, "/sd/")
+}
 
 // EfsEntry represents a file, directory, symlink, or item file inside modem EFS2.
 type EfsEntry struct {
@@ -95,4 +104,22 @@ type FileReadResult struct {
 	TextContent string `json:"text_content,omitempty"`
 	DataHex     string `json:"data_hex,omitempty"`
 	DataBase64  string `json:"data_base64,omitempty"`
+}
+
+// WriteOptions specifies settings for EFS file writing operations.
+type WriteOptions struct {
+	ForceItem int  `json:"force_item"` // -1: auto (use IsItemPath), 0: regular file, 1: item file
+	Backup    bool `json:"backup"`     // save old file content before overwrite if file already exists
+	Verify    bool `json:"verify"`     // read-back verification comparing written data
+}
+
+// WriteResult contains execution metrics and outcome of an EFS write operation.
+type WriteResult struct {
+	Path         string `json:"path"`
+	Size         int    `json:"size"`
+	IsItem       bool   `json:"is_item"`
+	BackedUp     bool   `json:"backed_up"`
+	BackupID     string `json:"backup_id,omitempty"`
+	Verified     bool   `json:"verified"`
+	SSRTriggered bool   `json:"ssr_triggered,omitempty"`
 }

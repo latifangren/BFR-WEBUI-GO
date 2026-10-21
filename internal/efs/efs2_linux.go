@@ -4,6 +4,7 @@ package efs
 
 import (
 	"bytes"
+	"crypto/sha256"
 	"encoding/binary"
 	"fmt"
 	"os"
@@ -403,6 +404,10 @@ func (s *EfsSession) ReadFile(filePath string) ([]byte, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
+	return s.readFileLocked(filePath)
+}
+
+func (s *EfsSession) readFileLocked(filePath string) ([]byte, error) {
 	if err := s.ensureDetected(); err != nil {
 		return nil, err
 	}
@@ -484,36 +489,64 @@ func (s *EfsSession) ReadFile(filePath string) ([]byte, error) {
 	return nil, fmt.Errorf("file '%s' could not be opened or read from EFS2", filePath)
 }
 
-// IsItemPath checks if a path belongs to known Qualcomm NV item file directories.
-func IsItemPath(p string) bool {
-	return strings.HasPrefix(p, "/nv/item_files/") ||
-		strings.HasPrefix(p, "/nv/reg_files/") ||
-		strings.HasPrefix(p, "/cgps/nv/item_files/") ||
-		strings.HasPrefix(p, "/sd/")
+
+// WriteFile writes data to a regular or item file in modem EFS2 with default backup and verify options.
+func (s *EfsSession) WriteFile(filePath string, data []byte, mode int16, forceItem int) error {
+	_, err := s.WriteFileWithOptions(filePath, data, mode, WriteOptions{
+		ForceItem: forceItem,
+		Backup:    true,
+		Verify:    true,
+	})
+	return err
 }
 
-// WriteFile writes data to a regular or item file in modem EFS2.
-func (s *EfsSession) WriteFile(filePath string, data []byte, mode int16, forceItem int) error {
+// WriteFileWithOptions writes data to EFS2 with granular control over item mode, auto-backup, and verification.
+func (s *EfsSession) WriteFileWithOptions(filePath string, data []byte, mode int16, opts WriteOptions) (*WriteResult, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
 	if err := s.checkWrite(); err != nil {
-		return err
+		return nil, err
 	}
 	if err := s.ensureDetected(); err != nil {
-		return err
+		return nil, err
 	}
 
+	// 1. Classification
+	// forceItem:
+	//   1: force item file
+	//   0: force regular file
+	//  -1 (or other negative): auto detect via IsItemPath
 	isItem := IsItemPath(filePath)
-	if forceItem > 0 {
+	if opts.ForceItem > 0 {
 		isItem = true
-	} else if forceItem == 0 {
+	} else if opts.ForceItem == 0 {
 		isItem = false
 	}
 
-	pathBytes := append([]byte(filePath), 0)
+	result := &WriteResult{
+		Path:   filePath,
+		Size:   len(data),
+		IsItem: isItem,
+	}
 
-	// 1. Atomic PUT for small item files
+	// 2. Auto-backup old content if file exists before overwrite
+	if opts.Backup {
+		if oldData, err := s.readFileLocked(filePath); err == nil && len(oldData) > 0 {
+			if backupEntry, bErr := SaveEfsBackup(filePath, oldData); bErr == nil && backupEntry != nil {
+				result.BackedUp = true
+				result.BackupID = backupEntry.ID
+			} else if bErr != nil {
+				logger.Get().Warnf("EFS", "Auto-backup failed for %s before overwrite: %v", filePath, bErr)
+			}
+		}
+	}
+
+	pathBytes := append([]byte(filePath), 0)
+	var putErr error
+	writtenViaPut := false
+
+	// 3. Atomic PUT for small item files
 	if isItem && len(data) <= 6144 {
 		cmd := make([]byte, 14+len(data)+len(pathBytes))
 		copy(cmd[:4], s.hdr(EFS2_PUT))
@@ -530,73 +563,122 @@ func (s *EfsSession) WriteFile(filePath string, data []byte, mode int16, forceIt
 			errno := int16(binary.LittleEndian.Uint16(resp[6:8]))
 			if errno == 0 {
 				_ = s.syncLocked()
-				return nil
+				writtenViaPut = true
+			} else {
+				putErr = fmt.Errorf("EFS2_PUT errno %d", errno)
 			}
+		} else {
+			putErr = fmt.Errorf("EFS2_PUT transport error: %v", err)
+		}
+		if putErr != nil {
+			logger.Get().Warnf("EFS", "Atomic PUT failed on item file '%s' (%v), falling back to OPEN/WRITE", filePath, putErr)
 		}
 	}
 
-	// 2. Regular File OPEN / WRITE / CLOSE
-	oflag := uint32(EFS_O_WRONLY | EFS_O_CREAT | EFS_O_TRUNC)
-	if isItem {
-		oflag |= EFS_O_ITEMFILE
-	} else {
-		oflag |= EFS_O_AUTODIR
-	}
+	// 4. Regular File OPEN / WRITE / CLOSE if not written via PUT
+	if !writtenViaPut {
+		oflag := uint32(EFS_O_WRONLY | EFS_O_CREAT | EFS_O_TRUNC)
+		if isItem {
+			oflag |= EFS_O_ITEMFILE
+		} else {
+			oflag |= EFS_O_AUTODIR
+		}
 
-	openCmd := make([]byte, 12+len(pathBytes))
-	copy(openCmd[:4], s.hdr(EFS2_OPEN))
-	binary.LittleEndian.PutUint32(openCmd[4:], oflag)
-	binary.LittleEndian.PutUint32(openCmd[8:], uint32(mode))
-	copy(openCmd[12:], pathBytes)
+		openCmd := make([]byte, 12+len(pathBytes))
+		copy(openCmd[:4], s.hdr(EFS2_OPEN))
+		binary.LittleEndian.PutUint32(openCmd[4:], oflag)
+		binary.LittleEndian.PutUint32(openCmd[8:], uint32(mode))
+		copy(openCmd[12:], pathBytes)
 
-	resp, err := s.diag.Xfer(openCmd, s.timeout)
-	if err != nil {
-		return fmt.Errorf("open '%s' for write failed: %w", filePath, err)
-	}
-	if len(resp) < 12 {
-		return fmt.Errorf("open '%s' response truncated", filePath)
-	}
+		resp, err := s.diag.Xfer(openCmd, s.timeout)
+		if err != nil {
+			if putErr != nil {
+				return nil, fmt.Errorf("open '%s' for write failed: %w (PUT attempt failed: %v)", filePath, err, putErr)
+			}
+			return nil, fmt.Errorf("open '%s' for write failed: %w", filePath, err)
+		}
+		if len(resp) < 12 {
+			return nil, fmt.Errorf("open '%s' response truncated", filePath)
+		}
 
-	fd := int32(binary.LittleEndian.Uint32(resp[4:8]))
-	errno := int32(binary.LittleEndian.Uint32(resp[8:12]))
-	if fd < 0 || errno != 0 {
-		return fmt.Errorf("open '%s' for write failed with EFS errno %d", filePath, errno)
-	}
+		fd := int32(binary.LittleEndian.Uint32(resp[4:8]))
+		errno := int32(binary.LittleEndian.Uint32(resp[8:12]))
+		if fd < 0 || errno != 0 {
+			if putErr != nil {
+				return nil, fmt.Errorf("open '%s' for write failed with EFS errno %d (PUT attempt failed: %v)", filePath, errno, putErr)
+			}
+			return nil, fmt.Errorf("open '%s' for write failed with EFS errno %d", filePath, errno)
+		}
 
-	defer func() {
+		var writeErr error
+		var offset uint32 = 0
+		for offset < uint32(len(data)) {
+			chunkSize := uint32(len(data)) - offset
+			if chunkSize > EFS_MAX_IO {
+				chunkSize = EFS_MAX_IO
+			}
+
+			wCmd := make([]byte, 12+chunkSize)
+			copy(wCmd[:4], s.hdr(EFS2_WRITE))
+			binary.LittleEndian.PutUint32(wCmd[4:], uint32(fd))
+			binary.LittleEndian.PutUint32(wCmd[8:], offset)
+			copy(wCmd[12:], data[offset:offset+chunkSize])
+
+			wResp, wErr := s.diag.Xfer(wCmd, s.timeout)
+			if wErr != nil || len(wResp) < 20 {
+				writeErr = fmt.Errorf("write '%s' failed at offset %d: %v", filePath, offset, wErr)
+				break
+			}
+			wrote := int32(binary.LittleEndian.Uint32(wResp[12:16]))
+			wErrno := int32(binary.LittleEndian.Uint32(wResp[16:20]))
+			if wErrno != 0 || wrote <= 0 {
+				writeErr = fmt.Errorf("write '%s' at offset %d failed with EFS errno %d", filePath, offset, wErrno)
+				break
+			}
+			offset += uint32(wrote)
+		}
+
+		// Explicit CLOSE order: check CLOSE error first
 		clCmd := make([]byte, 8)
 		copy(clCmd[:4], s.hdr(EFS2_CLOSE))
 		binary.LittleEndian.PutUint32(clCmd[4:], uint32(fd))
-		_, _ = s.diag.Xfer(clCmd, s.timeout)
-	}()
+		clResp, clErr := s.diag.Xfer(clCmd, s.timeout)
 
-	var offset uint32 = 0
-	for offset < uint32(len(data)) {
-		chunkSize := uint32(len(data)) - offset
-		if chunkSize > EFS_MAX_IO {
-			chunkSize = EFS_MAX_IO
+		var closeErr error
+		if clErr != nil {
+			closeErr = fmt.Errorf("close '%s' failed: %w", filePath, clErr)
+		} else if len(clResp) >= 8 {
+			clErrno := int32(binary.LittleEndian.Uint32(clResp[4:8]))
+			if clErrno != 0 {
+				closeErr = fmt.Errorf("close '%s' failed with EFS errno %d", filePath, clErrno)
+			}
 		}
 
-		wCmd := make([]byte, 12+chunkSize)
-		copy(wCmd[:4], s.hdr(EFS2_WRITE))
-		binary.LittleEndian.PutUint32(wCmd[4:], uint32(fd))
-		binary.LittleEndian.PutUint32(wCmd[8:], offset)
-		copy(wCmd[12:], data[offset:offset+chunkSize])
+		if writeErr != nil {
+			return nil, writeErr
+		}
+		if closeErr != nil {
+			return nil, closeErr
+		}
 
-		wResp, wErr := s.diag.Xfer(wCmd, s.timeout)
-		if wErr != nil || len(wResp) < 20 {
-			return fmt.Errorf("write '%s' failed at offset %d: %v", filePath, offset, wErr)
-		}
-		wrote := int32(binary.LittleEndian.Uint32(wResp[12:16]))
-		wErrno := int32(binary.LittleEndian.Uint32(wResp[16:20]))
-		if wErrno != 0 || wrote <= 0 {
-			return fmt.Errorf("write '%s' at offset %d failed with EFS errno %d", filePath, offset, wErrno)
-		}
-		offset += uint32(wrote)
+		// Order: CLOSE -> sync
+		_ = s.syncLocked()
 	}
 
-	_ = s.syncLocked()
-	return nil
+	// 5. Read-back verification
+	if opts.Verify {
+		readBack, rErr := s.readFileLocked(filePath)
+		if rErr != nil {
+			return nil, fmt.Errorf("write succeeded but read-back verification failed: %w", rErr)
+		}
+		if !bytes.Equal(readBack, data) {
+			return nil, fmt.Errorf("write verification mismatch for '%s': read %d bytes (sha256: %x) != expected %d bytes (sha256: %x)",
+				filePath, len(readBack), sha256.Sum256(readBack), len(data), sha256.Sum256(data))
+		}
+		result.Verified = true
+	}
+
+	return result, nil
 }
 
 // Mkdir creates a directory in EFS2.

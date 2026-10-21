@@ -16,6 +16,7 @@ import (
 	"unicode/utf8"
 
 	"bfr-webui-go/internal/efs"
+	"bfr-webui-go/internal/logger"
 	"bfr-webui-go/internal/modem"
 )
 
@@ -231,11 +232,14 @@ func HandleEfsWrite(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var req struct {
-		Path       string `json:"path"`
-		Data       string `json:"data"`
-		Format     string `json:"format"` // "text", "hex", "base64"
-		Mode       int16  `json:"mode"`
-		ForceItem  int    `json:"force_item"` // -1: auto, 0: regular file, 1: item file
+		Path      string `json:"path"`
+		Data      string `json:"data"`
+		Format    string `json:"format"` // "text", "hex", "base64"
+		Mode      int16  `json:"mode"`
+		ForceItem *int   `json:"force_item,omitempty"` // nil or -1: auto, 0: regular file, 1: item file
+		Backup    *bool  `json:"backup,omitempty"`     // default true
+		Verify    *bool  `json:"verify,omitempty"`     // default true
+		SSR       bool   `json:"ssr"`                  // restart modem if write succeeds
 	}
 
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
@@ -273,6 +277,19 @@ func HandleEfsWrite(w http.ResponseWriter, r *http.Request) {
 		mode = 0644
 	}
 
+	forceItem := -1
+	if req.ForceItem != nil {
+		forceItem = *req.ForceItem
+	}
+	backup := true
+	if req.Backup != nil {
+		backup = *req.Backup
+	}
+	verify := true
+	if req.Verify != nil {
+		verify = *req.Verify
+	}
+
 	sess, err := efs.GetManager().GetSession()
 	if err != nil {
 		w.Header().Set("Content-Type", "application/json")
@@ -284,7 +301,14 @@ func HandleEfsWrite(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := sess.WriteFile(req.Path, rawData, mode, req.ForceItem); err != nil {
+	opts := efs.WriteOptions{
+		ForceItem: forceItem,
+		Backup:    backup,
+		Verify:    verify,
+	}
+
+	writeRes, err := sess.WriteFileWithOptions(req.Path, rawData, mode, opts)
+	if err != nil {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusInternalServerError)
 		_ = json.NewEncoder(w).Encode(map[string]any{
@@ -294,11 +318,26 @@ func HandleEfsWrite(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	ssrTriggered := false
+	if req.SSR {
+		if err := efs.GetManager().RestartModem(); err != nil {
+			logger.Get().Warnf("EFS", "Write succeeded on %s but SSR restart failed: %v", req.Path, err)
+		} else {
+			ssrTriggered = true
+		}
+	}
+	writeRes.SSRTriggered = ssrTriggered
+
 	w.Header().Set("Content-Type", "application/json")
 	_ = json.NewEncoder(w).Encode(map[string]any{
-		"ok":   true,
-		"path": req.Path,
-		"size": len(rawData),
+		"ok":            true,
+		"path":          writeRes.Path,
+		"size":          writeRes.Size,
+		"is_item":       writeRes.IsItem,
+		"backed_up":     writeRes.BackedUp,
+		"backup_id":     writeRes.BackupID,
+		"verified":      writeRes.Verified,
+		"ssr_triggered": writeRes.SSRTriggered,
 	})
 }
 
@@ -550,4 +589,127 @@ func HandleEfsBackup(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/x-tar")
 	w.Header().Set("Content-Length", strconv.FormatUint(bytesWritten, 10))
 	_, _ = io.Copy(w, f)
+}
+
+// HandleEfsBackupList returns the list of auto-created EFS file backups.
+func HandleEfsBackupList(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	filterPath := r.URL.Query().Get("path")
+	backups, err := efs.ListEfsBackups(filterPath)
+	if err != nil {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusInternalServerError)
+		_ = json.NewEncoder(w).Encode(map[string]any{"ok": false, "error": err.Error()})
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	_ = json.NewEncoder(w).Encode(map[string]any{
+		"ok":      true,
+		"backups": backups,
+	})
+}
+
+// HandleEfsBackupRestore restores a previous backup to EFS.
+func HandleEfsBackupRestore(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	var req struct {
+		ID  string `json:"id"`
+		SSR bool   `json:"ssr"`
+	}
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		http.Error(w, "Invalid JSON body", http.StatusBadRequest)
+		return
+	}
+
+	if req.ID == "" {
+		http.Error(w, "Missing 'id' field", http.StatusBadRequest)
+		return
+	}
+
+	entry, data, err := efs.GetEfsBackup(req.ID)
+	if err != nil {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusNotFound)
+		_ = json.NewEncoder(w).Encode(map[string]any{"ok": false, "error": err.Error()})
+		return
+	}
+
+	sess, err := efs.GetManager().GetSession()
+	if err != nil {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusServiceUnavailable)
+		_ = json.NewEncoder(w).Encode(map[string]any{"ok": false, "error": err.Error()})
+		return
+	}
+
+	opts := efs.WriteOptions{
+		ForceItem: -1,
+		Backup:    true,
+		Verify:    true,
+	}
+	writeRes, err := sess.WriteFileWithOptions(entry.OriginalPath, data, 0644, opts)
+	if err != nil {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusInternalServerError)
+		_ = json.NewEncoder(w).Encode(map[string]any{"ok": false, "error": err.Error()})
+		return
+	}
+
+	ssrTriggered := false
+	if req.SSR {
+		if err := efs.GetManager().RestartModem(); err != nil {
+			logger.Get().Warnf("EFS", "Restore succeeded on %s but SSR restart failed: %v", entry.OriginalPath, err)
+		} else {
+			ssrTriggered = true
+		}
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	_ = json.NewEncoder(w).Encode(map[string]any{
+		"ok":            true,
+		"restored_path": entry.OriginalPath,
+		"size":          len(data),
+		"verified":      writeRes.Verified,
+		"ssr_triggered": ssrTriggered,
+	})
+}
+
+// HandleEfsBackupDelete removes a single backup entry and its file.
+func HandleEfsBackupDelete(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost && r.Method != http.MethodDelete {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	var req struct {
+		ID string `json:"id"`
+	}
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		http.Error(w, "Invalid JSON body", http.StatusBadRequest)
+		return
+	}
+
+	if req.ID == "" {
+		http.Error(w, "Missing 'id' field", http.StatusBadRequest)
+		return
+	}
+
+	if err := efs.DeleteEfsBackup(req.ID); err != nil {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusInternalServerError)
+		_ = json.NewEncoder(w).Encode(map[string]any{"ok": false, "error": err.Error()})
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	_ = json.NewEncoder(w).Encode(map[string]any{"ok": true, "id": req.ID})
 }

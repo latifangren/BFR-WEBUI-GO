@@ -5,6 +5,8 @@
     RefreshCw,
     Radio,
     Search,
+    Filter,
+    Layers,
     Sliders,
     AlertTriangle,
     Cpu,
@@ -18,10 +20,12 @@
   import QualcommBands from './QualcommBands.svelte'
   import QualcommCellLock from './QualcommCellLock.svelte'
   import QualcommProfiles from './QualcommProfiles.svelte'
+  import QualcommSearcher from './QualcommSearcher.svelte'
+  import QualcommCapability from './QualcommCapability.svelte'
+  import QualcommMBN from './QualcommMBN.svelte'
   import QualcommEFS from './QualcommEFS.svelte'
   import QualcommNV from './QualcommNV.svelte'
   import QualcommIMEI from './QualcommIMEI.svelte'
-
   interface BandConfig {
     engine: 'qualcomm_qrtr' | 'universal' | 'qualcomm_at' | 'intent'
     preferred_rat: 'hybrid' | '5g_only' | '4g_only' | '5g_4g' | '3g_only'
@@ -50,9 +54,7 @@
     active_sub_id: number
     slots: SimSlotInfo[]
   }
-
-  let subTab = $state<'bands' | 'cell_lock' | 'profiles' | 'efs' | 'nv' | 'imei'>('bands')
-
+  let subTab = $state<'bands' | 'cell_lock' | 'searcher' | 'capability' | 'mbn' | 'profiles' | 'efs' | 'nv' | 'imei'>('bands')
   let bandConfig = $state<BandConfig>({
     engine: 'qualcomm_qrtr',
     preferred_rat: 'hybrid',
@@ -207,6 +209,9 @@
     {#each [
       { id: 'bands', label: 'Band Locking', icon: Radio },
       { id: 'cell_lock', label: 'Cell & Tower Lock', icon: Search },
+      { id: 'searcher', label: 'Searcher & Extra Locks', icon: Filter },
+      { id: 'capability', label: 'RRC Capabilities', icon: Zap },
+      { id: 'mbn', label: 'MBN / PDC Profiles', icon: Layers },
       { id: 'profiles', label: 'Hardware & Profiles', icon: Sliders },
       { id: 'efs', label: 'EFS & NV Browser', icon: HardDrive },
       { id: 'nv', label: 'NV Manager', icon: Database },
@@ -238,6 +243,12 @@
       simSlot={bandConfig.sim_slot ?? 0}
       {simStatus}
     />
+  {:else if subTab === 'searcher'}
+    <QualcommSearcher />
+  {:else if subTab === 'capability'}
+    <QualcommCapability />
+  {:else if subTab === 'mbn'}
+    <QualcommMBN />
   {:else if subTab === 'profiles'}
     <QualcommProfiles
       simSlot={bandConfig.sim_slot ?? 0}

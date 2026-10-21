@@ -380,11 +380,14 @@
         data: editorMode === 'text' ? editorTextContent : activeFile.data_hex,
         format: editorMode === 'text' ? 'text' : 'hex',
         mode: 0o644,
-        force_item: activeFile.path.includes('/nv/item_files/') ? 1 : 0,
+        force_item: -1,
+        backup: true,
+        verify: true,
       }
-      const res = await api.post<{ ok: boolean; error?: string }>('/api/efs/write', payload)
+      const res = await api.post<{ ok: boolean; backed_up?: boolean; verified?: boolean; error?: string }>('/api/efs/write', payload)
       if (res && res.ok) {
-        toastStore.success(`Saved '${activeFile.path}' successfully.`)
+        const backupNote = res.backed_up ? ' (auto-backed up & verified)' : ' (verified)'
+        toastStore.success(`Saved '${activeFile.path}' successfully${backupNote}.`)
         showEditorModal = false
         await loadDirectory(currentPath)
       } else {
