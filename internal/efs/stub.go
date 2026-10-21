@@ -58,3 +58,12 @@ func (s *EfsSession) ReadCapability() (*CapabilityState, error) {
 func (s *EfsSession) ApplyCapability(state *CapabilityState, opts WriteOptions) error {
 	return ErrNotSupported
 }
+func (s *EfsSession) ReadMbnAutoselect() (MbnAutoselectStatus, error) {
+	return MbnAutoselectStatus{}, ErrNotSupported
+}
+func (s *EfsSession) WriteMbnAutoselect(simSlot int, mode int, opts WriteOptions) error {
+	return ErrNotSupported
+}
+func (s *EfsSession) ScanMbnDirectory(baseDir string, configType string) ([]MbnConfigItem, error) {
+	return nil, ErrNotSupported
+}

@@ -89,4 +89,8 @@ func registerVendorModemRoutes(rc *routeContext) {
 	rc.mux.HandleFunc("/api/efs/locks", rc.wrap(HandleEfsExtraLocks, true))
 	rc.mux.HandleFunc("/api/efs/capability", rc.wrap(HandleEfsCapability, true))
 	rc.mux.HandleFunc("/api/efs/capability/apply", rc.wrap(HandleEfsCapability, true))
+	rc.mux.HandleFunc("/api/qualcomm/mbn", rc.wrap(HandleQualcommMbnOverview, true))
+	rc.mux.HandleFunc("/api/qualcomm/mbn/activate", rc.wrap(HandleQualcommMbnActivate, true))
+	rc.mux.HandleFunc("/api/qualcomm/mbn/autoselect", rc.wrap(HandleQualcommMbnAutoselect, true))
+	rc.mux.HandleFunc("/api/qualcomm/mbn/revert", rc.wrap(HandleQualcommMbnRevert, true))
 }
