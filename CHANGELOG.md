@@ -14,7 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - **Hotspot Router Suite**: Added managed router controls with verified status reporting and cleanup limited to state owned by the application.
-- **Release and Installation Tooling**: Added dual-variant release packaging, Magisk installer metadata, and daemon shutdown during module uninstall.
+- **Release and Installation Tooling**: Added dual-variant release packaging, Magisk installer metadata, and daemon shutdown during module uninstall; ensured all local, Makefile, and CI packages include `META-INF` and the `uninstall.sh` hook.
 - **SMS Message Pagination**: Added incremental message loading and improved parsing for message bodies containing commas.
 
 ### Changed & Refactored

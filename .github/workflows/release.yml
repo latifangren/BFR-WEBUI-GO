@@ -68,7 +68,7 @@ jobs:
 
       - name: Package Full Magisk Module Zip
         run: |
-          zip -r BFR-WEBUI-Magisk-${{ env.RELEASE_VERSION }}.zip customize.sh module.prop service.sh system.prop update.json env.example bin webui
+          zip -r BFR-WEBUI-Magisk-${{ env.RELEASE_VERSION }}.zip META-INF customize.sh module.prop service.sh system.prop update.json env.example uninstall.sh bin webui
 
       # ─── 3. Build Core No-Modem Flavor (Clean Target) ───────────────────────
       - name: Prepare Clean No-Modem Frontend Assets
@@ -100,10 +100,10 @@ jobs:
       - name: Package Clean No-Modem Magisk Module Zip
         run: |
           mkdir -p /tmp/pkg-nomodem
-          cp -r customize.sh module.prop service.sh system.prop update.json env.example bin /tmp/pkg-nomodem/
+          cp -r META-INF customize.sh module.prop service.sh system.prop update.json env.example uninstall.sh bin /tmp/pkg-nomodem/
           rm -f /tmp/pkg-nomodem/bin/band_manager.dex /tmp/pkg-nomodem/bin/sim_switcher.dex
           cp webui-nomodem /tmp/pkg-nomodem/webui
-          (cd /tmp/pkg-nomodem && zip -r "$GITHUB_WORKSPACE/BFR-WEBUI-Magisk-${{ env.RELEASE_VERSION }}-nomodem.zip" customize.sh module.prop service.sh system.prop update.json env.example bin webui)
+          (cd /tmp/pkg-nomodem && zip -r "$GITHUB_WORKSPACE/BFR-WEBUI-Magisk-${{ env.RELEASE_VERSION }}-nomodem.zip" META-INF customize.sh module.prop service.sh system.prop update.json env.example uninstall.sh bin webui)
 
       # ─── 4. Upload Build Artifacts ──────────────────────────────────────────
       - name: Upload Build Artifacts
