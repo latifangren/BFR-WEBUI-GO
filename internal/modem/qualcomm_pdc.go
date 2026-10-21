@@ -72,14 +72,13 @@ func (p *PdcClient) GetSelectedConfig(configType uint32, simSlot int) (string, e
 	var payload bytes.Buffer
 	// TLV 0x01: config_type (uint32)
 	payload.WriteByte(0x01)
-	binary.Write(&payload, binary.LittleEndian, uint16(4))
-	binary.Write(&payload, binary.LittleEndian, configType)
+	_ = binary.Write(&payload, binary.LittleEndian, uint16(4))
+	_ = binary.Write(&payload, binary.LittleEndian, configType)
 
 	// TLV 0x10: subscription_id (uint32)
 	payload.WriteByte(0x10)
-	binary.Write(&payload, binary.LittleEndian, uint16(4))
-	binary.Write(&payload, binary.LittleEndian, uint32(simSlot))
-
+	_ = binary.Write(&payload, binary.LittleEndian, uint16(4))
+	_ = binary.Write(&payload, binary.LittleEndian, uint32(simSlot))
 	resp, err := p.client.Exchange(QMI_PDC_GET_SELECTED_CONFIG, payload.Bytes())
 	if err != nil {
 		return "", err
@@ -119,20 +118,19 @@ func (p *PdcClient) SetSelectedConfig(configID string, configType uint32, simSlo
 	var payload bytes.Buffer
 	// TLV 0x01: config_type (uint32)
 	payload.WriteByte(0x01)
-	binary.Write(&payload, binary.LittleEndian, uint16(4))
-	binary.Write(&payload, binary.LittleEndian, configType)
+	_ = binary.Write(&payload, binary.LittleEndian, uint16(4))
+	_ = binary.Write(&payload, binary.LittleEndian, configType)
 
 	// TLV 0x02: config_id (raw string bytes + null terminator)
 	idBytes := append([]byte(configID), 0)
 	payload.WriteByte(0x02)
-	binary.Write(&payload, binary.LittleEndian, uint16(len(idBytes)))
+	_ = binary.Write(&payload, binary.LittleEndian, uint16(len(idBytes)))
 	payload.Write(idBytes)
 
 	// TLV 0x10: subscription_id (uint32)
 	payload.WriteByte(0x10)
-	binary.Write(&payload, binary.LittleEndian, uint16(4))
-	binary.Write(&payload, binary.LittleEndian, uint32(simSlot))
-
+	_ = binary.Write(&payload, binary.LittleEndian, uint16(4))
+	_ = binary.Write(&payload, binary.LittleEndian, uint32(simSlot))
 	resp, err := p.client.Exchange(QMI_PDC_SET_SELECTED_CONFIG, payload.Bytes())
 	if err != nil {
 		return err
@@ -154,14 +152,13 @@ func (p *PdcClient) ActivateConfig(configType uint32, simSlot int) error {
 	var payload bytes.Buffer
 	// TLV 0x01: config_type (uint32)
 	payload.WriteByte(0x01)
-	binary.Write(&payload, binary.LittleEndian, uint16(4))
-	binary.Write(&payload, binary.LittleEndian, configType)
+	_ = binary.Write(&payload, binary.LittleEndian, uint16(4))
+	_ = binary.Write(&payload, binary.LittleEndian, configType)
 
 	// TLV 0x10: subscription_id (uint32)
 	payload.WriteByte(0x10)
-	binary.Write(&payload, binary.LittleEndian, uint16(4))
-	binary.Write(&payload, binary.LittleEndian, uint32(simSlot))
-
+	_ = binary.Write(&payload, binary.LittleEndian, uint16(4))
+	_ = binary.Write(&payload, binary.LittleEndian, uint32(simSlot))
 	resp, err := p.client.Exchange(QMI_PDC_ACTIVATE_CONFIG, payload.Bytes())
 	if err != nil {
 		return err

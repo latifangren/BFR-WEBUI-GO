@@ -83,7 +83,6 @@ func HandleQualcommMbnOverview(w http.ResponseWriter, r *http.Request) {
 					if strings.Contains(cfgLower, matchedKeyword) {
 						overview.SwConfigs[i].Active = true
 						overview.ActiveProfile = fmt.Sprintf("%s (Auto by IMSI)", overview.SwConfigs[i].Name)
-						matchedActive = true
 						break
 					}
 				}
