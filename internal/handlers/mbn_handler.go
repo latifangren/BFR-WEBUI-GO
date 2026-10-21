@@ -4,8 +4,12 @@ package handlers
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
+	"os"
+	"os/exec"
 	"strconv"
+	"strings"
 
 	"bfr-webui-go/internal/efs"
 	"bfr-webui-go/internal/logger"
@@ -29,27 +33,81 @@ func HandleQualcommMbnOverview(w http.ResponseWriter, r *http.Request) {
 		HwConfigs:       make([]efs.MbnConfigItem, 0),
 	}
 
-	sess, err := efs.GetManager().GetSession()
-	if err == nil && sess != nil {
+	sess, _ := efs.GetManager().GetSession()
+	if sess != nil {
 		if autoStatus, err := sess.ReadMbnAutoselect(); err == nil {
 			overview.Autoselect = autoStatus
 		}
-
-		if swList, err := sess.ScanMbnDirectory(efs.EfsDirMcfgSwGeneric, "sw"); err == nil {
-			overview.SwConfigs = swList
-		}
-		if hwList, err := sess.ScanMbnDirectory(efs.EfsDirMcfgHwGeneric, "hw"); err == nil {
-			overview.HwConfigs = hwList
-		}
+		overview.SwConfigs = sess.DiscoverMbnConfigs("sw")
+		overview.HwConfigs = sess.DiscoverMbnConfigs("hw")
+	} else {
+		// Even without active DIAG session, discover directly from OS filesystem
+		var dummySess *efs.EfsSession
+		overview.SwConfigs = dummySess.DiscoverMbnConfigs("sw")
+		overview.HwConfigs = dummySess.DiscoverMbnConfigs("hw")
 	}
 
-	// Try querying active profile over QMI PDC
+	// 1. Try querying active profile over QMI PDC
+	matchedActive := false
 	if active, err := modem.QueryActiveMbnProfile(slot); err == nil && active != "" {
 		overview.ActiveProfile = active
 		for i := range overview.SwConfigs {
 			if overview.SwConfigs[i].Name == active || overview.SwConfigs[i].Path == active {
 				overview.SwConfigs[i].Active = true
+				matchedActive = true
 			}
+		}
+	}
+
+	// 2. Active operator matching fallback
+	if !matchedActive {
+		simStatus := modem.GetSimStatus()
+		activeCarrier := ""
+		if simStatus != nil && slot < len(simStatus.Slots) {
+			activeCarrier = simStatus.Slots[slot].Carrier
+		}
+		if activeCarrier == "" {
+			sig, _ := modem.GetSignalInfo()
+			activeCarrier = sig.Operator
+		}
+
+		if activeCarrier != "" && activeCarrier != "Unknown" {
+			carrierClean := strings.ToLower(activeCarrier)
+			keywords := []string{"smartfren", "telkomsel", "indosat", "xl", "tri", "three", "axis", "by.u"}
+			matchedKeyword := ""
+			for _, kw := range keywords {
+				if strings.Contains(carrierClean, kw) {
+					matchedKeyword = kw
+					break
+				}
+			}
+
+			if matchedKeyword != "" {
+				for i := range overview.SwConfigs {
+					cfgLower := strings.ToLower(overview.SwConfigs[i].Path)
+					if strings.Contains(cfgLower, matchedKeyword) {
+						overview.SwConfigs[i].Active = true
+						overview.ActiveProfile = fmt.Sprintf("%s (Auto by IMSI)", overview.SwConfigs[i].Name)
+						matchedActive = true
+						break
+					}
+				}
+			}
+		}
+	}
+
+	// 3. PixelParts index check (Evolution X / Custom ROM feature)
+	if _, err := os.Stat("/system_ext/etc/init/init.pixelparts_mbn.rc"); err == nil {
+		currentMode := "stock"
+		if out, err := exec.Command("getprop", "persist.sys.pixelparts.mbn").Output(); err == nil {
+			trimmed := strings.TrimSpace(string(out))
+			if trimmed != "" {
+				currentMode = trimmed
+			}
+		}
+		overview.PixelParts = &efs.PixelPartsMbnMode{
+			Supported: true,
+			Current:   currentMode,
 		}
 	}
 
@@ -207,5 +265,52 @@ func HandleQualcommMbnRevert(w http.ResponseWriter, r *http.Request) {
 		"ok":               true,
 		"restored_profile": prev,
 		"ssr_triggered":    ssrTriggered,
+	})
+}
+// HandleQualcommMbnPixelParts toggles the PixelParts / Evolution X mbn index mode.
+func HandleQualcommMbnPixelParts(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+
+	var req struct {
+		Mode string `json:"mode"` // "stock", "merged", "module"
+		SSR  bool   `json:"ssr"`
+	}
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		_ = json.NewEncoder(w).Encode(map[string]any{"ok": false, "error": "invalid JSON body"})
+		return
+	}
+
+	validModes := map[string]bool{"stock": true, "merged": true, "module": true}
+	if !validModes[req.Mode] {
+		w.WriteHeader(http.StatusBadRequest)
+		_ = json.NewEncoder(w).Encode(map[string]any{"ok": false, "error": "invalid mode (must be stock, merged, or module)"})
+		return
+	}
+
+	cmdStr := fmt.Sprintf("setprop persist.sys.pixelparts.mbn %s", req.Mode)
+	if err := exec.Command("sh", "-c", cmdStr).Run(); err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		_ = json.NewEncoder(w).Encode(map[string]any{"ok": false, "error": err.Error()})
+		return
+	}
+
+	ssrTriggered := false
+	if req.SSR {
+		if err := efs.GetManager().RestartModem(); err != nil {
+			logger.Get().Warnf("PDC", "PixelParts mode updated but SSR failed: %v", err)
+		} else {
+			ssrTriggered = true
+		}
+	}
+
+	_ = json.NewEncoder(w).Encode(map[string]any{
+		"ok":            true,
+		"mode":          req.Mode,
+		"ssr_triggered": ssrTriggered,
 	})
 }

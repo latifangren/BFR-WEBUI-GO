@@ -67,3 +67,6 @@ func (s *EfsSession) WriteMbnAutoselect(simSlot int, mode int, opts WriteOptions
 func (s *EfsSession) ScanMbnDirectory(baseDir string, configType string) ([]MbnConfigItem, error) {
 	return nil, ErrNotSupported
 }
+func (s *EfsSession) DiscoverMbnConfigs(configType string) []MbnConfigItem {
+	return nil
+}

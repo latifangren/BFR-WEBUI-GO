@@ -93,4 +93,5 @@ func registerVendorModemRoutes(rc *routeContext) {
 	rc.mux.HandleFunc("/api/qualcomm/mbn/activate", rc.wrap(HandleQualcommMbnActivate, true))
 	rc.mux.HandleFunc("/api/qualcomm/mbn/autoselect", rc.wrap(HandleQualcommMbnAutoselect, true))
 	rc.mux.HandleFunc("/api/qualcomm/mbn/revert", rc.wrap(HandleQualcommMbnRevert, true))
+	rc.mux.HandleFunc("/api/qualcomm/mbn/pixelparts", rc.wrap(HandleQualcommMbnPixelParts, true))
 }

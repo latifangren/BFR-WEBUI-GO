@@ -36,12 +36,18 @@
     sim2_auto: boolean
   }
 
+  interface PixelPartsMbnMode {
+    supported: boolean
+    current: string
+  }
+
   interface MbnOverview {
     active_profile: string
     previous_profile?: string
     autoselect: MbnAutoselectStatus
     sw_configs: MbnConfigItem[]
     hw_configs: MbnConfigItem[]
+    pixelparts?: PixelPartsMbnMode
   }
 
   let selectedSlot = $state(0)
@@ -200,6 +206,38 @@
       toastStore.error(err instanceof Error ? err.message : 'Autoselect update failed')
     }
   }
+
+  async function updatePixelPartsMode(mode: string) {
+    try {
+      const res = await api.post<{ ok: boolean; ssr_triggered?: boolean; error?: string }>(
+        '/api/qualcomm/mbn/pixelparts',
+        {
+          mode,
+          ssr: false,
+        }
+      )
+      if (res && res.ok) {
+        toastStore.success(`ROM MBN catalog set to '${mode}'.`)
+        await loadOverview()
+      } else {
+        toastStore.error(res?.error || 'Failed to update catalog mode')
+      }
+    } catch (err: unknown) {
+      toastStore.error(err instanceof Error ? err.message : 'Update error')
+    }
+  }
+
+  function getCategoryVariant(cat?: string): 'default' | 'success' | 'warning' | 'danger' | 'info' | 'pop-pink' | 'pop-lime' | 'pop-yellow' | 'pop-cyan' | 'pop-purple' {
+    if (!cat) return 'default'
+    const c = cat.toUpperCase()
+    if (c === 'CUSTOM') return 'pop-pink'
+    if (c === 'SEA') return 'pop-lime'
+    if (c === 'APAC') return 'info'
+    if (c === 'EU') return 'pop-cyan'
+    if (c === 'NA') return 'pop-purple'
+    if (c === 'AUNZ') return 'pop-yellow'
+    return 'default'
+  }
 </script>
 
 <div class="space-y-6">
@@ -316,6 +354,63 @@
         </Button>
       </div>
     {/if}
+
+    <!-- PIXELPARTS / EVOLUTION X ROM CATALOG SELECTOR -->
+    {#if overview.pixelparts && overview.pixelparts.supported}
+      <div class="p-3 bg-card-sub border-2 border-border rounded space-y-2 text-xs">
+        <div class="flex items-center justify-between">
+          <span class="font-bold uppercase tracking-wider text-[11px] text-foreground flex items-center gap-1.5">
+            <Cpu class="w-3.5 h-3.5 text-accent" />
+            ROM MBN Catalog Preset (PixelParts / Evolution X)
+          </span>
+          <Badge variant="default" class="text-[9px] font-mono">Current: {overview.pixelparts.current.toUpperCase()}</Badge>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+          <label class="flex items-center gap-2 p-2 bg-card border border-border rounded cursor-pointer hover:border-accent transition-colors">
+            <input
+              type="radio"
+              name="pixelparts_mode"
+              value="merged"
+              checked={overview.pixelparts.current === 'merged'}
+              onchange={() => updatePixelPartsMode('merged')}
+              class="accent-accent"
+            />
+            <div>
+              <span class="font-bold text-foreground block">Merged (460 MBNs)</span>
+              <span class="text-[10px] text-muted">Includes Indonesian carriers & VoLTE</span>
+            </div>
+          </label>
+          <label class="flex items-center gap-2 p-2 bg-card border border-border rounded cursor-pointer hover:border-accent transition-colors">
+            <input
+              type="radio"
+              name="pixelparts_mode"
+              value="stock"
+              checked={overview.pixelparts.current === 'stock' || !overview.pixelparts.current}
+              onchange={() => updatePixelPartsMode('stock')}
+              class="accent-accent"
+            />
+            <div>
+              <span class="font-bold text-foreground block">Stock Google (116 MBNs)</span>
+              <span class="text-[10px] text-muted">Official Pixel stock index</span>
+            </div>
+          </label>
+          <label class="flex items-center gap-2 p-2 bg-card border border-border rounded cursor-pointer hover:border-accent transition-colors">
+            <input
+              type="radio"
+              name="pixelparts_mode"
+              value="module"
+              checked={overview.pixelparts.current === 'module'}
+              onchange={() => updatePixelPartsMode('module')}
+              class="accent-accent"
+            />
+            <div>
+              <span class="font-bold text-foreground block">Module (343 MBNs)</span>
+              <span class="text-[10px] text-muted">Magisk / Root module index</span>
+            </div>
+          </label>
+        </div>
+      </div>
+    {/if}
   </Card>
 
   <!-- LIST OF PROFILES (SW & HW LISTVIEW) -->
@@ -355,7 +450,7 @@
       {#if activeTab === 'sw'}
         {#if filteredSwConfigs.length === 0}
           <div class="p-6 text-center text-xs text-muted font-mono border-2 border-dashed border-border rounded">
-            {overview.sw_configs.length === 0 ? 'No MBN files found under /mcfg_sw/generic on modem EFS' : 'No matching carrier profiles found'}
+            {overview.sw_configs.length === 0 ? 'No MBN files discovered on device OS/EFS partitions' : 'No matching carrier profiles found'}
           </div>
         {:else}
           <table class="w-full text-left text-xs font-mono">
@@ -376,7 +471,11 @@
                     {/if}
                     <span>{cfg.name}</span>
                   </td>
-                  <td class="py-2 px-3 text-muted uppercase text-[10px] font-bold">{cfg.category || 'generic'}</td>
+                  <td class="py-2 px-3">
+                    <Badge variant={getCategoryVariant(cfg.category)} class="text-[9px]">
+                      {cfg.category || 'generic'}
+                    </Badge>
+                  </td>
                   <td class="py-2 px-3 text-muted text-[11px] truncate max-w-xs">{cfg.path}</td>
                   <td class="py-2 px-3 text-right">
                     {#if cfg.active}

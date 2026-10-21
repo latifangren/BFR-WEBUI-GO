@@ -33,4 +33,11 @@ type MbnOverview struct {
 	Autoselect      MbnAutoselectStatus `json:"autoselect"`
 	SwConfigs       []MbnConfigItem     `json:"sw_configs"`
 	HwConfigs       []MbnConfigItem     `json:"hw_configs"`
+	PixelParts      *PixelPartsMbnMode  `json:"pixelparts,omitempty"`
+}
+
+// PixelPartsMbnMode holds index bind-mount mode for custom ROMs (e.g. Evolution X).
+type PixelPartsMbnMode struct {
+	Supported bool   `json:"supported"`
+	Current   string `json:"current"` // "stock", "merged", "module"
 }
