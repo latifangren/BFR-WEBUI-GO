@@ -21,21 +21,21 @@ import (
 )
 
 type SignalInfo struct {
-	RSRP        int    `json:"rsrp"`
-	RSRQ        int    `json:"rsrq"`
-	SINR        int    `json:"sinr"`
-	RSSI        int    `json:"rssi"`
-	Operator    string `json:"operator"`
-	NetworkType string `json:"network_type"` // "LTE", "NR_5G", "HSPA", "GSM"
-	Band        string `json:"band"`
-	CellID      string `json:"cell_id"`
-	TAC         string `json:"tac"`
-	PCI         string `json:"pci"`
-	EARFCN      int    `json:"earfcn"`
-	Bandwidth   string `json:"bandwidth"`
-	QualityRSRP string `json:"quality_rsrp"`
-	QualityRSRQ string `json:"quality_rsrq"`
-	QualitySINR string `json:"quality_sinr"`
+	RSRP          int    `json:"rsrp"`
+	RSRQ          int    `json:"rsrq"`
+	SINR          int    `json:"sinr"`
+	RSSI          int    `json:"rssi"`
+	Operator      string `json:"operator"`
+	NetworkType   string `json:"network_type"` // "LTE", "NR_5G", "HSPA", "GSM"
+	Band          string `json:"band"`
+	CellID        string `json:"cell_id"`
+	TAC           string `json:"tac"`
+	PCI           string `json:"pci"`
+	EARFCN        int    `json:"earfcn"`
+	Bandwidth     string `json:"bandwidth"`
+	QualityRSRP   string `json:"quality_rsrp"`
+	QualityRSRQ   string `json:"quality_rsrq"`
+	QualitySINR   string `json:"quality_sinr"`
 	RSRPPct       int    `json:"rsrp_pct"`
 	RSRQPct       int    `json:"rsrq_pct"`
 	SINRPct       int    `json:"sinr_pct"`
@@ -483,13 +483,16 @@ func (m *Manager) ApplyBandLock(cfg BandConfig) (*BandLockVerificationResult, er
 	// 1. Direct Qualcomm QMI over QRTR if supported
 	if IsQRTRSupported() && (cfg.Engine == "qualcomm_qrtr" || cfg.Engine == "universal") {
 		vRes, err := ApplyQRTRBandLockDetailed(cfg.SimSlot, cfg.LTEBands, cfg.NRBands, cfg.PreferredRAT, cfg.NRMode)
-		if err != nil {
-			logger.Get().Warnf("Modem", "Qualcomm QRTR band lock failed: %v", err)
+		if err == nil {
+			logger.Get().Infof("Modem", "Qualcomm QRTR band lock applied: verified=%t, active=%v",
+				vRes.Verified, vRes.ActiveLTEBands)
+			return vRes, nil
+		}
+		logger.Get().Warnf("Modem", "Qualcomm QRTR band lock failed: %v", err)
+		if cfg.Engine == "qualcomm_qrtr" {
 			return vRes, fmt.Errorf("modem rejected band lock: %w", err)
 		}
-		logger.Get().Infof("Modem", "Qualcomm QRTR band lock applied: verified=%t, active=%v",
-			vRes.Verified, vRes.ActiveLTEBands)
-		return vRes, nil
+		// For universal engine, gracefully fall through to Android framework telephony controls
 	}
 
 	// 2. Attempt Qualcomm AT Command direct band lock fallback if specified
@@ -507,16 +510,16 @@ func (m *Manager) ApplyBandLock(cfg BandConfig) (*BandLockVerificationResult, er
 		ratVal = "26" // NR 5G Only
 		modernBitmask = "10000000000000000000"
 	case "5g_4g", "4g_5g", "nr_lte":
-		ratVal = "28" // NR + LTE (NETWORK_MODE_NR_LTE)
+		ratVal = "28"                          // NR + LTE (NETWORK_MODE_NR_LTE)
 		modernBitmask = "11000001000000000000" // NR | LTE | LTE_CA
 	case "4g_only", "lte_only":
-		ratVal = "11" // LTE Only
+		ratVal = "11"                          // LTE Only
 		modernBitmask = "01000001000000000000" // LTE | LTE_CA
 	case "3g_only":
-		ratVal = "2" // WCDMA Only
+		ratVal = "2"                           // WCDMA Only
 		modernBitmask = "00001111101111111111" // GSM | WCDMA
 	default:
-		ratVal = "9"                         // Legacy fallback (Hybrid/Auto default)
+		ratVal = "9"                           // Legacy fallback (Hybrid/Auto default)
 		modernBitmask = "11001111101111111111" // Modern Android 11+ bitmask (All types allowed)
 	}
 

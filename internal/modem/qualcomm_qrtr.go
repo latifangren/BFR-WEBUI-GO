@@ -29,27 +29,27 @@ const (
 	QRTR_TYPE_NEW_LOOKUP = 10
 	QRTR_TYPE_NEW_SERVER = 4
 
-	NAS_SERVICE          = 3
-	DMS_SERVICE          = 2
+	NAS_SERVICE = 3
+	DMS_SERVICE = 2
 
-	MSG_SET              = 0x0033
-	MSG_GET              = 0x0034
-	MSG_BIND             = 0x0045
-	DMS_MSG_GET_BANDS    = 0x0045
+	MSG_SET           = 0x0033
+	MSG_GET           = 0x0034
+	MSG_BIND          = 0x0045
+	DMS_MSG_GET_BANDS = 0x0045
 
-	TLV_RESULT           = 0x02
-	TLV_MODE             = 0x11
-	TLV_LEGACY           = 0x12
-	TLV_LTE              = 0x15
-	TLV_DURATION         = 0x17
-	TLV_EXT_LTE_GET      = 0x23
-	TLV_EXT_LTE_SET      = 0x24
-	TLV_NR_COMBINED      = 0x2B
-	TLV_NR_SA_GET        = 0x2C
-	TLV_NR_NSA_GET       = 0x2D
-	TLV_NR_MODE          = 0x2E
-	TLV_NR_SA_SET        = 0x2F
-	TLV_NR_NSA_SET       = 0x30
+	TLV_RESULT      = 0x02
+	TLV_MODE        = 0x11
+	TLV_LEGACY      = 0x12
+	TLV_LTE         = 0x15
+	TLV_DURATION    = 0x17
+	TLV_EXT_LTE_GET = 0x23
+	TLV_EXT_LTE_SET = 0x24
+	TLV_NR_COMBINED = 0x2B
+	TLV_NR_SA_GET   = 0x2C
+	TLV_NR_NSA_GET  = 0x2D
+	TLV_NR_MODE     = 0x2E
+	TLV_NR_SA_SET   = 0x2F
+	TLV_NR_NSA_SET  = 0x30
 )
 
 var (
@@ -57,27 +57,63 @@ var (
 	qrtrSupported     bool
 )
 
+func isQualcommHardware() bool {
+	props := []string{
+		"ro.board.platform",
+		"ro.hardware",
+		"ro.soc.manufacturer",
+		"ro.boot.hardware",
+		"ro.soc.model",
+	}
+	for _, p := range props {
+		v := strings.ToLower(getProp(p))
+		if v == "" {
+			continue
+		}
+		if strings.Contains(v, "qcom") || strings.Contains(v, "qualcomm") ||
+			strings.HasPrefix(v, "msm") || strings.HasPrefix(v, "sdm") ||
+			strings.HasPrefix(v, "sm") || strings.Contains(v, "snapdragon") {
+			return true
+		}
+	}
+	return false
+}
+
 // IsQRTRSupported checks whether kernel has AF_QIPCRTR support and Qualcomm modem QRTR bus is active.
 func IsQRTRSupported() bool {
 	qrtrSupportedOnce.Do(func() {
-		// Quick check via /proc/net/protocols
-		if data, err := os.ReadFile("/proc/net/protocols"); err == nil {
-			if strings.Contains(string(data), "QIPCRTR") {
-				// Verify by opening a test socket
-				fd, err := syscall.Socket(AF_QIPCRTR, syscall.SOCK_DGRAM, 0)
-				if err == nil {
-					_ = syscall.Close(fd)
-					qrtrSupported = true
-					return
-				}
-			}
+		// 1. Verify AF_QIPCRTR socket creation succeeds
+		fd, err := syscall.Socket(AF_QIPCRTR, syscall.SOCK_DGRAM, 0)
+		if err != nil {
+			qrtrSupported = false
+			return
+		}
+		_ = syscall.Close(fd)
+
+		// 2. Hardware verification: Check if active QRTR sysfs nodes exist
+		if entries, err := os.ReadDir("/sys/bus/qrtr/devices"); err == nil && len(entries) > 0 {
+			qrtrSupported = true
+			return
 		}
 
-		// Fallback socket test
-		fd, err := syscall.Socket(AF_QIPCRTR, syscall.SOCK_DGRAM, 0)
-		if err == nil {
-			_ = syscall.Close(fd)
+		// 3. Hardware verification: Check if QRTR character device exists
+		if _, err := os.Stat("/dev/qrtr"); err == nil {
 			qrtrSupported = true
+			return
+		}
+
+		// 4. Hardware verification: Check Android Qualcomm SoC properties
+		if isQualcommHardware() {
+			qrtrSupported = true
+			return
+		}
+
+		// 5. Android system fallback: Check /system/build.prop and /proc/net/protocols
+		if _, err := os.Stat("/system/build.prop"); err == nil {
+			if data, err := os.ReadFile("/proc/net/protocols"); err == nil && strings.Contains(string(data), "QIPCRTR") {
+				qrtrSupported = true
+				return
+			}
 		}
 	})
 	return qrtrSupported
@@ -330,10 +366,10 @@ func (c *QRTRClient) BindSim(slot int) error {
 
 // QRTRBandStatus represents the active forcing and band state reported by the modem.
 type QRTRBandStatus struct {
-	RATMode     uint16 `json:"rat_mode"`
-	LTEBands    []int  `json:"lte_bands"`
-	NRBands     []int  `json:"nr_bands"`
-	NRMode      string `json:"nr_mode"` // "both", "sa", "nsa", "unknown"
+	RATMode  uint16 `json:"rat_mode"`
+	LTEBands []int  `json:"lte_bands"`
+	NRBands  []int  `json:"nr_bands"`
+	NRMode   string `json:"nr_mode"` // "both", "sa", "nsa", "unknown"
 }
 
 // HardwareBandsInfo represents modem hardware supported band capabilities.
@@ -1215,9 +1251,9 @@ func (c *QRTRClient) GetCellLocation() (*CellScanResult, error) {
 
 var (
 	scanCacheMu    sync.Mutex
-	cachedScanRes   *CellScanResult
-	cachedScanAt    time.Time
-	cachedScanSlot  int = -1
+	cachedScanRes  *CellScanResult
+	cachedScanAt   time.Time
+	cachedScanSlot int = -1
 )
 
 // ScanNearbyCells performs dynamic cell tower discovery combining NetMonster dumpsys telemetry and baseband QRTR.
@@ -1319,4 +1355,3 @@ func GetCachedScanResult() *CellScanResult {
 	defer scanCacheMu.Unlock()
 	return cachedScanRes
 }
-
