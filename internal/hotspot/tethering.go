@@ -168,7 +168,7 @@ func ToggleHotspot(enable bool, ssid string, pass string, security ...string) er
 	}
 	// 2. If enabling, resolve credentials & router config
 	routerCfg, _ := LoadRouterConfig()
-	savedSSID, savedPass, savedSec := "", "", "wpa2"
+	var savedSSID, savedPass, savedSec string
 	if routerCfg != nil && routerCfg.SSID != "" {
 		savedSSID = routerCfg.SSID
 		savedPass = routerCfg.Password
