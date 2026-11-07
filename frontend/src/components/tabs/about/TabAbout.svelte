@@ -108,7 +108,7 @@
 
     <div class="flex items-center gap-2 flex-wrap">
       <a
-        href="https://github.com/latifangren/BFR-WEBUI-GO-release"
+        href="https://github.com/latifangren/BFR-WEBUI-GO"
         target="_blank"
         rel="noreferrer"
         class="neo-button inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-mono font-bold rounded bg-card-sub border border-border text-foreground hover:border-accent hover:text-accent cursor-pointer transition-colors"
@@ -398,7 +398,7 @@
           </div>
           <div class="flex items-center gap-2 flex-wrap">
             <a
-              href="https://github.com/latifangren/BFR-WEBUI-GO-release"
+              href="https://github.com/latifangren/BFR-WEBUI-GO"
               target="_blank"
               rel="noreferrer"
               class="neo-button inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-mono font-bold rounded bg-card border border-border text-foreground hover:border-accent hover:text-accent cursor-pointer transition-colors"

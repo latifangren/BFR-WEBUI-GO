@@ -209,7 +209,7 @@
 
           <!-- GitHub Button -->
           <a
-            href="https://github.com/latifangren/BFR-WEBUI-GO-release"
+            href="https://github.com/latifangren/BFR-WEBUI-GO"
             target="_blank"
             rel="noopener noreferrer"
             class="p-2.5 rounded-xl bg-card-sub border border-border/70 text-muted hover:text-foreground hover:border-accent/40 hover:bg-accent/10 transition flex items-center justify-center gap-1.5 text-xs font-bold select-none cursor-pointer group"

@@ -99,7 +99,7 @@ Arsitektur BFR-WEBUI-GO
 
 ## 📥 Panduan Pemasangan
 
-1. Unduh file `BFR-WEBUI-Magisk-v1.2.8.zip` dari halaman [Releases](https://github.com/latifangren/BFR-WEBUI-GO-release/releases).
+1. Unduh file `BFR-WEBUI-Magisk-v1.2.8.zip` dari halaman [Releases](https://github.com/latifangren/BFR-WEBUI-GO/releases).
 2. Buka aplikasi **Magisk / KernelSU / APatch** -> buka tab **Modul** -> pilih **Pasang dari penyimpanan (Install from storage)** -> pilih file ZIP yang telah diunduh -> tunggu hingga proses selesai -> **Reboot HP**.
 3. Buka browser di perangkat lain yang terhubung ke jaringan Wi-Fi / hotspot yang sama dan akses:
    - **HTTP**: `http://<IP-HP>` (port standar 80 default)
@@ -171,4 +171,4 @@ Untuk dokumentasi spesifikasi arsitektur isolasi dan uji forensik string, silaka
 
 - **Pengembang / Pemelihara**: [latifangren](https://github.com/latifangren)
 - **Lisensi**: MIT Open Source License
-- **Repositori Proyek**: [https://github.com/latifangren/BFR-WEBUI-GO-release](https://github.com/latifangren/BFR-WEBUI-GO-release)
+- **Repositori Proyek**: [https://github.com/latifangren/BFR-WEBUI-GO](https://github.com/latifangren/BFR-WEBUI-GO)
