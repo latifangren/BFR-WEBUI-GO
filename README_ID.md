@@ -170,5 +170,5 @@ Untuk dokumentasi spesifikasi arsitektur isolasi dan uji forensik string, silaka
 ## 📄 Lisensi & Pembuat
 
 - **Pengembang / Pemelihara**: [latifangren](https://github.com/latifangren)
-- **Lisensi**: MIT Open Source License
+- **Lisensi**: [GNU General Public License v3.0 (GPL-3.0)](LICENSE)
 - **Repositori Proyek**: [https://github.com/latifangren/BFR-WEBUI-GO](https://github.com/latifangren/BFR-WEBUI-GO)

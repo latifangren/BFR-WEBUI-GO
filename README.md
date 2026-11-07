@@ -170,5 +170,5 @@ For detailed architectural isolation specs and zero-leak forensic verification, 
 ## 📄 License & Maintainer
 
 - **Author / Maintainer**: [latifangren](https://github.com/latifangren)
-- **License**: MIT Open Source License
+- **License**: [GNU General Public License v3.0 (GPL-3.0)](LICENSE)
 - **Project Repository**: [https://github.com/latifangren/BFR-WEBUI-GO](https://github.com/latifangren/BFR-WEBUI-GO)

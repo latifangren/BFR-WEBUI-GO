@@ -174,7 +174,7 @@
 
             <div class="p-2.5 sm:p-3 bg-card-sub border border-border rounded space-y-0.5 sm:space-y-1">
               <span class="text-[10px] uppercase font-bold text-muted">License</span>
-              <p class="font-bold text-emerald-400">MIT Open Source</p>
+              <p class="font-bold text-emerald-400">GNU GPL v3.0</p>
             </div>
           </div>
 
