@@ -15,6 +15,7 @@ type hotspotControlRequest struct {
 	SSID     string `json:"ssid"`
 	Pass     string `json:"password"`
 	Security string `json:"security"` // "wpa2" or "open"
+	Band     string `json:"band"`     // "any", "2", "5"
 }
 
 func HandleHotspotStatus(w http.ResponseWriter, r *http.Request) {
@@ -40,6 +41,12 @@ func HandleHotspotControl(w http.ResponseWriter, r *http.Request) {
 	var err error
 	reqType := req.Type
 	if reqType == "" || reqType == "wifi" || reqType == "softap" {
+		if req.Band != "" && hotspot.ValidateBand(req.Band) == nil {
+			if cfg, cfgErr := hotspot.LoadRouterConfig(); cfgErr == nil && cfg != nil && cfg.Band != req.Band {
+				cfg.Band = req.Band
+				_ = hotspot.SaveRouterConfig(cfg)
+			}
+		}
 		err = hotspot.ToggleHotspot(req.Enable, req.SSID, req.Pass, req.Security)
 		if err == nil {
 			logger.Get().Infof("hotspot", "Wi-Fi Hotspot toggle executed: enable=%v, ssid=%s, sec=%s", req.Enable, req.SSID, req.Security)
@@ -159,8 +166,11 @@ func HandleHotspotSettings(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		// 1. Persist desired state.
+		// 1. Persist desired state and sync SoftAP credentials to AOSP XML if provided.
 		saveErr := hotspot.SaveRouterConfig(&cfg)
+		if saveErr == nil && cfg.SSID != "" {
+			_ = hotspot.UpdateSavedSoftApCredentials(cfg.SSID, cfg.Password, cfg.SecurityType)
+		}
 
 		// 2. Apply runtime state and report the result separately.
 		applyErr := error(nil)

@@ -67,6 +67,53 @@ func (r *Reconciler) Stop() {
 	close(r.stopChan)
 }
 
+// AutoStartOnBoot activates tethering channels configured for boot auto-start.
+// It is invoked once at startup so subsequent manual stops via WebUI or Android
+// system controls are respected without periodic forced re-activation.
+func AutoStartOnBoot() {
+	cfg, err := LoadRouterConfig()
+	if err != nil || cfg == nil {
+		return
+	}
+	if !cfg.AutoStartWifi && !cfg.AutoStartUSB && !cfg.AutoStartEthernet {
+		return
+	}
+
+	currentStatus := GetHotspotStatus()
+	triggeredAny := false
+
+	if cfg.AutoStartWifi && !currentStatus.WifiEnabled {
+		logger.Get().Infof("hotspot", "Auto-starting Wi-Fi Hotspot on boot (SSID: %s)", cfg.SSID)
+		if err := ToggleHotspot(true, cfg.SSID, cfg.Password, cfg.SecurityType); err != nil {
+			logger.Get().Warnf("hotspot", "Auto-start Wi-Fi Hotspot failed: %v", err)
+		} else {
+			triggeredAny = true
+		}
+	}
+
+	if cfg.AutoStartUSB && !currentStatus.UsbEnabled {
+		logger.Get().Infof("hotspot", "Auto-starting USB Tethering on boot")
+		if err := toggleUSBTethering(true); err != nil {
+			logger.Get().Warnf("hotspot", "Auto-start USB Tethering failed: %v", err)
+		} else {
+			triggeredAny = true
+		}
+	}
+
+	if cfg.AutoStartEthernet && !currentStatus.EthernetEnabled {
+		logger.Get().Infof("hotspot", "Auto-starting Ethernet Tethering on boot")
+		if err := toggleEthernetTethering(true); err != nil {
+			logger.Get().Warnf("hotspot", "Auto-start Ethernet Tethering failed: %v", err)
+		} else {
+			triggeredAny = true
+		}
+	}
+
+	if triggeredAny {
+		time.Sleep(2 * time.Second)
+	}
+}
+
 // ReconcileRouterSettings compares persisted intent with the live tethering
 // state and either applies the desired state or removes stale BFR-owned state.
 //

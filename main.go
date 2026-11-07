@@ -134,9 +134,10 @@ func main() {
 	}()
 
 	go func() {
-		// Reconcile persisted router settings with the live tethering state
-		// after Android networking has settled, then keep it in sync.
+		// Trigger boot auto-start channels once after Android networking settles,
+		// then reconcile persisted L3 router settings and keep them in sync.
 		time.Sleep(8 * time.Second)
+		hotspot.AutoStartOnBoot()
 		if err := hotspot.ReconcileRouterSettings(); err != nil {
 			log.Printf("Router settings reconciliation: %v", err)
 		}

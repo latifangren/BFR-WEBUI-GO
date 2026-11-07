@@ -122,3 +122,32 @@ func TestNormalizeRouterConfig(t *testing.T) {
 		t.Errorf("expected default upstream auto, got %s", cfg.UpstreamInterface)
 	}
 }
+
+func TestValidateRouterConfig_RejectsInvalidSoftApCredentials(t *testing.T) {
+	cases := []struct {
+		name  string
+		mutet func(*hotspot.RouterConfig)
+		field string
+	}{
+		{"ssid with semicolon", func(c *hotspot.RouterConfig) { c.SSID = "Bad;SSID" }, "ssid"},
+		{"ssid too long", func(c *hotspot.RouterConfig) { c.SSID = "ssid_longer_than_32_characters_limit_xyz" }, "ssid"},
+		{"invalid security type", func(c *hotspot.RouterConfig) { c.SecurityType = "wep" }, "security_type"},
+		{"short wpa2 password", func(c *hotspot.RouterConfig) { c.SecurityType = "wpa2"; c.Password = "12345" }, "password"},
+		{"password with shell expansion", func(c *hotspot.RouterConfig) { c.SecurityType = "wpa2"; c.Password = "pass$(reboot)1" }, "password"},
+		{"password with sed pipe", func(c *hotspot.RouterConfig) { c.SecurityType = "wpa2"; c.Password = "pass|word123" }, "password"},
+	}
+
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			cfg := validConfig()
+			tc.mutet(&cfg)
+			err := hotspot.ValidateRouterConfig(&cfg)
+			if err == nil {
+				t.Fatalf("expected validation error for %s", tc.name)
+			}
+			if !strings.Contains(err.Error(), tc.field) {
+				t.Errorf("expected error mentioning %q, got %v", tc.field, err)
+			}
+		})
+	}
+}

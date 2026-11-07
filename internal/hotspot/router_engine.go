@@ -475,6 +475,9 @@ func GetRouterStatus() RouterStatus {
 		st.DesiredSubnet = cfg.SubnetMask
 		st.DesiredBand = cfg.Band
 		st.DesiredUpstream = cfg.UpstreamInterface
+		st.AutoStartWifi = cfg.AutoStartWifi
+		st.AutoStartUSB = cfg.AutoStartUSB
+		st.AutoStartEthernet = cfg.AutoStartEthernet
 	}
 	// Android owns DHCP and DNS for its own SoftAP; BFR does not run a second server.
 	st.DHCPManagedByOS = true

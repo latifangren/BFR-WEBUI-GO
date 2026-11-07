@@ -94,6 +94,24 @@ func ValidateGatewayMode(mode string) error {
 	return invalid("gateway_mode", "must be one of: auto, static")
 }
 
+// ValidateSoftApCredentials validates optional persisted SoftAP credentials on RouterConfig.
+func ValidateSoftApCredentials(ssid, pass, secType string) error {
+	if ssid != "" && !reHotspotSSID.MatchString(ssid) {
+		return invalid("ssid", "must be 1-32 alphanumeric characters, spaces, underscores, or hyphens")
+	}
+	switch secType {
+	case "", "wpa2", "open":
+	default:
+		return invalid("security_type", "must be one of: wpa2, open")
+	}
+	if secType != "open" && pass != "" && pass != "none" {
+		if !reHotspotPassphrase.MatchString(pass) {
+			return invalid("password", "must be 8-63 valid characters without shell metacharacters")
+		}
+	}
+	return nil
+}
+
 // ValidateRouterConfig validates and normalizes every field that reaches a root shell.
 func ValidateRouterConfig(cfg *RouterConfig) error {
 	if cfg == nil {
@@ -104,6 +122,9 @@ func ValidateRouterConfig(cfg *RouterConfig) error {
 		return err
 	}
 	if err := ValidateBand(cfg.Band); err != nil {
+		return err
+	}
+	if err := ValidateSoftApCredentials(cfg.SSID, cfg.Password, cfg.SecurityType); err != nil {
 		return err
 	}
 
@@ -191,6 +212,12 @@ func NormalizeRouterConfig(cfg *RouterConfig) {
 	}
 	if cfg.LeaseTime == "" {
 		cfg.LeaseTime = "12h"
+	}
+	if cfg.SecurityType != "" {
+		cfg.SecurityType = strings.ToLower(strings.TrimSpace(cfg.SecurityType))
+	}
+	if cfg.SecurityType == "open" {
+		cfg.Password = "none"
 	}
 }
 

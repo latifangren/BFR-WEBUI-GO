@@ -47,6 +47,12 @@ export interface RouterConfig {
   dns_secondary: string
   band: 'any' | '2' | '5'
   upstream_interface: string
+  auto_start_wifi?: boolean
+  auto_start_usb?: boolean
+  auto_start_ethernet?: boolean
+  ssid?: string
+  password?: string
+  security_type?: string
 }
 
 export interface RouterStatus {
@@ -57,6 +63,9 @@ export interface RouterStatus {
   desired_band: string
   desired_upstream: string
   dhcp_managed_by_os: boolean
+  auto_start_wifi?: boolean
+  auto_start_usb?: boolean
+  auto_start_ethernet?: boolean
 
   // Apply state: "inactive" | "auto" | "applied" | "pending" | "failed"
   apply_state?: string

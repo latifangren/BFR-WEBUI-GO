@@ -118,12 +118,49 @@
       if (res && res.config) {
         routerCfg = { ...routerCfg, ...res.config }
         selectedBand = res.config.band || 'any'
+        if (res.config.ssid && !hasInitializedSSID) {
+          ssidInput = res.config.ssid
+          hasInitializedSSID = true
+        }
+        if (res.config.security_type) {
+          securityType = res.config.security_type === 'open' ? 'open' : 'wpa2'
+        }
       }
       if (res && res.status) {
         routerStatus = res.status
       }
     } catch {
       // Ignored
+    }
+  }
+
+  let isSavingAutoStart = $state(false)
+
+  async function toggleAutoStart(channel: 'wifi' | 'usb' | 'ethernet') {
+    try {
+      isSavingAutoStart = true
+      const nextCfg: RouterConfig = {
+        ...routerCfg,
+        band: selectedBand,
+        ssid: ssidInput,
+        security_type: securityType,
+        auto_start_wifi: channel === 'wifi' ? !routerCfg.auto_start_wifi : routerCfg.auto_start_wifi,
+        auto_start_usb: channel === 'usb' ? !routerCfg.auto_start_usb : routerCfg.auto_start_usb,
+        auto_start_ethernet: channel === 'ethernet' ? !routerCfg.auto_start_ethernet : routerCfg.auto_start_ethernet,
+      }
+      if (passwordInput && securityType !== 'open') {
+        nextCfg.password = passwordInput
+      }
+
+      await api.post('/api/hotspot/settings', nextCfg)
+      routerCfg = nextCfg
+      const isEnabled = channel === 'wifi' ? nextCfg.auto_start_wifi : channel === 'usb' ? nextCfg.auto_start_usb : nextCfg.auto_start_ethernet
+      toastStore.success(`Auto-start on boot for ${channel.toUpperCase()} ${isEnabled ? 'enabled' : 'disabled'}.`)
+      await fetchRouterSettings()
+    } catch (err: unknown) {
+      toastStore.error(err instanceof Error ? err.message : 'Failed to update auto-start configuration')
+    } finally {
+      isSavingAutoStart = false
     }
   }
 
@@ -165,22 +202,38 @@
     if (!ssidInput) return
     try {
       isSavingWifi = true
-      // Also update routerCfg.band
-      routerCfg.band = selectedBand
-      await api.post('/api/hotspot/settings', routerCfg)
-
-      await api.post('/api/hotspot/control', {
-        type: 'wifi',
-        enable: true,
-        ssid: ssidInput,
-        security: securityType,
+      const nextCfg: RouterConfig = {
+        ...routerCfg,
         band: selectedBand,
-        password: securityType === 'open' ? 'none' : (passwordInput || undefined),
-      })
+        ssid: ssidInput,
+        security_type: securityType,
+      }
+      if (securityType === 'open') {
+        nextCfg.password = 'none'
+      } else if (passwordInput) {
+        nextCfg.password = passwordInput
+      }
+      await api.post('/api/hotspot/settings', nextCfg)
+      routerCfg = nextCfg
+
+      if (status.wifi_enabled) {
+        await api.post('/api/hotspot/control', {
+          type: 'wifi',
+          enable: true,
+          ssid: ssidInput,
+          security: securityType,
+          band: selectedBand,
+          password: securityType === 'open' ? 'none' : (passwordInput || undefined),
+        })
+      }
       status.ssid = ssidInput
       status.security_type = securityType
       passwordInput = ''
-      toastStore.success(`SoftAP updated (SSID: ${ssidInput}, Band: ${selectedBand.toUpperCase()}, Mode: ${securityType.toUpperCase()})`)
+      toastStore.success(
+        status.wifi_enabled
+          ? `SoftAP reloaded (SSID: ${ssidInput}, Band: ${selectedBand.toUpperCase()}, Mode: ${securityType.toUpperCase()})`
+          : `SoftAP credentials saved (SSID: ${ssidInput}, Band: ${selectedBand.toUpperCase()}, Mode: ${securityType.toUpperCase()})`
+      )
       await onRefresh()
       await fetchRouterSettings()
     } catch (err: unknown) {
@@ -242,6 +295,18 @@
         <div>Band: <span class="text-accent font-bold uppercase">{selectedBand === 'any' ? 'Dual/Auto' : `${selectedBand} GHz`}</span></div>
       </div>
 
+      <div class="flex items-center justify-between pt-2 border-t border-border/40 text-[11px]">
+        <span class="text-muted font-medium">Auto-start on boot:</span>
+        <button
+          type="button"
+          class="px-2 py-0.5 rounded text-[10px] font-bold border transition-colors cursor-pointer {routerCfg.auto_start_wifi ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/40' : 'bg-card text-muted border-border hover:border-muted'}"
+          disabled={isSavingAutoStart}
+          onclick={() => toggleAutoStart('wifi')}
+        >
+          {routerCfg.auto_start_wifi ? 'ENABLED' : 'DISABLED'}
+        </button>
+      </div>
+
       <Button
         variant={status.wifi_enabled ? 'danger' : 'primary'}
         size="sm"
@@ -275,6 +340,18 @@
         <div>Link: <span class="text-accent font-bold">Host OTG</span></div>
       </div>
 
+      <div class="flex items-center justify-between pt-2 border-t border-border/40 text-[11px]">
+        <span class="text-muted font-medium">Auto-start on boot:</span>
+        <button
+          type="button"
+          class="px-2 py-0.5 rounded text-[10px] font-bold border transition-colors cursor-pointer {routerCfg.auto_start_usb ? 'bg-sky-500/20 text-sky-400 border-sky-500/40' : 'bg-card text-muted border-border hover:border-muted'}"
+          disabled={isSavingAutoStart}
+          onclick={() => toggleAutoStart('usb')}
+        >
+          {routerCfg.auto_start_usb ? 'ENABLED' : 'DISABLED'}
+        </button>
+      </div>
+
       <Button
         variant={status.usb_enabled ? 'danger' : 'secondary'}
         size="sm"
@@ -306,6 +383,18 @@
       <div class="text-[11px] font-mono text-muted space-y-0.5">
         <div>Interface: <span class="text-foreground font-bold">eth0 gateway</span></div>
         <div>Type: <span class="text-accent font-bold">Gigabit OTG</span></div>
+      </div>
+
+      <div class="flex items-center justify-between pt-2 border-t border-border/40 text-[11px]">
+        <span class="text-muted font-medium">Auto-start on boot:</span>
+        <button
+          type="button"
+          class="px-2 py-0.5 rounded text-[10px] font-bold border transition-colors cursor-pointer {routerCfg.auto_start_ethernet ? 'bg-amber-500/20 text-amber-400 border-amber-500/40' : 'bg-card text-muted border-border hover:border-muted'}"
+          disabled={isSavingAutoStart}
+          onclick={() => toggleAutoStart('ethernet')}
+        >
+          {routerCfg.auto_start_ethernet ? 'ENABLED' : 'DISABLED'}
+        </button>
       </div>
 
       <Button
@@ -399,7 +488,9 @@
 
         <div class="flex justify-between items-center pt-2 border-t border-border">
           <span class="text-[11px] text-muted">
-            Radio will reload when credentials change.
+            {status.wifi_enabled
+              ? 'Radio will reload when credentials change.'
+              : 'Credentials saved without starting hotspot.'}
           </span>
           <Button
             variant="secondary"
@@ -408,7 +499,7 @@
             onclick={saveWifiConfig}
           >
             <Check class="w-3.5 h-3.5 mr-1" />
-            <span>Apply & Reload SoftAP</span>
+            <span>{status.wifi_enabled ? 'Apply & Reload SoftAP' : 'Save Credentials'}</span>
           </Button>
         </div>
       </div>

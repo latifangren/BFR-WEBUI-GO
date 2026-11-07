@@ -21,7 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - **Custom User MBN Directory**: Dynamic scanner for custom carrier MBN files located in `/data/adb/modules/bfr_webui_go/custom_mbn`, automatically categorized with pink Neo-Brutalist badge styling.
   - **Active Carrier Resolver (`internal/handlers/mbn_handler.go`)**: Intelligent IMSI and SIM operator name fallback matching for active carrier profile reporting on SIM 1 and SIM 2.
   - **Comprehensive Reverse-Engineering Documentation (`docs/modemcaps/`, `docs/modemcaps-qualcomm-spec.md`)**: Complete teardown analysis of ModemCaps v2402-1, 3,092 decrypted strings, flow reports, and architecture specifications.
-- **Hotspot Router Suite**: Added managed router controls with verified status reporting and cleanup limited to state owned by the application.
+- **Hotspot Router Suite & Persistent Auto-Start**: Added managed L3 router controls with verified kernel status reporting, persistent SoftAP credentials (`hotspot_settings.json` synced with AOSP XML stores), role-aware WAN vs. downstream Ethernet detection, and per-channel boot auto-start toggles (Wi-Fi SoftAP, USB RNDIS/NCM, Ethernet OTG).
 - **Release and Installation Tooling**: Added dual-variant release packaging, Magisk installer metadata, and daemon shutdown during module uninstall; ensured all local, Makefile, and CI packages include `META-INF` and the `uninstall.sh` hook.
 - **SMS Message Pagination**: Added incremental message loading and improved parsing for message bodies containing commas.
 ### Changed & Refactored
@@ -35,7 +35,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - **Security and Data Handling**: Fixed archive extraction containment, subscription update command construction, wallpaper access controls, and upload resource cleanup.
 - **SMS and Traffic Reporting**: Fixed SMS pagination and body parsing; excluded virtual and hotspot interfaces from vnStat accounting to reduce duplicate traffic totals.
-- **Core Stability**: Fixed worker queue growth, session handling, proxy log streaming lifecycle, and several build and installation script failures.
+- **Core Stability**: Fixed worker queue growth, session handling, proxy log streaming lifecycle, Qualcomm QRTR hardware verification and universal band-lock fallback, and several build and installation script failures.
 
 ## [1.2.7] - 2026-10-06
 ### Added

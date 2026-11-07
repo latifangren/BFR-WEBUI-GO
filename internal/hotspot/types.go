@@ -3,9 +3,9 @@ package hotspot
 import "regexp"
 
 var (
-	// H-6: SSID and Passphrase validation regexes
+	// H-6: SSID and Passphrase validation regexes (rejects shell/XML/sed metacharacters: $, |, &, <, >, (, ), ;, `, ', ")
 	reHotspotSSID       = regexp.MustCompile(`^[a-zA-Z0-9 _\-]{1,32}$`)
-	reHotspotPassphrase = regexp.MustCompile(`^[a-zA-Z0-9!@#$%^&*()_+\-=\[\]{}|:<>,.?/~]{8,63}$`)
+	reHotspotPassphrase = regexp.MustCompile(`^[a-zA-Z0-9!@#%^*_+\-=\[\]{}:.,?/~]{8,63}$`)
 )
 
 // ConnectedClient represents a client device connected via Wi-Fi or tethering.
@@ -51,6 +51,16 @@ type RouterConfig struct {
 	DNSSecondary      string `json:"dns_secondary"`      // e.g. "8.8.8.8"
 	Band              string `json:"band"`               // "any", "2", "5"
 	UpstreamInterface string `json:"upstream_interface"` // "auto", "wlan0", "rmnet_data0", "eth0"
+
+	// Auto-Start on Boot preferences
+	AutoStartWifi     bool `json:"auto_start_wifi"`
+	AutoStartUSB      bool `json:"auto_start_usb"`
+	AutoStartEthernet bool `json:"auto_start_ethernet"`
+
+	// Persisted Wi-Fi SoftAP credentials (BFR-owned single source of truth)
+	SSID         string `json:"ssid,omitempty"`
+	Password     string `json:"password,omitempty"`
+	SecurityType string `json:"security_type,omitempty"` // "wpa2" or "open"
 }
 
 // RouterStatus separates desired (persisted) configuration from observed
@@ -63,6 +73,10 @@ type RouterStatus struct {
 	DesiredBand     string `json:"desired_band"`
 	DesiredUpstream string `json:"desired_upstream"`
 	DHCPManagedByOS bool   `json:"dhcp_managed_by_os"`
+
+	AutoStartWifi     bool `json:"auto_start_wifi"`
+	AutoStartUSB      bool `json:"auto_start_usb"`
+	AutoStartEthernet bool `json:"auto_start_ethernet"`
 
 	// Apply state explains whether the desired state is currently in effect.
 	//

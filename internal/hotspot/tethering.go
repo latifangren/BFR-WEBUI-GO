@@ -99,41 +99,54 @@ func toggleEthernetTethering(enable bool) error {
 	return nil
 }
 
+func shellSingleQuote(s string) string {
+	return "'" + strings.ReplaceAll(s, "'", "'\"'\"'") + "'"
+}
+
+func escapeSedReplacement(s string) string {
+	r := strings.NewReplacer(
+		`\`, `\\`,
+		`&`, `\&`,
+		`|`, `\|`,
+		`'`, `'\''`,
+	)
+	return r.Replace(s)
+}
+
 // UpdateSavedSoftApCredentials persists new SSID, Passphrase and SecurityType to AOSP XML stores.
 func UpdateSavedSoftApCredentials(newSSID, newPass, securityType string) error {
-	candidatePaths := []string{
-		"/data/misc_ce/0/apexdata/com.android.wifi/WifiConfigStoreSoftAp.xml",
-		"/data/misc/apexdata/com.android.wifi/WifiConfigStoreSoftAp.xml",
-		"/data/misc/wifi/WifiConfigStoreSoftAp.xml",
+	if err := ValidateSoftApCredentials(newSSID, newPass, securityType); err != nil {
+		return err
 	}
 
-	for _, p := range candidatePaths {
+	for _, p := range softApXMLCandidatePaths {
 		if newSSID != "" {
-			cleanSSID := strings.ReplaceAll(newSSID, "\"", "")
-			cmdSSID := fmt.Sprintf("sed -i 's|<string name=\"WifiSsid\">.*</string>|<string name=\"WifiSsid\">&quot;%s&quot;</string>|' %s 2>/dev/null", cleanSSID, p)
+			cleanSSID := escapeSedReplacement(strings.ReplaceAll(newSSID, "\"", ""))
+			cmdSSID := fmt.Sprintf("sed -i 's|<string name=\"WifiSsid\">.*</string>|<string name=\"WifiSsid\">&quot;%s&quot;</string>|' %s 2>/dev/null", cleanSSID, shellSingleQuote(p))
 			_, _ = config.ExecSuTimeout(2*time.Second, cmdSSID)
 		}
 
 		if securityType == "open" || newPass == "none" {
-			cmdSec := fmt.Sprintf("sed -i 's|<int name=\"SecurityType\" value=\".*\" />|<int name=\"SecurityType\" value=\"0\" />|' %s 2>/dev/null", p)
-			cmdPass := fmt.Sprintf("sed -i 's|<string name=\"Passphrase\">.*</string>|<string name=\"Passphrase\"></string>|' %s 2>/dev/null", p)
+			cmdSec := fmt.Sprintf("sed -i 's|<int name=\"SecurityType\" value=\".*\" />|<int name=\"SecurityType\" value=\"0\" />|' %s 2>/dev/null", shellSingleQuote(p))
+			cmdPass := fmt.Sprintf("sed -i 's|<string name=\"Passphrase\">.*</string>|<string name=\"Passphrase\"></string>|' %s 2>/dev/null", shellSingleQuote(p))
 			_, _ = config.ExecSuTimeout(2*time.Second, cmdSec)
 			_, _ = config.ExecSuTimeout(2*time.Second, cmdPass)
 		} else if newPass != "" {
-			cmdSec := fmt.Sprintf("sed -i 's|<int name=\"SecurityType\" value=\".*\" />|<int name=\"SecurityType\" value=\"1\" />|' %s 2>/dev/null", p)
-			cmdPass := fmt.Sprintf("sed -i 's|<string name=\"Passphrase\">.*</string>|<string name=\"Passphrase\">%s</string>|' %s 2>/dev/null", newPass, p)
+			cleanPass := escapeSedReplacement(newPass)
+			cmdSec := fmt.Sprintf("sed -i 's|<int name=\"SecurityType\" value=\".*\" />|<int name=\"SecurityType\" value=\"1\" />|' %s 2>/dev/null", shellSingleQuote(p))
+			cmdPass := fmt.Sprintf("sed -i 's|<string name=\"Passphrase\">.*</string>|<string name=\"Passphrase\">%s</string>|' %s 2>/dev/null", cleanPass, shellSingleQuote(p))
 			_, _ = config.ExecSuTimeout(2*time.Second, cmdSec)
 			_, _ = config.ExecSuTimeout(2*time.Second, cmdPass)
 		}
 	}
 
 	if newSSID != "" {
-		_, _ = config.ExecSuTimeout(2*time.Second, fmt.Sprintf("settings put global softap_ssid \"%s\"", newSSID))
+		_, _ = config.ExecSuTimeout(2*time.Second, fmt.Sprintf("settings put global softap_ssid %s", shellSingleQuote(newSSID)))
 	}
 	if securityType == "open" || newPass == "none" {
-		_, _ = config.ExecSuTimeout(2*time.Second, "settings put global softap_passphrase \"\"")
+		_, _ = config.ExecSuTimeout(2*time.Second, "settings put global softap_passphrase ''")
 	} else if newPass != "" {
-		_, _ = config.ExecSuTimeout(2*time.Second, fmt.Sprintf("settings put global softap_passphrase \"%s\"", newPass))
+		_, _ = config.ExecSuTimeout(2*time.Second, fmt.Sprintf("settings put global softap_passphrase %s", shellSingleQuote(newPass)))
 	}
 
 	return nil
@@ -154,8 +167,15 @@ func ToggleHotspot(enable bool, ssid string, pass string, security ...string) er
 		return nil
 	}
 	// 2. If enabling, resolve credentials & router config
-	savedSSID, savedPass, savedSec := ReadSavedSoftApCredentials()
 	routerCfg, _ := LoadRouterConfig()
+	savedSSID, savedPass, savedSec := "", "", "wpa2"
+	if routerCfg != nil && routerCfg.SSID != "" {
+		savedSSID = routerCfg.SSID
+		savedPass = routerCfg.Password
+		savedSec = routerCfg.SecurityType
+	} else {
+		savedSSID, savedPass, savedSec = ReadSavedSoftApCredentials()
+	}
 
 	if ssid != "" {
 		if !reHotspotSSID.MatchString(ssid) {
@@ -187,6 +207,14 @@ func ToggleHotspot(enable bool, ssid string, pass string, security ...string) er
 		}
 	}
 
+	// Persist to BFR router config store
+	if routerCfg != nil {
+		routerCfg.SSID = ssid
+		routerCfg.Password = pass
+		routerCfg.SecurityType = secType
+		_ = SaveRouterConfig(routerCfg)
+	}
+
 	// Persist to XML store so reboot / UI stays in sync
 	_ = UpdateSavedSoftApCredentials(ssid, pass, secType)
 
@@ -196,12 +224,12 @@ func ToggleHotspot(enable bool, ssid string, pass string, security ...string) er
 		bandFlag = fmt.Sprintf("-b %s", routerCfg.Band)
 	}
 
-	// 4. Start SoftAP with explicit parameters
+	// 4. Start SoftAP with explicit single-quoted parameters
 	var cmdStr string
 	if secType == "open" {
-		cmdStr = strings.TrimSpace(fmt.Sprintf("cmd wifi start-softap \"%s\" open none %s", ssid, bandFlag))
+		cmdStr = strings.TrimSpace(fmt.Sprintf("cmd wifi start-softap %s open none %s", shellSingleQuote(ssid), bandFlag))
 	} else {
-		cmdStr = strings.TrimSpace(fmt.Sprintf("cmd wifi start-softap \"%s\" wpa2 \"%s\" %s", ssid, pass, bandFlag))
+		cmdStr = strings.TrimSpace(fmt.Sprintf("cmd wifi start-softap %s wpa2 %s %s", shellSingleQuote(ssid), shellSingleQuote(pass), bandFlag))
 	}
 
 	out, err := config.ExecSuTimeout(7*time.Second, cmdStr)
@@ -210,9 +238,9 @@ func ToggleHotspot(enable bool, ssid string, pass string, security ...string) er
 	if err != nil && !strings.Contains(outStr, "enabled successfully") && !strings.Contains(outStr, "SAP is enabled") {
 		var cmdStrFallback string
 		if secType == "open" {
-			cmdStrFallback = strings.TrimSpace(fmt.Sprintf("cmd wifi start-softap %s open none %s", ssid, bandFlag))
+			cmdStrFallback = strings.TrimSpace(fmt.Sprintf("cmd wifi start-softap %s open none %s", shellSingleQuote(ssid), bandFlag))
 		} else {
-			cmdStrFallback = strings.TrimSpace(fmt.Sprintf("cmd wifi start-softap %s wpa2 %s %s", ssid, pass, bandFlag))
+			cmdStrFallback = strings.TrimSpace(fmt.Sprintf("cmd wifi start-softap %s wpa2 %s %s", shellSingleQuote(ssid), shellSingleQuote(pass), bandFlag))
 		}
 		out2, err2 := config.ExecSuTimeout(7*time.Second, cmdStrFallback)
 		if err2 != nil && !strings.Contains(string(out2), "enabled") {
