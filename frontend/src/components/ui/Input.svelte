@@ -30,9 +30,9 @@
     onkeydown,
   }: Props = $props()
 
-  // When Sakuga FX is active, text-like inputs render as a real
-  // <sakuga-input>. Other types (number, date, file, ...) stay native
-  // because sakuga-input only supports text/email/search/url/tel/password.
+  // When Sakuga FX is active, text-like inputs render as the native
+  // SakugaInput. Other types (number, date, file, ...) stay on the stock
+  // input because their native pickers should not be restyled.
   const useSakuga = $derived(
     themeStore.isSakugaFxActive() &&
       ['text', 'email', 'search', 'url', 'tel', 'password'].includes(type),

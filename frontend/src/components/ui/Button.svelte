@@ -55,12 +55,13 @@
     onclick?.(e)
   }
 
-  // When Sakuga FX is active, loud variants render as a real
-  // <sakuga-button>. Semantic colors stay native: danger keeps its red
-  // warning, ghost keeps its subtlety, and submit buttons stay native
-  // because sakuga-button is not form-associated.
+  // When Sakuga FX is active, loud variants render as the native
+  // SakugaButton (Svelte re-implementation, theme-driven). Semantic colors
+  // stay native: danger keeps its red warning and ghost keeps its subtlety.
+  // Submit buttons work too: unlike the old <sakuga-button> custom element,
+  // the native button is a real <button> and form-associated.
   const useSakuga = $derived(
-    themeStore.isSakugaFxActive() && type !== 'submit' && variant !== 'danger' && variant !== 'ghost',
+    themeStore.isSakugaFxActive() && variant !== 'danger' && variant !== 'ghost',
   )
   const sakugaVariant: 'primary' | 'secondary' = $derived(
     variant === 'secondary' || variant === 'outline' || variant === 'stop'
@@ -72,6 +73,8 @@
 {#if useSakuga}
   <SakugaButton
     variant={sakugaVariant}
+    {type}
+    size={size}
     {disabled}
     {title}
     class={fullWidth ? 'w-full' : ''}

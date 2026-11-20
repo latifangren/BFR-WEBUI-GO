@@ -1,8 +1,7 @@
 <script lang="ts">
-  // Wrapper around the vendored <sakuga-input> custom element
-  // (sakuga-vfx, MIT, loaded lazily by the theme store). Only rendered
-  // at callsites that already branch on themeStore.isSakugaFxActive();
-  // this wrapper has no native fallback of its own.
+  // Native text input dressed as a neo field. Same props as the old
+  // custom-element wrapper; the input itself is a real <input>, so all
+  // types, events and focus behavior are standard.
   let {
     value = $bindable(''),
     type = 'text',
@@ -22,32 +21,40 @@
     onchange?: (e: Event) => void
     onkeydown?: (e: KeyboardEvent) => void
   } = $props()
-
-  let el: any = $state(null)
-
-  $effect(() => {
-    if (el && el.value !== value) el.value = value
-  })
-
-  function handleInput(e: Event) {
-    value = (e.target as any).value
-    oninput?.(e)
-  }
-
-  function handleChange(e: Event) {
-    value = (e.target as any).value
-    onchange?.(e)
-  }
 </script>
 
-<!-- svelte-ignore a11y_no_static_element_interactions -->
-<sakuga-input
-  bind:this={el}
-  {type}
-  label={label || undefined}
-  placeholder={placeholder || undefined}
-  {disabled}
-  oninput={handleInput}
-  onchange={handleChange}
-  onkeydown={onkeydown}
-></sakuga-input>
+<div class="w-full space-y-1">
+  {#if label}
+    <span class="block text-xs font-mono font-bold uppercase text-muted tracking-wider"
+      >{label}</span
+    >
+  {/if}
+  <input
+    {type}
+    bind:value
+    {placeholder}
+    {disabled}
+    {oninput}
+    {onchange}
+    {onkeydown}
+    class="sakuga-input w-full bg-card-sub px-3 py-2 font-mono text-sm text-foreground placeholder:text-muted focus:outline-none disabled:opacity-50"
+  />
+</div>
+
+<style>
+  .sakuga-input {
+    border: var(--neo-border-width, 2px) solid var(--neo-border);
+    border-radius: var(--neo-radius, 4px);
+    box-shadow: var(--neo-shadow-size, 4px) var(--neo-shadow-size, 4px) 0 0 var(--neo-shadow);
+    transition:
+      box-shadow 0.12s ease,
+      transform 0.12s ease,
+      border-color 0.12s ease;
+  }
+  .sakuga-input:focus {
+    border-color: var(--neo-accent);
+    transform: translate(-1px, -1px);
+    box-shadow: calc(var(--neo-shadow-size, 4px) + 1px) calc(var(--neo-shadow-size, 4px) + 1px) 0 0
+      var(--neo-shadow);
+  }
+</style>

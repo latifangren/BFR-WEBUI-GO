@@ -43,11 +43,13 @@ class ThemeStore {
   neoPressDepth = $state<number>(2)
   neoPattern = $state<'dots' | 'grid' | 'none'>('dots')
   neoPatternOpacity = $state<number>(0.04)
-  // Sakuga FX: anime-style button effects (sakuga-vfx, MIT). Only
-  // meaningful inside the Neobrutalism themes; the toggle is hidden
-  // elsewhere and the scripts load lazily on demand.
+  // Sakuga FX: anime-style controls + burst effects, re-implemented
+  // natively in Svelte (src/components/ui/Sakuga*.svelte,
+  // src/lib/sakuga-fx.ts) and driven by the theme tokens. Only meaningful
+  // inside the Neobrutalism themes; the toggle is hidden elsewhere. No
+  // scripts are loaded: the components are plain Svelte, so there is no
+  // custom-element upgrade race.
   sakugaFx = $state<boolean>(false)
-  private sakugaLoad: Promise<void> | null = null
   constructor() {
     if (typeof window !== 'undefined') {
       const storedTheme = localStorage.getItem('colorTheme') || localStorage.getItem('theme')
@@ -120,9 +122,6 @@ class ThemeStore {
 
       this.setTheme(initialTheme)
       this.setStyle(initialStyle)
-      if (this.sakugaFx && isNeobrutalTheme(initialTheme)) {
-        void this.ensureSakugaLoaded()
-      }
       this.applyGlassTokens()
       this.applyNeobrutalTokens()
     }
@@ -148,59 +147,7 @@ class ThemeStore {
     this.sakugaFx = enabled
     if (typeof window !== 'undefined') {
       localStorage.setItem('sakugaFx', String(enabled))
-      if (enabled && isNeobrutalTheme(this.currentTheme)) {
-        void this.ensureSakugaLoaded()
-      }
     }
-  }
-
-  // Lazily load all vendored Sakuga components, in order (each file
-  // is self-contained and stamps window.SakugaFX if missing; the
-  // button file first is still the safe order). Loaded once per page
-  // load; toggling the FX off does not unload them. Respects each
-  // component's own prefers-reduced-motion handling once loaded.
-  ensureSakugaLoaded(): Promise<void> {
-    if (typeof window === 'undefined') return Promise.resolve()
-    if (customElements.get('sakuga-button') && customElements.get('sakuga-toggle')) {
-      return Promise.resolve()
-    }
-    if (!this.sakugaLoad) {
-      const files = [
-        'button.js',
-        'toggle.js',
-        'slider.js',
-        'checkbox.js',
-        'radio.js',
-        'input.js',
-        'tabs.js',
-        'progress.js',
-        'rating.js',
-        'toast.js',
-        'tooltip.js',
-      ]
-      this.sakugaLoad = files.reduce(
-        (chain, file) => chain.then(() => this.loadSakugaScript(file)),
-        Promise.resolve(),
-      )
-      this.sakugaLoad.catch(() => {
-        this.sakugaLoad = null
-      })
-    }
-    return this.sakugaLoad
-  }
-
-  private loadSakugaScript(file: string): Promise<void> {
-    return new Promise<void>((resolve, reject) => {
-      if (document.querySelector(`script[src="/sakuga-vfx/${file}"]`)) {
-        resolve()
-        return
-      }
-      const script = document.createElement('script')
-      script.src = `/sakuga-vfx/${file}`
-      script.onload = () => resolve()
-      script.onerror = () => reject(new Error(`Failed to load Sakuga ${file}`))
-      document.head.appendChild(script)
-    })
   }
 
   setTheme(theme: ThemeMode) {
@@ -220,7 +167,6 @@ class ThemeStore {
       // restores the user's style, defaulting to modern.
       if (isNeobrutalTheme(theme)) {
         this.setStyle('neobrutal')
-        if (this.sakugaFx) void this.ensureSakugaLoaded()
       } else if (this.currentStyle === 'neobrutal') {
         this.setStyle('modern')
       }
