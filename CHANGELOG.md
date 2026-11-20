@@ -7,6 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.2.9] - Unreleased
+### Added
+- **Custom Accent Picker for All Themes**: Pick any accent color per taste while the theme keeps its own background, cards, and borders. Native color input, six preset swatches (Pink, Yellow, Cyan, Lime, Purple, Orange), live hex display, and a Reset button back to the theme default. Persists in localStorage and survives theme switches; accent text color is derived automatically from luminance (black on bright accents, white on dark ones).
+- **Sakuga Anime FX (Native Svelte Rewrite)**: All eight Sakuga-style controls (Button, Toggle, Checkbox, Radio, Slider, Input, Tabs, Progress) rewritten as native Svelte components that follow the active theme tokens (dark mode and accent included) at system sizes, with spring press motion. A single shared FX engine fires canvas bursts and manga SFX text (ドン!, カチッ!, ポン!, シュッ!, パッ!) on interaction. Gated by the Sakuga FX switch and Neobrutalism themes only; respects `prefers-reduced-motion`. The vendored Sakuga JS files (~964 KB) are removed from the binary.
+- **Repository Restructure (`module/`, `scripts/`)**: Magisk module files now live in `module/` (module.prop, service.sh, system.prop, uninstall.sh, customize.sh, update.json, env.example, META-INF/, bin/) and build scripts in `scripts/` (build.sh, build.bat, build-release.bat, build_zip.bat, audit_nomodem.py). The Magisk zip layout is unchanged (files stay at the zip root); `module.prop` `updateJson` now points at `main/module/update.json`.
+
+### Changed & Refactored
+- **Theme Catalog Pruned to 4 Palettes**: 11 themes and 6 color vibes cut down to Dark Navy, Clean Light, Neobrutalism, and Neobrutalism Light (198 combinations down to 12). ProjectX is renamed Neobrutalism — the generic neobrutal style is removed from the picker, Neobrutalism themes lock their shape in the store, and Neobrutalism is now the default theme.
+- **Appearance Modal Reordered**: Color Themes first, Neobrutalism/Glass tuning behind a collapsed-by-default Advanced Tuning section, and the login wallpaper panel collapsed by default.
+- **English-Only UI Sweep**: Translated the remaining Indonesian UI strings to English (accent picker, wallpaper toasts and confirmations, Sakuga FX text, login wallpaper section, thermal diagnostic detail), in line with the UI language standard. The donation WhatsApp message template is deliberately kept in Indonesian — it is message content to an Indonesian developer, not UI text.
+
+### Fixed
+- **Fresh-Install Default Theme**: Fresh installs opened Dark + Modern instead of the Neobrutalism default (store constructor fallback overrode the boot default).
+- **Progress Bars Stuck at 0% After Refresh**: The Sakuga progress wrapper called `el.set()` before the lazily loaded custom elements were defined, throwing once and never recovering — logout/login worked only because the elements were already defined. The native rewrite makes this race structurally impossible.
+- **Sysinfo Polling Killed by a Single 401**: Session restore on refresh now dispatches `bfr:authenticated`, so telemetry polling resumes instead of dying permanently after one early 401.
+
 ## [1.2.8] - 2026-10-21
 ### Security
 - **Authentication Hardening**: Replaced new password hashes with bcrypt while preserving legacy hash verification, secured wallpaper upload and deletion routes, enabled secure session cookies over TLS, and removed query-string session token authentication from WebSocket endpoints.
