@@ -1,26 +1,34 @@
-import type { ColorVibe, ThemeMode, UIStyle } from '../types/common'
+import type { ThemeMode, UIStyle } from '../types/common'
 
 const VALID_THEMES: ThemeMode[] = [
   'dark',
-  'amoled',
   'light',
-  'projectx-light',
-  'dracula',
-  'nord',
-  'cyberpunk',
-  'emerald',
-  'sunset',
-  'retro',
-  'projectx',
+  'neobrutalism-light',
+  'neobrutalism',
 ]
 
-const VALID_STYLES: UIStyle[] = ['neobrutal', 'modern', 'glass']
-const VALID_VIBES: ColorVibe[] = ['default', 'synthwave', 'toxic', 'arctic', 'sunset', 'lavender']
+// Only modern and glass are user-selectable styles. 'neobrutal' is the
+// locked shape of the Neobrutalism themes and is forced by setTheme.
+const VALID_STYLES: UIStyle[] = ['modern', 'glass']
+
+export function isNeobrutalTheme(theme: ThemeMode): boolean {
+  return theme === 'neobrutalism' || theme === 'neobrutalism-light'
+}
+
+// Themes removed in the 4-theme prune: amoled, dracula, nord, cyberpunk,
+// emerald, sunset, retro. Stored values map to the closest kept theme:
+// retro (light) -> neobrutalism-light, all removed dark themes -> dark.
+// The ProjectX rename: projectx -> neobrutalism,
+// projectx-light -> neobrutalism-light.
+const REMOVED_THEME_FALLBACK: Record<string, ThemeMode> = {
+  retro: 'neobrutalism-light',
+  projectx: 'neobrutalism',
+  'projectx-light': 'neobrutalism-light',
+}
 
 class ThemeStore {
-  currentTheme = $state<ThemeMode>('dark')
+  currentTheme = $state<ThemeMode>('neobrutalism')
   currentStyle = $state<UIStyle>('neobrutal')
-  currentColorVibe = $state<ColorVibe>('default')
   showAppearanceModal = $state<boolean>(false)
   glassBlur = $state<number>(16)
   glassOpacity = $state<number>(0.65)
@@ -35,20 +43,50 @@ class ThemeStore {
   neoPressDepth = $state<number>(2)
   neoPattern = $state<'dots' | 'grid' | 'none'>('dots')
   neoPatternOpacity = $state<number>(0.04)
+  // Sakuga FX: anime-style controls + burst effects, re-implemented
+  // natively in Svelte (src/components/ui/Sakuga*.svelte,
+  // src/lib/sakuga-fx.ts) and driven by the theme tokens. The FX burst
+  // layer is global — it follows the sakugaFx flag in every theme — while
+  // the Sakuga controls keep the Neobrutalism look and only render in
+  // Neobrutalism themes (see useSakugaControls). No scripts are loaded:
+  // the components are plain Svelte, so there is no custom-element
+  // upgrade race.
+  sakugaFx = $state<boolean>(false)
+
+  // Custom accent color (accent picker): a user-chosen accent that
+  // overrides the active theme's accent on every theme. Empty means
+  // "use the theme's own accent". Persisted in localStorage; it survives
+  // theme switches because the override lives in inline properties on
+  // documentElement, which setTheme never touches.
+  customAccent = $state<string>('')
   constructor() {
     if (typeof window !== 'undefined') {
       const storedTheme = localStorage.getItem('colorTheme') || localStorage.getItem('theme')
+      const migratedTheme = REMOVED_THEME_FALLBACK[storedTheme ?? ''] ?? storedTheme
+      // Fresh install (nothing stored) opens on Neobrutalism, the new
+      // default; a stored but unknown/removed theme falls back to dark.
       const initialTheme = (
-        VALID_THEMES.includes(storedTheme as ThemeMode)
-          ? storedTheme
-          : storedTheme === 'light'
-            ? 'light'
+        VALID_THEMES.includes(migratedTheme as ThemeMode)
+          ? migratedTheme
+          : storedTheme == null
+            ? 'neobrutalism'
             : 'dark'
       ) as ThemeMode
+      // Drop the removed color-vibe setting so a stale value can never
+      // override a kept theme's accent again.
+      localStorage.removeItem('colorVibe')
+      document.documentElement.removeAttribute('data-color')
 
       const storedStyle = localStorage.getItem('uiStyle')
+      // Neobrutalism themes lock the neobrutal shape; neutral themes keep
+      // the user's style, falling back to modern if the locked style or
+      // an unknown value was stored.
       const initialStyle = (
-        VALID_STYLES.includes(storedStyle as UIStyle) ? storedStyle : 'neobrutal'
+        isNeobrutalTheme(initialTheme)
+          ? 'neobrutal'
+          : VALID_STYLES.includes(storedStyle as UIStyle)
+            ? storedStyle
+            : 'modern'
       ) as UIStyle
 
       const storedBlur = localStorage.getItem('glassBlur')
@@ -88,15 +126,19 @@ class ThemeStore {
 
       const storedNeoPatOp = localStorage.getItem('neoPatternOpacity')
       if (storedNeoPatOp) this.neoPatternOpacity = Math.max(0, Math.min(0.15, Number(storedNeoPatOp) || 0.04))
-      const storedVibe = localStorage.getItem('colorVibe')
-      const initialVibe = (VALID_VIBES.includes(storedVibe as ColorVibe) ? storedVibe : 'default') as ColorVibe
 
+      this.sakugaFx = localStorage.getItem('sakugaFx') === 'true'
+
+      const storedAccent = localStorage.getItem('customAccent')
+      if (storedAccent && /^#[0-9a-fA-F]{6}$/.test(storedAccent)) {
+        this.customAccent = storedAccent.toLowerCase()
+      }
 
       this.setTheme(initialTheme)
       this.setStyle(initialStyle)
       this.applyGlassTokens()
-      this.setColorVibe(initialVibe)
       this.applyNeobrutalTokens()
+      this.applyAccentOverride()
     }
   }
 
@@ -108,12 +150,85 @@ class ThemeStore {
     this.showAppearanceModal = false
   }
 
+  isNeobrutalTheme(): boolean {
+    return isNeobrutalTheme(this.currentTheme)
+  }
+
+  // The FX burst layer (canvas bursts + manga SFX): global, follows the
+  // sakugaFx flag in every theme and style.
+  isSakugaFxActive(): boolean {
+    return this.sakugaFx
+  }
+
+  // The Sakuga controls (the native Sakuga* components): they keep the
+  // Neobrutalism look (thick borders, hard shadows) and only render in
+  // Neobrutalism themes. Every callsite that branches between a Sakuga
+  // component and its native fallback uses this gate.
+  useSakugaControls(): boolean {
+    return this.sakugaFx && isNeobrutalTheme(this.currentTheme)
+  }
+
+  setSakugaFx(enabled: boolean) {
+    this.sakugaFx = enabled
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('sakugaFx', String(enabled))
+    }
+  }
+
+  // Readable text color for an accent: black on bright accents, white on
+  // dark ones, by perceived brightness. The 0.6 cut matches every theme
+  // default (yellow/lime/cyan/orange -> black; pink/purple/blue -> white).
+  private static accentTextFor(hex: string): string {
+    const r = parseInt(hex.slice(1, 3), 16)
+    const g = parseInt(hex.slice(3, 5), 16)
+    const b = parseInt(hex.slice(5, 7), 16)
+    const brightness = (0.299 * r + 0.587 * g + 0.114 * b) / 255
+    return brightness > 0.6 ? '#000000' : '#ffffff'
+  }
+
+  // Apply (or clear) the custom-accent override on the document root.
+  // Inline properties beat the [data-theme] stylesheet rules, and they
+  // persist across theme switches, so the accent follows the user while
+  // background, cards and borders keep following the theme.
+  applyAccentOverride() {
+    if (typeof window === 'undefined') return
+    const root = document.documentElement
+    if (this.customAccent) {
+      const text = ThemeStore.accentTextFor(this.customAccent)
+      root.style.setProperty('--neo-accent', this.customAccent)
+      root.style.setProperty('--color-accent', this.customAccent)
+      root.style.setProperty('--neo-accent-text', text)
+      root.style.setProperty('--color-accent-text', text)
+    } else {
+      root.style.removeProperty('--neo-accent')
+      root.style.removeProperty('--color-accent')
+      root.style.removeProperty('--neo-accent-text')
+      root.style.removeProperty('--color-accent-text')
+    }
+  }
+
+  setCustomAccent(hex: string | null) {
+    const next = hex && /^#[0-9a-fA-F]{6}$/.test(hex) ? hex.toLowerCase() : ''
+    this.customAccent = next
+    if (typeof window !== 'undefined') {
+      if (next) localStorage.setItem('customAccent', next)
+      else localStorage.removeItem('customAccent')
+      this.applyAccentOverride()
+    }
+  }
+
+  // The accent actually in effect: the custom override when set, otherwise
+  // the active theme's own accent.
+  effectiveAccent(themeAccent: string): string {
+    return this.customAccent || themeAccent
+  }
+
   setTheme(theme: ThemeMode) {
     this.currentTheme = theme
     if (typeof window !== 'undefined') {
       localStorage.setItem('colorTheme', theme)
       document.documentElement.setAttribute('data-theme', theme)
-      const isLightFamily = theme === 'light' || theme === 'projectx-light' || theme === 'retro'
+      const isLightFamily = theme === 'light' || theme === 'neobrutalism-light'
       if (isLightFamily) {
         document.documentElement.classList.remove('dark')
         document.documentElement.classList.add('light')
@@ -121,28 +236,26 @@ class ThemeStore {
         document.documentElement.classList.add('dark')
         document.documentElement.classList.remove('light')
       }
+      // Neobrutalism themes lock the neobrutal shape; leaving them
+      // restores the user's style, defaulting to modern.
+      if (isNeobrutalTheme(theme)) {
+        this.setStyle('neobrutal')
+      } else if (this.currentStyle === 'neobrutal') {
+        this.setStyle('modern')
+      }
     }
   }
 
   setStyle(style: UIStyle) {
+    // The style picker never offers 'neobrutal'; ignore attempts to
+    // change the shape while a Neobrutalism theme locks it.
+    if (isNeobrutalTheme(this.currentTheme) && style !== 'neobrutal') return
     this.currentStyle = style
     if (typeof window !== 'undefined') {
       localStorage.setItem('uiStyle', style)
       document.documentElement.setAttribute('data-ui-style', style)
     }
   }
-  setColorVibe(vibe: ColorVibe) {
-    this.currentColorVibe = vibe
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('colorVibe', vibe)
-      if (vibe === 'default') {
-        document.documentElement.removeAttribute('data-color')
-      } else {
-        document.documentElement.setAttribute('data-color', vibe)
-      }
-    }
-  }
-
 
   setGlassBlur(blur: number) {
     this.glassBlur = blur
@@ -299,7 +412,11 @@ class ThemeStore {
   }
 
   toggleDarkMode() {
-    if (this.currentTheme === 'light') {
+    if (this.currentTheme === 'neobrutalism-light') {
+      this.setTheme('neobrutalism')
+    } else if (this.currentTheme === 'neobrutalism') {
+      this.setTheme('neobrutalism-light')
+    } else if (this.currentTheme === 'light') {
       this.setTheme('dark')
     } else {
       this.setTheme('light')

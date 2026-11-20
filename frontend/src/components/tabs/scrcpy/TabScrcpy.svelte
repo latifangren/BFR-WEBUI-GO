@@ -33,6 +33,8 @@
   import Input from '../../ui/Input.svelte'
   import { WebSocketClient } from '../../../ws/socket'
   import { toastStore } from '../../../stores/toast.svelte'
+  import { themeStore } from '../../../stores/theme.svelte'
+  import SakugaCheckbox from '../../ui/SakugaCheckbox.svelte'
 
   // --- Runtime Streaming & Device State ---
   let isMirroring = $state(false)
@@ -1136,22 +1138,30 @@
             <!-- Device Behavior Checkboxes -->
             <div class="pt-2 border-t border-border/80 space-y-2">
               <label class="flex items-center gap-2.5 cursor-pointer select-none">
+                {#if themeStore.useSakugaControls()}
+                  <SakugaCheckbox bind:checked={turnScreenOff} onchange={onSettingModified} />
+                {:else}
                 <input
                   type="checkbox"
                   bind:checked={turnScreenOff}
                   onchange={onSettingModified}
                   class="rounded border-border text-accent focus:ring-accent bg-card-sub w-4 h-4 cursor-pointer"
                 />
+                {/if}
                 <span class="text-xs text-foreground">Turn off physical screen on stream launch</span>
               </label>
 
               <label class="flex items-center gap-2.5 cursor-pointer select-none">
+                {#if themeStore.useSakugaControls()}
+                  <SakugaCheckbox bind:checked={stayAwake} onchange={onSettingModified} />
+                {:else}
                 <input
                   type="checkbox"
                   bind:checked={stayAwake}
                   onchange={onSettingModified}
                   class="rounded border-border text-accent focus:ring-accent bg-card-sub w-4 h-4 cursor-pointer"
                 />
+                {/if}
                 <span class="text-xs text-foreground">Keep device awake while mirroring</span>
               </label>
             </div>

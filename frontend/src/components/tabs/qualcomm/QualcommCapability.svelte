@@ -16,6 +16,9 @@
   import Button from '../../ui/Button.svelte'
   import Badge from '../../ui/Badge.svelte'
   import Modal from '../../ui/Modal.svelte'
+  import { themeStore } from '../../../stores/theme.svelte'
+  import SakugaCheckbox from '../../ui/SakugaCheckbox.svelte'
+  import SakugaRadio from '../../ui/SakugaRadio.svelte'
 
   interface CapabilityFileStatus {
     path: string
@@ -256,7 +259,11 @@
           </div>
           <div class="flex items-center gap-2">
             <span class="text-[10px] px-1 py-0.5 bg-amber-500/20 text-amber-700 dark:text-amber-300 rounded font-mono">Write-Only</span>
+            {#if themeStore.useSakugaControls()}
+              <SakugaCheckbox bind:checked={capState.lte.lte_ca} />
+            {:else}
             <input type="checkbox" bind:checked={capState.lte.lte_ca} class="w-4 h-4 accent-accent" />
+            {/if}
           </div>
         </label>
 
@@ -280,7 +287,11 @@
             <span class="font-bold text-foreground block">Uplink Carrier Aggregation</span>
             <span class="text-[10px] text-muted font-mono">[LTE_UL_CA]</span>
           </div>
+          {#if themeStore.useSakugaControls()}
+            <SakugaCheckbox bind:checked={capState.lte.ul_ca} />
+          {:else}
           <input type="checkbox" bind:checked={capState.lte.ul_ca} class="w-4 h-4 accent-accent" />
+          {/if}
         </label>
 
         <label class="flex items-center justify-between p-2 bg-card-sub border border-border rounded cursor-pointer">
@@ -288,7 +299,11 @@
             <span class="font-bold text-foreground block">Downlink 256-QAM</span>
             <span class="text-[10px] text-muted font-mono">[LTE_DL_256Q]</span>
           </div>
+          {#if themeStore.useSakugaControls()}
+            <SakugaCheckbox bind:checked={capState.lte.dl_256q} />
+          {:else}
           <input type="checkbox" bind:checked={capState.lte.dl_256q} class="w-4 h-4 accent-accent" />
+          {/if}
         </label>
 
         <label class="flex items-center justify-between p-2 bg-card-sub border border-border rounded cursor-pointer">
@@ -296,7 +311,11 @@
             <span class="font-bold text-foreground block">Uplink 256-QAM</span>
             <span class="text-[10px] text-muted font-mono">[LTE_UL_256Q]</span>
           </div>
+          {#if themeStore.useSakugaControls()}
+            <SakugaCheckbox bind:checked={capState.lte.ul_256q} />
+          {:else}
           <input type="checkbox" bind:checked={capState.lte.ul_256q} class="w-4 h-4 accent-accent" />
+          {/if}
         </label>
 
         <div class="p-2 bg-card-sub border border-border rounded space-y-2">
@@ -304,6 +323,11 @@
             <span class="font-bold text-foreground">Downlink MIMO Layers</span>
             <span class="text-[10px] text-muted font-mono">[LTE_DL_MIMO]</span>
           </div>
+{#if themeStore.useSakugaControls()}
+            <SakugaRadio value={String(capState.lte.max_mimo_layer)} label="Downlink MIMO Layers"
+              options={[{ value: '2', label: '2 Layers (2x2)' }, { value: '4', label: '4 Layers (4x4)' }]}
+              onchange={(e) => { capState.lte.max_mimo_layer = Number((e.target as any).value) }} />
+          {:else}
           <div class="flex items-center gap-4">
             <label class="flex items-center gap-1.5 cursor-pointer">
               <input type="radio" name="mimo" value={2} bind:group={capState.lte.max_mimo_layer} class="accent-accent" />
@@ -314,6 +338,7 @@
               <span>4 Layers (4x4)</span>
             </label>
           </div>
+          {/if}
         </div>
 
         <label class="flex items-center justify-between p-2 bg-card-sub border border-border rounded cursor-pointer">
@@ -321,26 +346,46 @@
             <span class="font-bold text-foreground block">Adaptive Rx Diversity (ARD)</span>
             <span class="text-[10px] text-muted font-mono">[LTE_HORXD]</span>
           </div>
+          {#if themeStore.useSakugaControls()}
+            <SakugaCheckbox bind:checked={capState.lte.horxd} />
+          {:else}
           <input type="checkbox" bind:checked={capState.lte.horxd} class="w-4 h-4 accent-accent" />
+          {/if}
         </label>
 
         <div class="p-2 bg-card-sub border border-border rounded space-y-1.5">
           <span class="font-bold text-foreground block">Rx Chains [LTE_RX0..3]</span>
           <div class="grid grid-cols-4 gap-2">
             <label class="flex items-center gap-1 cursor-pointer">
+              {#if themeStore.useSakugaControls()}
+                <SakugaCheckbox bind:checked={capState.lte.rx0} />
+              {:else}
               <input type="checkbox" bind:checked={capState.lte.rx0} class="accent-accent" />
+              {/if}
               <span>#0</span>
             </label>
             <label class="flex items-center gap-1 cursor-pointer">
+              {#if themeStore.useSakugaControls()}
+                <SakugaCheckbox bind:checked={capState.lte.rx1} />
+              {:else}
               <input type="checkbox" bind:checked={capState.lte.rx1} class="accent-accent" />
+              {/if}
               <span>#1</span>
             </label>
             <label class="flex items-center gap-1 cursor-pointer">
+              {#if themeStore.useSakugaControls()}
+                <SakugaCheckbox bind:checked={capState.lte.rx2} />
+              {:else}
               <input type="checkbox" bind:checked={capState.lte.rx2} class="accent-accent" />
+              {/if}
               <span>#2</span>
             </label>
             <label class="flex items-center gap-1 cursor-pointer">
+              {#if themeStore.useSakugaControls()}
+                <SakugaCheckbox bind:checked={capState.lte.rx3} />
+              {:else}
               <input type="checkbox" bind:checked={capState.lte.rx3} class="accent-accent" />
+              {/if}
               <span>#3</span>
             </label>
           </div>
@@ -351,7 +396,11 @@
             <span class="font-bold text-foreground block">Voice over LTE (VoLTE)</span>
             <span class="text-[10px] text-muted font-mono">[LTE_VOICE]</span>
           </div>
+          {#if themeStore.useSakugaControls()}
+            <SakugaCheckbox bind:checked={capState.lte.volte} />
+          {:else}
           <input type="checkbox" bind:checked={capState.lte.volte} class="w-4 h-4 accent-accent" />
+          {/if}
         </label>
       </div>
     </Card>
@@ -372,7 +421,11 @@
             <span class="font-bold text-foreground block">LTE + 5G NSA (EN-DC)</span>
             <span class="text-[10px] text-muted font-mono">[NSA_LTE]</span>
           </div>
+          {#if themeStore.useSakugaControls()}
+            <SakugaCheckbox bind:checked={capState.nsa.nsa_lte} />
+          {:else}
           <input type="checkbox" bind:checked={capState.nsa.nsa_lte} class="w-4 h-4 accent-accent" />
+          {/if}
         </label>
 
         <label class="flex items-center justify-between p-2 bg-card-sub border border-border rounded cursor-pointer">
@@ -380,7 +433,11 @@
             <span class="font-bold text-foreground block">Dynamic Spectrum Sharing (DSS)</span>
             <span class="text-[10px] text-muted font-mono">[NSA_LTE_DSS]</span>
           </div>
+          {#if themeStore.useSakugaControls()}
+            <SakugaCheckbox bind:checked={capState.nsa.nsa_lte_dss} />
+          {:else}
           <input type="checkbox" bind:checked={capState.nsa.nsa_lte_dss} class="w-4 h-4 accent-accent" />
+          {/if}
         </label>
 
         <label class="flex items-center justify-between p-2 bg-card-sub border border-border rounded cursor-pointer">
@@ -388,7 +445,11 @@
             <span class="font-bold text-foreground block">NSA during Data-Call on Other SIM</span>
             <span class="text-[10px] text-muted font-mono">[NSA_NDDS]</span>
           </div>
+          {#if themeStore.useSakugaControls()}
+            <SakugaCheckbox bind:checked={capState.nsa.nsa_ndds} />
+          {:else}
           <input type="checkbox" bind:checked={capState.nsa.nsa_ndds} class="w-4 h-4 accent-accent" />
+          {/if}
         </label>
 
         <label class="flex items-center justify-between p-2 bg-card-sub border border-border rounded cursor-pointer">
@@ -396,7 +457,11 @@
             <span class="font-bold text-foreground block">NSA Dual SIM Dual Active (DSDA)</span>
             <span class="text-[10px] text-muted font-mono">[NSA_LTE_DSDA]</span>
           </div>
+          {#if themeStore.useSakugaControls()}
+            <SakugaCheckbox bind:checked={capState.nsa.nsa_lte_dsda} />
+          {:else}
           <input type="checkbox" bind:checked={capState.nsa.nsa_lte_dsda} class="w-4 h-4 accent-accent" />
+          {/if}
         </label>
       </div>
     </Card>
@@ -417,7 +482,11 @@
             <span class="font-bold text-foreground block">NR Carrier Aggregation (NR CA)</span>
             <span class="text-[10px] text-muted font-mono">[NR_CA]</span>
           </div>
+          {#if themeStore.useSakugaControls()}
+            <SakugaCheckbox bind:checked={capState.nr.nr_ca} />
+          {:else}
           <input type="checkbox" bind:checked={capState.nr.nr_ca} class="w-4 h-4 accent-accent" />
+          {/if}
         </label>
 
         <label class="flex items-center justify-between p-2 bg-card-sub border border-border rounded cursor-pointer">
@@ -425,7 +494,11 @@
             <span class="font-bold text-foreground block">NR Downlink 256-QAM</span>
             <span class="text-[10px] text-muted font-mono">[NR_DL_256Q]</span>
           </div>
+          {#if themeStore.useSakugaControls()}
+            <SakugaCheckbox bind:checked={capState.nr.dl_256q} />
+          {:else}
           <input type="checkbox" bind:checked={capState.nr.dl_256q} class="w-4 h-4 accent-accent" />
+          {/if}
         </label>
 
         <label class="flex items-center justify-between p-2 bg-card-sub border border-border rounded cursor-pointer">
@@ -433,7 +506,11 @@
             <span class="font-bold text-foreground block">NR Uplink 256-QAM</span>
             <span class="text-[10px] text-muted font-mono">[NR_UL_256Q]</span>
           </div>
+          {#if themeStore.useSakugaControls()}
+            <SakugaCheckbox bind:checked={capState.nr.ul_256q} />
+          {:else}
           <input type="checkbox" bind:checked={capState.nr.ul_256q} class="w-4 h-4 accent-accent" />
+          {/if}
         </label>
 
         <label class="flex items-center justify-between p-2 bg-card-sub border border-border rounded cursor-pointer">
@@ -441,7 +518,11 @@
             <span class="font-bold text-foreground block">NR Downlink MIMO</span>
             <span class="text-[10px] text-muted font-mono">[NR_DL_MIMO]</span>
           </div>
+          {#if themeStore.useSakugaControls()}
+            <SakugaCheckbox bind:checked={capState.nr.dl_mimo} />
+          {:else}
           <input type="checkbox" bind:checked={capState.nr.dl_mimo} class="w-4 h-4 accent-accent" />
+          {/if}
         </label>
 
         <label class="flex items-center justify-between p-2 bg-card-sub border border-border rounded cursor-pointer">
@@ -449,7 +530,11 @@
             <span class="font-bold text-foreground block">NR Uplink MIMO</span>
             <span class="text-[10px] text-muted font-mono">[NR_UL_MIMO]</span>
           </div>
+          {#if themeStore.useSakugaControls()}
+            <SakugaCheckbox bind:checked={capState.nr.ul_mimo} />
+          {:else}
           <input type="checkbox" bind:checked={capState.nr.ul_mimo} class="w-4 h-4 accent-accent" />
+          {/if}
         </label>
 
         <label class="flex items-center justify-between p-2 bg-card-sub border border-border rounded cursor-pointer">
@@ -457,7 +542,11 @@
             <span class="font-bold text-foreground block">Voice over NR (VoNR)</span>
             <span class="text-[10px] text-muted font-mono">[NR_VOICE]</span>
           </div>
+          {#if themeStore.useSakugaControls()}
+            <SakugaCheckbox bind:checked={capState.nr.vonr} />
+          {:else}
           <input type="checkbox" bind:checked={capState.nr.vonr} class="w-4 h-4 accent-accent" />
+          {/if}
         </label>
 
         <label class="flex items-center justify-between p-2 bg-card-sub border border-border rounded cursor-pointer">
@@ -465,7 +554,11 @@
             <span class="font-bold text-foreground block">NR RedCap (Reduced Capability)</span>
             <span class="text-[10px] text-muted font-mono">[NR_REDCAP]</span>
           </div>
+          {#if themeStore.useSakugaControls()}
+            <SakugaCheckbox bind:checked={capState.nr.redcap} />
+          {:else}
           <input type="checkbox" bind:checked={capState.nr.redcap} class="w-4 h-4 accent-accent" />
+          {/if}
         </label>
 
         <label class="flex items-center justify-between p-2 bg-card-sub border border-border rounded cursor-pointer">
@@ -473,7 +566,11 @@
             <span class="font-bold text-foreground block">NR Dual SIM Dual Active (DSDA)</span>
             <span class="text-[10px] text-muted font-mono">[NR_NR_DSDA]</span>
           </div>
+          {#if themeStore.useSakugaControls()}
+            <SakugaCheckbox bind:checked={capState.nr.nr_nr_dsda} />
+          {:else}
           <input type="checkbox" bind:checked={capState.nr.nr_nr_dsda} class="w-4 h-4 accent-accent" />
+          {/if}
         </label>
 
         <label class="flex items-center justify-between p-2 bg-card-sub border border-border rounded cursor-pointer">
@@ -481,7 +578,11 @@
             <span class="font-bold text-foreground block">Limit RF MIMO</span>
             <span class="text-[10px] text-muted font-mono">[NR_LIMIT_RF_MIMO]</span>
           </div>
+          {#if themeStore.useSakugaControls()}
+            <SakugaCheckbox bind:checked={capState.nr.limit_rf_mimo} />
+          {:else}
           <input type="checkbox" bind:checked={capState.nr.limit_rf_mimo} class="w-4 h-4 accent-accent" />
+          {/if}
         </label>
       </div>
     </Card>
@@ -492,7 +593,11 @@
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
       <div class="flex items-center gap-3">
         <label class="flex items-center gap-2 cursor-pointer text-xs font-bold text-foreground">
+          {#if themeStore.useSakugaControls()}
+            <SakugaCheckbox bind:checked={restartSSR} />
+          {:else}
           <input type="checkbox" bind:checked={restartSSR} class="w-4 h-4 accent-accent" />
+          {/if}
           <span>Restart Modem (SSR) after write</span>
         </label>
         <button
@@ -569,7 +674,11 @@
       </div>
 
       <label class="flex items-center gap-2 cursor-pointer font-bold pt-2 border-t border-border/60">
+        {#if themeStore.useSakugaControls()}
+          <SakugaCheckbox bind:checked={restartSSR} />
+        {:else}
         <input type="checkbox" bind:checked={restartSSR} class="w-4 h-4 accent-accent" />
+        {/if}
         <span>Perform Subsystem Restart (SSR) immediately after write</span>
       </label>
     </div>

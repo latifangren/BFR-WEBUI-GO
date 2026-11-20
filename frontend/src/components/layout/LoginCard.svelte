@@ -12,16 +12,39 @@
   import { authStore } from '../../stores/auth.svelte'
   import { themeStore } from '../../stores/theme.svelte'
   import { sysinfoStore } from '../../stores/sysinfo.svelte'
+  import { fireSakugaFx } from '../../lib/sakuga-fx'
   import AppearanceModal from './AppearanceModal.svelte'
 
   let password = $state('')
   let showPassword = $state(false)
   let showAppearance = $state(false)
+  // Login-failure shake: toggled on for one shake cycle, then cleared so
+  // the next failure can shake again.
+  let loginShake = $state(false)
+  let cardEl: HTMLDivElement | null = $state(null)
+  let submitBtn: HTMLButtonElement | null = $state(null)
 
   async function handleSubmit(e: Event) {
     e.preventDefault()
     if (!password.trim() || authStore.isLoading) return
-    await authStore.login({ password: password.trim() })
+    // Capture the button center BEFORE the await: a successful login
+    // unmounts this view in a microtask, which clears the bind:this refs
+    // before the continuation below runs.
+    const btnRect = submitBtn?.getBoundingClientRect()
+    const btnCenter = btnRect
+      ? { x: btnRect.left + btnRect.width / 2, y: btnRect.top + btnRect.height / 2 }
+      : null
+    const ok = await authStore.login({ password: password.trim() })
+    // FX layer is global: bursts fire in every theme while Sakuga FX is
+    // on. The burst canvas lives on document.body, so the success burst
+    // survives the login view unmounting.
+    if (ok) {
+      if (btnCenter) fireSakugaFx(btnCenter, 'button')
+    } else {
+      loginShake = true
+      window.setTimeout(() => (loginShake = false), 500)
+      if (cardEl) fireSakugaFx(cardEl, 'error')
+    }
   }
 
   function autofillDefault() {
@@ -75,7 +98,10 @@
   <!-- Main Center Stage Login Card -->
   <main class="relative z-10 w-full max-w-md mx-auto px-4 py-6 my-auto">
     <div
-      class="w-full p-6 sm:p-8 space-y-6 bg-card border-2 border-border shadow-[5px_5px_0px_0px_var(--neo-shadow)] rounded-lg transition-all"
+      bind:this={cardEl}
+      class="w-full p-6 sm:p-8 space-y-6 bg-card border-2 border-border shadow-[5px_5px_0px_0px_var(--neo-shadow)] rounded-lg transition-all {themeStore.sakugaFx
+        ? 'sakuga-card-pop'
+        : ''} {loginShake ? 'sakuga-shake' : ''}"
     >
       <!-- Hero Branding -->
       <div class="text-center space-y-3">
@@ -157,6 +183,7 @@
         <!-- Tactile 3D Submit Button -->
         <button
           type="submit"
+          bind:this={submitBtn}
           disabled={authStore.isLoading || !password}
           class="w-full bg-accent text-accent-text font-mono font-black py-3 text-sm border-2 border-border shadow-[3px_3px_0px_0px_var(--neo-shadow)] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] active:translate-x-[3px] active:translate-y-[3px] rounded transition-all flex items-center justify-center gap-2 select-none disabled:opacity-50 cursor-pointer uppercase tracking-wider"
         >

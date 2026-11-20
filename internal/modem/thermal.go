@@ -215,7 +215,7 @@ func evaluateCulprit(status *Thermal5GStatus) {
 	if status.ThermalHALStatus >= 3 {
 		status.IsThrottled = true
 		status.Culprit = "Modem Skin Board (SKIN) / sec-cf"
-		status.CulpritDetail = fmt.Sprintf("Suhu permukaan board/skin mencapai %.1f°C (limit: 42.0°C). Android Thermal HAL masuk status SEVERE (Level %d). Sistem memerintahkan pelepasan 5G NR Dual Connectivity!", status.Sensors.ModemSkinC, status.ThermalHALStatus)
+		status.CulpritDetail = fmt.Sprintf("Board/skin surface temperature reached %.1f°C (limit: 42.0°C). Android Thermal HAL entered SEVERE status (Level %d). System ordered 5G NR Dual Connectivity release!", status.Sensors.ModemSkinC, status.ThermalHALStatus)
 	} else if status.Throttlers.ModemSkinNrDsc > 0 {
 		status.IsThrottled = true
 		status.Culprit = fmt.Sprintf("Modem Skin NR Controller (modem_skin_nr_dsc = %d)", status.Throttlers.ModemSkinNrDsc)

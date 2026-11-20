@@ -23,6 +23,8 @@
   import Button from '../../ui/Button.svelte'
   import Badge from '../../ui/Badge.svelte'
   import Input from '../../ui/Input.svelte'
+  import { themeStore } from '../../../stores/theme.svelte'
+  import SakugaTabs from '../../ui/SakugaTabs.svelte'
 
   interface SimSlotInfo {
     slot_index: number
@@ -76,6 +78,8 @@
 
   // Sub-tab selection
   let subTab = $state<'signal' | 'sim' | 'thermal' | 'at'>('signal')
+  const SUBTAB_IDS: Array<typeof subTab> = ['signal', 'sim', 'thermal', 'at']
+  const SUBTAB_LABELS: string[] = ['Signal & Radio', 'Dual SIM Routing', '5G Thermal Telemetry', 'AT Console Terminal']
 
   // Signal & Info
   let signalInfo = $state<Record<string, unknown>>({})
@@ -352,6 +356,13 @@
     </div>
   </div>
   <!-- SUB-TAB SWITCHER -->
+{#if themeStore.useSakugaControls()}
+    <SakugaTabs
+      selected={SUBTAB_IDS.indexOf(subTab)}
+      options={SUBTAB_LABELS}
+      onchange={(e) => { subTab = SUBTAB_IDS[(e.target as any).selected] }}
+    />
+  {:else}
   <div class="flex items-center gap-2 border-b-2 border-border pb-2 overflow-x-auto text-xs">
     {#each [
       { id: 'signal', label: 'Signal & Radio', icon: Radio },
@@ -371,6 +382,7 @@
       </button>
     {/each}
   </div>
+  {/if}
 
   <!-- SUB-TAB 1: Signal & Radio -->
   {#if subTab === 'signal'}

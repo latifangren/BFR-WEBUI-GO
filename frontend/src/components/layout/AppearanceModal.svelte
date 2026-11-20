@@ -21,8 +21,10 @@
   } from '../../stores/navigation.svelte'
   import { toastStore } from '../../stores/toast.svelte'
   import { request } from '../../api/client'
-  import type { ColorVibe, ThemeMode, UIStyle, WallpaperItem } from '../../types/common'
+  import type { ThemeMode, UIStyle, WallpaperItem } from '../../types/common'
   import Button from '../ui/Button.svelte'
+  import SakugaButton from '../ui/SakugaButton.svelte'
+  import SakugaSlider from '../ui/SakugaSlider.svelte'
 
   interface Props {
     open?: boolean
@@ -61,16 +63,6 @@
       text: '#f8fafc',
     },
     {
-      id: 'amoled',
-      name: 'Pure AMOLED',
-      tagline: 'True #000000 with charcoal elevation',
-      bg: '#000000',
-      card: '#0a0a0a',
-      border: '#262626',
-      accent: '#10b981',
-      text: '#f8fafc',
-    },
-    {
       id: 'light',
       name: 'Clean Light',
       tagline: 'High-contrast stark daylight mode',
@@ -81,8 +73,8 @@
       text: '#0f172a',
     },
     {
-      id: 'projectx-light',
-      name: 'ProjectX Cream',
+      id: 'neobrutalism-light',
+      name: 'Neobrutalism Light',
       tagline: 'Warm anti-glare paper & pop accents',
       bg: '#fff6e8',
       card: '#fffdf8',
@@ -91,120 +83,14 @@
       text: '#17151a',
     },
     {
-      id: 'dracula',
-      name: 'Dracula',
-      tagline: 'Classic vampire purple & pink accents',
-      bg: '#1e1f29',
-      card: '#282a36',
-      border: '#44475a',
-      accent: '#bd93f9',
-      text: '#f8f8f2',
-    },
-    {
-      id: 'nord',
-      name: 'Nordic Frost',
-      tagline: 'Arctic blue calm muted tones',
-      bg: '#242933',
-      card: '#2e3440',
-      border: '#434c5e',
-      accent: '#88c0d0',
-      text: '#eceff4',
-    },
-    {
-      id: 'cyberpunk',
-      name: 'Cyberpunk 2077',
-      tagline: 'High-voltage neon yellow on dark grid',
-      bg: '#0d0f18',
-      card: '#181b28',
-      border: '#facc15',
-      accent: '#facc15',
-      text: '#fff066',
-    },
-    {
-      id: 'emerald',
-      name: 'Matrix Emerald',
-      tagline: 'Deep sovereign terminal greens',
-      bg: '#042f2e',
-      card: '#064e3b',
-      border: '#115e59',
-      accent: '#10b981',
-      text: '#ecfdf5',
-    },
-    {
-      id: 'sunset',
-      name: 'Retro Sunset',
-      tagline: 'Synthwave violet & neon orange',
-      bg: '#120b18',
-      card: '#1f1329',
-      border: '#4c1d95',
-      accent: '#f97316',
-      text: '#fed7aa',
-    },
-    {
-      id: 'retro',
-      name: 'Retro Deck',
-      tagline: 'Pastel ice canvas & tactile black borders',
-      bg: '#daf0fc',
-      card: '#ffffff',
-      border: '#000000',
-      accent: '#c8f5d0',
-      text: '#111827',
-    },
-    {
-      id: 'projectx',
-      name: 'ProjectX Dark',
+      id: 'neobrutalism',
+      name: 'Neobrutalism',
       tagline: 'Retro-pop neobrutalism on purple charcoal',
       bg: '#18151e',
       card: '#24202b',
       border: '#0d0b10',
       accent: '#ffe14a',
       text: '#fffaf4',
-    },
-  ]
-
-  interface ColorVibeOption {
-    id: ColorVibe
-    name: string
-    description: string
-    colors: string[]
-  }
-
-  const colorVibes: ColorVibeOption[] = [
-    {
-      id: 'default',
-      name: 'Retro Pop',
-      description: 'Classic Pop: Pink, Yellow, Cyan, Lime',
-      colors: ['#ff5ca8', '#ffe14a', '#55dfff', '#b8f34a'],
-    },
-    {
-      id: 'synthwave',
-      name: 'Synthwave',
-      description: 'Cyber Neon: Pink, Cyan, Violet, Orange',
-      colors: ['#ff2d95', '#00e5ff', '#c538ff', '#ff6b35'],
-    },
-    {
-      id: 'toxic',
-      name: 'Toxic Lime',
-      description: 'Radioactive: Toxic Lime, Orange, Flame',
-      colors: ['#39ff14', '#ff6600', '#ff4444'],
-    },
-    {
-      id: 'arctic',
-      name: 'Arctic Frost',
-      description: 'Glacial: Sky Ice, Cyan, Deep Blue',
-      colors: ['#64b5f6', '#40c4ff', '#80d8ff', '#448aff'],
-    },
-    {
-      id: 'sunset',
-      name: 'Sunset Fire',
-      description: 'Dusk: Fiery Crimson, Sunset Amber',
-      colors: ['#ff1744', '#ff6d00', '#ffab40', '#ff3d00'],
-    },
-    {
-      id: 'lavender',
-      name: 'Lavender Pastel',
-      description: 'Dream: Pastel Lilac, Baby Rose, Violet',
-      colors: ['#b388ff', '#f48fb1', '#ea80fc', '#7c4dff'],
     },
   ]
 
@@ -222,9 +108,29 @@
     themeStore.setStyle(style)
   }
 
+  // Accent picker presets: the pop colors already used across the themes.
+  const ACCENT_PRESETS = [
+    { name: 'Pink', hex: '#ff5ca8' },
+    { name: 'Yellow', hex: '#ffe14a' },
+    { name: 'Cyan', hex: '#55dfff' },
+    { name: 'Lime', hex: '#b8f34a' },
+    { name: 'Purple', hex: '#9b7cff' },
+    { name: 'Orange', hex: '#ff9955' },
+  ]
+
+  // The accent actually shown: the custom override when set, otherwise the
+  // active theme's own accent.
+  const effectiveAccent = $derived(
+    themeStore.customAccent ||
+      themes.find((t) => t.id === themeStore.currentTheme)?.accent ||
+      '#ffe14a',
+  )
+
   let wallpapers = $state<WallpaperItem[]>([])
   let isLoadingWallpapers = $state(false)
   let isUploading = $state(false)
+  let showAdvancedTuning = $state(false)
+  let showLoginWallpaper = $state(false)
 
   const PRESETS = [
     { id: 'preset:none', name: 'None (Pure Tint)', preview: 'linear-gradient(135deg, rgba(255,255,255,0.05), rgba(255,255,255,0.02))' },
@@ -269,10 +175,10 @@
       if (res && res.success && res.data) {
         wallpapers = [res.data, ...wallpapers]
         themeStore.setActiveWallpaper(res.data.url)
-        toastStore.success(`Wallpaper "${res.data.name}" berhasil diunggah!`)
+        toastStore.success(`Wallpaper "${res.data.name}" uploaded!`)
       }
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : 'Gagal mengunggah wallpaper'
+      const msg = err instanceof Error ? err.message : 'Failed to upload wallpaper'
       toastStore.error(msg)
     } finally {
       isUploading = false
@@ -282,16 +188,16 @@
 
   async function handleDeleteWallpaper(item: WallpaperItem, e: MouseEvent) {
     e.stopPropagation()
-    if (!confirm(`Hapus wallpaper "${item.name}" dari galeri?`)) return
+    if (!confirm(`Delete wallpaper "${item.name}" from the gallery?`)) return
     try {
       await request(`/api/theme/wallpapers/delete?id=${encodeURIComponent(item.id)}`, { method: 'DELETE' })
       wallpapers = wallpapers.filter((w) => w.id !== item.id)
       if (themeStore.activeWallpaper === item.url) {
         themeStore.setActiveWallpaper('')
       }
-      toastStore.success(`Wallpaper "${item.name}" dihapus`)
+      toastStore.success(`Wallpaper "${item.name}" deleted`)
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : 'Gagal menghapus wallpaper'
+      const msg = err instanceof Error ? err.message : 'Failed to delete wallpaper'
       toastStore.error(msg)
     }
   }
@@ -337,7 +243,105 @@
         </button>
       </div>
 
-      <!-- Section 1: Navigation Layout (Top Bar vs Sidebar) -->
+      <!-- Section 1: Color Themes (4 Palettes) -->
+      <div class="space-y-1.5">
+        <span class="text-[11px] font-bold uppercase text-muted tracking-wider flex items-center gap-1.5">
+          <Sparkles class="w-3.5 h-3.5 text-accent" />
+          Color Themes ({themes.length} Palettes)
+        </span>
+        <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
+          {#each themes as t}
+            {@const isSelected = themeStore.currentTheme === t.id}
+            <button
+              type="button"
+              class="p-2.5 rounded-lg border-2 text-left transition-all cursor-pointer relative flex flex-col justify-between gap-1.5 {isSelected ? 'border-accent bg-accent/10 shadow-neobrutal-sm' : 'border-border bg-card-sub hover:border-accent/60'}"
+              onclick={() => selectTheme(t.id)}
+            >
+              <div class="flex items-center justify-between">
+                <!-- 3 Color Swatches -->
+                <div class="flex items-center gap-1">
+                  <span class="w-3.5 h-3.5 rounded-full border border-black/20 shrink-0" style="background-color: {t.bg};"></span>
+                  <span class="w-3.5 h-3.5 rounded-full border border-black/20 shrink-0" style="background-color: {t.card};"></span>
+                  <span class="w-3.5 h-3.5 rounded-full border border-black/20 shrink-0" style="background-color: {isSelected && themeStore.customAccent ? themeStore.customAccent : t.accent};"></span>
+                </div>
+                {#if isSelected}
+                  <span class="w-4 h-4 rounded-full bg-accent text-accent-text flex items-center justify-center text-[10px] font-black">
+                    <Check class="w-2.5 h-2.5" />
+                  </span>
+                {/if}
+              </div>
+              <div class="font-bold text-xs text-foreground truncate">
+                {t.name}
+              </div>
+            </button>
+          {/each}
+        </div>
+      </div>
+
+      <!-- Section 1b: Accent Color (all themes) -->
+      <div class="space-y-1.5">
+        <span class="text-[11px] font-bold uppercase text-muted tracking-wider flex items-center gap-1.5">
+          <Palette class="w-3.5 h-3.5 text-accent" />
+          Accent Color
+        </span>
+        <div class="p-2.5 bg-card-sub border border-border rounded-lg space-y-2.5">
+          <div class="flex items-center gap-3">
+            <!-- Native color picker (swatch preview) -->
+            <label
+              class="relative shrink-0 w-10 h-10 rounded-lg border-2 border-border overflow-hidden cursor-pointer"
+              style="background-color: {effectiveAccent};"
+              title="Pick an accent color"
+            >
+              <input
+                type="color"
+                value={effectiveAccent}
+                oninput={(e) => themeStore.setCustomAccent((e.target as HTMLInputElement).value)}
+                class="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                aria-label="Pick an accent color"
+              />
+            </label>
+            <div class="min-w-0 flex-1">
+              <div class="text-xs font-bold text-foreground">
+                {themeStore.customAccent ? 'Custom accent' : 'Theme default accent'}
+              </div>
+              <p class="text-[10px] text-muted">
+                {themeStore.customAccent
+                  ? 'Overrides the theme accent on every theme. Background & cards still follow the theme.'
+                  : 'Uses the active theme default accent.'}
+              </p>
+            </div>
+            <span class="font-mono text-xs font-bold text-accent uppercase">{effectiveAccent}</span>
+            {#if themeStore.customAccent}
+              <button
+                type="button"
+                class="inline-flex items-center gap-1 text-[10px] font-bold py-1 px-2 rounded bg-card hover:bg-card-sub text-muted hover:text-foreground border border-border transition-colors cursor-pointer"
+                title="Back to the theme default accent"
+                onclick={() => themeStore.setCustomAccent(null)}
+              >
+                <RotateCcw class="w-2.5 h-2.5" />
+                <span>Reset</span>
+              </button>
+            {/if}
+          </div>
+          <!-- Preset swatches -->
+          <div class="flex items-center gap-1.5">
+            {#each ACCENT_PRESETS as preset}
+              <button
+                type="button"
+                class="w-7 h-7 rounded-full border-2 cursor-pointer transition-transform hover:scale-110 {themeStore.customAccent === preset.hex
+                  ? 'border-foreground scale-110'
+                  : 'border-black/20'}"
+                style="background-color: {preset.hex};"
+                title={preset.name}
+                aria-label="Accent {preset.name}"
+                onclick={() => themeStore.setCustomAccent(preset.hex)}
+              ></button>
+            {/each}
+          </div>
+        </div>
+      </div>
+
+      <!-- Section 2: Navigation Layout (Top Bar vs Sidebar) -->
       <div class="space-y-1.5">
         <span class="text-[11px] font-bold uppercase text-muted tracking-wider flex items-center gap-1.5">
           <LayoutGrid class="w-3.5 h-3.5 text-accent" />
@@ -363,21 +367,14 @@
         </div>
       </div>
 
-      <!-- Section 2: UI Paradigm Style (Neobrutal vs Modern) -->
+      {#if !themeStore.isNeobrutalTheme()}
+      <!-- Section 3: UI Paradigm Style (Modern vs Glass) -->
       <div class="space-y-1.5">
         <span class="text-[11px] font-bold uppercase text-muted tracking-wider flex items-center gap-1.5">
           <Layers class="w-3.5 h-3.5 text-accent" />
           UI Paradigm Style
         </span>
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 bg-card-sub p-1 border border-border rounded-lg">
-          <button
-            type="button"
-            class="flex flex-col items-center justify-center py-2 px-3 rounded text-xs font-bold transition-all cursor-pointer {themeStore.currentStyle === 'neobrutal' ? 'bg-accent text-accent-text shadow-neobrutal-sm' : 'text-muted hover:text-foreground'}"
-            onclick={() => selectStyle('neobrutal')}
-          >
-            <span>Neobrutalist</span>
-            <span class="text-[10px] font-normal opacity-80">2px borders, hard shadows</span>
-          </button>
+        <div class="grid grid-cols-2 gap-2 bg-card-sub p-1 border border-border rounded-lg">
           <button
             type="button"
             class="flex flex-col items-center justify-center py-2 px-3 rounded text-xs font-bold transition-all cursor-pointer {themeStore.currentStyle === 'modern' ? 'bg-accent text-accent-text shadow-neobrutal-sm' : 'text-muted hover:text-foreground'}"
@@ -396,9 +393,53 @@
           </button>
         </div>
       </div>
+      {:else}
+      <div class="p-3 bg-card-sub border border-border rounded-lg text-[11px] text-muted">
+        The Neobrutalism shape is part of this theme — the style is locked to Neobrutalist.
+      </div>
+      {/if}
+
+      <!-- Sakuga FX (all themes) -->
+      <div class="space-y-1.5">
+        <span class="text-[11px] font-bold uppercase text-muted tracking-wider flex items-center gap-1.5">
+          <Sparkles class="w-3.5 h-3.5 text-accent" />
+          Sakuga FX
+        </span>
+        <div class="flex items-center justify-between gap-3 p-2.5 bg-card-sub border border-border rounded-lg">
+          <div class="min-w-0">
+            <div class="text-xs font-bold text-foreground">Sakuga anime FX</div>
+            <p class="text-[10px] text-muted">Bursts and manga SFX on buttons and key moments, in every theme. Sakuga controls stay Neobrutalism-only.</p>
+          </div>
+          <button
+            type="button"
+            role="switch"
+            aria-checked={themeStore.sakugaFx}
+            aria-label="Sakuga FX"
+            class="shrink-0 w-11 h-6 rounded-full border-2 border-border transition-colors cursor-pointer relative {themeStore.sakugaFx ? 'bg-accent' : 'bg-card'}"
+            onclick={() => themeStore.setSakugaFx(!themeStore.sakugaFx)}
+          >
+            <span class="absolute top-0.5 w-4 h-4 rounded-full bg-white border border-black/20 transition-all {themeStore.sakugaFx ? 'left-[22px]' : 'left-0.5'}"></span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Advanced Tuning (collapsed by default) -->
+      {#if themeStore.currentStyle === 'neobrutal' || themeStore.currentStyle === 'glass'}
+      <button
+        type="button"
+        class="w-full flex items-center justify-between p-2.5 bg-card-sub border border-border rounded-lg text-xs font-bold text-foreground hover:border-accent transition-colors cursor-pointer"
+        onclick={() => showAdvancedTuning = !showAdvancedTuning}
+      >
+        <span class="flex items-center gap-1.5">
+          <Sliders class="w-3.5 h-3.5 text-accent" />
+          Advanced Tuning
+        </span>
+        <span class="text-muted">{showAdvancedTuning ? 'Close' : 'Open'}</span>
+      </button>
+      {/if}
 
       <!-- Section 2.4: Neobrutalism Extended Tuning -->
-      {#if themeStore.currentStyle === 'neobrutal'}
+      {#if showAdvancedTuning && themeStore.currentStyle === 'neobrutal'}
         <div class="p-3.5 bg-card-sub border border-border rounded-xl space-y-3.5">
           <div class="flex items-center justify-between border-b border-border/50 pb-2">
             <span class="text-xs font-bold uppercase text-foreground flex items-center gap-1.5">
@@ -408,10 +449,10 @@
             <button
               type="button"
               class="inline-flex items-center gap-1 text-[10px] font-bold py-1 px-2 rounded bg-card hover:bg-card-sub text-muted hover:text-foreground border border-border transition-colors cursor-pointer"
-              title="Reset ke pengaturan awal Neobrutalism"
+              title="Reset to the Neobrutalism defaults"
               onclick={() => {
                 themeStore.resetNeobrutalSettings()
-                toastStore.success('Pengaturan Neobrutalism dikembalikan ke default')
+                toastStore.success('Neobrutalism settings reset to defaults')
               }}
             >
               <RotateCcw class="w-2.5 h-2.5" />
@@ -427,6 +468,9 @@
                 <span class="text-muted font-bold">Shadow</span>
                 <span class="text-accent font-mono font-bold">{themeStore.neoShadowSize}px</span>
               </div>
+              {#if themeStore.useSakugaControls()}
+                <SakugaSlider value={themeStore.neoShadowSize} min={0} max={8} step={1} oninput={(e) => themeStore.setNeoShadowSize(Number((e.target as HTMLInputElement).value))} />
+              {:else}
               <input
                 type="range"
                 min="0"
@@ -436,6 +480,7 @@
                 oninput={(e) => themeStore.setNeoShadowSize(Number((e.target as HTMLInputElement).value))}
                 class="w-full accent-accent cursor-pointer"
               />
+              {/if}
             </div>
 
             <!-- Border Thickness -->
@@ -444,6 +489,9 @@
                 <span class="text-muted font-bold">Border</span>
                 <span class="text-accent font-mono font-bold">{themeStore.neoBorderWidth}px</span>
               </div>
+              {#if themeStore.useSakugaControls()}
+                <SakugaSlider value={themeStore.neoBorderWidth} min={1} max={4} step={1} oninput={(e) => themeStore.setNeoBorderWidth(Number((e.target as HTMLInputElement).value))} />
+              {:else}
               <input
                 type="range"
                 min="1"
@@ -453,6 +501,7 @@
                 oninput={(e) => themeStore.setNeoBorderWidth(Number((e.target as HTMLInputElement).value))}
                 class="w-full accent-accent cursor-pointer"
               />
+              {/if}
             </div>
 
             <!-- Corner Radius -->
@@ -461,6 +510,9 @@
                 <span class="text-muted font-bold">Radius</span>
                 <span class="text-accent font-mono font-bold">{themeStore.neoRadius}px</span>
               </div>
+              {#if themeStore.useSakugaControls()}
+                <SakugaSlider value={themeStore.neoRadius} min={0} max={14} step={1} oninput={(e) => themeStore.setNeoRadius(Number((e.target as HTMLInputElement).value))} />
+              {:else}
               <input
                 type="range"
                 min="0"
@@ -470,6 +522,7 @@
                 oninput={(e) => themeStore.setNeoRadius(Number((e.target as HTMLInputElement).value))}
                 class="w-full accent-accent cursor-pointer"
               />
+              {/if}
             </div>
 
             <!-- Press Depth -->
@@ -478,6 +531,9 @@
                 <span class="text-muted font-bold">Click Pop</span>
                 <span class="text-accent font-mono font-bold">{themeStore.neoPressDepth}px</span>
               </div>
+              {#if themeStore.useSakugaControls()}
+                <SakugaSlider value={themeStore.neoPressDepth} min={1} max={4} step={1} oninput={(e) => themeStore.setNeoPressDepth(Number((e.target as HTMLInputElement).value))} />
+              {:else}
               <input
                 type="range"
                 min="1"
@@ -487,6 +543,7 @@
                 oninput={(e) => themeStore.setNeoPressDepth(Number((e.target as HTMLInputElement).value))}
                 class="w-full accent-accent cursor-pointer"
               />
+              {/if}
             </div>
           </div>
 
@@ -497,6 +554,9 @@
               <div class="flex items-center gap-2">
                 <span class="text-[10px] text-muted">Opacity:</span>
                 <span class="text-[10px] font-mono text-accent font-bold">{Math.round(themeStore.neoPatternOpacity * 100)}%</span>
+                {#if themeStore.useSakugaControls()}
+                  <SakugaSlider value={themeStore.neoPatternOpacity} min={0} max={0.12} step={0.01} oninput={(e) => themeStore.setNeoPatternOpacity(Number((e.target as HTMLInputElement).value))} />
+                {:else}
                 <input
                   type="range"
                   min="0"
@@ -506,6 +566,7 @@
                   oninput={(e) => themeStore.setNeoPatternOpacity(Number((e.target as HTMLInputElement).value))}
                   class="w-20 accent-accent cursor-pointer"
                 />
+                {/if}
               </div>
             </div>
 
@@ -515,21 +576,21 @@
                 class="py-1.5 px-2 rounded-lg border text-xs font-bold transition-all cursor-pointer {themeStore.neoPattern === 'dots' ? 'bg-accent text-accent-text border-accent shadow-neobrutal-sm' : 'bg-card text-muted hover:text-foreground border-border'}"
                 onclick={() => themeStore.setNeoPattern('dots')}
               >
-                Dots (Titik)
+                Dots
               </button>
               <button
                 type="button"
                 class="py-1.5 px-2 rounded-lg border text-xs font-bold transition-all cursor-pointer {themeStore.neoPattern === 'grid' ? 'bg-accent text-accent-text border-accent shadow-neobrutal-sm' : 'bg-card text-muted hover:text-foreground border-border'}"
                 onclick={() => themeStore.setNeoPattern('grid')}
               >
-                Grid (Petak)
+                Grid
               </button>
               <button
                 type="button"
                 class="py-1.5 px-2 rounded-lg border text-xs font-bold transition-all cursor-pointer {themeStore.neoPattern === 'none' ? 'bg-accent text-accent-text border-accent shadow-neobrutal-sm' : 'bg-card text-muted hover:text-foreground border-border'}"
                 onclick={() => themeStore.setNeoPattern('none')}
               >
-                Polos (Clean)
+                Plain
               </button>
             </div>
           </div>
@@ -537,7 +598,7 @@
       {/if}
 
       <!-- Section 2.5: Glassmorphism Customizer (Only shown when Glass style active) -->
-      {#if themeStore.currentStyle === 'glass'}
+      {#if showAdvancedTuning && themeStore.currentStyle === 'glass'}
         <div class="p-3.5 bg-card-sub border border-border rounded-xl space-y-3.5">
           <div class="flex items-center justify-between border-b border-border/50 pb-2">
             <span class="text-xs font-bold uppercase text-foreground flex items-center gap-1.5">
@@ -555,6 +616,9 @@
                 <span class="text-muted font-bold">Blur Amount</span>
                 <span class="text-accent font-mono font-bold">{themeStore.glassBlur}px</span>
               </div>
+              {#if themeStore.useSakugaControls()}
+                <SakugaSlider value={themeStore.glassBlur} min={4} max={32} step={2} oninput={(e) => themeStore.setGlassBlur(Number((e.target as HTMLInputElement).value))} />
+              {:else}
               <input
                 type="range"
                 min="4"
@@ -564,6 +628,7 @@
                 oninput={(e) => themeStore.setGlassBlur(Number((e.target as HTMLInputElement).value))}
                 class="w-full accent-accent cursor-pointer"
               />
+              {/if}
             </div>
 
             <!-- Opacity Slider -->
@@ -572,6 +637,9 @@
                 <span class="text-muted font-bold">Card Opacity</span>
                 <span class="text-accent font-mono font-bold">{Math.round(themeStore.glassOpacity * 100)}%</span>
               </div>
+              {#if themeStore.useSakugaControls()}
+                <SakugaSlider value={themeStore.glassOpacity} min={0.2} max={0.95} step={0.05} oninput={(e) => themeStore.setGlassOpacity(Number((e.target as HTMLInputElement).value))} />
+              {:else}
               <input
                 type="range"
                 min="0.2"
@@ -581,6 +649,7 @@
                 oninput={(e) => themeStore.setGlassOpacity(Number((e.target as HTMLInputElement).value))}
                 class="w-full accent-accent cursor-pointer"
               />
+              {/if}
             </div>
 
             <!-- Dim Slider -->
@@ -589,6 +658,9 @@
                 <span class="text-muted font-bold">Wallpaper Dim</span>
                 <span class="text-accent font-mono font-bold">{Math.round(themeStore.glassDim * 100)}%</span>
               </div>
+              {#if themeStore.useSakugaControls()}
+                <SakugaSlider value={themeStore.glassDim} min={0.2} max={1} step={0.05} oninput={(e) => themeStore.setGlassDim(Number((e.target as HTMLInputElement).value))} />
+              {:else}
               <input
                 type="range"
                 min="0.2"
@@ -598,6 +670,7 @@
                 oninput={(e) => themeStore.setGlassDim(Number((e.target as HTMLInputElement).value))}
                 class="w-full accent-accent cursor-pointer"
               />
+              {/if}
             </div>
           </div>
 
@@ -616,7 +689,7 @@
                   <span>Uploading...</span>
                 {:else}
                   <Upload class="w-3 h-3" />
-                  <span>+ Upload Baru</span>
+                  <span>+ Upload New</span>
                 {/if}
                 <input
                   type="file"
@@ -675,7 +748,7 @@
                   <button
                     type="button"
                     class="absolute top-1 left-1 w-5 h-5 bg-red-600/90 hover:bg-red-600 text-white rounded flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer shadow"
-                    title="Hapus wallpaper dari galeri"
+                    title="Delete wallpaper from the gallery"
                     onclick={(e) => handleDeleteWallpaper(item, e)}
                   >
                     <Trash2 class="w-3 h-3" />
@@ -687,78 +760,19 @@
         </div>
       {/if}
 
-      <!-- Section 3: Color Themes (9 Palettes) -->
-      <div class="space-y-1.5">
-        <span class="text-[11px] font-bold uppercase text-muted tracking-wider flex items-center gap-1.5">
-          <Sparkles class="w-3.5 h-3.5 text-accent" />
-          Color Themes ({themes.length} Palettes)
+      <!-- Login Screen Wallpaper (collapsed by default) -->
+      <button
+        type="button"
+        class="w-full flex items-center justify-between p-2.5 bg-card-sub border border-border rounded-lg text-xs font-bold text-foreground hover:border-accent transition-colors cursor-pointer"
+        onclick={() => showLoginWallpaper = !showLoginWallpaper}
+      >
+        <span class="flex items-center gap-1.5">
+          <Lock class="w-3.5 h-3.5 text-accent" />
+          Login Screen Wallpaper
         </span>
-        <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
-          {#each themes as t}
-            {@const isSelected = themeStore.currentTheme === t.id}
-            <button
-              type="button"
-              class="p-2.5 rounded-lg border-2 text-left transition-all cursor-pointer relative flex flex-col justify-between gap-1.5 {isSelected ? 'border-accent bg-accent/10 shadow-neobrutal-sm' : 'border-border bg-card-sub hover:border-accent/60'}"
-              onclick={() => selectTheme(t.id)}
-            >
-              <div class="flex items-center justify-between">
-                <!-- 3 Color Swatches -->
-                <div class="flex items-center gap-1">
-                  <span class="w-3.5 h-3.5 rounded-full border border-black/20 shrink-0" style="background-color: {t.bg};"></span>
-                  <span class="w-3.5 h-3.5 rounded-full border border-black/20 shrink-0" style="background-color: {t.card};"></span>
-                  <span class="w-3.5 h-3.5 rounded-full border border-black/20 shrink-0" style="background-color: {t.accent};"></span>
-                </div>
-                {#if isSelected}
-                  <span class="w-4 h-4 rounded-full bg-accent text-accent-text flex items-center justify-center text-[10px] font-black">
-                    <Check class="w-2.5 h-2.5" />
-                  </span>
-                {/if}
-              </div>
-              <div class="font-bold text-xs text-foreground truncate">
-                {t.name}
-              </div>
-            </button>
-          {/each}
-
-        <!-- Pop Accent Vibes (ProjectX inspired) -->
-        <div class="space-y-1.5 pt-3 border-t border-border/50">
-          <span class="text-[11px] font-bold uppercase text-muted tracking-wider flex items-center gap-1.5">
-            <Palette class="w-3.5 h-3.5 text-accent" />
-            Pop Accent Vibes ({colorVibes.length} Styles)
-          </span>
-          <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
-            {#each colorVibes as vibe}
-              {@const isSelected = themeStore.currentColorVibe === vibe.id}
-              <button
-                type="button"
-                class="p-2 rounded-lg border-2 text-left transition-all cursor-pointer relative flex flex-col justify-between gap-1.5 {isSelected ? 'border-accent bg-accent/10 shadow-neobrutal-sm' : 'border-border bg-card-sub hover:border-accent/60'}"
-                onclick={() => themeStore.setColorVibe(vibe.id)}
-              >
-                <div class="flex items-center justify-between">
-                  <div class="flex items-center gap-1">
-                    {#each vibe.colors as c}
-                      <span class="w-3 h-3 rounded-full border border-black/20 shrink-0" style="background-color: {c};"></span>
-                    {/each}
-                  </div>
-                  {#if isSelected}
-                    <span class="w-4 h-4 rounded-full bg-accent text-accent-text flex items-center justify-center text-[10px] font-black">
-                      <Check class="w-2.5 h-2.5" />
-                    </span>
-                  {/if}
-                </div>
-                <div>
-                  <div class="font-bold text-xs text-foreground truncate">
-                    {vibe.name}
-                  </div>
-                  <div class="text-[10px] text-muted truncate">
-                    {vibe.description}
-                  </div>
-                </div>
-              </button>
-            {/each}
-          </div>
-        </div>
-
+        <span class="text-muted">{showLoginWallpaper ? 'Close' : 'Open'}</span>
+      </button>
+      {#if showLoginWallpaper}
         <!-- Section 5: Login Page Wallpaper (Static & Independent) -->
         <div class="space-y-3 pt-3 border-t border-border">
           <div class="flex items-center justify-between">
@@ -768,7 +782,7 @@
                 Login Screen Wallpaper (Static & Independent)
               </span>
               <p class="text-[10px] text-muted">
-                Khusus latar belakang halaman masuk. Tidak mempengaruhi warna tema, kartu, atau dashboard.
+                Only for the login page background. Does not affect theme colors, cards, or the dashboard.
               </p>
             </div>
             {#if themeStore.loginWallpaper && themeStore.loginWallpaper !== 'preset:none'}
@@ -777,7 +791,7 @@
                 onclick={() => themeStore.setLoginWallpaper('preset:none')}
                 class="text-[10px] font-bold text-red-400 hover:text-red-300 underline cursor-pointer"
               >
-                Reset ke Polos
+                Reset to Plain
               </button>
             {/if}
           </div>
@@ -785,7 +799,7 @@
           <!-- Preset / Uploaded Wallpaper Gallery Grid -->
           <div class="space-y-2">
             <div class="flex items-center justify-between">
-              <span class="text-[10px] text-muted font-bold uppercase">Pilih Gambar Latar Login:</span>
+              <span class="text-[10px] text-muted font-bold uppercase">Choose a login background image:</span>
               <label class="cursor-pointer inline-flex items-center gap-1.5 text-[10px] font-bold py-1 px-2.5 rounded bg-accent/20 hover:bg-accent/30 text-accent border border-accent/40 transition-colors">
                 {#if isUploading}
                   <Loader2 class="w-3 h-3 animate-spin" />
@@ -847,7 +861,7 @@
                   <button
                     type="button"
                     class="absolute top-1 left-1 w-5 h-5 rounded bg-red-600/90 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-700 cursor-pointer"
-                    title="Hapus wallpaper dari galeri"
+                    title="Delete wallpaper from the gallery"
                     onclick={(e) => handleDeleteWallpaper(item, e)}
                   >
                     <Trash2 class="w-3 h-3" />
@@ -863,9 +877,12 @@
               <!-- Dimming -->
               <div class="space-y-1">
                 <div class="flex items-center justify-between text-[11px] font-mono">
-                  <span class="text-muted font-bold">Dimming (Keterbacaan):</span>
+                  <span class="text-muted font-bold">Dimming (Readability):</span>
                   <span class="font-bold text-accent">{Math.round(themeStore.loginWallpaperDim * 100)}%</span>
                 </div>
+                {#if themeStore.useSakugaControls()}
+                  <SakugaSlider value={themeStore.loginWallpaperDim} min={0} max={0.8} step={0.05} oninput={(e) => themeStore.setLoginWallpaperDim(Number((e.target as HTMLInputElement).value))} />
+                {:else}
                 <input
                   type="range"
                   min="0"
@@ -875,14 +892,18 @@
                   oninput={(e) => themeStore.setLoginWallpaperDim(Number((e.target as HTMLInputElement).value))}
                   class="w-full accent-accent cursor-pointer"
                 />
+                {/if}
               </div>
 
               <!-- Blur -->
               <div class="space-y-1">
                 <div class="flex items-center justify-between text-[11px] font-mono">
-                  <span class="text-muted font-bold">Latar Blur:</span>
+                  <span class="text-muted font-bold">Background Blur:</span>
                   <span class="font-bold text-accent">{themeStore.loginWallpaperBlur}px</span>
                 </div>
+                {#if themeStore.useSakugaControls()}
+                  <SakugaSlider value={themeStore.loginWallpaperBlur} min={0} max={16} step={1} oninput={(e) => themeStore.setLoginWallpaperBlur(Number((e.target as HTMLInputElement).value))} />
+                {:else}
                 <input
                   type="range"
                   min="0"
@@ -892,22 +913,26 @@
                   oninput={(e) => themeStore.setLoginWallpaperBlur(Number((e.target as HTMLInputElement).value))}
                   class="w-full accent-accent cursor-pointer"
                 />
+                {/if}
               </div>
             </div>
           {/if}
         </div>
-        </div>
-      </div>
+      {/if}
 
       <!-- Footer: Summary and Done Button -->
       <div class="flex items-center justify-between pt-3 border-t border-border">
         <span class="text-[11px] text-muted">
           Active: <strong class="text-foreground">{themes.find(t => t.id === themeStore.currentTheme)?.name}</strong> ({themeStore.currentStyle})
         </span>
-        <Button variant="primary" size="sm" onclick={handleClose}>
-          <Check class="w-3.5 h-3.5 mr-1" />
-          <span>Done & Apply</span>
-        </Button>
+        {#if themeStore.useSakugaControls()}
+          <SakugaButton onclick={handleClose}>Done & Apply</SakugaButton>
+        {:else}
+          <Button variant="primary" size="sm" onclick={handleClose}>
+            <Check class="w-3.5 h-3.5 mr-1" />
+            <span>Done & Apply</span>
+          </Button>
+        {/if}
       </div>
     </div>
   </div>

@@ -18,7 +18,7 @@ jobs:
 
       - name: Get Release Version
         run: |
-          VERSION=$(grep "^version=" module.prop | cut -d'=' -f2)
+          VERSION=$(grep "^version=" module/module.prop | cut -d'=' -f2)
           echo "RELEASE_VERSION=${VERSION}" >> $GITHUB_ENV
 
       - name: Setup Bun
@@ -68,7 +68,9 @@ jobs:
 
       - name: Package Full Magisk Module Zip
         run: |
-          zip -r BFR-WEBUI-Magisk-${{ env.RELEASE_VERSION }}.zip META-INF customize.sh module.prop service.sh system.prop update.json env.example uninstall.sh bin webui
+          mkdir -p /tmp/pkg-full
+          cp -r module/META-INF module/customize.sh module/module.prop module/service.sh module/system.prop module/update.json module/env.example module/uninstall.sh module/bin webui /tmp/pkg-full/
+          (cd /tmp/pkg-full && zip -r "$GITHUB_WORKSPACE/BFR-WEBUI-Magisk-${{ env.RELEASE_VERSION }}.zip" META-INF customize.sh module.prop service.sh system.prop update.json env.example uninstall.sh bin webui)
 
       # ─── 3. Build Core No-Modem Flavor (Clean Target) ───────────────────────
       - name: Prepare Clean No-Modem Frontend Assets
@@ -100,7 +102,7 @@ jobs:
       - name: Package Clean No-Modem Magisk Module Zip
         run: |
           mkdir -p /tmp/pkg-nomodem
-          cp -r META-INF customize.sh module.prop service.sh system.prop update.json env.example uninstall.sh bin /tmp/pkg-nomodem/
+          cp -r module/META-INF module/customize.sh module/module.prop module/service.sh module/system.prop module/update.json module/env.example module/uninstall.sh module/bin /tmp/pkg-nomodem/
           rm -f /tmp/pkg-nomodem/bin/band_manager.dex /tmp/pkg-nomodem/bin/sim_switcher.dex
           cp webui-nomodem /tmp/pkg-nomodem/webui
           (cd /tmp/pkg-nomodem && zip -r "$GITHUB_WORKSPACE/BFR-WEBUI-Magisk-${{ env.RELEASE_VERSION }}-nomodem.zip" META-INF customize.sh module.prop service.sh system.prop update.json env.example uninstall.sh bin webui)
@@ -130,7 +132,7 @@ jobs:
 
       - name: Get Release Version
         run: |
-          VERSION=$(grep "^version=" module.prop | cut -d'=' -f2)
+          VERSION=$(grep "^version=" module/module.prop | cut -d'=' -f2)
           echo "RELEASE_VERSION=${VERSION}" >> $GITHUB_ENV
 
       - name: Download Build Artifacts

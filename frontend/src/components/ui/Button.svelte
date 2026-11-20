@@ -1,5 +1,7 @@
 <script lang="ts">
   import type { Snippet } from 'svelte'
+  import { themeStore } from '../../stores/theme.svelte'
+  import SakugaButton from './SakugaButton.svelte'
 
   interface Props {
     type?: 'button' | 'submit' | 'reset'
@@ -52,14 +54,42 @@
     }
     onclick?.(e)
   }
+
+  // When Sakuga FX is active, loud variants render as the native
+  // SakugaButton (Svelte re-implementation, theme-driven). Semantic colors
+  // stay native: danger keeps its red warning and ghost keeps its subtlety.
+  // Submit buttons work too: unlike the old <sakuga-button> custom element,
+  // the native button is a real <button> and form-associated.
+  const useSakuga = $derived(
+    themeStore.useSakugaControls() && variant !== 'danger' && variant !== 'ghost',
+  )
+  const sakugaVariant: 'primary' | 'secondary' = $derived(
+    variant === 'secondary' || variant === 'outline' || variant === 'stop'
+      ? 'secondary'
+      : 'primary',
+  )
 </script>
 
-<button
-  {type}
-  {disabled}
-  {title}
-  onclick={handleClick}
-  class="neo-button inline-flex items-center justify-center font-mono font-bold select-none cursor-pointer active:scale-[0.98] active:translate-y-0.5 transition-transform disabled:opacity-50 disabled:cursor-not-allowed {variantClasses[variant]} {sizeClasses[size]} {fullWidth ? 'w-full' : ''} {className}"
->
-  {@render children?.()}
-</button>
+{#if useSakuga}
+  <SakugaButton
+    variant={sakugaVariant}
+    {type}
+    size={size}
+    {disabled}
+    {title}
+    class={fullWidth ? 'w-full' : ''}
+    onclick={handleClick}
+  >
+    {@render children?.()}
+  </SakugaButton>
+{:else}
+  <button
+    {type}
+    {disabled}
+    {title}
+    onclick={handleClick}
+    class="neo-button inline-flex items-center justify-center font-mono font-bold select-none cursor-pointer active:scale-[0.98] active:translate-y-0.5 transition-transform disabled:opacity-50 disabled:cursor-not-allowed {variantClasses[variant]} {sizeClasses[size]} {fullWidth ? 'w-full' : ''} {className}"
+  >
+    {@render children?.()}
+  </button>
+{/if}

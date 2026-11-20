@@ -26,6 +26,8 @@
   import Modal from '../../ui/Modal.svelte'
   import Input from '../../ui/Input.svelte'
   import ChangePasswordModal from '../../modals/ChangePasswordModal.svelte'
+  import { themeStore } from '../../../stores/theme.svelte'
+  import SakugaCheckbox from '../../ui/SakugaCheckbox.svelte'
 
   interface CloudConfig {
     enabled: boolean
@@ -353,11 +355,15 @@
         <span class="font-bold text-foreground block text-xs">Enable Automatic Cloud Sync</span>
         <span class="text-[10px] text-muted">Scheduled remote backup sync</span>
       </div>
+      {#if themeStore.useSakugaControls()}
+        <SakugaCheckbox bind:checked={cloudConfig.enabled} />
+      {:else}
       <input
         type="checkbox"
         bind:checked={cloudConfig.enabled}
         class="w-4 h-4 accent-accent cursor-pointer"
       />
+      {/if}
     </div>
 
     <div class="space-y-1">

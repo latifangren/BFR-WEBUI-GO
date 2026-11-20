@@ -6,6 +6,8 @@
   } from '@lucide/svelte'
   import Card from '../../ui/Card.svelte'
   import Button from '../../ui/Button.svelte'
+  import { themeStore } from '../../../stores/theme.svelte'
+  import SakugaCheckbox from '../../ui/SakugaCheckbox.svelte'
 
   interface Props {
     isBackingUp: string | null
@@ -29,12 +31,16 @@
 >
   {#snippet action()}
     <label class="inline-flex items-center gap-2 cursor-pointer select-none">
+      {#if themeStore.useSakugaControls()}
+        <SakugaCheckbox checked={autoDownload} onchange={(e) => onToggleAutoDownload((e.target as HTMLInputElement).checked)} />
+      {:else}
       <input
         type="checkbox"
         checked={autoDownload}
         onchange={(e) => onToggleAutoDownload((e.target as HTMLInputElement).checked)}
         class="rounded bg-card-sub border-border text-accent focus:ring-accent w-4 h-4 cursor-pointer"
       />
+      {/if}
       <span class="text-xs font-mono font-bold text-foreground uppercase tracking-wider">
         AUTO-DOWNLOAD (.ZIP)
       </span>

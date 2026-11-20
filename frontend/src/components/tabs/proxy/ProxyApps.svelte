@@ -14,6 +14,8 @@
   import Input from '../../ui/Input.svelte'
   import { api } from '../../../api/client'
   import { toastStore } from '../../../stores/toast.svelte'
+  import { themeStore } from '../../../stores/theme.svelte'
+  import SakugaCheckbox from '../../ui/SakugaCheckbox.svelte'
 
   interface InstalledApp {
     package_name: string
@@ -215,12 +217,16 @@
             class="p-2.5 rounded-lg border transition-colors flex items-center justify-between gap-3 cursor-pointer select-none {selected[app.package_name] ? 'bg-accent/10 border-accent font-bold text-foreground' : 'bg-card-sub border-border/80 text-muted hover:border-border'}"
           >
             <div class="flex items-center gap-2.5 min-w-0">
+              {#if themeStore.useSakugaControls()}
+                <SakugaCheckbox checked={!!selected[app.package_name]} onchange={() => toggleApp(app.package_name)} />
+              {:else}
               <input
                 type="checkbox"
                 checked={!!selected[app.package_name]}
                 onchange={() => toggleApp(app.package_name)}
                 class="w-4 h-4 accent-accent cursor-pointer shrink-0"
               />
+              {/if}
               <div class="min-w-0">
                 <div class="font-bold text-foreground text-xs truncate">{app.label}</div>
                 <div class="text-[10px] text-muted truncate">{app.package_name}</div>

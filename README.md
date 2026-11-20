@@ -135,12 +135,12 @@ The build scripts automatically detect your active Git branch and compile with t
 - On Windows:
   ```cmd
   :: Auto-detects branch (or pass 'full' / 'nomodem')
-  build_zip.bat
+  scripts\build_zip.bat
   ```
 - On Linux / macOS / Android Termux:
   ```bash
-  chmod +x build.sh
-  ./build.sh
+  chmod +x scripts/build.sh
+  ./scripts/build.sh
   ```
 
 ### Manual Cross-Compilation

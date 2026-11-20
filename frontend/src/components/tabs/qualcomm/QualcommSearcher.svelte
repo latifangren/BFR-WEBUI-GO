@@ -19,6 +19,8 @@
   import Card from '../../ui/Card.svelte'
   import Button from '../../ui/Button.svelte'
   import Badge from '../../ui/Badge.svelte'
+  import { themeStore } from '../../../stores/theme.svelte'
+  import SakugaCheckbox from '../../ui/SakugaCheckbox.svelte'
 
   interface SearcherItem {
     raw_value: number
@@ -442,7 +444,11 @@
 
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-3 border-t-2 border-border/60">
         <label class="flex items-center gap-2 cursor-pointer text-xs font-bold text-foreground">
+          {#if themeStore.useSakugaControls()}
+            <SakugaCheckbox bind:checked={restartSSR} />
+          {:else}
           <input type="checkbox" bind:checked={restartSSR} class="w-4 h-4 accent-accent" />
+          {/if}
           <span>Restart modem (SSR) after write</span>
         </label>
         <Button variant="primary" onclick={saveSearcherPreferences} disabled={isSaving} class="gap-2">
@@ -468,7 +474,11 @@
         <span class="font-bold text-foreground block uppercase text-[11px] tracking-wider">GERAN (GSM) Locks</span>
 
         <label class="flex items-center gap-2 cursor-pointer">
+          {#if themeStore.useSakugaControls()}
+            <SakugaCheckbox bind:checked={extraLocks.geran_lock_arfcn_enabled} />
+          {:else}
           <input type="checkbox" bind:checked={extraLocks.geran_lock_arfcn_enabled} class="w-4 h-4 accent-accent" />
+          {/if}
           <span class="font-bold text-foreground">Enable GERAN ARFCN Locking</span>
         </label>
 
@@ -484,7 +494,11 @@
         </div>
 
         <label class="flex items-center gap-2 cursor-pointer pt-2 border-t border-border/40">
+          {#if themeStore.useSakugaControls()}
+            <SakugaCheckbox bind:checked={extraLocks.fake_bts_cell_barring_enabled} />
+          {:else}
           <input type="checkbox" bind:checked={extraLocks.fake_bts_cell_barring_enabled} class="w-4 h-4 accent-accent" />
+          {/if}
           <span class="font-bold text-foreground">Fake BTS Cell Barring</span>
         </label>
       </div>

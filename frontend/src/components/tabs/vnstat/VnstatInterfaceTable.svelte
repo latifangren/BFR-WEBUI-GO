@@ -6,6 +6,8 @@
   } from '@lucide/svelte'
   import type { StatsResponse } from '../../../types/vnstat'
   import Card from '../../ui/Card.svelte'
+  import { themeStore } from '../../../stores/theme.svelte'
+  import SakugaProgress from '../../ui/SakugaProgress.svelte'
 
   interface Props {
     stats: StatsResponse | null
@@ -177,12 +179,16 @@
               <td class="p-3 whitespace-nowrap text-right">
                 <div class="flex items-center justify-end gap-2">
                   <span class="text-[11px] font-bold text-foreground">{row.sharePct.toFixed(1)}%</span>
+{#if themeStore.useSakugaControls()}
+                    <SakugaProgress value={row.sharePct / 100} label="Traffic share" />
+                  {:else}
                   <div class="w-20 bg-card h-2 rounded overflow-hidden border border-border/80">
                     <div
                       class="bg-accent h-full transition-all duration-300"
                       style="width: {row.sharePct}%"
                     ></div>
                   </div>
+                  {/if}
                 </div>
               </td>
             </tr>

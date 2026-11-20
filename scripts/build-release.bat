@@ -1,13 +1,16 @@
 @echo off
 setlocal enabledelayedexpansion
 
+:: Scripts live in scripts/; always operate from the repository root.
+cd /d "%~dp0.."
+
 echo ========================================================
 echo  BFR-WEBUI-GO Dual-Variant Release Builder
 echo ========================================================
 
 :: Extract version from module.prop
 set "VERSION=v1.2.8"
-for /f "tokens=2 delims==" %%I in ('findstr "version=" module.prop 2^>nul') do (
+for /f "tokens=2 delims==" %%I in ('findstr "version=" module\module.prop 2^>nul') do (
     set "VERSION=%%I"
 )
 echo [INFO] Detected Version: !VERSION!
@@ -44,15 +47,15 @@ if !ERRORLEVEL! neq 0 (
 )
 
 echo [INFO] Packaging BFR-WEBUI-Magisk-!VERSION!.zip...
-copy /y customize.sh .tmp\pkg-full\ >nul
-copy /y module.prop .tmp\pkg-full\ >nul
-copy /y service.sh .tmp\pkg-full\ >nul
-copy /y system.prop .tmp\pkg-full\ >nul
-copy /y update.json .tmp\pkg-full\ >nul
-copy /y env.example .tmp\pkg-full\ >nul
-copy /y uninstall.sh .tmp\pkg-full\ >nul
-xcopy /e /i /y bin .tmp\pkg-full\bin >nul
-xcopy /e /i /y META-INF .tmp\pkg-full\META-INF >nul
+copy /y module\customize.sh .tmp\pkg-full\ >nul
+copy /y module\module.prop .tmp\pkg-full\ >nul
+copy /y module\service.sh .tmp\pkg-full\ >nul
+copy /y module\system.prop .tmp\pkg-full\ >nul
+copy /y module\update.json .tmp\pkg-full\ >nul
+copy /y module\env.example .tmp\pkg-full\ >nul
+copy /y module\uninstall.sh .tmp\pkg-full\ >nul
+xcopy /e /i /y module\bin .tmp\pkg-full\bin >nul
+xcopy /e /i /y module\META-INF .tmp\pkg-full\META-INF >nul
 
 if exist "BFR-WEBUI-Magisk-!VERSION!.zip" del /f /q "BFR-WEBUI-Magisk-!VERSION!.zip"
 tar -a -c -f "BFR-WEBUI-Magisk-!VERSION!.zip" -C .tmp\pkg-full META-INF customize.sh module.prop service.sh system.prop update.json env.example uninstall.sh bin webui
@@ -106,15 +109,15 @@ if !ERRORLEVEL! equ 0 (
 )
 
 echo [INFO] Packaging BFR-WEBUI-Magisk-!VERSION!-nomodem.zip...
-copy /y customize.sh .tmp\pkg-nomodem\ >nul
-copy /y module.prop .tmp\pkg-nomodem\ >nul
-copy /y service.sh .tmp\pkg-nomodem\ >nul
-copy /y system.prop .tmp\pkg-nomodem\ >nul
-copy /y update.json .tmp\pkg-nomodem\ >nul
-copy /y env.example .tmp\pkg-nomodem\ >nul
-copy /y uninstall.sh .tmp\pkg-nomodem\ >nul
-xcopy /e /i /y bin .tmp\pkg-nomodem\bin >nul
-xcopy /e /i /y META-INF .tmp\pkg-nomodem\META-INF >nul
+copy /y module\customize.sh .tmp\pkg-nomodem\ >nul
+copy /y module\module.prop .tmp\pkg-nomodem\ >nul
+copy /y module\service.sh .tmp\pkg-nomodem\ >nul
+copy /y module\system.prop .tmp\pkg-nomodem\ >nul
+copy /y module\update.json .tmp\pkg-nomodem\ >nul
+copy /y module\env.example .tmp\pkg-nomodem\ >nul
+copy /y module\uninstall.sh .tmp\pkg-nomodem\ >nul
+xcopy /e /i /y module\bin .tmp\pkg-nomodem\bin >nul
+xcopy /e /i /y module\META-INF .tmp\pkg-nomodem\META-INF >nul
 
 :: Strip proprietary DEX files
 if exist ".tmp\pkg-nomodem\bin\band_manager.dex" del /f /q ".tmp\pkg-nomodem\bin\band_manager.dex"

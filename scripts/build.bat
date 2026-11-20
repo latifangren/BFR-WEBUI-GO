@@ -1,6 +1,9 @@
 @echo off
 setlocal enabledelayedexpansion
 
+:: Scripts live in scripts/; always operate from the repository root.
+cd /d "%~dp0.."
+
 set FLAVOR=%1
 if "%FLAVOR%"=="" (
     set CURRENT_BRANCH=dev

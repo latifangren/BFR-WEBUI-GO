@@ -23,6 +23,12 @@ class AuthStore {
       const res = await api.get<AuthStatus>('/api/auth/status')
       this.authenticated = res.authenticated
       this.isDefaultPass = res.is_default_pass
+      if (res.authenticated && typeof window !== 'undefined') {
+        // Session restored (e.g. after a page refresh): resume the
+        // background stores the same way a fresh login does, so a single
+        // failed first poll cannot silence telemetry forever.
+        window.dispatchEvent(new CustomEvent('bfr:authenticated'))
+      }
     } catch (err) {
       console.error('[AuthStore] Failed to check status:', err)
       // Don't hang on the splash screen forever on network errors.

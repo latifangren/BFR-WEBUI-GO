@@ -22,6 +22,7 @@
   import Button from '../../ui/Button.svelte'
   import Input from '../../ui/Input.svelte'
   import { toastStore } from '../../../stores/toast.svelte'
+  import { fireSakugaFx } from '../../../lib/sakuga-fx'
   import qrisImg from '../../../assets/qris.jpg'
 
   let donorName = $state('')
@@ -59,8 +60,10 @@
     }
   }
 
-  function openZoom() {
+  function openZoom(e: MouseEvent) {
     isZoomed = true
+    // Sakuga FX: a small sparkle at the tap point when the card opens.
+    fireSakugaFx(e, 'sparkle')
   }
 
   function closeZoom() {
@@ -73,7 +76,7 @@
     }
   }
 
-  function downloadQR() {
+  function downloadQR(e: MouseEvent) {
     const link = document.createElement('a')
     link.href = qrisImg
     link.download = 'BFR-WEBUI-QRIS.jpg'
@@ -81,6 +84,7 @@
     link.click()
     document.body.removeChild(link)
     toastStore.success('QRIS image downloaded successfully!')
+    fireSakugaFx(e, 'sparkle')
   }
 </script>
 
@@ -467,7 +471,7 @@
             type="button"
             onclick={closeZoom}
             class="p-1.5 rounded-lg bg-card-sub border border-border text-muted hover:text-foreground hover:border-red-400 hover:bg-red-500/10 transition cursor-pointer"
-            title="Tutup (ESC)"
+            title="Close (ESC)"
           >
             <X class="w-4 h-4" />
           </button>

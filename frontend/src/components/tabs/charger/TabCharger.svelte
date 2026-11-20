@@ -36,6 +36,10 @@
   import Button from '../../ui/Button.svelte'
   import Badge from '../../ui/Badge.svelte'
   import Input from '../../ui/Input.svelte'
+  import { themeStore } from '../../../stores/theme.svelte'
+  import SakugaToggle from '../../ui/SakugaToggle.svelte'
+  import SakugaSlider from '../../ui/SakugaSlider.svelte'
+  import { fireSakugaFx } from '../../../lib/sakuga-fx'
 
   let status = $state<ChargerStatusResponse>({
     config: {
@@ -102,6 +106,19 @@
   )
 
   let isOverheating = $derived(status.battery.temperature > 42)
+
+  // Sakuga FX: burst once when charging genuinely starts (a state
+  // transition, never per poll). The null guard skips the first run, so
+  // opening the tab mid-charge stays silent.
+  let batteryCardEl: HTMLDivElement | null = $state(null)
+  let prevCharging: boolean | null = $state(null)
+  $effect(() => {
+    const now = isCharging
+    if (prevCharging === false && now && batteryCardEl) {
+      fireSakugaFx(batteryCardEl, 'charge')
+    }
+    prevCharging = now
+  })
 
   let currentRateColor = $derived(
     isIdleBypass
@@ -335,7 +352,7 @@
     </div>
   </div>
 
-  <!-- KARTU 1: Live Battery & Hardware Telemetry -->
+  <!-- CARD 1: Live Battery & Hardware Telemetry -->
   <Card
     title="Live Battery & Hardware Telemetry"
     subtitle="Real-time kernel power supply metrics & thermal monitoring"
@@ -368,6 +385,7 @@
     <div class="space-y-5">
       <!-- Battery Meter Graphic & Percentage -->
       <div
+        bind:this={batteryCardEl}
         class="p-4 bg-card-sub border-2 border-border rounded-lg shadow-[2px_2px_0px_#000] dark:shadow-[2px_2px_0px_rgba(255,255,255,0.05)] space-y-3"
       >
         <div class="flex items-end justify-between">
@@ -611,7 +629,7 @@
   </Card>
 
   <div class="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-6">
-    <!-- KARTU 2: Pengaturan Ambang Batas Limiter (Threshold) Compact -->
+    <!-- CARD 2: Limiter Threshold Settings (Compact) -->
     <Card
       title="Smart Charging Limiter"
       subtitle="Hardware cutoff threshold & AC bypass gate"
@@ -622,6 +640,9 @@
           <Badge variant={config.enabled ? 'success' : 'default'}>
             {config.enabled ? 'AUTO ON' : 'DISABLED'}
           </Badge>
+          {#if themeStore.useSakugaControls()}
+            <SakugaToggle checked={config.enabled} label="Smart Charging Limiter" onchange={toggleMasterEnabled} />
+          {:else}
           <button
             type="button"
             onclick={toggleMasterEnabled}
@@ -636,6 +657,7 @@
                 : 'translate-x-0'}"
             ></span>
           </button>
+          {/if}
         </div>
       {/snippet}
 
@@ -662,6 +684,9 @@
               </div>
             </div>
 
+            {#if themeStore.useSakugaControls()}
+              <SakugaSlider bind:value={config.stop_percent} min={50} max={95} step={1} oninput={(e) => onStopPercentChange(Number((e.target as HTMLInputElement).value))} />
+            {:else}
             <input
               type="range"
               min="50"
@@ -671,6 +696,7 @@
               bind:value={config.stop_percent}
               oninput={(e) => onStopPercentChange(Number((e.target as HTMLInputElement).value))}
             />
+            {/if}
             <div class="flex items-center justify-between text-[9px] text-muted">
               <span>Trips at {config.stop_percent}%</span>
               <span>Bypass AC</span>
@@ -697,6 +723,9 @@
               </div>
             </div>
 
+            {#if themeStore.useSakugaControls()}
+              <SakugaSlider bind:value={config.start_percent} min={20} max={90} step={1} oninput={(e) => onStartPercentChange(Number((e.target as HTMLInputElement).value))} />
+            {:else}
             <input
               type="range"
               min="20"
@@ -706,6 +735,7 @@
               bind:value={config.start_percent}
               oninput={(e) => onStartPercentChange(Number((e.target as HTMLInputElement).value))}
             />
+            {/if}
             <div class="flex items-center justify-between text-[9px] text-muted">
               <span>Reopens at &le; {config.start_percent}%</span>
               <span>Hysteresis {config.stop_percent - config.start_percent}%</span>
@@ -805,7 +835,7 @@
       </div>
     </Card>
 
-    <!-- KARTU 3: Hardware Switch Probing & Seleksi Profil ACC -->
+    <!-- CARD 3: Hardware Switch Probing & ACC Profile Selection -->
     <Card
       title="Hardware Switch & ACC Profiles"
       subtitle="Kernel sysfs switch detection & ACC profile compatibility"
@@ -1025,7 +1055,7 @@
     </Card>
   </div>
 
-  <!-- KARTU 4: Log Controller -->
+  <!-- CARD 4: Log Controller -->
   <Card
     title="Limiter Daemon Event Log"
     subtitle="Audit trail of threshold checks, cutoffs, and power events"

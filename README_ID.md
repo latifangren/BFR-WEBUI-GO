@@ -135,12 +135,12 @@ Skrip build secara otomatis mendeteksi branch Git aktif dan menerapkan build tag
 - Pada Windows:
   ```cmd
   :: Otomatis deteksi branch (atau berikan argumen 'full' / 'nomodem')
-  build_zip.bat
+  scripts\build_zip.bat
   ```
 - Pada Linux / macOS / Android Termux:
   ```bash
-  chmod +x build.sh
-  ./build.sh
+  chmod +x scripts/build.sh
+  ./scripts/build.sh
   ```
 
 ### Kompilasi Biner Standalone (Manual)

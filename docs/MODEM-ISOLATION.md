@@ -62,8 +62,8 @@ The codebase enforces isolation through **two architectural seams**:
 - **`bin/sim_switcher.dex`**: Permanently deprecated and removed. SIM switching runs via native Android AOSP IPC in Go.
 - **`bin/band_manager.dex`**: Excluded from `release/no-modem`.
 - **Build Scripts**:
-  - `build.bat` & `build.sh`: Automatically detect branch name. If on `release/no-modem`, automatically passes `-tags nomodem`. Alternatively accepts `./build.sh nomodem`.
-  - `build_zip.bat`: Packages Magisk zip with `-nomodem.zip` suffix when on `release/no-modem`.
+  - `scripts/build.bat` & `scripts/build.sh`: Automatically detect branch name. If on `release/no-modem`, automatically passes `-tags nomodem`. Alternatively accepts `./scripts/build.sh nomodem`.
+  - `scripts/build_zip.bat`: Packages Magisk zip with `-nomodem.zip` suffix when on `release/no-modem`.
 
 ---
 

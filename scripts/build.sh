@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 set -e
 
+# Scripts live in scripts/; always operate from the repository root.
+cd "$(dirname "$0")/.."
+
 FLAVOR="${1:-}"
 if [ -z "$FLAVOR" ]; then
     CURRENT_BRANCH=$(git branch --show-current 2>/dev/null || echo "dev")

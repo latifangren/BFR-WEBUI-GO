@@ -15,6 +15,8 @@
   import Button from '../../ui/Button.svelte'
   import Badge from '../../ui/Badge.svelte'
   import Input from '../../ui/Input.svelte'
+  import { themeStore } from '../../../stores/theme.svelte'
+  import SakugaCheckbox from '../../ui/SakugaCheckbox.svelte'
 
   let status = $state<SSHStatus>({ running: false, port: 2222 })
   let portInput = $state('2222')
@@ -160,11 +162,15 @@
               <span class="font-bold text-foreground block">Public Key Authentication Only</span>
               <span class="text-[10px] text-muted">Disable password login. Configure authorized keys in the SSH daemon environment.</span>
             </div>
+            {#if themeStore.useSakugaControls()}
+              <SakugaCheckbox bind:checked={config.key_auth_only} />
+            {:else}
             <input
               type="checkbox"
               bind:checked={config.key_auth_only}
               class="w-4 h-4 accent-accent"
             />
+            {/if}
           </label>
         </div>
       </div>

@@ -41,158 +41,8 @@
   --neo-info: #0891b2;
 }
 
-/* 3. AMOLED (Pitch Black & Charcoal Elevation) */
-[data-theme="amoled"] {
-  --neo-bg: #000000;
-  --neo-card: #0a0a0a;
-  --neo-card-sub: #141414;
-  --neo-text: #f8fafc;
-  --neo-muted: #888888;
-  --neo-border: #262626;
-  --neo-accent: #10b981;
-  --neo-accent-text: #000000;
-  --neo-shadow: #1c1c1c; /* Distinct shadow elevation on pure black bg */
-  --neo-badge-bg: #141414;
-  --neo-badge-text: #34d399;
-  --neo-success: #10b981;
-  --neo-warning: #f59e0b;
-  --neo-danger: #ef4444;
-  --neo-info: #06b6d4;
-}
-
-/* 4. Dracula (Vampire Purple) */
-[data-theme="dracula"] {
-  --neo-bg: #1e1f29;
-  --neo-card: #282a36;
-  --neo-card-sub: #44475a;
-  --neo-text: #f8f8f2;
-  --neo-muted: #6272a4;
-  --neo-border: #44475a;
-  --neo-accent: #bd93f9;
-  --neo-accent-text: #1e1f29;
-  --neo-shadow: #191a21;
-  --neo-badge-bg: #44475a;
-  --neo-badge-text: #ff79c6;
-  --neo-success: #50fa7b;
-  --neo-warning: #f1fa8c;
-  --neo-danger: #ff5555;
-  --neo-info: #8be9fd;
-}
-
-/* 5. Nord (Arctic Frost) */
-[data-theme="nord"] {
-  --neo-bg: #242933;
-  --neo-card: #2e3440;
-  --neo-card-sub: #3b4252;
-  --neo-text: #eceff4;
-  --neo-muted: #d8dee9;
-  --neo-border: #434c5e;
-  --neo-accent: #88c0d0;
-  --neo-accent-text: #242933;
-  --neo-shadow: #1b1f27;
-  --neo-badge-bg: #3b4252;
-  --neo-badge-text: #88c0d0;
-  --neo-success: #a3be8c;
-  --neo-warning: #ebcb8b;
-  --neo-danger: #bf616a;
-  --neo-info: #8fbcbb;
-}
-
-/* 6. Cyberpunk (High-Voltage Neon Yellow/Black) */
-[data-theme="cyberpunk"] {
-  --neo-bg: #0d0f18;
-  --neo-card: #181b28;
-  --neo-card-sub: #222638;
-  --neo-text: #fff066;
-  --neo-muted: #a3a7c2;
-  --neo-border: #facc15;
-  --neo-accent: #facc15;
-  --neo-accent-text: #000000;
-  --neo-shadow: #facc15;
-  --neo-badge-bg: #222638;
-  --neo-badge-text: #facc15;
-  --neo-success: #00ff66;
-  --neo-warning: #facc15;
-  --neo-danger: #ff0055;
-  --neo-info: #00e5ff;
-}
-
-/* 7. Emerald (Matrix Deep Green) */
-[data-theme="emerald"] {
-  --neo-bg: #042f2e;
-  --neo-card: #064e3b;
-  --neo-card-sub: #065f46;
-  --neo-text: #ecfdf5;
-  --neo-muted: #6ee7b7;
-  --neo-border: #115e59;
-  --neo-accent: #10b981;
-  --neo-accent-text: #022c22;
-  --neo-shadow: #022c22;
-  --neo-badge-bg: #065f46;
-  --neo-badge-text: #a7f3d0;
-  --neo-success: #34d399;
-  --neo-warning: #fbbf24;
-  --neo-danger: #f87171;
-  --neo-info: #38bdf8;
-}
-
-/* 8. Sunset (Retro Warm Neon) */
-[data-theme="sunset"] {
-  --neo-bg: #120b18;
-  --neo-card: #1f1329;
-  --neo-card-sub: #2e1a3d;
-  --neo-text: #fed7aa;
-  --neo-muted: #fb923c;
-  --neo-border: #4c1d95;
-  --neo-accent: #f97316;
-  --neo-accent-text: #120b18;
-  --neo-shadow: #0a050e;
-  --neo-badge-bg: #2e1a3d;
-  --neo-badge-text: #fdba74;
-  --neo-success: #10b981;
-  --neo-warning: #f59e0b;
-  --neo-danger: #ef4444;
-  --neo-info: #06b6d4;
-}
-
-/* 9. Retro Deck (Pastel Ice Neobrutalism) */
-[data-theme='retro'] {
-  --color-bg: #daf0fc;
-  --color-card: #ffffff;
-  --color-card-sub: #f0f7fc;
-  --color-border: #000000;
-  --color-border-sub: #000000;
-  --color-accent: #c8f5d0;
-  --color-accent-text: #000000;
-  --color-foreground: #111827;
-  --color-muted: #111827;
-
-  --neo-bg: #daf0fc;
-  --neo-card: #ffffff;
-  --neo-card-sub: #f0f7fc;
-  --neo-border: #000000;
-  --neo-text: #111827;
-  --neo-muted: #111827;
-  --neo-accent: #c8f5d0;
-  --neo-accent-text: #000000;
-  --neo-shadow: #000000;
-  --neo-badge-bg: #e2daf9;
-  --neo-badge-text: #000000;
-  --neo-success: #16a34a;
-  --neo-warning: #ca8a04;
-  --neo-danger: #dc2626;
-  --neo-info: #0284c7;
-
-  /* Pastel Palette Extensions */
-  --color-mint: #c8f5d0;
-  --color-lavender: #e2daf9;
-  --color-peach: #ffd5cc;
-  --color-butter: #fff0a3;
-  --color-ice: #c2e7ff;
-}
-
-/* 10. ProjectX (Retro-Pop Neobrutalism) */
-[data-theme='projectx'] {
+/* 3. Neobrutalism (Retro-Pop Neobrutalism) */
+[data-theme='neobrutalism'] {
   --color-bg: #18151e;
   --color-card: #24202b;
   --color-card-sub: #302b38;
@@ -219,7 +69,7 @@
   --neo-danger: #ff3b30;
   --neo-info: #55dfff;
 
-  /* ProjectX Pop Color Accents */
+  /* Neobrutalism Pop Color Accents */
   --color-pink: #ff5ca8;
   --color-yellow: #ffe14a;
   --color-cyan: #55dfff;
@@ -228,20 +78,14 @@
   --color-orange: #ff9955;
 }
 
-[data-ui-style="neobrutal"][data-theme="projectx"],
-[data-ui-style="neobrutal"] [data-theme="projectx"] {
+[data-ui-style="neobrutal"][data-theme="neobrutalism"],
+[data-ui-style="neobrutal"] [data-theme="neobrutalism"] {
   --neo-border: #0d0b10;
   --neo-shadow: #08070a;
 }
 
-[data-ui-style="modern"][data-theme="projectx"],
-[data-ui-style="modern"] [data-theme="projectx"] {
-  --neo-border: #383142;
-  --neo-shadow: rgba(8, 7, 10, 0.5);
-}
-
-/* 11. ProjectX Light (Warm Anti-Glare Cream Paper & Retro Pop) */
-[data-theme='projectx-light'] {
+/* 4. Neobrutalism Light (Warm Anti-Glare Cream Paper & Retro Pop) */
+[data-theme='neobrutalism-light'] {
   --color-bg: #fff6e8;
   --color-card: #fffdf8;
   --color-card-sub: #e8e5da;
@@ -268,7 +112,7 @@
   --neo-danger: #dc2626;
   --neo-info: #0284c7;
 
-  /* ProjectX Pop Color Accents */
+  /* Neobrutalism Pop Color Accents */
   --color-pink: #ff5ca8;
   --color-yellow: #ffe14a;
   --color-cyan: #55dfff;
@@ -277,78 +121,10 @@
   --color-orange: #ff9955;
 }
 
-[data-ui-style="neobrutal"][data-theme="projectx-light"],
-[data-ui-style="neobrutal"] [data-theme="projectx-light"] {
+[data-ui-style="neobrutal"][data-theme="neobrutalism-light"],
+[data-ui-style="neobrutal"] [data-theme="neobrutalism-light"] {
   --neo-border: #17151a;
   --neo-shadow: #17151a;
-}
-
-/* ========================================================= */
-/* ProjectX Accent Color Vibes (data-color)                  */
-/* ========================================================= */
-:root[data-color="synthwave"], [data-color="synthwave"] {
-  --neo-accent: #ff2d95;
-  --neo-accent-text: #ffffff;
-  --color-accent: #ff2d95;
-  --color-accent-text: #ffffff;
-  --color-pink: #ff2d95;
-  --color-yellow: #ff2d95;
-  --color-cyan: #00e5ff;
-  --color-lime: #ff2d95;
-  --color-purple: #c538ff;
-  --color-orange: #ff6b35;
-}
-
-:root[data-color="toxic"], [data-color="toxic"] {
-  --neo-accent: #39ff14;
-  --neo-accent-text: #000000;
-  --color-accent: #39ff14;
-  --color-accent-text: #000000;
-  --color-pink: #ff4444;
-  --color-yellow: #39ff14;
-  --color-cyan: #39ff14;
-  --color-lime: #39ff14;
-  --color-purple: #ff8800;
-  --color-orange: #ff6600;
-}
-
-:root[data-color="arctic"], [data-color="arctic"] {
-  --neo-accent: #40c4ff;
-  --neo-accent-text: #000000;
-  --color-accent: #40c4ff;
-  --color-accent-text: #000000;
-  --color-pink: #64b5f6;
-  --color-yellow: #40c4ff;
-  --color-cyan: #80d8ff;
-  --color-lime: #82b1ff;
-  --color-purple: #448aff;
-  --color-orange: #29b6f6;
-}
-
-:root[data-color="sunset"], [data-color="sunset"] {
-  --neo-accent: #ff6d00;
-  --neo-accent-text: #000000;
-  --color-accent: #ff6d00;
-  --color-accent-text: #000000;
-  --color-pink: #ff1744;
-  --color-yellow: #ff6d00;
-  --color-cyan: #ffab40;
-  --color-lime: #ff9100;
-  --color-purple: #ff5252;
-  --color-orange: #ff3d00;
-}
-
-:root[data-color="lavender"], [data-color="lavender"] {
-  --neo-accent: #b388ff;
-  --neo-accent-text: #000000;
-  --color-accent: #b388ff;
-  --color-accent-text: #000000;
-  --color-pink: #f48fb1;
-  --color-yellow: #b388ff;
-  --color-cyan: #ea80fc;
-  --color-lime: #ce93d8;
-  --color-purple: #7c4dff;
-  --color-orange: #e040fb;
 }
 
 /* ========================================================= */
@@ -578,56 +354,6 @@
 }
 
 /* ========================================================= */
-/* Retro Deck Strict High-Contrast & Solid Surface Rules     */
-/* ========================================================= */
-
-[data-theme='retro'] .text-muted {
-  color: #111827 !important;
-  font-weight: 600 !important;
-}
-
-[data-theme='retro'] .text-muted:hover {
-  color: #000000 !important;
-}
-
-/* Eliminate semi-transparent background bleeding in Retro theme */
-[data-theme='retro'] .bg-card:not([class*='neo-tone-']),
-[data-theme='retro'] .neo-card:not([class*='neo-tone-']),
-[data-theme='retro'] .bg-card\/80,
-[data-theme='retro'] .bg-card\/90,
-[data-theme='retro'] .bg-card\/95,
-[data-theme='retro'] .bg-card-sub:not([class*='neo-tone-']),
-[data-theme='retro'] .bg-card-sub\/80 {
-  background-color: #ffffff !important;
-  opacity: 1 !important;
-  backdrop-filter: none !important;
-  -webkit-backdrop-filter: none !important;
-}
-
-/* Solid borders and shadows for all cards and popovers in Retro */
-[data-theme='retro'] .neo-card,
-[data-theme='retro'] .border-border,
-[data-theme='retro'] .border-border\/80,
-[data-theme='retro'] .border-border\/60 {
-  border-color: #000000 !important;
-}
-
-/* Navigation TopBar flyouts & Mobile Popover in Retro */
-[data-theme='retro'] header,
-[data-theme='retro'] nav {
-  background-color: #ffffff !important;
-  border-color: #000000 !important;
-  backdrop-filter: none !important;
-  -webkit-backdrop-filter: none !important;
-}
-
-[data-theme='retro'][data-ui-style="neobrutal"] .neo-card,
-[data-theme='retro'] [data-ui-style="neobrutal"] .neo-card,
-[data-theme='retro'] .neo-card {
-  box-shadow: 3px 3px 0px 0px #000000 !important;
-}
-
-/* ========================================================= */
 /* Multi-Tone Pastel Neobrutalism Utilities & Icon Box       */
 /* ========================================================= */
 
@@ -639,18 +365,6 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-}
-
-[data-theme='retro'] .neo-icon-box {
-  background-color: #ffffff !important;
-  border: 2px solid #000000 !important;
-  border-radius: 8px !important;
-  color: #000000 !important;
-  box-shadow: 1.5px 1.5px 0px #000000 !important;
-  padding: 0.35rem !important;
-  display: inline-flex !important;
-  align-items: center !important;
-  justify-content: center !important;
 }
 
 /* ========================================================= */
@@ -674,97 +388,40 @@
   border-top: 3px solid #d97706 !important;
 }
 
-/* Dark / AMOLED / ProjectX Dark Neon Stripes */
-.dark .neo-tone-ice, [data-theme]:not([data-theme='light']):not([data-theme='projectx-light']):not([data-theme='retro']) .neo-tone-ice {
+/* Dark / Neobrutalism Dark Neon Stripes */
+.dark .neo-tone-ice, [data-theme]:not([data-theme='light']):not([data-theme='neobrutalism-light']) .neo-tone-ice {
   border-top: 3px solid #38bdf8 !important;
 }
-.dark .neo-tone-lavender, [data-theme]:not([data-theme='light']):not([data-theme='projectx-light']):not([data-theme='retro']) .neo-tone-lavender {
+.dark .neo-tone-lavender, [data-theme]:not([data-theme='light']):not([data-theme='neobrutalism-light']) .neo-tone-lavender {
   border-top: 3px solid #c084fc !important;
 }
-.dark .neo-tone-peach, [data-theme]:not([data-theme='light']):not([data-theme='projectx-light']):not([data-theme='retro']) .neo-tone-peach {
+.dark .neo-tone-peach, [data-theme]:not([data-theme='light']):not([data-theme='neobrutalism-light']) .neo-tone-peach {
   border-top: 3px solid #ff5ca8 !important;
 }
-.dark .neo-tone-mint, [data-theme]:not([data-theme='light']):not([data-theme='projectx-light']):not([data-theme='retro']) .neo-tone-mint {
+.dark .neo-tone-mint, [data-theme]:not([data-theme='light']):not([data-theme='neobrutalism-light']) .neo-tone-mint {
   border-top: 3px solid #4ade80 !important;
 }
-.dark .neo-tone-butter, [data-theme]:not([data-theme='light']):not([data-theme='projectx-light']):not([data-theme='retro']) .neo-tone-butter {
+.dark .neo-tone-butter, [data-theme]:not([data-theme='light']):not([data-theme='neobrutalism-light']) .neo-tone-butter {
   border-top: 3px solid #facc15 !important;
 }
 
-/* Ensure any dark/black button or active toggle has high contrast white text and icons */
-[data-theme='retro'] button.bg-black,
-[data-theme='retro'] .neo-button.bg-black,
-[data-theme='retro'] [class*='neo-tone-'] button.bg-black,
-[data-theme='retro'] [class*='neo-tone-'] .neo-button.bg-black,
-[data-theme='retro'] button.bg-black *,
-[data-theme='retro'] .neo-button.bg-black *,
-[data-theme='retro'] [class*='neo-tone-'] button.bg-black *,
-[data-theme='retro'] [class*='neo-tone-'] .neo-button.bg-black *,
-[data-theme='retro'] [class*='neo-tone-'] .text-white,
-[data-theme='retro'] [class*='neo-tone-'] .text-white * {
-  color: #ffffff !important;
-}
-
-/* Sparklines inside tone cards in retro theme get black stroke */
-[data-theme='retro'] .neo-tone-ice svg path[stroke],
-[data-theme='retro'] .neo-tone-lavender svg path[stroke],
-[data-theme='retro'] .neo-tone-peach svg path[stroke],
-[data-theme='retro'] .neo-tone-mint svg path[stroke],
-[data-theme='retro'] .neo-tone-butter svg path[stroke] {
-  stroke: #000000 !important;
-  stroke-width: 2px !important;
-}
-
-/* Non-retro themes: Keep card backgrounds dark, but gently tint the border */
-:not([data-theme='retro']) .neo-tone-ice {
+/* Keep card backgrounds dark, but gently tint the border */
+ .neo-tone-ice {
   border-color: rgba(96, 165, 250, 0.4) !important;
 }
 
-:not([data-theme='retro']) .neo-tone-lavender {
+ .neo-tone-lavender {
   border-color: rgba(192, 132, 252, 0.4) !important;
 }
 
-:not([data-theme='retro']) .neo-tone-peach {
+ .neo-tone-peach {
   border-color: rgba(251, 146, 60, 0.4) !important;
 }
 
-:not([data-theme='retro']) .neo-tone-mint {
+ .neo-tone-mint {
   border-color: rgba(52, 211, 153, 0.4) !important;
 }
 
-:not([data-theme='retro']) .neo-tone-butter {
+ .neo-tone-butter {
   border-color: rgba(250, 204, 21, 0.4) !important;
-}
-
-/* Retro theme sidebar deck styling */
-[data-theme='retro'] aside {
-  background-color: #daf0fc !important;
-  border-color: #000000 !important;
-}
-
-[data-theme='retro'] aside .bg-card {
-  background-color: #daf0fc !important;
-  border-color: #000000 !important;
-}
-
-[data-theme='retro'] aside button:not(.bg-accent):not([aria-expanded]) {
-  background-color: #ffffff !important;
-  border: 2px solid #000000 !important;
-  box-shadow: 2px 2px 0px #000000 !important;
-  color: #000000 !important;
-  font-weight: 700 !important;
-}
-
-[data-theme='retro'] aside button:not(.bg-accent):not([aria-expanded]):hover {
-  background-color: #f0f7fc !important;
-  transform: translate(-1px, -1px);
-  box-shadow: 3px 3px 0px #000000 !important;
-}
-
-[data-theme='retro'] aside button.bg-accent {
-  background-color: #c8f5d0 !important;
-  border: 2px solid #000000 !important;
-  box-shadow: 2px 2px 0px #000000 !important;
-  color: #000000 !important;
-  font-weight: 800 !important;
 }
