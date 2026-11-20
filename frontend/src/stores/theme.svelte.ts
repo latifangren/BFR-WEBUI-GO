@@ -43,6 +43,11 @@ class ThemeStore {
   neoPressDepth = $state<number>(2)
   neoPattern = $state<'dots' | 'grid' | 'none'>('dots')
   neoPatternOpacity = $state<number>(0.04)
+  // Sakuga FX: anime-style button effects (sakuga-vfx, MIT). Only
+  // meaningful inside the Neobrutalism themes; the toggle is hidden
+  // elsewhere and the scripts load lazily, only button.js (46 KB).
+  sakugaFx = $state<boolean>(false)
+  private sakugaLoad: Promise<void> | null = null
   constructor() {
     if (typeof window !== 'undefined') {
       const storedTheme = localStorage.getItem('colorTheme') || localStorage.getItem('theme')
@@ -109,8 +114,13 @@ class ThemeStore {
       const storedNeoPatOp = localStorage.getItem('neoPatternOpacity')
       if (storedNeoPatOp) this.neoPatternOpacity = Math.max(0, Math.min(0.15, Number(storedNeoPatOp) || 0.04))
 
+      this.sakugaFx = localStorage.getItem('sakugaFx') === 'true'
+
       this.setTheme(initialTheme)
       this.setStyle(initialStyle)
+      if (this.sakugaFx && isNeobrutalTheme(initialTheme)) {
+        void this.ensureSakugaLoaded()
+      }
       this.applyGlassTokens()
       this.applyNeobrutalTokens()
     }
@@ -126,6 +136,42 @@ class ThemeStore {
 
   isNeobrutalTheme(): boolean {
     return isNeobrutalTheme(this.currentTheme)
+  }
+
+  isSakugaFxActive(): boolean {
+    return this.sakugaFx && isNeobrutalTheme(this.currentTheme)
+  }
+
+  setSakugaFx(enabled: boolean) {
+    this.sakugaFx = enabled
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('sakugaFx', String(enabled))
+      if (enabled && isNeobrutalTheme(this.currentTheme)) {
+        void this.ensureSakugaLoaded()
+      }
+    }
+  }
+
+  // Lazily load the Sakuga button component (button.js defines
+  // window.SakugaFX; the other vendored components are not loaded
+  // until a later slice uses them). Respects the component's own
+  // prefers-reduced-motion handling once loaded.
+  ensureSakugaLoaded(): Promise<void> {
+    if (typeof window === 'undefined') return Promise.resolve()
+    if (customElements.get('sakuga-button')) return Promise.resolve()
+    if (!this.sakugaLoad) {
+      this.sakugaLoad = new Promise<void>((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = '/sakuga-vfx/button.js'
+        script.onload = () => resolve()
+        script.onerror = () => reject(new Error('Failed to load Sakuga FX'))
+        document.head.appendChild(script)
+      })
+      this.sakugaLoad.catch(() => {
+        this.sakugaLoad = null
+      })
+    }
+    return this.sakugaLoad
   }
 
   setTheme(theme: ThemeMode) {
@@ -145,6 +191,7 @@ class ThemeStore {
       // restores the user's style, defaulting to modern.
       if (isNeobrutalTheme(theme)) {
         this.setStyle('neobrutal')
+        if (this.sakugaFx) void this.ensureSakugaLoaded()
       } else if (this.currentStyle === 'neobrutal') {
         this.setStyle('modern')
       }

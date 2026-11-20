@@ -23,6 +23,7 @@
   import { request } from '../../api/client'
   import type { ThemeMode, UIStyle, WallpaperItem } from '../../types/common'
   import Button from '../ui/Button.svelte'
+  import SakugaButton from '../ui/SakugaButton.svelte'
 
   interface Props {
     open?: boolean
@@ -109,6 +110,8 @@
   let wallpapers = $state<WallpaperItem[]>([])
   let isLoadingWallpapers = $state(false)
   let isUploading = $state(false)
+  let showAdvancedTuning = $state(false)
+  let showLoginWallpaper = $state(false)
 
   const PRESETS = [
     { id: 'preset:none', name: 'None (Pure Tint)', preview: 'linear-gradient(135deg, rgba(255,255,255,0.05), rgba(255,255,255,0.02))' },
@@ -221,7 +224,42 @@
         </button>
       </div>
 
-      <!-- Section 1: Navigation Layout (Top Bar vs Sidebar) -->
+      <!-- Section 1: Color Themes (4 Palettes) -->
+      <div class="space-y-1.5">
+        <span class="text-[11px] font-bold uppercase text-muted tracking-wider flex items-center gap-1.5">
+          <Sparkles class="w-3.5 h-3.5 text-accent" />
+          Color Themes ({themes.length} Palettes)
+        </span>
+        <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
+          {#each themes as t}
+            {@const isSelected = themeStore.currentTheme === t.id}
+            <button
+              type="button"
+              class="p-2.5 rounded-lg border-2 text-left transition-all cursor-pointer relative flex flex-col justify-between gap-1.5 {isSelected ? 'border-accent bg-accent/10 shadow-neobrutal-sm' : 'border-border bg-card-sub hover:border-accent/60'}"
+              onclick={() => selectTheme(t.id)}
+            >
+              <div class="flex items-center justify-between">
+                <!-- 3 Color Swatches -->
+                <div class="flex items-center gap-1">
+                  <span class="w-3.5 h-3.5 rounded-full border border-black/20 shrink-0" style="background-color: {t.bg};"></span>
+                  <span class="w-3.5 h-3.5 rounded-full border border-black/20 shrink-0" style="background-color: {t.card};"></span>
+                  <span class="w-3.5 h-3.5 rounded-full border border-black/20 shrink-0" style="background-color: {t.accent};"></span>
+                </div>
+                {#if isSelected}
+                  <span class="w-4 h-4 rounded-full bg-accent text-accent-text flex items-center justify-center text-[10px] font-black">
+                    <Check class="w-2.5 h-2.5" />
+                  </span>
+                {/if}
+              </div>
+              <div class="font-bold text-xs text-foreground truncate">
+                {t.name}
+              </div>
+            </button>
+          {/each}
+        </div>
+      </div>
+
+      <!-- Section 2: Navigation Layout (Top Bar vs Sidebar) -->
       <div class="space-y-1.5">
         <span class="text-[11px] font-bold uppercase text-muted tracking-wider flex items-center gap-1.5">
           <LayoutGrid class="w-3.5 h-3.5 text-accent" />
@@ -248,7 +286,7 @@
       </div>
 
       {#if !themeStore.isNeobrutalTheme()}
-      <!-- Section 2: UI Paradigm Style (Modern vs Glass) -->
+      <!-- Section 3: UI Paradigm Style (Modern vs Glass) -->
       <div class="space-y-1.5">
         <span class="text-[11px] font-bold uppercase text-muted tracking-wider flex items-center gap-1.5">
           <Layers class="w-3.5 h-3.5 text-accent" />
@@ -279,8 +317,49 @@
       </div>
       {/if}
 
+      {#if themeStore.isNeobrutalTheme()}
+      <!-- Sakuga FX (Neobrutalism only) -->
+      <div class="space-y-1.5">
+        <span class="text-[11px] font-bold uppercase text-muted tracking-wider flex items-center gap-1.5">
+          <Sparkles class="w-3.5 h-3.5 text-accent" />
+          Sakuga FX
+        </span>
+        <div class="flex items-center justify-between gap-3 p-2.5 bg-card-sub border border-border rounded-lg">
+          <div class="min-w-0">
+            <div class="text-xs font-bold text-foreground">Efek anime Sakuga</div>
+            <p class="text-[10px] text-muted">Tombol utama meledak ala Sakuga. Hanya aktif di tema Neobrutalism.</p>
+          </div>
+          <button
+            type="button"
+            role="switch"
+            aria-checked={themeStore.sakugaFx}
+            aria-label="Sakuga FX"
+            class="shrink-0 w-11 h-6 rounded-full border-2 border-border transition-colors cursor-pointer relative {themeStore.sakugaFx ? 'bg-accent' : 'bg-card'}"
+            onclick={() => themeStore.setSakugaFx(!themeStore.sakugaFx)}
+          >
+            <span class="absolute top-0.5 w-4 h-4 rounded-full bg-white border border-black/20 transition-all {themeStore.sakugaFx ? 'left-[22px]' : 'left-0.5'}"></span>
+          </button>
+        </div>
+      </div>
+      {/if}
+
+      <!-- Advanced Tuning (collapsed by default) -->
+      {#if themeStore.currentStyle === 'neobrutal' || themeStore.currentStyle === 'glass'}
+      <button
+        type="button"
+        class="w-full flex items-center justify-between p-2.5 bg-card-sub border border-border rounded-lg text-xs font-bold text-foreground hover:border-accent transition-colors cursor-pointer"
+        onclick={() => showAdvancedTuning = !showAdvancedTuning}
+      >
+        <span class="flex items-center gap-1.5">
+          <Sliders class="w-3.5 h-3.5 text-accent" />
+          Advanced Tuning
+        </span>
+        <span class="text-muted">{showAdvancedTuning ? 'Tutup' : 'Buka'}</span>
+      </button>
+      {/if}
+
       <!-- Section 2.4: Neobrutalism Extended Tuning -->
-      {#if themeStore.currentStyle === 'neobrutal'}
+      {#if showAdvancedTuning && themeStore.currentStyle === 'neobrutal'}
         <div class="p-3.5 bg-card-sub border border-border rounded-xl space-y-3.5">
           <div class="flex items-center justify-between border-b border-border/50 pb-2">
             <span class="text-xs font-bold uppercase text-foreground flex items-center gap-1.5">
@@ -419,7 +498,7 @@
       {/if}
 
       <!-- Section 2.5: Glassmorphism Customizer (Only shown when Glass style active) -->
-      {#if themeStore.currentStyle === 'glass'}
+      {#if showAdvancedTuning && themeStore.currentStyle === 'glass'}
         <div class="p-3.5 bg-card-sub border border-border rounded-xl space-y-3.5">
           <div class="flex items-center justify-between border-b border-border/50 pb-2">
             <span class="text-xs font-bold uppercase text-foreground flex items-center gap-1.5">
@@ -569,39 +648,19 @@
         </div>
       {/if}
 
-      <!-- Section 3: Color Themes (4 Palettes) -->
-      <div class="space-y-1.5">
-        <span class="text-[11px] font-bold uppercase text-muted tracking-wider flex items-center gap-1.5">
-          <Sparkles class="w-3.5 h-3.5 text-accent" />
-          Color Themes ({themes.length} Palettes)
+      <!-- Login Screen Wallpaper (collapsed by default) -->
+      <button
+        type="button"
+        class="w-full flex items-center justify-between p-2.5 bg-card-sub border border-border rounded-lg text-xs font-bold text-foreground hover:border-accent transition-colors cursor-pointer"
+        onclick={() => showLoginWallpaper = !showLoginWallpaper}
+      >
+        <span class="flex items-center gap-1.5">
+          <Lock class="w-3.5 h-3.5 text-accent" />
+          Login Screen Wallpaper
         </span>
-        <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
-          {#each themes as t}
-            {@const isSelected = themeStore.currentTheme === t.id}
-            <button
-              type="button"
-              class="p-2.5 rounded-lg border-2 text-left transition-all cursor-pointer relative flex flex-col justify-between gap-1.5 {isSelected ? 'border-accent bg-accent/10 shadow-neobrutal-sm' : 'border-border bg-card-sub hover:border-accent/60'}"
-              onclick={() => selectTheme(t.id)}
-            >
-              <div class="flex items-center justify-between">
-                <!-- 3 Color Swatches -->
-                <div class="flex items-center gap-1">
-                  <span class="w-3.5 h-3.5 rounded-full border border-black/20 shrink-0" style="background-color: {t.bg};"></span>
-                  <span class="w-3.5 h-3.5 rounded-full border border-black/20 shrink-0" style="background-color: {t.card};"></span>
-                  <span class="w-3.5 h-3.5 rounded-full border border-black/20 shrink-0" style="background-color: {t.accent};"></span>
-                </div>
-                {#if isSelected}
-                  <span class="w-4 h-4 rounded-full bg-accent text-accent-text flex items-center justify-center text-[10px] font-black">
-                    <Check class="w-2.5 h-2.5" />
-                  </span>
-                {/if}
-              </div>
-              <div class="font-bold text-xs text-foreground truncate">
-                {t.name}
-              </div>
-            </button>
-          {/each}
-
+        <span class="text-muted">{showLoginWallpaper ? 'Tutup' : 'Buka'}</span>
+      </button>
+      {#if showLoginWallpaper}
         <!-- Section 5: Login Page Wallpaper (Static & Independent) -->
         <div class="space-y-3 pt-3 border-t border-border">
           <div class="flex items-center justify-between">
@@ -739,18 +798,21 @@
             </div>
           {/if}
         </div>
-        </div>
-      </div>
+      {/if}
 
       <!-- Footer: Summary and Done Button -->
       <div class="flex items-center justify-between pt-3 border-t border-border">
         <span class="text-[11px] text-muted">
           Active: <strong class="text-foreground">{themes.find(t => t.id === themeStore.currentTheme)?.name}</strong> ({themeStore.currentStyle})
         </span>
-        <Button variant="primary" size="sm" onclick={handleClose}>
-          <Check class="w-3.5 h-3.5 mr-1" />
-          <span>Done & Apply</span>
-        </Button>
+        {#if themeStore.isSakugaFxActive()}
+          <SakugaButton onclick={handleClose}>Done & Apply</SakugaButton>
+        {:else}
+          <Button variant="primary" size="sm" onclick={handleClose}>
+            <Check class="w-3.5 h-3.5 mr-1" />
+            <span>Done & Apply</span>
+          </Button>
+        {/if}
       </div>
     </div>
   </div>
