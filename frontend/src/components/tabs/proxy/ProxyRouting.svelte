@@ -14,6 +14,8 @@
   import Input from '../../ui/Input.svelte'
   import { api } from '../../../api/client'
   import { toastStore } from '../../../stores/toast.svelte'
+  import { themeStore } from '../../../stores/theme.svelte'
+  import SakugaCheckbox from '../../ui/SakugaCheckbox.svelte'
 
   interface BoxSettings {
     bin_name: string
@@ -144,11 +146,15 @@
           </div>
           <p class="text-[10px] text-muted">Route connected Wi-Fi / USB hotspot clients through proxy.</p>
         </div>
+        {#if themeStore.isSakugaFxActive()}
+          <SakugaCheckbox bind:checked={hotspot.proxy_hotspot} />
+        {:else}
         <input
           type="checkbox"
           bind:checked={hotspot.proxy_hotspot}
           class="w-4 h-4 accent-accent cursor-pointer"
         />
+        {/if}
       </label>
 
       <!-- IPv6 Proxy Toggle -->
@@ -160,11 +166,15 @@
           </div>
           <p class="text-[10px] text-muted">Intercept and redirect IPv6 traffic to proxy core (ip6tables).</p>
         </div>
+        {#if themeStore.isSakugaFxActive()}
+          <SakugaCheckbox bind:checked={settings.ipv6} />
+        {:else}
         <input
           type="checkbox"
           bind:checked={settings.ipv6}
           class="w-4 h-4 accent-accent cursor-pointer"
         />
+        {/if}
       </label>
 
       <!-- Cgroup Memory Limit Toggle -->
@@ -174,11 +184,15 @@
             <Cpu class="w-4 h-4 text-accent" />
             <span>Cgroup RAM Limiter</span>
           </div>
+          {#if themeStore.isSakugaFxActive()}
+            <SakugaCheckbox bind:checked={settings.cgroup_memcg} />
+          {:else}
           <input
             type="checkbox"
             bind:checked={settings.cgroup_memcg}
             class="w-4 h-4 accent-accent cursor-pointer"
           />
+          {/if}
         </div>
         {#if settings.cgroup_memcg}
           <div class="flex items-center gap-2 pt-1">
@@ -199,12 +213,16 @@
           </div>
           <p class="text-[10px] text-muted">Force browsers to fallback to TCP for robust proxy tunneling.</p>
         </div>
+        {#if themeStore.isSakugaFxActive()}
+          <SakugaCheckbox checked={settings.quic === 'disable'} onchange={(e) => (settings.quic = (e.target as HTMLInputElement).checked ? 'disable' : 'enable')} />
+        {:else}
         <input
           type="checkbox"
           checked={settings.quic === 'disable'}
           onchange={(e) => (settings.quic = e.currentTarget.checked ? 'disable' : 'enable')}
           class="w-4 h-4 accent-accent cursor-pointer"
         />
+        {/if}
       </label>
     </div>
   </div>

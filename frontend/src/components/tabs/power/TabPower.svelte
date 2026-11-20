@@ -21,6 +21,8 @@
   import Button from '../../ui/Button.svelte'
   import Badge from '../../ui/Badge.svelte'
   import Modal from '../../ui/Modal.svelte'
+  import { themeStore } from '../../../stores/theme.svelte'
+  import SakugaToggle from '../../ui/SakugaToggle.svelte'
 
   // Immediate Power Action State
   let confirmAction = $state<PowerAction | null>(null)
@@ -247,6 +249,9 @@
         </div>
 
         <div class="flex items-center self-end sm:self-center">
+          {#if themeStore.isSakugaFxActive()}
+            <SakugaToggle bind:checked={enabled} label="Automated Reboot" />
+          {:else}
           <button
             type="button"
             role="switch"
@@ -263,6 +268,7 @@
                 : 'translate-x-1'}"
             ></span>
           </button>
+          {/if}
         </div>
       </div>
 

@@ -19,6 +19,8 @@
   import Button from '../../ui/Button.svelte'
   import Badge from '../../ui/Badge.svelte'
   import Input from '../../ui/Input.svelte'
+  import { themeStore } from '../../../stores/theme.svelte'
+  import SakugaCheckbox from '../../ui/SakugaCheckbox.svelte'
 
   // Log Mode: 'daemon' | 'logcat'
   let logMode = $state<'daemon' | 'logcat'>('daemon')
@@ -303,7 +305,11 @@
             class="max-w-md"
           />
           <label class="flex items-center gap-1.5 text-muted select-none cursor-pointer">
+            {#if themeStore.isSakugaFxActive()}
+              <SakugaCheckbox bind:checked={autoScroll} />
+            {:else}
             <input type="checkbox" bind:checked={autoScroll} class="accent-accent" />
+            {/if}
             <span>Auto-scroll</span>
           </label>
         </div>

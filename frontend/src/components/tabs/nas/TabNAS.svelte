@@ -61,6 +61,8 @@
   import Button from '../../ui/Button.svelte'
   import Badge from '../../ui/Badge.svelte'
   import Input from '../../ui/Input.svelte'
+  import { themeStore } from '../../../stores/theme.svelte'
+  import SakugaCheckbox from '../../ui/SakugaCheckbox.svelte'
 
   let config = $state<NASConfig>({
     enabled: false,
@@ -557,11 +559,15 @@
                 Prohibit clients from writing, deleting, or moving files (blocks PUT, DELETE, MKCOL).
               </span>
             </div>
+            {#if themeStore.isSakugaFxActive()}
+              <SakugaCheckbox bind:checked={config.read_only} />
+            {:else}
             <input
               type="checkbox"
               bind:checked={config.read_only}
               class="w-4 h-4 accent-accent cursor-pointer"
             />
+            {/if}
           </label>
           {#if !config.read_only}
             <div class="rounded-lg border border-amber-500/50 bg-amber-500/10 p-3 text-[11px] text-amber-200">
@@ -586,11 +592,15 @@
                 Require username and password credentials before granting access to shared files.
               </span>
             </div>
+            {#if themeStore.isSakugaFxActive()}
+              <SakugaCheckbox bind:checked={config.auth_required} />
+            {:else}
             <input
               type="checkbox"
               bind:checked={config.auth_required}
               class="w-4 h-4 accent-accent cursor-pointer"
             />
+            {/if}
           </label>
 
           <!-- Credential Inputs (if auth enabled) -->

@@ -15,6 +15,8 @@
   import Card from '../../ui/Card.svelte'
   import Button from '../../ui/Button.svelte'
   import Badge from '../../ui/Badge.svelte'
+  import { themeStore } from '../../../stores/theme.svelte'
+  import SakugaProgress from '../../ui/SakugaProgress.svelte'
 
   interface SpeedtestData {
     ping_ms: number
@@ -174,12 +176,16 @@
         <span class="uppercase font-bold text-[10px]">Testing Phase: {result.phase}</span>
         <span>{result.progress_pct}%</span>
       </div>
+{#if themeStore.isSakugaFxActive()}
+        <SakugaProgress value={result.progress_pct / 100} label="Speed test progress" />
+      {:else}
       <div class="w-full bg-card-sub border border-border h-2 rounded overflow-hidden">
         <div
           class="h-full bg-accent transition-all duration-300"
           style="width: {result.progress_pct}%"
         ></div>
       </div>
+      {/if}
     </div>
   {/if}
 

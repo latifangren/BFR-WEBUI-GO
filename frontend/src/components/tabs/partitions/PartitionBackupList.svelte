@@ -16,6 +16,8 @@
   import Button from '../../ui/Button.svelte'
   import Modal from '../../ui/Modal.svelte'
   import { toastStore } from '../../../stores/toast.svelte'
+  import { themeStore } from '../../../stores/theme.svelte'
+  import SakugaCheckbox from '../../ui/SakugaCheckbox.svelte'
 
   interface Props {
     backups: BackupFile[]
@@ -294,6 +296,9 @@
             <tr class="bg-card-sub border-b border-border text-muted uppercase text-[10px] tracking-wider">
               <!-- Checkbox Master Column -->
               <th class="p-3 w-10 text-center">
+                {#if themeStore.isSakugaFxActive()}
+                  <SakugaCheckbox checked={isAllFilteredSelected} onchange={toggleSelectAll} />
+                {:else}
                 <input
                   type="checkbox"
                   checked={isAllFilteredSelected}
@@ -301,6 +306,7 @@
                   class="rounded bg-card border-border text-accent focus:ring-accent w-4 h-4 cursor-pointer"
                   title="Select / deselect all filtered backups"
                 />
+                {/if}
               </th>
               <th class="p-3">File / Target Partition</th>
               <th class="p-3">Size</th>
@@ -315,6 +321,9 @@
               <tr class="hover:bg-card-sub/50 transition-colors {selectedFilenames.has(file.filename) ? 'bg-card-sub/80' : ''}">
                 <!-- Row Selection Checkbox -->
                 <td class="p-3 text-center">
+                  {#if themeStore.isSakugaFxActive()}
+                    <SakugaCheckbox checked={selectedFilenames.has(file.filename)} onchange={() => toggleSelect(file.filename)} />
+                  {:else}
                   <input
                     type="checkbox"
                     checked={selectedFilenames.has(file.filename)}
@@ -322,6 +331,7 @@
                     class="rounded bg-card border-border text-accent focus:ring-accent w-4 h-4 cursor-pointer"
                     title="Select {file.filename}"
                   />
+                  {/if}
                 </td>
 
                 <!-- File Name & Target -->

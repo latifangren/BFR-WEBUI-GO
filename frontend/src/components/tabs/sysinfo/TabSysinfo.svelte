@@ -16,6 +16,8 @@
   import Badge from '../../ui/Badge.svelte'
   import Button from '../../ui/Button.svelte'
   import SparklineWave from '../../ui/SparklineWave.svelte'
+  import { themeStore } from '../../../stores/theme.svelte'
+  import SakugaProgress from '../../ui/SakugaProgress.svelte'
 
   function formatServiceRAM(mb?: number): string {
     if (mb === undefined || mb === null || mb === 0) return '0 MB'
@@ -170,12 +172,16 @@
           </div>
 
           <!-- Progress bar -->
+{#if themeStore.isSakugaFxActive()}
+            <SakugaProgress value={stats.battery_level / 100} label="Battery level" />
+          {:else}
           <div class="neo-progress">
             <div
               class="neo-progress-fill bg-[#b8f34a]"
               style="width: {stats.battery_level}%"
             ></div>
           </div>
+          {/if}
           <SparklineWave value={stats.battery_level} color="var(--color-mint, #34d399)" height={26} class="mt-1" />
 
           <div class="grid grid-cols-2 gap-2 pt-2 border-t border-border">
@@ -227,12 +233,16 @@
             </div>
           </div>
 
+{#if themeStore.isSakugaFxActive()}
+            <SakugaProgress value={Math.min(stats.cpu_usage, 100) / 100} label="CPU usage" />
+          {:else}
           <div class="neo-progress">
             <div
               class="neo-progress-fill bg-[#ff5ca8]"
               style="width: {Math.min(stats.cpu_usage, 100)}%"
             ></div>
           </div>
+          {/if}
           <SparklineWave value={stats.cpu_usage} color="var(--color-mint, var(--neo-accent, #3b82f6))" height={26} class="mt-1" />
 
           <!-- Per Core Grid -->
@@ -281,12 +291,16 @@
                 {formatBytes(stats.mem_used)} / {formatBytes(stats.mem_total)}
               </span>
             </div>
+{#if themeStore.isSakugaFxActive()}
+              <SakugaProgress value={Math.min(stats.mem_used_pct, 100) / 100} label="Memory usage" />
+            {:else}
             <div class="neo-progress">
               <div
                 class="neo-progress-fill bg-[#9b7cff]"
                 style="width: {Math.min(stats.mem_used_pct, 100)}%"
               ></div>
             </div>
+            {/if}
             <SparklineWave value={stats.mem_used_pct} color="var(--color-lavender, #c084fc)" height={26} class="mt-1" />
             <div class="flex items-center justify-between text-[10px] text-muted">
               <span>Free: {formatBytes(stats.mem_free)}</span>

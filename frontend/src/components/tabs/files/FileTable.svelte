@@ -21,6 +21,8 @@
   } from '@lucide/svelte'
   import type { FileEntry } from './types'
   import type { PaneState } from './paneState.svelte'
+  import { themeStore } from '../../../stores/theme.svelte'
+  import SakugaCheckbox from '../../ui/SakugaCheckbox.svelte'
 
   interface Props {
     pane: PaneState
@@ -105,6 +107,9 @@
         <tr class="border-b-2 border-border text-muted uppercase text-[10px] bg-card-sub">
           <!-- Selection Column -->
           <th class="py-2.5 px-3 w-10 text-center">
+            {#if themeStore.isSakugaFxActive()}
+              <SakugaCheckbox checked={pane.allSelected} onchange={() => pane.toggleSelectAll()} />
+            {:else}
             <input
               type="checkbox"
               checked={pane.allSelected}
@@ -112,6 +117,7 @@
               class="w-4 h-4 accent-accent rounded cursor-pointer"
               title={pane.allSelected ? 'Deselect All' : 'Select All'}
             />
+            {/if}
           </th>
 
           <!-- Name Column (Sortable) -->
@@ -187,12 +193,16 @@
           <tr class="transition-colors {isSelected ? 'bg-accent/15' : 'hover:bg-card-sub/60'}">
             <!-- Row Checkbox -->
             <td class="py-2.5 px-3 w-10 text-center">
+              {#if themeStore.isSakugaFxActive()}
+                <SakugaCheckbox checked={isSelected} onchange={() => pane.toggleSelect(file.path)} />
+              {:else}
               <input
                 type="checkbox"
                 checked={isSelected}
                 onchange={() => pane.toggleSelect(file.path)}
                 class="w-4 h-4 accent-accent rounded cursor-pointer"
               />
+              {/if}
             </td>
 
             <!-- Name & Icon -->

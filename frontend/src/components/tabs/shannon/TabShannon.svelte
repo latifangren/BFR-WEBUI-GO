@@ -23,6 +23,8 @@
   import Badge from '../../ui/Badge.svelte'
   import Modal from '../../ui/Modal.svelte'
   import ShannonCAEditor from './ShannonCAEditor.svelte'
+  import { themeStore } from '../../../stores/theme.svelte'
+  import SakugaTabs from '../../ui/SakugaTabs.svelte'
 
   interface ShannonStatus {
     is_shannon: boolean
@@ -54,6 +56,8 @@
   }
 
   let subTab = $state<'bands' | 'rat_mode' | 'vonr_diag' | 'ca_combos'>('bands')
+  const SUBTAB_IDS: Array<typeof subTab> = ['bands', 'rat_mode', 'vonr_diag', 'ca_combos']
+  const SUBTAB_LABELS: string[] = ['Band Lock (All RATs)', 'RAT Lock & 5G Mode', 'VoNR & Modem State', 'CA & UE Capability (Pixel 6–10)']
   let bandCategory = $state<'lte' | 'sa' | 'nsa' | 'wcdma' | 'gsm'>('lte')
 
   let status = $state<ShannonStatus>({
@@ -434,6 +438,13 @@
   </div>
 
   <!-- SUB-TAB SWITCHER -->
+{#if themeStore.isSakugaFxActive()}
+    <SakugaTabs
+      selected={SUBTAB_IDS.indexOf(subTab)}
+      options={SUBTAB_LABELS}
+      onchange={(e) => { subTab = SUBTAB_IDS[(e.target as any).selected] }}
+    />
+  {:else}
   <div class="flex items-center gap-2 border-b-2 border-border pb-2 overflow-x-auto text-xs">
     {#each [
       { id: 'bands', label: 'Band Lock (All RATs)', icon: Radio },
@@ -453,6 +464,7 @@
       </button>
     {/each}
   </div>
+  {/if}
 
 
   <!-- SUB-TAB 1: FREQUENCY BANDS -->

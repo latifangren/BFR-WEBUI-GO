@@ -23,6 +23,8 @@
   import Input from '../../../ui/Input.svelte'
   import type { QoSConfig, QoSStatus, ClientLimit } from '../../../../types/qos'
   import type { ConnectedClient } from '../../../../types/hotspot'
+  import { themeStore } from '../../../../stores/theme.svelte'
+  import SakugaCheckbox from '../../../ui/SakugaCheckbox.svelte'
 
   interface Props {
     prefillClient?: ConnectedClient | null
@@ -239,11 +241,15 @@
               <span class="text-[10px] text-muted">Bypasses queue for UDP 27015 & Ping</span>
             </div>
           </div>
+          {#if themeStore.isSakugaFxActive()}
+            <SakugaCheckbox bind:checked={config.prioritize_gaming} />
+          {:else}
           <input
             type="checkbox"
             bind:checked={config.prioritize_gaming}
             class="w-4 h-4 accent-accent cursor-pointer"
           />
+          {/if}
         </label>
 
         <label class="flex items-center justify-between p-3 bg-card-sub border-2 border-border rounded-lg cursor-pointer hover:border-accent transition-colors">
@@ -254,11 +260,15 @@
               <span class="text-[10px] text-muted">WhatsApp Call & Discord Voice (prio 2)</span>
             </div>
           </div>
+          {#if themeStore.isSakugaFxActive()}
+            <SakugaCheckbox bind:checked={config.prioritize_voip} />
+          {:else}
           <input
             type="checkbox"
             bind:checked={config.prioritize_voip}
             class="w-4 h-4 accent-accent cursor-pointer"
           />
+          {/if}
         </label>
       </div>
 

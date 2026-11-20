@@ -45,7 +45,7 @@ class ThemeStore {
   neoPatternOpacity = $state<number>(0.04)
   // Sakuga FX: anime-style button effects (sakuga-vfx, MIT). Only
   // meaningful inside the Neobrutalism themes; the toggle is hidden
-  // elsewhere and the scripts load lazily, only button.js (46 KB).
+  // elsewhere and the scripts load lazily on demand.
   sakugaFx = $state<boolean>(false)
   private sakugaLoad: Promise<void> | null = null
   constructor() {
@@ -152,26 +152,53 @@ class ThemeStore {
     }
   }
 
-  // Lazily load the Sakuga button component (button.js defines
-  // window.SakugaFX; the other vendored components are not loaded
-  // until a later slice uses them). Respects the component's own
-  // prefers-reduced-motion handling once loaded.
+  // Lazily load all vendored Sakuga components, in order (each file
+  // is self-contained and stamps window.SakugaFX if missing; the
+  // button file first is still the safe order). Loaded once per page
+  // load; toggling the FX off does not unload them. Respects each
+  // component's own prefers-reduced-motion handling once loaded.
   ensureSakugaLoaded(): Promise<void> {
     if (typeof window === 'undefined') return Promise.resolve()
-    if (customElements.get('sakuga-button')) return Promise.resolve()
+    if (customElements.get('sakuga-button') && customElements.get('sakuga-toggle')) {
+      return Promise.resolve()
+    }
     if (!this.sakugaLoad) {
-      this.sakugaLoad = new Promise<void>((resolve, reject) => {
-        const script = document.createElement('script')
-        script.src = '/sakuga-vfx/button.js'
-        script.onload = () => resolve()
-        script.onerror = () => reject(new Error('Failed to load Sakuga FX'))
-        document.head.appendChild(script)
-      })
+      const files = [
+        'button.js',
+        'toggle.js',
+        'slider.js',
+        'checkbox.js',
+        'radio.js',
+        'input.js',
+        'tabs.js',
+        'progress.js',
+        'rating.js',
+        'toast.js',
+        'tooltip.js',
+      ]
+      this.sakugaLoad = files.reduce(
+        (chain, file) => chain.then(() => this.loadSakugaScript(file)),
+        Promise.resolve(),
+      )
       this.sakugaLoad.catch(() => {
         this.sakugaLoad = null
       })
     }
     return this.sakugaLoad
+  }
+
+  private loadSakugaScript(file: string): Promise<void> {
+    return new Promise<void>((resolve, reject) => {
+      if (document.querySelector(`script[src="/sakuga-vfx/${file}"]`)) {
+        resolve()
+        return
+      }
+      const script = document.createElement('script')
+      script.src = `/sakuga-vfx/${file}`
+      script.onload = () => resolve()
+      script.onerror = () => reject(new Error(`Failed to load Sakuga ${file}`))
+      document.head.appendChild(script)
+    })
   }
 
   setTheme(theme: ThemeMode) {

@@ -15,6 +15,8 @@
   import Button from '../../ui/Button.svelte'
   import Badge from '../../ui/Badge.svelte'
   import Input from '../../ui/Input.svelte'
+  import { themeStore } from '../../../stores/theme.svelte'
+  import SakugaCheckbox from '../../ui/SakugaCheckbox.svelte'
 
   interface TelegramConfig {
     enabled: boolean
@@ -196,11 +198,15 @@
             <span class="font-bold text-foreground block">Enable Telegram Bot Service</span>
             <span class="text-[10px] text-muted">Activate background alert dispatcher</span>
           </div>
+          {#if themeStore.isSakugaFxActive()}
+            <SakugaCheckbox bind:checked={config.enabled} />
+          {:else}
           <input
             type="checkbox"
             bind:checked={config.enabled}
             class="w-4 h-4 accent-accent"
           />
+          {/if}
         </label>
 
         <div class="space-y-3 pt-2">
@@ -228,11 +234,15 @@
                 <Bell class="w-4 h-4 text-emerald-400" />
                 <span>Notify On System Boot</span>
               </div>
+              {#if themeStore.isSakugaFxActive()}
+                <SakugaCheckbox bind:checked={config.notify_on_boot} />
+              {:else}
               <input
                 type="checkbox"
                 bind:checked={config.notify_on_boot}
                 class="w-4 h-4 accent-accent"
               />
+              {/if}
             </label>
 
             <label class="flex items-center justify-between p-2.5 bg-card-sub border border-border rounded cursor-pointer hover:border-accent transition-colors">
@@ -240,11 +250,15 @@
                 <Bell class="w-4 h-4 text-amber-400" />
                 <span>Notify On Admin Login</span>
               </div>
+              {#if themeStore.isSakugaFxActive()}
+                <SakugaCheckbox bind:checked={config.notify_on_login} />
+              {:else}
               <input
                 type="checkbox"
                 bind:checked={config.notify_on_login}
                 class="w-4 h-4 accent-accent"
               />
+              {/if}
             </label>
           </div>
         </div>

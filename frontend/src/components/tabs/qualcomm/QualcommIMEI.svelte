@@ -21,6 +21,8 @@
   import Button from '../../ui/Button.svelte'
   import Badge from '../../ui/Badge.svelte'
   import Modal from '../../ui/Modal.svelte'
+  import { themeStore } from '../../../stores/theme.svelte'
+  import SakugaCheckbox from '../../ui/SakugaCheckbox.svelte'
 
   interface IMEIInfo {
     imei1: string
@@ -507,12 +509,16 @@
     <!-- SAFETY TOGGLES & ACTIONS -->
     <div class="pt-2 border-t border-border grid grid-cols-1 sm:grid-cols-2 gap-3">
       <label class="flex items-start gap-2.5 p-2 bg-card-sub border border-border rounded cursor-pointer hover:border-border/80">
+        {#if themeStore.isSakugaFxActive()}
+          <SakugaCheckbox bind:checked={useOfflineMode} disabled={isWriting} />
+        {:else}
         <input
           type="checkbox"
           bind:checked={useOfflineMode}
           class="mt-1 neo-checkbox"
           disabled={isWriting}
         />
+        {/if}
         <div class="text-[11px]">
           <span class="font-bold text-foreground block">Offline Digital Mode (DIAG 0x29)</span>
           <span class="text-muted text-[10px]">
@@ -522,12 +528,16 @@
       </label>
 
       <label class="flex items-start gap-2.5 p-2 bg-card-sub border border-border rounded cursor-pointer hover:border-border/80">
+        {#if themeStore.isSakugaFxActive()}
+          <SakugaCheckbox bind:checked={autoReboot} disabled={isWriting} />
+        {:else}
         <input
           type="checkbox"
           bind:checked={autoReboot}
           class="mt-1 neo-checkbox"
           disabled={isWriting}
         />
+        {/if}
         <div class="text-[11px]">
           <span class="font-bold text-foreground block">Auto Reboot Modem (SSR)</span>
           <span class="text-muted text-[10px]">

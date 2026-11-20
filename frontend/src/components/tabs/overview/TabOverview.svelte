@@ -32,6 +32,8 @@
   import SparklineWave from '../../ui/SparklineWave.svelte'
   import NoticeBanner from '../../common/NoticeBanner.svelte'
   import AnimatedNumber from '../../ui/AnimatedNumber.svelte'
+  import { themeStore } from '../../../stores/theme.svelte'
+  import SakugaProgress from '../../ui/SakugaProgress.svelte'
 
   interface ShortcutItem {
     id: string
@@ -218,12 +220,16 @@
             </span>
           {/if}
         </div>
+{#if themeStore.isSakugaFxActive()}
+          <SakugaProgress value={(stats ? Math.min(stats.cpu_usage, 100) : 0) / 100} label="CPU usage" />
+        {:else}
         <div class="neo-progress mt-3">
           <div
             class="neo-progress-fill bg-[#ff5ca8]"
             style="width: {stats ? Math.min(stats.cpu_usage, 100) : 0}%"
           ></div>
         </div>
+        {/if}
       </div>
       <SparklineWave history={sysinfoStore.cpuHistory} value={stats ? stats.cpu_usage : 0} color="var(--color-mint, var(--neo-accent, #3b82f6))" height={24} class="mt-2" />
     </div>
@@ -256,12 +262,16 @@
             </div>
           </div>
         </div>
+{#if themeStore.isSakugaFxActive()}
+          <SakugaProgress value={(stats ? Math.min(stats.mem_used_pct, 100) : 0) / 100} label="Memory usage" />
+        {:else}
         <div class="neo-progress mt-3">
           <div
             class="neo-progress-fill bg-[#9b7cff]"
             style="width: {stats ? Math.min(stats.mem_used_pct, 100) : 0}%"
           ></div>
         </div>
+        {/if}
       </div>
       <SparklineWave history={sysinfoStore.ramHistory} value={stats ? stats.mem_used_pct : 0} color="var(--color-lavender, #c084fc)" height={24} class="mt-2" />
     </div>
@@ -294,12 +304,16 @@
             </div>
           </div>
         </div>
+{#if themeStore.isSakugaFxActive()}
+          <SakugaProgress value={(stats ? Math.min(stats.disk_used_pct, 100) : 0) / 100} label="Disk usage" />
+        {:else}
         <div class="neo-progress mt-3">
           <div
             class="neo-progress-fill bg-[#55dfff]"
             style="width: {stats ? Math.min(stats.disk_used_pct, 100) : 0}%"
           ></div>
         </div>
+        {/if}
       </div>
       <SparklineWave value={stats ? stats.disk_used_pct : 0} color="var(--color-ice, #60a5fa)" height={20} class="mt-2" />
     </div>
@@ -335,12 +349,16 @@
             {stats?.battery_status || 'OK'}
           </span>
         </div>
+{#if themeStore.isSakugaFxActive()}
+          <SakugaProgress value={(stats ? Math.min(stats.battery_level, 100) : 0) / 100} label="Battery level" />
+        {:else}
         <div class="neo-progress mt-3">
           <div
             class="neo-progress-fill bg-[#b8f34a]"
             style="width: {stats ? Math.min(stats.battery_level, 100) : 0}%"
           ></div>
         </div>
+        {/if}
       </div>
       <SparklineWave value={stats ? stats.battery_level : 0} color="var(--color-mint, #34d399)" height={20} class="mt-2" />
     </div>

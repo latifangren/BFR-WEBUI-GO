@@ -9,6 +9,8 @@
   import Modal from '../../ui/Modal.svelte'
   import Button from '../../ui/Button.svelte'
   import Badge from '../../ui/Badge.svelte'
+  import { themeStore } from '../../../stores/theme.svelte'
+  import SakugaCheckbox from '../../ui/SakugaCheckbox.svelte'
 
   interface Props {
     open: boolean
@@ -188,7 +190,11 @@
 
               <!-- UL CA Checkbox -->
               <label class="flex items-center gap-1.5 text-xs text-muted cursor-pointer select-none bg-zinc-950 px-2 py-1 rounded border border-border">
+                {#if themeStore.isSakugaFxActive()}
+                  <SakugaCheckbox bind:checked={caUlFilter} />
+                {:else}
                 <input type="checkbox" bind:checked={caUlFilter} class="rounded border-border accent-cyan-500" />
+                {/if}
                 <span>Uplink CA Only</span>
               </label>
             </div>

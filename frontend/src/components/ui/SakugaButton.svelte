@@ -7,10 +7,16 @@
   let {
     children,
     variant = 'primary',
+    disabled = false,
+    title,
+    class: className = '',
     onclick,
   }: {
     children: Snippet
     variant?: 'primary' | 'secondary'
+    disabled?: boolean
+    title?: string
+    class?: string
     onclick?: (e: MouseEvent) => void
   } = $props()
 </script>
@@ -19,6 +25,9 @@
 <!-- svelte-ignore a11y_no_static_element_interactions -->
 <sakuga-button
   variant={variant === 'secondary' ? 'secondary' : undefined}
+  {disabled}
+  {title}
+  class={className}
   onclick={onclick}
 >
   {@render children()}

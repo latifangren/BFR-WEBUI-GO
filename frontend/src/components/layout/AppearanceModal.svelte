@@ -24,6 +24,7 @@
   import type { ThemeMode, UIStyle, WallpaperItem } from '../../types/common'
   import Button from '../ui/Button.svelte'
   import SakugaButton from '../ui/SakugaButton.svelte'
+  import SakugaSlider from '../ui/SakugaSlider.svelte'
 
   interface Props {
     open?: boolean
@@ -388,6 +389,9 @@
                 <span class="text-muted font-bold">Shadow</span>
                 <span class="text-accent font-mono font-bold">{themeStore.neoShadowSize}px</span>
               </div>
+              {#if themeStore.isSakugaFxActive()}
+                <SakugaSlider value={themeStore.neoShadowSize} min={0} max={8} step={1} oninput={(e) => themeStore.setNeoShadowSize(Number((e.target as HTMLInputElement).value))} />
+              {:else}
               <input
                 type="range"
                 min="0"
@@ -397,6 +401,7 @@
                 oninput={(e) => themeStore.setNeoShadowSize(Number((e.target as HTMLInputElement).value))}
                 class="w-full accent-accent cursor-pointer"
               />
+              {/if}
             </div>
 
             <!-- Border Thickness -->
@@ -405,6 +410,9 @@
                 <span class="text-muted font-bold">Border</span>
                 <span class="text-accent font-mono font-bold">{themeStore.neoBorderWidth}px</span>
               </div>
+              {#if themeStore.isSakugaFxActive()}
+                <SakugaSlider value={themeStore.neoBorderWidth} min={1} max={4} step={1} oninput={(e) => themeStore.setNeoBorderWidth(Number((e.target as HTMLInputElement).value))} />
+              {:else}
               <input
                 type="range"
                 min="1"
@@ -414,6 +422,7 @@
                 oninput={(e) => themeStore.setNeoBorderWidth(Number((e.target as HTMLInputElement).value))}
                 class="w-full accent-accent cursor-pointer"
               />
+              {/if}
             </div>
 
             <!-- Corner Radius -->
@@ -422,6 +431,9 @@
                 <span class="text-muted font-bold">Radius</span>
                 <span class="text-accent font-mono font-bold">{themeStore.neoRadius}px</span>
               </div>
+              {#if themeStore.isSakugaFxActive()}
+                <SakugaSlider value={themeStore.neoRadius} min={0} max={14} step={1} oninput={(e) => themeStore.setNeoRadius(Number((e.target as HTMLInputElement).value))} />
+              {:else}
               <input
                 type="range"
                 min="0"
@@ -431,6 +443,7 @@
                 oninput={(e) => themeStore.setNeoRadius(Number((e.target as HTMLInputElement).value))}
                 class="w-full accent-accent cursor-pointer"
               />
+              {/if}
             </div>
 
             <!-- Press Depth -->
@@ -439,6 +452,9 @@
                 <span class="text-muted font-bold">Click Pop</span>
                 <span class="text-accent font-mono font-bold">{themeStore.neoPressDepth}px</span>
               </div>
+              {#if themeStore.isSakugaFxActive()}
+                <SakugaSlider value={themeStore.neoPressDepth} min={1} max={4} step={1} oninput={(e) => themeStore.setNeoPressDepth(Number((e.target as HTMLInputElement).value))} />
+              {:else}
               <input
                 type="range"
                 min="1"
@@ -448,6 +464,7 @@
                 oninput={(e) => themeStore.setNeoPressDepth(Number((e.target as HTMLInputElement).value))}
                 class="w-full accent-accent cursor-pointer"
               />
+              {/if}
             </div>
           </div>
 
@@ -458,6 +475,9 @@
               <div class="flex items-center gap-2">
                 <span class="text-[10px] text-muted">Opacity:</span>
                 <span class="text-[10px] font-mono text-accent font-bold">{Math.round(themeStore.neoPatternOpacity * 100)}%</span>
+                {#if themeStore.isSakugaFxActive()}
+                  <SakugaSlider value={themeStore.neoPatternOpacity} min={0} max={0.12} step={0.01} oninput={(e) => themeStore.setNeoPatternOpacity(Number((e.target as HTMLInputElement).value))} />
+                {:else}
                 <input
                   type="range"
                   min="0"
@@ -467,6 +487,7 @@
                   oninput={(e) => themeStore.setNeoPatternOpacity(Number((e.target as HTMLInputElement).value))}
                   class="w-20 accent-accent cursor-pointer"
                 />
+                {/if}
               </div>
             </div>
 
@@ -516,6 +537,9 @@
                 <span class="text-muted font-bold">Blur Amount</span>
                 <span class="text-accent font-mono font-bold">{themeStore.glassBlur}px</span>
               </div>
+              {#if themeStore.isSakugaFxActive()}
+                <SakugaSlider value={themeStore.glassBlur} min={4} max={32} step={2} oninput={(e) => themeStore.setGlassBlur(Number((e.target as HTMLInputElement).value))} />
+              {:else}
               <input
                 type="range"
                 min="4"
@@ -525,6 +549,7 @@
                 oninput={(e) => themeStore.setGlassBlur(Number((e.target as HTMLInputElement).value))}
                 class="w-full accent-accent cursor-pointer"
               />
+              {/if}
             </div>
 
             <!-- Opacity Slider -->
@@ -533,6 +558,9 @@
                 <span class="text-muted font-bold">Card Opacity</span>
                 <span class="text-accent font-mono font-bold">{Math.round(themeStore.glassOpacity * 100)}%</span>
               </div>
+              {#if themeStore.isSakugaFxActive()}
+                <SakugaSlider value={themeStore.glassOpacity} min={0.2} max={0.95} step={0.05} oninput={(e) => themeStore.setGlassOpacity(Number((e.target as HTMLInputElement).value))} />
+              {:else}
               <input
                 type="range"
                 min="0.2"
@@ -542,6 +570,7 @@
                 oninput={(e) => themeStore.setGlassOpacity(Number((e.target as HTMLInputElement).value))}
                 class="w-full accent-accent cursor-pointer"
               />
+              {/if}
             </div>
 
             <!-- Dim Slider -->
@@ -550,6 +579,9 @@
                 <span class="text-muted font-bold">Wallpaper Dim</span>
                 <span class="text-accent font-mono font-bold">{Math.round(themeStore.glassDim * 100)}%</span>
               </div>
+              {#if themeStore.isSakugaFxActive()}
+                <SakugaSlider value={themeStore.glassDim} min={0.2} max={1} step={0.05} oninput={(e) => themeStore.setGlassDim(Number((e.target as HTMLInputElement).value))} />
+              {:else}
               <input
                 type="range"
                 min="0.2"
@@ -559,6 +591,7 @@
                 oninput={(e) => themeStore.setGlassDim(Number((e.target as HTMLInputElement).value))}
                 class="w-full accent-accent cursor-pointer"
               />
+              {/if}
             </div>
           </div>
 
@@ -768,6 +801,9 @@
                   <span class="text-muted font-bold">Dimming (Keterbacaan):</span>
                   <span class="font-bold text-accent">{Math.round(themeStore.loginWallpaperDim * 100)}%</span>
                 </div>
+                {#if themeStore.isSakugaFxActive()}
+                  <SakugaSlider value={themeStore.loginWallpaperDim} min={0} max={0.8} step={0.05} oninput={(e) => themeStore.setLoginWallpaperDim(Number((e.target as HTMLInputElement).value))} />
+                {:else}
                 <input
                   type="range"
                   min="0"
@@ -777,6 +813,7 @@
                   oninput={(e) => themeStore.setLoginWallpaperDim(Number((e.target as HTMLInputElement).value))}
                   class="w-full accent-accent cursor-pointer"
                 />
+                {/if}
               </div>
 
               <!-- Blur -->
@@ -785,6 +822,9 @@
                   <span class="text-muted font-bold">Latar Blur:</span>
                   <span class="font-bold text-accent">{themeStore.loginWallpaperBlur}px</span>
                 </div>
+                {#if themeStore.isSakugaFxActive()}
+                  <SakugaSlider value={themeStore.loginWallpaperBlur} min={0} max={16} step={1} oninput={(e) => themeStore.setLoginWallpaperBlur(Number((e.target as HTMLInputElement).value))} />
+                {:else}
                 <input
                   type="range"
                   min="0"
@@ -794,6 +834,7 @@
                   oninput={(e) => themeStore.setLoginWallpaperBlur(Number((e.target as HTMLInputElement).value))}
                   class="w-full accent-accent cursor-pointer"
                 />
+                {/if}
               </div>
             </div>
           {/if}

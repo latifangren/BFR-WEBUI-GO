@@ -8,6 +8,8 @@
   import type { PartitionInfo } from '../../../types/partition'
   import Modal from '../../ui/Modal.svelte'
   import Button from '../../ui/Button.svelte'
+  import { themeStore } from '../../../stores/theme.svelte'
+  import SakugaCheckbox from '../../ui/SakugaCheckbox.svelte'
 
   interface Props {
     isOpen: boolean
@@ -134,6 +136,9 @@
         </div>
       </div>
       <label class="relative inline-flex items-center cursor-pointer shrink-0">
+        {#if themeStore.isSakugaFxActive()}
+          <SakugaCheckbox bind:checked={autoBackup} disabled={isFlashing} />
+        {:else}
         <input
           type="checkbox"
           bind:checked={autoBackup}
@@ -141,6 +146,7 @@
           class="sr-only peer"
         />
         <div class="w-11 h-6 bg-card peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-foreground after:border-border after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-accent border border-border"></div>
+        {/if}
       </label>
     </div>
 

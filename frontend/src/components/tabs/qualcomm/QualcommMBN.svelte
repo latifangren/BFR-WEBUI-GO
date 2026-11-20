@@ -19,6 +19,9 @@
   import Button from '../../ui/Button.svelte'
   import Badge from '../../ui/Badge.svelte'
   import Modal from '../../ui/Modal.svelte'
+  import { themeStore } from '../../../stores/theme.svelte'
+  import SakugaCheckbox from '../../ui/SakugaCheckbox.svelte'
+  import SakugaRadio from '../../ui/SakugaRadio.svelte'
 
   interface MbnConfigItem {
     name: string
@@ -294,6 +297,11 @@
       <!-- AUTOSELECT TOGGLE BY UIM -->
       <div class="p-3 bg-card-sub border-2 border-border rounded space-y-2">
         <span class="text-[10px] text-muted uppercase font-bold tracking-wider block">MCFG Autoselect on SIM Change:</span>
+{#if themeStore.isSakugaFxActive()}
+          <SakugaRadio value={String(selectedSlot === 0 ? overview.autoselect.sim1_mode : overview.autoselect.sim2_mode)} label="MCFG Autoselect on SIM Change"
+            options={[{ value: '1', label: 'Auto by IMSI' }, { value: '0', label: 'Manual Lock' }, { value: '2', label: 'With MBN update only' }]}
+            onchange={(e) => updateAutoselect(selectedSlot, Number((e.target as any).value))} />
+        {:else}
         <div class="flex items-center gap-3">
           <label class="flex items-center gap-1.5 cursor-pointer">
             <input
@@ -329,6 +337,7 @@
             <span class="font-bold text-foreground">With MBN update only</span>
           </label>
         </div>
+        {/if}
       </div>
     </div>
 
@@ -365,6 +374,11 @@
           </span>
           <Badge variant="default" class="text-[9px] font-mono">Current: {overview.pixelparts.current.toUpperCase()}</Badge>
         </div>
+{#if themeStore.isSakugaFxActive()}
+          <SakugaRadio value={overview.pixelparts.current || 'stock'} label="ROM MBN Catalog Preset"
+            options={[{ value: 'merged', label: 'Merged (460 MBNs)' }, { value: 'stock', label: 'Stock Google (116 MBNs)' }, { value: 'module', label: 'Module (343 MBNs)' }]}
+            onchange={(e) => updatePixelPartsMode((e.target as any).value)} />
+        {:else}
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
           <label class="flex items-center gap-2 p-2 bg-card border border-border rounded cursor-pointer hover:border-accent transition-colors">
             <input
@@ -409,6 +423,7 @@
             </div>
           </label>
         </div>
+        {/if}
       </div>
     {/if}
   </Card>
@@ -541,7 +556,11 @@
         </p>
 
         <label class="flex items-center gap-2 text-xs font-bold text-foreground cursor-pointer pt-2 border-t border-border/60">
+          {#if themeStore.isSakugaFxActive()}
+            <SakugaCheckbox bind:checked={restartSSR} />
+          {:else}
           <input type="checkbox" bind:checked={restartSSR} class="w-4 h-4 accent-accent" />
+          {/if}
           <span>Perform Subsystem Restart (SSR) after activation</span>
         </label>
       </div>

@@ -12,6 +12,8 @@
   import Card from '../../ui/Card.svelte'
   import Button from '../../ui/Button.svelte'
   import Input from '../../ui/Input.svelte'
+  import { themeStore } from '../../../stores/theme.svelte'
+  import SakugaCheckbox from '../../ui/SakugaCheckbox.svelte'
 
   let logs = $state<string[]>([])
   let isStreaming = $state(true)
@@ -125,11 +127,15 @@
           <Input placeholder="Filter log (e.g. error, info, tcp)..." bind:value={searchFilter} />
         </div>
         <label class="flex items-center gap-1.5 text-[11px] text-muted cursor-pointer select-none">
+          {#if themeStore.isSakugaFxActive()}
+            <SakugaCheckbox bind:checked={autoScroll} />
+          {:else}
           <input
             type="checkbox"
             bind:checked={autoScroll}
             class="w-3.5 h-3.5 accent-accent"
           />
+          {/if}
           <span>Auto-scroll</span>
         </label>
       </div>

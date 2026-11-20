@@ -1,4 +1,7 @@
 <script lang="ts">
+  import { themeStore } from '../../stores/theme.svelte'
+  import SakugaInput from './SakugaInput.svelte'
+
   interface Props {
     id?: string
     type?: string
@@ -26,25 +29,46 @@
     onchange,
     onkeydown,
   }: Props = $props()
+
+  // When Sakuga FX is active, text-like inputs render as a real
+  // <sakuga-input>. Other types (number, date, file, ...) stay native
+  // because sakuga-input only supports text/email/search/url/tel/password.
+  const useSakuga = $derived(
+    themeStore.isSakugaFxActive() &&
+      ['text', 'email', 'search', 'url', 'tel', 'password'].includes(type),
+  )
 </script>
 
 <div class="space-y-1 w-full">
-  {#if label}
-    <label for={id} class="block text-xs font-mono font-bold uppercase text-muted tracking-wider">
-      {label}
-    </label>
+  {#if useSakuga}
+    <SakugaInput
+      bind:value
+      {type}
+      label={label ?? ''}
+      {placeholder}
+      {disabled}
+      {oninput}
+      {onchange}
+      {onkeydown}
+    />
+  {:else}
+    {#if label}
+      <label for={id} class="block text-xs font-mono font-bold uppercase text-muted tracking-wider">
+        {label}
+      </label>
+    {/if}
+    <input
+      {id}
+      {type}
+      bind:value
+      {placeholder}
+      {disabled}
+      {oninput}
+      {onchange}
+      {onkeydown}
+      class="neo-input w-full bg-card-sub border border-border rounded px-3 py-2 text-sm font-mono text-foreground placeholder:text-muted focus:outline-none focus:border-accent disabled:opacity-50 transition-colors {className}"
+    />
   {/if}
-  <input
-    {id}
-    {type}
-    bind:value
-    {placeholder}
-    {disabled}
-    {oninput}
-    {onchange}
-    {onkeydown}
-    class="neo-input w-full bg-card-sub border border-border rounded px-3 py-2 text-sm font-mono text-foreground placeholder:text-muted focus:outline-none focus:border-accent disabled:opacity-50 transition-colors {className}"
-  />
   {#if error}
     <p class="text-xs text-red-500 font-mono">{error}</p>
   {/if}

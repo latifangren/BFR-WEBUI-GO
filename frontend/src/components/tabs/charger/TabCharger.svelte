@@ -36,6 +36,9 @@
   import Button from '../../ui/Button.svelte'
   import Badge from '../../ui/Badge.svelte'
   import Input from '../../ui/Input.svelte'
+  import { themeStore } from '../../../stores/theme.svelte'
+  import SakugaToggle from '../../ui/SakugaToggle.svelte'
+  import SakugaSlider from '../../ui/SakugaSlider.svelte'
 
   let status = $state<ChargerStatusResponse>({
     config: {
@@ -622,6 +625,9 @@
           <Badge variant={config.enabled ? 'success' : 'default'}>
             {config.enabled ? 'AUTO ON' : 'DISABLED'}
           </Badge>
+          {#if themeStore.isSakugaFxActive()}
+            <SakugaToggle checked={config.enabled} label="Smart Charging Limiter" onchange={toggleMasterEnabled} />
+          {:else}
           <button
             type="button"
             onclick={toggleMasterEnabled}
@@ -636,6 +642,7 @@
                 : 'translate-x-0'}"
             ></span>
           </button>
+          {/if}
         </div>
       {/snippet}
 
@@ -662,6 +669,9 @@
               </div>
             </div>
 
+            {#if themeStore.isSakugaFxActive()}
+              <SakugaSlider bind:value={config.stop_percent} min={50} max={95} step={1} oninput={(e) => onStopPercentChange(Number((e.target as HTMLInputElement).value))} />
+            {:else}
             <input
               type="range"
               min="50"
@@ -671,6 +681,7 @@
               bind:value={config.stop_percent}
               oninput={(e) => onStopPercentChange(Number((e.target as HTMLInputElement).value))}
             />
+            {/if}
             <div class="flex items-center justify-between text-[9px] text-muted">
               <span>Trips at {config.stop_percent}%</span>
               <span>Bypass AC</span>
@@ -697,6 +708,9 @@
               </div>
             </div>
 
+            {#if themeStore.isSakugaFxActive()}
+              <SakugaSlider bind:value={config.start_percent} min={20} max={90} step={1} oninput={(e) => onStartPercentChange(Number((e.target as HTMLInputElement).value))} />
+            {:else}
             <input
               type="range"
               min="20"
@@ -706,6 +720,7 @@
               bind:value={config.start_percent}
               oninput={(e) => onStartPercentChange(Number((e.target as HTMLInputElement).value))}
             />
+            {/if}
             <div class="flex items-center justify-between text-[9px] text-muted">
               <span>Reopens at &le; {config.start_percent}%</span>
               <span>Hysteresis {config.stop_percent - config.start_percent}%</span>

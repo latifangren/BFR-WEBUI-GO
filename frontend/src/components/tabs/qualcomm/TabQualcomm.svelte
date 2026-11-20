@@ -26,6 +26,8 @@
   import QualcommEFS from './QualcommEFS.svelte'
   import QualcommNV from './QualcommNV.svelte'
   import QualcommIMEI from './QualcommIMEI.svelte'
+  import { themeStore } from '../../../stores/theme.svelte'
+  import SakugaTabs from '../../ui/SakugaTabs.svelte'
   interface BandConfig {
     engine: 'qualcomm_qrtr' | 'universal' | 'qualcomm_at' | 'intent'
     preferred_rat: 'hybrid' | '5g_only' | '4g_only' | '5g_4g' | '3g_only'
@@ -55,6 +57,8 @@
     slots: SimSlotInfo[]
   }
   let subTab = $state<'bands' | 'cell_lock' | 'searcher' | 'capability' | 'mbn' | 'profiles' | 'efs' | 'nv' | 'imei'>('bands')
+  const SUBTAB_IDS: Array<typeof subTab> = ['bands', 'cell_lock', 'searcher', 'capability', 'mbn', 'profiles', 'efs', 'nv', 'imei']
+  const SUBTAB_LABELS: string[] = ['Band Locking', 'Cell & Tower Lock', 'Searcher & Extra Locks', 'RRC Capabilities', 'MBN / PDC Profiles', 'Hardware & Profiles', 'EFS & NV Browser', 'NV Manager', 'IMEI Tool']
   let bandConfig = $state<BandConfig>({
     engine: 'qualcomm_qrtr',
     preferred_rat: 'hybrid',
@@ -205,6 +209,13 @@
   </div>
 
   <!-- SUB-TABS NAVIGATION (OPSI A) -->
+{#if themeStore.isSakugaFxActive()}
+    <SakugaTabs
+      selected={SUBTAB_IDS.indexOf(subTab)}
+      options={SUBTAB_LABELS}
+      onchange={(e) => { subTab = SUBTAB_IDS[(e.target as any).selected] }}
+    />
+  {:else}
   <div class="flex items-center gap-2 border-b-2 border-border pb-2 overflow-x-auto text-xs">
     {#each [
       { id: 'bands', label: 'Band Locking', icon: Radio },
@@ -229,6 +240,7 @@
       </button>
     {/each}
   </div>
+  {/if}
 
   <!-- SUB-TAB CONTENT -->
   {#if subTab === 'bands'}

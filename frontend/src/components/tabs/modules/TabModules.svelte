@@ -16,6 +16,8 @@
   import Card from '../../ui/Card.svelte'
   import Button from '../../ui/Button.svelte'
   import Badge from '../../ui/Badge.svelte'
+  import { themeStore } from '../../../stores/theme.svelte'
+  import SakugaCheckbox from '../../ui/SakugaCheckbox.svelte'
 
   let modules = $state<ModuleInfo[]>([])
   let isLoading = $state(false)
@@ -243,6 +245,9 @@
 
                 <!-- Enable / Disable Switch -->
                 <label class="flex items-center gap-1.5 cursor-pointer select-none shrink-0">
+                  {#if themeStore.isSakugaFxActive()}
+                    <SakugaCheckbox checked={mod.enabled} disabled={togglingId === mod.id} onchange={() => toggleModule(mod)} />
+                  {:else}
                   <input
                     type="checkbox"
                     checked={mod.enabled}
@@ -250,6 +255,7 @@
                     onchange={() => toggleModule(mod)}
                     class="w-4 h-4 accent-accent cursor-pointer"
                   />
+                  {/if}
                 </label>
               </div>
 

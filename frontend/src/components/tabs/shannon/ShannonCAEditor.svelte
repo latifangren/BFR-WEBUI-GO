@@ -23,6 +23,8 @@
   import Button from '../../ui/Button.svelte'
   import Badge from '../../ui/Badge.svelte'
   import Modal from '../../ui/Modal.svelte'
+  import { themeStore } from '../../../stores/theme.svelte'
+  import SakugaCheckbox from '../../ui/SakugaCheckbox.svelte'
 
   // --- LTE CA TYPES ---
   interface Component {
@@ -1061,7 +1063,11 @@
 
       <div class="flex items-center pt-5">
         <label class="flex items-center gap-2 cursor-pointer">
+          {#if themeStore.isSakugaFxActive()}
+            <SakugaCheckbox bind:checked={pruneExcludeIntra} />
+          {:else}
           <input type="checkbox" bind:checked={pruneExcludeIntra} class="accent-accent" />
+          {/if}
           <span class="text-[11px] text-foreground font-bold">Exclude Intra-Band CA</span>
         </label>
       </div>

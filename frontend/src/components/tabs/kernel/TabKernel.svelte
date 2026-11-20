@@ -20,6 +20,8 @@
   import Card from '../../ui/Card.svelte'
   import Button from '../../ui/Button.svelte'
   import Badge from '../../ui/Badge.svelte'
+  import { themeStore } from '../../../stores/theme.svelte'
+  import SakugaSlider from '../../ui/SakugaSlider.svelte'
 
   let isLoading = $state(true)
   let status = $state<KernelStatusResponse | null>(null)
@@ -382,6 +384,9 @@
               <span class="text-[10px] uppercase font-bold text-muted">VM Swappiness</span>
               <span class="text-xs font-bold text-accent">{vmSwappiness}</span>
             </div>
+            {#if themeStore.isSakugaFxActive()}
+              <SakugaSlider bind:value={vmSwappiness} min={0} max={200} step={5} />
+            {:else}
             <input
               type="range"
               min="0"
@@ -390,6 +395,7 @@
               bind:value={vmSwappiness}
               class="w-full accent-accent cursor-pointer"
             />
+            {/if}
             <p class="text-[10px] text-muted leading-tight">
               Aggressiveness of kernel swapping memory into ZRAM (0=min, 100=std, 200=max).
             </p>
@@ -401,6 +407,9 @@
               <span class="text-[10px] uppercase font-bold text-muted">VFS Cache Pressure</span>
               <span class="text-xs font-bold text-accent">{vmVfsPressure}</span>
             </div>
+            {#if themeStore.isSakugaFxActive()}
+              <SakugaSlider bind:value={vmVfsPressure} min={10} max={250} step={10} />
+            {:else}
             <input
               type="range"
               min="10"
@@ -409,6 +418,7 @@
               bind:value={vmVfsPressure}
               class="w-full accent-accent cursor-pointer"
             />
+            {/if}
             <p class="text-[10px] text-muted leading-tight">
               Tendency of the kernel to reclaim memory used for directory & inode caches.
             </p>
@@ -420,6 +430,9 @@
               <span class="text-[10px] uppercase font-bold text-muted">Dirty Ratio</span>
               <span class="text-xs font-bold text-accent">{vmDirtyRatio}%</span>
             </div>
+            {#if themeStore.isSakugaFxActive()}
+              <SakugaSlider bind:value={vmDirtyRatio} min={5} max={60} step={5} />
+            {:else}
             <input
               type="range"
               min="5"
@@ -428,6 +441,7 @@
               bind:value={vmDirtyRatio}
               class="w-full accent-accent cursor-pointer"
             />
+            {/if}
             <p class="text-[10px] text-muted leading-tight">
               Max percentage of system memory filled with dirty pages before writeback.
             </p>
@@ -439,6 +453,9 @@
               <span class="text-[10px] uppercase font-bold text-muted">Dirty Background Ratio</span>
               <span class="text-xs font-bold text-accent">{vmDirtyBgRatio}%</span>
             </div>
+            {#if themeStore.isSakugaFxActive()}
+              <SakugaSlider bind:value={vmDirtyBgRatio} min={1} max={30} step={1} />
+            {:else}
             <input
               type="range"
               min="1"
@@ -447,6 +464,7 @@
               bind:value={vmDirtyBgRatio}
               class="w-full accent-accent cursor-pointer"
             />
+            {/if}
             <p class="text-[10px] text-muted leading-tight">
               Percentage threshold where pdflush/kswapd begins background disk flushing.
             </p>
