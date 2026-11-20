@@ -384,7 +384,7 @@
               <span class="text-[10px] uppercase font-bold text-muted">VM Swappiness</span>
               <span class="text-xs font-bold text-accent">{vmSwappiness}</span>
             </div>
-            {#if themeStore.isSakugaFxActive()}
+            {#if themeStore.useSakugaControls()}
               <SakugaSlider bind:value={vmSwappiness} min={0} max={200} step={5} />
             {:else}
             <input
@@ -407,7 +407,7 @@
               <span class="text-[10px] uppercase font-bold text-muted">VFS Cache Pressure</span>
               <span class="text-xs font-bold text-accent">{vmVfsPressure}</span>
             </div>
-            {#if themeStore.isSakugaFxActive()}
+            {#if themeStore.useSakugaControls()}
               <SakugaSlider bind:value={vmVfsPressure} min={10} max={250} step={10} />
             {:else}
             <input
@@ -430,7 +430,7 @@
               <span class="text-[10px] uppercase font-bold text-muted">Dirty Ratio</span>
               <span class="text-xs font-bold text-accent">{vmDirtyRatio}%</span>
             </div>
-            {#if themeStore.isSakugaFxActive()}
+            {#if themeStore.useSakugaControls()}
               <SakugaSlider bind:value={vmDirtyRatio} min={5} max={60} step={5} />
             {:else}
             <input
@@ -453,7 +453,7 @@
               <span class="text-[10px] uppercase font-bold text-muted">Dirty Background Ratio</span>
               <span class="text-xs font-bold text-accent">{vmDirtyBgRatio}%</span>
             </div>
-            {#if themeStore.isSakugaFxActive()}
+            {#if themeStore.useSakugaControls()}
               <SakugaSlider bind:value={vmDirtyBgRatio} min={1} max={30} step={1} />
             {:else}
             <input

@@ -198,7 +198,7 @@
             <span class="font-bold text-foreground block">Enable Telegram Bot Service</span>
             <span class="text-[10px] text-muted">Activate background alert dispatcher</span>
           </div>
-          {#if themeStore.isSakugaFxActive()}
+          {#if themeStore.useSakugaControls()}
             <SakugaCheckbox bind:checked={config.enabled} />
           {:else}
           <input
@@ -234,7 +234,7 @@
                 <Bell class="w-4 h-4 text-emerald-400" />
                 <span>Notify On System Boot</span>
               </div>
-              {#if themeStore.isSakugaFxActive()}
+              {#if themeStore.useSakugaControls()}
                 <SakugaCheckbox bind:checked={config.notify_on_boot} />
               {:else}
               <input
@@ -250,7 +250,7 @@
                 <Bell class="w-4 h-4 text-amber-400" />
                 <span>Notify On Admin Login</span>
               </div>
-              {#if themeStore.isSakugaFxActive()}
+              {#if themeStore.useSakugaControls()}
                 <SakugaCheckbox bind:checked={config.notify_on_login} />
               {:else}
               <input

@@ -191,3 +191,75 @@
     opacity: 0;
   }
 }
+
+/* Sakuga FX layer, all themes: toast pop-in, login card pop-in and the
+   login-failure shake. Mount animations (they run once when the element
+   appears); all three are disabled under prefers-reduced-motion. */
+@keyframes sakuga-toast-pop {
+  0% {
+    opacity: 0;
+    transform: translateY(8px) scale(0.92);
+  }
+  60% {
+    opacity: 1;
+    transform: translateY(0) scale(1.03);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.sakuga-toast-pop {
+  animation: sakuga-toast-pop 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes sakuga-card-pop {
+  0% {
+    opacity: 0;
+    transform: scale(0.94);
+  }
+  60% {
+    opacity: 1;
+    transform: scale(1.02);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.sakuga-card-pop {
+  animation: sakuga-card-pop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes sakuga-shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  20% {
+    transform: translateX(-8px);
+  }
+  40% {
+    transform: translateX(8px);
+  }
+  60% {
+    transform: translateX(-5px);
+  }
+  80% {
+    transform: translateX(5px);
+  }
+}
+
+.sakuga-shake {
+  animation: sakuga-shake 0.45s ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sakuga-toast-pop,
+  .sakuga-card-pop,
+  .sakuga-shake {
+    animation: none;
+  }
+}

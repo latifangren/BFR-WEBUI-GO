@@ -399,8 +399,7 @@
       </div>
       {/if}
 
-      {#if themeStore.isNeobrutalTheme()}
-      <!-- Sakuga FX (Neobrutalism only) -->
+      <!-- Sakuga FX (all themes) -->
       <div class="space-y-1.5">
         <span class="text-[11px] font-bold uppercase text-muted tracking-wider flex items-center gap-1.5">
           <Sparkles class="w-3.5 h-3.5 text-accent" />
@@ -409,7 +408,7 @@
         <div class="flex items-center justify-between gap-3 p-2.5 bg-card-sub border border-border rounded-lg">
           <div class="min-w-0">
             <div class="text-xs font-bold text-foreground">Sakuga anime FX</div>
-            <p class="text-[10px] text-muted">Main buttons burst Sakuga-style. Only active in Neobrutalism themes.</p>
+            <p class="text-[10px] text-muted">Bursts and manga SFX on buttons and key moments, in every theme. Sakuga controls stay Neobrutalism-only.</p>
           </div>
           <button
             type="button"
@@ -423,7 +422,6 @@
           </button>
         </div>
       </div>
-      {/if}
 
       <!-- Advanced Tuning (collapsed by default) -->
       {#if themeStore.currentStyle === 'neobrutal' || themeStore.currentStyle === 'glass'}
@@ -470,7 +468,7 @@
                 <span class="text-muted font-bold">Shadow</span>
                 <span class="text-accent font-mono font-bold">{themeStore.neoShadowSize}px</span>
               </div>
-              {#if themeStore.isSakugaFxActive()}
+              {#if themeStore.useSakugaControls()}
                 <SakugaSlider value={themeStore.neoShadowSize} min={0} max={8} step={1} oninput={(e) => themeStore.setNeoShadowSize(Number((e.target as HTMLInputElement).value))} />
               {:else}
               <input
@@ -491,7 +489,7 @@
                 <span class="text-muted font-bold">Border</span>
                 <span class="text-accent font-mono font-bold">{themeStore.neoBorderWidth}px</span>
               </div>
-              {#if themeStore.isSakugaFxActive()}
+              {#if themeStore.useSakugaControls()}
                 <SakugaSlider value={themeStore.neoBorderWidth} min={1} max={4} step={1} oninput={(e) => themeStore.setNeoBorderWidth(Number((e.target as HTMLInputElement).value))} />
               {:else}
               <input
@@ -512,7 +510,7 @@
                 <span class="text-muted font-bold">Radius</span>
                 <span class="text-accent font-mono font-bold">{themeStore.neoRadius}px</span>
               </div>
-              {#if themeStore.isSakugaFxActive()}
+              {#if themeStore.useSakugaControls()}
                 <SakugaSlider value={themeStore.neoRadius} min={0} max={14} step={1} oninput={(e) => themeStore.setNeoRadius(Number((e.target as HTMLInputElement).value))} />
               {:else}
               <input
@@ -533,7 +531,7 @@
                 <span class="text-muted font-bold">Click Pop</span>
                 <span class="text-accent font-mono font-bold">{themeStore.neoPressDepth}px</span>
               </div>
-              {#if themeStore.isSakugaFxActive()}
+              {#if themeStore.useSakugaControls()}
                 <SakugaSlider value={themeStore.neoPressDepth} min={1} max={4} step={1} oninput={(e) => themeStore.setNeoPressDepth(Number((e.target as HTMLInputElement).value))} />
               {:else}
               <input
@@ -556,7 +554,7 @@
               <div class="flex items-center gap-2">
                 <span class="text-[10px] text-muted">Opacity:</span>
                 <span class="text-[10px] font-mono text-accent font-bold">{Math.round(themeStore.neoPatternOpacity * 100)}%</span>
-                {#if themeStore.isSakugaFxActive()}
+                {#if themeStore.useSakugaControls()}
                   <SakugaSlider value={themeStore.neoPatternOpacity} min={0} max={0.12} step={0.01} oninput={(e) => themeStore.setNeoPatternOpacity(Number((e.target as HTMLInputElement).value))} />
                 {:else}
                 <input
@@ -618,7 +616,7 @@
                 <span class="text-muted font-bold">Blur Amount</span>
                 <span class="text-accent font-mono font-bold">{themeStore.glassBlur}px</span>
               </div>
-              {#if themeStore.isSakugaFxActive()}
+              {#if themeStore.useSakugaControls()}
                 <SakugaSlider value={themeStore.glassBlur} min={4} max={32} step={2} oninput={(e) => themeStore.setGlassBlur(Number((e.target as HTMLInputElement).value))} />
               {:else}
               <input
@@ -639,7 +637,7 @@
                 <span class="text-muted font-bold">Card Opacity</span>
                 <span class="text-accent font-mono font-bold">{Math.round(themeStore.glassOpacity * 100)}%</span>
               </div>
-              {#if themeStore.isSakugaFxActive()}
+              {#if themeStore.useSakugaControls()}
                 <SakugaSlider value={themeStore.glassOpacity} min={0.2} max={0.95} step={0.05} oninput={(e) => themeStore.setGlassOpacity(Number((e.target as HTMLInputElement).value))} />
               {:else}
               <input
@@ -660,7 +658,7 @@
                 <span class="text-muted font-bold">Wallpaper Dim</span>
                 <span class="text-accent font-mono font-bold">{Math.round(themeStore.glassDim * 100)}%</span>
               </div>
-              {#if themeStore.isSakugaFxActive()}
+              {#if themeStore.useSakugaControls()}
                 <SakugaSlider value={themeStore.glassDim} min={0.2} max={1} step={0.05} oninput={(e) => themeStore.setGlassDim(Number((e.target as HTMLInputElement).value))} />
               {:else}
               <input
@@ -882,7 +880,7 @@
                   <span class="text-muted font-bold">Dimming (Readability):</span>
                   <span class="font-bold text-accent">{Math.round(themeStore.loginWallpaperDim * 100)}%</span>
                 </div>
-                {#if themeStore.isSakugaFxActive()}
+                {#if themeStore.useSakugaControls()}
                   <SakugaSlider value={themeStore.loginWallpaperDim} min={0} max={0.8} step={0.05} oninput={(e) => themeStore.setLoginWallpaperDim(Number((e.target as HTMLInputElement).value))} />
                 {:else}
                 <input
@@ -903,7 +901,7 @@
                   <span class="text-muted font-bold">Background Blur:</span>
                   <span class="font-bold text-accent">{themeStore.loginWallpaperBlur}px</span>
                 </div>
-                {#if themeStore.isSakugaFxActive()}
+                {#if themeStore.useSakugaControls()}
                   <SakugaSlider value={themeStore.loginWallpaperBlur} min={0} max={16} step={1} oninput={(e) => themeStore.setLoginWallpaperBlur(Number((e.target as HTMLInputElement).value))} />
                 {:else}
                 <input
@@ -927,7 +925,7 @@
         <span class="text-[11px] text-muted">
           Active: <strong class="text-foreground">{themes.find(t => t.id === themeStore.currentTheme)?.name}</strong> ({themeStore.currentStyle})
         </span>
-        {#if themeStore.isSakugaFxActive()}
+        {#if themeStore.useSakugaControls()}
           <SakugaButton onclick={handleClose}>Done & Apply</SakugaButton>
         {:else}
           <Button variant="primary" size="sm" onclick={handleClose}>

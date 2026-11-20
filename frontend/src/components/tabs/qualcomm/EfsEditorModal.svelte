@@ -190,7 +190,7 @@
 
               <!-- UL CA Checkbox -->
               <label class="flex items-center gap-1.5 text-xs text-muted cursor-pointer select-none bg-zinc-950 px-2 py-1 rounded border border-border">
-                {#if themeStore.isSakugaFxActive()}
+                {#if themeStore.useSakugaControls()}
                   <SakugaCheckbox bind:checked={caUlFilter} />
                 {:else}
                 <input type="checkbox" bind:checked={caUlFilter} class="rounded border-border accent-cyan-500" />

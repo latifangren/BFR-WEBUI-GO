@@ -356,7 +356,7 @@
     </div>
   </div>
   <!-- SUB-TAB SWITCHER -->
-{#if themeStore.isSakugaFxActive()}
+{#if themeStore.useSakugaControls()}
     <SakugaTabs
       selected={SUBTAB_IDS.indexOf(subTab)}
       options={SUBTAB_LABELS}

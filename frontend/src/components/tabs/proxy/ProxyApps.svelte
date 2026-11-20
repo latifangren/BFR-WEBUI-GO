@@ -217,7 +217,7 @@
             class="p-2.5 rounded-lg border transition-colors flex items-center justify-between gap-3 cursor-pointer select-none {selected[app.package_name] ? 'bg-accent/10 border-accent font-bold text-foreground' : 'bg-card-sub border-border/80 text-muted hover:border-border'}"
           >
             <div class="flex items-center gap-2.5 min-w-0">
-              {#if themeStore.isSakugaFxActive()}
+              {#if themeStore.useSakugaControls()}
                 <SakugaCheckbox checked={!!selected[app.package_name]} onchange={() => toggleApp(app.package_name)} />
               {:else}
               <input

@@ -305,7 +305,7 @@
             class="max-w-md"
           />
           <label class="flex items-center gap-1.5 text-muted select-none cursor-pointer">
-            {#if themeStore.isSakugaFxActive()}
+            {#if themeStore.useSakugaControls()}
               <SakugaCheckbox bind:checked={autoScroll} />
             {:else}
             <input type="checkbox" bind:checked={autoScroll} class="accent-accent" />

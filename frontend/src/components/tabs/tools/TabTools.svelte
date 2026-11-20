@@ -355,7 +355,7 @@
         <span class="font-bold text-foreground block text-xs">Enable Automatic Cloud Sync</span>
         <span class="text-[10px] text-muted">Scheduled remote backup sync</span>
       </div>
-      {#if themeStore.isSakugaFxActive()}
+      {#if themeStore.useSakugaControls()}
         <SakugaCheckbox bind:checked={cloudConfig.enabled} />
       {:else}
       <input

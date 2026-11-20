@@ -509,7 +509,7 @@
     <!-- SAFETY TOGGLES & ACTIONS -->
     <div class="pt-2 border-t border-border grid grid-cols-1 sm:grid-cols-2 gap-3">
       <label class="flex items-start gap-2.5 p-2 bg-card-sub border border-border rounded cursor-pointer hover:border-border/80">
-        {#if themeStore.isSakugaFxActive()}
+        {#if themeStore.useSakugaControls()}
           <SakugaCheckbox bind:checked={useOfflineMode} disabled={isWriting} />
         {:else}
         <input
@@ -528,7 +528,7 @@
       </label>
 
       <label class="flex items-start gap-2.5 p-2 bg-card-sub border border-border rounded cursor-pointer hover:border-border/80">
-        {#if themeStore.isSakugaFxActive()}
+        {#if themeStore.useSakugaControls()}
           <SakugaCheckbox bind:checked={autoReboot} disabled={isWriting} />
         {:else}
         <input

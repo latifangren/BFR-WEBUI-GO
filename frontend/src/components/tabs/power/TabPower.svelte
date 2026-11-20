@@ -249,7 +249,7 @@
         </div>
 
         <div class="flex items-center self-end sm:self-center">
-          {#if themeStore.isSakugaFxActive()}
+          {#if themeStore.useSakugaControls()}
             <SakugaToggle bind:checked={enabled} label="Automated Reboot" />
           {:else}
           <button

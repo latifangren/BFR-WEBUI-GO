@@ -107,7 +107,7 @@
         <tr class="border-b-2 border-border text-muted uppercase text-[10px] bg-card-sub">
           <!-- Selection Column -->
           <th class="py-2.5 px-3 w-10 text-center">
-            {#if themeStore.isSakugaFxActive()}
+            {#if themeStore.useSakugaControls()}
               <SakugaCheckbox checked={pane.allSelected} onchange={() => pane.toggleSelectAll()} />
             {:else}
             <input
@@ -193,7 +193,7 @@
           <tr class="transition-colors {isSelected ? 'bg-accent/15' : 'hover:bg-card-sub/60'}">
             <!-- Row Checkbox -->
             <td class="py-2.5 px-3 w-10 text-center">
-              {#if themeStore.isSakugaFxActive()}
+              {#if themeStore.useSakugaControls()}
                 <SakugaCheckbox checked={isSelected} onchange={() => pane.toggleSelect(file.path)} />
               {:else}
               <input

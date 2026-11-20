@@ -45,10 +45,12 @@ class ThemeStore {
   neoPatternOpacity = $state<number>(0.04)
   // Sakuga FX: anime-style controls + burst effects, re-implemented
   // natively in Svelte (src/components/ui/Sakuga*.svelte,
-  // src/lib/sakuga-fx.ts) and driven by the theme tokens. Only meaningful
-  // inside the Neobrutalism themes; the toggle is hidden elsewhere. No
-  // scripts are loaded: the components are plain Svelte, so there is no
-  // custom-element upgrade race.
+  // src/lib/sakuga-fx.ts) and driven by the theme tokens. The FX burst
+  // layer is global — it follows the sakugaFx flag in every theme — while
+  // the Sakuga controls keep the Neobrutalism look and only render in
+  // Neobrutalism themes (see useSakugaControls). No scripts are loaded:
+  // the components are plain Svelte, so there is no custom-element
+  // upgrade race.
   sakugaFx = $state<boolean>(false)
 
   // Custom accent color (accent picker): a user-chosen accent that
@@ -152,7 +154,17 @@ class ThemeStore {
     return isNeobrutalTheme(this.currentTheme)
   }
 
+  // The FX burst layer (canvas bursts + manga SFX): global, follows the
+  // sakugaFx flag in every theme and style.
   isSakugaFxActive(): boolean {
+    return this.sakugaFx
+  }
+
+  // The Sakuga controls (the native Sakuga* components): they keep the
+  // Neobrutalism look (thick borders, hard shadows) and only render in
+  // Neobrutalism themes. Every callsite that branches between a Sakuga
+  // component and its native fallback uses this gate.
+  useSakugaControls(): boolean {
     return this.sakugaFx && isNeobrutalTheme(this.currentTheme)
   }
 

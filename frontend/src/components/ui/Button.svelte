@@ -61,7 +61,7 @@
   // Submit buttons work too: unlike the old <sakuga-button> custom element,
   // the native button is a real <button> and form-associated.
   const useSakuga = $derived(
-    themeStore.isSakugaFxActive() && variant !== 'danger' && variant !== 'ghost',
+    themeStore.useSakugaControls() && variant !== 'danger' && variant !== 'ghost',
   )
   const sakugaVariant: 'primary' | 'secondary' = $derived(
     variant === 'secondary' || variant === 'outline' || variant === 'stop'

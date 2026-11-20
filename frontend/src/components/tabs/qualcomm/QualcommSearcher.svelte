@@ -444,7 +444,7 @@
 
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-3 border-t-2 border-border/60">
         <label class="flex items-center gap-2 cursor-pointer text-xs font-bold text-foreground">
-          {#if themeStore.isSakugaFxActive()}
+          {#if themeStore.useSakugaControls()}
             <SakugaCheckbox bind:checked={restartSSR} />
           {:else}
           <input type="checkbox" bind:checked={restartSSR} class="w-4 h-4 accent-accent" />
@@ -474,7 +474,7 @@
         <span class="font-bold text-foreground block uppercase text-[11px] tracking-wider">GERAN (GSM) Locks</span>
 
         <label class="flex items-center gap-2 cursor-pointer">
-          {#if themeStore.isSakugaFxActive()}
+          {#if themeStore.useSakugaControls()}
             <SakugaCheckbox bind:checked={extraLocks.geran_lock_arfcn_enabled} />
           {:else}
           <input type="checkbox" bind:checked={extraLocks.geran_lock_arfcn_enabled} class="w-4 h-4 accent-accent" />
@@ -494,7 +494,7 @@
         </div>
 
         <label class="flex items-center gap-2 cursor-pointer pt-2 border-t border-border/40">
-          {#if themeStore.isSakugaFxActive()}
+          {#if themeStore.useSakugaControls()}
             <SakugaCheckbox bind:checked={extraLocks.fake_bts_cell_barring_enabled} />
           {:else}
           <input type="checkbox" bind:checked={extraLocks.fake_bts_cell_barring_enabled} class="w-4 h-4 accent-accent" />

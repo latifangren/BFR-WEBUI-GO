@@ -361,7 +361,7 @@
             <span class="font-bold text-foreground block">Master QoS Switch</span>
             <span class="text-[10px] text-muted">Enforce kernel bandwidth limiting on hotspot</span>
           </div>
-          {#if themeStore.isSakugaFxActive()}
+          {#if themeStore.useSakugaControls()}
             <SakugaCheckbox bind:checked={config.enabled} />
           {:else}
           <input
@@ -398,7 +398,7 @@
             </span>
             <span class="text-sm font-black text-accent">{config.global_download > 0 ? `${config.global_download} Mbps` : 'Uncapped'}</span>
           </div>
-          {#if themeStore.isSakugaFxActive()}
+          {#if themeStore.useSakugaControls()}
             <SakugaSlider bind:value={config.global_download} min={0} max={200} step={5} />
           {:else}
           <input
@@ -426,7 +426,7 @@
             </span>
             <span class="text-sm font-black text-purple-400">{config.global_upload > 0 ? `${config.global_upload} Mbps` : 'Uncapped'}</span>
           </div>
-          {#if themeStore.isSakugaFxActive()}
+          {#if themeStore.useSakugaControls()}
             <SakugaSlider bind:value={config.global_upload} min={0} max={100} step={5} />
           {:else}
           <input
@@ -463,7 +463,7 @@
                 <span class="text-[10px] text-muted">ICMP, DNS (53), Mobile Games UDP (prio 1)</span>
               </div>
             </div>
-            {#if themeStore.isSakugaFxActive()}
+            {#if themeStore.useSakugaControls()}
               <SakugaCheckbox bind:checked={config.prioritize_gaming} />
             {:else}
             <input
@@ -484,7 +484,7 @@
                 <span class="text-[10px] text-muted">WhatsApp Call, Discord & SIP RTP (prio 2)</span>
               </div>
             </div>
-            {#if themeStore.isSakugaFxActive()}
+            {#if themeStore.useSakugaControls()}
               <SakugaCheckbox bind:checked={config.prioritize_voip} />
             {:else}
             <input
@@ -600,7 +600,7 @@
 
                 <div class="flex items-center gap-2 shrink-0">
                   <label class="flex items-center gap-1.5 cursor-pointer select-none">
-                    {#if themeStore.isSakugaFxActive()}
+                    {#if themeStore.useSakugaControls()}
                       <SakugaCheckbox bind:checked={client.enabled} />
                     {:else}
                     <input
@@ -637,7 +637,7 @@
                     <span class="font-black text-accent">{client.download_limit} Mbps</span>
                   </div>
                   <div class="flex items-center gap-1.5">
-                    {#if themeStore.isSakugaFxActive()}
+                    {#if themeStore.useSakugaControls()}
                       <SakugaSlider bind:value={client.download_limit} min={1} max={100} step={1} />
                     {:else}
                     <input
@@ -685,7 +685,7 @@
                     <span class="font-black text-purple-400">{client.upload_limit} Mbps</span>
                   </div>
                   <div class="flex items-center gap-1.5">
-                    {#if themeStore.isSakugaFxActive()}
+                    {#if themeStore.useSakugaControls()}
                       <SakugaSlider bind:value={client.upload_limit} min={1} max={50} step={1} />
                     {:else}
                     <input

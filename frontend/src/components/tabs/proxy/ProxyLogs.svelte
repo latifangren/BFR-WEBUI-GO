@@ -127,7 +127,7 @@
           <Input placeholder="Filter log (e.g. error, info, tcp)..." bind:value={searchFilter} />
         </div>
         <label class="flex items-center gap-1.5 text-[11px] text-muted cursor-pointer select-none">
-          {#if themeStore.isSakugaFxActive()}
+          {#if themeStore.useSakugaControls()}
             <SakugaCheckbox bind:checked={autoScroll} />
           {:else}
           <input

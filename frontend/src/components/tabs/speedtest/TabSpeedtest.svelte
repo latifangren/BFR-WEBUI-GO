@@ -17,6 +17,7 @@
   import Badge from '../../ui/Badge.svelte'
   import { themeStore } from '../../../stores/theme.svelte'
   import SakugaProgress from '../../ui/SakugaProgress.svelte'
+  import { fireSakugaFx } from '../../../lib/sakuga-fx'
 
   interface SpeedtestData {
     ping_ms: number
@@ -55,6 +56,7 @@
   let history = $state<SpeedtestHistoryItem[]>([])
   let isLoadingHistory = $state(false)
   let pollTimer: ReturnType<typeof setInterval> | null = null
+  let rootEl: HTMLDivElement | null = $state(null)
 
   onMount(() => {
     fetchStatus()
@@ -107,6 +109,10 @@
         result = res
         if (prevRunning && !res.running) {
           fetchHistory()
+          // Sakuga FX: burst once when a test genuinely completes (the
+          // running true -> false transition). Manual aborts set running
+          // false directly in stopTest, so they never reach this branch.
+          if (rootEl) fireSakugaFx(rootEl, 'complete')
         }
       }
     } catch {
@@ -141,7 +147,7 @@
   }
 </script>
 
-<div class="space-y-3 sm:space-y-6">
+<div class="space-y-3 sm:space-y-6" bind:this={rootEl}>
   <!-- Top Bar Controls -->
   <div class="flex items-center justify-between">
     <div class="flex items-center gap-2">
@@ -176,7 +182,7 @@
         <span class="uppercase font-bold text-[10px]">Testing Phase: {result.phase}</span>
         <span>{result.progress_pct}%</span>
       </div>
-{#if themeStore.isSakugaFxActive()}
+{#if themeStore.useSakugaControls()}
         <SakugaProgress value={result.progress_pct / 100} label="Speed test progress" />
       {:else}
       <div class="w-full bg-card-sub border border-border h-2 rounded overflow-hidden">

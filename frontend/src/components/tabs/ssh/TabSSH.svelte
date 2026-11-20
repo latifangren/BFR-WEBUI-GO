@@ -162,7 +162,7 @@
               <span class="font-bold text-foreground block">Public Key Authentication Only</span>
               <span class="text-[10px] text-muted">Disable password login. Configure authorized keys in the SSH daemon environment.</span>
             </div>
-            {#if themeStore.isSakugaFxActive()}
+            {#if themeStore.useSakugaControls()}
               <SakugaCheckbox bind:checked={config.key_auth_only} />
             {:else}
             <input

@@ -179,7 +179,7 @@
               <td class="p-3 whitespace-nowrap text-right">
                 <div class="flex items-center justify-end gap-2">
                   <span class="text-[11px] font-bold text-foreground">{row.sharePct.toFixed(1)}%</span>
-{#if themeStore.isSakugaFxActive()}
+{#if themeStore.useSakugaControls()}
                     <SakugaProgress value={row.sharePct / 100} label="Traffic share" />
                   {:else}
                   <div class="w-20 bg-card h-2 rounded overflow-hidden border border-border/80">

@@ -34,7 +34,7 @@
   // SakugaInput. Other types (number, date, file, ...) stay on the stock
   // input because their native pickers should not be restyled.
   const useSakuga = $derived(
-    themeStore.isSakugaFxActive() &&
+    themeStore.useSakugaControls() &&
       ['text', 'email', 'search', 'url', 'tel', 'password'].includes(type),
   )
 </script>

@@ -6,7 +6,17 @@
 // while Sakuga FX is active (the components only render in that mode).
 import { themeStore } from '../stores/theme.svelte'
 
-export type SakugaFxKind = 'button' | 'toggle' | 'checkbox' | 'radio' | 'slider' | 'tabs'
+export type SakugaFxKind =
+  | 'button'
+  | 'toggle'
+  | 'checkbox'
+  | 'radio'
+  | 'slider'
+  | 'tabs'
+  | 'error'
+  | 'complete'
+  | 'charge'
+  | 'sparkle'
 
 const SFX_WORDS: Record<SakugaFxKind, string[]> = {
   button: ['ドン!', 'バン!'],
@@ -15,6 +25,10 @@ const SFX_WORDS: Record<SakugaFxKind, string[]> = {
   radio: ['ポン!'],
   slider: ['シュッ!'],
   tabs: ['パッ!'],
+  error: ['ガーン!'],
+  complete: ['完了!'],
+  charge: ['チャージ!'],
+  sparkle: ['キラッ!'],
 }
 
 interface Particle {
@@ -40,12 +54,15 @@ let lastTick = 0
 function themeColors(): string[] {
   const cs = getComputedStyle(document.documentElement)
   const pick = (name: string, fallback: string) => cs.getPropertyValue(name).trim() || fallback
+  // Pop colors only exist in the Neobrutalism themes; elsewhere fall back
+  // to the theme's own semantic colors so bursts stay theme-native
+  // (accent + success/warning/danger/info exist in every theme).
   return [
     pick('--neo-accent', '#ffe14a'),
-    pick('--color-pink', '#ff5ca8'),
-    pick('--color-cyan', '#55dfff'),
-    pick('--color-lime', '#b8f34a'),
-    pick('--color-purple', '#9b7cff'),
+    pick('--color-pink', pick('--neo-danger', '#ff5ca8')),
+    pick('--color-cyan', pick('--neo-info', '#55dfff')),
+    pick('--color-lime', pick('--neo-success', '#b8f34a')),
+    pick('--color-purple', pick('--neo-accent', '#9b7cff')),
     pick('--neo-text', '#fffaf4'),
   ]
 }
@@ -155,10 +172,15 @@ function spawnSfx(x: number, y: number, kind: SakugaFxKind): void {
 }
 
 // Fire a burst + SFX word at a point. Pass the MouseEvent for a precise
-// click position, or an Element to burst at its center (for change events,
-// which carry no coordinates). No-op when Sakuga FX is off or the user
+// click position, an Element to burst at its center (for change events,
+// which carry no coordinates), or raw viewport { x, y } coordinates when
+// the anchor may unmount before the fire (e.g. a login button after the
+// awaited login flips the view). No-op when Sakuga FX is off or the user
 // prefers reduced motion.
-export function fireSakugaFx(source: MouseEvent | Element, kind: SakugaFxKind): void {
+export function fireSakugaFx(
+  source: MouseEvent | Element | { x: number; y: number },
+  kind: SakugaFxKind,
+): void {
   if (typeof window === 'undefined' || typeof document === 'undefined') return
   if (!themeStore.isSakugaFxActive()) return
   if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
@@ -167,11 +189,14 @@ export function fireSakugaFx(source: MouseEvent | Element, kind: SakugaFxKind): 
   if (source instanceof MouseEvent) {
     x = source.clientX
     y = source.clientY
-  } else {
+  } else if (source instanceof Element) {
     const rect = source.getBoundingClientRect()
     if (!rect) return
     x = rect.left + rect.width / 2
     y = rect.top + rect.height / 2
+  } else {
+    x = source.x
+    y = source.y
   }
   if (!ensureCanvas()) return
   spawnBurst(x, y)

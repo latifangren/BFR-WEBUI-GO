@@ -245,7 +245,7 @@
 
                 <!-- Enable / Disable Switch -->
                 <label class="flex items-center gap-1.5 cursor-pointer select-none shrink-0">
-                  {#if themeStore.isSakugaFxActive()}
+                  {#if themeStore.useSakugaControls()}
                     <SakugaCheckbox checked={mod.enabled} disabled={togglingId === mod.id} onchange={() => toggleModule(mod)} />
                   {:else}
                   <input

@@ -559,7 +559,7 @@
                 Prohibit clients from writing, deleting, or moving files (blocks PUT, DELETE, MKCOL).
               </span>
             </div>
-            {#if themeStore.isSakugaFxActive()}
+            {#if themeStore.useSakugaControls()}
               <SakugaCheckbox bind:checked={config.read_only} />
             {:else}
             <input
@@ -592,7 +592,7 @@
                 Require username and password credentials before granting access to shared files.
               </span>
             </div>
-            {#if themeStore.isSakugaFxActive()}
+            {#if themeStore.useSakugaControls()}
               <SakugaCheckbox bind:checked={config.auth_required} />
             {:else}
             <input

@@ -241,7 +241,7 @@
               <span class="text-[10px] text-muted">Bypasses queue for UDP 27015 & Ping</span>
             </div>
           </div>
-          {#if themeStore.isSakugaFxActive()}
+          {#if themeStore.useSakugaControls()}
             <SakugaCheckbox bind:checked={config.prioritize_gaming} />
           {:else}
           <input
@@ -260,7 +260,7 @@
               <span class="text-[10px] text-muted">WhatsApp Call & Discord Voice (prio 2)</span>
             </div>
           </div>
-          {#if themeStore.isSakugaFxActive()}
+          {#if themeStore.useSakugaControls()}
             <SakugaCheckbox bind:checked={config.prioritize_voip} />
           {:else}
           <input

@@ -220,7 +220,7 @@
             </span>
           {/if}
         </div>
-{#if themeStore.isSakugaFxActive()}
+{#if themeStore.useSakugaControls()}
           <SakugaProgress value={(stats ? Math.min(stats.cpu_usage, 100) : 0) / 100} label="CPU usage" />
         {:else}
         <div class="neo-progress mt-3">
@@ -262,7 +262,7 @@
             </div>
           </div>
         </div>
-{#if themeStore.isSakugaFxActive()}
+{#if themeStore.useSakugaControls()}
           <SakugaProgress value={(stats ? Math.min(stats.mem_used_pct, 100) : 0) / 100} label="Memory usage" />
         {:else}
         <div class="neo-progress mt-3">
@@ -304,7 +304,7 @@
             </div>
           </div>
         </div>
-{#if themeStore.isSakugaFxActive()}
+{#if themeStore.useSakugaControls()}
           <SakugaProgress value={(stats ? Math.min(stats.disk_used_pct, 100) : 0) / 100} label="Disk usage" />
         {:else}
         <div class="neo-progress mt-3">
@@ -349,7 +349,7 @@
             {stats?.battery_status || 'OK'}
           </span>
         </div>
-{#if themeStore.isSakugaFxActive()}
+{#if themeStore.useSakugaControls()}
           <SakugaProgress value={(stats ? Math.min(stats.battery_level, 100) : 0) / 100} label="Battery level" />
         {:else}
         <div class="neo-progress mt-3">

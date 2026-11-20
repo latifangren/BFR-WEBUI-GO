@@ -39,6 +39,7 @@
   import { themeStore } from '../../../stores/theme.svelte'
   import SakugaToggle from '../../ui/SakugaToggle.svelte'
   import SakugaSlider from '../../ui/SakugaSlider.svelte'
+  import { fireSakugaFx } from '../../../lib/sakuga-fx'
 
   let status = $state<ChargerStatusResponse>({
     config: {
@@ -105,6 +106,19 @@
   )
 
   let isOverheating = $derived(status.battery.temperature > 42)
+
+  // Sakuga FX: burst once when charging genuinely starts (a state
+  // transition, never per poll). The null guard skips the first run, so
+  // opening the tab mid-charge stays silent.
+  let batteryCardEl: HTMLDivElement | null = $state(null)
+  let prevCharging: boolean | null = $state(null)
+  $effect(() => {
+    const now = isCharging
+    if (prevCharging === false && now && batteryCardEl) {
+      fireSakugaFx(batteryCardEl, 'charge')
+    }
+    prevCharging = now
+  })
 
   let currentRateColor = $derived(
     isIdleBypass
@@ -371,6 +385,7 @@
     <div class="space-y-5">
       <!-- Battery Meter Graphic & Percentage -->
       <div
+        bind:this={batteryCardEl}
         class="p-4 bg-card-sub border-2 border-border rounded-lg shadow-[2px_2px_0px_#000] dark:shadow-[2px_2px_0px_rgba(255,255,255,0.05)] space-y-3"
       >
         <div class="flex items-end justify-between">
@@ -625,7 +640,7 @@
           <Badge variant={config.enabled ? 'success' : 'default'}>
             {config.enabled ? 'AUTO ON' : 'DISABLED'}
           </Badge>
-          {#if themeStore.isSakugaFxActive()}
+          {#if themeStore.useSakugaControls()}
             <SakugaToggle checked={config.enabled} label="Smart Charging Limiter" onchange={toggleMasterEnabled} />
           {:else}
           <button
@@ -669,7 +684,7 @@
               </div>
             </div>
 
-            {#if themeStore.isSakugaFxActive()}
+            {#if themeStore.useSakugaControls()}
               <SakugaSlider bind:value={config.stop_percent} min={50} max={95} step={1} oninput={(e) => onStopPercentChange(Number((e.target as HTMLInputElement).value))} />
             {:else}
             <input
@@ -708,7 +723,7 @@
               </div>
             </div>
 
-            {#if themeStore.isSakugaFxActive()}
+            {#if themeStore.useSakugaControls()}
               <SakugaSlider bind:value={config.start_percent} min={20} max={90} step={1} oninput={(e) => onStartPercentChange(Number((e.target as HTMLInputElement).value))} />
             {:else}
             <input

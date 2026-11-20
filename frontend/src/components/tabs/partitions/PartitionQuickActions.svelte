@@ -31,7 +31,7 @@
 >
   {#snippet action()}
     <label class="inline-flex items-center gap-2 cursor-pointer select-none">
-      {#if themeStore.isSakugaFxActive()}
+      {#if themeStore.useSakugaControls()}
         <SakugaCheckbox checked={autoDownload} onchange={(e) => onToggleAutoDownload((e.target as HTMLInputElement).checked)} />
       {:else}
       <input

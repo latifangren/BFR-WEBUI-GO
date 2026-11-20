@@ -146,7 +146,7 @@
           </div>
           <p class="text-[10px] text-muted">Route connected Wi-Fi / USB hotspot clients through proxy.</p>
         </div>
-        {#if themeStore.isSakugaFxActive()}
+        {#if themeStore.useSakugaControls()}
           <SakugaCheckbox bind:checked={hotspot.proxy_hotspot} />
         {:else}
         <input
@@ -166,7 +166,7 @@
           </div>
           <p class="text-[10px] text-muted">Intercept and redirect IPv6 traffic to proxy core (ip6tables).</p>
         </div>
-        {#if themeStore.isSakugaFxActive()}
+        {#if themeStore.useSakugaControls()}
           <SakugaCheckbox bind:checked={settings.ipv6} />
         {:else}
         <input
@@ -184,7 +184,7 @@
             <Cpu class="w-4 h-4 text-accent" />
             <span>Cgroup RAM Limiter</span>
           </div>
-          {#if themeStore.isSakugaFxActive()}
+          {#if themeStore.useSakugaControls()}
             <SakugaCheckbox bind:checked={settings.cgroup_memcg} />
           {:else}
           <input
@@ -213,7 +213,7 @@
           </div>
           <p class="text-[10px] text-muted">Force browsers to fallback to TCP for robust proxy tunneling.</p>
         </div>
-        {#if themeStore.isSakugaFxActive()}
+        {#if themeStore.useSakugaControls()}
           <SakugaCheckbox checked={settings.quic === 'disable'} onchange={(e) => (settings.quic = (e.target as HTMLInputElement).checked ? 'disable' : 'enable')} />
         {:else}
         <input

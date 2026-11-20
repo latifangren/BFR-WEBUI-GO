@@ -209,7 +209,7 @@
   </div>
 
   <!-- SUB-TABS NAVIGATION (OPSI A) -->
-{#if themeStore.isSakugaFxActive()}
+{#if themeStore.useSakugaControls()}
     <SakugaTabs
       selected={SUBTAB_IDS.indexOf(subTab)}
       options={SUBTAB_LABELS}

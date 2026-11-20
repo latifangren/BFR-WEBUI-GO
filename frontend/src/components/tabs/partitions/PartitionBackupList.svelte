@@ -296,7 +296,7 @@
             <tr class="bg-card-sub border-b border-border text-muted uppercase text-[10px] tracking-wider">
               <!-- Checkbox Master Column -->
               <th class="p-3 w-10 text-center">
-                {#if themeStore.isSakugaFxActive()}
+                {#if themeStore.useSakugaControls()}
                   <SakugaCheckbox checked={isAllFilteredSelected} onchange={toggleSelectAll} />
                 {:else}
                 <input
@@ -321,7 +321,7 @@
               <tr class="hover:bg-card-sub/50 transition-colors {selectedFilenames.has(file.filename) ? 'bg-card-sub/80' : ''}">
                 <!-- Row Selection Checkbox -->
                 <td class="p-3 text-center">
-                  {#if themeStore.isSakugaFxActive()}
+                  {#if themeStore.useSakugaControls()}
                     <SakugaCheckbox checked={selectedFilenames.has(file.filename)} onchange={() => toggleSelect(file.filename)} />
                   {:else}
                   <input

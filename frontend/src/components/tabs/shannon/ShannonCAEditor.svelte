@@ -1063,7 +1063,7 @@
 
       <div class="flex items-center pt-5">
         <label class="flex items-center gap-2 cursor-pointer">
-          {#if themeStore.isSakugaFxActive()}
+          {#if themeStore.useSakugaControls()}
             <SakugaCheckbox bind:checked={pruneExcludeIntra} />
           {:else}
           <input type="checkbox" bind:checked={pruneExcludeIntra} class="accent-accent" />

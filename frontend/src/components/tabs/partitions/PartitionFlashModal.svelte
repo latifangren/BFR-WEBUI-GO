@@ -136,7 +136,7 @@
         </div>
       </div>
       <label class="relative inline-flex items-center cursor-pointer shrink-0">
-        {#if themeStore.isSakugaFxActive()}
+        {#if themeStore.useSakugaControls()}
           <SakugaCheckbox bind:checked={autoBackup} disabled={isFlashing} />
         {:else}
         <input

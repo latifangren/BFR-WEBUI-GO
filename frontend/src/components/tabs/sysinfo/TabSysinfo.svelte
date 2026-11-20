@@ -172,7 +172,7 @@
           </div>
 
           <!-- Progress bar -->
-{#if themeStore.isSakugaFxActive()}
+{#if themeStore.useSakugaControls()}
             <SakugaProgress value={stats.battery_level / 100} label="Battery level" />
           {:else}
           <div class="neo-progress">
@@ -233,7 +233,7 @@
             </div>
           </div>
 
-{#if themeStore.isSakugaFxActive()}
+{#if themeStore.useSakugaControls()}
             <SakugaProgress value={Math.min(stats.cpu_usage, 100) / 100} label="CPU usage" />
           {:else}
           <div class="neo-progress">
@@ -291,7 +291,7 @@
                 {formatBytes(stats.mem_used)} / {formatBytes(stats.mem_total)}
               </span>
             </div>
-{#if themeStore.isSakugaFxActive()}
+{#if themeStore.useSakugaControls()}
               <SakugaProgress value={Math.min(stats.mem_used_pct, 100) / 100} label="Memory usage" />
             {:else}
             <div class="neo-progress">

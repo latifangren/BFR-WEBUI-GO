@@ -1138,7 +1138,7 @@
             <!-- Device Behavior Checkboxes -->
             <div class="pt-2 border-t border-border/80 space-y-2">
               <label class="flex items-center gap-2.5 cursor-pointer select-none">
-                {#if themeStore.isSakugaFxActive()}
+                {#if themeStore.useSakugaControls()}
                   <SakugaCheckbox bind:checked={turnScreenOff} onchange={onSettingModified} />
                 {:else}
                 <input
@@ -1152,7 +1152,7 @@
               </label>
 
               <label class="flex items-center gap-2.5 cursor-pointer select-none">
-                {#if themeStore.isSakugaFxActive()}
+                {#if themeStore.useSakugaControls()}
                   <SakugaCheckbox bind:checked={stayAwake} onchange={onSettingModified} />
                 {:else}
                 <input

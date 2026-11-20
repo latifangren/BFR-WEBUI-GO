@@ -1,5 +1,6 @@
 <script lang="ts">
   import { toastStore } from '../../stores/toast.svelte'
+  import { themeStore } from '../../stores/theme.svelte'
 
   const borderVariants = {
     success: 'border-emerald-600 bg-emerald-950/90 text-emerald-100',
@@ -12,7 +13,9 @@
 <div class="fixed bottom-4 right-4 z-50 flex flex-col gap-2 max-w-sm w-full pointer-events-none p-2 sm:p-0">
   {#each toastStore.toasts as toast (toast.id)}
     <div
-      class="pointer-events-auto flex items-start justify-between border-2 shadow-neobrutal p-3 rounded font-mono text-xs transition-all {borderVariants[toast.type]}"
+      class="pointer-events-auto flex items-start justify-between border-2 shadow-neobrutal p-3 rounded font-mono text-xs transition-all {borderVariants[toast.type]} {themeStore.isSakugaFxActive()
+        ? 'sakuga-toast-pop'
+        : ''}"
     >
       <div class="space-y-0.5">
         <p class="font-bold tracking-wider uppercase">{toast.title}</p>
