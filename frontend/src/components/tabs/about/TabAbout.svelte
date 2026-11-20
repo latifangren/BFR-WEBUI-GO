@@ -467,7 +467,7 @@
             type="button"
             onclick={closeZoom}
             class="p-1.5 rounded-lg bg-card-sub border border-border text-muted hover:text-foreground hover:border-red-400 hover:bg-red-500/10 transition cursor-pointer"
-            title="Tutup (ESC)"
+            title="Close (ESC)"
           >
             <X class="w-4 h-4" />
           </button>

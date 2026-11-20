@@ -99,7 +99,7 @@
       variant="outline"
       size="sm"
       onclick={openInFileManager}
-      title="Buka folder konfigurasi /data/adb/box di File Manager"
+      title="Open the /data/adb/box config folder in File Manager"
     >
       <FolderOpen class="w-3.5 h-3.5 mr-1.5 text-accent" />
       <span>Open in File Manager</span>

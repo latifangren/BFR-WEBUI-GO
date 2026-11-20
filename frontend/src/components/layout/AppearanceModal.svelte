@@ -108,6 +108,24 @@
     themeStore.setStyle(style)
   }
 
+  // Accent picker presets: the pop colors already used across the themes.
+  const ACCENT_PRESETS = [
+    { name: 'Pink', hex: '#ff5ca8' },
+    { name: 'Yellow', hex: '#ffe14a' },
+    { name: 'Cyan', hex: '#55dfff' },
+    { name: 'Lime', hex: '#b8f34a' },
+    { name: 'Purple', hex: '#9b7cff' },
+    { name: 'Orange', hex: '#ff9955' },
+  ]
+
+  // The accent actually shown: the custom override when set, otherwise the
+  // active theme's own accent.
+  const effectiveAccent = $derived(
+    themeStore.customAccent ||
+      themes.find((t) => t.id === themeStore.currentTheme)?.accent ||
+      '#ffe14a',
+  )
+
   let wallpapers = $state<WallpaperItem[]>([])
   let isLoadingWallpapers = $state(false)
   let isUploading = $state(false)
@@ -157,10 +175,10 @@
       if (res && res.success && res.data) {
         wallpapers = [res.data, ...wallpapers]
         themeStore.setActiveWallpaper(res.data.url)
-        toastStore.success(`Wallpaper "${res.data.name}" berhasil diunggah!`)
+        toastStore.success(`Wallpaper "${res.data.name}" uploaded!`)
       }
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : 'Gagal mengunggah wallpaper'
+      const msg = err instanceof Error ? err.message : 'Failed to upload wallpaper'
       toastStore.error(msg)
     } finally {
       isUploading = false
@@ -170,16 +188,16 @@
 
   async function handleDeleteWallpaper(item: WallpaperItem, e: MouseEvent) {
     e.stopPropagation()
-    if (!confirm(`Hapus wallpaper "${item.name}" dari galeri?`)) return
+    if (!confirm(`Delete wallpaper "${item.name}" from the gallery?`)) return
     try {
       await request(`/api/theme/wallpapers/delete?id=${encodeURIComponent(item.id)}`, { method: 'DELETE' })
       wallpapers = wallpapers.filter((w) => w.id !== item.id)
       if (themeStore.activeWallpaper === item.url) {
         themeStore.setActiveWallpaper('')
       }
-      toastStore.success(`Wallpaper "${item.name}" dihapus`)
+      toastStore.success(`Wallpaper "${item.name}" deleted`)
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : 'Gagal menghapus wallpaper'
+      const msg = err instanceof Error ? err.message : 'Failed to delete wallpaper'
       toastStore.error(msg)
     }
   }
@@ -244,7 +262,7 @@
                 <div class="flex items-center gap-1">
                   <span class="w-3.5 h-3.5 rounded-full border border-black/20 shrink-0" style="background-color: {t.bg};"></span>
                   <span class="w-3.5 h-3.5 rounded-full border border-black/20 shrink-0" style="background-color: {t.card};"></span>
-                  <span class="w-3.5 h-3.5 rounded-full border border-black/20 shrink-0" style="background-color: {t.accent};"></span>
+                  <span class="w-3.5 h-3.5 rounded-full border border-black/20 shrink-0" style="background-color: {isSelected && themeStore.customAccent ? themeStore.customAccent : t.accent};"></span>
                 </div>
                 {#if isSelected}
                   <span class="w-4 h-4 rounded-full bg-accent text-accent-text flex items-center justify-center text-[10px] font-black">
@@ -257,6 +275,69 @@
               </div>
             </button>
           {/each}
+        </div>
+      </div>
+
+      <!-- Section 1b: Accent Color (all themes) -->
+      <div class="space-y-1.5">
+        <span class="text-[11px] font-bold uppercase text-muted tracking-wider flex items-center gap-1.5">
+          <Palette class="w-3.5 h-3.5 text-accent" />
+          Accent Color
+        </span>
+        <div class="p-2.5 bg-card-sub border border-border rounded-lg space-y-2.5">
+          <div class="flex items-center gap-3">
+            <!-- Native color picker (swatch preview) -->
+            <label
+              class="relative shrink-0 w-10 h-10 rounded-lg border-2 border-border overflow-hidden cursor-pointer"
+              style="background-color: {effectiveAccent};"
+              title="Pick an accent color"
+            >
+              <input
+                type="color"
+                value={effectiveAccent}
+                oninput={(e) => themeStore.setCustomAccent((e.target as HTMLInputElement).value)}
+                class="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                aria-label="Pick an accent color"
+              />
+            </label>
+            <div class="min-w-0 flex-1">
+              <div class="text-xs font-bold text-foreground">
+                {themeStore.customAccent ? 'Custom accent' : 'Theme default accent'}
+              </div>
+              <p class="text-[10px] text-muted">
+                {themeStore.customAccent
+                  ? 'Overrides the theme accent on every theme. Background & cards still follow the theme.'
+                  : 'Uses the active theme default accent.'}
+              </p>
+            </div>
+            <span class="font-mono text-xs font-bold text-accent uppercase">{effectiveAccent}</span>
+            {#if themeStore.customAccent}
+              <button
+                type="button"
+                class="inline-flex items-center gap-1 text-[10px] font-bold py-1 px-2 rounded bg-card hover:bg-card-sub text-muted hover:text-foreground border border-border transition-colors cursor-pointer"
+                title="Back to the theme default accent"
+                onclick={() => themeStore.setCustomAccent(null)}
+              >
+                <RotateCcw class="w-2.5 h-2.5" />
+                <span>Reset</span>
+              </button>
+            {/if}
+          </div>
+          <!-- Preset swatches -->
+          <div class="flex items-center gap-1.5">
+            {#each ACCENT_PRESETS as preset}
+              <button
+                type="button"
+                class="w-7 h-7 rounded-full border-2 cursor-pointer transition-transform hover:scale-110 {themeStore.customAccent === preset.hex
+                  ? 'border-foreground scale-110'
+                  : 'border-black/20'}"
+                style="background-color: {preset.hex};"
+                title={preset.name}
+                aria-label="Accent {preset.name}"
+                onclick={() => themeStore.setCustomAccent(preset.hex)}
+              ></button>
+            {/each}
+          </div>
         </div>
       </div>
 
@@ -314,7 +395,7 @@
       </div>
       {:else}
       <div class="p-3 bg-card-sub border border-border rounded-lg text-[11px] text-muted">
-        Bentuk Neobrutalism sudah bagian dari tema ini — style dikunci ke Neobrutalist.
+        The Neobrutalism shape is part of this theme — the style is locked to Neobrutalist.
       </div>
       {/if}
 
@@ -327,8 +408,8 @@
         </span>
         <div class="flex items-center justify-between gap-3 p-2.5 bg-card-sub border border-border rounded-lg">
           <div class="min-w-0">
-            <div class="text-xs font-bold text-foreground">Efek anime Sakuga</div>
-            <p class="text-[10px] text-muted">Tombol utama meledak ala Sakuga. Hanya aktif di tema Neobrutalism.</p>
+            <div class="text-xs font-bold text-foreground">Sakuga anime FX</div>
+            <p class="text-[10px] text-muted">Main buttons burst Sakuga-style. Only active in Neobrutalism themes.</p>
           </div>
           <button
             type="button"
@@ -355,7 +436,7 @@
           <Sliders class="w-3.5 h-3.5 text-accent" />
           Advanced Tuning
         </span>
-        <span class="text-muted">{showAdvancedTuning ? 'Tutup' : 'Buka'}</span>
+        <span class="text-muted">{showAdvancedTuning ? 'Close' : 'Open'}</span>
       </button>
       {/if}
 
@@ -370,10 +451,10 @@
             <button
               type="button"
               class="inline-flex items-center gap-1 text-[10px] font-bold py-1 px-2 rounded bg-card hover:bg-card-sub text-muted hover:text-foreground border border-border transition-colors cursor-pointer"
-              title="Reset ke pengaturan awal Neobrutalism"
+              title="Reset to the Neobrutalism defaults"
               onclick={() => {
                 themeStore.resetNeobrutalSettings()
-                toastStore.success('Pengaturan Neobrutalism dikembalikan ke default')
+                toastStore.success('Neobrutalism settings reset to defaults')
               }}
             >
               <RotateCcw class="w-2.5 h-2.5" />
@@ -497,21 +578,21 @@
                 class="py-1.5 px-2 rounded-lg border text-xs font-bold transition-all cursor-pointer {themeStore.neoPattern === 'dots' ? 'bg-accent text-accent-text border-accent shadow-neobrutal-sm' : 'bg-card text-muted hover:text-foreground border-border'}"
                 onclick={() => themeStore.setNeoPattern('dots')}
               >
-                Dots (Titik)
+                Dots
               </button>
               <button
                 type="button"
                 class="py-1.5 px-2 rounded-lg border text-xs font-bold transition-all cursor-pointer {themeStore.neoPattern === 'grid' ? 'bg-accent text-accent-text border-accent shadow-neobrutal-sm' : 'bg-card text-muted hover:text-foreground border-border'}"
                 onclick={() => themeStore.setNeoPattern('grid')}
               >
-                Grid (Petak)
+                Grid
               </button>
               <button
                 type="button"
                 class="py-1.5 px-2 rounded-lg border text-xs font-bold transition-all cursor-pointer {themeStore.neoPattern === 'none' ? 'bg-accent text-accent-text border-accent shadow-neobrutal-sm' : 'bg-card text-muted hover:text-foreground border-border'}"
                 onclick={() => themeStore.setNeoPattern('none')}
               >
-                Polos (Clean)
+                Plain
               </button>
             </div>
           </div>
@@ -610,7 +691,7 @@
                   <span>Uploading...</span>
                 {:else}
                   <Upload class="w-3 h-3" />
-                  <span>+ Upload Baru</span>
+                  <span>+ Upload New</span>
                 {/if}
                 <input
                   type="file"
@@ -669,7 +750,7 @@
                   <button
                     type="button"
                     class="absolute top-1 left-1 w-5 h-5 bg-red-600/90 hover:bg-red-600 text-white rounded flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer shadow"
-                    title="Hapus wallpaper dari galeri"
+                    title="Delete wallpaper from the gallery"
                     onclick={(e) => handleDeleteWallpaper(item, e)}
                   >
                     <Trash2 class="w-3 h-3" />
@@ -691,7 +772,7 @@
           <Lock class="w-3.5 h-3.5 text-accent" />
           Login Screen Wallpaper
         </span>
-        <span class="text-muted">{showLoginWallpaper ? 'Tutup' : 'Buka'}</span>
+        <span class="text-muted">{showLoginWallpaper ? 'Close' : 'Open'}</span>
       </button>
       {#if showLoginWallpaper}
         <!-- Section 5: Login Page Wallpaper (Static & Independent) -->
@@ -703,7 +784,7 @@
                 Login Screen Wallpaper (Static & Independent)
               </span>
               <p class="text-[10px] text-muted">
-                Khusus latar belakang halaman masuk. Tidak mempengaruhi warna tema, kartu, atau dashboard.
+                Only for the login page background. Does not affect theme colors, cards, or the dashboard.
               </p>
             </div>
             {#if themeStore.loginWallpaper && themeStore.loginWallpaper !== 'preset:none'}
@@ -712,7 +793,7 @@
                 onclick={() => themeStore.setLoginWallpaper('preset:none')}
                 class="text-[10px] font-bold text-red-400 hover:text-red-300 underline cursor-pointer"
               >
-                Reset ke Polos
+                Reset to Plain
               </button>
             {/if}
           </div>
@@ -720,7 +801,7 @@
           <!-- Preset / Uploaded Wallpaper Gallery Grid -->
           <div class="space-y-2">
             <div class="flex items-center justify-between">
-              <span class="text-[10px] text-muted font-bold uppercase">Pilih Gambar Latar Login:</span>
+              <span class="text-[10px] text-muted font-bold uppercase">Choose a login background image:</span>
               <label class="cursor-pointer inline-flex items-center gap-1.5 text-[10px] font-bold py-1 px-2.5 rounded bg-accent/20 hover:bg-accent/30 text-accent border border-accent/40 transition-colors">
                 {#if isUploading}
                   <Loader2 class="w-3 h-3 animate-spin" />
@@ -782,7 +863,7 @@
                   <button
                     type="button"
                     class="absolute top-1 left-1 w-5 h-5 rounded bg-red-600/90 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-700 cursor-pointer"
-                    title="Hapus wallpaper dari galeri"
+                    title="Delete wallpaper from the gallery"
                     onclick={(e) => handleDeleteWallpaper(item, e)}
                   >
                     <Trash2 class="w-3 h-3" />
@@ -798,7 +879,7 @@
               <!-- Dimming -->
               <div class="space-y-1">
                 <div class="flex items-center justify-between text-[11px] font-mono">
-                  <span class="text-muted font-bold">Dimming (Keterbacaan):</span>
+                  <span class="text-muted font-bold">Dimming (Readability):</span>
                   <span class="font-bold text-accent">{Math.round(themeStore.loginWallpaperDim * 100)}%</span>
                 </div>
                 {#if themeStore.isSakugaFxActive()}
@@ -819,7 +900,7 @@
               <!-- Blur -->
               <div class="space-y-1">
                 <div class="flex items-center justify-between text-[11px] font-mono">
-                  <span class="text-muted font-bold">Latar Blur:</span>
+                  <span class="text-muted font-bold">Background Blur:</span>
                   <span class="font-bold text-accent">{themeStore.loginWallpaperBlur}px</span>
                 </div>
                 {#if themeStore.isSakugaFxActive()}

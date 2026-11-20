@@ -50,6 +50,13 @@ class ThemeStore {
   // scripts are loaded: the components are plain Svelte, so there is no
   // custom-element upgrade race.
   sakugaFx = $state<boolean>(false)
+
+  // Custom accent color (accent picker): a user-chosen accent that
+  // overrides the active theme's accent on every theme. Empty means
+  // "use the theme's own accent". Persisted in localStorage; it survives
+  // theme switches because the override lives in inline properties on
+  // documentElement, which setTheme never touches.
+  customAccent = $state<string>('')
   constructor() {
     if (typeof window !== 'undefined') {
       const storedTheme = localStorage.getItem('colorTheme') || localStorage.getItem('theme')
@@ -120,10 +127,16 @@ class ThemeStore {
 
       this.sakugaFx = localStorage.getItem('sakugaFx') === 'true'
 
+      const storedAccent = localStorage.getItem('customAccent')
+      if (storedAccent && /^#[0-9a-fA-F]{6}$/.test(storedAccent)) {
+        this.customAccent = storedAccent.toLowerCase()
+      }
+
       this.setTheme(initialTheme)
       this.setStyle(initialStyle)
       this.applyGlassTokens()
       this.applyNeobrutalTokens()
+      this.applyAccentOverride()
     }
   }
 
@@ -148,6 +161,54 @@ class ThemeStore {
     if (typeof window !== 'undefined') {
       localStorage.setItem('sakugaFx', String(enabled))
     }
+  }
+
+  // Readable text color for an accent: black on bright accents, white on
+  // dark ones, by perceived brightness. The 0.6 cut matches every theme
+  // default (yellow/lime/cyan/orange -> black; pink/purple/blue -> white).
+  private static accentTextFor(hex: string): string {
+    const r = parseInt(hex.slice(1, 3), 16)
+    const g = parseInt(hex.slice(3, 5), 16)
+    const b = parseInt(hex.slice(5, 7), 16)
+    const brightness = (0.299 * r + 0.587 * g + 0.114 * b) / 255
+    return brightness > 0.6 ? '#000000' : '#ffffff'
+  }
+
+  // Apply (or clear) the custom-accent override on the document root.
+  // Inline properties beat the [data-theme] stylesheet rules, and they
+  // persist across theme switches, so the accent follows the user while
+  // background, cards and borders keep following the theme.
+  applyAccentOverride() {
+    if (typeof window === 'undefined') return
+    const root = document.documentElement
+    if (this.customAccent) {
+      const text = ThemeStore.accentTextFor(this.customAccent)
+      root.style.setProperty('--neo-accent', this.customAccent)
+      root.style.setProperty('--color-accent', this.customAccent)
+      root.style.setProperty('--neo-accent-text', text)
+      root.style.setProperty('--color-accent-text', text)
+    } else {
+      root.style.removeProperty('--neo-accent')
+      root.style.removeProperty('--color-accent')
+      root.style.removeProperty('--neo-accent-text')
+      root.style.removeProperty('--color-accent-text')
+    }
+  }
+
+  setCustomAccent(hex: string | null) {
+    const next = hex && /^#[0-9a-fA-F]{6}$/.test(hex) ? hex.toLowerCase() : ''
+    this.customAccent = next
+    if (typeof window !== 'undefined') {
+      if (next) localStorage.setItem('customAccent', next)
+      else localStorage.removeItem('customAccent')
+      this.applyAccentOverride()
+    }
+  }
+
+  // The accent actually in effect: the custom override when set, otherwise
+  // the active theme's own accent.
+  effectiveAccent(themeAccent: string): string {
+    return this.customAccent || themeAccent
   }
 
   setTheme(theme: ThemeMode) {

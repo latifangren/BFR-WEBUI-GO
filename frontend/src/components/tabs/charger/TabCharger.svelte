@@ -338,7 +338,7 @@
     </div>
   </div>
 
-  <!-- KARTU 1: Live Battery & Hardware Telemetry -->
+  <!-- CARD 1: Live Battery & Hardware Telemetry -->
   <Card
     title="Live Battery & Hardware Telemetry"
     subtitle="Real-time kernel power supply metrics & thermal monitoring"
@@ -614,7 +614,7 @@
   </Card>
 
   <div class="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-6">
-    <!-- KARTU 2: Pengaturan Ambang Batas Limiter (Threshold) Compact -->
+    <!-- CARD 2: Limiter Threshold Settings (Compact) -->
     <Card
       title="Smart Charging Limiter"
       subtitle="Hardware cutoff threshold & AC bypass gate"
@@ -820,7 +820,7 @@
       </div>
     </Card>
 
-    <!-- KARTU 3: Hardware Switch Probing & Seleksi Profil ACC -->
+    <!-- CARD 3: Hardware Switch Probing & ACC Profile Selection -->
     <Card
       title="Hardware Switch & ACC Profiles"
       subtitle="Kernel sysfs switch detection & ACC profile compatibility"
@@ -1040,7 +1040,7 @@
     </Card>
   </div>
 
-  <!-- KARTU 4: Log Controller -->
+  <!-- CARD 4: Log Controller -->
   <Card
     title="Limiter Daemon Event Log"
     subtitle="Audit trail of threshold checks, cutoffs, and power events"
