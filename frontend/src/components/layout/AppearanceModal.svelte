@@ -71,8 +71,8 @@
       text: '#0f172a',
     },
     {
-      id: 'projectx-light',
-      name: 'ProjectX Cream',
+      id: 'neobrutalism-light',
+      name: 'Neobrutalism Light',
       tagline: 'Warm anti-glare paper & pop accents',
       bg: '#fff6e8',
       card: '#fffdf8',
@@ -81,8 +81,8 @@
       text: '#17151a',
     },
     {
-      id: 'projectx',
-      name: 'ProjectX Dark',
+      id: 'neobrutalism',
+      name: 'Neobrutalism',
       tagline: 'Retro-pop neobrutalism on purple charcoal',
       bg: '#18151e',
       card: '#24202b',
@@ -247,21 +247,14 @@
         </div>
       </div>
 
-      <!-- Section 2: UI Paradigm Style (Neobrutal vs Modern) -->
+      {#if !themeStore.isNeobrutalTheme()}
+      <!-- Section 2: UI Paradigm Style (Modern vs Glass) -->
       <div class="space-y-1.5">
         <span class="text-[11px] font-bold uppercase text-muted tracking-wider flex items-center gap-1.5">
           <Layers class="w-3.5 h-3.5 text-accent" />
           UI Paradigm Style
         </span>
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 bg-card-sub p-1 border border-border rounded-lg">
-          <button
-            type="button"
-            class="flex flex-col items-center justify-center py-2 px-3 rounded text-xs font-bold transition-all cursor-pointer {themeStore.currentStyle === 'neobrutal' ? 'bg-accent text-accent-text shadow-neobrutal-sm' : 'text-muted hover:text-foreground'}"
-            onclick={() => selectStyle('neobrutal')}
-          >
-            <span>Neobrutalist</span>
-            <span class="text-[10px] font-normal opacity-80">2px borders, hard shadows</span>
-          </button>
+        <div class="grid grid-cols-2 gap-2 bg-card-sub p-1 border border-border rounded-lg">
           <button
             type="button"
             class="flex flex-col items-center justify-center py-2 px-3 rounded text-xs font-bold transition-all cursor-pointer {themeStore.currentStyle === 'modern' ? 'bg-accent text-accent-text shadow-neobrutal-sm' : 'text-muted hover:text-foreground'}"
@@ -280,6 +273,11 @@
           </button>
         </div>
       </div>
+      {:else}
+      <div class="p-3 bg-card-sub border border-border rounded-lg text-[11px] text-muted">
+        Bentuk Neobrutalism sudah bagian dari tema ini — style dikunci ke Neobrutalist.
+      </div>
+      {/if}
 
       <!-- Section 2.4: Neobrutalism Extended Tuning -->
       {#if themeStore.currentStyle === 'neobrutal'}

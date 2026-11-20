@@ -1,8 +1,11 @@
 export type ThemeMode =
   | 'dark'
   | 'light'
-  | 'projectx-light'
-  | 'projectx'
+  | 'neobrutalism-light'
+  | 'neobrutalism'
+// 'neobrutal' is the locked shape of the Neobrutalism themes, not a
+// user-selectable style: components branch on it, and the theme store
+// forces it whenever a Neobrutalism theme is active.
 export type UIStyle = 'neobrutal' | 'modern' | 'glass'
 
 export interface WallpaperItem {

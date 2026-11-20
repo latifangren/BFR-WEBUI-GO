@@ -3,21 +3,31 @@ import type { ThemeMode, UIStyle } from '../types/common'
 const VALID_THEMES: ThemeMode[] = [
   'dark',
   'light',
-  'projectx-light',
-  'projectx',
+  'neobrutalism-light',
+  'neobrutalism',
 ]
 
-const VALID_STYLES: UIStyle[] = ['neobrutal', 'modern', 'glass']
+// Only modern and glass are user-selectable styles. 'neobrutal' is the
+// locked shape of the Neobrutalism themes and is forced by setTheme.
+const VALID_STYLES: UIStyle[] = ['modern', 'glass']
+
+export function isNeobrutalTheme(theme: ThemeMode): boolean {
+  return theme === 'neobrutalism' || theme === 'neobrutalism-light'
+}
 
 // Themes removed in the 4-theme prune: amoled, dracula, nord, cyberpunk,
 // emerald, sunset, retro. Stored values map to the closest kept theme:
-// retro (light) -> projectx-light, all removed dark themes -> dark.
+// retro (light) -> neobrutalism-light, all removed dark themes -> dark.
+// The ProjectX rename: projectx -> neobrutalism,
+// projectx-light -> neobrutalism-light.
 const REMOVED_THEME_FALLBACK: Record<string, ThemeMode> = {
-  retro: 'projectx-light',
+  retro: 'neobrutalism-light',
+  projectx: 'neobrutalism',
+  'projectx-light': 'neobrutalism-light',
 }
 
 class ThemeStore {
-  currentTheme = $state<ThemeMode>('dark')
+  currentTheme = $state<ThemeMode>('neobrutalism')
   currentStyle = $state<UIStyle>('neobrutal')
   showAppearanceModal = $state<boolean>(false)
   glassBlur = $state<number>(16)
@@ -50,8 +60,15 @@ class ThemeStore {
       document.documentElement.removeAttribute('data-color')
 
       const storedStyle = localStorage.getItem('uiStyle')
+      // Neobrutalism themes lock the neobrutal shape; neutral themes keep
+      // the user's style, falling back to modern if the locked style or
+      // an unknown value was stored.
       const initialStyle = (
-        VALID_STYLES.includes(storedStyle as UIStyle) ? storedStyle : 'neobrutal'
+        isNeobrutalTheme(initialTheme)
+          ? 'neobrutal'
+          : VALID_STYLES.includes(storedStyle as UIStyle)
+            ? storedStyle
+            : 'modern'
       ) as UIStyle
 
       const storedBlur = localStorage.getItem('glassBlur')
@@ -107,12 +124,16 @@ class ThemeStore {
     this.showAppearanceModal = false
   }
 
+  isNeobrutalTheme(): boolean {
+    return isNeobrutalTheme(this.currentTheme)
+  }
+
   setTheme(theme: ThemeMode) {
     this.currentTheme = theme
     if (typeof window !== 'undefined') {
       localStorage.setItem('colorTheme', theme)
       document.documentElement.setAttribute('data-theme', theme)
-      const isLightFamily = theme === 'light' || theme === 'projectx-light'
+      const isLightFamily = theme === 'light' || theme === 'neobrutalism-light'
       if (isLightFamily) {
         document.documentElement.classList.remove('dark')
         document.documentElement.classList.add('light')
@@ -120,10 +141,20 @@ class ThemeStore {
         document.documentElement.classList.add('dark')
         document.documentElement.classList.remove('light')
       }
+      // Neobrutalism themes lock the neobrutal shape; leaving them
+      // restores the user's style, defaulting to modern.
+      if (isNeobrutalTheme(theme)) {
+        this.setStyle('neobrutal')
+      } else if (this.currentStyle === 'neobrutal') {
+        this.setStyle('modern')
+      }
     }
   }
 
   setStyle(style: UIStyle) {
+    // The style picker never offers 'neobrutal'; ignore attempts to
+    // change the shape while a Neobrutalism theme locks it.
+    if (isNeobrutalTheme(this.currentTheme) && style !== 'neobrutal') return
     this.currentStyle = style
     if (typeof window !== 'undefined') {
       localStorage.setItem('uiStyle', style)
@@ -286,7 +317,11 @@ class ThemeStore {
   }
 
   toggleDarkMode() {
-    if (this.currentTheme === 'light') {
+    if (this.currentTheme === 'neobrutalism-light') {
+      this.setTheme('neobrutalism')
+    } else if (this.currentTheme === 'neobrutalism') {
+      this.setTheme('neobrutalism-light')
+    } else if (this.currentTheme === 'light') {
       this.setTheme('dark')
     } else {
       this.setTheme('light')

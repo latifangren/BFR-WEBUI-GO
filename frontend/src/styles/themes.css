@@ -41,8 +41,8 @@
   --neo-info: #0891b2;
 }
 
-/* 3. ProjectX (Retro-Pop Neobrutalism) */
-[data-theme='projectx'] {
+/* 3. Neobrutalism (Retro-Pop Neobrutalism) */
+[data-theme='neobrutalism'] {
   --color-bg: #18151e;
   --color-card: #24202b;
   --color-card-sub: #302b38;
@@ -69,7 +69,7 @@
   --neo-danger: #ff3b30;
   --neo-info: #55dfff;
 
-  /* ProjectX Pop Color Accents */
+  /* Neobrutalism Pop Color Accents */
   --color-pink: #ff5ca8;
   --color-yellow: #ffe14a;
   --color-cyan: #55dfff;
@@ -78,20 +78,14 @@
   --color-orange: #ff9955;
 }
 
-[data-ui-style="neobrutal"][data-theme="projectx"],
-[data-ui-style="neobrutal"] [data-theme="projectx"] {
+[data-ui-style="neobrutal"][data-theme="neobrutalism"],
+[data-ui-style="neobrutal"] [data-theme="neobrutalism"] {
   --neo-border: #0d0b10;
   --neo-shadow: #08070a;
 }
 
-[data-ui-style="modern"][data-theme="projectx"],
-[data-ui-style="modern"] [data-theme="projectx"] {
-  --neo-border: #383142;
-  --neo-shadow: rgba(8, 7, 10, 0.5);
-}
-
-/* 4. ProjectX Light (Warm Anti-Glare Cream Paper & Retro Pop) */
-[data-theme='projectx-light'] {
+/* 4. Neobrutalism Light (Warm Anti-Glare Cream Paper & Retro Pop) */
+[data-theme='neobrutalism-light'] {
   --color-bg: #fff6e8;
   --color-card: #fffdf8;
   --color-card-sub: #e8e5da;
@@ -118,7 +112,7 @@
   --neo-danger: #dc2626;
   --neo-info: #0284c7;
 
-  /* ProjectX Pop Color Accents */
+  /* Neobrutalism Pop Color Accents */
   --color-pink: #ff5ca8;
   --color-yellow: #ffe14a;
   --color-cyan: #55dfff;
@@ -127,8 +121,8 @@
   --color-orange: #ff9955;
 }
 
-[data-ui-style="neobrutal"][data-theme="projectx-light"],
-[data-ui-style="neobrutal"] [data-theme="projectx-light"] {
+[data-ui-style="neobrutal"][data-theme="neobrutalism-light"],
+[data-ui-style="neobrutal"] [data-theme="neobrutalism-light"] {
   --neo-border: #17151a;
   --neo-shadow: #17151a;
 }
@@ -394,20 +388,20 @@
   border-top: 3px solid #d97706 !important;
 }
 
-/* Dark / ProjectX Dark Neon Stripes */
-.dark .neo-tone-ice, [data-theme]:not([data-theme='light']):not([data-theme='projectx-light']) .neo-tone-ice {
+/* Dark / Neobrutalism Dark Neon Stripes */
+.dark .neo-tone-ice, [data-theme]:not([data-theme='light']):not([data-theme='neobrutalism-light']) .neo-tone-ice {
   border-top: 3px solid #38bdf8 !important;
 }
-.dark .neo-tone-lavender, [data-theme]:not([data-theme='light']):not([data-theme='projectx-light']) .neo-tone-lavender {
+.dark .neo-tone-lavender, [data-theme]:not([data-theme='light']):not([data-theme='neobrutalism-light']) .neo-tone-lavender {
   border-top: 3px solid #c084fc !important;
 }
-.dark .neo-tone-peach, [data-theme]:not([data-theme='light']):not([data-theme='projectx-light']) .neo-tone-peach {
+.dark .neo-tone-peach, [data-theme]:not([data-theme='light']):not([data-theme='neobrutalism-light']) .neo-tone-peach {
   border-top: 3px solid #ff5ca8 !important;
 }
-.dark .neo-tone-mint, [data-theme]:not([data-theme='light']):not([data-theme='projectx-light']) .neo-tone-mint {
+.dark .neo-tone-mint, [data-theme]:not([data-theme='light']):not([data-theme='neobrutalism-light']) .neo-tone-mint {
   border-top: 3px solid #4ade80 !important;
 }
-.dark .neo-tone-butter, [data-theme]:not([data-theme='light']):not([data-theme='projectx-light']) .neo-tone-butter {
+.dark .neo-tone-butter, [data-theme]:not([data-theme='light']):not([data-theme='neobrutalism-light']) .neo-tone-butter {
   border-top: 3px solid #facc15 !important;
 }
 
