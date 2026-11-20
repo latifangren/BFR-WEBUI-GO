@@ -52,11 +52,13 @@ class ThemeStore {
     if (typeof window !== 'undefined') {
       const storedTheme = localStorage.getItem('colorTheme') || localStorage.getItem('theme')
       const migratedTheme = REMOVED_THEME_FALLBACK[storedTheme ?? ''] ?? storedTheme
+      // Fresh install (nothing stored) opens on Neobrutalism, the new
+      // default; a stored but unknown/removed theme falls back to dark.
       const initialTheme = (
         VALID_THEMES.includes(migratedTheme as ThemeMode)
           ? migratedTheme
-          : migratedTheme === 'light'
-            ? 'light'
+          : storedTheme == null
+            ? 'neobrutalism'
             : 'dark'
       ) as ThemeMode
       // Drop the removed color-vibe setting so a stale value can never
