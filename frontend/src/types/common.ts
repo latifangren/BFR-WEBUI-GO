@@ -1,17 +1,9 @@
 export type ThemeMode =
   | 'dark'
-  | 'amoled'
   | 'light'
   | 'projectx-light'
-  | 'dracula'
-  | 'nord'
-  | 'cyberpunk'
-  | 'emerald'
-  | 'sunset'
-  | 'retro'
   | 'projectx'
 export type UIStyle = 'neobrutal' | 'modern' | 'glass'
-export type ColorVibe = 'default' | 'synthwave' | 'toxic' | 'arctic' | 'sunset' | 'lavender'
 
 export interface WallpaperItem {
   id: string

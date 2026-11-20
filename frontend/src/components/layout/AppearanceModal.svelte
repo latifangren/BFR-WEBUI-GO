@@ -21,7 +21,7 @@
   } from '../../stores/navigation.svelte'
   import { toastStore } from '../../stores/toast.svelte'
   import { request } from '../../api/client'
-  import type { ColorVibe, ThemeMode, UIStyle, WallpaperItem } from '../../types/common'
+  import type { ThemeMode, UIStyle, WallpaperItem } from '../../types/common'
   import Button from '../ui/Button.svelte'
 
   interface Props {
@@ -61,16 +61,6 @@
       text: '#f8fafc',
     },
     {
-      id: 'amoled',
-      name: 'Pure AMOLED',
-      tagline: 'True #000000 with charcoal elevation',
-      bg: '#000000',
-      card: '#0a0a0a',
-      border: '#262626',
-      accent: '#10b981',
-      text: '#f8fafc',
-    },
-    {
       id: 'light',
       name: 'Clean Light',
       tagline: 'High-contrast stark daylight mode',
@@ -91,66 +81,6 @@
       text: '#17151a',
     },
     {
-      id: 'dracula',
-      name: 'Dracula',
-      tagline: 'Classic vampire purple & pink accents',
-      bg: '#1e1f29',
-      card: '#282a36',
-      border: '#44475a',
-      accent: '#bd93f9',
-      text: '#f8f8f2',
-    },
-    {
-      id: 'nord',
-      name: 'Nordic Frost',
-      tagline: 'Arctic blue calm muted tones',
-      bg: '#242933',
-      card: '#2e3440',
-      border: '#434c5e',
-      accent: '#88c0d0',
-      text: '#eceff4',
-    },
-    {
-      id: 'cyberpunk',
-      name: 'Cyberpunk 2077',
-      tagline: 'High-voltage neon yellow on dark grid',
-      bg: '#0d0f18',
-      card: '#181b28',
-      border: '#facc15',
-      accent: '#facc15',
-      text: '#fff066',
-    },
-    {
-      id: 'emerald',
-      name: 'Matrix Emerald',
-      tagline: 'Deep sovereign terminal greens',
-      bg: '#042f2e',
-      card: '#064e3b',
-      border: '#115e59',
-      accent: '#10b981',
-      text: '#ecfdf5',
-    },
-    {
-      id: 'sunset',
-      name: 'Retro Sunset',
-      tagline: 'Synthwave violet & neon orange',
-      bg: '#120b18',
-      card: '#1f1329',
-      border: '#4c1d95',
-      accent: '#f97316',
-      text: '#fed7aa',
-    },
-    {
-      id: 'retro',
-      name: 'Retro Deck',
-      tagline: 'Pastel ice canvas & tactile black borders',
-      bg: '#daf0fc',
-      card: '#ffffff',
-      border: '#000000',
-      accent: '#c8f5d0',
-      text: '#111827',
-    },
-    {
       id: 'projectx',
       name: 'ProjectX Dark',
       tagline: 'Retro-pop neobrutalism on purple charcoal',
@@ -159,52 +89,6 @@
       border: '#0d0b10',
       accent: '#ffe14a',
       text: '#fffaf4',
-    },
-  ]
-
-  interface ColorVibeOption {
-    id: ColorVibe
-    name: string
-    description: string
-    colors: string[]
-  }
-
-  const colorVibes: ColorVibeOption[] = [
-    {
-      id: 'default',
-      name: 'Retro Pop',
-      description: 'Classic Pop: Pink, Yellow, Cyan, Lime',
-      colors: ['#ff5ca8', '#ffe14a', '#55dfff', '#b8f34a'],
-    },
-    {
-      id: 'synthwave',
-      name: 'Synthwave',
-      description: 'Cyber Neon: Pink, Cyan, Violet, Orange',
-      colors: ['#ff2d95', '#00e5ff', '#c538ff', '#ff6b35'],
-    },
-    {
-      id: 'toxic',
-      name: 'Toxic Lime',
-      description: 'Radioactive: Toxic Lime, Orange, Flame',
-      colors: ['#39ff14', '#ff6600', '#ff4444'],
-    },
-    {
-      id: 'arctic',
-      name: 'Arctic Frost',
-      description: 'Glacial: Sky Ice, Cyan, Deep Blue',
-      colors: ['#64b5f6', '#40c4ff', '#80d8ff', '#448aff'],
-    },
-    {
-      id: 'sunset',
-      name: 'Sunset Fire',
-      description: 'Dusk: Fiery Crimson, Sunset Amber',
-      colors: ['#ff1744', '#ff6d00', '#ffab40', '#ff3d00'],
-    },
-    {
-      id: 'lavender',
-      name: 'Lavender Pastel',
-      description: 'Dream: Pastel Lilac, Baby Rose, Violet',
-      colors: ['#b388ff', '#f48fb1', '#ea80fc', '#7c4dff'],
     },
   ]
 
@@ -687,7 +571,7 @@
         </div>
       {/if}
 
-      <!-- Section 3: Color Themes (9 Palettes) -->
+      <!-- Section 3: Color Themes (4 Palettes) -->
       <div class="space-y-1.5">
         <span class="text-[11px] font-bold uppercase text-muted tracking-wider flex items-center gap-1.5">
           <Sparkles class="w-3.5 h-3.5 text-accent" />
@@ -719,45 +603,6 @@
               </div>
             </button>
           {/each}
-
-        <!-- Pop Accent Vibes (ProjectX inspired) -->
-        <div class="space-y-1.5 pt-3 border-t border-border/50">
-          <span class="text-[11px] font-bold uppercase text-muted tracking-wider flex items-center gap-1.5">
-            <Palette class="w-3.5 h-3.5 text-accent" />
-            Pop Accent Vibes ({colorVibes.length} Styles)
-          </span>
-          <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
-            {#each colorVibes as vibe}
-              {@const isSelected = themeStore.currentColorVibe === vibe.id}
-              <button
-                type="button"
-                class="p-2 rounded-lg border-2 text-left transition-all cursor-pointer relative flex flex-col justify-between gap-1.5 {isSelected ? 'border-accent bg-accent/10 shadow-neobrutal-sm' : 'border-border bg-card-sub hover:border-accent/60'}"
-                onclick={() => themeStore.setColorVibe(vibe.id)}
-              >
-                <div class="flex items-center justify-between">
-                  <div class="flex items-center gap-1">
-                    {#each vibe.colors as c}
-                      <span class="w-3 h-3 rounded-full border border-black/20 shrink-0" style="background-color: {c};"></span>
-                    {/each}
-                  </div>
-                  {#if isSelected}
-                    <span class="w-4 h-4 rounded-full bg-accent text-accent-text flex items-center justify-center text-[10px] font-black">
-                      <Check class="w-2.5 h-2.5" />
-                    </span>
-                  {/if}
-                </div>
-                <div>
-                  <div class="font-bold text-xs text-foreground truncate">
-                    {vibe.name}
-                  </div>
-                  <div class="text-[10px] text-muted truncate">
-                    {vibe.description}
-                  </div>
-                </div>
-              </button>
-            {/each}
-          </div>
-        </div>
 
         <!-- Section 5: Login Page Wallpaper (Static & Independent) -->
         <div class="space-y-3 pt-3 border-t border-border">

@@ -1,26 +1,24 @@
-import type { ColorVibe, ThemeMode, UIStyle } from '../types/common'
+import type { ThemeMode, UIStyle } from '../types/common'
 
 const VALID_THEMES: ThemeMode[] = [
   'dark',
-  'amoled',
   'light',
   'projectx-light',
-  'dracula',
-  'nord',
-  'cyberpunk',
-  'emerald',
-  'sunset',
-  'retro',
   'projectx',
 ]
 
 const VALID_STYLES: UIStyle[] = ['neobrutal', 'modern', 'glass']
-const VALID_VIBES: ColorVibe[] = ['default', 'synthwave', 'toxic', 'arctic', 'sunset', 'lavender']
+
+// Themes removed in the 4-theme prune: amoled, dracula, nord, cyberpunk,
+// emerald, sunset, retro. Stored values map to the closest kept theme:
+// retro (light) -> projectx-light, all removed dark themes -> dark.
+const REMOVED_THEME_FALLBACK: Record<string, ThemeMode> = {
+  retro: 'projectx-light',
+}
 
 class ThemeStore {
   currentTheme = $state<ThemeMode>('dark')
   currentStyle = $state<UIStyle>('neobrutal')
-  currentColorVibe = $state<ColorVibe>('default')
   showAppearanceModal = $state<boolean>(false)
   glassBlur = $state<number>(16)
   glassOpacity = $state<number>(0.65)
@@ -38,13 +36,18 @@ class ThemeStore {
   constructor() {
     if (typeof window !== 'undefined') {
       const storedTheme = localStorage.getItem('colorTheme') || localStorage.getItem('theme')
+      const migratedTheme = REMOVED_THEME_FALLBACK[storedTheme ?? ''] ?? storedTheme
       const initialTheme = (
-        VALID_THEMES.includes(storedTheme as ThemeMode)
-          ? storedTheme
-          : storedTheme === 'light'
+        VALID_THEMES.includes(migratedTheme as ThemeMode)
+          ? migratedTheme
+          : migratedTheme === 'light'
             ? 'light'
             : 'dark'
       ) as ThemeMode
+      // Drop the removed color-vibe setting so a stale value can never
+      // override a kept theme's accent again.
+      localStorage.removeItem('colorVibe')
+      document.documentElement.removeAttribute('data-color')
 
       const storedStyle = localStorage.getItem('uiStyle')
       const initialStyle = (
@@ -88,14 +91,10 @@ class ThemeStore {
 
       const storedNeoPatOp = localStorage.getItem('neoPatternOpacity')
       if (storedNeoPatOp) this.neoPatternOpacity = Math.max(0, Math.min(0.15, Number(storedNeoPatOp) || 0.04))
-      const storedVibe = localStorage.getItem('colorVibe')
-      const initialVibe = (VALID_VIBES.includes(storedVibe as ColorVibe) ? storedVibe : 'default') as ColorVibe
-
 
       this.setTheme(initialTheme)
       this.setStyle(initialStyle)
       this.applyGlassTokens()
-      this.setColorVibe(initialVibe)
       this.applyNeobrutalTokens()
     }
   }
@@ -113,7 +112,7 @@ class ThemeStore {
     if (typeof window !== 'undefined') {
       localStorage.setItem('colorTheme', theme)
       document.documentElement.setAttribute('data-theme', theme)
-      const isLightFamily = theme === 'light' || theme === 'projectx-light' || theme === 'retro'
+      const isLightFamily = theme === 'light' || theme === 'projectx-light'
       if (isLightFamily) {
         document.documentElement.classList.remove('dark')
         document.documentElement.classList.add('light')
@@ -131,18 +130,6 @@ class ThemeStore {
       document.documentElement.setAttribute('data-ui-style', style)
     }
   }
-  setColorVibe(vibe: ColorVibe) {
-    this.currentColorVibe = vibe
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('colorVibe', vibe)
-      if (vibe === 'default') {
-        document.documentElement.removeAttribute('data-color')
-      } else {
-        document.documentElement.setAttribute('data-color', vibe)
-      }
-    }
-  }
-
 
   setGlassBlur(blur: number) {
     this.glassBlur = blur
