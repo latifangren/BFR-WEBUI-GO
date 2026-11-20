@@ -9,11 +9,25 @@ Dokumen ini menjelaskan arsitektur folder dan struktur berkas repositori **BFR-W
 ```text
 BFR-WEBUI-GO/
 ├── main.go                      # Entry point aplikasi, inisialisasi server & flag CLI
-├── module.prop                  # Metadata modul Android (id, name, version v1.2.8, author)
-├── customize.sh                 # Script instalasi & setup izin saat di-flash via Root Manager
-├── service.sh                   # Script startup otomatis saat booting perangkat Android
-├── system.prop                  # System properties bawaan modul Android
 ├── tweaks.json                  # Konfigurasi bawaan untuk optimasi jaringan & kernel
+│
+├── module/                      # Isi modul Magisk (persis isi file ZIP rilis)
+│   ├── module.prop              # Metadata modul Android (id, name, version v1.2.8, author)
+│   ├── customize.sh             # Script instalasi & setup izin saat di-flash via Root Manager
+│   ├── service.sh               # Script startup otomatis saat booting perangkat Android
+│   ├── system.prop              # System properties bawaan modul Android
+│   ├── uninstall.sh             # Script penghentian daemon saat modul dihapus
+│   ├── update.json              # Manifest update Magisk (version, zipUrl, changelog)
+│   ├── env.example              # Contoh konfigurasi environment (ikut di dalam ZIP)
+│   ├── META-INF/                # Skrip installer Magisk (update-binary, updater-script)
+│   └── bin/                     # Biner & alat bantu (dropbear, scrcpy-server, .dex)
+│
+├── scripts/                     # Skrip build & packaging (dijalankan dari root repo)
+│   ├── build.sh                 # Build biner Android ARM64 (Linux/macOS/Termux)
+│   ├── build.bat                # Build biner Android ARM64 (Windows)
+│   ├── build_zip.bat            # Build + packaging ZIP Magisk (Windows)
+│   ├── build-release.bat        # Build dual-varian + packaging ZIP (Windows)
+│   └── audit_nomodem.py         # Audit zero-leak biner no-modem
 │
 ├── .github/                     # GitHub Actions CI/CD Workflows
 │   └── workflows/

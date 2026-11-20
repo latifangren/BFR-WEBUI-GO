@@ -1,6 +1,6 @@
 .PHONY: all release build-full build-nomodem frontend-full frontend-nomodem audit test clean
 
-VERSION ?= $(shell grep '^version=' module.prop | cut -d= -f2)
+VERSION ?= $(shell grep '^version=' module/module.prop | cut -d= -f2)
 ifeq ($(VERSION),)
   VERSION := v1.2.8
 endif
@@ -26,8 +26,8 @@ $(ZIP_FULL): frontend-full
 	@mkdir -p .tmp/pkg-full
 	GOOS=$(GOOS) GOARCH=$(GOARCH) CGO_ENABLED=$(CGO_ENABLED) go build -ldflags="-s -w" -o .tmp/pkg-full/webui .
 	@echo "--> Staging Full Magisk package files..."
-	@cp -f customize.sh module.prop service.sh system.prop update.json env.example uninstall.sh .tmp/pkg-full/
-	@cp -rf META-INF bin .tmp/pkg-full/
+	@cp -f module/customize.sh module/module.prop module/service.sh module/system.prop module/update.json module/env.example module/uninstall.sh .tmp/pkg-full/
+	@cp -rf module/META-INF module/bin .tmp/pkg-full/
 	@echo "--> Packaging $(ZIP_FULL)..."
 	@rm -f $(ZIP_FULL)
 	@(cd .tmp/pkg-full && zip -r ../../$(ZIP_FULL) META-INF customize.sh module.prop service.sh system.prop update.json env.example uninstall.sh bin webui)
@@ -41,8 +41,8 @@ $(ZIP_NOMODEM): frontend-nomodem
 	@echo "--> Running zero-leak forensic audit..."
 	@python3 scripts/audit_nomodem.py .tmp/pkg-nomodem/webui || python scripts/audit_nomodem.py .tmp/pkg-nomodem/webui
 	@echo "--> Staging Clean No-Modem Magisk package files..."
-	@cp -f customize.sh module.prop service.sh system.prop update.json env.example uninstall.sh .tmp/pkg-nomodem/
-	@cp -rf META-INF bin .tmp/pkg-nomodem/
+	@cp -f module/customize.sh module/module.prop module/service.sh module/system.prop module/update.json module/env.example module/uninstall.sh .tmp/pkg-nomodem/
+	@cp -rf module/META-INF module/bin .tmp/pkg-nomodem/
 	@rm -f .tmp/pkg-nomodem/bin/band_manager.dex .tmp/pkg-nomodem/bin/sim_switcher.dex
 	@echo "--> Packaging $(ZIP_NOMODEM)..."
 	@rm -f $(ZIP_NOMODEM)

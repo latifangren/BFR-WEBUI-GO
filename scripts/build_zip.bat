@@ -1,6 +1,9 @@
 @echo off
 setlocal enabledelayedexpansion
 
+:: Scripts live in scripts/; always operate from the repository root.
+cd /d "%~dp0.."
+
 set FLAVOR=%1
 if "%FLAVOR%"=="" (
     set CURRENT_BRANCH=dev
@@ -23,7 +26,7 @@ echo ========================================================
 
 echo 1. Reading version from module.prop...
 set VER=local
-for /f "tokens=2 delims==" %%i in ('findstr "version=" module.prop') do set VER=%%i
+for /f "tokens=2 delims==" %%i in ('findstr "version=" module\module.prop') do set VER=%%i
 
 echo 2. Compiling frontend production bundle (Svelte 5 + Vite)...
 cd frontend
@@ -57,24 +60,38 @@ if %errorlevel% neq 0 (
     exit /b %errorlevel%
 )
 
-echo 4. Packaging Magisk zip using tar.exe...
+echo 4. Staging Magisk module files and packaging zip using tar.exe...
 set ZIP_NAME=BFR-WEBUI-Magisk-%VER%-local.zip
 if /i "%FLAVOR%"=="nomodem" (
     set ZIP_NAME=BFR-WEBUI-Magisk-%VER%-nomodem.zip
 )
 
 if exist "%ZIP_NAME%" del "%ZIP_NAME%"
+if exist ".tmp\pkg-local" rmdir /s /q ".tmp\pkg-local"
+mkdir ".tmp\pkg-local"
+copy /y module\customize.sh .tmp\pkg-local\ >nul
+copy /y module\module.prop .tmp\pkg-local\ >nul
+copy /y module\service.sh .tmp\pkg-local\ >nul
+copy /y module\system.prop .tmp\pkg-local\ >nul
+copy /y module\update.json .tmp\pkg-local\ >nul
+copy /y module\env.example .tmp\pkg-local\ >nul
+copy /y module\uninstall.sh .tmp\pkg-local\ >nul
+xcopy /e /i /y module\bin .tmp\pkg-local\bin >nul
+xcopy /e /i /y module\META-INF .tmp\pkg-local\META-INF >nul
+copy /y webui .tmp\pkg-local\ >nul
 if /i "%FLAVOR%"=="nomodem" (
-    tar.exe -a -c --exclude="band_manager.dex" --exclude="sim_switcher.dex" -f "%ZIP_NAME%" META-INF customize.sh module.prop service.sh system.prop update.json env.example uninstall.sh bin webui
-) else (
-    tar.exe -a -c -f "%ZIP_NAME%" META-INF customize.sh module.prop service.sh system.prop update.json env.example uninstall.sh bin webui
+    if exist ".tmp\pkg-local\bin\band_manager.dex" del /f /q ".tmp\pkg-local\bin\band_manager.dex"
+    if exist ".tmp\pkg-local\bin\sim_switcher.dex" del /f /q ".tmp\pkg-local\bin\sim_switcher.dex"
 )
+tar.exe -a -c -f "%ZIP_NAME%" -C .tmp\pkg-local META-INF customize.sh module.prop service.sh system.prop update.json env.example uninstall.sh bin webui
 if %errorlevel% neq 0 (
     echo [ERROR] Packing failed.
     del webui
+    rmdir /s /q ".tmp\pkg-local" >nul 2>&1
     pause
     exit /b %errorlevel%
 )
+rmdir /s /q ".tmp\pkg-local" >nul 2>&1
 
 echo 5. Cleaning up temporary binary...
 del webui
