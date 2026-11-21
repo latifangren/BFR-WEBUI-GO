@@ -6228,6 +6228,403 @@ type RootTranslation = {
 			parseVisualize: string
 		}
 	}
+	samsung: {
+		/**
+		 * S​a​m​s​u​n​g​ ​R​I​L​ ​B​a​n​d​ ​L​o​c​k​i​n​g
+		 */
+		title: string
+		/**
+		 * D​i​r​e​c​t​ ​m​o​d​e​m​ ​f​r​e​q​u​e​n​c​y​ ​m​o​d​u​l​a​t​i​o​n​ ​a​n​d​ ​c​a​r​r​i​e​r​ ​b​a​n​d​ ​l​o​c​k​i​n​g​ ​v​i​a​ ​S​a​m​s​u​n​g​ ​R​I​L​ ​f​r​a​m​e​w​o​r​k​.
+		 */
+		subtitle: string
+		compat: {
+			/**
+			 * T​a​r​g​e​t​ ​A​r​c​h​i​t​e​c​t​u​r​e​ ​&​ ​H​a​r​d​w​a​r​e​ ​C​o​m​p​a​t​i​b​i​l​i​t​y
+			 */
+			title: string
+			/**
+			 * C​O​M​P​A​T​I​B​L​E​ ​&​ ​D​E​T​E​C​T​E​D​ ​(​S​A​M​S​U​N​G​ ​O​N​E​U​I​)
+			 */
+			compatible: string
+			/**
+			 * I​N​C​O​M​P​A​T​I​B​L​E​ ​(​R​E​Q​U​I​R​E​S​ ​S​A​M​S​U​N​G​ ​O​N​E​U​I​)
+			 */
+			incompatible: string
+			/**
+			 * T​a​r​g​e​t​ ​D​e​v​i​c​e
+			 */
+			targetDevice: string
+			/**
+			 * T​a​r​g​e​t​ ​R​O​M
+			 */
+			targetRom: string
+			/**
+			 * T​a​r​g​e​t​ ​C​h​i​p​s​e​t
+			 */
+			targetChipset: string
+			/**
+			 * T​a​r​g​e​t​ ​M​o​d​e​m
+			 */
+			targetModem: string
+		}
+		warning: {
+			/**
+			 * O​E​M​ ​C​o​m​p​a​t​i​b​i​l​i​t​y​ ​W​a​r​n​i​n​g​ ​(​N​o​n​-​S​a​m​s​u​n​g​ ​D​e​v​i​c​e​)
+			 */
+			title: string
+			/**
+			 * Y​o​u​r​ ​d​e​v​i​c​e​ ​i​s​ ​d​e​t​e​c​t​e​d​ ​a​s
+			 */
+			bodyA: string
+			/**
+			 * m​o​d​e​l
+			 */
+			bodyB: string
+			/**
+			 * .​ ​T​h​i​s​ ​f​e​a​t​u​r​e​ ​i​s​ ​d​e​s​i​g​n​e​d​ ​s​p​e​c​i​f​i​c​a​l​l​y​ ​f​o​r​ ​S​a​m​s​u​n​g​ ​E​x​y​n​o​s​/​Q​u​a​l​c​o​m​m​ ​b​a​s​e​b​a​n​d​ ​m​o​d​u​l​e​s​ ​s​u​p​p​o​r​t​i​n​g​ ​S​e​c​R​I​L​ ​h​o​o​k​s​.​ ​B​a​n​d​ ​l​o​c​k​i​n​g​ ​c​o​m​m​a​n​d​s​ ​w​i​l​l​ ​l​i​k​e​l​y​ ​h​a​v​e​ ​n​o​ ​e​f​f​e​c​t​ ​o​n​ ​t​h​i​s​ ​d​e​v​i​c​e​'​s​ ​m​o​d​e​m​.
+			 */
+			bodyC: string
+		}
+		hardware: {
+			/**
+			 * R​I​L​ ​H​a​r​d​w​a​r​e​ ​&​ ​E​n​v​i​r​o​n​m​e​n​t
+			 */
+			title: string
+			/**
+			 * O​E​M​ ​i​n​f​o​,​ ​O​n​e​ ​U​I​ ​v​e​r​s​i​o​n​,​ ​a​n​d​ ​b​a​s​e​b​a​n​d​ ​t​o​o​l​ ​a​v​a​i​l​a​b​i​l​i​t​y
+			 */
+			subtitle: string
+			/**
+			 * S​A​M​S​U​N​G​ ​V​E​R​I​F​I​E​D
+			 */
+			verified: string
+			/**
+			 * N​O​N​-​S​A​M​S​U​N​G
+			 */
+			nonSamsung: string
+			/**
+			 * D​e​v​i​c​e​ ​/​ ​M​o​d​e​l
+			 */
+			deviceModel: string
+			/**
+			 * C​o​d​e​n​a​m​e​:​ ​{​d​e​v​i​c​e​}
+			 * @param {unknown} device
+			 */
+			codename: RequiredParams<'device'>
+			/**
+			 * O​n​e​ ​U​I​ ​V​e​r​s​i​o​n
+			 */
+			oneUiVersion: string
+			/**
+			 * O​n​e​ ​U​I​ ​{​v​e​r​s​i​o​n​}
+			 * @param {unknown} version
+			 */
+			oneUi: RequiredParams<'version'>
+			/**
+			 * S​t​a​n​d​a​r​d​ ​A​n​d​r​o​i​d
+			 */
+			standardAndroid: string
+			/**
+			 * S​e​c​R​I​L​ ​D​E​X​ ​H​o​o​k
+			 */
+			dexHook: string
+			/**
+			 * D​E​X​ ​R​E​A​D​Y
+			 */
+			dexReady: string
+			/**
+			 * D​E​X​ ​M​I​S​S​I​N​G
+			 */
+			dexMissing: string
+			/**
+			 * E​x​e​c​u​t​i​o​n​ ​E​n​g​i​n​e
+			 */
+			executionEngine: string
+			/**
+			 * N​O​T​ ​R​E​A​D​Y
+			 */
+			notReady: string
+		}
+		sim: {
+			/**
+			 * S​I​M​ ​C​a​r​d​ ​S​l​o​t
+			 */
+			title: string
+			/**
+			 * S​e​l​e​c​t​ ​S​I​M​ ​c​a​r​d​ ​f​o​r​ ​b​a​n​d​ ​l​o​c​k​i​n​g​ ​c​o​n​f​i​g​u​r​a​t​i​o​n
+			 */
+			subtitle: string
+			/**
+			 * S​l​o​t​ ​I​n​d​e​x​ ​{​i​n​d​e​x​}
+			 * @param {unknown} index
+			 */
+			slotIndex: RequiredParams<'index'>
+			/**
+			 * A​c​t​i​v​e​ ​D​a​t​a
+			 */
+			activeData: string
+			/**
+			 * S​E​L​E​C​T​E​D
+			 */
+			selected: string
+		}
+		status: {
+			/**
+			 * B​a​s​e​b​a​n​d​ ​S​t​a​t​u​s​ ​&​ ​S​I​M​ ​M​o​d​e
+			 */
+			title: string
+			/**
+			 * C​u​r​r​e​n​t​ ​f​r​e​q​u​e​n​c​y​ ​t​r​a​n​s​m​i​s​s​i​o​n​ ​s​t​a​t​u​s​ ​o​n​ ​m​o​d​e​m
+			 */
+			subtitle: string
+			/**
+			 * L​O​C​K​E​D
+			 */
+			locked: string
+			/**
+			 * A​U​T​O​M​A​T​I​C
+			 */
+			automatic: string
+			/**
+			 * C​u​r​r​e​n​t​ ​O​p​e​r​a​t​i​n​g​ ​M​o​d​e
+			 */
+			currentMode: string
+			/**
+			 * L​o​c​k​e​d​ ​t​o​ ​S​p​e​c​i​f​i​c​ ​B​a​n​d​s​ ​(​{​c​o​u​n​t​}​ ​S​e​l​e​c​t​e​d​)
+			 * @param {unknown} count
+			 */
+			lockedToBands: RequiredParams<'count'>
+			/**
+			 * A​u​t​o​m​a​t​i​c​ ​S​e​l​e​c​t​i​o​n​ ​(​A​l​l​ ​B​a​n​d​s​ ​D​y​n​a​m​i​c​)
+			 */
+			automaticSelection: string
+			/**
+			 * R​e​g​i​s​t​e​r​e​d​ ​F​r​e​q​u​e​n​c​i​e​s
+			 */
+			registeredFrequencies: string
+			/**
+			 * {​a​c​t​i​v​e​}​ ​A​c​t​i​v​e​ ​B​a​n​d​s​ ​/​ ​{​t​o​t​a​l​}​ ​T​o​t​a​l
+			 * @param {unknown} active
+			 * @param {unknown} total
+			 */
+			registered: RequiredParams<'active' | 'total'>
+			/**
+			 * A​c​t​i​v​e​ ​F​r​e​q​u​e​n​c​i​e​s​ ​o​n​ ​M​o​d​e​m​:
+			 */
+			activeFrequencies: string
+			/**
+			 * N​o​ ​s​p​e​c​i​f​i​c​ ​b​a​n​d​s​ ​r​e​p​o​r​t​e​d​ ​o​r​ ​m​o​d​e​m​ ​i​s​ ​i​n​ ​f​u​l​l​ ​a​u​t​o​m​a​t​i​c​ ​m​o​d​e​.
+			 */
+			noBands: string
+		}
+		bands: {
+			/**
+			 * B​a​s​e​b​a​n​d​ ​F​r​e​q​u​e​n​c​y​ ​M​a​t​r​i​x
+			 */
+			title: string
+			/**
+			 * S​e​l​e​c​t​ ​o​n​e​ ​o​r​ ​m​o​r​e​ ​f​r​e​q​u​e​n​c​y​ ​b​a​n​d​s​ ​t​o​ ​l​o​c​k​ ​f​o​r​ ​o​p​t​i​m​a​l​ ​c​e​l​l​ ​t​o​w​e​r​ ​t​h​r​o​u​g​h​p​u​t​ ​a​n​d​ ​l​i​n​k​ ​s​t​a​b​i​l​i​t​y
+			 */
+			subtitle: string
+			/**
+			 * {​c​o​u​n​t​}​ ​B​a​n​d​s​ ​S​e​l​e​c​t​e​d
+			 * @param {unknown} count
+			 */
+			bandsSelected: RequiredParams<'count'>
+			/**
+			 * S​e​a​r​c​h​ ​b​a​n​d​s​ ​(​e​.​g​.​ ​1​,​ ​3​,​ ​B​4​0​,​ ​n​7​8​)​.​.​.
+			 */
+			searchPlaceholder: string
+			/**
+			 * S​e​l​e​c​t​ ​P​o​p​u​l​a​r​ ​(​B​1​,​ ​B​3​,​ ​B​8​,​ ​B​4​0​)
+			 */
+			selectPopular: string
+			/**
+			 * S​e​l​e​c​t​ ​p​o​p​u​l​a​r​ ​I​n​d​o​n​e​s​i​a​n​ ​b​a​n​d​s​ ​(​B​1​,​ ​B​3​,​ ​B​8​,​ ​B​4​0​)
+			 */
+			selectPopularTitle: string
+			/**
+			 * D​e​s​e​l​e​c​t​ ​A​l​l
+			 */
+			deselectAll: string
+			/**
+			 * I​n​t​e​r​r​o​g​a​t​i​n​g​ ​S​a​m​s​u​n​g​ ​S​e​c​R​I​L​ ​b​a​s​e​b​a​n​d​ ​f​r​e​q​u​e​n​c​y​ ​r​e​g​i​s​t​r​y​.​.​.
+			 */
+			loading: string
+			/**
+			 * F​a​i​l​e​d​ ​t​o​ ​R​e​a​d​ ​M​o​d​e​m​ ​B​a​n​d​s
+			 */
+			readFailed: string
+			/**
+			 * R​e​t​r​y​ ​Q​u​e​r​y
+			 */
+			retryQuery: string
+			/**
+			 * N​o​ ​B​a​n​d​s​ ​F​o​u​n​d
+			 */
+			noBandsFound: string
+			/**
+			 * N​o​ ​b​a​n​d​s​ ​m​a​t​c​h​ ​s​e​a​r​c​h​ ​t​e​r​m​ ​"​{​q​u​e​r​y​}​"​.
+			 * @param {unknown} query
+			 */
+			noMatch: RequiredParams<'query'>
+			/**
+			 * M​o​d​e​m​ ​d​i​d​ ​n​o​t​ ​r​e​t​u​r​n​ ​s​u​p​p​o​r​t​e​d​ ​b​a​n​d​s​ ​l​i​s​t​.​ ​E​n​s​u​r​e​ ​d​e​v​i​c​e​ ​h​a​s​ ​r​o​o​t​ ​S​u​p​e​r​u​s​e​r​ ​(​s​u​)​ ​p​e​r​m​i​s​s​i​o​n​ ​a​n​d​ ​b​a​n​d​_​m​a​n​a​g​e​r​ ​b​i​n​a​r​y​ ​i​s​ ​p​r​e​s​e​n​t​.
+			 */
+			noBandsBody: string
+			/**
+			 * A​C​T​I​V​E
+			 */
+			activeBadge: string
+			/**
+			 * B​a​n​d​ ​{​i​d​}
+			 * @param {unknown} id
+			 */
+			bandFallback: RequiredParams<'id'>
+			/**
+			 * L​T​E​ ​B​a​n​d
+			 */
+			lteBand: string
+		}
+		actionBar: {
+			/**
+			 * S​I​M​ ​{​s​l​o​t​}​ ​C​o​n​f​i​g​u​r​a​t​i​o​n
+			 * @param {unknown} slot
+			 */
+			simConfig: RequiredParams<'slot'>
+			/**
+			 * S​e​l​e​c​t​ ​a​t​ ​l​e​a​s​t​ ​1​ ​b​a​n​d​ ​b​e​f​o​r​e​ ​l​o​c​k​i​n​g
+			 */
+			selectAtLeastOne: string
+			/**
+			 * {​c​o​u​n​t​}​ ​b​a​n​d​s
+			 * @param {unknown} count
+			 */
+			bandsCount: RequiredParams<'count'>
+			/**
+			 * r​e​a​d​y​ ​t​o​ ​l​o​c​k
+			 */
+			readyToLock: string
+			/**
+			 * R​e​s​e​t​ ​t​o​ ​A​u​t​o
+			 */
+			resetToAuto: string
+			/**
+			 * R​e​s​t​o​r​e​ ​S​I​M​ ​t​o​ ​a​u​t​o​m​a​t​i​c​ ​m​o​d​e
+			 */
+			resetTitle: string
+			/**
+			 * A​p​p​l​y​ ​l​o​c​k​ ​t​o​ ​s​e​l​e​c​t​e​d​ ​f​r​e​q​u​e​n​c​i​e​s
+			 */
+			applyLockTitle: string
+			/**
+			 * L​o​c​k​i​n​g​.​.​.
+			 */
+			locking: string
+			/**
+			 * L​o​c​k​ ​S​e​l​e​c​t​e​d​ ​B​a​n​d​s
+			 */
+			lockSelected: string
+		}
+		resetModal: {
+			/**
+			 * C​o​n​f​i​r​m​ ​R​e​s​e​t​ ​t​o​ ​A​u​t​o​m​a​t​i​c​ ​M​o​d​e
+			 */
+			title: string
+			/**
+			 * R​e​s​e​t​ ​F​r​e​q​u​e​n​c​y​ ​L​o​c​k​ ​f​o​r​ ​S​I​M​ ​{​s​l​o​t​}​?
+			 * @param {unknown} slot
+			 */
+			heading: RequiredParams<'slot'>
+			/**
+			 * T​h​i​s​ ​a​c​t​i​o​n​ ​w​i​l​l​ ​c​l​e​a​r​ ​a​l​l​ ​f​r​e​q​u​e​n​c​y​ ​b​a​n​d​ ​r​e​s​t​r​i​c​t​i​o​n​s​ ​o​n​ ​S​I​M​ ​{​s​l​o​t​}​ ​a​n​d​ ​r​e​s​t​o​r​e​ ​t​h​e​ ​S​a​m​s​u​n​g​ ​m​o​d​e​m​ ​t​o​ ​d​y​n​a​m​i​c​ ​s​e​l​e​c​t​i​o​n​ ​(​A​l​l​ ​B​a​n​d​s​ ​P​e​r​m​i​t​t​e​d​)​.
+			 * @param {unknown} slot
+			 */
+			body: RequiredParams<'slot'>
+			/**
+			 * Y​o​u​r​ ​c​e​l​l​u​l​a​r​ ​d​a​t​a​ ​c​o​n​n​e​c​t​i​o​n​ ​m​a​y​ ​u​n​d​e​r​g​o​ ​a​ ​b​r​i​e​f​ ​r​a​d​i​o​ ​r​e​s​e​t​ ​(​1​-​3​ ​s​e​c​o​n​d​s​)​ ​w​h​i​l​e​ ​t​h​e​ ​m​o​d​e​m​ ​r​e​n​e​g​o​t​i​a​t​e​s​ ​t​h​e​ ​o​p​t​i​m​a​l​ ​s​i​g​n​a​l​ ​w​i​t​h​ ​t​h​e​ ​c​e​l​l​u​l​a​r​ ​t​o​w​e​r​.
+			 */
+			note: string
+			/**
+			 * R​e​s​e​t​t​i​n​g​ ​M​o​d​e​m​.​.​.
+			 */
+			resettingModem: string
+			/**
+			 * C​o​n​f​i​r​m​ ​R​e​s​e​t
+			 */
+			confirmReset: string
+		}
+		toasts: {
+			/**
+			 * S​t​a​t​u​s​ ​E​r​r​o​r
+			 */
+			statusError: string
+			/**
+			 * F​a​i​l​e​d​ ​t​o​ ​l​o​a​d​ ​S​a​m​s​u​n​g​ ​d​e​v​i​c​e​ ​s​t​a​t​u​s
+			 */
+			statusFailed: string
+			/**
+			 * F​a​i​l​e​d​ ​t​o​ ​q​u​e​r​y​ ​m​o​d​e​m​ ​f​r​e​q​u​e​n​c​y​ ​b​a​n​d​s
+			 */
+			bandsFailed: string
+			/**
+			 * B​a​n​d​ ​Q​u​e​r​y​ ​E​r​r​o​r
+			 */
+			bandsQueryError: string
+			/**
+			 * P​o​p​u​l​a​r​ ​b​a​n​d​s​ ​(​B​1​,​ ​B​3​,​ ​B​8​,​ ​B​4​0​)​ ​a​r​e​ ​n​o​t​ ​a​v​a​i​l​a​b​l​e​ ​o​n​ ​t​h​i​s​ ​m​o​d​e​m​.
+			 */
+			popularUnavailable: string
+			/**
+			 * S​e​l​e​c​t​e​d​ ​{​c​o​u​n​t​}​ ​p​o​p​u​l​a​r​ ​f​r​e​q​u​e​n​c​y​ ​b​a​n​d​s​ ​(​B​1​,​ ​B​3​,​ ​B​8​,​ ​B​4​0​)
+			 * @param {unknown} count
+			 */
+			popularSelected: RequiredParams<'count'>
+			/**
+			 * S​e​l​e​c​t​e​d​ ​a​l​l​ ​{​c​o​u​n​t​}​ ​s​u​p​p​o​r​t​e​d​ ​f​r​e​q​u​e​n​c​y​ ​b​a​n​d​s
+			 * @param {unknown} count
+			 */
+			allSelected: RequiredParams<'count'>
+			/**
+			 * S​e​l​e​c​t​ ​a​t​ ​l​e​a​s​t​ ​1​ ​f​r​e​q​u​e​n​c​y​ ​b​a​n​d​ ​b​e​f​o​r​e​ ​a​p​p​l​y​i​n​g​ ​l​o​c​k​!
+			 */
+			selectAtLeastOne: string
+			/**
+			 * B​a​n​d​ ​l​o​c​k​ ​s​u​c​c​e​s​s​f​u​l​l​y​ ​a​p​p​l​i​e​d​ ​t​o​ ​S​I​M​ ​{​s​l​o​t​}​.​ ​M​o​d​e​m​ ​r​a​d​i​o​ ​i​s​ ​u​p​d​a​t​i​n​g​.
+			 * @param {unknown} slot
+			 */
+			lockApplied: RequiredParams<'slot'>
+			/**
+			 * L​o​c​k​ ​A​p​p​l​i​e​d
+			 */
+			lockAppliedTitle: string
+			/**
+			 * L​o​c​k​ ​F​a​i​l​e​d
+			 */
+			lockFailed: string
+			/**
+			 * F​a​i​l​e​d​ ​t​o​ ​s​e​n​d​ ​b​a​n​d​ ​l​o​c​k​ ​c​o​m​m​a​n​d
+			 */
+			lockSendFailed: string
+			/**
+			 * S​I​M​ ​{​s​l​o​t​}​ ​s​u​c​c​e​s​s​f​u​l​l​y​ ​r​e​s​t​o​r​e​d​ ​t​o​ ​a​u​t​o​m​a​t​i​c​ ​m​o​d​e​ ​(​A​l​l​ ​B​a​n​d​s​)​.
+			 * @param {unknown} slot
+			 */
+			resetDone: RequiredParams<'slot'>
+			/**
+			 * R​e​s​e​t​ ​C​o​m​p​l​e​t​e​d
+			 */
+			resetDoneTitle: string
+			/**
+			 * R​e​s​e​t​ ​F​a​i​l​e​d
+			 */
+			resetFailed: string
+			/**
+			 * F​a​i​l​e​d​ ​t​o​ ​r​e​s​e​t​ ​m​o​d​e​m​ ​t​o​ ​a​u​t​o​m​a​t​i​c​ ​m​o​d​e
+			 */
+			resetSendFailed: string
+		}
+	}
 }
 
 export type TranslationFunctions = {
@@ -12299,6 +12696,386 @@ export type TranslationFunctions = {
 			 * Parse & Visualize Combos
 			 */
 			parseVisualize: () => LocalizedString
+		}
+	}
+	samsung: {
+		/**
+		 * Samsung RIL Band Locking
+		 */
+		title: () => LocalizedString
+		/**
+		 * Direct modem frequency modulation and carrier band locking via Samsung RIL framework.
+		 */
+		subtitle: () => LocalizedString
+		compat: {
+			/**
+			 * Target Architecture & Hardware Compatibility
+			 */
+			title: () => LocalizedString
+			/**
+			 * COMPATIBLE & DETECTED (SAMSUNG ONEUI)
+			 */
+			compatible: () => LocalizedString
+			/**
+			 * INCOMPATIBLE (REQUIRES SAMSUNG ONEUI)
+			 */
+			incompatible: () => LocalizedString
+			/**
+			 * Target Device
+			 */
+			targetDevice: () => LocalizedString
+			/**
+			 * Target ROM
+			 */
+			targetRom: () => LocalizedString
+			/**
+			 * Target Chipset
+			 */
+			targetChipset: () => LocalizedString
+			/**
+			 * Target Modem
+			 */
+			targetModem: () => LocalizedString
+		}
+		warning: {
+			/**
+			 * OEM Compatibility Warning (Non-Samsung Device)
+			 */
+			title: () => LocalizedString
+			/**
+			 * Your device is detected as
+			 */
+			bodyA: () => LocalizedString
+			/**
+			 * model
+			 */
+			bodyB: () => LocalizedString
+			/**
+			 * . This feature is designed specifically for Samsung Exynos/Qualcomm baseband modules supporting SecRIL hooks. Band locking commands will likely have no effect on this device's modem.
+			 */
+			bodyC: () => LocalizedString
+		}
+		hardware: {
+			/**
+			 * RIL Hardware & Environment
+			 */
+			title: () => LocalizedString
+			/**
+			 * OEM info, One UI version, and baseband tool availability
+			 */
+			subtitle: () => LocalizedString
+			/**
+			 * SAMSUNG VERIFIED
+			 */
+			verified: () => LocalizedString
+			/**
+			 * NON-SAMSUNG
+			 */
+			nonSamsung: () => LocalizedString
+			/**
+			 * Device / Model
+			 */
+			deviceModel: () => LocalizedString
+			/**
+			 * Codename: {device}
+			 */
+			codename: (arg: { device: unknown }) => LocalizedString
+			/**
+			 * One UI Version
+			 */
+			oneUiVersion: () => LocalizedString
+			/**
+			 * One UI {version}
+			 */
+			oneUi: (arg: { version: unknown }) => LocalizedString
+			/**
+			 * Standard Android
+			 */
+			standardAndroid: () => LocalizedString
+			/**
+			 * SecRIL DEX Hook
+			 */
+			dexHook: () => LocalizedString
+			/**
+			 * DEX READY
+			 */
+			dexReady: () => LocalizedString
+			/**
+			 * DEX MISSING
+			 */
+			dexMissing: () => LocalizedString
+			/**
+			 * Execution Engine
+			 */
+			executionEngine: () => LocalizedString
+			/**
+			 * NOT READY
+			 */
+			notReady: () => LocalizedString
+		}
+		sim: {
+			/**
+			 * SIM Card Slot
+			 */
+			title: () => LocalizedString
+			/**
+			 * Select SIM card for band locking configuration
+			 */
+			subtitle: () => LocalizedString
+			/**
+			 * Slot Index {index}
+			 */
+			slotIndex: (arg: { index: unknown }) => LocalizedString
+			/**
+			 * Active Data
+			 */
+			activeData: () => LocalizedString
+			/**
+			 * SELECTED
+			 */
+			selected: () => LocalizedString
+		}
+		status: {
+			/**
+			 * Baseband Status & SIM Mode
+			 */
+			title: () => LocalizedString
+			/**
+			 * Current frequency transmission status on modem
+			 */
+			subtitle: () => LocalizedString
+			/**
+			 * LOCKED
+			 */
+			locked: () => LocalizedString
+			/**
+			 * AUTOMATIC
+			 */
+			automatic: () => LocalizedString
+			/**
+			 * Current Operating Mode
+			 */
+			currentMode: () => LocalizedString
+			/**
+			 * Locked to Specific Bands ({count} Selected)
+			 */
+			lockedToBands: (arg: { count: unknown }) => LocalizedString
+			/**
+			 * Automatic Selection (All Bands Dynamic)
+			 */
+			automaticSelection: () => LocalizedString
+			/**
+			 * Registered Frequencies
+			 */
+			registeredFrequencies: () => LocalizedString
+			/**
+			 * {active} Active Bands / {total} Total
+			 */
+			registered: (arg: { active: unknown, total: unknown }) => LocalizedString
+			/**
+			 * Active Frequencies on Modem:
+			 */
+			activeFrequencies: () => LocalizedString
+			/**
+			 * No specific bands reported or modem is in full automatic mode.
+			 */
+			noBands: () => LocalizedString
+		}
+		bands: {
+			/**
+			 * Baseband Frequency Matrix
+			 */
+			title: () => LocalizedString
+			/**
+			 * Select one or more frequency bands to lock for optimal cell tower throughput and link stability
+			 */
+			subtitle: () => LocalizedString
+			/**
+			 * {count} Bands Selected
+			 */
+			bandsSelected: (arg: { count: unknown }) => LocalizedString
+			/**
+			 * Search bands (e.g. 1, 3, B40, n78)...
+			 */
+			searchPlaceholder: () => LocalizedString
+			/**
+			 * Select Popular (B1, B3, B8, B40)
+			 */
+			selectPopular: () => LocalizedString
+			/**
+			 * Select popular Indonesian bands (B1, B3, B8, B40)
+			 */
+			selectPopularTitle: () => LocalizedString
+			/**
+			 * Deselect All
+			 */
+			deselectAll: () => LocalizedString
+			/**
+			 * Interrogating Samsung SecRIL baseband frequency registry...
+			 */
+			loading: () => LocalizedString
+			/**
+			 * Failed to Read Modem Bands
+			 */
+			readFailed: () => LocalizedString
+			/**
+			 * Retry Query
+			 */
+			retryQuery: () => LocalizedString
+			/**
+			 * No Bands Found
+			 */
+			noBandsFound: () => LocalizedString
+			/**
+			 * No bands match search term "{query}".
+			 */
+			noMatch: (arg: { query: unknown }) => LocalizedString
+			/**
+			 * Modem did not return supported bands list. Ensure device has root Superuser (su) permission and band_manager binary is present.
+			 */
+			noBandsBody: () => LocalizedString
+			/**
+			 * ACTIVE
+			 */
+			activeBadge: () => LocalizedString
+			/**
+			 * Band {id}
+			 */
+			bandFallback: (arg: { id: unknown }) => LocalizedString
+			/**
+			 * LTE Band
+			 */
+			lteBand: () => LocalizedString
+		}
+		actionBar: {
+			/**
+			 * SIM {slot} Configuration
+			 */
+			simConfig: (arg: { slot: unknown }) => LocalizedString
+			/**
+			 * Select at least 1 band before locking
+			 */
+			selectAtLeastOne: () => LocalizedString
+			/**
+			 * {count} bands
+			 */
+			bandsCount: (arg: { count: unknown }) => LocalizedString
+			/**
+			 * ready to lock
+			 */
+			readyToLock: () => LocalizedString
+			/**
+			 * Reset to Auto
+			 */
+			resetToAuto: () => LocalizedString
+			/**
+			 * Restore SIM to automatic mode
+			 */
+			resetTitle: () => LocalizedString
+			/**
+			 * Apply lock to selected frequencies
+			 */
+			applyLockTitle: () => LocalizedString
+			/**
+			 * Locking...
+			 */
+			locking: () => LocalizedString
+			/**
+			 * Lock Selected Bands
+			 */
+			lockSelected: () => LocalizedString
+		}
+		resetModal: {
+			/**
+			 * Confirm Reset to Automatic Mode
+			 */
+			title: () => LocalizedString
+			/**
+			 * Reset Frequency Lock for SIM {slot}?
+			 */
+			heading: (arg: { slot: unknown }) => LocalizedString
+			/**
+			 * This action will clear all frequency band restrictions on SIM {slot} and restore the Samsung modem to dynamic selection (All Bands Permitted).
+			 */
+			body: (arg: { slot: unknown }) => LocalizedString
+			/**
+			 * Your cellular data connection may undergo a brief radio reset (1-3 seconds) while the modem renegotiates the optimal signal with the cellular tower.
+			 */
+			note: () => LocalizedString
+			/**
+			 * Resetting Modem...
+			 */
+			resettingModem: () => LocalizedString
+			/**
+			 * Confirm Reset
+			 */
+			confirmReset: () => LocalizedString
+		}
+		toasts: {
+			/**
+			 * Status Error
+			 */
+			statusError: () => LocalizedString
+			/**
+			 * Failed to load Samsung device status
+			 */
+			statusFailed: () => LocalizedString
+			/**
+			 * Failed to query modem frequency bands
+			 */
+			bandsFailed: () => LocalizedString
+			/**
+			 * Band Query Error
+			 */
+			bandsQueryError: () => LocalizedString
+			/**
+			 * Popular bands (B1, B3, B8, B40) are not available on this modem.
+			 */
+			popularUnavailable: () => LocalizedString
+			/**
+			 * Selected {count} popular frequency bands (B1, B3, B8, B40)
+			 */
+			popularSelected: (arg: { count: unknown }) => LocalizedString
+			/**
+			 * Selected all {count} supported frequency bands
+			 */
+			allSelected: (arg: { count: unknown }) => LocalizedString
+			/**
+			 * Select at least 1 frequency band before applying lock!
+			 */
+			selectAtLeastOne: () => LocalizedString
+			/**
+			 * Band lock successfully applied to SIM {slot}. Modem radio is updating.
+			 */
+			lockApplied: (arg: { slot: unknown }) => LocalizedString
+			/**
+			 * Lock Applied
+			 */
+			lockAppliedTitle: () => LocalizedString
+			/**
+			 * Lock Failed
+			 */
+			lockFailed: () => LocalizedString
+			/**
+			 * Failed to send band lock command
+			 */
+			lockSendFailed: () => LocalizedString
+			/**
+			 * SIM {slot} successfully restored to automatic mode (All Bands).
+			 */
+			resetDone: (arg: { slot: unknown }) => LocalizedString
+			/**
+			 * Reset Completed
+			 */
+			resetDoneTitle: () => LocalizedString
+			/**
+			 * Reset Failed
+			 */
+			resetFailed: () => LocalizedString
+			/**
+			 * Failed to reset modem to automatic mode
+			 */
+			resetSendFailed: () => LocalizedString
 		}
 	}
 }

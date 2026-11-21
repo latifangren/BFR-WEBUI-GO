@@ -19,6 +19,7 @@
   } from '@lucide/svelte'
   import { api } from '../../../api/client'
   import { toastStore } from '../../../stores/toast.svelte'
+  import { LL } from '../../../i18n/i18n-svelte'
   import Card from '../../ui/Card.svelte'
   import Button from '../../ui/Button.svelte'
   import Badge from '../../ui/Badge.svelte'
@@ -121,8 +122,8 @@
       const res = await api.get<SamsungDeviceStatus>('/api/samsung/status')
       deviceStatus = res
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : 'Failed to load Samsung device status'
-      toastStore.error(msg, 'Status Error')
+      const msg = err instanceof Error ? err.message : $LL.samsung.toasts.statusFailed()
+      toastStore.error(msg, $LL.samsung.toasts.statusError())
     } finally {
       isLoadingStatus = false
     }
@@ -148,9 +149,9 @@
         bandsError = res.error
       }
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : 'Failed to query modem frequency bands'
+      const msg = err instanceof Error ? err.message : $LL.samsung.toasts.bandsFailed()
       bandsError = msg
-      toastStore.error(msg, 'Band Query Error')
+      toastStore.error(msg, $LL.samsung.toasts.bandsQueryError())
     } finally {
       isLoadingBands = false
     }
@@ -172,17 +173,17 @@
 
   function selectPopular() {
     if (availablePopularIds.length === 0) {
-      toastStore.warning('Popular bands (B1, B3, B8, B40) are not available on this modem.')
+      toastStore.warning($LL.samsung.toasts.popularUnavailable())
       return
     }
     selectedBandIds = [...availablePopularIds]
-    toastStore.info(`Selected ${selectedBandIds.length} popular frequency bands (B1, B3, B8, B40)`)
+    toastStore.info($LL.samsung.toasts.popularSelected({ count: selectedBandIds.length }))
   }
 
   function selectAll() {
     if (allBands.length === 0) return
     selectedBandIds = allBands.map((b) => b.id)
-    toastStore.info(`Selected all ${allBands.length} supported frequency bands`)
+    toastStore.info($LL.samsung.toasts.allSelected({ count: allBands.length }))
   }
 
   function deselectAll() {
@@ -195,7 +196,7 @@
 
   async function applyLock() {
     if (selectedBandIds.length === 0) {
-      toastStore.warning('Select at least 1 frequency band before applying lock!')
+      toastStore.warning($LL.samsung.toasts.selectAtLeastOne())
       return
     }
 
@@ -206,13 +207,13 @@
         bands: selectedBandIds,
       })
       toastStore.success(
-        `Band lock successfully applied to SIM ${selectedSlot + 1}. Modem radio is updating.`,
-        'Lock Applied'
+        $LL.samsung.toasts.lockApplied({ slot: selectedSlot + 1 }),
+        $LL.samsung.toasts.lockAppliedTitle()
       )
       await fetchBands(selectedSlot)
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : 'Failed to send band lock command'
-      toastStore.error(msg, 'Lock Failed')
+      const msg = err instanceof Error ? err.message : $LL.samsung.toasts.lockSendFailed()
+      toastStore.error(msg, $LL.samsung.toasts.lockFailed())
     } finally {
       isLocking = false
     }
@@ -225,14 +226,14 @@
         slot: selectedSlot,
       })
       toastStore.success(
-        `SIM ${selectedSlot + 1} successfully restored to automatic mode (All Bands).`,
-        'Reset Completed'
+        $LL.samsung.toasts.resetDone({ slot: selectedSlot + 1 }),
+        $LL.samsung.toasts.resetDoneTitle()
       )
       showResetModal = false
       await fetchBands(selectedSlot)
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : 'Failed to reset modem to automatic mode'
-      toastStore.error(msg, 'Reset Failed')
+      const msg = err instanceof Error ? err.message : $LL.samsung.toasts.resetSendFailed()
+      toastStore.error(msg, $LL.samsung.toasts.resetFailed())
     } finally {
       isResetting = false
     }
@@ -244,11 +245,11 @@
     if (match) {
       let label = match[1].replace(/LTE\s*/i, '').replace(/NR\s*/i, '')
       let desc = match[2].replace(/[()]/g, '').trim()
-      return { label: label.toUpperCase(), desc: desc || `Band ${band.id}` }
+      return { label: label.toUpperCase(), desc: desc || $LL.samsung.bands.bandFallback({ id: band.id }) }
     }
     return {
       label: `B${band.id}`,
-      desc: raw.replace(/[()]/g, '').trim() || 'LTE Band',
+      desc: raw.replace(/[()]/g, '').trim() || $LL.samsung.bands.lteBand(),
     }
   }
 </script>
@@ -260,12 +261,12 @@
       <div class="flex items-center gap-2">
         <Smartphone class="w-6 h-6 text-accent" />
         <h1 class="text-xl sm:text-2xl font-black uppercase tracking-wider text-foreground">
-          Samsung RIL Band Locking
+          {$LL.samsung.title()}
         </h1>
         <Badge variant="info" class="text-[10px]">SecRIL</Badge>
       </div>
       <p class="text-xs text-muted mt-1">
-        Direct modem frequency modulation and carrier band locking via Samsung RIL framework.
+        {$LL.samsung.subtitle()}
       </p>
     </div>
 
@@ -277,7 +278,7 @@
         onclick={loadInitialData}
       >
         <RefreshCw class="w-3.5 h-3.5 mr-1.5 {isLoadingStatus || isLoadingBands ? 'animate-spin' : ''}" />
-        <span>Refresh</span>
+        <span>{$LL.common.refresh()}</span>
       </Button>
     </div>
   </div>
@@ -288,37 +289,37 @@
       <div class="flex items-center gap-2">
         <Cpu class="w-4 h-4 text-accent" />
         <span class="text-xs font-bold uppercase tracking-wider text-foreground">
-          Target Architecture & Hardware Compatibility
+          {$LL.samsung.compat.title()}
         </span>
       </div>
       {#if isSamsung}
         <Badge variant="success" class="flex items-center gap-1.5 w-fit">
           <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-          <span>COMPATIBLE & DETECTED (SAMSUNG ONEUI)</span>
+          <span>{$LL.samsung.compat.compatible()}</span>
         </Badge>
       {:else}
         <Badge variant="warning" class="flex items-center gap-1.5 w-fit">
           <AlertTriangle class="w-3.5 h-3.5" />
-          <span>INCOMPATIBLE (REQUIRES SAMSUNG ONEUI)</span>
+          <span>{$LL.samsung.compat.incompatible()}</span>
         </Badge>
       {/if}
     </div>
 
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-xs">
       <div class="p-2.5 bg-card border-2 border-border rounded">
-        <span class="text-[10px] text-muted uppercase font-bold block mb-1">Target Device</span>
+        <span class="text-[10px] text-muted uppercase font-bold block mb-1">{$LL.samsung.compat.targetDevice()}</span>
         <p class="font-bold text-foreground">Galaxy Z Flip 3-6, Fold 3-6, S20-S24, Note, A & M Series</p>
       </div>
       <div class="p-2.5 bg-card border-2 border-border rounded">
-        <span class="text-[10px] text-muted uppercase font-bold block mb-1">Target ROM</span>
+        <span class="text-[10px] text-muted uppercase font-bold block mb-1">{$LL.samsung.compat.targetRom()}</span>
         <p class="font-bold text-foreground">Official Samsung OneUI (One UI 3.x - 7.x with SecRIL)</p>
       </div>
       <div class="p-2.5 bg-card border-2 border-border rounded">
-        <span class="text-[10px] text-muted uppercase font-bold block mb-1">Target Chipset</span>
+        <span class="text-[10px] text-muted uppercase font-bold block mb-1">{$LL.samsung.compat.targetChipset()}</span>
         <p class="font-bold text-foreground">Qualcomm Snapdragon & Samsung Exynos (Running OneUI)</p>
       </div>
       <div class="p-2.5 bg-card border-2 border-border rounded">
-        <span class="text-[10px] text-muted uppercase font-bold block mb-1">Target Modem</span>
+        <span class="text-[10px] text-muted uppercase font-bold block mb-1">{$LL.samsung.compat.targetModem()}</span>
         <p class="font-bold text-foreground">SecRIL Telephony Subsystem (service call phone 73/74)</p>
       </div>
     </div>
@@ -332,26 +333,26 @@
     >
       <div class="flex items-center gap-2 text-amber-400 font-bold uppercase text-xs tracking-wider">
         <AlertTriangle class="w-5 h-5 shrink-0 text-amber-400" />
-        <span>OEM Compatibility Warning (Non-Samsung Device)</span>
+        <span>{$LL.samsung.warning.title()}</span>
       </div>
       <p class="text-xs text-muted leading-relaxed">
-        Your device is detected as <span class="text-foreground font-bold">{deviceStatus.manufacturer || 'Non-Samsung'}</span> model <span class="text-foreground font-bold">{deviceStatus.model || 'Unknown'}</span>. This feature is designed specifically for Samsung Exynos/Qualcomm baseband modules supporting SecRIL hooks. Band locking commands will likely have no effect on this device's modem.
+        {$LL.samsung.warning.bodyA()} <span class="text-foreground font-bold">{deviceStatus.manufacturer || 'Non-Samsung'}</span> {$LL.samsung.warning.bodyB()} <span class="text-foreground font-bold">{deviceStatus.model || $LL.common.unknown()}</span>{$LL.samsung.warning.bodyC()}
       </p>
     </div>
   {/if}
 
   <!-- DEVICE HARDWARE & TOOL ENVIRONMENT -->
-  <Card title="RIL Hardware & Environment" subtitle="OEM info, One UI version, and baseband tool availability" tone="ice">
+  <Card title={$LL.samsung.hardware.title()} subtitle={$LL.samsung.hardware.subtitle()} tone="ice">
     {#snippet action()}
       {#if isSamsung}
         <Badge variant="success" class="flex items-center gap-1">
           <ShieldCheck class="w-3 h-3" />
-          <span>SAMSUNG VERIFIED</span>
+          <span>{$LL.samsung.hardware.verified()}</span>
         </Badge>
       {:else}
         <Badge variant="warning" class="flex items-center gap-1">
           <AlertTriangle class="w-3 h-3" />
-          <span>NON-SAMSUNG</span>
+          <span>{$LL.samsung.hardware.nonSamsung()}</span>
         </Badge>
       {/if}
     {/snippet}
@@ -359,20 +360,20 @@
     <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
       <!-- Device & Model -->
       <div class="p-3 bg-card-sub border-2 border-border rounded space-y-1">
-        <span class="text-[10px] text-muted uppercase font-bold block">Device / Model</span>
+        <span class="text-[10px] text-muted uppercase font-bold block">{$LL.samsung.hardware.deviceModel()}</span>
         <p class="font-bold text-foreground truncate">
-          {deviceStatus?.manufacturer || 'Unknown'} {deviceStatus?.model || '-'}
+          {deviceStatus?.manufacturer || $LL.common.unknown()} {deviceStatus?.model || '-'}
         </p>
         <span class="text-[10px] text-muted block truncate font-mono">
-          Codename: {deviceStatus?.device || '-'}
+          {$LL.samsung.hardware.codename({ device: deviceStatus?.device || '-' })}
         </span>
       </div>
 
       <!-- One UI Version -->
       <div class="p-3 bg-card-sub border-2 border-border rounded space-y-1">
-        <span class="text-[10px] text-muted uppercase font-bold block">One UI Version</span>
+        <span class="text-[10px] text-muted uppercase font-bold block">{$LL.samsung.hardware.oneUiVersion()}</span>
         <p class="font-bold text-foreground truncate">
-          {deviceStatus?.oneui_version ? `One UI ${deviceStatus.oneui_version}` : 'Standard Android'}
+          {deviceStatus?.oneui_version ? $LL.samsung.hardware.oneUi({ version: deviceStatus.oneui_version }) : $LL.samsung.hardware.standardAndroid()}
         </p>
         <span class="text-[10px] text-muted block truncate">
           Samsung RIL Framework
@@ -381,17 +382,17 @@
 
       <!-- DEX Hook Status -->
       <div class="p-3 bg-card-sub border-2 border-border rounded space-y-1">
-        <span class="text-[10px] text-muted uppercase font-bold block">SecRIL DEX Hook</span>
+        <span class="text-[10px] text-muted uppercase font-bold block">{$LL.samsung.hardware.dexHook()}</span>
         <div class="pt-0.5">
           {#if deviceStatus?.dex_exists}
             <Badge variant="success" class="flex items-center gap-1 w-fit">
               <CheckCircle class="w-3 h-3" />
-              <span>DEX READY</span>
+              <span>{$LL.samsung.hardware.dexReady()}</span>
             </Badge>
           {:else}
             <Badge variant="danger" class="flex items-center gap-1 w-fit">
               <AlertTriangle class="w-3 h-3" />
-              <span>DEX MISSING</span>
+              <span>{$LL.samsung.hardware.dexMissing()}</span>
             </Badge>
           {/if}
         </div>
@@ -402,7 +403,7 @@
 
       <!-- Native Go Runner Status -->
       <div class="p-3 bg-card-sub border-2 border-border rounded space-y-1">
-        <span class="text-[10px] text-muted uppercase font-bold block">Execution Engine</span>
+        <span class="text-[10px] text-muted uppercase font-bold block">{$LL.samsung.hardware.executionEngine()}</span>
         <div class="pt-0.5">
           {#if deviceStatus?.dex_exists}
             <Badge variant="success" class="flex items-center gap-1 w-fit">
@@ -412,7 +413,7 @@
           {:else}
             <Badge variant="warning" class="flex items-center gap-1 w-fit">
               <AlertTriangle class="w-3 h-3" />
-              <span>NOT READY</span>
+              <span>{$LL.samsung.hardware.notReady()}</span>
             </Badge>
           {/if}
         </div>
@@ -426,7 +427,7 @@
   <!-- SIM SELECTOR & CURRENT MODE STATUS -->
   <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
     <!-- SIM SELECTOR (1 col) -->
-    <Card title="SIM Card Slot" subtitle="Select SIM card for band locking configuration" class="md:col-span-1">
+    <Card title={$LL.samsung.sim.title()} subtitle={$LL.samsung.sim.subtitle()} class="md:col-span-1">
       <div class="flex flex-col gap-2.5">
         <button
           type="button"
@@ -438,18 +439,18 @@
             <Radio class="w-4 h-4 {selectedSlot === 0 ? 'text-accent' : 'text-muted'}" />
             <div>
               <div class="text-sm font-bold">SIM 1</div>
-              <div class="text-[10px] text-muted">Slot Index 0</div>
+              <div class="text-[10px] text-muted">{$LL.samsung.sim.slotIndex({ index: 0 })}</div>
             </div>
           </div>
           <div class="flex flex-col items-end gap-1">
             {#if activeDataSlot === 0}
               <Badge variant="success" class="text-[9px] px-1.5 py-0 flex items-center gap-1">
                 <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                <span>Active Data</span>
+                <span>{$LL.samsung.sim.activeData()}</span>
               </Badge>
             {/if}
             {#if selectedSlot === 0}
-              <Badge variant="info">SELECTED</Badge>
+              <Badge variant="info">{$LL.samsung.sim.selected()}</Badge>
             {/if}
           </div>
         </button>
@@ -464,18 +465,18 @@
             <Radio class="w-4 h-4 {selectedSlot === 1 ? 'text-accent' : 'text-muted'}" />
             <div>
               <div class="text-sm font-bold">SIM 2</div>
-              <div class="text-[10px] text-muted">Slot Index 1</div>
+              <div class="text-[10px] text-muted">{$LL.samsung.sim.slotIndex({ index: 1 })}</div>
             </div>
           </div>
           <div class="flex flex-col items-end gap-1">
             {#if activeDataSlot === 1}
               <Badge variant="success" class="text-[9px] px-1.5 py-0 flex items-center gap-1">
                 <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                <span>Active Data</span>
+                <span>{$LL.samsung.sim.activeData()}</span>
               </Badge>
             {/if}
             {#if selectedSlot === 1}
-              <Badge variant="info">SELECTED</Badge>
+              <Badge variant="info">{$LL.samsung.sim.selected()}</Badge>
             {/if}
           </div>
         </button>
@@ -483,18 +484,18 @@
     </Card>
 
     <!-- STATUS MODE CARD (2 cols) -->
-    <Card title="Baseband Status & SIM Mode" subtitle="Current frequency transmission status on modem" tone="mint" class="md:col-span-2">
+    <Card title={$LL.samsung.status.title()} subtitle={$LL.samsung.status.subtitle()} tone="mint" class="md:col-span-2">
       {#snippet action()}
         {#if bandData}
           {#if isLockedMode}
             <Badge variant="warning" class="px-2 py-1 text-xs">
               <Lock class="w-3 h-3 mr-1 inline" />
-              <span>LOCKED</span>
+              <span>{$LL.samsung.status.locked()}</span>
             </Badge>
           {:else}
             <Badge variant="success" class="px-2 py-1 text-xs">
               <Zap class="w-3 h-3 mr-1 inline" />
-              <span>AUTOMATIC</span>
+              <span>{$LL.samsung.status.automatic()}</span>
             </Badge>
           {/if}
         {/if}
@@ -502,33 +503,33 @@
 
       <div class="space-y-3 font-mono text-xs">
         <div class="flex items-center justify-between p-2.5 rounded bg-card-sub border-2 border-border">
-          <span class="text-muted text-[11px] uppercase font-bold">Current Operating Mode</span>
+          <span class="text-muted text-[11px] uppercase font-bold">{$LL.samsung.status.currentMode()}</span>
           <span class="font-bold flex items-center gap-1.5 {isLockedMode ? 'text-amber-400' : 'text-emerald-400'}">
             {#if isLockedMode}
               <CheckCircle class="w-3.5 h-3.5 text-amber-400" />
-              <span>Locked to Specific Bands ({activeBandsList.length} Selected)</span>
+              <span>{$LL.samsung.status.lockedToBands({ count: activeBandsList.length })}</span>
             {:else}
               <CheckCircle class="w-3.5 h-3.5 text-emerald-400" />
-              <span>Automatic Selection (All Bands Dynamic)</span>
+              <span>{$LL.samsung.status.automaticSelection()}</span>
             {/if}
           </span>
         </div>
 
         <div class="flex items-center justify-between p-2.5 rounded bg-card-sub border-2 border-border">
-          <span class="text-muted text-[11px] uppercase font-bold">Registered Frequencies</span>
+          <span class="text-muted text-[11px] uppercase font-bold">{$LL.samsung.status.registeredFrequencies()}</span>
           <span class="font-bold text-foreground">
-            {activeBandsList.length} Active Bands / {allBands.length} Total
+            {$LL.samsung.status.registered({ active: activeBandsList.length, total: allBands.length })}
           </span>
         </div>
 
         <!-- Active Bands Chips Preview -->
         <div>
           <span class="text-[10px] text-muted uppercase font-bold block mb-1.5">
-            Active Frequencies on Modem:
+            {$LL.samsung.status.activeFrequencies()}
           </span>
           {#if activeBandsList.length === 0}
             <p class="text-xs text-muted italic">
-              No specific bands reported or modem is in full automatic mode.
+              {$LL.samsung.status.noBands()}
             </p>
           {:else}
             <div class="flex flex-wrap gap-1.5 max-h-24 overflow-y-auto p-1.5 bg-card-sub border border-border/60 rounded">
@@ -547,14 +548,14 @@
 
   <!-- BAND SELECTION MATRIX -->
   <Card
-    title="Baseband Frequency Matrix"
-    subtitle="Select one or more frequency bands to lock for optimal cell tower throughput and link stability"
+    title={$LL.samsung.bands.title()}
+    subtitle={$LL.samsung.bands.subtitle()}
     tone="lavender"
   >
     {#snippet action()}
       <div class="flex items-center gap-2">
         <Badge variant="default" class="text-xs">
-          {selectedBandIds.length} Bands Selected
+          {$LL.samsung.bands.bandsSelected({ count: selectedBandIds.length })}
         </Badge>
       </div>
     {/snippet}
@@ -567,7 +568,7 @@
           <Search class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted" />
           <input
             type="text"
-            placeholder="Search bands (e.g. 1, 3, B40, n78)..."
+            placeholder={$LL.samsung.bands.searchPlaceholder()}
             bind:value={searchQuery}
             class="neo-input w-full pl-9 pr-3 py-1.5 text-xs bg-card-sub border-2 border-border rounded text-foreground focus:outline-none focus:border-accent"
           />
@@ -579,10 +580,10 @@
             variant={isPopularSelected ? 'primary' : 'secondary'}
             size="sm"
             onclick={selectPopular}
-            title="Select popular Indonesian bands (B1, B3, B8, B40)"
+            title={$LL.samsung.bands.selectPopularTitle()}
           >
             <Zap class="w-3.5 h-3.5 mr-1 text-amber-400" />
-            <span>Select Popular (B1, B3, B8, B40)</span>
+            <span>{$LL.samsung.bands.selectPopular()}</span>
           </Button>
 
           <Button
@@ -591,12 +592,12 @@
             onclick={isAllSelected ? deselectAll : selectAll}
           >
             <Check class="w-3.5 h-3.5 mr-1" />
-            <span>{isAllSelected ? 'Deselect All' : 'Select All'}</span>
+            <span>{isAllSelected ? $LL.samsung.bands.deselectAll() : $LL.common.selectAll()}</span>
           </Button>
 
           {#if selectedBandIds.length > 0}
             <Button variant="ghost" size="sm" onclick={clearAll}>
-              <span>Clear</span>
+              <span>{$LL.common.clear()}</span>
             </Button>
           {/if}
         </div>
@@ -606,30 +607,30 @@
       {#if isLoadingBands}
         <div class="p-8 text-center text-xs text-muted flex flex-col items-center justify-center gap-2">
           <RefreshCw class="w-6 h-6 animate-spin text-accent" />
-          <span>Interrogating Samsung SecRIL baseband frequency registry...</span>
+          <span>{$LL.samsung.bands.loading()}</span>
         </div>
       {:else if bandsError && allBands.length === 0}
         <!-- Error State -->
         <div class="p-4 rounded-lg border-2 border-red-500 bg-red-950/30 text-red-200 space-y-2">
           <div class="flex items-center gap-2 font-bold text-xs uppercase">
             <AlertTriangle class="w-4 h-4 text-red-400" />
-            <span>Failed to Read Modem Bands</span>
+            <span>{$LL.samsung.bands.readFailed()}</span>
           </div>
           <p class="text-xs text-muted">{bandsError}</p>
           <Button variant="secondary" size="sm" onclick={() => fetchBands(selectedSlot)}>
             <RefreshCw class="w-3 h-3 mr-1" />
-            <span>Retry Query</span>
+            <span>{$LL.samsung.bands.retryQuery()}</span>
           </Button>
         </div>
       {:else if filteredBands.length === 0}
         <!-- Empty Results -->
         <div class="p-8 text-center text-xs text-muted space-y-2">
           <Layers class="w-8 h-8 mx-auto opacity-40 text-muted" />
-          <p class="font-bold text-foreground">No Bands Found</p>
+          <p class="font-bold text-foreground">{$LL.samsung.bands.noBandsFound()}</p>
           <p class="text-[11px] text-muted max-w-md mx-auto">
             {searchQuery
-              ? `No bands match search term "${searchQuery}".`
-              : 'Modem did not return supported bands list. Ensure device has root Superuser (su) permission and band_manager binary is present.'}
+              ? $LL.samsung.bands.noMatch({ query: searchQuery })
+              : $LL.samsung.bands.noBandsBody()}
           </p>
         </div>
       {:else}
@@ -678,7 +679,7 @@
               <div class="flex items-center justify-between gap-1 pt-2 mt-2 border-t border-border/40 text-[9px]">
                 <span class="text-muted font-mono">ID: {band.id}</span>
                 {#if isLiveActive}
-                  <Badge variant="success" class="text-[8px] px-1 py-0 font-bold">ACTIVE</Badge>
+                  <Badge variant="success" class="text-[8px] px-1 py-0 font-bold">{$LL.samsung.bands.activeBadge()}</Badge>
                 {/if}
               </div>
             </button>
@@ -696,13 +697,13 @@
       </div>
       <div>
         <div class="text-xs font-bold uppercase text-foreground">
-          SIM {selectedSlot + 1} Configuration
+          {$LL.samsung.actionBar.simConfig({ slot: selectedSlot + 1 })}
         </div>
         <div class="text-[11px] text-muted">
           {#if selectedBandIds.length === 0}
-            <span class="text-red-400 font-bold">Select at least 1 band before locking</span>
+            <span class="text-red-400 font-bold">{$LL.samsung.actionBar.selectAtLeastOne()}</span>
           {:else}
-            <span class="text-foreground font-bold">{selectedBandIds.length} bands</span> ready to lock
+            <span class="text-foreground font-bold">{$LL.samsung.actionBar.bandsCount({ count: selectedBandIds.length })}</span> {$LL.samsung.actionBar.readyToLock()}
           {/if}
         </div>
       </div>
@@ -715,10 +716,10 @@
         size="md"
         disabled={isLoadingBands || isResetting || isLocking}
         onclick={() => (showResetModal = true)}
-        title="Restore SIM to automatic mode"
+        title={$LL.samsung.actionBar.resetTitle()}
       >
         <RotateCcw class="w-4 h-4 mr-1.5" />
-        <span>Reset to Auto</span>
+        <span>{$LL.samsung.actionBar.resetToAuto()}</span>
       </Button>
 
       <!-- Lock Selected Bands Button -->
@@ -727,14 +728,14 @@
         size="md"
         disabled={selectedBandIds.length === 0 || isLoadingBands || isLocking}
         onclick={applyLock}
-        title="Apply lock to selected frequencies"
+        title={$LL.samsung.actionBar.applyLockTitle()}
       >
         {#if isLocking}
           <RefreshCw class="w-4 h-4 mr-1.5 animate-spin" />
-          <span>Locking...</span>
+          <span>{$LL.samsung.actionBar.locking()}</span>
         {:else}
           <Lock class="w-4 h-4 mr-1.5" />
-          <span>Lock Selected Bands</span>
+          <span>{$LL.samsung.actionBar.lockSelected()}</span>
         {/if}
       </Button>
     </div>
@@ -744,7 +745,7 @@
 <!-- RESET CONFIRMATION MODAL -->
 <Modal
   open={showResetModal}
-  title="Confirm Reset to Automatic Mode"
+  title={$LL.samsung.resetModal.title()}
   onclose={() => (showResetModal = false)}
 >
   <div class="space-y-4 font-mono text-xs">
@@ -752,16 +753,16 @@
       <AlertTriangle class="w-5 h-5 shrink-0 text-amber-400 mt-0.5" />
       <div class="space-y-1">
         <p class="font-bold text-sm text-foreground">
-          Reset Frequency Lock for SIM {selectedSlot + 1}?
+          {$LL.samsung.resetModal.heading({ slot: selectedSlot + 1 })}
         </p>
         <p class="text-muted leading-relaxed">
-          This action will clear all frequency band restrictions on SIM {selectedSlot + 1} and restore the Samsung modem to dynamic selection (All Bands Permitted).
+          {$LL.samsung.resetModal.body({ slot: selectedSlot + 1 })}
         </p>
       </div>
     </div>
 
     <p class="text-muted text-[11px] leading-relaxed">
-      Your cellular data connection may undergo a brief radio reset (1-3 seconds) while the modem renegotiates the optimal signal with the cellular tower.
+      {$LL.samsung.resetModal.note()}
     </p>
   </div>
 
@@ -773,7 +774,7 @@
         disabled={isResetting}
         onclick={() => (showResetModal = false)}
       >
-        Cancel
+        {$LL.common.cancel()}
       </Button>
       <Button
         variant="danger"
@@ -783,10 +784,10 @@
       >
         {#if isResetting}
           <RefreshCw class="w-3.5 h-3.5 mr-1.5 animate-spin" />
-          <span>Resetting Modem...</span>
+          <span>{$LL.samsung.resetModal.resettingModem()}</span>
         {:else}
           <RotateCcw class="w-3.5 h-3.5 mr-1.5" />
-          <span>Confirm Reset</span>
+          <span>{$LL.samsung.resetModal.confirmReset()}</span>
         {/if}
       </Button>
     </div>
