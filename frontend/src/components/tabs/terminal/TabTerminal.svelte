@@ -11,6 +11,7 @@
     Keyboard,
   } from '@lucide/svelte'
   import { WebSocketClient } from '../../../ws/socket'
+  import { LL } from '../../../i18n/i18n-svelte'
   import Button from '../../ui/Button.svelte'
   import Badge from '../../ui/Badge.svelte'
   import TerminalVirtualKeys from './TerminalVirtualKeys.svelte'
@@ -212,10 +213,10 @@
     <div class="flex items-center gap-2">
       <Terminal class="w-5 h-5 text-accent" />
       <h2 class="text-base sm:text-lg font-mono font-bold uppercase tracking-wider text-foreground">
-        Interactive Root Terminal
+        {$LL.terminal.title()}
       </h2>
       <Badge variant={isConnected ? 'success' : isConnecting ? 'warning' : 'default'}>
-        {isConnected ? 'Connected (Root)' : isConnecting ? 'Connecting...' : 'Disconnected'}
+        {isConnected ? $LL.terminal.status.connected() : isConnecting ? $LL.terminal.status.connecting() : $LL.terminal.status.disconnected()}
       </Badge>
     </div>
 
@@ -225,22 +226,22 @@
         variant={showVirtualKeys ? 'secondary' : 'outline'}
         size="sm"
         onclick={toggleVirtualKeys}
-        title="Toggle Virtual Keypad Bar"
+        title={$LL.terminal.keysToggleTitle()}
       >
         <Keyboard class="w-3.5 h-3.5 mr-1" />
-        <span>{showVirtualKeys ? 'Keys: On' : 'Keys: Off'}</span>
+        <span>{showVirtualKeys ? $LL.terminal.keysOn() : $LL.terminal.keysOff()}</span>
       </Button>
 
       <!-- Clear Terminal -->
-      <Button variant="outline" size="sm" onclick={clearTerminal} title="Clear Terminal">
+      <Button variant="outline" size="sm" onclick={clearTerminal} title={$LL.terminal.clearTitle()}>
         <Trash2 class="w-3.5 h-3.5 mr-1" />
-        <span>Clear</span>
+        <span>{$LL.common.clear()}</span>
       </Button>
 
       <!-- Reconnect Session -->
-      <Button variant="secondary" size="sm" onclick={reconnect} title="Reconnect Terminal">
+      <Button variant="secondary" size="sm" onclick={reconnect} title={$LL.terminal.reconnectTitle()}>
         <RefreshCw class="w-3.5 h-3.5 mr-1 {isConnecting ? 'animate-spin' : ''}" />
-        <span>Reconnect</span>
+        <span>{$LL.terminal.reconnect()}</span>
       </Button>
     </div>
   </div>
@@ -262,10 +263,10 @@
           type="button"
           class="hover:text-foreground cursor-pointer flex items-center gap-1"
           onclick={() => handleFitAndResize()}
-          title="Force Fit Terminal Canvas"
+          title={$LL.terminal.fitTitle()}
         >
           <Maximize2 class="w-3 h-3" />
-          <span>Fit</span>
+          <span>{$LL.terminal.fit()}</span>
         </button>
       </div>
     </div>

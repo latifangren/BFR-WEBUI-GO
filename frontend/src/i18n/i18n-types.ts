@@ -11120,6 +11120,113 @@ type RootTranslation = {
 			aborted: string
 		}
 	}
+	terminal: {
+		/**
+		 * I​n​t​e​r​a​c​t​i​v​e​ ​R​o​o​t​ ​T​e​r​m​i​n​a​l
+		 */
+		title: string
+		status: {
+			/**
+			 * C​o​n​n​e​c​t​e​d​ ​(​R​o​o​t​)
+			 */
+			connected: string
+			/**
+			 * C​o​n​n​e​c​t​i​n​g​.​.​.
+			 */
+			connecting: string
+			/**
+			 * D​i​s​c​o​n​n​e​c​t​e​d
+			 */
+			disconnected: string
+		}
+		/**
+		 * K​e​y​s​:​ ​O​n
+		 */
+		keysOn: string
+		/**
+		 * K​e​y​s​:​ ​O​f​f
+		 */
+		keysOff: string
+		/**
+		 * T​o​g​g​l​e​ ​V​i​r​t​u​a​l​ ​K​e​y​p​a​d​ ​B​a​r
+		 */
+		keysToggleTitle: string
+		/**
+		 * C​l​e​a​r​ ​T​e​r​m​i​n​a​l
+		 */
+		clearTitle: string
+		/**
+		 * R​e​c​o​n​n​e​c​t
+		 */
+		reconnect: string
+		/**
+		 * R​e​c​o​n​n​e​c​t​ ​T​e​r​m​i​n​a​l
+		 */
+		reconnectTitle: string
+		/**
+		 * F​i​t
+		 */
+		fit: string
+		/**
+		 * F​o​r​c​e​ ​F​i​t​ ​T​e​r​m​i​n​a​l​ ​C​a​n​v​a​s
+		 */
+		fitTitle: string
+		virtualKeys: {
+			/**
+			 * T​e​r​m​i​n​a​l​ ​V​i​r​t​u​a​l​ ​K​e​y​s
+			 */
+			ariaLabel: string
+			/**
+			 * E​s​c​a​p​e​ ​k​e​y​ ​(​\​x​1​b​)
+			 */
+			escTitle: string
+			/**
+			 * T​a​b​ ​k​e​y​ ​(​\​t​)
+			 */
+			tabTitle: string
+			/**
+			 * S​t​i​c​k​y​ ​C​o​n​t​r​o​l​ ​m​o​d​i​f​i​e​r​ ​(​C​t​r​l​+​k​e​y​)
+			 */
+			ctrlTitle: string
+			/**
+			 * S​e​n​d​ ​S​I​G​I​N​T​ ​/​ ​I​n​t​e​r​r​u​p​t​ ​(​\​x​0​3​)
+			 */
+			sigintTitle: string
+			/**
+			 * S​e​n​d​ ​E​O​F​ ​/​ ​E​x​i​t​ ​s​h​e​l​l​ ​(​\​x​0​4​)
+			 */
+			eofTitle: string
+			/**
+			 * S​e​n​d​ ​S​I​G​T​S​T​P​ ​/​ ​S​u​s​p​e​n​d​ ​b​a​c​k​g​r​o​u​n​d​ ​(​\​x​1​a​)
+			 */
+			sigtstpTitle: string
+			/**
+			 * C​l​e​a​r​ ​s​c​r​e​e​n​ ​(​\​x​0​c​)
+			 */
+			clearScreenTitle: string
+			/**
+			 * U​p​ ​a​r​r​o​w
+			 */
+			upTitle: string
+			/**
+			 * D​o​w​n​ ​a​r​r​o​w
+			 */
+			downTitle: string
+			/**
+			 * L​e​f​t​ ​a​r​r​o​w
+			 */
+			leftTitle: string
+			/**
+			 * R​i​g​h​t​ ​a​r​r​o​w
+			 */
+			rightTitle: string
+			/**
+			 * S​y​m​b​o​l​ ​'​{​s​y​m​}​'
+			 * @param {unknown} sym
+			 */
+			symbolTitle: RequiredParams<'sym'>
+		}
+	}
 }
 
 export type TranslationFunctions = {
@@ -21919,6 +22026,112 @@ export type TranslationFunctions = {
 			 * Speedtest aborted.
 			 */
 			aborted: () => LocalizedString
+		}
+	}
+	terminal: {
+		/**
+		 * Interactive Root Terminal
+		 */
+		title: () => LocalizedString
+		status: {
+			/**
+			 * Connected (Root)
+			 */
+			connected: () => LocalizedString
+			/**
+			 * Connecting...
+			 */
+			connecting: () => LocalizedString
+			/**
+			 * Disconnected
+			 */
+			disconnected: () => LocalizedString
+		}
+		/**
+		 * Keys: On
+		 */
+		keysOn: () => LocalizedString
+		/**
+		 * Keys: Off
+		 */
+		keysOff: () => LocalizedString
+		/**
+		 * Toggle Virtual Keypad Bar
+		 */
+		keysToggleTitle: () => LocalizedString
+		/**
+		 * Clear Terminal
+		 */
+		clearTitle: () => LocalizedString
+		/**
+		 * Reconnect
+		 */
+		reconnect: () => LocalizedString
+		/**
+		 * Reconnect Terminal
+		 */
+		reconnectTitle: () => LocalizedString
+		/**
+		 * Fit
+		 */
+		fit: () => LocalizedString
+		/**
+		 * Force Fit Terminal Canvas
+		 */
+		fitTitle: () => LocalizedString
+		virtualKeys: {
+			/**
+			 * Terminal Virtual Keys
+			 */
+			ariaLabel: () => LocalizedString
+			/**
+			 * Escape key (\x1b)
+			 */
+			escTitle: () => LocalizedString
+			/**
+			 * Tab key (\t)
+			 */
+			tabTitle: () => LocalizedString
+			/**
+			 * Sticky Control modifier (Ctrl+key)
+			 */
+			ctrlTitle: () => LocalizedString
+			/**
+			 * Send SIGINT / Interrupt (\x03)
+			 */
+			sigintTitle: () => LocalizedString
+			/**
+			 * Send EOF / Exit shell (\x04)
+			 */
+			eofTitle: () => LocalizedString
+			/**
+			 * Send SIGTSTP / Suspend background (\x1a)
+			 */
+			sigtstpTitle: () => LocalizedString
+			/**
+			 * Clear screen (\x0c)
+			 */
+			clearScreenTitle: () => LocalizedString
+			/**
+			 * Up arrow
+			 */
+			upTitle: () => LocalizedString
+			/**
+			 * Down arrow
+			 */
+			downTitle: () => LocalizedString
+			/**
+			 * Left arrow
+			 */
+			leftTitle: () => LocalizedString
+			/**
+			 * Right arrow
+			 */
+			rightTitle: () => LocalizedString
+			/**
+			 * Symbol '{sym}'
+			 */
+			symbolTitle: (arg: { sym: unknown }) => LocalizedString
 		}
 	}
 }

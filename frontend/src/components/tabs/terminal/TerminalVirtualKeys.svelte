@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { LL } from '../../../i18n/i18n-svelte'
+
   interface Props {
     onKey: (data: string) => void
   }
@@ -39,7 +41,7 @@
 <div
   class="bg-card-sub border-t-2 border-border px-2 py-1.5 flex items-center gap-1.5 overflow-x-auto custom-scrollbar select-none touch-manipulation"
   role="toolbar"
-  aria-label="Terminal Virtual Keys"
+  aria-label={$LL.terminal.virtualKeys.ariaLabel()}
 >
   <!-- Modifiers -->
   <div class="flex items-center gap-1">
@@ -49,7 +51,7 @@
       ontouchstart={handlePrevent}
       onclick={() => sendDirect('\x1b')}
       class="px-2.5 py-1 text-xs font-mono font-bold rounded border border-border bg-card hover:bg-card-sub text-foreground active:scale-95 transition-all shadow-sm"
-      title="Escape key (\x1b)"
+      title={$LL.terminal.virtualKeys.escTitle()}
     >
       ESC
     </button>
@@ -60,7 +62,7 @@
       ontouchstart={handlePrevent}
       onclick={() => sendDirect('\t')}
       class="px-2.5 py-1 text-xs font-mono font-bold rounded border border-border bg-card hover:bg-card-sub text-foreground active:scale-95 transition-all shadow-sm"
-      title="Tab key (\t)"
+      title={$LL.terminal.virtualKeys.tabTitle()}
     >
       TAB
     </button>
@@ -71,7 +73,7 @@
       ontouchstart={handlePrevent}
       onclick={toggleCtrl}
       class="px-2.5 py-1 text-xs font-mono font-bold rounded border transition-all active:scale-95 shadow-sm {ctrlActive ? 'bg-accent text-accent-text border-accent shadow-neobrutal' : 'border-border bg-card hover:bg-card-sub text-foreground'}"
-      title="Sticky Control modifier (Ctrl+key)"
+      title={$LL.terminal.virtualKeys.ctrlTitle()}
       aria-pressed={ctrlActive}
     >
       CTRL
@@ -88,7 +90,7 @@
       ontouchstart={handlePrevent}
       onclick={() => sendDirect('\x03')}
       class="px-2 py-1 text-xs font-mono font-bold rounded border border-red-900/60 bg-red-950/30 hover:bg-red-950/60 text-red-300 active:scale-95 transition-all shadow-sm"
-      title="Send SIGINT / Interrupt (\x03)"
+      title={$LL.terminal.virtualKeys.sigintTitle()}
     >
       ^C
     </button>
@@ -99,7 +101,7 @@
       ontouchstart={handlePrevent}
       onclick={() => sendDirect('\x04')}
       class="px-2 py-1 text-xs font-mono font-bold rounded border border-border bg-card hover:bg-card-sub text-foreground active:scale-95 transition-all shadow-sm"
-      title="Send EOF / Exit shell (\x04)"
+      title={$LL.terminal.virtualKeys.eofTitle()}
     >
       ^D
     </button>
@@ -110,7 +112,7 @@
       ontouchstart={handlePrevent}
       onclick={() => sendDirect('\x1a')}
       class="px-2 py-1 text-xs font-mono font-bold rounded border border-border bg-card hover:bg-card-sub text-foreground active:scale-95 transition-all shadow-sm"
-      title="Send SIGTSTP / Suspend background (\x1a)"
+      title={$LL.terminal.virtualKeys.sigtstpTitle()}
     >
       ^Z
     </button>
@@ -121,7 +123,7 @@
       ontouchstart={handlePrevent}
       onclick={() => sendDirect('\x0c')}
       class="px-2 py-1 text-xs font-mono font-bold rounded border border-border bg-card hover:bg-card-sub text-foreground active:scale-95 transition-all shadow-sm"
-      title="Clear screen (\x0c)"
+      title={$LL.terminal.virtualKeys.clearScreenTitle()}
     >
       ^L
     </button>
@@ -137,7 +139,7 @@
       ontouchstart={handlePrevent}
       onclick={() => sendDirect('\x1b[A')}
       class="px-2 py-1 text-xs font-mono font-bold rounded border border-border bg-card hover:bg-card-sub text-foreground active:scale-95 transition-all shadow-sm"
-      title="Up arrow"
+      title={$LL.terminal.virtualKeys.upTitle()}
     >
       ▲
     </button>
@@ -148,7 +150,7 @@
       ontouchstart={handlePrevent}
       onclick={() => sendDirect('\x1b[B')}
       class="px-2 py-1 text-xs font-mono font-bold rounded border border-border bg-card hover:bg-card-sub text-foreground active:scale-95 transition-all shadow-sm"
-      title="Down arrow"
+      title={$LL.terminal.virtualKeys.downTitle()}
     >
       ▼
     </button>
@@ -159,7 +161,7 @@
       ontouchstart={handlePrevent}
       onclick={() => sendDirect('\x1b[D')}
       class="px-2 py-1 text-xs font-mono font-bold rounded border border-border bg-card hover:bg-card-sub text-foreground active:scale-95 transition-all shadow-sm"
-      title="Left arrow"
+      title={$LL.terminal.virtualKeys.leftTitle()}
     >
       ◄
     </button>
@@ -170,7 +172,7 @@
       ontouchstart={handlePrevent}
       onclick={() => sendDirect('\x1b[C')}
       class="px-2 py-1 text-xs font-mono font-bold rounded border border-border bg-card hover:bg-card-sub text-foreground active:scale-95 transition-all shadow-sm"
-      title="Right arrow"
+      title={$LL.terminal.virtualKeys.rightTitle()}
     >
       ►
     </button>
@@ -187,7 +189,7 @@
         ontouchstart={handlePrevent}
         onclick={() => handleKeyPress(sym)}
         class="px-2 py-1 text-xs font-mono font-bold rounded border border-border bg-card hover:bg-card-sub text-muted hover:text-foreground active:scale-95 transition-all shadow-sm"
-        title="Symbol '{sym}'"
+        title={$LL.terminal.virtualKeys.symbolTitle({ sym })}
       >
         {sym}
       </button>

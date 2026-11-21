@@ -3005,6 +3005,37 @@ const id = {
 			aborted: 'Speedtest dibatalkan.',
 		},
 	},
+	terminal: {
+		title: 'Terminal Root Interaktif',
+		status: {
+			connected: 'Terhubung (Root)',
+			connecting: 'Menghubungkan...',
+			disconnected: 'Terputus',
+		},
+		keysOn: 'Tombol: Aktif',
+		keysOff: 'Tombol: Nonaktif',
+		keysToggleTitle: 'Buka/tutup bilah keypad virtual',
+		clearTitle: 'Bersihkan Terminal',
+		reconnect: 'Hubungkan Ulang',
+		reconnectTitle: 'Hubungkan Ulang Terminal',
+		fit: 'Sesuaikan',
+		fitTitle: 'Paksa Sesuaikan Kanvas Terminal',
+		virtualKeys: {
+			ariaLabel: 'Tombol Virtual Terminal',
+			escTitle: 'Tombol Escape (\\x1b)',
+			tabTitle: 'Tombol Tab (\\t)',
+			ctrlTitle: 'Modifier Control lengket (Ctrl+tombol)',
+			sigintTitle: 'Kirim SIGINT / Interupsi (\\x03)',
+			eofTitle: 'Kirim EOF / Keluar dari shell (\\x04)',
+			sigtstpTitle: 'Kirim SIGTSTP / Tangguhkan ke latar (\\x1a)',
+			clearScreenTitle: 'Bersihkan layar (\\x0c)',
+			upTitle: 'Panah atas',
+			downTitle: 'Panah bawah',
+			leftTitle: 'Panah kiri',
+			rightTitle: 'Panah kanan',
+			symbolTitle: "Simbol '{sym}'",
+		},
+	},
 } satisfies Translation
 
 export default id

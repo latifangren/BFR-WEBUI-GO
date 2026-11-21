@@ -3005,6 +3005,37 @@ const en = {
 			aborted: 'Speedtest aborted.',
 		},
 	},
+	terminal: {
+		title: 'Interactive Root Terminal',
+		status: {
+			connected: 'Connected (Root)',
+			connecting: 'Connecting...',
+			disconnected: 'Disconnected',
+		},
+		keysOn: 'Keys: On',
+		keysOff: 'Keys: Off',
+		keysToggleTitle: 'Toggle Virtual Keypad Bar',
+		clearTitle: 'Clear Terminal',
+		reconnect: 'Reconnect',
+		reconnectTitle: 'Reconnect Terminal',
+		fit: 'Fit',
+		fitTitle: 'Force Fit Terminal Canvas',
+		virtualKeys: {
+			ariaLabel: 'Terminal Virtual Keys',
+			escTitle: 'Escape key (\\x1b)',
+			tabTitle: 'Tab key (\\t)',
+			ctrlTitle: 'Sticky Control modifier (Ctrl+key)',
+			sigintTitle: 'Send SIGINT / Interrupt (\\x03)',
+			eofTitle: 'Send EOF / Exit shell (\\x04)',
+			sigtstpTitle: 'Send SIGTSTP / Suspend background (\\x1a)',
+			clearScreenTitle: 'Clear screen (\\x0c)',
+			upTitle: 'Up arrow',
+			downTitle: 'Down arrow',
+			leftTitle: 'Left arrow',
+			rightTitle: 'Right arrow',
+			symbolTitle: "Symbol '{sym}'",
+		},
+	},
 } satisfies BaseTranslation
 
 export default en
