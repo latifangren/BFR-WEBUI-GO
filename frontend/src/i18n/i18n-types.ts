@@ -9466,6 +9466,81 @@ type RootTranslation = {
 			updateVMError: string
 		}
 	}
+	logs: {
+		/**
+		 * S​y​s​t​e​m​ ​L​o​g​s​ ​&​ ​L​o​g​c​a​t​ ​S​t​r​e​a​m
+		 */
+		title: string
+		mode: {
+			/**
+			 * D​a​e​m​o​n​ ​L​o​g​s
+			 */
+			daemon: string
+			/**
+			 * L​i​v​e​ ​L​o​g​c​a​t
+			 */
+			logcat: string
+		}
+		daemon: {
+			/**
+			 * S​e​a​r​c​h​ ​m​e​s​s​a​g​e​ ​o​r​ ​c​a​t​e​g​o​r​y​.​.​.
+			 */
+			searchPlaceholder: string
+			/**
+			 * A​l​l​ ​L​o​g​ ​L​e​v​e​l​s
+			 */
+			allLevels: string
+			/**
+			 * A​l​l​ ​C​a​t​e​g​o​r​i​e​s
+			 */
+			allCategories: string
+			/**
+			 * C​l​e​a​r​ ​b​u​f​f​e​r
+			 */
+			clearTitle: string
+			/**
+			 * R​e​a​d​i​n​g​ ​l​o​g​ ​m​e​m​o​r​y​ ​b​u​f​f​e​r​.​.​.
+			 */
+			loading: string
+			/**
+			 * N​o​ ​d​a​e​m​o​n​ ​l​o​g​s​ ​m​a​t​c​h​i​n​g​ ​f​i​l​t​e​r​ ​c​r​i​t​e​r​i​a​.
+			 */
+			empty: string
+		}
+		logcat: {
+			/**
+			 * F​i​l​t​e​r​ ​l​o​g​c​a​t​ ​r​e​g​e​x​ ​/​ ​t​e​x​t​.​.​.
+			 */
+			filterPlaceholder: string
+			/**
+			 * A​u​t​o​-​s​c​r​o​l​l
+			 */
+			autoScroll: string
+			/**
+			 * A​n​d​r​o​i​d​ ​O​S​ ​L​o​g​c​a​t​ ​S​t​r​e​a​m
+			 */
+			streamTitle: string
+			/**
+			 * {​c​o​u​n​t​}​ ​l​i​n​e​s
+			 * @param {unknown} count
+			 */
+			lines: RequiredParams<'count'>
+		}
+		toasts: {
+			/**
+			 * F​a​i​l​e​d​ ​t​o​ ​f​e​t​c​h​ ​l​o​g​s
+			 */
+			fetchFailed: string
+			/**
+			 * D​a​e​m​o​n​ ​l​o​g​ ​b​u​f​f​e​r​ ​c​l​e​a​r​e​d​.
+			 */
+			cleared: string
+			/**
+			 * F​a​i​l​e​d​ ​t​o​ ​c​l​e​a​r​ ​l​o​g​s
+			 */
+			clearFailed: string
+		}
+	}
 }
 
 export type TranslationFunctions = {
@@ -18659,6 +18734,80 @@ export type TranslationFunctions = {
 			 * Error updating VM settings
 			 */
 			updateVMError: () => LocalizedString
+		}
+	}
+	logs: {
+		/**
+		 * System Logs & Logcat Stream
+		 */
+		title: () => LocalizedString
+		mode: {
+			/**
+			 * Daemon Logs
+			 */
+			daemon: () => LocalizedString
+			/**
+			 * Live Logcat
+			 */
+			logcat: () => LocalizedString
+		}
+		daemon: {
+			/**
+			 * Search message or category...
+			 */
+			searchPlaceholder: () => LocalizedString
+			/**
+			 * All Log Levels
+			 */
+			allLevels: () => LocalizedString
+			/**
+			 * All Categories
+			 */
+			allCategories: () => LocalizedString
+			/**
+			 * Clear buffer
+			 */
+			clearTitle: () => LocalizedString
+			/**
+			 * Reading log memory buffer...
+			 */
+			loading: () => LocalizedString
+			/**
+			 * No daemon logs matching filter criteria.
+			 */
+			empty: () => LocalizedString
+		}
+		logcat: {
+			/**
+			 * Filter logcat regex / text...
+			 */
+			filterPlaceholder: () => LocalizedString
+			/**
+			 * Auto-scroll
+			 */
+			autoScroll: () => LocalizedString
+			/**
+			 * Android OS Logcat Stream
+			 */
+			streamTitle: () => LocalizedString
+			/**
+			 * {count} lines
+			 */
+			lines: (arg: { count: unknown }) => LocalizedString
+		}
+		toasts: {
+			/**
+			 * Failed to fetch logs
+			 */
+			fetchFailed: () => LocalizedString
+			/**
+			 * Daemon log buffer cleared.
+			 */
+			cleared: () => LocalizedString
+			/**
+			 * Failed to clear logs
+			 */
+			clearFailed: () => LocalizedString
 		}
 	}
 }

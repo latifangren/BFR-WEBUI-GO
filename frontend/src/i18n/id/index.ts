@@ -2536,6 +2536,32 @@ const id = {
 			updateVMError: 'Galat saat memperbarui pengaturan VM',
 		},
 	},
+	logs: {
+		title: 'Log Sistem & Stream Logcat',
+		mode: {
+			daemon: 'Log Daemon',
+			logcat: 'Logcat Live',
+		},
+		daemon: {
+			searchPlaceholder: 'Cari pesan atau kategori...',
+			allLevels: 'Semua Level Log',
+			allCategories: 'Semua Kategori',
+			clearTitle: 'Bersihkan buffer',
+			loading: 'Membaca buffer memori log...',
+			empty: 'Tidak ada log daemon yang cocok dengan kriteria filter.',
+		},
+		logcat: {
+			filterPlaceholder: 'Filter regex / teks logcat...',
+			autoScroll: 'Gulir otomatis',
+			streamTitle: 'Stream Logcat OS Android',
+			lines: '{count} baris',
+		},
+		toasts: {
+			fetchFailed: 'Gagal mengambil log',
+			cleared: 'Buffer log daemon dibersihkan.',
+			clearFailed: 'Gagal membersihkan log',
+		},
+	},
 } satisfies Translation
 
 export default id

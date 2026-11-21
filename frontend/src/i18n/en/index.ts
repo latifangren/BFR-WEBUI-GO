@@ -2536,6 +2536,32 @@ const en = {
 			updateVMError: 'Error updating VM settings',
 		},
 	},
+	logs: {
+		title: 'System Logs & Logcat Stream',
+		mode: {
+			daemon: 'Daemon Logs',
+			logcat: 'Live Logcat',
+		},
+		daemon: {
+			searchPlaceholder: 'Search message or category...',
+			allLevels: 'All Log Levels',
+			allCategories: 'All Categories',
+			clearTitle: 'Clear buffer',
+			loading: 'Reading log memory buffer...',
+			empty: 'No daemon logs matching filter criteria.',
+		},
+		logcat: {
+			filterPlaceholder: 'Filter logcat regex / text...',
+			autoScroll: 'Auto-scroll',
+			streamTitle: 'Android OS Logcat Stream',
+			lines: '{count} lines',
+		},
+		toasts: {
+			fetchFailed: 'Failed to fetch logs',
+			cleared: 'Daemon log buffer cleared.',
+			clearFailed: 'Failed to clear logs',
+		},
+	},
 } satisfies BaseTranslation
 
 export default en

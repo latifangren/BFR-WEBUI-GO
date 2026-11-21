@@ -12,6 +12,7 @@
     Shield,
   } from '@lucide/svelte'
   import { api } from '../../../api/client'
+  import { LL } from '../../../i18n/i18n-svelte'
   import { toastStore } from '../../../stores/toast.svelte'
   import { WebSocketClient } from '../../../ws/socket'
   import type { LogEntry, LogResponse } from '../../../types/logs'
@@ -61,7 +62,7 @@
         daemonLogs = res.entries
       }
     } catch (err: unknown) {
-      toastStore.error(err instanceof Error ? err.message : 'Failed to fetch logs')
+      toastStore.error(err instanceof Error ? err.message : $LL.logs.toasts.fetchFailed())
     } finally {
       isLoadingDaemon = false
     }
@@ -71,9 +72,9 @@
     try {
       await api.post('/api/logs/clear')
       daemonLogs = []
-      toastStore.success('Daemon log buffer cleared.')
+      toastStore.success($LL.logs.toasts.cleared())
     } catch (err: unknown) {
-      toastStore.error(err instanceof Error ? err.message : 'Failed to clear logs')
+      toastStore.error(err instanceof Error ? err.message : $LL.logs.toasts.clearFailed())
     }
   }
 
@@ -173,7 +174,7 @@
     <div class="flex items-center gap-2">
       <FileText class="w-5 h-5 text-accent" />
       <h2 class="text-base sm:text-lg font-mono font-bold uppercase tracking-wider text-foreground">
-        System Logs & Logcat Stream
+        {$LL.logs.title()}
       </h2>
     </div>
 
@@ -184,7 +185,7 @@
         class="px-3 py-1.5 rounded cursor-pointer transition-colors {logMode === 'daemon' ? 'bg-accent text-accent-text font-bold' : 'text-muted hover:text-foreground'}"
         onclick={() => (logMode = 'daemon')}
       >
-        Daemon Logs
+        {$LL.logs.mode.daemon()}
       </button>
       <button
         type="button"
@@ -194,7 +195,7 @@
           if (!isLogcatStreaming) startLogcatStream()
         }}
       >
-        Live Logcat
+        {$LL.logs.mode.logcat()}
       </button>
     </div>
   </div>
@@ -205,7 +206,7 @@
       <!-- Filter Bar -->
       <div class="grid grid-cols-1 sm:grid-cols-4 gap-2 font-mono text-xs">
         <Input
-          placeholder="Search message or category..."
+          placeholder={$LL.logs.daemon.searchPlaceholder()}
           bind:value={daemonSearch}
         />
 
@@ -213,7 +214,7 @@
           bind:value={selectedLevel}
           class="bg-card-sub border border-border rounded px-3 py-2 text-xs font-mono text-foreground focus:outline-none focus:border-accent"
         >
-          <option value="">All Log Levels</option>
+          <option value="">{$LL.logs.daemon.allLevels()}</option>
           <option value="INFO">INFO</option>
           <option value="WARN">WARN</option>
           <option value="ERROR">ERROR</option>
@@ -225,7 +226,7 @@
           onchange={fetchDaemonLogs}
           class="bg-card-sub border border-border rounded px-3 py-2 text-xs font-mono text-foreground focus:outline-none focus:border-accent"
         >
-          <option value="">All Categories</option>
+          <option value="">{$LL.logs.daemon.allCategories()}</option>
           <option value="auth">auth</option>
           <option value="network">network</option>
           <option value="hotspot">hotspot</option>
@@ -245,13 +246,13 @@
             class="flex-1"
           >
             <RefreshCw class="w-3.5 h-3.5 mr-1 {isLoadingDaemon ? 'animate-spin' : ''}" />
-            <span>Refresh</span>
+            <span>{$LL.common.refresh()}</span>
           </Button>
           <Button
             variant="outline"
             size="md"
             onclick={clearDaemonLogs}
-            title="Clear buffer"
+            title={$LL.logs.daemon.clearTitle()}
           >
             <Trash2 class="w-3.5 h-3.5 text-red-400" />
           </Button>
@@ -263,11 +264,11 @@
         {#if isLoadingDaemon && daemonLogs.length === 0}
           <div class="p-12 text-center text-muted">
             <RefreshCw class="w-6 h-6 animate-spin mx-auto mb-2 text-accent" />
-            Reading log memory buffer...
+            {$LL.logs.daemon.loading()}
           </div>
         {:else if filteredDaemonLogs.length === 0}
           <div class="p-12 text-center text-muted">
-            No daemon logs matching filter criteria.
+            {$LL.logs.daemon.empty()}
           </div>
         {:else}
           <div class="max-h-[65vh] overflow-y-auto divide-y divide-border">
@@ -300,7 +301,7 @@
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 font-mono text-xs">
         <div class="flex items-center gap-2 flex-1">
           <Input
-            placeholder="Filter logcat regex / text..."
+            placeholder={$LL.logs.logcat.filterPlaceholder()}
             bind:value={logcatSearch}
             class="max-w-md"
           />
@@ -310,7 +311,7 @@
             {:else}
             <input type="checkbox" bind:checked={autoScroll} class="accent-accent" />
             {/if}
-            <span>Auto-scroll</span>
+            <span>{$LL.logs.logcat.autoScroll()}</span>
           </label>
         </div>
 
@@ -318,17 +319,17 @@
           {#if isLogcatStreaming}
             <Button variant="danger" size="sm" onclick={stopLogcatStream}>
               <Pause class="w-3.5 h-3.5 mr-1" />
-              <span>Pause</span>
+              <span>{$LL.common.pause()}</span>
             </Button>
           {:else}
             <Button variant="primary" size="sm" onclick={startLogcatStream}>
               <Play class="w-3.5 h-3.5 mr-1" />
-              <span>Resume</span>
+              <span>{$LL.common.resume()}</span>
             </Button>
           {/if}
           <Button variant="outline" size="sm" onclick={clearLogcatBuffer}>
             <Trash2 class="w-3.5 h-3.5 mr-1" />
-            <span>Clear</span>
+            <span>{$LL.common.clear()}</span>
           </Button>
         </div>
       </div>
@@ -338,9 +339,9 @@
         <div class="bg-card-sub border-b border-border px-3 py-2 flex items-center justify-between font-mono text-xs text-muted">
           <div class="flex items-center gap-2">
             <span class="w-2.5 h-2.5 rounded-full {isLogcatStreaming ? 'bg-emerald-500 animate-pulse' : 'bg-red-500'} inline-block"></span>
-            <span class="font-bold text-foreground">Android OS Logcat Stream</span>
+            <span class="font-bold text-foreground">{$LL.logs.logcat.streamTitle()}</span>
           </div>
-          <span>{filteredLogcatLines.length} lines</span>
+          <span>{$LL.logs.logcat.lines({ count: filteredLogcatLines.length })}</span>
         </div>
 
         <div
