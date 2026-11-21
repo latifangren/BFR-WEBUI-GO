@@ -1,4 +1,4 @@
-# BFR-WEBUI-GO — i18n Scoping Doc (svelte-i18n)
+# BFR-WEBUI-GO — i18n Scoping Doc (typesafe-i18n)
 
 Status: **DRAFT for review** — the user first chose **Option B (svelte-i18n)** on 2026-11-21,
 then asked whether the plan is the best, safest, lowest-risk, and future-proof one.
@@ -299,6 +299,59 @@ Qualcomm family (IMEI, Bands, Capability, EFS, NV, Searcher), Samsung, Charger,
 Hotspot (+subtabs), Power, Sysinfo, then the rest. One tab (or one tab family) per
 commit so regressions are bisectable; `svelte-check` + build after each batch.
 
+**DONE — all 27 tab families, 2026-11-21 → 2026-11-22, branch `feat/i18n`.**
+Marathon mode (user order 2026-11-22 ~04:06 WIB): translate all remaining tabs
+sequentially, commit + push directly per family, no per-commit approval round.
+Each family was implemented by a subagent and verified independently by the
+coordinator (diff, `bun run check`, build, Go android/arm64 + nomodem + vet,
+E2E vs the real backend) before commit + push. The leftovers sweep after SSH
+found 4 more live tabs not in the original list (vnstat, tunnel, tools,
+telegram) — all translated. `TabQoS.svelte` and `BottomNav.svelte` are dead
+code (unimported; also deleted by the parked `fix/audit-findings` branch) and
+were deliberately NOT translated. Layout labels in Sidebar / BottomPopoverNav /
+TopNav resolve via `tNav()` from the `nav` namespace (complete in both
+locales), so the hardcoded strings there are fallback-only.
+
+| Family | Commit | Keys | Dist (B) | E2E |
+|---|---|---|---|---|
+| Shannon | `29333c1` | 219 + 5 common | 1,723,215 | 8/8, 0 page errors |
+| NAS | `a23b796` | 146 | 1,737,880 | 8/8, 0 page errors |
+| Overview | `d4e352f` | 102 | 1,749,510 | 8/8, 0 page errors |
+| Modem | `cfafa90` | 75 | 1,757,662 | 8/8, 0 page errors |
+| Scrcpy | `d28b2fa` | 90 | 1,766,910 | 8/8, 0 page errors |
+| Qualcomm | `838e86d` | 652 + 2 common | 1,841,658 | 8/8, 0 page errors |
+| Samsung | `d6f54e5` | 90 | 1,852,542 | 8/8, 0 page errors |
+| Charger | `a785501` | 105 | 1,863,851 | 8/8, 0 page errors |
+| Hotspot | `f51ee7e` | 155 | 1,883,274 | 8/8, 0 page errors |
+| Power | `b8427d0` | 65 | 1,890,531 | 8/8, 0 page errors |
+| Sysinfo | `688b898` | 52 | 1,895,967 | 23/23, 0 page errors |
+| About | `80f011d` | 63 | 1,904,770 | 12/12, 0 page errors |
+| Files | `059d32c` | 158 | 1,921,571 | 13/13, 0 page errors |
+| Kernel | `5d16286` | 45 | 1,927,152 | 15/15, 0 page errors |
+| Logs | `c70dead` | 16 | 1,929,029 | 15/15, 0 page errors |
+| Modules | `3aae60e` | 21 | 1,931,404 | 13/13, 0 page errors |
+| Network | `5a8686f` | 40 | 1,935,755 | 13/13, 0 page errors |
+| Partitions | `bdcc2f0` | 147 | 1,954,008 | 13/13, 0 page errors |
+| Proxy | `e93f441` | 117 | 1,967,594 | 13/13, 0 page errors |
+| SMS | `e867619` | 12 | 1,968,915 | 10/10, 0 page errors |
+| Speedtest | `31eff56` | 25 | 1,971,701 | 13/13, 0 page errors |
+| Terminal | `5c8571e` | 25 | 1,974,219 | 12/12, 0 page errors |
+| SSH | `fe6d41c` | 29 | 1,977,517 | 13/13, 0 page errors |
+| Vnstat | `5ec7f47` | 67 | 1,984,501 | 13/13, 0 page errors |
+| Tunnel | `59197ba` | 36 | 1,988,511 | 13/13, 0 page errors |
+| Tools | `530a189` | 65 | 1,995,625 | 13/13, 0 page errors |
+| Telegram | `4cf6883` | 36 | 1,999,730 | 13/13, 0 page errors |
+
+E2E scripts: `~/workspace/your_files/bfr-sakuga-e2e/i18n-phase3-<family>-test.js`
+(each: login EN → assert EN strings → switch to ID via Appearance modal →
+assert ID strings → reload persists → back to EN; 0 page errors). Coverage
+limits (VM has no modem/device): modem-dependent tabs assert their
+not-detected/offline states; SMS asserts the empty inbox; no power/daemon/
+tunnel/bot action was ever executed. Notable fixes found by E2E during the
+marathon (pre-existing, not i18n-caused): Charger `available_switches?.find`
+null guard (`a785501`); the `common.deselectAll` promotion (Samsung →
+`common`, used by FileTable + TabSamsung, `059d32c`).
+
 ### Phase 4 — Polish
 
 - `id` completion: every `en` key has an Indonesian translation — enforced at
@@ -306,6 +359,25 @@ commit so regressions are bisectable; `svelte-check` + build after each batch.
   audit script is needed.
 - E2E per-tab spot check (screenshots in both locales).
 - Docs: README/CHANGELOG entry for the release.
+
+**DONE 2026-11-22:**
+- Final tree verified: `bun run check` 0 errors (2 pre-existing `svelte:component`
+  warnings), `bun run build` OK, Go android/arm64 + nomodem + vet OK.
+  **35 top-level namespaces, 2,826 leaf keys (en). Dist 1,999,730 B**
+  (+335,661 B / +20.2% vs the 1,664,069 B no-i18n baseline; +303,807 B vs
+  Phase 1's 1,695,923 B).
+- Full E2E sweep: **all 29 scripts re-run once against the final tree —
+  354 checks, all passing, 0 page errors** (Phase 1 24/24, Phase 2 20/20,
+  Shannon/NAS/Overview/Modem/Scrcpy/Qualcomm/Samsung/Charger/Hotspot/Power
+  8/8 each, Sysinfo 23/23, About 12/12, Files 13/13, Kernel 15/15, Logs
+  15/15, Modules 13/13, Network 13/13, Partitions 13/13, Proxy 13/13, SMS
+  10/10, Speedtest 13/13, Terminal 12/12, SSH 13/13, Vnstat 13/13, Tunnel
+  13/13, Tools 13/13, Telegram 13/13).
+- Docs: CHANGELOG [1.2.9] entry added (this section's §4 update is the
+  scoping-doc record). Known out-of-scope items preserved as-is: backend
+  error strings stay English; `ChangePasswordModal` info line still says
+  the default password is `admin` (real default `bfr`); login error strings
+  in `auth.svelte.ts` stay English.
 
 ## 5. Bundle-size budget (measured for B and C)
 
