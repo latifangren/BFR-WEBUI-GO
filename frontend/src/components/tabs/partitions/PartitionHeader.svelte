@@ -7,6 +7,7 @@
     HardDrive,
   } from '@lucide/svelte'
   import type { SystemSlotInfo } from '../../../types/partition'
+  import { LL } from '../../../i18n/i18n-svelte'
   import Card from '../../ui/Card.svelte'
   import Button from '../../ui/Button.svelte'
 
@@ -28,8 +29,8 @@
 </script>
 
 <Card
-  title="PARTITION & BACKUP MANAGER"
-  subtitle="Manage raw block partitions, IMEI/NVRAM backup, and direct image flashing"
+  title={$LL.partitions.header.title()}
+  subtitle={$LL.partitions.header.subtitle()}
   tone="ice"
 >
   {#snippet action()}
@@ -38,10 +39,10 @@
       size="sm"
       disabled={isLoading}
       onclick={onRefresh}
-      title="Refresh partitions and backup archives"
+      title={$LL.partitions.header.refreshTitle()}
     >
       <RefreshCw size={14} class={isLoading ? 'animate-spin' : ''} />
-      <span class="hidden sm:inline ml-1.5">Refresh</span>
+      <span class="hidden sm:inline ml-1.5">{$LL.common.refresh()}</span>
     </Button>
   {/snippet}
 
@@ -50,7 +51,7 @@
     <div class="p-3 bg-card-sub border border-border rounded flex flex-col justify-between">
       <span class="text-[11px] font-mono font-bold uppercase tracking-wider text-muted flex items-center gap-1.5">
         <Cpu size={13} class="text-accent" />
-        Slot Architecture
+        {$LL.partitions.header.slotArchitecture()}
       </span>
       <div class="mt-2 flex items-center gap-2">
         {#if slotInfo?.is_ab_device}
@@ -58,14 +59,14 @@
             class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded text-xs font-mono font-bold tracking-wider uppercase border {slotInfo.current_slot === 'a' || slotInfo.current_slot === 'b' ? 'bg-emerald-950/60 text-emerald-400 border-emerald-800' : 'bg-card text-foreground border-border'}"
           >
             <span class="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-            SLOT _{slotInfo.current_slot.toUpperCase()} (ACTIVE)
+            {$LL.partitions.header.activeSlot({ slot: slotInfo.current_slot.toUpperCase() })}
           </span>
         {:else if slotInfo}
           <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-mono font-bold uppercase tracking-wider border bg-card text-muted border-border">
-            NON A/B LEGACY
+            {$LL.partitions.header.nonAbLegacy()}
           </span>
         {:else}
-          <span class="text-xs font-mono text-muted">Detecting...</span>
+          <span class="text-xs font-mono text-muted">{$LL.partitions.header.detecting()}</span>
         {/if}
       </div>
     </div>
@@ -74,7 +75,7 @@
     <div class="p-3 bg-card-sub border border-border rounded flex flex-col justify-between">
       <span class="text-[11px] font-mono font-bold uppercase tracking-wider text-muted flex items-center gap-1.5">
         <Terminal size={13} class="text-accent" />
-        Block Device Root
+        {$LL.partitions.header.blockDeviceRoot()}
       </span>
       <div
         class="mt-2 font-mono text-xs text-foreground truncate"
@@ -88,13 +89,13 @@
     <div class="p-3 bg-card-sub border border-border rounded flex flex-col justify-between">
       <span class="text-[11px] font-mono font-bold uppercase tracking-wider text-muted flex items-center gap-1.5">
         <Layers size={13} class="text-accent" />
-        Discovered Partitions
+        {$LL.partitions.header.discoveredPartitions()}
       </span>
       <div class="mt-2 flex items-baseline gap-2">
         <span class="font-mono text-xl font-bold text-foreground">
           {slotInfo?.total_partitions || totalPartitions}
         </span>
-        <span class="text-[10px] font-mono text-muted uppercase">blocks detected</span>
+        <span class="text-[10px] font-mono text-muted uppercase">{$LL.partitions.header.blocksDetected()}</span>
       </div>
     </div>
 
@@ -102,13 +103,13 @@
     <div class="p-3 bg-card-sub border border-border rounded flex flex-col justify-between">
       <span class="text-[11px] font-mono font-bold uppercase tracking-wider text-muted flex items-center gap-1.5">
         <HardDrive size={13} class="text-accent" />
-        Saved Archives
+        {$LL.partitions.header.savedArchives()}
       </span>
       <div class="mt-2 flex items-baseline gap-2">
         <span class="font-mono text-xl font-bold text-foreground">
           {backupCount}
         </span>
-        <span class="text-[10px] font-mono text-muted uppercase">stored files</span>
+        <span class="text-[10px] font-mono text-muted uppercase">{$LL.partitions.header.storedFiles()}</span>
       </div>
     </div>
   </div>

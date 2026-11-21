@@ -2,6 +2,7 @@
   import { onMount } from 'svelte'
   import { HardDriveDownload } from '@lucide/svelte'
   import { api } from '../../../api/client'
+  import { LL } from '../../../i18n/i18n-svelte'
   import { toastStore } from '../../../stores/toast.svelte'
   import type {
     PartitionInfo,
@@ -50,7 +51,7 @@
         slotInfo = res.slot_info || null
       }
     } catch (err: unknown) {
-      toastStore.error(err instanceof Error ? err.message : 'Failed to load partitions')
+      toastStore.error(err instanceof Error ? err.message : $LL.partitions.manager.toasts.loadFailed())
     } finally {
       isLoadingPartitions = false
     }
@@ -64,7 +65,7 @@
         backups = res.backups
       }
     } catch (err: unknown) {
-      toastStore.error(err instanceof Error ? err.message : 'Failed to load backup archives')
+      toastStore.error(err instanceof Error ? err.message : $LL.partitions.manager.toasts.loadBackupsFailed())
     } finally {
       isLoadingBackups = false
     }
@@ -72,7 +73,7 @@
 
   async function handleRefreshAll() {
     await Promise.all([fetchPartitions(), fetchBackups()])
-    toastStore.info('Partitions and backup archives refreshed')
+    toastStore.info($LL.partitions.manager.toasts.refreshed())
   }
 
   async function handleBackupGroup(group: 'radio_efs' | 'boot_core') {
@@ -83,10 +84,10 @@
         compress: true,
       })
 
-      const groupLabel = group === 'radio_efs' ? 'Radio & EFS' : 'Boot & Kernel Core'
+      const groupLabel = group === 'radio_efs' ? $LL.partitions.manager.groupRadioEfs() : $LL.partitions.manager.groupBootCore()
 
       if (res && res.success && res.filename) {
-        toastStore.success(`${groupLabel} packaged into ${res.filename} (${res.size_human})`)
+        toastStore.success($LL.partitions.manager.toasts.groupPackaged({ group: groupLabel, filename: res.filename, size: res.size_human }))
 
         if (autoDownload && typeof document !== 'undefined') {
           const downloadUrl = `/api/partitions/download?filename=${encodeURIComponent(res.filename)}`
@@ -98,12 +99,12 @@
           document.body.removeChild(link)
         }
       } else {
-        toastStore.error(res?.error || `Failed to create ${groupLabel} backup archive`)
+        toastStore.error(res?.error || $LL.partitions.manager.toasts.groupCreateFailed({ group: groupLabel }))
       }
 
       await fetchBackups()
     } catch (err: unknown) {
-      toastStore.error(err instanceof Error ? err.message : 'Group backup operation failed')
+      toastStore.error(err instanceof Error ? err.message : $LL.partitions.manager.toasts.groupBackupFailed())
     } finally {
       isBackingUp = null
     }
@@ -118,13 +119,13 @@
       })
 
       if (res && res.success) {
-        toastStore.success(`Partition ${part.name} backed up successfully (${res.filename})`)
+        toastStore.success($LL.partitions.manager.toasts.partitionBackedUp({ name: part.name, filename: res.filename }))
       } else {
-        toastStore.error(res?.error || `Failed to backup partition ${part.name}`)
+        toastStore.error(res?.error || $LL.partitions.manager.toasts.backupPartitionFailed({ name: part.name }))
       }
       await fetchBackups()
     } catch (err: unknown) {
-      toastStore.error(err instanceof Error ? err.message : `Failed to backup partition ${part.name}`)
+      toastStore.error(err instanceof Error ? err.message : $LL.partitions.manager.toasts.backupPartitionFailed({ name: part.name }))
     } finally {
       isBackingUp = null
     }
@@ -152,17 +153,17 @@
 
       const res = await api.post<FlashResult>('/api/partitions/flash', formData)
       if (res && res.success) {
-        toastStore.success(res.message || `Partition ${res.partition_name} flashed successfully!`)
+        toastStore.success(res.message || $LL.partitions.manager.toasts.flashSuccess({ name: res.partition_name }))
         if (res.backup_file) {
-          toastStore.info(`Auto-backup saved: ${res.backup_file}`)
+          toastStore.info($LL.partitions.manager.toasts.autoBackupSaved({ file: res.backup_file }))
         }
         handleCloseFlashModal()
         await fetchBackups()
       } else {
-        toastStore.error(res?.error || 'Flashing process failed')
+        toastStore.error(res?.error || $LL.partitions.manager.toasts.flashFailed())
       }
     } catch (err: unknown) {
-      toastStore.error(err instanceof Error ? err.message : 'Flashing operation encountered an error')
+      toastStore.error(err instanceof Error ? err.message : $LL.partitions.manager.toasts.flashError())
     } finally {
       isFlashing = false
     }
@@ -171,30 +172,30 @@
   async function handleDeleteBackup(filename: string) {
     try {
       await api.post('/api/partitions/backup/delete', { filename })
-      toastStore.success(`Backup archive ${filename} deleted successfully`)
+      toastStore.success($LL.partitions.manager.toasts.backupDeleted({ filename }))
       await fetchBackups()
     } catch (err: unknown) {
-      toastStore.error(err instanceof Error ? err.message : 'Failed to delete backup archive')
+      toastStore.error(err instanceof Error ? err.message : $LL.partitions.manager.toasts.deleteBackupFailed())
     }
   }
 
   async function handleDeleteMultiple(filenames: string[]) {
     try {
       await api.post('/api/partitions/backup/delete', { filenames })
-      toastStore.success(`Successfully deleted ${filenames.length} backup archive(s)`)
+      toastStore.success($LL.partitions.manager.toasts.deletedMultiple({ count: filenames.length }))
       await fetchBackups()
     } catch (err: unknown) {
-      toastStore.error(err instanceof Error ? err.message : 'Failed to delete selected archives')
+      toastStore.error(err instanceof Error ? err.message : $LL.partitions.manager.toasts.deleteSelectedFailed())
     }
   }
 
   async function handleDeleteAll() {
     try {
       await api.post('/api/partitions/backup/delete', { all: true })
-      toastStore.success('All backup archives deleted successfully')
+      toastStore.success($LL.partitions.manager.toasts.deletedAll())
       await fetchBackups()
     } catch (err: unknown) {
-      toastStore.error(err instanceof Error ? err.message : 'Failed to delete all archives')
+      toastStore.error(err instanceof Error ? err.message : $LL.partitions.manager.toasts.deleteAllFailed())
     }
   }
 </script>
@@ -222,7 +223,7 @@
       onclick={() => (activeFilter = 'all')}
       class="px-3.5 py-1.5 text-xs font-mono font-bold uppercase tracking-wider rounded select-none cursor-pointer transition-colors whitespace-nowrap {activeFilter === 'all' ? 'bg-foreground text-background shadow-neobrutal' : 'text-muted hover:text-foreground'}"
     >
-      All ({partitions.length})
+      {$LL.partitions.manager.filters.all({ count: partitions.length })}
     </button>
 
     <button
@@ -230,7 +231,7 @@
       onclick={() => (activeFilter = 'radio_efs')}
       class="px-3.5 py-1.5 text-xs font-mono font-bold uppercase tracking-wider rounded select-none cursor-pointer transition-colors whitespace-nowrap {activeFilter === 'radio_efs' ? 'bg-foreground text-background shadow-neobrutal' : 'text-muted hover:text-foreground'}"
     >
-      Radio & EFS
+      {$LL.partitions.table.categoryRadio()}
     </button>
 
     <button
@@ -238,7 +239,7 @@
       onclick={() => (activeFilter = 'boot_recovery')}
       class="px-3.5 py-1.5 text-xs font-mono font-bold uppercase tracking-wider rounded select-none cursor-pointer transition-colors whitespace-nowrap {activeFilter === 'boot_recovery' ? 'bg-foreground text-background shadow-neobrutal' : 'text-muted hover:text-foreground'}"
     >
-      Boot & Recovery
+      {$LL.partitions.table.categoryBoot()}
     </button>
 
     <button
@@ -246,7 +247,7 @@
       onclick={() => (activeFilter = 'system_os')}
       class="px-3.5 py-1.5 text-xs font-mono font-bold uppercase tracking-wider rounded select-none cursor-pointer transition-colors whitespace-nowrap {activeFilter === 'system_os' ? 'bg-foreground text-background shadow-neobrutal' : 'text-muted hover:text-foreground'}"
     >
-      System OS
+      {$LL.partitions.table.categorySystem()}
     </button>
 
     <button
@@ -255,7 +256,7 @@
       class="px-3.5 py-1.5 text-xs font-mono font-bold uppercase tracking-wider rounded select-none cursor-pointer transition-colors whitespace-nowrap flex items-center gap-1.5 {activeFilter === 'backups' ? 'bg-foreground text-background shadow-neobrutal' : 'text-muted hover:text-foreground'}"
     >
       <HardDriveDownload size={13} />
-      <span>Saved Backups ({backups.length})</span>
+      <span>{$LL.partitions.manager.filters.savedBackups({ count: backups.length })}</span>
     </button>
   </div>
 

@@ -7,6 +7,7 @@
     X,
   } from '@lucide/svelte'
   import type { PartitionInfo, PartitionCategory } from '../../../types/partition'
+  import { LL } from '../../../i18n/i18n-svelte'
   import Card from '../../ui/Card.svelte'
   import Button from '../../ui/Button.svelte'
 
@@ -67,14 +68,14 @@
   function getCategoryBadge(category: PartitionCategory) {
     switch (category) {
       case 'radio_efs':
-        return { label: 'Radio & EFS', class: 'bg-red-950/60 text-red-300 border-red-800' }
+        return { label: $LL.partitions.table.categoryRadio(), class: 'bg-red-950/60 text-red-300 border-red-800' }
       case 'boot_recovery':
-        return { label: 'Boot & Recovery', class: 'bg-emerald-950/60 text-emerald-300 border-emerald-800' }
+        return { label: $LL.partitions.table.categoryBoot(), class: 'bg-emerald-950/60 text-emerald-300 border-emerald-800' }
       case 'system_os':
-        return { label: 'System OS', class: 'bg-cyan-950/60 text-cyan-300 border-cyan-800' }
+        return { label: $LL.partitions.table.categorySystem(), class: 'bg-cyan-950/60 text-cyan-300 border-cyan-800' }
       case 'other':
       default:
-        return { label: 'Other', class: 'bg-card-sub text-muted border-border' }
+        return { label: $LL.partitions.table.categoryOther(), class: 'bg-card-sub text-muted border-border' }
     }
   }
 </script>
@@ -84,7 +85,7 @@
   <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 bg-card-sub p-2.5 border border-border rounded">
     <div class="text-xs font-mono text-muted flex items-center gap-1.5">
       <span class="font-bold text-foreground">{filteredPartitions.length}</span>
-      <span>of {partitions.length} partitions displayed</span>
+      <span>{$LL.partitions.table.countLine({ total: partitions.length })}</span>
     </div>
 
     <!-- Search Input -->
@@ -96,7 +97,7 @@
         type="text"
         value={searchQuery}
         oninput={(e) => onSearchChange((e.target as HTMLInputElement).value)}
-        placeholder="Filter by name or device path..."
+        placeholder={$LL.partitions.table.searchPlaceholder()}
         class="neo-input w-full bg-card border border-border rounded pl-9 pr-8 py-1.5 text-xs font-mono text-foreground placeholder:text-muted focus:outline-none focus:border-accent"
       />
       {#if searchQuery}
@@ -104,7 +105,7 @@
           type="button"
           onclick={() => onSearchChange('')}
           class="absolute inset-y-0 right-0 pr-2.5 flex items-center text-muted hover:text-foreground cursor-pointer"
-          title="Clear search query"
+          title={$LL.partitions.table.clearSearchTitle()}
         >
           <X size={13} />
         </button>
@@ -114,15 +115,15 @@
 
   <!-- Partitions Table Card -->
   <Card
-    title="RAW BLOCK PARTITIONS"
-    subtitle={`Showing ${filteredPartitions.length} of ${partitions.length} partitions`}
+    title={$LL.partitions.table.title()}
+    subtitle={$LL.partitions.table.subtitle({ filtered: filteredPartitions.length, total: partitions.length })}
     tone="none"
   >
     {#if filteredPartitions.length === 0}
       <div class="p-8 text-center border-2 border-dashed border-border rounded bg-card-sub">
-        <p class="font-mono text-sm text-foreground font-bold">No matching partitions found</p>
+        <p class="font-mono text-sm text-foreground font-bold">{$LL.partitions.table.emptyTitle()}</p>
         <p class="text-xs text-muted mt-1">
-          Try clearing your search query or switching the category filter above.
+          {$LL.partitions.table.emptyBody()}
         </p>
       </div>
     {:else}
@@ -130,12 +131,12 @@
         <table class="w-full text-left border-collapse text-xs font-mono">
           <thead>
             <tr class="bg-card-sub border-b border-border text-muted uppercase text-[10px] tracking-wider">
-              <th class="p-3">Partition Name</th>
-              <th class="p-3">Slot</th>
-              <th class="p-3">Category</th>
-              <th class="p-3">Size</th>
-              <th class="p-3 hidden md:table-cell">Device Path</th>
-              <th class="p-3 text-right">Actions</th>
+              <th class="p-3">{$LL.partitions.table.thName()}</th>
+              <th class="p-3">{$LL.partitions.table.thSlot()}</th>
+              <th class="p-3">{$LL.partitions.table.thCategory()}</th>
+              <th class="p-3">{$LL.partitions.table.thSize()}</th>
+              <th class="p-3 hidden md:table-cell">{$LL.partitions.table.thDevicePath()}</th>
+              <th class="p-3 text-right">{$LL.partitions.table.thActions()}</th>
             </tr>
           </thead>
           <tbody class="divide-y divide-border">
@@ -151,9 +152,9 @@
                     {#if part.is_critical}
                       <span
                         class="px-1.5 py-0.2 rounded text-[9px] font-mono font-bold uppercase bg-red-950/60 text-red-400 border border-red-800"
-                        title="Critical partition: corruption may result in hard-brick"
+                        title={$LL.partitions.table.criticalTitle()}
                       >
-                        CRITICAL
+                        {$LL.partitions.table.critical()}
                       </span>
                     {/if}
                   </div>
@@ -202,14 +203,14 @@
                       size="sm"
                       disabled={isBackingUp === part.name}
                       onclick={() => onBackupPartition(part)}
-                      title="Create a backup image of this partition"
+                      title={$LL.partitions.table.backupTitle()}
                     >
                       {#if isBackingUp === part.name}
                         <RefreshCw size={12} class="animate-spin mr-1" />
-                        <span>Backing up...</span>
+                        <span>{$LL.partitions.table.backingUp()}</span>
                       {:else}
                         <HardDriveDownload size={12} class="mr-1" />
-                        <span>Backup</span>
+                        <span>{$LL.partitions.table.backup()}</span>
                       {/if}
                     </Button>
 
@@ -218,19 +219,19 @@
                         variant="danger"
                         size="sm"
                         onclick={() => onOpenFlashModal(part)}
-                        title="Flash custom or factory image to this partition"
+                        title={$LL.partitions.table.flashTitle()}
                       >
                         <Flame size={12} class="mr-1" />
-                        <span>Flash</span>
+                        <span>{$LL.partitions.table.flash()}</span>
                       </Button>
                     {:else}
                       <button
                         type="button"
                         disabled
                         class="px-2.5 py-1 text-xs font-mono font-bold rounded border border-border bg-card-sub/40 text-muted/40 cursor-not-allowed opacity-40 select-none"
-                        title="Partition write protected (flashing restricted to kernel/recovery)"
+                        title={$LL.partitions.table.flashDisabledTitle()}
                       >
-                        Flash
+                        {$LL.partitions.table.flash()}
                       </button>
                     {/if}
                   </div>

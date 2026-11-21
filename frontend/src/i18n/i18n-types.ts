@@ -9817,6 +9817,636 @@ type RootTranslation = {
 			failedToReach: string
 		}
 	}
+	partitions: {
+		manager: {
+			filters: {
+				/**
+				 * A​l​l​ ​(​{​c​o​u​n​t​}​)
+				 * @param {unknown} count
+				 */
+				all: RequiredParams<'count'>
+				/**
+				 * R​a​d​i​o​ ​&​ ​E​F​S
+				 */
+				radioEfs: string
+				/**
+				 * B​o​o​t​ ​&​ ​R​e​c​o​v​e​r​y
+				 */
+				bootRecovery: string
+				/**
+				 * S​y​s​t​e​m​ ​O​S
+				 */
+				systemOs: string
+				/**
+				 * S​a​v​e​d​ ​B​a​c​k​u​p​s​ ​(​{​c​o​u​n​t​}​)
+				 * @param {unknown} count
+				 */
+				savedBackups: RequiredParams<'count'>
+			}
+			/**
+			 * R​a​d​i​o​ ​&​ ​E​F​S
+			 */
+			groupRadioEfs: string
+			/**
+			 * B​o​o​t​ ​&​ ​K​e​r​n​e​l​ ​C​o​r​e
+			 */
+			groupBootCore: string
+			toasts: {
+				/**
+				 * F​a​i​l​e​d​ ​t​o​ ​l​o​a​d​ ​p​a​r​t​i​t​i​o​n​s
+				 */
+				loadFailed: string
+				/**
+				 * F​a​i​l​e​d​ ​t​o​ ​l​o​a​d​ ​b​a​c​k​u​p​ ​a​r​c​h​i​v​e​s
+				 */
+				loadBackupsFailed: string
+				/**
+				 * P​a​r​t​i​t​i​o​n​s​ ​a​n​d​ ​b​a​c​k​u​p​ ​a​r​c​h​i​v​e​s​ ​r​e​f​r​e​s​h​e​d
+				 */
+				refreshed: string
+				/**
+				 * {​g​r​o​u​p​}​ ​p​a​c​k​a​g​e​d​ ​i​n​t​o​ ​{​f​i​l​e​n​a​m​e​}​ ​(​{​s​i​z​e​}​)
+				 * @param {unknown} filename
+				 * @param {unknown} group
+				 * @param {unknown} size
+				 */
+				groupPackaged: RequiredParams<'filename' | 'group' | 'size'>
+				/**
+				 * F​a​i​l​e​d​ ​t​o​ ​c​r​e​a​t​e​ ​{​g​r​o​u​p​}​ ​b​a​c​k​u​p​ ​a​r​c​h​i​v​e
+				 * @param {unknown} group
+				 */
+				groupCreateFailed: RequiredParams<'group'>
+				/**
+				 * G​r​o​u​p​ ​b​a​c​k​u​p​ ​o​p​e​r​a​t​i​o​n​ ​f​a​i​l​e​d
+				 */
+				groupBackupFailed: string
+				/**
+				 * P​a​r​t​i​t​i​o​n​ ​{​n​a​m​e​}​ ​b​a​c​k​e​d​ ​u​p​ ​s​u​c​c​e​s​s​f​u​l​l​y​ ​(​{​f​i​l​e​n​a​m​e​}​)
+				 * @param {unknown} filename
+				 * @param {unknown} name
+				 */
+				partitionBackedUp: RequiredParams<'filename' | 'name'>
+				/**
+				 * F​a​i​l​e​d​ ​t​o​ ​b​a​c​k​u​p​ ​p​a​r​t​i​t​i​o​n​ ​{​n​a​m​e​}
+				 * @param {unknown} name
+				 */
+				backupPartitionFailed: RequiredParams<'name'>
+				/**
+				 * P​a​r​t​i​t​i​o​n​ ​{​n​a​m​e​}​ ​f​l​a​s​h​e​d​ ​s​u​c​c​e​s​s​f​u​l​l​y​!
+				 * @param {unknown} name
+				 */
+				flashSuccess: RequiredParams<'name'>
+				/**
+				 * A​u​t​o​-​b​a​c​k​u​p​ ​s​a​v​e​d​:​ ​{​f​i​l​e​}
+				 * @param {unknown} file
+				 */
+				autoBackupSaved: RequiredParams<'file'>
+				/**
+				 * F​l​a​s​h​i​n​g​ ​p​r​o​c​e​s​s​ ​f​a​i​l​e​d
+				 */
+				flashFailed: string
+				/**
+				 * F​l​a​s​h​i​n​g​ ​o​p​e​r​a​t​i​o​n​ ​e​n​c​o​u​n​t​e​r​e​d​ ​a​n​ ​e​r​r​o​r
+				 */
+				flashError: string
+				/**
+				 * B​a​c​k​u​p​ ​a​r​c​h​i​v​e​ ​{​f​i​l​e​n​a​m​e​}​ ​d​e​l​e​t​e​d​ ​s​u​c​c​e​s​s​f​u​l​l​y
+				 * @param {unknown} filename
+				 */
+				backupDeleted: RequiredParams<'filename'>
+				/**
+				 * F​a​i​l​e​d​ ​t​o​ ​d​e​l​e​t​e​ ​b​a​c​k​u​p​ ​a​r​c​h​i​v​e
+				 */
+				deleteBackupFailed: string
+				/**
+				 * S​u​c​c​e​s​s​f​u​l​l​y​ ​d​e​l​e​t​e​d​ ​{​c​o​u​n​t​}​ ​b​a​c​k​u​p​ ​a​r​c​h​i​v​e​(​s​)
+				 * @param {unknown} count
+				 */
+				deletedMultiple: RequiredParams<'count'>
+				/**
+				 * F​a​i​l​e​d​ ​t​o​ ​d​e​l​e​t​e​ ​s​e​l​e​c​t​e​d​ ​a​r​c​h​i​v​e​s
+				 */
+				deleteSelectedFailed: string
+				/**
+				 * A​l​l​ ​b​a​c​k​u​p​ ​a​r​c​h​i​v​e​s​ ​d​e​l​e​t​e​d​ ​s​u​c​c​e​s​s​f​u​l​l​y
+				 */
+				deletedAll: string
+				/**
+				 * F​a​i​l​e​d​ ​t​o​ ​d​e​l​e​t​e​ ​a​l​l​ ​a​r​c​h​i​v​e​s
+				 */
+				deleteAllFailed: string
+			}
+		}
+		header: {
+			/**
+			 * P​A​R​T​I​T​I​O​N​ ​&​ ​B​A​C​K​U​P​ ​M​A​N​A​G​E​R
+			 */
+			title: string
+			/**
+			 * M​a​n​a​g​e​ ​r​a​w​ ​b​l​o​c​k​ ​p​a​r​t​i​t​i​o​n​s​,​ ​I​M​E​I​/​N​V​R​A​M​ ​b​a​c​k​u​p​,​ ​a​n​d​ ​d​i​r​e​c​t​ ​i​m​a​g​e​ ​f​l​a​s​h​i​n​g
+			 */
+			subtitle: string
+			/**
+			 * R​e​f​r​e​s​h​ ​p​a​r​t​i​t​i​o​n​s​ ​a​n​d​ ​b​a​c​k​u​p​ ​a​r​c​h​i​v​e​s
+			 */
+			refreshTitle: string
+			/**
+			 * S​l​o​t​ ​A​r​c​h​i​t​e​c​t​u​r​e
+			 */
+			slotArchitecture: string
+			/**
+			 * S​L​O​T​ ​_​{​s​l​o​t​}​ ​(​A​C​T​I​V​E​)
+			 * @param {unknown} slot
+			 */
+			activeSlot: RequiredParams<'slot'>
+			/**
+			 * N​O​N​ ​A​/​B​ ​L​E​G​A​C​Y
+			 */
+			nonAbLegacy: string
+			/**
+			 * D​e​t​e​c​t​i​n​g​.​.​.
+			 */
+			detecting: string
+			/**
+			 * B​l​o​c​k​ ​D​e​v​i​c​e​ ​R​o​o​t
+			 */
+			blockDeviceRoot: string
+			/**
+			 * D​i​s​c​o​v​e​r​e​d​ ​P​a​r​t​i​t​i​o​n​s
+			 */
+			discoveredPartitions: string
+			/**
+			 * b​l​o​c​k​s​ ​d​e​t​e​c​t​e​d
+			 */
+			blocksDetected: string
+			/**
+			 * S​a​v​e​d​ ​A​r​c​h​i​v​e​s
+			 */
+			savedArchives: string
+			/**
+			 * s​t​o​r​e​d​ ​f​i​l​e​s
+			 */
+			storedFiles: string
+		}
+		quickActions: {
+			/**
+			 * 1​-​C​L​I​C​K​ ​Q​U​I​C​K​ ​B​A​C​K​U​P​S
+			 */
+			title: string
+			/**
+			 * I​n​s​t​a​n​t​ ​s​a​f​e​t​y​ ​a​r​c​h​i​v​e​s​ ​f​o​r​ ​c​e​l​l​u​l​a​r​/​I​M​E​I​ ​c​a​l​i​b​r​a​t​i​o​n​s​ ​a​n​d​ ​c​o​r​e​ ​b​o​o​t​ ​i​m​a​g​e​s
+			 */
+			subtitle: string
+			/**
+			 * A​U​T​O​-​D​O​W​N​L​O​A​D​ ​(​.​Z​I​P​)
+			 */
+			autoDownload: string
+			/**
+			 * N​V​R​A​M​ ​/​ ​I​M​E​I​ ​/​ ​M​O​D​E​M
+			 */
+			radioTag: string
+			/**
+			 * H​I​G​H​ ​P​R​I​O​R​I​T​Y
+			 */
+			highPriority: string
+			/**
+			 * B​a​c​k​u​p​ ​R​a​d​i​o​ ​&​ ​E​F​S​ ​(​.​Z​I​P​)
+			 */
+			radioTitle: string
+			/**
+			 * P​a​c​k​a​g​e​s​ ​m​o​d​e​m​s​t​1​,​ ​m​o​d​e​m​s​t​2​,​ ​f​s​g​,​ ​f​s​c​,​ ​e​f​s​,​ ​n​v​r​a​m​,​ ​a​n​d​ ​b​a​s​e​b​a​n​d​ ​c​a​l​i​b​r​a​t​i​o​n​s​ ​i​n​t​o​ ​a​ ​s​i​n​g​l​e​ ​c​o​m​p​r​e​s​s​e​d​ ​.​z​i​p​ ​f​i​l​e​.
+			 */
+			radioDesc: string
+			/**
+			 * P​a​c​k​a​g​i​n​g​ ​R​a​d​i​o​ ​&​ ​E​F​S​ ​(​.​Z​I​P​)​.​.​.
+			 */
+			packagingRadio: string
+			/**
+			 * K​E​R​N​E​L​ ​/​ ​R​E​C​O​V​E​R​Y​ ​/​ ​V​B​M​E​T​A
+			 */
+			bootTag: string
+			/**
+			 * B​O​O​T​ ​C​O​R​E
+			 */
+			bootCoreBadge: string
+			/**
+			 * B​a​c​k​u​p​ ​B​o​o​t​ ​&​ ​K​e​r​n​e​l​ ​C​o​r​e​ ​(​.​Z​I​P​)
+			 */
+			bootTitle: string
+			/**
+			 * P​a​c​k​a​g​e​s​ ​a​c​t​i​v​e​ ​b​o​o​t​,​ ​i​n​i​t​_​b​o​o​t​,​ ​v​e​n​d​o​r​_​b​o​o​t​,​ ​r​e​c​o​v​e​r​y​,​ ​d​t​b​o​,​ ​a​n​d​ ​v​b​m​e​t​a​ ​i​n​t​o​ ​a​ ​s​i​n​g​l​e​ ​c​o​m​p​r​e​s​s​e​d​ ​.​z​i​p​ ​f​i​l​e​.
+			 */
+			bootDesc: string
+			/**
+			 * P​a​c​k​a​g​i​n​g​ ​B​o​o​t​ ​C​o​r​e​ ​(​.​Z​I​P​)​.​.​.
+			 */
+			packagingBoot: string
+		}
+		table: {
+			/**
+			 * o​f​ ​{​t​o​t​a​l​}​ ​p​a​r​t​i​t​i​o​n​s​ ​d​i​s​p​l​a​y​e​d
+			 * @param {unknown} total
+			 */
+			countLine: RequiredParams<'total'>
+			/**
+			 * F​i​l​t​e​r​ ​b​y​ ​n​a​m​e​ ​o​r​ ​d​e​v​i​c​e​ ​p​a​t​h​.​.​.
+			 */
+			searchPlaceholder: string
+			/**
+			 * C​l​e​a​r​ ​s​e​a​r​c​h​ ​q​u​e​r​y
+			 */
+			clearSearchTitle: string
+			/**
+			 * R​A​W​ ​B​L​O​C​K​ ​P​A​R​T​I​T​I​O​N​S
+			 */
+			title: string
+			/**
+			 * S​h​o​w​i​n​g​ ​{​f​i​l​t​e​r​e​d​}​ ​o​f​ ​{​t​o​t​a​l​}​ ​p​a​r​t​i​t​i​o​n​s
+			 * @param {unknown} filtered
+			 * @param {unknown} total
+			 */
+			subtitle: RequiredParams<'filtered' | 'total'>
+			/**
+			 * N​o​ ​m​a​t​c​h​i​n​g​ ​p​a​r​t​i​t​i​o​n​s​ ​f​o​u​n​d
+			 */
+			emptyTitle: string
+			/**
+			 * T​r​y​ ​c​l​e​a​r​i​n​g​ ​y​o​u​r​ ​s​e​a​r​c​h​ ​q​u​e​r​y​ ​o​r​ ​s​w​i​t​c​h​i​n​g​ ​t​h​e​ ​c​a​t​e​g​o​r​y​ ​f​i​l​t​e​r​ ​a​b​o​v​e​.
+			 */
+			emptyBody: string
+			/**
+			 * P​a​r​t​i​t​i​o​n​ ​N​a​m​e
+			 */
+			thName: string
+			/**
+			 * S​l​o​t
+			 */
+			thSlot: string
+			/**
+			 * C​a​t​e​g​o​r​y
+			 */
+			thCategory: string
+			/**
+			 * S​i​z​e
+			 */
+			thSize: string
+			/**
+			 * D​e​v​i​c​e​ ​P​a​t​h
+			 */
+			thDevicePath: string
+			/**
+			 * A​c​t​i​o​n​s
+			 */
+			thActions: string
+			/**
+			 * C​R​I​T​I​C​A​L
+			 */
+			critical: string
+			/**
+			 * C​r​i​t​i​c​a​l​ ​p​a​r​t​i​t​i​o​n​:​ ​c​o​r​r​u​p​t​i​o​n​ ​m​a​y​ ​r​e​s​u​l​t​ ​i​n​ ​h​a​r​d​-​b​r​i​c​k
+			 */
+			criticalTitle: string
+			/**
+			 * R​a​d​i​o​ ​&​ ​E​F​S
+			 */
+			categoryRadio: string
+			/**
+			 * B​o​o​t​ ​&​ ​R​e​c​o​v​e​r​y
+			 */
+			categoryBoot: string
+			/**
+			 * S​y​s​t​e​m​ ​O​S
+			 */
+			categorySystem: string
+			/**
+			 * O​t​h​e​r
+			 */
+			categoryOther: string
+			/**
+			 * B​a​c​k​u​p
+			 */
+			backup: string
+			/**
+			 * B​a​c​k​i​n​g​ ​u​p​.​.​.
+			 */
+			backingUp: string
+			/**
+			 * C​r​e​a​t​e​ ​a​ ​b​a​c​k​u​p​ ​i​m​a​g​e​ ​o​f​ ​t​h​i​s​ ​p​a​r​t​i​t​i​o​n
+			 */
+			backupTitle: string
+			/**
+			 * F​l​a​s​h
+			 */
+			flash: string
+			/**
+			 * F​l​a​s​h​ ​c​u​s​t​o​m​ ​o​r​ ​f​a​c​t​o​r​y​ ​i​m​a​g​e​ ​t​o​ ​t​h​i​s​ ​p​a​r​t​i​t​i​o​n
+			 */
+			flashTitle: string
+			/**
+			 * P​a​r​t​i​t​i​o​n​ ​w​r​i​t​e​ ​p​r​o​t​e​c​t​e​d​ ​(​f​l​a​s​h​i​n​g​ ​r​e​s​t​r​i​c​t​e​d​ ​t​o​ ​k​e​r​n​e​l​/​r​e​c​o​v​e​r​y​)
+			 */
+			flashDisabledTitle: string
+		}
+		backupList: {
+			/**
+			 * S​A​V​E​D​ ​B​A​C​K​U​P​ ​A​R​C​H​I​V​E​S
+			 */
+			title: string
+			/**
+			 * P​a​r​t​i​t​i​o​n​ ​i​m​a​g​e​s​ ​s​t​o​r​e​d​ ​o​n​ ​m​o​d​u​l​e​ ​i​n​t​e​r​n​a​l​ ​s​t​o​r​a​g​e​ ​(​/​d​a​t​a​/​a​d​b​/​b​f​r​/​b​a​c​k​u​p​s​)
+			 */
+			subtitle: string
+			/**
+			 * F​i​l​t​e​r​ ​a​r​c​h​i​v​e​s​.​.​.
+			 */
+			searchPlaceholder: string
+			/**
+			 * R​e​f​r​e​s​h​ ​b​a​c​k​u​p​ ​a​r​c​h​i​v​e​s
+			 */
+			refreshTitle: string
+			/**
+			 * D​e​l​e​t​e​ ​A​l​l
+			 */
+			deleteAll: string
+			/**
+			 * D​e​l​e​t​e​ ​a​l​l​ ​b​a​c​k​u​p​ ​a​r​c​h​i​v​e​s​ ​s​t​o​r​e​d​ ​o​n​ ​d​e​v​i​c​e
+			 */
+			deleteAllTitle: string
+			/**
+			 * a​r​c​h​i​v​e​(​s​)​ ​s​e​l​e​c​t​e​d
+			 */
+			selected: string
+			/**
+			 * C​l​e​a​r​ ​S​e​l​e​c​t​i​o​n
+			 */
+			clearSelection: string
+			/**
+			 * D​e​l​e​t​e​ ​S​e​l​e​c​t​e​d​ ​(​{​c​o​u​n​t​}​)
+			 * @param {unknown} count
+			 */
+			deleteSelected: RequiredParams<'count'>
+			/**
+			 * L​o​a​d​i​n​g​ ​s​a​v​e​d​ ​b​a​c​k​u​p​s​.​.​.
+			 */
+			loading: string
+			/**
+			 * N​o​ ​B​a​c​k​u​p​ ​A​r​c​h​i​v​e​s​ ​F​o​u​n​d
+			 */
+			emptyTitle: string
+			/**
+			 * C​r​e​a​t​e​ ​p​a​r​t​i​t​i​o​n​ ​b​a​c​k​u​p​s​ ​u​s​i​n​g​ ​t​h​e​ ​Q​u​i​c​k​ ​A​c​t​i​o​n​s​ ​a​b​o​v​e​ ​o​r​ ​t​h​e​ ​P​a​r​t​i​t​i​o​n​ ​T​a​b​l​e​ ​b​a​c​k​u​p​ ​b​u​t​t​o​n​s​.
+			 */
+			emptyBody: string
+			/**
+			 * F​i​l​e​ ​/​ ​T​a​r​g​e​t​ ​P​a​r​t​i​t​i​o​n
+			 */
+			thFile: string
+			/**
+			 * S​i​z​e
+			 */
+			thSize: string
+			/**
+			 * F​o​r​m​a​t
+			 */
+			thFormat: string
+			/**
+			 * C​r​e​a​t​e​d​ ​A​t
+			 */
+			thCreatedAt: string
+			/**
+			 * S​H​A​2​5​6​ ​C​h​e​c​k​s​u​m
+			 */
+			thChecksum: string
+			/**
+			 * A​c​t​i​o​n​s
+			 */
+			thActions: string
+			/**
+			 * S​e​l​e​c​t​ ​/​ ​d​e​s​e​l​e​c​t​ ​a​l​l​ ​f​i​l​t​e​r​e​d​ ​b​a​c​k​u​p​s
+			 */
+			selectAllTitle: string
+			/**
+			 * S​e​l​e​c​t​ ​{​f​i​l​e​n​a​m​e​}
+			 * @param {unknown} filename
+			 */
+			selectTitle: RequiredParams<'filename'>
+			/**
+			 * T​a​r​g​e​t​:
+			 */
+			target: string
+			/**
+			 * C​l​i​c​k​ ​t​o​ ​c​o​p​y​ ​f​u​l​l​ ​S​H​A​2​5​6​ ​c​h​e​c​k​s​u​m
+			 */
+			copyTitle: string
+			/**
+			 * C​o​p​i​e​d​!
+			 */
+			copied: string
+			/**
+			 * D​o​w​n​l​o​a​d
+			 */
+			download: string
+			/**
+			 * D​o​w​n​l​o​a​d​ ​a​r​c​h​i​v​e​ ​t​o​ ​y​o​u​r​ ​d​e​v​i​c​e
+			 */
+			downloadTitle: string
+			/**
+			 * D​e​l​e​t​e​ ​b​a​c​k​u​p​ ​a​r​c​h​i​v​e
+			 */
+			deleteTitle: string
+			/**
+			 * S​H​A​2​5​6​ ​c​h​e​c​k​s​u​m​ ​c​o​p​i​e​d​ ​t​o​ ​c​l​i​p​b​o​a​r​d
+			 */
+			hashCopied: string
+			/**
+			 * F​a​i​l​e​d​ ​t​o​ ​c​o​p​y​ ​h​a​s​h​ ​t​o​ ​c​l​i​p​b​o​a​r​d
+			 */
+			copyFailed: string
+			/**
+			 * D​E​L​E​T​E​ ​A​L​L​ ​B​A​C​K​U​P​ ​A​R​C​H​I​V​E​S
+			 */
+			modalTitleAll: string
+			/**
+			 * D​E​L​E​T​E​ ​S​E​L​E​C​T​E​D​ ​A​R​C​H​I​V​E​S
+			 */
+			modalTitleSelected: string
+			/**
+			 * D​E​L​E​T​E​ ​B​A​C​K​U​P​ ​A​R​C​H​I​V​E
+			 */
+			modalTitleSingle: string
+			/**
+			 * P​e​r​m​a​n​e​n​t​ ​D​e​l​e​t​i​o​n​ ​W​a​r​n​i​n​g
+			 */
+			warning: string
+			/**
+			 * P​e​r​m​a​n​e​n​t​l​y​ ​d​e​l​e​t​e
+			 */
+			deleteAllA: string
+			/**
+			 * A​L​L​ ​{​c​o​u​n​t​}
+			 * @param {unknown} count
+			 */
+			allCount: RequiredParams<'count'>
+			/**
+			 *  ​b​a​c​k​u​p​ ​a​r​c​h​i​v​e​s​ ​(
+			 */
+			deleteAllB: string
+			/**
+			 * )​?​ ​T​h​i​s​ ​w​i​l​l​ ​e​r​a​s​e​ ​a​l​l​ ​c​e​l​l​u​l​a​r​/​I​M​E​I​ ​a​n​d​ ​b​o​o​t​ ​b​a​c​k​u​p​s​ ​s​t​o​r​e​d​ ​o​n​ ​t​h​i​s​ ​d​e​v​i​c​e​.​ ​T​h​i​s​ ​o​p​e​r​a​t​i​o​n​ 
+			 */
+			deleteAllC: string
+			/**
+			 * c​a​n​n​o​t​ ​b​e​ ​u​n​d​o​n​e
+			 */
+			cannotBeUndone: string
+			/**
+			 * P​e​r​m​a​n​e​n​t​l​y​ ​d​e​l​e​t​e
+			 */
+			deleteSelectedA: string
+			/**
+			 *  ​s​e​l​e​c​t​e​d​ ​b​a​c​k​u​p​ ​a​r​c​h​i​v​e​(​s​)​ ​(
+			 */
+			deleteSelectedB: string
+			/**
+			 * )​?​ ​T​h​e​ ​r​a​w​ ​i​m​a​g​e​s​ ​a​n​d​ ​s​i​d​e​c​a​r​ ​c​h​e​c​k​s​u​m​s​ ​w​i​l​l​ ​b​e​ ​r​e​m​o​v​e​d​ ​p​e​r​m​a​n​e​n​t​l​y​ ​f​r​o​m​ ​d​i​s​k​.
+			 */
+			deleteSelectedC: string
+			/**
+			 * A​r​e​ ​y​o​u​ ​s​u​r​e​ ​y​o​u​ ​w​a​n​t​ ​t​o​ ​p​e​r​m​a​n​e​n​t​l​y​ ​d​e​l​e​t​e​ ​b​a​c​k​u​p​ ​a​r​c​h​i​v​e
+			 */
+			deleteSingleA: string
+			/**
+			 * ?​ ​T​h​i​s​ ​a​c​t​i​o​n​ ​c​a​n​n​o​t​ ​b​e​ ​u​n​d​o​n​e​.
+			 */
+			deleteSingleB: string
+			/**
+			 * T​a​r​g​e​t​ ​P​a​r​t​i​t​i​o​n​:
+			 */
+			targetPartition: string
+			/**
+			 * A​r​c​h​i​v​e​ ​S​i​z​e​:
+			 */
+			archiveSize: string
+			/**
+			 * F​i​l​e​:
+			 */
+			fileLabel: string
+			/**
+			 * A​r​c​h​i​v​e​s​ ​t​o​ ​b​e​ ​d​e​l​e​t​e​d​ ​(​{​c​o​u​n​t​}​)​:
+			 * @param {unknown} count
+			 */
+			archivesToDelete: RequiredParams<'count'>
+			/**
+			 * D​e​l​e​t​i​n​g​.​.​.
+			 */
+			deleting: string
+			/**
+			 * D​e​l​e​t​e​ ​A​l​l​ ​P​e​r​m​a​n​e​n​t​l​y
+			 */
+			deleteAllPermanently: string
+			/**
+			 * D​e​l​e​t​e​ ​{​c​o​u​n​t​}​ ​A​r​c​h​i​v​e​s
+			 * @param {unknown} count
+			 */
+			deleteCountArchives: RequiredParams<'count'>
+			/**
+			 * D​e​l​e​t​e​ ​P​e​r​m​a​n​e​n​t​l​y
+			 */
+			deletePermanently: string
+		}
+		flashModal: {
+			/**
+			 * F​L​A​S​H​ ​R​A​W​ ​B​L​O​C​K​ ​P​A​R​T​I​T​I​O​N
+			 */
+			title: string
+			/**
+			 * H​i​g​h​-​R​i​s​k​ ​O​p​e​r​a​t​i​o​n​ ​W​a​r​n​i​n​g
+			 */
+			warning: string
+			/**
+			 * W​r​i​t​i​n​g​ ​d​i​r​e​c​t​l​y​ ​t​o​ ​r​a​w​ ​b​l​o​c​k​ ​p​a​r​t​i​t​i​o​n​s​ ​c​a​n​ ​c​a​u​s​e​ ​a​n​ ​u​n​b​o​o​t​a​b​l​e​ ​d​e​v​i​c​e​,​ ​b​o​o​t​l​o​o​p​,​ ​o​r​ ​h​a​r​d​-​b​r​i​c​k​ ​i​f​ ​t​h​e​ ​i​m​a​g​e​ ​i​s​ ​c​o​r​r​u​p​t​e​d​ ​o​r​ ​i​n​c​o​m​p​a​t​i​b​l​e​.​ ​E​n​s​u​r​e​ ​t​h​i​s​ ​i​m​a​g​e​ ​m​a​t​c​h​e​s​ ​y​o​u​r​ ​e​x​a​c​t​ ​h​a​r​d​w​a​r​e​ ​m​o​d​e​l​ ​a​n​d​ ​a​c​t​i​v​e​ ​s​l​o​t​.
+			 */
+			warningBody: string
+			/**
+			 * T​a​r​g​e​t​ ​P​a​r​t​i​t​i​o​n​ ​t​o​ ​O​v​e​r​w​r​i​t​e
+			 */
+			targetTitle: string
+			/**
+			 * N​a​m​e​:
+			 */
+			nameLabel: string
+			/**
+			 * B​l​o​c​k​ ​S​i​z​e​:
+			 */
+			blockSize: string
+			/**
+			 * P​a​t​h​:
+			 */
+			pathLabel: string
+			/**
+			 * S​l​o​t​:
+			 */
+			slotLabel: string
+			/**
+			 * (​A​c​t​i​v​e​ ​S​l​o​t​)
+			 */
+			activeSlot: string
+			/**
+			 * A​u​t​o​-​B​a​c​k​u​p​ ​B​e​f​o​r​e​ ​F​l​a​s​h​i​n​g
+			 */
+			autoBackupTitle: string
+			/**
+			 * A​u​t​o​m​a​t​i​c​a​l​l​y​ ​c​r​e​a​t​e​s​ ​a​n​ ​e​m​e​r​g​e​n​c​y​ ​b​a​c​k​u​p​ ​i​m​a​g​e​ ​o​f​ ​t​h​i​s​ ​p​a​r​t​i​t​i​o​n​ ​b​e​f​o​r​e​ ​w​r​i​t​i​n​g​.
+			 */
+			autoBackupDesc: string
+			/**
+			 * W​a​r​n​i​n​g​:​ ​S​e​l​e​c​t​e​d​ ​f​i​l​e​ ​d​o​e​s​ ​n​o​t​ ​h​a​v​e​ ​a​ ​.​i​m​g​ ​e​x​t​e​n​s​i​o​n​.
+			 */
+			fileError: string
+			/**
+			 * S​i​z​e​:​ ​{​s​i​z​e​}​ ​(​C​l​i​c​k​ ​t​o​ ​s​e​l​e​c​t​ ​a​ ​d​i​f​f​e​r​e​n​t​ ​f​i​l​e​)
+			 * @param {unknown} size
+			 */
+			sizeLabel: RequiredParams<'size'>
+			/**
+			 * S​e​l​e​c​t​ ​p​a​r​t​i​t​i​o​n​ ​i​m​a​g​e​ ​(​.​i​m​g​)
+			 */
+			selectTitle: string
+			/**
+			 * C​l​i​c​k​ ​o​r​ ​d​r​a​g​-​a​n​d​-​d​r​o​p​ ​y​o​u​r​ ​k​e​r​n​e​l​,​ ​b​o​o​t​,​ ​o​r​ ​r​e​c​o​v​e​r​y​ ​i​m​a​g​e​ ​h​e​r​e
+			 */
+			selectHint: string
+			/**
+			 * T​y​p​e
+			 */
+			typeA: string
+			/**
+			 * t​o​ ​e​n​a​b​l​e​ ​c​o​n​f​i​r​m​a​t​i​o​n​ ​b​u​t​t​o​n​:
+			 */
+			typeB: string
+			/**
+			 * T​y​p​e​ ​F​L​A​S​H​ ​h​e​r​e​.​.​.
+			 */
+			confirmPlaceholder: string
+			/**
+			 * W​r​i​t​i​n​g​ ​i​m​a​g​e​ ​t​o​ ​p​a​r​t​i​t​i​o​n​ ​{​n​a​m​e​}​.​.​.
+			 * @param {unknown} name
+			 */
+			flashing: RequiredParams<'name'>
+			/**
+			 * D​o​ ​n​o​t​ ​r​e​b​o​o​t​ ​t​h​e​ ​d​e​v​i​c​e​ ​o​r​ ​c​l​o​s​e​ ​t​h​e​ ​b​r​o​w​s​e​r​ ​w​i​n​d​o​w​!
+			 */
+			flashingNote: string
+			/**
+			 * W​r​i​t​i​n​g​ ​I​m​a​g​e​.​.​.
+			 */
+			writing: string
+			/**
+			 * F​l​a​s​h​ ​I​m​a​g​e​ ​N​o​w
+			 */
+			flashNow: string
+		}
+	}
 }
 
 export type TranslationFunctions = {
@@ -19352,6 +19982,612 @@ export type TranslationFunctions = {
 			 * Failed to reach target host
 			 */
 			failedToReach: () => LocalizedString
+		}
+	}
+	partitions: {
+		manager: {
+			filters: {
+				/**
+				 * All ({count})
+				 */
+				all: (arg: { count: unknown }) => LocalizedString
+				/**
+				 * Radio & EFS
+				 */
+				radioEfs: () => LocalizedString
+				/**
+				 * Boot & Recovery
+				 */
+				bootRecovery: () => LocalizedString
+				/**
+				 * System OS
+				 */
+				systemOs: () => LocalizedString
+				/**
+				 * Saved Backups ({count})
+				 */
+				savedBackups: (arg: { count: unknown }) => LocalizedString
+			}
+			/**
+			 * Radio & EFS
+			 */
+			groupRadioEfs: () => LocalizedString
+			/**
+			 * Boot & Kernel Core
+			 */
+			groupBootCore: () => LocalizedString
+			toasts: {
+				/**
+				 * Failed to load partitions
+				 */
+				loadFailed: () => LocalizedString
+				/**
+				 * Failed to load backup archives
+				 */
+				loadBackupsFailed: () => LocalizedString
+				/**
+				 * Partitions and backup archives refreshed
+				 */
+				refreshed: () => LocalizedString
+				/**
+				 * {group} packaged into {filename} ({size})
+				 */
+				groupPackaged: (arg: { filename: unknown, group: unknown, size: unknown }) => LocalizedString
+				/**
+				 * Failed to create {group} backup archive
+				 */
+				groupCreateFailed: (arg: { group: unknown }) => LocalizedString
+				/**
+				 * Group backup operation failed
+				 */
+				groupBackupFailed: () => LocalizedString
+				/**
+				 * Partition {name} backed up successfully ({filename})
+				 */
+				partitionBackedUp: (arg: { filename: unknown, name: unknown }) => LocalizedString
+				/**
+				 * Failed to backup partition {name}
+				 */
+				backupPartitionFailed: (arg: { name: unknown }) => LocalizedString
+				/**
+				 * Partition {name} flashed successfully!
+				 */
+				flashSuccess: (arg: { name: unknown }) => LocalizedString
+				/**
+				 * Auto-backup saved: {file}
+				 */
+				autoBackupSaved: (arg: { file: unknown }) => LocalizedString
+				/**
+				 * Flashing process failed
+				 */
+				flashFailed: () => LocalizedString
+				/**
+				 * Flashing operation encountered an error
+				 */
+				flashError: () => LocalizedString
+				/**
+				 * Backup archive {filename} deleted successfully
+				 */
+				backupDeleted: (arg: { filename: unknown }) => LocalizedString
+				/**
+				 * Failed to delete backup archive
+				 */
+				deleteBackupFailed: () => LocalizedString
+				/**
+				 * Successfully deleted {count} backup archive(s)
+				 */
+				deletedMultiple: (arg: { count: unknown }) => LocalizedString
+				/**
+				 * Failed to delete selected archives
+				 */
+				deleteSelectedFailed: () => LocalizedString
+				/**
+				 * All backup archives deleted successfully
+				 */
+				deletedAll: () => LocalizedString
+				/**
+				 * Failed to delete all archives
+				 */
+				deleteAllFailed: () => LocalizedString
+			}
+		}
+		header: {
+			/**
+			 * PARTITION & BACKUP MANAGER
+			 */
+			title: () => LocalizedString
+			/**
+			 * Manage raw block partitions, IMEI/NVRAM backup, and direct image flashing
+			 */
+			subtitle: () => LocalizedString
+			/**
+			 * Refresh partitions and backup archives
+			 */
+			refreshTitle: () => LocalizedString
+			/**
+			 * Slot Architecture
+			 */
+			slotArchitecture: () => LocalizedString
+			/**
+			 * SLOT _{slot} (ACTIVE)
+			 */
+			activeSlot: (arg: { slot: unknown }) => LocalizedString
+			/**
+			 * NON A/B LEGACY
+			 */
+			nonAbLegacy: () => LocalizedString
+			/**
+			 * Detecting...
+			 */
+			detecting: () => LocalizedString
+			/**
+			 * Block Device Root
+			 */
+			blockDeviceRoot: () => LocalizedString
+			/**
+			 * Discovered Partitions
+			 */
+			discoveredPartitions: () => LocalizedString
+			/**
+			 * blocks detected
+			 */
+			blocksDetected: () => LocalizedString
+			/**
+			 * Saved Archives
+			 */
+			savedArchives: () => LocalizedString
+			/**
+			 * stored files
+			 */
+			storedFiles: () => LocalizedString
+		}
+		quickActions: {
+			/**
+			 * 1-CLICK QUICK BACKUPS
+			 */
+			title: () => LocalizedString
+			/**
+			 * Instant safety archives for cellular/IMEI calibrations and core boot images
+			 */
+			subtitle: () => LocalizedString
+			/**
+			 * AUTO-DOWNLOAD (.ZIP)
+			 */
+			autoDownload: () => LocalizedString
+			/**
+			 * NVRAM / IMEI / MODEM
+			 */
+			radioTag: () => LocalizedString
+			/**
+			 * HIGH PRIORITY
+			 */
+			highPriority: () => LocalizedString
+			/**
+			 * Backup Radio & EFS (.ZIP)
+			 */
+			radioTitle: () => LocalizedString
+			/**
+			 * Packages modemst1, modemst2, fsg, fsc, efs, nvram, and baseband calibrations into a single compressed .zip file.
+			 */
+			radioDesc: () => LocalizedString
+			/**
+			 * Packaging Radio & EFS (.ZIP)...
+			 */
+			packagingRadio: () => LocalizedString
+			/**
+			 * KERNEL / RECOVERY / VBMETA
+			 */
+			bootTag: () => LocalizedString
+			/**
+			 * BOOT CORE
+			 */
+			bootCoreBadge: () => LocalizedString
+			/**
+			 * Backup Boot & Kernel Core (.ZIP)
+			 */
+			bootTitle: () => LocalizedString
+			/**
+			 * Packages active boot, init_boot, vendor_boot, recovery, dtbo, and vbmeta into a single compressed .zip file.
+			 */
+			bootDesc: () => LocalizedString
+			/**
+			 * Packaging Boot Core (.ZIP)...
+			 */
+			packagingBoot: () => LocalizedString
+		}
+		table: {
+			/**
+			 * of {total} partitions displayed
+			 */
+			countLine: (arg: { total: unknown }) => LocalizedString
+			/**
+			 * Filter by name or device path...
+			 */
+			searchPlaceholder: () => LocalizedString
+			/**
+			 * Clear search query
+			 */
+			clearSearchTitle: () => LocalizedString
+			/**
+			 * RAW BLOCK PARTITIONS
+			 */
+			title: () => LocalizedString
+			/**
+			 * Showing {filtered} of {total} partitions
+			 */
+			subtitle: (arg: { filtered: unknown, total: unknown }) => LocalizedString
+			/**
+			 * No matching partitions found
+			 */
+			emptyTitle: () => LocalizedString
+			/**
+			 * Try clearing your search query or switching the category filter above.
+			 */
+			emptyBody: () => LocalizedString
+			/**
+			 * Partition Name
+			 */
+			thName: () => LocalizedString
+			/**
+			 * Slot
+			 */
+			thSlot: () => LocalizedString
+			/**
+			 * Category
+			 */
+			thCategory: () => LocalizedString
+			/**
+			 * Size
+			 */
+			thSize: () => LocalizedString
+			/**
+			 * Device Path
+			 */
+			thDevicePath: () => LocalizedString
+			/**
+			 * Actions
+			 */
+			thActions: () => LocalizedString
+			/**
+			 * CRITICAL
+			 */
+			critical: () => LocalizedString
+			/**
+			 * Critical partition: corruption may result in hard-brick
+			 */
+			criticalTitle: () => LocalizedString
+			/**
+			 * Radio & EFS
+			 */
+			categoryRadio: () => LocalizedString
+			/**
+			 * Boot & Recovery
+			 */
+			categoryBoot: () => LocalizedString
+			/**
+			 * System OS
+			 */
+			categorySystem: () => LocalizedString
+			/**
+			 * Other
+			 */
+			categoryOther: () => LocalizedString
+			/**
+			 * Backup
+			 */
+			backup: () => LocalizedString
+			/**
+			 * Backing up...
+			 */
+			backingUp: () => LocalizedString
+			/**
+			 * Create a backup image of this partition
+			 */
+			backupTitle: () => LocalizedString
+			/**
+			 * Flash
+			 */
+			flash: () => LocalizedString
+			/**
+			 * Flash custom or factory image to this partition
+			 */
+			flashTitle: () => LocalizedString
+			/**
+			 * Partition write protected (flashing restricted to kernel/recovery)
+			 */
+			flashDisabledTitle: () => LocalizedString
+		}
+		backupList: {
+			/**
+			 * SAVED BACKUP ARCHIVES
+			 */
+			title: () => LocalizedString
+			/**
+			 * Partition images stored on module internal storage (/data/adb/bfr/backups)
+			 */
+			subtitle: () => LocalizedString
+			/**
+			 * Filter archives...
+			 */
+			searchPlaceholder: () => LocalizedString
+			/**
+			 * Refresh backup archives
+			 */
+			refreshTitle: () => LocalizedString
+			/**
+			 * Delete All
+			 */
+			deleteAll: () => LocalizedString
+			/**
+			 * Delete all backup archives stored on device
+			 */
+			deleteAllTitle: () => LocalizedString
+			/**
+			 * archive(s) selected
+			 */
+			selected: () => LocalizedString
+			/**
+			 * Clear Selection
+			 */
+			clearSelection: () => LocalizedString
+			/**
+			 * Delete Selected ({count})
+			 */
+			deleteSelected: (arg: { count: unknown }) => LocalizedString
+			/**
+			 * Loading saved backups...
+			 */
+			loading: () => LocalizedString
+			/**
+			 * No Backup Archives Found
+			 */
+			emptyTitle: () => LocalizedString
+			/**
+			 * Create partition backups using the Quick Actions above or the Partition Table backup buttons.
+			 */
+			emptyBody: () => LocalizedString
+			/**
+			 * File / Target Partition
+			 */
+			thFile: () => LocalizedString
+			/**
+			 * Size
+			 */
+			thSize: () => LocalizedString
+			/**
+			 * Format
+			 */
+			thFormat: () => LocalizedString
+			/**
+			 * Created At
+			 */
+			thCreatedAt: () => LocalizedString
+			/**
+			 * SHA256 Checksum
+			 */
+			thChecksum: () => LocalizedString
+			/**
+			 * Actions
+			 */
+			thActions: () => LocalizedString
+			/**
+			 * Select / deselect all filtered backups
+			 */
+			selectAllTitle: () => LocalizedString
+			/**
+			 * Select {filename}
+			 */
+			selectTitle: (arg: { filename: unknown }) => LocalizedString
+			/**
+			 * Target:
+			 */
+			target: () => LocalizedString
+			/**
+			 * Click to copy full SHA256 checksum
+			 */
+			copyTitle: () => LocalizedString
+			/**
+			 * Copied!
+			 */
+			copied: () => LocalizedString
+			/**
+			 * Download
+			 */
+			download: () => LocalizedString
+			/**
+			 * Download archive to your device
+			 */
+			downloadTitle: () => LocalizedString
+			/**
+			 * Delete backup archive
+			 */
+			deleteTitle: () => LocalizedString
+			/**
+			 * SHA256 checksum copied to clipboard
+			 */
+			hashCopied: () => LocalizedString
+			/**
+			 * Failed to copy hash to clipboard
+			 */
+			copyFailed: () => LocalizedString
+			/**
+			 * DELETE ALL BACKUP ARCHIVES
+			 */
+			modalTitleAll: () => LocalizedString
+			/**
+			 * DELETE SELECTED ARCHIVES
+			 */
+			modalTitleSelected: () => LocalizedString
+			/**
+			 * DELETE BACKUP ARCHIVE
+			 */
+			modalTitleSingle: () => LocalizedString
+			/**
+			 * Permanent Deletion Warning
+			 */
+			warning: () => LocalizedString
+			/**
+			 * Permanently delete
+			 */
+			deleteAllA: () => LocalizedString
+			/**
+			 * ALL {count}
+			 */
+			allCount: (arg: { count: unknown }) => LocalizedString
+			/**
+			 *  backup archives (
+			 */
+			deleteAllB: () => LocalizedString
+			/**
+			 * )? This will erase all cellular/IMEI and boot backups stored on this device. This operation 
+			 */
+			deleteAllC: () => LocalizedString
+			/**
+			 * cannot be undone
+			 */
+			cannotBeUndone: () => LocalizedString
+			/**
+			 * Permanently delete
+			 */
+			deleteSelectedA: () => LocalizedString
+			/**
+			 *  selected backup archive(s) (
+			 */
+			deleteSelectedB: () => LocalizedString
+			/**
+			 * )? The raw images and sidecar checksums will be removed permanently from disk.
+			 */
+			deleteSelectedC: () => LocalizedString
+			/**
+			 * Are you sure you want to permanently delete backup archive
+			 */
+			deleteSingleA: () => LocalizedString
+			/**
+			 * ? This action cannot be undone.
+			 */
+			deleteSingleB: () => LocalizedString
+			/**
+			 * Target Partition:
+			 */
+			targetPartition: () => LocalizedString
+			/**
+			 * Archive Size:
+			 */
+			archiveSize: () => LocalizedString
+			/**
+			 * File:
+			 */
+			fileLabel: () => LocalizedString
+			/**
+			 * Archives to be deleted ({count}):
+			 */
+			archivesToDelete: (arg: { count: unknown }) => LocalizedString
+			/**
+			 * Deleting...
+			 */
+			deleting: () => LocalizedString
+			/**
+			 * Delete All Permanently
+			 */
+			deleteAllPermanently: () => LocalizedString
+			/**
+			 * Delete {count} Archives
+			 */
+			deleteCountArchives: (arg: { count: unknown }) => LocalizedString
+			/**
+			 * Delete Permanently
+			 */
+			deletePermanently: () => LocalizedString
+		}
+		flashModal: {
+			/**
+			 * FLASH RAW BLOCK PARTITION
+			 */
+			title: () => LocalizedString
+			/**
+			 * High-Risk Operation Warning
+			 */
+			warning: () => LocalizedString
+			/**
+			 * Writing directly to raw block partitions can cause an unbootable device, bootloop, or hard-brick if the image is corrupted or incompatible. Ensure this image matches your exact hardware model and active slot.
+			 */
+			warningBody: () => LocalizedString
+			/**
+			 * Target Partition to Overwrite
+			 */
+			targetTitle: () => LocalizedString
+			/**
+			 * Name:
+			 */
+			nameLabel: () => LocalizedString
+			/**
+			 * Block Size:
+			 */
+			blockSize: () => LocalizedString
+			/**
+			 * Path:
+			 */
+			pathLabel: () => LocalizedString
+			/**
+			 * Slot:
+			 */
+			slotLabel: () => LocalizedString
+			/**
+			 * (Active Slot)
+			 */
+			activeSlot: () => LocalizedString
+			/**
+			 * Auto-Backup Before Flashing
+			 */
+			autoBackupTitle: () => LocalizedString
+			/**
+			 * Automatically creates an emergency backup image of this partition before writing.
+			 */
+			autoBackupDesc: () => LocalizedString
+			/**
+			 * Warning: Selected file does not have a .img extension.
+			 */
+			fileError: () => LocalizedString
+			/**
+			 * Size: {size} (Click to select a different file)
+			 */
+			sizeLabel: (arg: { size: unknown }) => LocalizedString
+			/**
+			 * Select partition image (.img)
+			 */
+			selectTitle: () => LocalizedString
+			/**
+			 * Click or drag-and-drop your kernel, boot, or recovery image here
+			 */
+			selectHint: () => LocalizedString
+			/**
+			 * Type
+			 */
+			typeA: () => LocalizedString
+			/**
+			 * to enable confirmation button:
+			 */
+			typeB: () => LocalizedString
+			/**
+			 * Type FLASH here...
+			 */
+			confirmPlaceholder: () => LocalizedString
+			/**
+			 * Writing image to partition {name}...
+			 */
+			flashing: (arg: { name: unknown }) => LocalizedString
+			/**
+			 * Do not reboot the device or close the browser window!
+			 */
+			flashingNote: () => LocalizedString
+			/**
+			 * Writing Image...
+			 */
+			writing: () => LocalizedString
+			/**
+			 * Flash Image Now
+			 */
+			flashNow: () => LocalizedString
 		}
 	}
 }

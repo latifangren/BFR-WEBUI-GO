@@ -6,6 +6,7 @@
   } from '@lucide/svelte'
   import Card from '../../ui/Card.svelte'
   import Button from '../../ui/Button.svelte'
+  import { LL } from '../../../i18n/i18n-svelte'
   import { themeStore } from '../../../stores/theme.svelte'
   import SakugaCheckbox from '../../ui/SakugaCheckbox.svelte'
 
@@ -25,8 +26,8 @@
 </script>
 
 <Card
-  title="1-CLICK QUICK BACKUPS"
-  subtitle="Instant safety archives for cellular/IMEI calibrations and core boot images"
+  title={$LL.partitions.quickActions.title()}
+  subtitle={$LL.partitions.quickActions.subtitle()}
   tone="peach"
 >
   {#snippet action()}
@@ -42,7 +43,7 @@
       />
       {/if}
       <span class="text-xs font-mono font-bold text-foreground uppercase tracking-wider">
-        AUTO-DOWNLOAD (.ZIP)
+        {$LL.partitions.quickActions.autoDownload()}
       </span>
     </label>
   {/snippet}
@@ -56,15 +57,15 @@
         <div class="flex items-center justify-between">
           <span class="inline-flex items-center gap-1.5 text-xs font-mono font-bold uppercase tracking-wider text-red-400">
             <ShieldCheck size={16} />
-            NVRAM / IMEI / MODEM
+            {$LL.partitions.quickActions.radioTag()}
           </span>
           <span class="text-[10px] font-mono px-1.5 py-0.5 rounded bg-red-950/60 text-red-400 border border-red-800">
-            HIGH PRIORITY
+            {$LL.partitions.quickActions.highPriority()}
           </span>
         </div>
-        <h4 class="text-sm font-bold font-mono text-foreground">Backup Radio & EFS (.ZIP)</h4>
+        <h4 class="text-sm font-bold font-mono text-foreground">{$LL.partitions.quickActions.radioTitle()}</h4>
         <p class="text-xs text-muted">
-          Packages modemst1, modemst2, fsg, fsc, efs, nvram, and baseband calibrations into a single compressed .zip file.
+          {$LL.partitions.quickActions.radioDesc()}
         </p>
       </div>
 
@@ -78,10 +79,10 @@
       >
         {#if isBackingUp === 'radio_efs'}
           <RefreshCw size={14} class="animate-spin mr-1.5" />
-          <span>Packaging Radio & EFS (.ZIP)...</span>
+          <span>{$LL.partitions.quickActions.packagingRadio()}</span>
         {:else}
           <ShieldCheck size={14} class="mr-1.5 text-red-400" />
-          <span>Backup Radio & EFS (.ZIP)</span>
+          <span>{$LL.partitions.quickActions.radioTitle()}</span>
         {/if}
       </Button>
     </div>
@@ -94,15 +95,15 @@
         <div class="flex items-center justify-between">
           <span class="inline-flex items-center gap-1.5 text-xs font-mono font-bold uppercase tracking-wider text-emerald-400">
             <Zap size={16} />
-            KERNEL / RECOVERY / VBMETA
+            {$LL.partitions.quickActions.bootTag()}
           </span>
           <span class="text-[10px] font-mono px-1.5 py-0.5 rounded bg-emerald-950/60 text-emerald-400 border border-emerald-800">
-            BOOT CORE
+            {$LL.partitions.quickActions.bootCoreBadge()}
           </span>
         </div>
-        <h4 class="text-sm font-bold font-mono text-foreground">Backup Boot & Kernel Core (.ZIP)</h4>
+        <h4 class="text-sm font-bold font-mono text-foreground">{$LL.partitions.quickActions.bootTitle()}</h4>
         <p class="text-xs text-muted">
-          Packages active boot, init_boot, vendor_boot, recovery, dtbo, and vbmeta into a single compressed .zip file.
+          {$LL.partitions.quickActions.bootDesc()}
         </p>
       </div>
 
@@ -116,10 +117,10 @@
       >
         {#if isBackingUp === 'boot_core'}
           <RefreshCw size={14} class="animate-spin mr-1.5" />
-          <span>Packaging Boot Core (.ZIP)...</span>
+          <span>{$LL.partitions.quickActions.packagingBoot()}</span>
         {:else}
           <Zap size={14} class="mr-1.5 text-emerald-400" />
-          <span>Backup Boot & Kernel Core (.ZIP)</span>
+          <span>{$LL.partitions.quickActions.bootTitle()}</span>
         {/if}
       </Button>
     </div>
