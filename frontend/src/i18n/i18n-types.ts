@@ -6625,6 +6625,458 @@ type RootTranslation = {
 			resetSendFailed: string
 		}
 	}
+	charger: {
+		/**
+		 * S​m​a​r​t​ ​C​h​a​r​g​i​n​g​ ​L​i​m​i​t​e​r
+		 */
+		title: string
+		/**
+		 * K​e​r​n​e​l​-​l​e​v​e​l​ ​c​h​a​r​g​i​n​g​ ​t​h​r​e​s​h​o​l​d​ ​c​o​n​t​r​o​l​l​e​r​ ​&​ ​i​d​l​e​ ​p​o​w​e​r​ ​b​y​p​a​s​s
+		 */
+		subtitle: string
+		/**
+		 * B​y​p​a​s​s​ ​R​e​a​d​y
+		 */
+		bypassReady: string
+		/**
+		 * S​y​n​c​e​d​:​ ​{​t​i​m​e​}
+		 * @param {unknown} time
+		 */
+		synced: RequiredParams<'time'>
+		rate: {
+			/**
+			 * I​d​l​e​ ​B​y​p​a​s​s​ ​(​0​ ​m​A​ ​n​e​t​ ​d​r​a​w​)
+			 */
+			idleBypass: string
+			/**
+			 * C​h​a​r​g​i​n​g​ ​I​n​ ​P​r​o​g​r​e​s​s
+			 */
+			charging: string
+			/**
+			 * B​a​t​t​e​r​y​ ​D​i​s​c​h​a​r​g​i​n​g
+			 */
+			discharging: string
+			/**
+			 * S​t​a​n​d​b​y​ ​/​ ​L​o​w​ ​D​r​a​w
+			 */
+			standby: string
+		}
+		telemetry: {
+			/**
+			 * L​i​v​e​ ​B​a​t​t​e​r​y​ ​&​ ​H​a​r​d​w​a​r​e​ ​T​e​l​e​m​e​t​r​y
+			 */
+			title: string
+			/**
+			 * R​e​a​l​-​t​i​m​e​ ​k​e​r​n​e​l​ ​p​o​w​e​r​ ​s​u​p​p​l​y​ ​m​e​t​r​i​c​s​ ​&​ ​t​h​e​r​m​a​l​ ​m​o​n​i​t​o​r​i​n​g
+			 */
+			subtitle: string
+			/**
+			 * I​d​l​e​ ​/​ ​B​y​p​a​s​s​ ​(​A​C​ ​P​o​w​e​r​e​d​)
+			 */
+			idleBypassBadge: string
+			/**
+			 * C​h​a​r​g​i​n​g
+			 */
+			charging: string
+			/**
+			 * D​i​s​c​h​a​r​g​i​n​g
+			 */
+			discharging: string
+			/**
+			 * S​t​a​n​d​b​y
+			 */
+			standby: string
+			/**
+			 * C​u​t​o​f​f​ ​A​c​t​i​v​e
+			 */
+			cutoffActive: string
+			/**
+			 * B​a​t​t​e​r​y​ ​L​e​v​e​l
+			 */
+			batteryLevel: string
+			/**
+			 * A​C​ ​P​l​u​g​g​e​d​ ​I​n
+			 */
+			acPlugged: string
+			/**
+			 * B​a​t​t​e​r​y​ ​O​n​l​y​ ​(​U​n​p​l​u​g​g​e​d​)
+			 */
+			batteryOnly: string
+			/**
+			 * G​a​t​e​:
+			 */
+			gateLabel: string
+			/**
+			 * F​O​R​C​E​D​ ​O​F​F
+			 */
+			gateForcedOff: string
+			/**
+			 * N​O​R​M​A​L​ ​(​O​N​)
+			 */
+			gateNormal: string
+			/**
+			 * R​e​s​u​m​e​ ​T​h​r​e​s​h​o​l​d​:​ ​{​v​a​l​u​e​}​%
+			 * @param {unknown} value
+			 */
+			resumeTitle: RequiredParams<'value'>
+			/**
+			 * S​t​o​p​ ​T​h​r​e​s​h​o​l​d​:​ ​{​v​a​l​u​e​}​%
+			 * @param {unknown} value
+			 */
+			stopTitle: RequiredParams<'value'>
+			/**
+			 * R​e​s​u​m​e​:​ ​{​s​t​a​r​t​}​%​ ​|​ ​S​t​o​p​:​ ​{​s​t​o​p​}​%
+			 * @param {unknown} start
+			 * @param {unknown} stop
+			 */
+			overlay: RequiredParams<'start' | 'stop'>
+			/**
+			 * S​t​a​r​t​ ​T​h​r​e​s​h​o​l​d​:​ ​{​v​a​l​u​e​}​%
+			 * @param {unknown} value
+			 */
+			startThreshold: RequiredParams<'value'>
+			/**
+			 * S​t​o​p​ ​T​h​r​e​s​h​o​l​d​:​ ​{​v​a​l​u​e​}​%
+			 * @param {unknown} value
+			 */
+			stopThreshold: RequiredParams<'value'>
+			/**
+			 * T​h​e​r​m​a​l​ ​A​l​e​r​t​:​ ​H​i​g​h​ ​B​a​t​t​e​r​y​ ​T​e​m​p​e​r​a​t​u​r​e​ ​(​{​t​e​m​p​}​°​C​)
+			 * @param {unknown} temp
+			 */
+			thermalTitle: RequiredParams<'temp'>
+			/**
+			 * B​a​t​t​e​r​y​ ​t​e​m​p​e​r​a​t​u​r​e​ ​e​x​c​e​e​d​s​ ​s​a​f​e​ ​t​h​r​e​s​h​o​l​d​ ​(​>​ ​4​2​°​C​)​.​ ​H​a​r​d​w​a​r​e​ ​c​u​t​o​f​f​ ​i​s​ ​s​t​r​o​n​g​l​y​ ​r​e​c​o​m​m​e​n​d​e​d​.
+			 */
+			thermalBody: string
+			/**
+			 * C​u​t​ ​P​o​w​e​r​ ​N​o​w
+			 */
+			cutPowerNow: string
+			/**
+			 * C​u​r​r​e​n​t​ ​F​l​o​w
+			 */
+			currentFlow: string
+			/**
+			 * V​o​l​t​a​g​e
+			 */
+			voltage: string
+			/**
+			 * B​u​s​ ​P​o​t​e​n​t​i​a​l
+			 */
+			busPotential: string
+			/**
+			 * T​e​m​p​e​r​a​t​u​r​e
+			 */
+			temperature: string
+			/**
+			 * C​R​I​T​I​C​A​L​ ​H​I​G​H
+			 */
+			criticalHigh: string
+			/**
+			 * N​o​r​m​a​l​ ​O​p​e​r​a​t​i​n​g
+			 */
+			normalOperating: string
+			/**
+			 * P​o​w​e​r​ ​S​o​u​r​c​e
+			 */
+			powerSource: string
+			/**
+			 * E​x​t​e​r​n​a​l​ ​P​o​w​e​r​e​d
+			 */
+			externalPowered: string
+			/**
+			 * U​n​p​l​u​g​g​e​d
+			 */
+			unplugged: string
+			/**
+			 * A​c​t​i​v​e​ ​S​w​i​t​c​h​:
+			 */
+			activeSwitch: string
+			/**
+			 * A​u​t​o​m​a​t​i​c​ ​D​e​t​e​c​t​i​o​n
+			 */
+			autoDetection: string
+			/**
+			 * B​Y​P​A​S​S
+			 */
+			bypass: string
+		}
+		limiter: {
+			/**
+			 * S​m​a​r​t​ ​C​h​a​r​g​i​n​g​ ​L​i​m​i​t​e​r
+			 */
+			title: string
+			/**
+			 * H​a​r​d​w​a​r​e​ ​c​u​t​o​f​f​ ​t​h​r​e​s​h​o​l​d​ ​&​ ​A​C​ ​b​y​p​a​s​s​ ​g​a​t​e
+			 */
+			subtitle: string
+			/**
+			 * A​U​T​O​ ​O​N
+			 */
+			autoOn: string
+			/**
+			 * D​I​S​A​B​L​E​D
+			 */
+			disabled: string
+			/**
+			 * T​o​g​g​l​e​ ​A​u​t​o​m​a​t​i​c​ ​D​a​e​m​o​n
+			 */
+			toggleTitle: string
+			/**
+			 * S​t​o​p​ ​C​u​t​o​f​f
+			 */
+			stopCutoff: string
+			/**
+			 * R​e​s​u​m​e​ ​C​h​a​r​g​e
+			 */
+			resumeCharge: string
+			/**
+			 * T​r​i​p​s​ ​a​t​ ​{​v​a​l​u​e​}​%
+			 * @param {unknown} value
+			 */
+			tripsAt: RequiredParams<'value'>
+			/**
+			 * B​y​p​a​s​s​ ​A​C
+			 */
+			bypassAc: string
+			/**
+			 * R​e​o​p​e​n​s​ ​a​t​ ​≤​ ​{​v​a​l​u​e​}​%
+			 * @param {unknown} value
+			 */
+			reopensAt: RequiredParams<'value'>
+			/**
+			 * H​y​s​t​e​r​e​s​i​s​ ​{​v​a​l​u​e​}​%
+			 * @param {unknown} value
+			 */
+			hysteresis: RequiredParams<'value'>
+			/**
+			 * P​r​e​s​e​t​s​:
+			 */
+			presets: string
+			/**
+			 * D​a​i​l​y
+			 */
+			presetDaily: string
+			/**
+			 * M​a​x
+			 */
+			presetMax: string
+			/**
+			 * 2​4​/​7​ ​D​e​s​k
+			 */
+			presetDesk: string
+			/**
+			 * S​a​v​i​n​g​.​.​.
+			 */
+			saving: string
+			/**
+			 * S​a​v​e​ ​L​i​m​i​t​s
+			 */
+			saveLimits: string
+			/**
+			 * M​a​n​u​a​l​ ​G​a​t​e
+			 */
+			manualGate: string
+			/**
+			 * F​o​r​c​e​d​ ​O​f​f
+			 */
+			forcedOff: string
+			/**
+			 * N​o​r​m​a​l​ ​G​a​t​e
+			 */
+			normalGate: string
+			/**
+			 * F​l​i​p​ ​h​a​r​d​w​a​r​e​ ​s​w​i​t​c​h​ ​i​n​s​t​a​n​t​l​y​ ​w​i​t​h​o​u​t​ ​s​a​v​i​n​g​ ​t​h​r​e​s​h​o​l​d​s​.
+			 */
+			manualDesc: string
+			/**
+			 * R​e​s​t​o​r​e
+			 */
+			restore: string
+			/**
+			 * C​u​t​ ​O​f​f
+			 */
+			cutOff: string
+		}
+		switches: {
+			/**
+			 * H​a​r​d​w​a​r​e​ ​S​w​i​t​c​h​ ​&​ ​A​C​C​ ​P​r​o​f​i​l​e​s
+			 */
+			title: string
+			/**
+			 * K​e​r​n​e​l​ ​s​y​s​f​s​ ​s​w​i​t​c​h​ ​d​e​t​e​c​t​i​o​n​ ​&​ ​A​C​C​ ​p​r​o​f​i​l​e​ ​c​o​m​p​a​t​i​b​i​l​i​t​y
+			 */
+			subtitle: string
+			/**
+			 * P​r​o​b​i​n​g​.​.​.
+			 */
+			probing: string
+			/**
+			 * P​r​o​b​e​ ​H​a​r​d​w​a​r​e​ ​S​w​i​t​c​h​e​s
+			 */
+			probeSwitches: string
+			/**
+			 * H​a​r​d​w​a​r​e​ ​C​o​n​t​r​o​l​ ​S​w​i​t​c​h​ ​P​r​o​f​i​l​e
+			 */
+			profileLabel: string
+			/**
+			 * -​-​ ​A​u​t​o​-​D​e​t​e​c​t​e​d​ ​S​y​s​t​e​m​ ​D​e​f​a​u​l​t​ ​-​-
+			 */
+			autoDefault: string
+			/**
+			 * ⚙​️​ ​C​u​s​t​o​m​ ​S​y​s​f​s​ ​N​o​d​e​.​.​.
+			 */
+			customNode: string
+			/**
+			 * S​e​l​e​c​t​ ​a​n​ ​A​C​C​-​t​e​s​t​e​d​ ​s​w​i​t​c​h​ ​p​r​o​f​i​l​e​ ​o​r​ ​d​e​f​i​n​e​ ​a​ ​c​u​s​t​o​m​ ​h​a​r​d​w​a​r​e​ ​n​o​d​e​.
+			 */
+			hint: string
+			/**
+			 * C​u​s​t​o​m​ ​S​y​s​f​s​ ​S​w​i​t​c​h​ ​P​a​r​a​m​e​t​e​r​s
+			 */
+			customTitle: string
+			/**
+			 * S​y​s​f​s​ ​F​i​l​e​ ​P​a​t​h
+			 */
+			sysfsPath: string
+			/**
+			 * R​e​s​u​m​e​ ​/​ ​O​N​ ​V​a​l​u​e
+			 */
+			resumeOnValue: string
+			/**
+			 * C​u​t​o​f​f​ ​/​ ​O​F​F​ ​V​a​l​u​e
+			 */
+			cutoffOffValue: string
+			/**
+			 * A​p​p​l​y​ ​C​u​s​t​o​m​ ​S​w​i​t​c​h
+			 */
+			applyCustom: string
+			/**
+			 * T​r​u​e​ ​B​y​p​a​s​s
+			 */
+			trueBypass: string
+			/**
+			 * S​t​a​n​d​a​r​d​ ​C​u​t​o​f​f
+			 */
+			standardCutoff: string
+			/**
+			 * S​y​s​f​s​ ​N​o​d​e​s​ ​(​{​c​o​u​n​t​}​)​:
+			 * @param {unknown} count
+			 */
+			sysfsNodes: RequiredParams<'count'>
+			/**
+			 * H​a​r​d​w​a​r​e​ ​P​r​o​b​e​ ​B​e​n​c​h​m​a​r​k​ ​R​e​s​u​l​t​s
+			 */
+			probeResults: string
+			/**
+			 * {​p​a​s​s​}​ ​/​ ​{​t​o​t​a​l​}​ ​F​u​n​c​t​i​o​n​a​l
+			 * @param {unknown} pass
+			 * @param {unknown} total
+			 */
+			functional: RequiredParams<'pass' | 'total'>
+			/**
+			 * P​A​S​S
+			 */
+			pass: string
+			/**
+			 * F​A​I​L
+			 */
+			fail: string
+			/**
+			 * F​l​o​w​:
+			 */
+			flow: string
+			/**
+			 * U​s​e​ ​T​h​i​s​ ​S​w​i​t​c​h​ ​P​r​o​f​i​l​e
+			 */
+			useProfile: string
+			/**
+			 * N​o​ ​h​a​r​d​w​a​r​e​ ​s​w​i​t​c​h​e​s​ ​h​a​v​e​ ​b​e​e​n​ ​p​r​o​b​e​d​ ​y​e​t​.
+			 */
+			noProbes: string
+			/**
+			 * R​u​n​ ​H​a​r​d​w​a​r​e​ ​S​w​i​t​c​h​ ​B​e​n​c​h​m​a​r​k
+			 */
+			runBenchmark: string
+		}
+		log: {
+			/**
+			 * L​i​m​i​t​e​r​ ​D​a​e​m​o​n​ ​E​v​e​n​t​ ​L​o​g
+			 */
+			title: string
+			/**
+			 * A​u​d​i​t​ ​t​r​a​i​l​ ​o​f​ ​t​h​r​e​s​h​o​l​d​ ​c​h​e​c​k​s​,​ ​c​u​t​o​f​f​s​,​ ​a​n​d​ ​p​o​w​e​r​ ​e​v​e​n​t​s
+			 */
+			subtitle: string
+			/**
+			 * {​c​o​u​n​t​}​ ​E​v​e​n​t​s
+			 * @param {unknown} count
+			 */
+			events: RequiredParams<'count'>
+			/**
+			 * R​e​f​r​e​s​h​ ​L​o​g​s
+			 */
+			refreshLogs: string
+			/**
+			 * N​o​ ​d​a​e​m​o​n​ ​a​c​t​i​v​i​t​y​ ​r​e​c​o​r​d​e​d​ ​y​e​t​.​ ​L​o​g​s​ ​w​i​l​l​ ​p​o​p​u​l​a​t​e​ ​a​u​t​o​m​a​t​i​c​a​l​l​y​ ​d​u​r​i​n​g​ ​t​h​r​e​s​h​o​l​d​ ​e​v​a​l​u​a​t​i​o​n​s​.
+			 */
+			empty: string
+			/**
+			 * A​C​C​ ​L​i​m​i​t​e​r​ ​M​o​n​i​t​o​r​i​n​g​ ​S​e​r​v​i​c​e​ ​(​C​y​c​l​e​:​ ​1​0​s​)
+			 */
+			service: string
+			/**
+			 * A​u​t​o​-​s​y​n​c​ ​e​n​a​b​l​e​d
+			 */
+			autoSync: string
+		}
+		toasts: {
+			/**
+			 * F​a​i​l​e​d​ ​t​o​ ​f​e​t​c​h​ ​c​h​a​r​g​e​r​ ​t​e​l​e​m​e​t​r​y
+			 */
+			fetchFailed: string
+			/**
+			 * F​a​i​l​e​d​ ​t​o​ ​s​a​v​e​ ​c​h​a​r​g​e​r​ ​c​o​n​f​i​g
+			 */
+			saveFailed: string
+			/**
+			 * F​a​i​l​e​d​ ​t​o​ ​t​o​g​g​l​e​ ​c​h​a​r​g​i​n​g​ ​o​v​e​r​r​i​d​e
+			 */
+			toggleFailed: string
+			/**
+			 * F​a​i​l​e​d​ ​t​o​ ​r​u​n​ ​h​a​r​d​w​a​r​e​ ​s​w​i​t​c​h​ ​p​r​o​b​e
+			 */
+			probeFailed: string
+			/**
+			 * C​h​a​r​g​e​r​ ​t​h​r​e​s​h​o​l​d​ ​c​o​n​f​i​g​u​r​a​t​i​o​n​ ​s​a​v​e​d​.
+			 */
+			saved: string
+			/**
+			 * H​a​r​d​w​a​r​e​ ​c​u​t​o​f​f​ ​a​p​p​l​i​e​d​:​ ​B​a​t​t​e​r​y​ ​c​h​a​r​g​i​n​g​ ​f​o​r​c​e​d​ ​O​F​F​ ​(​B​y​p​a​s​s​ ​a​c​t​i​v​e​)​.
+			 */
+			cutoffApplied: string
+			/**
+			 * N​o​r​m​a​l​ ​c​h​a​r​g​i​n​g​ ​r​e​s​t​o​r​e​d​:​ ​H​a​r​d​w​a​r​e​ ​g​a​t​e​ ​o​p​e​n​e​d​.
+			 */
+			restored: string
+			/**
+			 * T​e​s​t​i​n​g​ ​h​a​r​d​w​a​r​e​ ​s​w​i​t​c​h​e​s​.​.​.​ ​P​l​e​a​s​e​ ​k​e​e​p​ ​p​o​w​e​r​ ​c​o​n​n​e​c​t​e​d​.
+			 */
+			probing: string
+			/**
+			 * P​r​o​b​e​ ​c​o​m​p​l​e​t​e​!​ ​{​p​a​s​s​}​ ​o​f​ ​{​t​o​t​a​l​}​ ​s​w​i​t​c​h​e​s​ ​v​e​r​i​f​i​e​d​ ​f​u​n​c​t​i​o​n​a​l​.
+			 * @param {unknown} pass
+			 * @param {unknown} total
+			 */
+			probeComplete: RequiredParams<'pass' | 'total'>
+			/**
+			 * P​r​o​b​e​ ​f​i​n​i​s​h​e​d​.​ ​N​o​n​e​ ​o​f​ ​{​t​o​t​a​l​}​ ​s​w​i​t​c​h​e​s​ ​c​u​t​ ​c​h​a​r​g​i​n​g​ ​c​u​r​r​e​n​t​.​ ​Y​o​u​ ​m​a​y​ ​d​e​f​i​n​e​ ​a​ ​c​u​s​t​o​m​ ​s​y​s​f​s​ ​n​o​d​e​.
+			 * @param {unknown} total
+			 */
+			probeNone: RequiredParams<'total'>
+		}
+	}
 }
 
 export type TranslationFunctions = {
@@ -13076,6 +13528,440 @@ export type TranslationFunctions = {
 			 * Failed to reset modem to automatic mode
 			 */
 			resetSendFailed: () => LocalizedString
+		}
+	}
+	charger: {
+		/**
+		 * Smart Charging Limiter
+		 */
+		title: () => LocalizedString
+		/**
+		 * Kernel-level charging threshold controller & idle power bypass
+		 */
+		subtitle: () => LocalizedString
+		/**
+		 * Bypass Ready
+		 */
+		bypassReady: () => LocalizedString
+		/**
+		 * Synced: {time}
+		 */
+		synced: (arg: { time: unknown }) => LocalizedString
+		rate: {
+			/**
+			 * Idle Bypass (0 mA net draw)
+			 */
+			idleBypass: () => LocalizedString
+			/**
+			 * Charging In Progress
+			 */
+			charging: () => LocalizedString
+			/**
+			 * Battery Discharging
+			 */
+			discharging: () => LocalizedString
+			/**
+			 * Standby / Low Draw
+			 */
+			standby: () => LocalizedString
+		}
+		telemetry: {
+			/**
+			 * Live Battery & Hardware Telemetry
+			 */
+			title: () => LocalizedString
+			/**
+			 * Real-time kernel power supply metrics & thermal monitoring
+			 */
+			subtitle: () => LocalizedString
+			/**
+			 * Idle / Bypass (AC Powered)
+			 */
+			idleBypassBadge: () => LocalizedString
+			/**
+			 * Charging
+			 */
+			charging: () => LocalizedString
+			/**
+			 * Discharging
+			 */
+			discharging: () => LocalizedString
+			/**
+			 * Standby
+			 */
+			standby: () => LocalizedString
+			/**
+			 * Cutoff Active
+			 */
+			cutoffActive: () => LocalizedString
+			/**
+			 * Battery Level
+			 */
+			batteryLevel: () => LocalizedString
+			/**
+			 * AC Plugged In
+			 */
+			acPlugged: () => LocalizedString
+			/**
+			 * Battery Only (Unplugged)
+			 */
+			batteryOnly: () => LocalizedString
+			/**
+			 * Gate:
+			 */
+			gateLabel: () => LocalizedString
+			/**
+			 * FORCED OFF
+			 */
+			gateForcedOff: () => LocalizedString
+			/**
+			 * NORMAL (ON)
+			 */
+			gateNormal: () => LocalizedString
+			/**
+			 * Resume Threshold: {value}%
+			 */
+			resumeTitle: (arg: { value: unknown }) => LocalizedString
+			/**
+			 * Stop Threshold: {value}%
+			 */
+			stopTitle: (arg: { value: unknown }) => LocalizedString
+			/**
+			 * Resume: {start}% | Stop: {stop}%
+			 */
+			overlay: (arg: { start: unknown, stop: unknown }) => LocalizedString
+			/**
+			 * Start Threshold: {value}%
+			 */
+			startThreshold: (arg: { value: unknown }) => LocalizedString
+			/**
+			 * Stop Threshold: {value}%
+			 */
+			stopThreshold: (arg: { value: unknown }) => LocalizedString
+			/**
+			 * Thermal Alert: High Battery Temperature ({temp}°C)
+			 */
+			thermalTitle: (arg: { temp: unknown }) => LocalizedString
+			/**
+			 * Battery temperature exceeds safe threshold (> 42°C). Hardware cutoff is strongly recommended.
+			 */
+			thermalBody: () => LocalizedString
+			/**
+			 * Cut Power Now
+			 */
+			cutPowerNow: () => LocalizedString
+			/**
+			 * Current Flow
+			 */
+			currentFlow: () => LocalizedString
+			/**
+			 * Voltage
+			 */
+			voltage: () => LocalizedString
+			/**
+			 * Bus Potential
+			 */
+			busPotential: () => LocalizedString
+			/**
+			 * Temperature
+			 */
+			temperature: () => LocalizedString
+			/**
+			 * CRITICAL HIGH
+			 */
+			criticalHigh: () => LocalizedString
+			/**
+			 * Normal Operating
+			 */
+			normalOperating: () => LocalizedString
+			/**
+			 * Power Source
+			 */
+			powerSource: () => LocalizedString
+			/**
+			 * External Powered
+			 */
+			externalPowered: () => LocalizedString
+			/**
+			 * Unplugged
+			 */
+			unplugged: () => LocalizedString
+			/**
+			 * Active Switch:
+			 */
+			activeSwitch: () => LocalizedString
+			/**
+			 * Automatic Detection
+			 */
+			autoDetection: () => LocalizedString
+			/**
+			 * BYPASS
+			 */
+			bypass: () => LocalizedString
+		}
+		limiter: {
+			/**
+			 * Smart Charging Limiter
+			 */
+			title: () => LocalizedString
+			/**
+			 * Hardware cutoff threshold & AC bypass gate
+			 */
+			subtitle: () => LocalizedString
+			/**
+			 * AUTO ON
+			 */
+			autoOn: () => LocalizedString
+			/**
+			 * DISABLED
+			 */
+			disabled: () => LocalizedString
+			/**
+			 * Toggle Automatic Daemon
+			 */
+			toggleTitle: () => LocalizedString
+			/**
+			 * Stop Cutoff
+			 */
+			stopCutoff: () => LocalizedString
+			/**
+			 * Resume Charge
+			 */
+			resumeCharge: () => LocalizedString
+			/**
+			 * Trips at {value}%
+			 */
+			tripsAt: (arg: { value: unknown }) => LocalizedString
+			/**
+			 * Bypass AC
+			 */
+			bypassAc: () => LocalizedString
+			/**
+			 * Reopens at ≤ {value}%
+			 */
+			reopensAt: (arg: { value: unknown }) => LocalizedString
+			/**
+			 * Hysteresis {value}%
+			 */
+			hysteresis: (arg: { value: unknown }) => LocalizedString
+			/**
+			 * Presets:
+			 */
+			presets: () => LocalizedString
+			/**
+			 * Daily
+			 */
+			presetDaily: () => LocalizedString
+			/**
+			 * Max
+			 */
+			presetMax: () => LocalizedString
+			/**
+			 * 24/7 Desk
+			 */
+			presetDesk: () => LocalizedString
+			/**
+			 * Saving...
+			 */
+			saving: () => LocalizedString
+			/**
+			 * Save Limits
+			 */
+			saveLimits: () => LocalizedString
+			/**
+			 * Manual Gate
+			 */
+			manualGate: () => LocalizedString
+			/**
+			 * Forced Off
+			 */
+			forcedOff: () => LocalizedString
+			/**
+			 * Normal Gate
+			 */
+			normalGate: () => LocalizedString
+			/**
+			 * Flip hardware switch instantly without saving thresholds.
+			 */
+			manualDesc: () => LocalizedString
+			/**
+			 * Restore
+			 */
+			restore: () => LocalizedString
+			/**
+			 * Cut Off
+			 */
+			cutOff: () => LocalizedString
+		}
+		switches: {
+			/**
+			 * Hardware Switch & ACC Profiles
+			 */
+			title: () => LocalizedString
+			/**
+			 * Kernel sysfs switch detection & ACC profile compatibility
+			 */
+			subtitle: () => LocalizedString
+			/**
+			 * Probing...
+			 */
+			probing: () => LocalizedString
+			/**
+			 * Probe Hardware Switches
+			 */
+			probeSwitches: () => LocalizedString
+			/**
+			 * Hardware Control Switch Profile
+			 */
+			profileLabel: () => LocalizedString
+			/**
+			 * -- Auto-Detected System Default --
+			 */
+			autoDefault: () => LocalizedString
+			/**
+			 * ⚙️ Custom Sysfs Node...
+			 */
+			customNode: () => LocalizedString
+			/**
+			 * Select an ACC-tested switch profile or define a custom hardware node.
+			 */
+			hint: () => LocalizedString
+			/**
+			 * Custom Sysfs Switch Parameters
+			 */
+			customTitle: () => LocalizedString
+			/**
+			 * Sysfs File Path
+			 */
+			sysfsPath: () => LocalizedString
+			/**
+			 * Resume / ON Value
+			 */
+			resumeOnValue: () => LocalizedString
+			/**
+			 * Cutoff / OFF Value
+			 */
+			cutoffOffValue: () => LocalizedString
+			/**
+			 * Apply Custom Switch
+			 */
+			applyCustom: () => LocalizedString
+			/**
+			 * True Bypass
+			 */
+			trueBypass: () => LocalizedString
+			/**
+			 * Standard Cutoff
+			 */
+			standardCutoff: () => LocalizedString
+			/**
+			 * Sysfs Nodes ({count}):
+			 */
+			sysfsNodes: (arg: { count: unknown }) => LocalizedString
+			/**
+			 * Hardware Probe Benchmark Results
+			 */
+			probeResults: () => LocalizedString
+			/**
+			 * {pass} / {total} Functional
+			 */
+			functional: (arg: { pass: unknown, total: unknown }) => LocalizedString
+			/**
+			 * PASS
+			 */
+			pass: () => LocalizedString
+			/**
+			 * FAIL
+			 */
+			fail: () => LocalizedString
+			/**
+			 * Flow:
+			 */
+			flow: () => LocalizedString
+			/**
+			 * Use This Switch Profile
+			 */
+			useProfile: () => LocalizedString
+			/**
+			 * No hardware switches have been probed yet.
+			 */
+			noProbes: () => LocalizedString
+			/**
+			 * Run Hardware Switch Benchmark
+			 */
+			runBenchmark: () => LocalizedString
+		}
+		log: {
+			/**
+			 * Limiter Daemon Event Log
+			 */
+			title: () => LocalizedString
+			/**
+			 * Audit trail of threshold checks, cutoffs, and power events
+			 */
+			subtitle: () => LocalizedString
+			/**
+			 * {count} Events
+			 */
+			events: (arg: { count: unknown }) => LocalizedString
+			/**
+			 * Refresh Logs
+			 */
+			refreshLogs: () => LocalizedString
+			/**
+			 * No daemon activity recorded yet. Logs will populate automatically during threshold evaluations.
+			 */
+			empty: () => LocalizedString
+			/**
+			 * ACC Limiter Monitoring Service (Cycle: 10s)
+			 */
+			service: () => LocalizedString
+			/**
+			 * Auto-sync enabled
+			 */
+			autoSync: () => LocalizedString
+		}
+		toasts: {
+			/**
+			 * Failed to fetch charger telemetry
+			 */
+			fetchFailed: () => LocalizedString
+			/**
+			 * Failed to save charger config
+			 */
+			saveFailed: () => LocalizedString
+			/**
+			 * Failed to toggle charging override
+			 */
+			toggleFailed: () => LocalizedString
+			/**
+			 * Failed to run hardware switch probe
+			 */
+			probeFailed: () => LocalizedString
+			/**
+			 * Charger threshold configuration saved.
+			 */
+			saved: () => LocalizedString
+			/**
+			 * Hardware cutoff applied: Battery charging forced OFF (Bypass active).
+			 */
+			cutoffApplied: () => LocalizedString
+			/**
+			 * Normal charging restored: Hardware gate opened.
+			 */
+			restored: () => LocalizedString
+			/**
+			 * Testing hardware switches... Please keep power connected.
+			 */
+			probing: () => LocalizedString
+			/**
+			 * Probe complete! {pass} of {total} switches verified functional.
+			 */
+			probeComplete: (arg: { pass: unknown, total: unknown }) => LocalizedString
+			/**
+			 * Probe finished. None of {total} switches cut charging current. You may define a custom sysfs node.
+			 */
+			probeNone: (arg: { total: unknown }) => LocalizedString
 		}
 	}
 }
