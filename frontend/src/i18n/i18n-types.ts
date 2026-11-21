@@ -11354,6 +11354,307 @@ type RootTranslation = {
 			restartFailed: string
 		}
 	}
+	vnstat: {
+		/**
+		 * V​n​s​t​a​t​ ​B​a​n​d​w​i​d​t​h​ ​A​c​c​o​u​n​t​i​n​g
+		 */
+		title: string
+		/**
+		 * U​p​d​a​t​e​d​:​ ​{​t​i​m​e​}
+		 * @param {unknown} time
+		 */
+		updated: RequiredParams<'time'>
+		/**
+		 * N​e​v​e​r
+		 */
+		updatedNever: string
+		/**
+		 * R​e​s​e​t​ ​a​l​l​ ​i​n​t​e​r​f​a​c​e​ ​b​a​n​d​w​i​d​t​h​ ​c​o​u​n​t​e​r​s
+		 */
+		resetTitle: string
+		/**
+		 * R​e​s​e​t​ ​D​a​t​a​b​a​s​e
+		 */
+		resetDatabase: string
+		/**
+		 * R​e​f​r​e​s​h​ ​b​a​n​d​w​i​d​t​h​ ​t​e​l​e​m​e​t​r​y
+		 */
+		refreshTitle: string
+		/**
+		 * R​e​s​e​t​t​i​n​g​.​.​.
+		 */
+		resetting: string
+		/**
+		 * R​e​s​e​t​ ​D​a​t​a​b​a​s​e​ ​N​o​w
+		 */
+		resetDatabaseNow: string
+		summary: {
+			today: {
+				/**
+				 * T​o​d​a​y​ ​(​D​a​i​l​y​)
+				 */
+				title: string
+				/**
+				 * S​i​n​c​e​ ​L​o​c​a​l​ ​M​i​d​n​i​g​h​t
+				 */
+				subtitle: string
+				/**
+				 * T​O​D​A​Y
+				 */
+				badge: string
+			}
+			yesterday: {
+				/**
+				 * Y​e​s​t​e​r​d​a​y
+				 */
+				title: string
+				/**
+				 * P​r​e​v​i​o​u​s​ ​C​a​l​e​n​d​a​r​ ​D​a​y
+				 */
+				subtitle: string
+				/**
+				 * Y​E​S​T​E​R​D​A​Y
+				 */
+				badge: string
+			}
+			weekly: {
+				/**
+				 * T​h​i​s​ ​W​e​e​k
+				 */
+				title: string
+				/**
+				 * C​u​r​r​e​n​t​ ​I​S​O​ ​W​e​e​k
+				 */
+				subtitle: string
+				/**
+				 * W​E​E​K​L​Y
+				 */
+				badge: string
+			}
+			monthly: {
+				/**
+				 * T​h​i​s​ ​M​o​n​t​h
+				 */
+				title: string
+				/**
+				 * C​a​l​e​n​d​a​r​ ​M​o​n​t​h
+				 */
+				subtitle: string
+				/**
+				 * M​O​N​T​H​L​Y
+				 */
+				badge: string
+			}
+			/**
+			 * D​o​w​n​l​o​a​d​ ​(​R​X​)​:
+			 */
+			downloadRx: string
+			/**
+			 * U​p​l​o​a​d​ ​(​T​X​)​:
+			 */
+			uploadTx: string
+			/**
+			 * T​o​t​a​l​ ​V​o​l​u​m​e​:
+			 */
+			totalVolume: string
+		}
+		history: {
+			/**
+			 * 7​-​D​A​Y​ ​B​A​N​D​W​I​D​T​H​ ​H​I​S​T​O​R​Y
+			 */
+			title: string
+			/**
+			 * D​a​i​l​y​ ​c​u​m​u​l​a​t​i​v​e​ ​c​o​n​s​u​m​p​t​i​o​n​ ​t​r​e​n​d​s​ ​a​n​d​ ​u​p​l​o​a​d​/​d​o​w​n​l​o​a​d​ ​v​o​l​u​m​e​ ​d​i​s​t​r​i​b​u​t​i​o​n​s
+			 */
+			subtitle: string
+			/**
+			 * D​o​w​n​l​o​a​d​ ​(​R​X​)
+			 */
+			downloadRx: string
+			/**
+			 * U​p​l​o​a​d​ ​(​T​X​)
+			 */
+			uploadTx: string
+			/**
+			 * N​o​ ​H​i​s​t​o​r​i​c​a​l​ ​T​r​a​f​f​i​c​ ​D​a​t​a
+			 */
+			emptyTitle: string
+			/**
+			 * V​n​s​t​a​t​ ​d​a​e​m​o​n​ ​l​o​g​s​ ​d​a​i​l​y​ ​c​o​n​s​u​m​p​t​i​o​n​ ​o​v​e​r​ ​t​i​m​e​.​ ​H​i​s​t​o​r​y​ ​w​i​l​l​ ​p​o​p​u​l​a​t​e​ ​a​s​ ​t​r​a​f​f​i​c​ ​i​s​ ​r​e​c​o​r​d​e​d​.
+			 */
+			emptyBody: string
+			/**
+			 * O​f​ ​P​e​a​k​ ​D​a​y​:
+			 */
+			ofPeakDay: string
+			/**
+			 * D​o​w​n​l​o​a​d​:​ ​{​v​a​l​u​e​}
+			 * @param {unknown} value
+			 */
+			downloadTitle: RequiredParams<'value'>
+			/**
+			 * U​p​l​o​a​d​:​ ​{​v​a​l​u​e​}
+			 * @param {unknown} value
+			 */
+			uploadTitle: RequiredParams<'value'>
+			/**
+			 * R​X​:​ ​{​v​a​l​u​e​}
+			 * @param {unknown} value
+			 */
+			rx: RequiredParams<'value'>
+			/**
+			 * T​X​:​ ​{​v​a​l​u​e​}
+			 * @param {unknown} value
+			 */
+			tx: RequiredParams<'value'>
+		}
+		interfaces: {
+			/**
+			 * I​N​T​E​R​F​A​C​E​ ​B​A​N​D​W​I​D​T​H​ ​B​R​E​A​K​D​O​W​N
+			 */
+			title: string
+			/**
+			 * P​e​r​-​i​n​t​e​r​f​a​c​e​ ​d​a​t​a​ ​a​c​c​o​u​n​t​i​n​g​ ​a​n​d​ ​r​e​l​a​t​i​v​e​ ​t​r​a​f​f​i​c​ ​s​h​a​r​e​ ​a​c​r​o​s​s​ ​s​e​l​e​c​t​e​d​ ​p​e​r​i​o​d​s
+			 */
+			subtitle: string
+			/**
+			 * P​e​r​i​o​d​:
+			 */
+			period: string
+			/**
+			 * C​a​t​e​g​o​r​y​:
+			 */
+			category: string
+			periods: {
+				/**
+				 * T​o​d​a​y
+				 */
+				today: string
+				/**
+				 * Y​e​s​t​e​r​d​a​y
+				 */
+				yesterday: string
+				/**
+				 * T​h​i​s​ ​W​e​e​k
+				 */
+				weekly: string
+				/**
+				 * T​h​i​s​ ​M​o​n​t​h
+				 */
+				monthly: string
+			}
+			categories: {
+				/**
+				 * C​e​l​l​u​l​a​r​ ​(​r​m​n​e​t​)
+				 */
+				cellular: string
+				/**
+				 * W​i​-​F​i​ ​(​w​l​a​n​)
+				 */
+				wifi: string
+				/**
+				 * S​o​f​t​A​P​ ​(​a​p​)
+				 */
+				softap: string
+				/**
+				 * O​t​h​e​r
+				 */
+				other: string
+			}
+			categoryBadges: {
+				/**
+				 * C​E​L​L​U​L​A​R
+				 */
+				cellular: string
+				/**
+				 * W​I​-​F​I
+				 */
+				wifi: string
+				/**
+				 * S​O​F​T​A​P
+				 */
+				softap: string
+				/**
+				 * O​T​H​E​R
+				 */
+				other: string
+			}
+			/**
+			 * N​o​ ​I​n​t​e​r​f​a​c​e​ ​T​r​a​f​f​i​c​ ​D​e​t​e​c​t​e​d
+			 */
+			emptyTitle: string
+			/**
+			 * N​o​ ​a​c​t​i​v​e​ ​t​r​a​f​f​i​c​ ​r​e​c​o​r​d​e​d​ ​f​o​r​ ​t​h​e​ ​s​e​l​e​c​t​e​d​ ​p​e​r​i​o​d​ ​a​n​d​ ​c​a​t​e​g​o​r​y​ ​f​i​l​t​e​r​.
+			 */
+			emptyBody: string
+			th: {
+				/**
+				 * I​n​t​e​r​f​a​c​e
+				 */
+				'interface': string
+				/**
+				 * C​a​t​e​g​o​r​y
+				 */
+				category: string
+				/**
+				 * D​o​w​n​l​o​a​d​ ​(​R​X​)
+				 */
+				download: string
+				/**
+				 * U​p​l​o​a​d​ ​(​T​X​)
+				 */
+				upload: string
+				/**
+				 * T​o​t​a​l​ ​V​o​l​u​m​e
+				 */
+				total: string
+				/**
+				 * T​r​a​f​f​i​c​ ​S​h​a​r​e
+				 */
+				share: string
+			}
+			/**
+			 * T​r​a​f​f​i​c​ ​s​h​a​r​e
+			 */
+			trafficShareLabel: string
+		}
+		resetModal: {
+			/**
+			 * R​E​S​E​T​ ​V​N​S​T​A​T​ ​D​A​T​A​B​A​S​E
+			 */
+			title: string
+			/**
+			 * D​a​t​a​b​a​s​e​ ​R​e​s​e​t​ ​W​a​r​n​i​n​g
+			 */
+			warningTitle: string
+			/**
+			 * A​r​e​ ​y​o​u​ ​s​u​r​e​ ​y​o​u​ ​w​a​n​t​ ​t​o​ ​r​e​s​e​t​ ​a​l​l​ ​b​a​n​d​w​i​d​t​h​ ​s​t​a​t​i​s​t​i​c​s​?​ ​T​h​i​s​ ​w​i​l​l​ ​p​e​r​m​a​n​e​n​t​l​y​ ​e​r​a​s​e​ ​a​l​l​ ​i​n​t​e​r​f​a​c​e​ ​c​o​u​n​t​e​r​s​ ​(​c​e​l​l​u​l​a​r​,​ ​W​i​-​F​i​,​ ​h​o​t​s​p​o​t​)​ ​a​n​d​ ​h​i​s​t​o​r​i​c​a​l​ ​d​a​i​l​y​ ​r​e​c​o​r​d​s​.​ ​T​h​i​s​ ​o​p​e​r​a​t​i​o​n​ 
+			 */
+			bodyA: string
+			/**
+			 * c​a​n​n​o​t​ ​b​e​ ​u​n​d​o​n​e
+			 */
+			bodyB: string
+			/**
+			 * !
+			 */
+			bodyC: string
+		}
+		toasts: {
+			/**
+			 * F​a​i​l​e​d​ ​t​o​ ​f​e​t​c​h​ ​v​n​s​t​a​t​ ​s​t​a​t​s
+			 */
+			fetchFailed: string
+			/**
+			 * V​n​s​t​a​t​ ​t​r​a​f​f​i​c​ ​d​a​t​a​b​a​s​e​ ​c​o​u​n​t​e​r​s​ ​r​e​s​e​t​ ​s​u​c​c​e​s​s​f​u​l​l​y​.
+			 */
+			resetSuccess: string
+			/**
+			 * F​a​i​l​e​d​ ​t​o​ ​r​e​s​e​t​ ​v​n​s​t​a​t​ ​d​a​t​a​b​a​s​e
+			 */
+			resetFailed: string
+		}
+	}
 }
 
 export type TranslationFunctions = {
@@ -22385,6 +22686,302 @@ export type TranslationFunctions = {
 			 * Failed to restart SSH service
 			 */
 			restartFailed: () => LocalizedString
+		}
+	}
+	vnstat: {
+		/**
+		 * Vnstat Bandwidth Accounting
+		 */
+		title: () => LocalizedString
+		/**
+		 * Updated: {time}
+		 */
+		updated: (arg: { time: unknown }) => LocalizedString
+		/**
+		 * Never
+		 */
+		updatedNever: () => LocalizedString
+		/**
+		 * Reset all interface bandwidth counters
+		 */
+		resetTitle: () => LocalizedString
+		/**
+		 * Reset Database
+		 */
+		resetDatabase: () => LocalizedString
+		/**
+		 * Refresh bandwidth telemetry
+		 */
+		refreshTitle: () => LocalizedString
+		/**
+		 * Resetting...
+		 */
+		resetting: () => LocalizedString
+		/**
+		 * Reset Database Now
+		 */
+		resetDatabaseNow: () => LocalizedString
+		summary: {
+			today: {
+				/**
+				 * Today (Daily)
+				 */
+				title: () => LocalizedString
+				/**
+				 * Since Local Midnight
+				 */
+				subtitle: () => LocalizedString
+				/**
+				 * TODAY
+				 */
+				badge: () => LocalizedString
+			}
+			yesterday: {
+				/**
+				 * Yesterday
+				 */
+				title: () => LocalizedString
+				/**
+				 * Previous Calendar Day
+				 */
+				subtitle: () => LocalizedString
+				/**
+				 * YESTERDAY
+				 */
+				badge: () => LocalizedString
+			}
+			weekly: {
+				/**
+				 * This Week
+				 */
+				title: () => LocalizedString
+				/**
+				 * Current ISO Week
+				 */
+				subtitle: () => LocalizedString
+				/**
+				 * WEEKLY
+				 */
+				badge: () => LocalizedString
+			}
+			monthly: {
+				/**
+				 * This Month
+				 */
+				title: () => LocalizedString
+				/**
+				 * Calendar Month
+				 */
+				subtitle: () => LocalizedString
+				/**
+				 * MONTHLY
+				 */
+				badge: () => LocalizedString
+			}
+			/**
+			 * Download (RX):
+			 */
+			downloadRx: () => LocalizedString
+			/**
+			 * Upload (TX):
+			 */
+			uploadTx: () => LocalizedString
+			/**
+			 * Total Volume:
+			 */
+			totalVolume: () => LocalizedString
+		}
+		history: {
+			/**
+			 * 7-DAY BANDWIDTH HISTORY
+			 */
+			title: () => LocalizedString
+			/**
+			 * Daily cumulative consumption trends and upload/download volume distributions
+			 */
+			subtitle: () => LocalizedString
+			/**
+			 * Download (RX)
+			 */
+			downloadRx: () => LocalizedString
+			/**
+			 * Upload (TX)
+			 */
+			uploadTx: () => LocalizedString
+			/**
+			 * No Historical Traffic Data
+			 */
+			emptyTitle: () => LocalizedString
+			/**
+			 * Vnstat daemon logs daily consumption over time. History will populate as traffic is recorded.
+			 */
+			emptyBody: () => LocalizedString
+			/**
+			 * Of Peak Day:
+			 */
+			ofPeakDay: () => LocalizedString
+			/**
+			 * Download: {value}
+			 */
+			downloadTitle: (arg: { value: unknown }) => LocalizedString
+			/**
+			 * Upload: {value}
+			 */
+			uploadTitle: (arg: { value: unknown }) => LocalizedString
+			/**
+			 * RX: {value}
+			 */
+			rx: (arg: { value: unknown }) => LocalizedString
+			/**
+			 * TX: {value}
+			 */
+			tx: (arg: { value: unknown }) => LocalizedString
+		}
+		interfaces: {
+			/**
+			 * INTERFACE BANDWIDTH BREAKDOWN
+			 */
+			title: () => LocalizedString
+			/**
+			 * Per-interface data accounting and relative traffic share across selected periods
+			 */
+			subtitle: () => LocalizedString
+			/**
+			 * Period:
+			 */
+			period: () => LocalizedString
+			/**
+			 * Category:
+			 */
+			category: () => LocalizedString
+			periods: {
+				/**
+				 * Today
+				 */
+				today: () => LocalizedString
+				/**
+				 * Yesterday
+				 */
+				yesterday: () => LocalizedString
+				/**
+				 * This Week
+				 */
+				weekly: () => LocalizedString
+				/**
+				 * This Month
+				 */
+				monthly: () => LocalizedString
+			}
+			categories: {
+				/**
+				 * Cellular (rmnet)
+				 */
+				cellular: () => LocalizedString
+				/**
+				 * Wi-Fi (wlan)
+				 */
+				wifi: () => LocalizedString
+				/**
+				 * SoftAP (ap)
+				 */
+				softap: () => LocalizedString
+				/**
+				 * Other
+				 */
+				other: () => LocalizedString
+			}
+			categoryBadges: {
+				/**
+				 * CELLULAR
+				 */
+				cellular: () => LocalizedString
+				/**
+				 * WI-FI
+				 */
+				wifi: () => LocalizedString
+				/**
+				 * SOFTAP
+				 */
+				softap: () => LocalizedString
+				/**
+				 * OTHER
+				 */
+				other: () => LocalizedString
+			}
+			/**
+			 * No Interface Traffic Detected
+			 */
+			emptyTitle: () => LocalizedString
+			/**
+			 * No active traffic recorded for the selected period and category filter.
+			 */
+			emptyBody: () => LocalizedString
+			th: {
+				/**
+				 * Interface
+				 */
+				'interface': () => LocalizedString
+				/**
+				 * Category
+				 */
+				category: () => LocalizedString
+				/**
+				 * Download (RX)
+				 */
+				download: () => LocalizedString
+				/**
+				 * Upload (TX)
+				 */
+				upload: () => LocalizedString
+				/**
+				 * Total Volume
+				 */
+				total: () => LocalizedString
+				/**
+				 * Traffic Share
+				 */
+				share: () => LocalizedString
+			}
+			/**
+			 * Traffic share
+			 */
+			trafficShareLabel: () => LocalizedString
+		}
+		resetModal: {
+			/**
+			 * RESET VNSTAT DATABASE
+			 */
+			title: () => LocalizedString
+			/**
+			 * Database Reset Warning
+			 */
+			warningTitle: () => LocalizedString
+			/**
+			 * Are you sure you want to reset all bandwidth statistics? This will permanently erase all interface counters (cellular, Wi-Fi, hotspot) and historical daily records. This operation 
+			 */
+			bodyA: () => LocalizedString
+			/**
+			 * cannot be undone
+			 */
+			bodyB: () => LocalizedString
+			/**
+			 * !
+			 */
+			bodyC: () => LocalizedString
+		}
+		toasts: {
+			/**
+			 * Failed to fetch vnstat stats
+			 */
+			fetchFailed: () => LocalizedString
+			/**
+			 * Vnstat traffic database counters reset successfully.
+			 */
+			resetSuccess: () => LocalizedString
+			/**
+			 * Failed to reset vnstat database
+			 */
+			resetFailed: () => LocalizedString
 		}
 	}
 }
