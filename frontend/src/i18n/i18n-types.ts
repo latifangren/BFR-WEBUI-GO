@@ -11655,6 +11655,166 @@ type RootTranslation = {
 			resetFailed: string
 		}
 	}
+	tunnel: {
+		/**
+		 * R​e​m​o​t​e​ ​A​c​c​e​s​s​ ​T​u​n​n​e​l​s
+		 */
+		title: string
+		/**
+		 * {​e​n​g​i​n​e​}​ ​A​c​t​i​v​e
+		 * @param {unknown} engine
+		 */
+		badgeActive: RequiredParams<'engine'>
+		/**
+		 * I​n​a​c​t​i​v​e
+		 */
+		badgeInactive: string
+		/**
+		 * S​t​a​r​t​ ​T​u​n​n​e​l
+		 */
+		startTunnel: string
+		/**
+		 * S​t​o​p​ ​T​u​n​n​e​l
+		 */
+		stopTunnel: string
+		config: {
+			/**
+			 * T​u​n​n​e​l​ ​C​o​n​f​i​g​u​r​a​t​i​o​n
+			 */
+			title: string
+			/**
+			 * E​x​p​o​s​e​ ​W​e​b​U​I​ ​r​e​m​o​t​e​l​y​ ​w​i​t​h​o​u​t​ ​p​o​r​t​ ​f​o​r​w​a​r​d​i​n​g
+			 */
+			subtitle: string
+			/**
+			 * T​u​n​n​e​l​ ​P​r​o​v​i​d​e​r​ ​E​n​g​i​n​e
+			 */
+			engineLabel: string
+			engineDesc: {
+				/**
+				 * C​l​o​u​d​f​l​a​r​e​ ​T​u​n​n​e​l
+				 */
+				cloudflare: string
+				/**
+				 * F​a​s​t​ ​R​e​v​e​r​s​e​ ​P​r​o​x​y
+				 */
+				frp: string
+				/**
+				 * P​2​P​ ​V​i​r​t​u​a​l​ ​L​A​N
+				 */
+				zerotier: string
+			}
+			/**
+			 * C​l​o​u​d​f​l​a​r​e​ ​T​u​n​n​e​l​ ​T​o​k​e​n​ ​(​c​l​o​u​d​f​l​a​r​e​d​ ​t​u​n​n​e​l​ ​r​u​n​ ​-​-​t​o​k​e​n​ ​.​.​.​)
+			 */
+			cloudflareTokenLabel: string
+			/**
+			 * F​R​P​ ​S​e​r​v​e​r​ ​A​d​d​r​e​s​s
+			 */
+			frpServerLabel: string
+			/**
+			 * F​R​P​ ​A​u​t​h​ ​T​o​k​e​n
+			 */
+			frpTokenLabel: string
+			/**
+			 * Z​e​r​o​T​i​e​r​ ​N​e​t​w​o​r​k​ ​I​D​ ​(​1​6​ ​H​e​x​ ​D​i​g​i​t​s​)
+			 */
+			zerotierNetworkLabel: string
+		}
+		endpoint: {
+			/**
+			 * P​u​b​l​i​c​ ​R​e​m​o​t​e​ ​E​n​d​p​o​i​n​t
+			 */
+			title: string
+			/**
+			 * W​o​r​l​d​w​i​d​e​ ​a​c​c​e​s​s​ ​U​R​L
+			 */
+			subtitle: string
+			/**
+			 * P​u​b​l​i​c​ ​D​o​m​a​i​n​:
+			 */
+			publicDomain: string
+			/**
+			 * T​u​n​n​e​l​ ​d​a​e​m​o​n​ ​i​s​ ​c​o​n​n​e​c​t​e​d​.
+			 */
+			daemonConnected: string
+			/**
+			 * T​u​n​n​e​l​ ​i​s​ ​s​t​o​p​p​e​d​.​ ​C​o​n​f​i​g​u​r​e​ ​y​o​u​r​ ​p​r​o​v​i​d​e​r​ ​c​r​e​d​e​n​t​i​a​l​s​ ​a​n​d​ ​c​l​i​c​k​ ​S​t​a​r​t​.
+			 */
+			stopped: string
+		}
+		binary: {
+			/**
+			 * E​n​g​i​n​e​ ​B​i​n​a​r​y​ ​M​a​n​a​g​e​m​e​n​t
+			 */
+			title: string
+			/**
+			 * U​p​l​o​a​d​ ​c​u​s​t​o​m​ ​A​R​M​6​4​ ​o​r​ ​x​8​6​ ​e​x​e​c​u​t​a​b​l​e​ ​b​i​n​a​r​y​ ​f​o​r​ ​c​l​o​u​d​f​l​a​r​e​d​ ​/​ ​z​e​r​o​t​i​e​r​-​o​n​e
+			 */
+			subtitle: string
+			/**
+			 * T​a​r​g​e​t​ ​T​u​n​n​e​l​ ​E​n​g​i​n​e
+			 */
+			targetEngine: string
+			/**
+			 * S​e​l​e​c​t​ ​E​x​e​c​u​t​a​b​l​e​ ​B​i​n​a​r​y
+			 */
+			selectLabel: string
+			/**
+			 * C​h​o​o​s​e​ ​e​x​e​c​u​t​a​b​l​e​ ​b​i​n​a​r​y​ ​f​i​l​e​.​.​.
+			 */
+			chooseFile: string
+			/**
+			 * U​p​l​o​a​d​ ​B​i​n​a​r​y
+			 */
+			upload: string
+			/**
+			 * B​i​n​a​r​i​e​s​ ​a​r​e​ ​s​a​v​e​d​ ​t​o​ ​t​h​e​ ​m​o​d​u​l​e​ ​b​i​n​ ​d​i​r​e​c​t​o​r​y​ ​w​i​t​h​ ​e​x​e​c​u​t​a​b​l​e​ ​(
+			 */
+			savedNoteA: string
+			/**
+			 * 0​7​5​5
+			 */
+			savedNoteB: string
+			/**
+			 * )​ ​p​e​r​m​i​s​s​i​o​n​s​.
+			 */
+			savedNoteC: string
+		}
+		toasts: {
+			/**
+			 * T​u​n​n​e​l​ ​(​{​e​n​g​i​n​e​}​)​ ​s​t​a​r​t​e​d​ ​s​u​c​c​e​s​s​f​u​l​l​y​.
+			 * @param {unknown} engine
+			 */
+			started: RequiredParams<'engine'>
+			/**
+			 * F​a​i​l​e​d​ ​t​o​ ​s​t​a​r​t​ ​t​u​n​n​e​l
+			 */
+			startFailed: string
+			/**
+			 * T​u​n​n​e​l​ ​s​t​o​p​p​e​d​.
+			 */
+			stopped: string
+			/**
+			 * F​a​i​l​e​d​ ​t​o​ ​s​t​o​p​ ​t​u​n​n​e​l
+			 */
+			stopFailed: string
+			/**
+			 * P​l​e​a​s​e​ ​s​e​l​e​c​t​ ​a​ ​b​i​n​a​r​y​ ​f​i​l​e​ ​f​i​r​s​t​.
+			 */
+			selectBinaryFirst: string
+			/**
+			 * B​i​n​a​r​y​ ​f​o​r​ ​{​e​n​g​i​n​e​}​ ​i​n​s​t​a​l​l​e​d​ ​s​u​c​c​e​s​s​f​u​l​l​y​ ​t​o​ ​{​p​a​t​h​}
+			 * @param {unknown} engine
+			 * @param {unknown} path
+			 */
+			binaryInstalled: RequiredParams<'engine' | 'path'>
+			/**
+			 * F​a​i​l​e​d​ ​t​o​ ​u​p​l​o​a​d​ ​b​i​n​a​r​y
+			 */
+			uploadFailed: string
+		}
+	}
 }
 
 export type TranslationFunctions = {
@@ -22982,6 +23142,162 @@ export type TranslationFunctions = {
 			 * Failed to reset vnstat database
 			 */
 			resetFailed: () => LocalizedString
+		}
+	}
+	tunnel: {
+		/**
+		 * Remote Access Tunnels
+		 */
+		title: () => LocalizedString
+		/**
+		 * {engine} Active
+		 */
+		badgeActive: (arg: { engine: unknown }) => LocalizedString
+		/**
+		 * Inactive
+		 */
+		badgeInactive: () => LocalizedString
+		/**
+		 * Start Tunnel
+		 */
+		startTunnel: () => LocalizedString
+		/**
+		 * Stop Tunnel
+		 */
+		stopTunnel: () => LocalizedString
+		config: {
+			/**
+			 * Tunnel Configuration
+			 */
+			title: () => LocalizedString
+			/**
+			 * Expose WebUI remotely without port forwarding
+			 */
+			subtitle: () => LocalizedString
+			/**
+			 * Tunnel Provider Engine
+			 */
+			engineLabel: () => LocalizedString
+			engineDesc: {
+				/**
+				 * Cloudflare Tunnel
+				 */
+				cloudflare: () => LocalizedString
+				/**
+				 * Fast Reverse Proxy
+				 */
+				frp: () => LocalizedString
+				/**
+				 * P2P Virtual LAN
+				 */
+				zerotier: () => LocalizedString
+			}
+			/**
+			 * Cloudflare Tunnel Token (cloudflared tunnel run --token ...)
+			 */
+			cloudflareTokenLabel: () => LocalizedString
+			/**
+			 * FRP Server Address
+			 */
+			frpServerLabel: () => LocalizedString
+			/**
+			 * FRP Auth Token
+			 */
+			frpTokenLabel: () => LocalizedString
+			/**
+			 * ZeroTier Network ID (16 Hex Digits)
+			 */
+			zerotierNetworkLabel: () => LocalizedString
+		}
+		endpoint: {
+			/**
+			 * Public Remote Endpoint
+			 */
+			title: () => LocalizedString
+			/**
+			 * Worldwide access URL
+			 */
+			subtitle: () => LocalizedString
+			/**
+			 * Public Domain:
+			 */
+			publicDomain: () => LocalizedString
+			/**
+			 * Tunnel daemon is connected.
+			 */
+			daemonConnected: () => LocalizedString
+			/**
+			 * Tunnel is stopped. Configure your provider credentials and click Start.
+			 */
+			stopped: () => LocalizedString
+		}
+		binary: {
+			/**
+			 * Engine Binary Management
+			 */
+			title: () => LocalizedString
+			/**
+			 * Upload custom ARM64 or x86 executable binary for cloudflared / zerotier-one
+			 */
+			subtitle: () => LocalizedString
+			/**
+			 * Target Tunnel Engine
+			 */
+			targetEngine: () => LocalizedString
+			/**
+			 * Select Executable Binary
+			 */
+			selectLabel: () => LocalizedString
+			/**
+			 * Choose executable binary file...
+			 */
+			chooseFile: () => LocalizedString
+			/**
+			 * Upload Binary
+			 */
+			upload: () => LocalizedString
+			/**
+			 * Binaries are saved to the module bin directory with executable (
+			 */
+			savedNoteA: () => LocalizedString
+			/**
+			 * 0755
+			 */
+			savedNoteB: () => LocalizedString
+			/**
+			 * ) permissions.
+			 */
+			savedNoteC: () => LocalizedString
+		}
+		toasts: {
+			/**
+			 * Tunnel ({engine}) started successfully.
+			 */
+			started: (arg: { engine: unknown }) => LocalizedString
+			/**
+			 * Failed to start tunnel
+			 */
+			startFailed: () => LocalizedString
+			/**
+			 * Tunnel stopped.
+			 */
+			stopped: () => LocalizedString
+			/**
+			 * Failed to stop tunnel
+			 */
+			stopFailed: () => LocalizedString
+			/**
+			 * Please select a binary file first.
+			 */
+			selectBinaryFirst: () => LocalizedString
+			/**
+			 * Binary for {engine} installed successfully to {path}
+			 */
+			binaryInstalled: (arg: { engine: unknown, path: unknown }) => LocalizedString
+			/**
+			 * Failed to upload binary
+			 */
+			uploadFailed: () => LocalizedString
 		}
 	}
 }
