@@ -2780,6 +2780,327 @@ type RootTranslation = {
 			saveChanges: string
 		}
 	}
+	modem: {
+		/**
+		 * C​e​l​l​u​l​a​r​ ​&​ ​R​a​d​i​o​ ​T​e​l​e​m​e​t​r​y
+		 */
+		title: string
+		/**
+		 * G​e​n​e​r​a​l​ ​A​n​d​r​o​i​d​ ​r​a​d​i​o​ ​t​e​l​e​m​e​t​r​y​,​ ​s​i​g​n​a​l​ ​p​o​w​e​r​ ​m​e​a​s​u​r​e​m​e​n​t​s​,​ ​D​u​a​l​-​S​I​M​ ​r​o​u​t​i​n​g​,​ ​a​n​d​ ​t​h​e​r​m​a​l​ ​t​e​l​e​m​e​t​r​y​.
+		 */
+		subtitle: string
+		/**
+		 * R​e​f​r​e​s​h​ ​A​l​l
+		 */
+		refreshAll: string
+		compat: {
+			/**
+			 * T​a​r​g​e​t​ ​A​r​c​h​i​t​e​c​t​u​r​e​ ​&​ ​H​a​r​d​w​a​r​e​ ​C​o​m​p​a​t​i​b​i​l​i​t​y
+			 */
+			title: string
+			/**
+			 * C​O​M​P​A​T​I​B​L​E​ ​(​U​N​I​V​E​R​S​A​L​ ​C​E​L​L​U​L​A​R​ ​D​A​S​H​B​O​A​R​D​)
+			 */
+			badge: string
+			/**
+			 * T​a​r​g​e​t​ ​D​e​v​i​c​e
+			 */
+			targetDevice: string
+			/**
+			 * T​a​r​g​e​t​ ​R​O​M
+			 */
+			targetRom: string
+			/**
+			 * T​a​r​g​e​t​ ​C​h​i​p​s​e​t
+			 */
+			targetChipset: string
+			/**
+			 * T​a​r​g​e​t​ ​M​o​d​e​m
+			 */
+			targetModem: string
+		}
+		bandLock: {
+			/**
+			 * H​a​r​d​w​a​r​e​ ​B​a​n​d​ ​L​o​c​k​i​n​g
+			 */
+			title: string
+			/**
+			 * P​R​I​V​A​T​E​ ​F​E​A​T​U​R​E​ ​O​N​L​Y
+			 */
+			privateBadge: string
+			/**
+			 * S​E​L​E​C​T​ ​T​A​R​G​E​T​ ​V​E​N​D​O​R​ ​T​A​B
+			 */
+			selectVendor: string
+			/**
+			 * E​X​C​L​U​S​I​V​E​ ​C​O​R​E​ ​M​O​D​U​L​E
+			 */
+			exclusiveCore: string
+			/**
+			 * P​R​I​V​A​T​E
+			 */
+			'private': string
+			/**
+			 * P​r​i​v​a​t​e​ ​f​e​a​t​u​r​e​ ​o​n​l​y​ ​(​S​n​a​p​d​r​a​g​o​n​ ​Q​R​T​R​ ​B​a​s​e​b​a​n​d​)
+			 */
+			snapdragonPrivate: string
+			/**
+			 * P​r​i​v​a​t​e​ ​f​e​a​t​u​r​e​ ​o​n​l​y​ ​(​S​a​m​s​u​n​g​ ​S​e​c​R​I​L​ ​R​a​d​i​o​)
+			 */
+			samsungPrivate: string
+			/**
+			 * P​r​i​v​a​t​e​ ​f​e​a​t​u​r​e​ ​o​n​l​y​ ​(​G​o​o​g​l​e​ ​T​e​n​s​o​r​ ​S​h​a​n​n​o​n​ ​M​o​d​e​m​)
+			 */
+			tensorPrivate: string
+		}
+		subtabs: {
+			/**
+			 * S​i​g​n​a​l​ ​&​ ​R​a​d​i​o
+			 */
+			signal: string
+			/**
+			 * D​u​a​l​ ​S​I​M​ ​R​o​u​t​i​n​g
+			 */
+			sim: string
+			/**
+			 * 5​G​ ​T​h​e​r​m​a​l​ ​T​e​l​e​m​e​t​r​y
+			 */
+			thermal: string
+			/**
+			 * A​T​ ​C​o​n​s​o​l​e​ ​T​e​r​m​i​n​a​l
+			 */
+			at: string
+		}
+		signal: {
+			/**
+			 * C​e​l​l​u​l​a​r​ ​R​a​d​i​o​ ​S​i​g​n​a​l
+			 */
+			cardTitle: string
+			/**
+			 * C​e​l​l​ ​I​d​e​n​t​i​t​y​ ​&​ ​I​n​f​o
+			 */
+			identityTitle: string
+			/**
+			 * R​a​d​i​o​ ​m​a​s​t​ ​d​e​t​a​i​l​s
+			 */
+			identitySubtitle: string
+			/**
+			 * N​e​t​w​o​r​k​ ​M​o​d​e
+			 */
+			networkMode: string
+			/**
+			 * N​o​ ​S​N​R​ ​b​r​o​a​d​c​a​s​t
+			 */
+			noSnr: string
+			/**
+			 * C​a​r​r​i​e​r​ ​T​e​l​e​m​e​t​r​y​ ​I​n​t​e​g​r​a​t​i​o​n
+			 */
+			integrationTitle: string
+			/**
+			 * M​o​d​e​m​ ​r​a​d​i​o​ ​m​e​a​s​u​r​e​m​e​n​t​s​ ​p​a​r​s​e​d​ ​l​i​v​e​ ​v​i​a​ ​A​n​d​r​o​i​d​ ​T​e​l​e​p​h​o​n​y​ ​s​e​r​v​i​c​e​ ​r​e​g​i​s​t​r​i​e​s​.
+			 */
+			integrationBody: string
+			/**
+			 * O​p​e​r​a​t​o​r
+			 */
+			operator: string
+			/**
+			 * A​c​t​i​v​e​ ​B​a​n​d
+			 */
+			activeBand: string
+			/**
+			 * B​a​n​d​w​i​d​t​h
+			 */
+			bandwidth: string
+			/**
+			 * E​A​R​F​C​N​ ​(​C​h​a​n​n​e​l​)
+			 */
+			earfcn: string
+			/**
+			 * P​h​y​s​i​c​a​l​ ​C​e​l​l​ ​I​D​ ​(​P​C​I​)
+			 */
+			pci: string
+			/**
+			 * T​o​w​e​r​ ​D​i​s​t​a​n​c​e​ ​(​T​A​)
+			 */
+			towerDistance: string
+			/**
+			 * C​e​l​l​ ​I​D​ ​/​ ​T​A​C
+			 */
+			cellIdTac: string
+			/**
+			 * N​/​A​ ​(​N​o​ ​T​A​ ​b​r​o​a​d​c​a​s​t​)
+			 */
+			noTa: string
+			/**
+			 * A​n​d​r​o​i​d​ ​1​6​ ​M​a​s​k​e​d
+			 */
+			maskedBadge: string
+			/**
+			 * A​n​d​r​o​i​d​ ​1​6​ ​p​r​i​v​a​c​y​ ​p​o​l​i​c​y​ ​m​a​s​k​s​ ​g​l​o​b​a​l​ ​C​e​l​l​ ​I​D​ ​a​n​d​ ​T​A​C​ ​i​n​ ​t​e​l​e​p​h​o​n​y​ ​d​u​m​p​s​y​s
+			 */
+			maskedTitle: string
+		}
+		sim: {
+			/**
+			 * U​n​i​v​e​r​s​a​l​ ​D​u​a​l​-​S​I​M​ ​&​ ​M​o​b​i​l​e​ ​D​a​t​a​ ​R​o​u​t​i​n​g
+			 */
+			title: string
+			/**
+			 * M​a​n​a​g​e​ ​a​c​t​i​v​e​ ​c​e​l​l​u​l​a​r​ ​d​a​t​a​ ​s​l​o​t​ ​a​c​r​o​s​s​ ​p​h​y​s​i​c​a​l​ ​S​I​M​s​ ​a​n​d​ ​e​S​I​M​s
+			 */
+			subtitle: string
+			/**
+			 * N​o​ ​S​I​M​ ​C​a​r​d​ ​I​n​s​e​r​t​e​d
+			 */
+			noSim: string
+			/**
+			 * U​n​k​n​o​w​n​ ​O​p​e​r​a​t​o​r
+			 */
+			unknownOperator: string
+			/**
+			 * A​C​T​I​V​E​ ​D​A​T​A
+			 */
+			activeData: string
+			/**
+			 * S​T​A​N​D​B​Y
+			 */
+			standby: string
+			/**
+			 * ●​ ​A​c​t​i​v​e​ ​M​o​b​i​l​e​ ​D​a​t​a​ ​R​o​u​t​e
+			 */
+			activeRoute: string
+			/**
+			 * S​l​o​t​ ​E​m​p​t​y
+			 */
+			slotEmpty: string
+			/**
+			 * S​t​a​n​d​b​y​ ​f​o​r​ ​D​a​t​a
+			 */
+			standbyForData: string
+			/**
+			 * S​w​i​t​c​h​i​n​g​.​.​.
+			 */
+			switching: string
+			/**
+			 * S​w​i​t​c​h​ ​D​a​t​a​ ​t​o​ ​S​I​M​ ​{​s​l​o​t​}
+			 * @param {unknown} slot
+			 */
+			switchData: RequiredParams<'slot'>
+		}
+		thermal: {
+			/**
+			 * U​n​i​v​e​r​s​a​l​ ​M​o​d​e​m​ ​&​ ​5​G​ ​T​h​e​r​m​a​l​ ​T​e​l​e​m​e​t​r​y
+			 */
+			title: string
+			/**
+			 * R​e​a​l​-​t​i​m​e​ ​t​h​e​r​m​a​l​ ​z​o​n​e​ ​s​e​n​s​o​r​ ​t​e​l​e​m​e​t​r​y​,​ ​P​o​w​e​r​ ​A​m​p​s​ ​(​P​A​)​,​ ​a​n​d​ ​T​h​e​r​m​a​l​ ​H​A​L​ ​s​t​a​t​e
+			 */
+			subtitle: string
+			/**
+			 * T​H​R​O​T​T​L​E​D
+			 */
+			throttled: string
+			/**
+			 * S​A​F​E
+			 */
+			safe: string
+			/**
+			 * H​a​r​d​w​a​r​e​ ​S​e​n​s​o​r​s​ ​T​e​l​e​m​e​t​r​y​ ​G​r​i​d​ ​(​°​C​)
+			 */
+			sensorsTitle: string
+			/**
+			 * L​i​m​i​t​:​ ​{​l​i​m​i​t​}​°​C
+			 * @param {unknown} limit
+			 */
+			limit: RequiredParams<'limit'>
+			/**
+			 * S​u​b​-​6​G​H​z​ ​P​o​w​e​r​ ​A​m​p​ ​1
+			 */
+			pa1Desc: string
+			/**
+			 * S​u​b​-​6​G​H​z​ ​P​o​w​e​r​ ​A​m​p​ ​2
+			 */
+			pa2Desc: string
+			/**
+			 * M​o​d​e​m​ ​B​o​a​r​d​ ​T​h​e​r​m​i​s​t​o​r
+			 */
+			modemSkinDesc: string
+			/**
+			 * C​e​l​l​u​l​a​r​ ​F​r​o​n​t​e​n​d
+			 */
+			cellFrontDesc: string
+			/**
+			 * R​F​ ​P​o​w​e​r​ ​I​C
+			 */
+			rfPmicDesc: string
+			/**
+			 * B​a​s​e​b​a​n​d​ ​S​u​b​s​y​s​t​e​m
+			 */
+			modemDspDesc: string
+			/**
+			 * A​p​p​l​i​c​a​t​i​o​n​ ​P​r​o​c​e​s​s​o​r
+			 */
+			apSocDesc: string
+			/**
+			 * B​a​t​t​e​r​y​ ​P​a​c​k
+			 */
+			batteryDesc: string
+		}
+		at: {
+			/**
+			 * M​o​d​e​m​ ​A​T​ ​C​o​m​m​a​n​d​ ​T​e​r​m​i​n​a​l
+			 */
+			title: string
+			/**
+			 * D​i​r​e​c​t​ ​A​T​ ​s​e​r​i​a​l​ ​i​n​t​e​r​a​c​t​i​o​n​ ​w​i​t​h​ ​b​a​s​e​b​a​n​d​ ​m​o​d​e​m
+			 */
+			subtitle: string
+			/**
+			 * e​.​g​.​ ​A​T​I​,​ ​A​T​+​C​S​Q​,​ ​A​T​+​C​P​I​N​?​,​ ​A​T​+​C​G​R​E​G​?
+			 */
+			placeholder: string
+			/**
+			 * S​e​n​d​ ​C​o​m​m​a​n​d
+			 */
+			sendCommand: string
+			/**
+			 * N​o​ ​A​T​ ​c​o​m​m​a​n​d​s​ ​s​e​n​t​ ​y​e​t​.​ ​T​y​p​e​ ​a​ ​c​o​m​m​a​n​d​ ​a​b​o​v​e​ ​t​o​ ​q​u​e​r​y​ ​t​h​e​ ​m​o​d​e​m​.
+			 */
+			emptyLog: string
+		}
+		toasts: {
+			/**
+			 * C​e​l​l​u​l​a​r​ ​d​a​t​a​ ​r​o​u​t​e​ ​s​w​i​t​c​h​e​d​ ​t​o​ ​S​I​M​ ​{​s​l​o​t​}​.
+			 * @param {unknown} slot
+			 */
+			simSwitched: RequiredParams<'slot'>
+			/**
+			 * F​a​i​l​e​d​ ​t​o​ ​s​w​i​t​c​h​ ​m​o​b​i​l​e​ ​d​a​t​a​ ​s​l​o​t
+			 */
+			switchFailed: string
+			/**
+			 * S​w​i​t​c​h​ ​r​e​q​u​e​s​t​ ​f​a​i​l​e​d
+			 */
+			switchRequestFailed: string
+			/**
+			 * A​T​ ​c​o​m​m​a​n​d​ ​e​x​e​c​u​t​i​o​n​ ​f​a​i​l​e​d
+			 */
+			atFailed: string
+			/**
+			 * S​n​a​p​d​r​a​g​o​n​ ​H​a​r​d​w​a​r​e​ ​B​a​n​d​ ​L​o​c​k​i​n​g​ ​i​s​ ​a​ ​p​r​i​v​a​t​e​ ​f​e​a​t​u​r​e​ ​o​n​l​y​.
+			 */
+			snapdragonPrivate: string
+			/**
+			 * S​a​m​s​u​n​g​ ​H​a​r​d​w​a​r​e​ ​B​a​n​d​ ​L​o​c​k​i​n​g​ ​i​s​ ​a​ ​p​r​i​v​a​t​e​ ​f​e​a​t​u​r​e​ ​o​n​l​y​.
+			 */
+			samsungPrivate: string
+			/**
+			 * G​o​o​g​l​e​ ​T​e​n​s​o​r​ ​S​h​a​n​n​o​n​ ​H​a​r​d​w​a​r​e​ ​B​a​n​d​ ​L​o​c​k​i​n​g​ ​i​s​ ​a​ ​p​r​i​v​a​t​e​ ​f​e​a​t​u​r​e​ ​o​n​l​y​.
+			 */
+			tensorPrivate: string
+		}
+	}
 }
 
 export type TranslationFunctions = {
@@ -5515,6 +5836,324 @@ export type TranslationFunctions = {
 			 * Save Changes
 			 */
 			saveChanges: () => LocalizedString
+		}
+	}
+	modem: {
+		/**
+		 * Cellular & Radio Telemetry
+		 */
+		title: () => LocalizedString
+		/**
+		 * General Android radio telemetry, signal power measurements, Dual-SIM routing, and thermal telemetry.
+		 */
+		subtitle: () => LocalizedString
+		/**
+		 * Refresh All
+		 */
+		refreshAll: () => LocalizedString
+		compat: {
+			/**
+			 * Target Architecture & Hardware Compatibility
+			 */
+			title: () => LocalizedString
+			/**
+			 * COMPATIBLE (UNIVERSAL CELLULAR DASHBOARD)
+			 */
+			badge: () => LocalizedString
+			/**
+			 * Target Device
+			 */
+			targetDevice: () => LocalizedString
+			/**
+			 * Target ROM
+			 */
+			targetRom: () => LocalizedString
+			/**
+			 * Target Chipset
+			 */
+			targetChipset: () => LocalizedString
+			/**
+			 * Target Modem
+			 */
+			targetModem: () => LocalizedString
+		}
+		bandLock: {
+			/**
+			 * Hardware Band Locking
+			 */
+			title: () => LocalizedString
+			/**
+			 * PRIVATE FEATURE ONLY
+			 */
+			privateBadge: () => LocalizedString
+			/**
+			 * SELECT TARGET VENDOR TAB
+			 */
+			selectVendor: () => LocalizedString
+			/**
+			 * EXCLUSIVE CORE MODULE
+			 */
+			exclusiveCore: () => LocalizedString
+			/**
+			 * PRIVATE
+			 */
+			'private': () => LocalizedString
+			/**
+			 * Private feature only (Snapdragon QRTR Baseband)
+			 */
+			snapdragonPrivate: () => LocalizedString
+			/**
+			 * Private feature only (Samsung SecRIL Radio)
+			 */
+			samsungPrivate: () => LocalizedString
+			/**
+			 * Private feature only (Google Tensor Shannon Modem)
+			 */
+			tensorPrivate: () => LocalizedString
+		}
+		subtabs: {
+			/**
+			 * Signal & Radio
+			 */
+			signal: () => LocalizedString
+			/**
+			 * Dual SIM Routing
+			 */
+			sim: () => LocalizedString
+			/**
+			 * 5G Thermal Telemetry
+			 */
+			thermal: () => LocalizedString
+			/**
+			 * AT Console Terminal
+			 */
+			at: () => LocalizedString
+		}
+		signal: {
+			/**
+			 * Cellular Radio Signal
+			 */
+			cardTitle: () => LocalizedString
+			/**
+			 * Cell Identity & Info
+			 */
+			identityTitle: () => LocalizedString
+			/**
+			 * Radio mast details
+			 */
+			identitySubtitle: () => LocalizedString
+			/**
+			 * Network Mode
+			 */
+			networkMode: () => LocalizedString
+			/**
+			 * No SNR broadcast
+			 */
+			noSnr: () => LocalizedString
+			/**
+			 * Carrier Telemetry Integration
+			 */
+			integrationTitle: () => LocalizedString
+			/**
+			 * Modem radio measurements parsed live via Android Telephony service registries.
+			 */
+			integrationBody: () => LocalizedString
+			/**
+			 * Operator
+			 */
+			operator: () => LocalizedString
+			/**
+			 * Active Band
+			 */
+			activeBand: () => LocalizedString
+			/**
+			 * Bandwidth
+			 */
+			bandwidth: () => LocalizedString
+			/**
+			 * EARFCN (Channel)
+			 */
+			earfcn: () => LocalizedString
+			/**
+			 * Physical Cell ID (PCI)
+			 */
+			pci: () => LocalizedString
+			/**
+			 * Tower Distance (TA)
+			 */
+			towerDistance: () => LocalizedString
+			/**
+			 * Cell ID / TAC
+			 */
+			cellIdTac: () => LocalizedString
+			/**
+			 * N/A (No TA broadcast)
+			 */
+			noTa: () => LocalizedString
+			/**
+			 * Android 16 Masked
+			 */
+			maskedBadge: () => LocalizedString
+			/**
+			 * Android 16 privacy policy masks global Cell ID and TAC in telephony dumpsys
+			 */
+			maskedTitle: () => LocalizedString
+		}
+		sim: {
+			/**
+			 * Universal Dual-SIM & Mobile Data Routing
+			 */
+			title: () => LocalizedString
+			/**
+			 * Manage active cellular data slot across physical SIMs and eSIMs
+			 */
+			subtitle: () => LocalizedString
+			/**
+			 * No SIM Card Inserted
+			 */
+			noSim: () => LocalizedString
+			/**
+			 * Unknown Operator
+			 */
+			unknownOperator: () => LocalizedString
+			/**
+			 * ACTIVE DATA
+			 */
+			activeData: () => LocalizedString
+			/**
+			 * STANDBY
+			 */
+			standby: () => LocalizedString
+			/**
+			 * ● Active Mobile Data Route
+			 */
+			activeRoute: () => LocalizedString
+			/**
+			 * Slot Empty
+			 */
+			slotEmpty: () => LocalizedString
+			/**
+			 * Standby for Data
+			 */
+			standbyForData: () => LocalizedString
+			/**
+			 * Switching...
+			 */
+			switching: () => LocalizedString
+			/**
+			 * Switch Data to SIM {slot}
+			 */
+			switchData: (arg: { slot: unknown }) => LocalizedString
+		}
+		thermal: {
+			/**
+			 * Universal Modem & 5G Thermal Telemetry
+			 */
+			title: () => LocalizedString
+			/**
+			 * Real-time thermal zone sensor telemetry, Power Amps (PA), and Thermal HAL state
+			 */
+			subtitle: () => LocalizedString
+			/**
+			 * THROTTLED
+			 */
+			throttled: () => LocalizedString
+			/**
+			 * SAFE
+			 */
+			safe: () => LocalizedString
+			/**
+			 * Hardware Sensors Telemetry Grid (°C)
+			 */
+			sensorsTitle: () => LocalizedString
+			/**
+			 * Limit: {limit}°C
+			 */
+			limit: (arg: { limit: unknown }) => LocalizedString
+			/**
+			 * Sub-6GHz Power Amp 1
+			 */
+			pa1Desc: () => LocalizedString
+			/**
+			 * Sub-6GHz Power Amp 2
+			 */
+			pa2Desc: () => LocalizedString
+			/**
+			 * Modem Board Thermistor
+			 */
+			modemSkinDesc: () => LocalizedString
+			/**
+			 * Cellular Frontend
+			 */
+			cellFrontDesc: () => LocalizedString
+			/**
+			 * RF Power IC
+			 */
+			rfPmicDesc: () => LocalizedString
+			/**
+			 * Baseband Subsystem
+			 */
+			modemDspDesc: () => LocalizedString
+			/**
+			 * Application Processor
+			 */
+			apSocDesc: () => LocalizedString
+			/**
+			 * Battery Pack
+			 */
+			batteryDesc: () => LocalizedString
+		}
+		at: {
+			/**
+			 * Modem AT Command Terminal
+			 */
+			title: () => LocalizedString
+			/**
+			 * Direct AT serial interaction with baseband modem
+			 */
+			subtitle: () => LocalizedString
+			/**
+			 * e.g. ATI, AT+CSQ, AT+CPIN?, AT+CGREG?
+			 */
+			placeholder: () => LocalizedString
+			/**
+			 * Send Command
+			 */
+			sendCommand: () => LocalizedString
+			/**
+			 * No AT commands sent yet. Type a command above to query the modem.
+			 */
+			emptyLog: () => LocalizedString
+		}
+		toasts: {
+			/**
+			 * Cellular data route switched to SIM {slot}.
+			 */
+			simSwitched: (arg: { slot: unknown }) => LocalizedString
+			/**
+			 * Failed to switch mobile data slot
+			 */
+			switchFailed: () => LocalizedString
+			/**
+			 * Switch request failed
+			 */
+			switchRequestFailed: () => LocalizedString
+			/**
+			 * AT command execution failed
+			 */
+			atFailed: () => LocalizedString
+			/**
+			 * Snapdragon Hardware Band Locking is a private feature only.
+			 */
+			snapdragonPrivate: () => LocalizedString
+			/**
+			 * Samsung Hardware Band Locking is a private feature only.
+			 */
+			samsungPrivate: () => LocalizedString
+			/**
+			 * Google Tensor Shannon Hardware Band Locking is a private feature only.
+			 */
+			tensorPrivate: () => LocalizedString
 		}
 	}
 }

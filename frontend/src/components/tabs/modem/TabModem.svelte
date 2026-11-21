@@ -25,6 +25,7 @@
   import Input from '../../ui/Input.svelte'
   import { themeStore } from '../../../stores/theme.svelte'
   import SakugaTabs from '../../ui/SakugaTabs.svelte'
+  import { LL } from '../../../i18n/i18n-svelte'
 
   interface SimSlotInfo {
     slot_index: number
@@ -79,7 +80,12 @@
   // Sub-tab selection
   let subTab = $state<'signal' | 'sim' | 'thermal' | 'at'>('signal')
   const SUBTAB_IDS: Array<typeof subTab> = ['signal', 'sim', 'thermal', 'at']
-  const SUBTAB_LABELS: string[] = ['Signal & Radio', 'Dual SIM Routing', '5G Thermal Telemetry', 'AT Console Terminal']
+  const SUBTABS = $derived([
+    { id: 'signal' as const, label: $LL.modem.subtabs.signal(), icon: Radio },
+    { id: 'sim' as const, label: $LL.modem.subtabs.sim(), icon: ArrowLeftRight },
+    { id: 'thermal' as const, label: $LL.modem.subtabs.thermal(), icon: Thermometer },
+    { id: 'at' as const, label: $LL.modem.subtabs.at(), icon: Terminal },
+  ])
 
   // Signal & Info
   let signalInfo = $state<Record<string, unknown>>({})
@@ -136,14 +142,14 @@
       isSwitchingSim = true
       const res = await api.post<{ success: boolean; error?: string; active_slot?: number }>('/api/modem/sim/switch', { slot })
       if (res && res.success) {
-        toastStore.success(`Cellular data route switched to SIM ${slot + 1}.`)
+        toastStore.success($LL.modem.toasts.simSwitched({ slot: slot + 1 }))
         await fetchSim()
         await fetchSignal()
       } else {
-        toastStore.error(res?.error || 'Failed to switch mobile data slot')
+        toastStore.error(res?.error || $LL.modem.toasts.switchFailed())
       }
     } catch (err: unknown) {
-      toastStore.error(err instanceof Error ? err.message : 'Switch request failed')
+      toastStore.error(err instanceof Error ? err.message : $LL.modem.toasts.switchRequestFailed())
     } finally {
       isSwitchingSim = false
     }
@@ -173,7 +179,7 @@
         if (!cmdToRun) atCommand = ''
       }
     } catch (err: unknown) {
-      toastStore.error(err instanceof Error ? err.message : 'AT command execution failed')
+      toastStore.error(err instanceof Error ? err.message : $LL.modem.toasts.atFailed())
     } finally {
       isExecutingAT = false
     }
@@ -182,14 +188,14 @@
   const sensorList = $derived(
     thermalData?.sensors
       ? [
-          { name: 'PA1 Sub-6', val: thermalData.sensors.pa1_sub6_c, desc: 'Sub-6GHz Power Amp 1', limit: 48.0 },
-          { name: 'PA2 Sub-6', val: thermalData.sensors.pa2_sub6_c, desc: 'Sub-6GHz Power Amp 2', limit: 48.0 },
-          { name: 'Modem Skin', val: thermalData.sensors.modem_skin_c, desc: 'Modem Board Thermistor', limit: 42.0 },
-          { name: 'Cell Front (CF)', val: thermalData.sensors.cell_front_cf_c, desc: 'Cellular Frontend', limit: 45.0 },
-          { name: 'RF PMIC', val: thermalData.sensors.rf_pmic_c, desc: 'RF Power IC', limit: 55.0 },
-          { name: 'Modem DSP', val: thermalData.sensors.modem_baseband_c, desc: 'Baseband Subsystem', limit: 60.0 },
-          { name: 'AP SoC', val: thermalData.sensors.ap_soc_c, desc: 'Application Processor', limit: 65.0 },
-          { name: 'Battery', val: thermalData.sensors.battery_c, desc: 'Battery Pack', limit: 45.0 },
+          { name: 'PA1 Sub-6', val: thermalData.sensors.pa1_sub6_c, desc: $LL.modem.thermal.pa1Desc(), limit: 48.0 },
+          { name: 'PA2 Sub-6', val: thermalData.sensors.pa2_sub6_c, desc: $LL.modem.thermal.pa2Desc(), limit: 48.0 },
+          { name: 'Modem Skin', val: thermalData.sensors.modem_skin_c, desc: $LL.modem.thermal.modemSkinDesc(), limit: 42.0 },
+          { name: 'Cell Front (CF)', val: thermalData.sensors.cell_front_cf_c, desc: $LL.modem.thermal.cellFrontDesc(), limit: 45.0 },
+          { name: 'RF PMIC', val: thermalData.sensors.rf_pmic_c, desc: $LL.modem.thermal.rfPmicDesc(), limit: 55.0 },
+          { name: 'Modem DSP', val: thermalData.sensors.modem_baseband_c, desc: $LL.modem.thermal.modemDspDesc(), limit: 60.0 },
+          { name: 'AP SoC', val: thermalData.sensors.ap_soc_c, desc: $LL.modem.thermal.apSocDesc(), limit: 65.0 },
+          { name: 'Battery', val: thermalData.sensors.battery_c, desc: $LL.modem.thermal.batteryDesc(), limit: 45.0 },
         ]
       : []
   )
@@ -202,12 +208,12 @@
       <div class="flex items-center gap-2">
         <Radio class="w-6 h-6 text-accent" />
         <h1 class="text-xl sm:text-2xl font-black uppercase tracking-wider text-foreground">
-          Cellular & Radio Telemetry
+          {$LL.modem.title()}
         </h1>
         <Badge variant="info" class="text-[10px]">Universal</Badge>
       </div>
       <p class="text-xs text-muted mt-1">
-        General Android radio telemetry, signal power measurements, Dual-SIM routing, and thermal telemetry.
+        {$LL.modem.subtitle()}
       </p>
     </div>
 
@@ -219,7 +225,7 @@
         onclick={() => { fetchSignal(); fetchSim(); fetchThermal(); }}
       >
         <RefreshCw class="w-3.5 h-3.5 mr-1.5 {isLoadingSignal || isLoadingSim || isLoadingThermal ? 'animate-spin' : ''}" />
-        <span>Refresh All</span>
+        <span>{$LL.modem.refreshAll()}</span>
       </Button>
     </div>
   </div>
@@ -230,30 +236,30 @@
       <div class="flex items-center gap-2">
         <Cpu class="w-4 h-4 text-accent" />
         <span class="text-xs font-bold uppercase tracking-wider text-foreground">
-          Target Architecture & Hardware Compatibility
+          {$LL.modem.compat.title()}
         </span>
       </div>
       <Badge variant="success" class="flex items-center gap-1.5 w-fit">
         <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-        <span>COMPATIBLE (UNIVERSAL CELLULAR DASHBOARD)</span>
+        <span>{$LL.modem.compat.badge()}</span>
       </Badge>
     </div>
 
     <div class="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3 text-xs">
       <div class="p-2 sm:p-2.5 bg-card border-2 border-border rounded space-y-0.5">
-        <span class="text-[10px] text-muted uppercase font-bold block">Target Device</span>
+        <span class="text-[10px] text-muted uppercase font-bold block">{$LL.modem.compat.targetDevice()}</span>
         <p class="font-bold text-foreground text-[11px] sm:text-xs">All Android (Universal)</p>
       </div>
       <div class="p-2 sm:p-2.5 bg-card border-2 border-border rounded space-y-0.5">
-        <span class="text-[10px] text-muted uppercase font-bold block">Target ROM</span>
+        <span class="text-[10px] text-muted uppercase font-bold block">{$LL.modem.compat.targetRom()}</span>
         <p class="font-bold text-foreground text-[11px] sm:text-xs">Android 8.0 - 15+ System</p>
       </div>
       <div class="p-2 sm:p-2.5 bg-card border-2 border-border rounded space-y-0.5">
-        <span class="text-[10px] text-muted uppercase font-bold block">Target Chipset</span>
+        <span class="text-[10px] text-muted uppercase font-bold block">{$LL.modem.compat.targetChipset()}</span>
         <p class="font-bold text-foreground text-[11px] sm:text-xs">Snapdragon, MTK, Exynos, Tensor</p>
       </div>
       <div class="p-2 sm:p-2.5 bg-card border-2 border-border rounded space-y-0.5">
-        <span class="text-[10px] text-muted uppercase font-bold block">Target Modem</span>
+        <span class="text-[10px] text-muted uppercase font-bold block">{$LL.modem.compat.targetModem()}</span>
         <p class="font-bold text-foreground text-[11px] sm:text-xs">Telephony Subsystem & HAL</p>
       </div>
     </div>
@@ -263,13 +269,13 @@
   <div class="p-3 sm:p-4 bg-card-sub border-2 border-border rounded-lg space-y-2 sm:space-y-3">
     <div class="flex items-center justify-between">
       <div class="flex items-center gap-2">
-        <span class="text-xs font-bold uppercase text-foreground">Hardware Band Locking</span>
+        <span class="text-xs font-bold uppercase text-foreground">{$LL.modem.bandLock.title()}</span>
         {#if !HAS_VENDOR_MODEM}
-          <Badge variant="warning" class="text-[9px] font-black">PRIVATE FEATURE ONLY</Badge>
+          <Badge variant="warning" class="text-[9px] font-black">{$LL.modem.bandLock.privateBadge()}</Badge>
         {/if}
       </div>
       <span class="text-[10px] text-muted font-bold hidden sm:inline">
-        {HAS_VENDOR_MODEM ? 'SELECT TARGET VENDOR TAB' : 'EXCLUSIVE CORE MODULE'}
+        {HAS_VENDOR_MODEM ? $LL.modem.bandLock.selectVendor() : $LL.modem.bandLock.exclusiveCore()}
       </span>
     </div>
     <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-3">
@@ -280,7 +286,7 @@
           if (HAS_VENDOR_MODEM) {
             navigationStore.activeTab = 'qualcomm'
           } else {
-            toastStore.info('Snapdragon Hardware Band Locking is a private feature only.')
+            toastStore.info($LL.modem.toasts.snapdragonPrivate())
           }
         }}
       >
@@ -292,11 +298,11 @@
           {#if HAS_VENDOR_MODEM}
             <Badge variant="success" class="text-[9px]">QRTR</Badge>
           {:else}
-            <Badge variant="default" class="text-[9px] border-amber-500/40 text-amber-400">PRIVATE</Badge>
+            <Badge variant="default" class="text-[9px] border-amber-500/40 text-amber-400">{$LL.modem.bandLock.private()}</Badge>
           {/if}
         </div>
         <p class="text-[10px] text-muted">
-          {HAS_VENDOR_MODEM ? 'Pixel 1-5, Xiaomi, POCO, OnePlus Snapdragon' : 'Private feature only (Snapdragon QRTR Baseband)'}
+          {HAS_VENDOR_MODEM ? 'Pixel 1-5, Xiaomi, POCO, OnePlus Snapdragon' : $LL.modem.bandLock.snapdragonPrivate()}
         </p>
       </button>
 
@@ -307,7 +313,7 @@
           if (HAS_VENDOR_MODEM) {
             navigationStore.activeTab = 'samsung'
           } else {
-            toastStore.info('Samsung Hardware Band Locking is a private feature only.')
+            toastStore.info($LL.modem.toasts.samsungPrivate())
           }
         }}
       >
@@ -319,11 +325,11 @@
           {#if HAS_VENDOR_MODEM}
             <Badge variant="info" class="text-[9px]">SecRIL</Badge>
           {:else}
-            <Badge variant="default" class="text-[9px] border-amber-500/40 text-amber-400">PRIVATE</Badge>
+            <Badge variant="default" class="text-[9px] border-amber-500/40 text-amber-400">{$LL.modem.bandLock.private()}</Badge>
           {/if}
         </div>
         <p class="text-[10px] text-muted">
-          {HAS_VENDOR_MODEM ? 'Galaxy S/A Series Exynos & Shannon Radio' : 'Private feature only (Samsung SecRIL Radio)'}
+          {HAS_VENDOR_MODEM ? 'Galaxy S/A Series Exynos & Shannon Radio' : $LL.modem.bandLock.samsungPrivate()}
         </p>
       </button>
 
@@ -334,7 +340,7 @@
           if (HAS_VENDOR_MODEM) {
             navigationStore.activeTab = 'shannon'
           } else {
-            toastStore.info('Google Tensor Shannon Hardware Band Locking is a private feature only.')
+            toastStore.info($LL.modem.toasts.tensorPrivate())
           }
         }}
       >
@@ -346,11 +352,11 @@
           {#if HAS_VENDOR_MODEM}
             <Badge variant="warning" class="text-[9px]">NV/EFS</Badge>
           {:else}
-            <Badge variant="default" class="text-[9px] border-amber-500/40 text-amber-400">PRIVATE</Badge>
+            <Badge variant="default" class="text-[9px] border-amber-500/40 text-amber-400">{$LL.modem.bandLock.private()}</Badge>
           {/if}
         </div>
         <p class="text-[10px] text-muted">
-          {HAS_VENDOR_MODEM ? 'Google Pixel 6, 7, 8, 9 Series Shannon Modem' : 'Private feature only (Google Tensor Shannon Modem)'}
+          {HAS_VENDOR_MODEM ? 'Google Pixel 6, 7, 8, 9 Series Shannon Modem' : $LL.modem.bandLock.tensorPrivate()}
         </p>
       </button>
     </div>
@@ -359,23 +365,18 @@
 {#if themeStore.useSakugaControls()}
     <SakugaTabs
       selected={SUBTAB_IDS.indexOf(subTab)}
-      options={SUBTAB_LABELS}
+      options={SUBTABS.map((t) => t.label)}
       onchange={(e) => { subTab = SUBTAB_IDS[(e.target as any).selected] }}
     />
   {:else}
   <div class="flex items-center gap-2 border-b-2 border-border pb-2 overflow-x-auto text-xs">
-    {#each [
-      { id: 'signal', label: 'Signal & Radio', icon: Radio },
-      { id: 'sim', label: 'Dual SIM Routing', icon: ArrowLeftRight },
-      { id: 'thermal', label: '5G Thermal Telemetry', icon: Thermometer },
-      { id: 'at', label: 'AT Console Terminal', icon: Terminal },
-    ] as tab}
+    {#each SUBTABS as tab}
       <button
         type="button"
         class="neo-button flex items-center gap-2 px-3 py-2 rounded-t font-bold transition-all cursor-pointer {subTab === tab.id
           ? 'border-2 border-b-0 border-accent bg-accent/15 text-accent shadow-neobrutal-sm'
           : 'border-2 border-transparent text-muted hover:text-foreground'}"
-        onclick={() => (subTab = tab.id as typeof subTab)}
+        onclick={() => (subTab = tab.id)}
       >
         <tab.icon class="w-3.5 h-3.5" />
         <span>{tab.label}</span>
@@ -387,7 +388,7 @@
   <!-- SUB-TAB 1: Signal & Radio -->
   {#if subTab === 'signal'}
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-3 sm:gap-6">
-      <Card title="Cellular Radio Signal" tone="mint" class="lg:col-span-2">
+      <Card title={$LL.modem.signal.cardTitle()} tone="mint" class="lg:col-span-2">
         {#snippet action()}
           <Button
             variant="secondary"
@@ -396,7 +397,7 @@
             onclick={fetchSignal}
           >
             <RefreshCw class="w-3.5 h-3.5 mr-1.5 {isLoadingSignal ? 'animate-spin' : ''}" />
-            <span>Refresh</span>
+            <span>{$LL.common.refresh()}</span>
           </Button>
         {/snippet}
 
@@ -421,12 +422,12 @@
               {signalInfo['sinr'] !== undefined && signalInfo['sinr'] !== null && signalInfo['sinr'] !== -999 ? `${signalInfo['sinr']} dB` : 'N/A'}
             </p>
             {#if signalInfo['sinr'] === -999 || signalInfo['sinr'] === undefined}
-              <span class="text-[9px] text-muted block">No SNR broadcast</span>
+              <span class="text-[9px] text-muted block">{$LL.modem.signal.noSnr()}</span>
             {/if}
           </div>
 
           <div class="bg-card-sub border-2 border-border p-3 rounded space-y-1">
-            <span class="text-[10px] text-muted uppercase font-bold">Network Mode</span>
+            <span class="text-[10px] text-muted uppercase font-bold">{$LL.modem.signal.networkMode()}</span>
             <p class="text-sm font-bold text-emerald-400">
               {String(signalInfo['network_type'] || '4G LTE-A')}
             </p>
@@ -434,52 +435,52 @@
         </div>
 
         <div class="mt-4 p-3 bg-card-sub border-2 border-border rounded text-xs text-muted">
-          <p class="font-bold text-foreground mb-1">Carrier Telemetry Integration</p>
+          <p class="font-bold text-foreground mb-1">{$LL.modem.signal.integrationTitle()}</p>
           <p>
-            Modem radio measurements parsed live via Android Telephony service registries.
+            {$LL.modem.signal.integrationBody()}
           </p>
         </div>
       </Card>
 
-      <Card title="Cell Identity & Info" subtitle="Radio mast details" tone="mint">
+      <Card title={$LL.modem.signal.identityTitle()} subtitle={$LL.modem.signal.identitySubtitle()} tone="mint">
         <div class="space-y-3 text-xs">
           <div class="flex items-center justify-between p-2 rounded bg-card-sub border-2 border-border">
-            <span class="text-muted">Operator</span>
+            <span class="text-muted">{$LL.modem.signal.operator()}</span>
             <span class="font-bold text-foreground">{String(signalInfo['operator'] || 'Auto-Detected')}</span>
           </div>
           <div class="flex items-center justify-between p-2 rounded bg-card-sub border-2 border-border">
-            <span class="text-muted">Active Band</span>
+            <span class="text-muted">{$LL.modem.signal.activeBand()}</span>
             <span class="font-bold text-accent">{String(signalInfo['band'] || 'Auto')}</span>
           </div>
           <div class="flex items-center justify-between p-2 rounded bg-card-sub border-2 border-border">
-            <span class="text-muted">Bandwidth</span>
+            <span class="text-muted">{$LL.modem.signal.bandwidth()}</span>
             <span class="font-bold text-foreground">{String(signalInfo['bandwidth'] || '--')}</span>
           </div>
           <div class="flex items-center justify-between p-2 rounded bg-card-sub border-2 border-border">
-            <span class="text-muted">EARFCN (Channel)</span>
+            <span class="text-muted">{$LL.modem.signal.earfcn()}</span>
             <span class="font-bold text-accent">{String(signalInfo['earfcn'] && signalInfo['earfcn'] !== 0 ? signalInfo['earfcn'] : '--')}</span>
           </div>
           <div class="flex items-center justify-between p-2 rounded bg-card-sub border-2 border-border">
-            <span class="text-muted">Physical Cell ID (PCI)</span>
+            <span class="text-muted">{$LL.modem.signal.pci()}</span>
             <span class="font-bold text-emerald-400">{String(signalInfo['pci'] && signalInfo['pci'] !== 'Unknown' ? signalInfo['pci'] : '--')}</span>
           </div>
           <div class="flex items-center justify-between p-2 rounded bg-card-sub border-2 border-border">
-            <span class="text-muted">Tower Distance (TA)</span>
+            <span class="text-muted">{$LL.modem.signal.towerDistance()}</span>
             <span class="font-bold text-foreground">
               {#if signalInfo['distance_str']}
                 <span class="text-cyan-400 font-mono font-bold">{signalInfo['distance_str']}</span>
               {:else if signalInfo['timing_advance'] && Number(signalInfo['timing_advance']) > 0}
                 <span class="text-cyan-400 font-mono font-bold">TA: {signalInfo['timing_advance']}</span>
               {:else}
-                <span class="text-muted font-normal">N/A (No TA broadcast)</span>
+                <span class="text-muted font-normal">{$LL.modem.signal.noTa()}</span>
               {/if}
             </span>
           </div>
           <div class="flex items-center justify-between p-2 rounded bg-card-sub border-2 border-border">
-            <span class="text-muted">Cell ID / TAC</span>
+            <span class="text-muted">{$LL.modem.signal.cellIdTac()}</span>
             <span class="font-bold text-foreground">
               {signalInfo['cell_id'] && signalInfo['cell_id'] !== 'Unknown' && signalInfo['cell_id'] !== '0' && signalInfo['cell_id'] !== 'Protected' ? signalInfo['cell_id'] : '--'} / {signalInfo['tac'] && signalInfo['tac'] !== 'Unknown' && signalInfo['tac'] !== '0' && signalInfo['tac'] !== 'Protected' ? signalInfo['tac'] : '--'}
-              <span class="text-[9px] font-normal text-muted ml-1.5 px-1.5 py-0.5 rounded bg-amber-950/40 border border-amber-800/60 text-amber-300" title="Android 16 privacy policy masks global Cell ID and TAC in telephony dumpsys">Android 16 Masked</span>
+              <span class="text-[9px] font-normal text-muted ml-1.5 px-1.5 py-0.5 rounded bg-amber-950/40 border border-amber-800/60 text-amber-300" title={$LL.modem.signal.maskedTitle()}>{$LL.modem.signal.maskedBadge()}</span>
             </span>
           </div>
         </div>
@@ -491,8 +492,8 @@
   {#if subTab === 'sim'}
     <div class="space-y-3 sm:space-y-6">
       <Card
-        title="Universal Dual-SIM & Mobile Data Routing"
-        subtitle="Manage active cellular data slot across physical SIMs and eSIMs"
+        title={$LL.modem.sim.title()}
+        subtitle={$LL.modem.sim.subtitle()}
         tone="mint"
       >
         {#snippet action()}
@@ -503,7 +504,7 @@
             onclick={fetchSim}
           >
             <RefreshCw class="w-3.5 h-3.5 mr-1.5 {isLoadingSim ? 'animate-spin' : ''}" />
-            <span>Refresh</span>
+            <span>{$LL.common.refresh()}</span>
           </Button>
         {/snippet}
 
@@ -543,10 +544,10 @@
                         </span>
                       </div>
                       <span class="text-xs font-semibold text-foreground/90 block mt-0.5">
-                        {slot.carrier || (isAbsent ? 'No SIM Card Inserted' : 'Unknown Operator')}
+                        {slot.carrier || (isAbsent ? $LL.modem.sim.noSim() : $LL.modem.sim.unknownOperator())}
                       </span>
                       <span class="text-[11px] text-muted block">
-                        SubID: {slot.sub_id > 0 ? slot.sub_id : '--'} | Status: <strong class="text-foreground">{slot.state}</strong>
+                        SubID: {slot.sub_id > 0 ? slot.sub_id : '--'} | {$LL.common.status()}: <strong class="text-foreground">{slot.state}</strong>
                       </span>
                     </div>
                   </div>
@@ -554,18 +555,18 @@
                   {#if isActive}
                     <Badge variant="success" class="flex items-center gap-1.5 shadow-sm">
                       <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                      <span>ACTIVE DATA</span>
+                      <span>{$LL.modem.sim.activeData()}</span>
                     </Badge>
                   {:else if isAbsent}
                     <Badge variant="danger">ABSENT</Badge>
                   {:else}
-                    <Badge variant="default">STANDBY</Badge>
+                    <Badge variant="default">{$LL.modem.sim.standby()}</Badge>
                   {/if}
                 </div>
 
                 <div class="flex items-center justify-between gap-2 pt-3 border-t-2 border-border/50">
                   <span class="text-xs {isActive ? 'text-emerald-300 font-semibold' : 'text-muted'}">
-                    {isActive ? '● Active Mobile Data Route' : isAbsent ? 'Slot Empty' : 'Standby for Data'}
+                    {isActive ? $LL.modem.sim.activeRoute() : isAbsent ? $LL.modem.sim.slotEmpty() : $LL.modem.sim.standbyForData()}
                   </span>
 
                   {#if !isActive}
@@ -577,12 +578,12 @@
                     >
                       {#if isSwitchingSim}
                         <RefreshCw class="w-3.5 h-3.5 mr-1 animate-spin" />
-                        <span>Switching...</span>
+                        <span>{$LL.modem.sim.switching()}</span>
                       {:else if isAbsent}
-                        <span>Slot Empty</span>
+                        <span>{$LL.modem.sim.slotEmpty()}</span>
                       {:else}
                         <ArrowLeftRight class="w-3.5 h-3.5 mr-1" />
-                        <span>Switch Data to SIM {slot.slot_index + 1}</span>
+                        <span>{$LL.modem.sim.switchData({ slot: slot.slot_index + 1 })}</span>
                       {/if}
                     </Button>
                   {/if}
@@ -599,8 +600,8 @@
   {#if subTab === 'thermal'}
     <div class="space-y-3 sm:space-y-6">
       <Card
-        title="Universal Modem & 5G Thermal Telemetry"
-        subtitle="Real-time thermal zone sensor telemetry, Power Amps (PA), and Thermal HAL state"
+        title={$LL.modem.thermal.title()}
+        subtitle={$LL.modem.thermal.subtitle()}
         tone="ice"
       >
         {#snippet action()}
@@ -609,12 +610,12 @@
               {#if thermalData.is_throttled}
                 <Badge variant="danger" class="flex items-center gap-1">
                   <Flame class="w-3 h-3" />
-                  <span>THROTTLED</span>
+                  <span>{$LL.modem.thermal.throttled()}</span>
                 </Badge>
               {:else}
                 <Badge variant="success" class="flex items-center gap-1">
                   <ShieldCheck class="w-3 h-3" />
-                  <span>SAFE</span>
+                  <span>{$LL.modem.thermal.safe()}</span>
                 </Badge>
               {/if}
             {/if}
@@ -625,7 +626,7 @@
               onclick={fetchThermal}
             >
               <RefreshCw class="w-3.5 h-3.5 mr-1 {isLoadingThermal ? 'animate-spin' : ''}" />
-              <span>Refresh</span>
+              <span>{$LL.common.refresh()}</span>
             </Button>
           </div>
         {/snippet}
@@ -636,7 +637,7 @@
             <div class="flex items-center justify-between mb-2">
               <span class="text-[10px] text-muted uppercase font-bold tracking-wider flex items-center gap-1.5">
                 <Thermometer class="w-3.5 h-3.5 text-accent" />
-                <span>Hardware Sensors Telemetry Grid (°C)</span>
+                <span>{$LL.modem.thermal.sensorsTitle()}</span>
               </span>
             </div>
 
@@ -647,7 +648,7 @@
                 <div class="p-3 rounded border-2 border-border bg-card-sub flex flex-col justify-between">
                   <div class="flex items-center justify-between text-[10px]">
                     <span class="text-muted font-bold">{s.name}</span>
-                    <span class="text-[9px] text-muted font-mono">Limit: {s.limit}°C</span>
+                    <span class="text-[9px] text-muted font-mono">{$LL.modem.thermal.limit({ limit: s.limit })}</span>
                   </div>
                   <div class="text-lg font-black font-mono my-1 {isHot ? 'text-red-400' : isWarm ? 'text-amber-400' : 'text-emerald-400'}">
                     {s.val > 0 ? s.val.toFixed(1) : '--'}°C
@@ -664,11 +665,11 @@
 
   <!-- SUB-TAB 4: AT Command Console -->
   {#if subTab === 'at'}
-    <Card title="Modem AT Command Terminal" subtitle="Direct AT serial interaction with baseband modem" tone="ice">
+    <Card title={$LL.modem.at.title()} subtitle={$LL.modem.at.subtitle()} tone="ice">
       <div class="space-y-4 text-xs">
         <form onsubmit={(e) => { e.preventDefault(); executeAT(); }} class="flex items-center gap-2">
           <Input
-            placeholder="e.g. ATI, AT+CSQ, AT+CPIN?, AT+CGREG?"
+            placeholder={$LL.modem.at.placeholder()}
             bind:value={atCommand}
             class="flex-1 font-mono uppercase"
           />
@@ -678,7 +679,7 @@
             disabled={isExecutingAT || !atCommand.trim()}
           >
             <Terminal class="w-4 h-4 mr-1.5" />
-            <span>Send Command</span>
+            <span>{$LL.modem.at.sendCommand()}</span>
           </Button>
         </form>
 
@@ -696,7 +697,7 @@
 
         <div class="h-64 overflow-y-auto bg-black border-2 border-border rounded p-3 font-mono text-[11px] text-emerald-400 space-y-2">
           {#if atLogs.length === 0}
-            <div class="text-muted italic">No AT commands sent yet. Type a command above to query the modem.</div>
+            <div class="text-muted italic">{$LL.modem.at.emptyLog()}</div>
           {:else}
             {#each atLogs as log}
               <div class="border-b border-zinc-800 pb-2">
