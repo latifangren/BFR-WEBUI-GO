@@ -25,6 +25,7 @@
   import ShannonCAEditor from './ShannonCAEditor.svelte'
   import { themeStore } from '../../../stores/theme.svelte'
   import SakugaTabs from '../../ui/SakugaTabs.svelte'
+  import { LL } from '../../../i18n/i18n-svelte'
 
   interface ShannonStatus {
     is_shannon: boolean
@@ -57,7 +58,7 @@
 
   let subTab = $state<'bands' | 'rat_mode' | 'vonr_diag' | 'ca_combos'>('bands')
   const SUBTAB_IDS: Array<typeof subTab> = ['bands', 'rat_mode', 'vonr_diag', 'ca_combos']
-  const SUBTAB_LABELS: string[] = ['Band Lock (All RATs)', 'RAT Lock & 5G Mode', 'VoNR & Modem State', 'CA & UE Capability (Pixel 6–10)']
+  const SUBTAB_LABELS = $derived([$LL.shannon.subtabs.bands(), $LL.shannon.subtabs.ratMode(), $LL.shannon.subtabs.vonr(), $LL.shannon.subtabs.ca()])
   let bandCategory = $state<'lte' | 'sa' | 'nsa' | 'wcdma' | 'gsm'>('lte')
 
   let status = $state<ShannonStatus>({
@@ -223,7 +224,7 @@
 
   async function applyChanges() {
     if (!status.is_shannon) {
-      toastStore.warning(`Shannon modem not detected on ${status.device_model || 'this device'}. Action blocked for safety.`)
+      toastStore.warning($LL.shannon.notDetectedBlocked({ model: status.device_model || $LL.shannon.thisDevice() }))
       return
     }
     try {
@@ -255,13 +256,13 @@
 
       const res = await api.post<{ success: boolean; error?: string }>('/api/shannon/lock', payload)
       if (res && res.success) {
-        toastStore.success('Google Tensor Shannon settings applied via DM menu (zero CFUN drop).')
+        toastStore.success($LL.shannon.settingsApplied())
         await fetchStatus()
       } else {
-        toastStore.error(res?.error || 'Failed to apply Shannon settings')
+        toastStore.error(res?.error || $LL.shannon.applyFailed())
       }
     } catch (err: unknown) {
-      toastStore.error(err instanceof Error ? err.message : 'Settings application failed')
+      toastStore.error(err instanceof Error ? err.message : $LL.shannon.applyError())
     } finally {
       isApplying = false
     }
@@ -269,7 +270,7 @@
 
   async function confirmReset() {
     if (!status.is_shannon) {
-      toastStore.warning(`Shannon modem not detected on ${status.device_model || 'this device'}.`)
+      toastStore.warning($LL.shannon.notDetected({ model: status.device_model || $LL.shannon.thisDevice() }))
       showResetModal = false
       return
     }
@@ -279,14 +280,14 @@
         slot: selectedSlot,
       })
       if (res && res.success) {
-        toastStore.success('Shannon modem restored to factory default bands & modes.')
+        toastStore.success($LL.shannon.resetSuccess())
         showResetModal = false
         await fetchStatus()
       } else {
-        toastStore.error(res?.error || 'Failed to reset Shannon modem')
+        toastStore.error(res?.error || $LL.shannon.resetFailed())
       }
     } catch (err: unknown) {
-      toastStore.error(err instanceof Error ? err.message : 'Reset request failed')
+      toastStore.error(err instanceof Error ? err.message : $LL.shannon.resetError())
     } finally {
       isResetting = false
     }
@@ -344,7 +345,7 @@
       <div class="flex items-center gap-2">
         <Layers class="w-6 h-6 text-accent" />
         <h1 class="text-xl sm:text-2xl font-black uppercase tracking-wider text-foreground">
-          Google Tensor Shannon Control
+          {$LL.shannon.title()}
         </h1>
         <Badge variant="info" class="text-[10px]">Pixel 6/7/8/9/10</Badge>
         {#if status.dm_available}
@@ -352,7 +353,7 @@
         {/if}
       </div>
       <p class="text-xs text-muted mt-1">
-        Direct Samsung Shannon modem AT/NV modulation via /dev/umts_router & instant DM service menu keypresses.
+        {$LL.shannon.subtitle()}
       </p>
     </div>
 
@@ -364,7 +365,7 @@
         onclick={fetchStatus}
       >
         <RefreshCw class="w-3.5 h-3.5 mr-1.5 {isLoading ? 'animate-spin' : ''}" />
-        <span>Refresh</span>
+        <span>{$LL.common.refresh()}</span>
       </Button>
     </div>
   </div>
@@ -377,15 +378,15 @@
         <div class="space-y-1">
           <div class="flex items-center gap-2">
             <span class="font-bold text-amber-300 uppercase tracking-wide">
-              Non-Google Tensor Device Detected (Shannon Baseband Unavailable)
+              {$LL.shannon.nonShannon.title()}
             </span>
-            <Badge variant="warning" class="text-[9px]">Preview Mode</Badge>
+            <Badge variant="warning" class="text-[9px]">{$LL.shannon.previewMode()}</Badge>
           </div>
           <p class="text-[11px] text-amber-200/90 leading-relaxed">
-            Detected Hardware: <strong class="text-white font-bold">{status.device_model || 'Unknown'}</strong> (SoC: <strong class="text-white font-bold">{status.soc || 'Qualcomm'}</strong> — {status.modem_type || 'Qualcomm Snapdragon'}). This Shannon modem control suite is strictly engineered for <strong>Google Pixel 6/7/8/9/10 Series (Google Tensor GS101/GS201/G3/G4/G5)</strong> utilizing Samsung Shannon baseband NV architecture.
+            {$LL.shannon.statusBar.detectedHardware()}: <strong class="text-white font-bold">{status.device_model || $LL.common.unknown()}</strong> (SoC: <strong class="text-white font-bold">{status.soc || 'Qualcomm'}</strong> — {status.modem_type || 'Qualcomm Snapdragon'}). {$LL.shannon.nonShannon.bodyA()} <strong>Google Pixel 6/7/8/9/10 Series (Google Tensor GS101/GS201/G3/G4/G5)</strong> {$LL.shannon.nonShannon.bodyB()}
           </p>
           <p class="text-[10px] text-amber-300/80 font-mono">
-            ℹ️ All modem NV write actions are locked to prevent baseband radio corruption. To configure bands or lock cell towers on this device, please switch to the <strong>Qualcomm Snapdragon</strong> tab.
+            ℹ️ {$LL.shannon.nonShannon.lockedNoteA()} <strong>Qualcomm Snapdragon</strong>{$LL.shannon.nonShannon.lockedNoteB()}
           </p>
         </div>
       </div>
@@ -397,9 +398,9 @@
     <div class="p-3 bg-amber-950/40 border-2 border-amber-600 rounded-lg flex items-center gap-3 text-xs text-amber-200">
       <AlertTriangle class="w-5 h-5 text-amber-400 shrink-0" />
       <div>
-        <p class="font-bold">Network Signal Guru (NSG) Detected Running!</p>
+        <p class="font-bold">{$LL.shannon.nsg.title()}</p>
         <p class="text-[11px] text-amber-300/80">
-          NSG actively communicates with the Shannon DM channel. Close NSG or pause test sessions before applying NV changes to avoid port collision.
+          {$LL.shannon.nsg.body()}
         </p>
       </div>
     </div>
@@ -408,32 +409,32 @@
   <!-- HARDWARE STATUS BAR -->
   <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
     <div class="p-2.5 bg-card-sub border-2 border-border rounded">
-      <span class="text-[10px] text-muted uppercase font-bold block mb-1">Detected Hardware</span>
-      <p class="font-bold text-foreground truncate">{status.device_model || 'Unknown'}</p>
-      <span class="text-[10px] text-muted">{status.soc || 'Generic'}</span>
+      <span class="text-[10px] text-muted uppercase font-bold block mb-1">{$LL.shannon.statusBar.detectedHardware()}</span>
+      <p class="font-bold text-foreground truncate">{status.device_model || $LL.common.unknown()}</p>
+      <span class="text-[10px] text-muted">{status.soc || $LL.shannon.generic()}</span>
     </div>
     <div class="p-2.5 bg-card-sub border-2 border-border rounded">
-      <span class="text-[10px] text-muted uppercase font-bold block mb-1">Modem Architecture</span>
+      <span class="text-[10px] text-muted uppercase font-bold block mb-1">{$LL.shannon.statusBar.modemArch()}</span>
       <p class="font-bold {status.is_shannon ? 'text-emerald-400' : 'text-amber-400'} truncate">
         {status.modem_type || (status.is_shannon ? 'Samsung Shannon' : 'Non-Shannon')}
       </p>
       <span class="text-[10px] {status.is_shannon ? 'text-emerald-300/80' : 'text-amber-300/80'}">
-        {status.is_shannon ? 'Tensor Baseband OK' : 'Incompatible (Preview)'}
+        {status.is_shannon ? $LL.shannon.statusBar.tensorOk() : $LL.shannon.statusBar.incompatible()}
       </span>
     </div>
     <div class="p-2.5 bg-card-sub border-2 border-border rounded">
-      <span class="text-[10px] text-muted uppercase font-bold block mb-1">Shannon Router Port</span>
+      <span class="text-[10px] text-muted uppercase font-bold block mb-1">{$LL.shannon.statusBar.routerPort()}</span>
       <p class="font-bold {status.router_available ? 'text-emerald-400' : 'text-red-400'}">
-        {status.router_available ? '/dev/umts_router (OK)' : 'Unavailable'}
+        {status.router_available ? '/dev/umts_router (OK)' : $LL.shannon.unavailable()}
       </p>
-      <span class="text-[10px] text-muted">AT / NV Modulation</span>
+      <span class="text-[10px] text-muted">{$LL.shannon.statusBar.routerSub()}</span>
     </div>
     <div class="p-2.5 bg-card-sub border-2 border-border rounded">
-      <span class="text-[10px] text-muted uppercase font-bold block mb-1">DM Keypress Port</span>
+      <span class="text-[10px] text-muted uppercase font-bold block mb-1">{$LL.shannon.statusBar.dmPort()}</span>
       <p class="font-bold {status.dm_available ? 'text-cyan-400' : (status.is_shannon ? 'text-amber-400' : 'text-muted')}">
         {status.dm_available ? '/dev/umts_dm0 (OK)' : (status.is_shannon ? 'AT Fallback' : 'N/A')}
       </p>
-      <span class="text-[10px] text-muted">Zero-Drop Reload</span>
+      <span class="text-[10px] text-muted">{$LL.shannon.statusBar.dmSub()}</span>
     </div>
   </div>
 
@@ -447,10 +448,10 @@
   {:else}
   <div class="flex items-center gap-2 border-b-2 border-border pb-2 overflow-x-auto text-xs">
     {#each [
-      { id: 'bands', label: 'Band Lock (All RATs)', icon: Radio },
-      { id: 'rat_mode', label: 'RAT Lock & 5G Mode', icon: Sliders },
-      { id: 'vonr_diag', label: 'VoNR & Modem State', icon: PhoneCall },
-      { id: 'ca_combos', label: 'CA & UE Capability (Pixel 6–10)', icon: FileSpreadsheet },
+      { id: 'bands', label: $LL.shannon.subtabs.bands(), icon: Radio },
+      { id: 'rat_mode', label: $LL.shannon.subtabs.ratMode(), icon: Sliders },
+      { id: 'vonr_diag', label: $LL.shannon.subtabs.vonr(), icon: PhoneCall },
+      { id: 'ca_combos', label: $LL.shannon.subtabs.ca(), icon: FileSpreadsheet },
     ] as tab}
       <button
         type="button"
@@ -469,7 +470,7 @@
 
   <!-- SUB-TAB 1: FREQUENCY BANDS -->
   {#if subTab === 'bands'}
-    <Card title="Multi-RAT Frequency Band Allocation" subtitle="Lock manual frequency carriers across 5G NR, 4G LTE, 3G WCDMA, and 2G GSM" tone="ice">
+    <Card title={$LL.shannon.bands.title()} subtitle={$LL.shannon.bands.subtitle()} tone="ice">
       {#snippet action()}
         <div class="flex items-center gap-1.5">
           <Button
@@ -479,7 +480,7 @@
             onclick={() => (showResetModal = true)}
           >
             <RotateCcw class="w-3.5 h-3.5 mr-1" />
-            <span>Reset All</span>
+            <span>{$LL.shannon.bands.resetAll()}</span>
           </Button>
           <Button
             variant="primary"
@@ -488,7 +489,7 @@
             onclick={applyChanges}
           >
             <Lock class="w-3.5 h-3.5 mr-1 text-accent-text" />
-            <span>{status.is_shannon ? (isApplying ? 'Applying...' : 'Apply Shannon Lock') : 'Locked (Tensor Only)'}</span>
+            <span>{status.is_shannon ? (isApplying ? $LL.shannon.bands.applying() : $LL.shannon.bands.applyLock()) : $LL.shannon.locked()}</span>
           </Button>
         </div>
       {/snippet}
@@ -522,21 +523,21 @@
         {#if bandCategory === 'lte'}
           <div class="space-y-3">
             <div class="flex items-center justify-between">
-              <span class="font-bold text-foreground uppercase tracking-wider">LTE Frequency Bands</span>
+              <span class="font-bold text-foreground uppercase tracking-wider">{$LL.shannon.bands.lteTitle()}</span>
               <div class="flex items-center gap-1.5">
                 <button
                   type="button"
                   class="px-2 py-0.5 text-[10px] font-bold border-2 border-border rounded bg-card-sub hover:border-accent text-muted hover:text-foreground cursor-pointer"
                   onclick={() => (selectedLTEBands = availableLTEBands.map((b) => b.band))}
                 >
-                  Select All
+                  {$LL.common.selectAll()}
                 </button>
                 <button
                   type="button"
                   class="px-2 py-0.5 text-[10px] font-bold border-2 border-border rounded bg-card-sub hover:border-red-500 text-muted hover:text-red-400 cursor-pointer"
                   onclick={() => (selectedLTEBands = [])}
                 >
-                  Clear All
+                  {$LL.common.clearAll()}
                 </button>
               </div>
             </div>
@@ -569,7 +570,7 @@
           <div class="space-y-3">
             <div class="flex items-center justify-between">
               <div>
-                <span class="font-bold text-foreground uppercase tracking-wider">5G NR Standalone (SA) Bands</span>
+                <span class="font-bold text-foreground uppercase tracking-wider">{$LL.shannon.bands.saTitle()}</span>
                 <span class="text-[10px] text-muted ml-2">Written to !NRRRC.MANUAL_NR_BAND_LIST</span>
               </div>
               <div class="flex items-center gap-1.5">
@@ -578,14 +579,14 @@
                   class="px-2 py-0.5 text-[10px] font-bold border-2 border-border rounded bg-card-sub hover:border-cyan-500 text-muted hover:text-foreground cursor-pointer"
                   onclick={() => (selectedSABands = availableNRBands.map((b) => b.band))}
                 >
-                  Select All
+                  {$LL.common.selectAll()}
                 </button>
                 <button
                   type="button"
                   class="px-2 py-0.5 text-[10px] font-bold border-2 border-border rounded bg-card-sub hover:border-red-500 text-muted hover:text-red-400 cursor-pointer"
                   onclick={() => (selectedSABands = [])}
                 >
-                  Clear All
+                  {$LL.common.clearAll()}
                 </button>
               </div>
             </div>
@@ -618,7 +619,7 @@
           <div class="space-y-3">
             <div class="flex items-center justify-between">
               <div>
-                <span class="font-bold text-foreground uppercase tracking-wider">5G NR Non-Standalone (NSA) Bands</span>
+                <span class="font-bold text-foreground uppercase tracking-wider">{$LL.shannon.bands.nsaTitle()}</span>
                 <span class="text-[10px] text-muted ml-2">Written to !LTE.NR Manual Band List</span>
               </div>
               <div class="flex items-center gap-1.5">
@@ -627,14 +628,14 @@
                   class="px-2 py-0.5 text-[10px] font-bold border-2 border-border rounded bg-card-sub hover:border-cyan-500 text-muted hover:text-foreground cursor-pointer"
                   onclick={() => (selectedNSABands = availableNRBands.map((b) => b.band))}
                 >
-                  Select All
+                  {$LL.common.selectAll()}
                 </button>
                 <button
                   type="button"
                   class="px-2 py-0.5 text-[10px] font-bold border-2 border-border rounded bg-card-sub hover:border-red-500 text-muted hover:text-red-400 cursor-pointer"
                   onclick={() => (selectedNSABands = [])}
                 >
-                  Clear All
+                  {$LL.common.clearAll()}
                 </button>
               </div>
             </div>
@@ -666,21 +667,21 @@
         {#if bandCategory === 'wcdma'}
           <div class="space-y-3">
             <div class="flex items-center justify-between">
-              <span class="font-bold text-foreground uppercase tracking-wider">3G WCDMA / UMTS Bands</span>
+              <span class="font-bold text-foreground uppercase tracking-wider">{$LL.shannon.bands.wcdmaTitle()}</span>
               <div class="flex items-center gap-1.5">
                 <button
                   type="button"
                   class="px-2 py-0.5 text-[10px] font-bold border-2 border-border rounded bg-card-sub hover:border-accent text-muted hover:text-foreground cursor-pointer"
                   onclick={() => (selectedWCDMABands = availableWCDMABands.map((b) => b.band))}
                 >
-                  Select All
+                  {$LL.common.selectAll()}
                 </button>
                 <button
                   type="button"
                   class="px-2 py-0.5 text-[10px] font-bold border-2 border-border rounded bg-card-sub hover:border-red-500 text-muted hover:text-red-400 cursor-pointer"
                   onclick={() => (selectedWCDMABands = [])}
                 >
-                  Clear All
+                  {$LL.common.clearAll()}
                 </button>
               </div>
             </div>
@@ -712,21 +713,21 @@
         {#if bandCategory === 'gsm'}
           <div class="space-y-3">
             <div class="flex items-center justify-between">
-              <span class="font-bold text-foreground uppercase tracking-wider">2G GSM / EDGE Bands</span>
+              <span class="font-bold text-foreground uppercase tracking-wider">{$LL.shannon.bands.gsmTitle()}</span>
               <div class="flex items-center gap-1.5">
                 <button
                   type="button"
                   class="px-2 py-0.5 text-[10px] font-bold border-2 border-border rounded bg-card-sub hover:border-accent text-muted hover:text-foreground cursor-pointer"
                   onclick={() => (selectedGSMBands = availableGSMBands.map((b) => b.band))}
                 >
-                  Select All
+                  {$LL.common.selectAll()}
                 </button>
                 <button
                   type="button"
                   class="px-2 py-0.5 text-[10px] font-bold border-2 border-border rounded bg-card-sub hover:border-red-500 text-muted hover:text-red-400 cursor-pointer"
                   onclick={() => (selectedGSMBands = [])}
                 >
-                  Clear All
+                  {$LL.common.clearAll()}
                 </button>
               </div>
             </div>
@@ -761,66 +762,66 @@
   {#if subTab === 'rat_mode'}
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-6">
       <!-- RAT Lock Card -->
-      <Card title="Radio Access Technology (RAT) Lock" subtitle="Disable unwanted network generations independently" tone="ice">
+      <Card title={$LL.shannon.ratLock.title()} subtitle={$LL.shannon.ratLock.subtitle()} tone="ice">
         <div class="space-y-4 text-xs">
           <!-- Quick Presets -->
           <div>
-            <span class="text-[10px] text-muted uppercase font-bold block mb-2">Quick 1-Click RAT Presets</span>
+            <span class="text-[10px] text-muted uppercase font-bold block mb-2">{$LL.shannon.ratLock.quickPresets()}</span>
             <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
               <button
                 type="button"
                 class="p-2 rounded border-2 border-border bg-card-sub hover:border-accent text-center font-bold text-foreground cursor-pointer"
                 onclick={() => applyRATPreset('5g_only')}
               >
-                5G Only (NR SA)
+                {$LL.shannon.ratLock.preset5gOnly()}
               </button>
               <button
                 type="button"
                 class="p-2 rounded border-2 border-border bg-card-sub hover:border-accent text-center font-bold text-foreground cursor-pointer"
                 onclick={() => applyRATPreset('4g_only')}
               >
-                4G Only (LTE)
+                {$LL.shannon.ratLock.preset4gOnly()}
               </button>
               <button
                 type="button"
                 class="p-2 rounded border-2 border-border bg-card-sub hover:border-accent text-center font-bold text-foreground cursor-pointer"
                 onclick={() => applyRATPreset('lte_nr')}
               >
-                LTE + 5G (Dual)
+                {$LL.shannon.ratLock.presetLteNr()}
               </button>
               <button
                 type="button"
                 class="p-2 rounded border-2 border-border bg-card-sub hover:border-accent text-center font-bold text-foreground cursor-pointer"
                 onclick={() => applyRATPreset('3g_only')}
               >
-                3G Only
+                {$LL.shannon.ratLock.preset3gOnly()}
               </button>
               <button
                 type="button"
                 class="p-2 rounded border-2 border-border bg-card-sub hover:border-accent text-center font-bold text-foreground cursor-pointer"
                 onclick={() => applyRATPreset('2g_only')}
               >
-                2G Only
+                {$LL.shannon.ratLock.preset2gOnly()}
               </button>
               <button
                 type="button"
                 class="p-2 rounded border-2 border-border bg-card-sub hover:border-accent text-center font-bold text-accent cursor-pointer"
                 onclick={() => applyRATPreset('auto')}
               >
-                Full Auto (All)
+                {$LL.shannon.ratLock.presetAuto()}
               </button>
             </div>
           </div>
 
           <!-- Active RAT Switches -->
           <div class="pt-3 border-t border-border/60">
-            <span class="text-[10px] text-muted uppercase font-bold block mb-2">Individual RAT Toggles</span>
+            <span class="text-[10px] text-muted uppercase font-bold block mb-2">{$LL.shannon.ratLock.toggles()}</span>
             <div class="grid grid-cols-2 gap-2.5">
               {#each [
-                { id: 'NR', label: '5G New Radio', desc: 'SA & NSA 5G carriers' },
+                { id: 'NR', label: '5G New Radio', desc: $LL.shannon.ratLock.ratNrDesc() },
                 { id: 'LTE', label: '4G LTE', desc: 'LTE-FDD & LTE-TDD' },
-                { id: 'WCDMA', label: '3G WCDMA / UMTS', desc: 'HSPA+, 3G voice & data' },
-                { id: 'GSM', label: '2G GSM / EDGE', desc: 'Legacy voice & 2G fallback' },
+                { id: 'WCDMA', label: '3G WCDMA / UMTS', desc: $LL.shannon.ratLock.ratWcdmaDesc() },
+                { id: 'GSM', label: '2G GSM / EDGE', desc: $LL.shannon.ratLock.ratGsmDesc() },
               ] as rat}
                 {@const isEnabled = selectedRATs.includes(rat.id)}
                 <button
@@ -845,15 +846,15 @@
       </Card>
 
       <!-- 5G NR Mode Card -->
-      <Card title="5G NR Operating Mode" subtitle="Controls NR.CONFIG.MODE NV register" tone="ice">
+      <Card title={$LL.shannon.nrMode.title()} subtitle={$LL.shannon.nrMode.subtitle()} tone="ice">
         <div class="space-y-4 text-xs">
-          <span class="text-[10px] text-muted uppercase font-bold block">Network Mode Options</span>
+          <span class="text-[10px] text-muted uppercase font-bold block">{$LL.shannon.nrMode.options()}</span>
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
             {#each [
-              { id: 'both', label: 'SA + NSA (0x11)', desc: 'Full 5G connectivity across Standalone and Non-Standalone anchor' },
-              { id: 'sa', label: 'SA Only (0x10)', desc: 'Forces pure 5G Core (5GC) without LTE anchor tower requirement' },
-              { id: 'nsa', label: 'NSA Only (0x01)', desc: 'Requires 4G LTE anchor with secondary 5G NR carrier attachment' },
-              { id: 'lte_only', label: 'Disabled (0x00)', desc: 'Completely disables 5G NR stack to conserve battery power' },
+              { id: 'both', label: $LL.shannon.nrMode.both(), desc: $LL.shannon.nrMode.bothDesc() },
+              { id: 'sa', label: $LL.shannon.nrMode.saOnly(), desc: $LL.shannon.nrMode.saDesc() },
+              { id: 'nsa', label: $LL.shannon.nrMode.nsaOnly(), desc: $LL.shannon.nrMode.nsaDesc() },
+              { id: 'lte_only', label: $LL.shannon.nrMode.disabled(), desc: $LL.shannon.nrMode.disabledDesc() },
             ] as m}
               <button
                 type="button"
@@ -876,7 +877,7 @@
               onclick={applyChanges}
             >
               <Lock class="w-3.5 h-3.5 mr-1 text-accent-text" />
-              <span>{status.is_shannon ? (isApplying ? 'Applying Mode...' : 'Save & Reload Modem') : 'Locked (Tensor Only)'}</span>
+              <span>{status.is_shannon ? (isApplying ? $LL.shannon.nrMode.applying() : $LL.shannon.nrMode.saveReload()) : $LL.shannon.locked()}</span>
             </Button>
           </div>
         </div>
@@ -888,17 +889,17 @@
   {#if subTab === 'vonr_diag'}
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-6">
       <!-- VoNR Configuration -->
-      <Card title="VoNR (Voice over New Radio)" subtitle="Native HD voice calls over 5G Standalone infrastructure" tone="ice">
+      <Card title="VoNR (Voice over New Radio)" subtitle={$LL.shannon.vonr.subtitle()} tone="ice">
         <div class="space-y-4 text-xs">
           <p class="text-muted text-[11px]">
-            Controls <code>OEM_GFEATURE_QMS_VONR_SAVE_AP_VALUE</code> and <code>OMC.BASED.VONR.PLMN.ENABLE</code> NV registers.
+            {$LL.shannon.vonr.controlsA()} <code>OEM_GFEATURE_QMS_VONR_SAVE_AP_VALUE</code> {$LL.shannon.vonr.controlsB()} <code>OMC.BASED.VONR.PLMN.ENABLE</code> {$LL.shannon.vonr.controlsC()}
           </p>
 
           <div class="space-y-2">
             {#each [
-              { val: 1, label: 'Forced ON (0x01)', desc: 'Overrides carrier SIM policy and forces VoNR activation' },
-              { val: 0, label: 'Forced OFF (0x00)', desc: 'Disables VoNR; voice calls will fallback to VoLTE' },
-              { val: -1, label: 'Carrier Default (0xFF)', desc: 'Allows SIM card carrier configuration to determine VoNR policy' },
+              { val: 1, label: $LL.shannon.vonr.forcedOn(), desc: $LL.shannon.vonr.forcedOnDesc() },
+              { val: 0, label: $LL.shannon.vonr.forcedOff(), desc: $LL.shannon.vonr.forcedOffDesc() },
+              { val: -1, label: $LL.shannon.vonr.carrierDefault(), desc: $LL.shannon.vonr.carrierDefaultDesc() },
             ] as v}
               <button
                 type="button"
@@ -926,54 +927,54 @@
               onclick={applyChanges}
             >
               <Lock class="w-3.5 h-3.5 mr-1 text-accent-text" />
-              <span>{status.is_shannon ? (isApplying ? 'Applying...' : 'Apply VoNR Policy') : 'Locked (Tensor Only)'}</span>
+              <span>{status.is_shannon ? (isApplying ? $LL.shannon.vonr.applying() : $LL.shannon.vonr.apply()) : $LL.shannon.locked()}</span>
             </Button>
           </div>
         </div>
       </Card>
 
       <!-- Live NV Inspector & Diagnostics -->
-      <Card title="Shannon NV Memory State" subtitle="Hardware ground-truth values read via AT+GOOGGETNV" tone="ice">
+      <Card title={$LL.shannon.nv.title()} subtitle={$LL.shannon.nv.subtitle()} tone="ice">
         <div class="space-y-3 text-xs">
           <div class="flex items-center justify-between p-2 rounded bg-card-sub border border-border">
-            <span class="text-muted">LTE Manual Selection NV</span>
+            <span class="text-muted">{$LL.shannon.nv.lteManual()}</span>
             <span class="font-bold {status.lte_manual_enabled ? 'text-amber-400' : 'text-emerald-400'}">
-              {status.lte_manual_enabled ? 'Enabled (Manual Active)' : 'Disabled (All Auto)'}
+              {status.lte_manual_enabled ? $LL.shannon.nv.enabledManual() : $LL.shannon.nv.disabledAuto()}
             </span>
           </div>
 
           <div class="flex items-center justify-between p-2 rounded bg-card-sub border border-border">
-            <span class="text-muted">NR-SA Manual Selection NV</span>
+            <span class="text-muted">{$LL.shannon.nv.saManual()}</span>
             <span class="font-bold {status.sa_manual_enabled ? 'text-amber-400' : 'text-emerald-400'}">
-              {status.sa_manual_enabled ? 'Enabled (Manual Active)' : 'Disabled (All Auto)'}
+              {status.sa_manual_enabled ? $LL.shannon.nv.enabledManual() : $LL.shannon.nv.disabledAuto()}
             </span>
           </div>
 
           <div class="flex items-center justify-between p-2 rounded bg-card-sub border border-border">
-            <span class="text-muted">NR-NSA Manual Selection NV</span>
+            <span class="text-muted">{$LL.shannon.nv.nsaManual()}</span>
             <span class="font-bold {status.nsa_manual_enabled ? 'text-amber-400' : 'text-emerald-400'}">
-              {status.nsa_manual_enabled ? 'Enabled (Manual Active)' : 'Disabled (All Auto)'}
+              {status.nsa_manual_enabled ? $LL.shannon.nv.enabledManual() : $LL.shannon.nv.disabledAuto()}
             </span>
           </div>
 
           <div class="flex items-center justify-between p-2 rounded bg-card-sub border border-border">
-            <span class="text-muted">Active RAT Ensembles</span>
+            <span class="text-muted">{$LL.shannon.nv.activeRats()}</span>
             <span class="font-bold text-accent">
-              {status.active_rats && status.active_rats.length > 0 ? status.active_rats.join(' • ') : 'None'}
+              {status.active_rats && status.active_rats.length > 0 ? status.active_rats.join(' • ') : $LL.common.none()}
             </span>
           </div>
 
           <div class="flex items-center justify-between p-2 rounded bg-card-sub border border-border">
-            <span class="text-muted">VoNR Memory Status</span>
+            <span class="text-muted">{$LL.shannon.nv.vonrStatus()}</span>
             <span class="font-bold text-foreground">
-              {status.vonr_state === 1 ? 'Forced ON (0x01)' : status.vonr_state === 0 ? 'Forced OFF (0x00)' : status.vonr_state === -1 ? 'Default (0xFF)' : 'Unknown'}
+              {status.vonr_state === 1 ? $LL.shannon.vonr.forcedOn() : status.vonr_state === 0 ? $LL.shannon.vonr.forcedOff() : status.vonr_state === -1 ? $LL.shannon.vonr.defaultValue() : $LL.common.unknown()}
             </span>
           </div>
 
           <div class="flex items-center justify-between p-2 rounded bg-card-sub border border-border">
-            <span class="text-muted">NSG Conflict Status</span>
+            <span class="text-muted">{$LL.shannon.nv.nsgStatus()}</span>
             <span class="font-bold {status.nsg_running ? 'text-red-400' : 'text-emerald-400'}">
-              {status.nsg_running ? 'Running (Potential Conflict)' : 'Clear (No Conflict)'}
+              {status.nsg_running ? $LL.shannon.nv.nsgRunning() : $LL.shannon.nv.nsgClear()}
             </span>
           </div>
         </div>
@@ -990,16 +991,16 @@
 <!-- RESET CONFIRMATION MODAL -->
 <Modal
   open={showResetModal}
-  title="Restore All Shannon Factory Bands"
+  title={$LL.shannon.reset.title()}
   onclose={() => (showResetModal = false)}
 >
   <div class="space-y-3 text-xs">
     <div class="flex items-start gap-3 p-3 bg-red-950/30 border-2 border-red-800 rounded text-red-200">
       <AlertTriangle class="w-5 h-5 text-red-400 shrink-0 mt-0.5" />
       <div>
-        <p class="font-bold text-red-400">Restore Shannon Modem to Defaults?</p>
+        <p class="font-bold text-red-400">{$LL.shannon.reset.heading()}</p>
         <p class="text-[11px] mt-1 text-red-300/80">
-          This will wipe manual LTE, NR-SA, NR-NSA, WCDMA, and GSM overrides, re-enable all RATs, set NR mode back to SA+NSA (0x11), and trigger an instant modem service menu reload without dropping cellular connection.
+          {$LL.shannon.reset.body()}
         </p>
       </div>
     </div>
@@ -1012,7 +1013,7 @@
       disabled={isResetting}
       onclick={() => (showResetModal = false)}
     >
-      Cancel
+      {$LL.common.cancel()}
     </Button>
     <Button
       variant="danger"
@@ -1021,7 +1022,7 @@
       onclick={confirmReset}
     >
       <RotateCcw class="w-3.5 h-3.5 mr-1" />
-      <span>{isResetting ? 'Restoring...' : 'Restore Factory Defaults'}</span>
+      <span>{isResetting ? $LL.shannon.reset.restoring() : $LL.shannon.reset.restore()}</span>
     </Button>
   {/snippet}
 </Modal>

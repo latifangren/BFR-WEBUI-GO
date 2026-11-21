@@ -25,6 +25,7 @@
   import Modal from '../../ui/Modal.svelte'
   import { themeStore } from '../../../stores/theme.svelte'
   import SakugaCheckbox from '../../ui/SakugaCheckbox.svelte'
+  import { LL } from '../../../i18n/i18n-svelte'
 
   // --- LTE CA TYPES ---
   interface Component {
@@ -202,10 +203,10 @@
       if (res.success) {
         combos = res.combos || []
         status = res.status
-        toastStore.success(`Successfully loaded ${combos.length} LTE CA combos`)
+        toastStore.success($LL.shannon.ca.loadedLte({ count: combos.length }))
       }
     } catch (err: any) {
-      toastStore.danger(err.message || 'Failed to load binarypb file')
+      toastStore.danger(err.message || $LL.shannon.ca.loadFailed())
     } finally {
       isLteLoading = false
     }
@@ -227,12 +228,12 @@
         combos = data.combos || []
         status = data.status
         showLteUploadModal = false
-        toastStore.success(`Imported ${combos.length} combos from ${file.name}`)
+        toastStore.success($LL.shannon.ca.importedLte({ count: combos.length, name: file.name }))
       } else {
-        toastStore.danger(data.error || 'Upload failed')
+        toastStore.danger(data.error || $LL.shannon.ca.uploadFailed())
       }
     } catch (err: any) {
-      toastStore.danger(err.message || 'Failed to upload binarypb')
+      toastStore.danger(err.message || $LL.shannon.ca.uploadError())
     } finally {
       isLteLoading = false
       if (input) input.value = ''
@@ -247,11 +248,11 @@
         combos,
       })
       if (res.success) {
-        toastStore.success(res.message || 'Saved successfully')
+        toastStore.success(res.message || $LL.shannon.ca.saved())
         fetchLteStatus()
       }
     } catch (err: any) {
-      toastStore.danger(err.message || 'Failed to save binarypb file')
+      toastStore.danger(err.message || $LL.shannon.ca.saveFailed())
     } finally {
       isSaving = false
     }
@@ -263,7 +264,7 @@
       validationResult = res
       showValidationModal = true
     } catch (err: any) {
-      toastStore.danger(err.message || 'Failed to validate combos')
+      toastStore.danger(err.message || $LL.shannon.ca.validateFailed())
     }
   }
 
@@ -284,10 +285,10 @@
       if (res.success && res.combos) {
         combos = [...combos, ...res.combos]
         showAutoGenModal = false
-        toastStore.success(`Generated and appended ${res.count} fallback combos`)
+        toastStore.success($LL.shannon.ca.generated({ count: res.count }))
       }
     } catch (err: any) {
-      toastStore.danger(err.message || 'Failed to generate combos')
+      toastStore.danger(err.message || $LL.shannon.ca.generateFailed())
     } finally {
       isGenerating = false
     }
@@ -305,10 +306,10 @@
       if (res.success && res.combos) {
         combos = res.combos
         showPruneModal = false
-        toastStore.success(`Pruned list to ${res.count} essential combinations`)
+        toastStore.success($LL.shannon.ca.pruned({ count: res.count }))
       }
     } catch (err: any) {
-      toastStore.danger(err.message || 'Failed to prune combos')
+      toastStore.danger(err.message || $LL.shannon.ca.pruneFailed())
     }
   }
 
@@ -330,9 +331,9 @@
         combo_count: 0,
         active_file_path: '',
       }
-      toastStore.info('Unloaded LTE CA combinations')
+      toastStore.info($LL.shannon.ca.unloadedLte())
     } catch (err: any) {
-      toastStore.danger(err.message || 'Failed to unload dataset')
+      toastStore.danger(err.message || $LL.shannon.ca.unloadFailed())
     } finally {
       isLteLoading = false
     }
@@ -381,10 +382,10 @@
       if (res.success) {
         nrCombos = res.combos || []
         nrStatus = res.status
-        toastStore.success(`Successfully loaded ${nrCombos.length} 5G NR / EN-DC combos`)
+        toastStore.success($LL.shannon.ca.loadedNr({ count: nrCombos.length }))
       }
     } catch (err: any) {
-      toastStore.danger(err.message || 'Failed to load NR capability file')
+      toastStore.danger(err.message || $LL.shannon.ca.loadNrFailed())
     } finally {
       isNrLoading = false
     }
@@ -397,10 +398,10 @@
       if (res.success) {
         nrCombos = res.combos || []
         nrStatus = res.status
-        toastStore.success(`Loaded built-in Pixel Sub-6 / EN-DC demo dataset (${nrCombos.length} combos)`)
+        toastStore.success($LL.shannon.ca.demoLoaded({ count: nrCombos.length }))
       }
     } catch (err: any) {
-      toastStore.danger(err.message || 'Failed to load demo dataset')
+      toastStore.danger(err.message || $LL.shannon.ca.demoFailed())
     } finally {
       isNrLoading = false
     }
@@ -422,12 +423,12 @@
         nrCombos = data.combos || []
         nrStatus = data.status
         showNrUploadModal = false
-        toastStore.success(`Imported ${nrCombos.length} 5G NR/EN-DC combos from ${file.name}`)
+        toastStore.success($LL.shannon.ca.importedNr({ count: nrCombos.length, name: file.name }))
       } else {
-        toastStore.danger(data.error || 'Upload failed')
+        toastStore.danger(data.error || $LL.shannon.ca.uploadFailed())
       }
     } catch (err: any) {
-      toastStore.danger(err.message || 'Failed to upload binarypb')
+      toastStore.danger(err.message || $LL.shannon.ca.uploadError())
     } finally {
       isNrLoading = false
       if (input) input.value = ''
@@ -451,9 +452,9 @@
         nrdc_count: 0,
         active_file_path: '',
       }
-      toastStore.info('Unloaded 5G NR / EN-DC dataset')
+      toastStore.info($LL.shannon.ca.unloadedNr())
     } catch (err: any) {
-      toastStore.danger(err.message || 'Failed to unload dataset')
+      toastStore.danger(err.message || $LL.shannon.ca.unloadFailed())
     } finally {
       isNrLoading = false
     }
@@ -484,10 +485,10 @@
     <div class="flex items-center justify-between flex-wrap gap-2">
       <div class="flex items-center gap-2">
         <Badge variant={status.supported_device || nrStatus.supported_device ? 'success' : 'warning'}>
-          {status.supported_device || nrStatus.supported_device ? 'Google Tensor Verified' : 'Pixel 6–10 Architecture'}
+          {status.supported_device || nrStatus.supported_device ? $LL.shannon.ca.verified() : $LL.shannon.ca.architecture()}
         </Badge>
         <span class="font-bold text-foreground text-xs">
-          {status.tensor_gen || nrStatus.tensor_gen || 'Tensor Shannon Modem'}
+          {status.tensor_gen || nrStatus.tensor_gen || $LL.shannon.ca.tensorFallback()}
         </span>
       </div>
 
@@ -502,7 +503,7 @@
           disabled={isLteLoading || isNrLoading}
         >
           <RefreshCw class="w-3.5 h-3.5 mr-1 {isLteLoading || isNrLoading ? 'animate-spin' : ''}" />
-          <span>Refresh</span>
+          <span>{$LL.common.refresh()}</span>
         </Button>
       </div>
     </div>
@@ -510,13 +511,13 @@
     <div class="p-3 bg-zinc-950/70 border border-border rounded text-xs space-y-1">
       <p class="font-bold flex items-center gap-1.5 text-accent">
         <Radio class="w-4 h-4 text-accent" />
-        <span>Hardware & UE Capability Scope: Google Pixel 6, 7, 8, 9, and 10</span>
+        <span>{$LL.shannon.ca.scopeTitle()}</span>
       </p>
       <p class="text-[11px] leading-relaxed text-muted">
-        Carrier aggregation configurations and radio access capability specifications on Google Tensor devices are decoded from <strong>Shannon Modem Protocol Buffers</strong> (<code>ShannonNrUECap</code> for 5G NR SA/EN-DC/NR-DC and <code>ShannonLteUECap</code> for 4G LTE).
+        {$LL.shannon.ca.scopeBodyA()} <strong>Shannon Modem Protocol Buffers</strong> (<code>ShannonNrUECap</code> {$LL.shannon.ca.scopeBodyB()} <code>ShannonLteUECap</code> {$LL.shannon.ca.scopeBodyC()}
       </p>
       <p class="text-[10px] text-muted/80 font-mono">
-        ℹ️ Full visual inspection, bandwidth class extraction, spatial MIMO stream verification, and modulation decoding are supported for all Tensor generations (G1 to G5).
+        {$LL.shannon.ca.scopeNote()}
       </p>
     </div>
   </div>
@@ -534,7 +535,7 @@
       }}
     >
       <Radio class="w-3.5 h-3.5 text-cyan-400 pointer-events-none" />
-      <span class="pointer-events-none">5G NR & EN-DC Dual Connectivity</span>
+      <span class="pointer-events-none">{$LL.shannon.ca.modeNr()}</span>
       {#if nrCombos.length > 0}
         <span class="px-1.5 py-0.2 rounded bg-card text-[10px] text-cyan-300 font-mono pointer-events-none">
           {nrCombos.length}
@@ -553,7 +554,7 @@
       }}
     >
       <FileSpreadsheet class="w-3.5 h-3.5 text-amber-400 pointer-events-none" />
-      <span class="pointer-events-none">4G LTE CA Combinations</span>
+      <span class="pointer-events-none">{$LL.shannon.ca.modeLte()}</span>
       {#if combos.length > 0}
         <span class="px-1.5 py-0.2 rounded bg-card text-[10px] text-amber-300 font-mono pointer-events-none">
           {combos.length}
@@ -565,32 +566,32 @@
   <!-- VIEW 1: 5G NR & EN-DC DUAL CONNECTIVITY -->
   {#if viewMode === 'nr'}
     <Card
-      title="5G NR & EN-DC Dual Connectivity Visualizer"
-      subtitle="E-UTRA-NR Dual Connectivity (EN-DC), NR Standalone Carrier Aggregation, and NR-DC combos"
+      title={$LL.shannon.ca.nrTitle()}
+      subtitle={$LL.shannon.ca.nrSubtitle()}
       tone="ice"
     >
       {#snippet action()}
         <div class="flex items-center flex-wrap gap-1.5">
           <Button variant="outline" size="sm" onclick={loadNrDemo}>
             <Sparkles class="w-3.5 h-3.5 mr-1 text-accent" />
-            <span>Load Demo (Pixel Sub-6)</span>
+            <span>{$LL.shannon.ca.loadDemo()}</span>
           </Button>
 
           {#if nrCombos.length > 0}
-            <Button variant="outline" size="sm" onclick={unloadNrDocument} title="Unload dataset from memory">
+            <Button variant="outline" size="sm" onclick={unloadNrDocument} title={$LL.shannon.ca.unloadTitle()}>
               <Trash2 class="w-3.5 h-3.5 mr-1 text-red-400" />
-              <span>Unload</span>
+              <span>{$LL.shannon.ca.unload()}</span>
             </Button>
           {/if}
 
           <Button variant="outline" size="sm" onclick={() => (showNrUploadModal = true)}>
             <Upload class="w-3.5 h-3.5 mr-1 text-cyan-400" />
-            <span>Import .binarypb</span>
+            <span>{$LL.shannon.ca.importFile()}</span>
           </Button>
 
           <Button variant="outline" size="sm" onclick={downloadNrFile} disabled={nrCombos.length === 0}>
             <Download class="w-3.5 h-3.5 mr-1 text-emerald-400" />
-            <span>Export .binarypb</span>
+            <span>{$LL.shannon.ca.exportFile()}</span>
           </Button>
         </div>
       {/snippet}
@@ -600,24 +601,24 @@
         <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
           <div class="md:col-span-2">
             <label class="block text-[10px] text-muted uppercase font-bold mb-1">
-              <span>Filter by Carrier Band or Name</span>
+              <span>{$LL.shannon.ca.filterLabel()}</span>
               <div class="relative mt-1">
                 <Search class="w-3.5 h-3.5 text-muted absolute left-2.5 top-2.5" />
                 <input
                   type="text"
                   bind:value={nrSearchQuery}
                   class="neo-input w-full bg-card-sub border-2 border-border rounded pl-8 pr-3 py-1.5 text-foreground focus:outline-none focus:border-accent text-xs"
-                  placeholder="Filter by band (e.g. n78, n28, B1, B3)..."
+                  placeholder={$LL.shannon.ca.filterPlaceholder()}
                 />
               </div>
             </label>
           </div>
 
           <div>
-            <span class="block text-[10px] text-muted uppercase font-bold mb-1">Combo Category</span>
+            <span class="block text-[10px] text-muted uppercase font-bold mb-1">{$LL.shannon.ca.comboCategory()}</span>
             <div class="flex items-center gap-1 mt-1">
               {#each [
-                { id: 'ALL', label: 'All', count: nrCombos.length },
+                { id: 'ALL', label: $LL.common.all(), count: nrCombos.length },
                 { id: 'ENDC', label: 'EN-DC', count: nrStatus.endc_count },
                 { id: 'NRCA', label: 'NR-CA', count: nrStatus.nrca_count },
                 { id: 'NRDC', label: 'NR-DC', count: nrStatus.nrdc_count },
@@ -639,7 +640,7 @@
         <!-- DETECTED FILES SHORTCUTS ON DEVICE -->
         {#if nrStatus.detected_paths && nrStatus.detected_paths.length > 0}
           <div class="flex items-center gap-2 flex-wrap text-[11px] p-2 bg-card-sub border border-border rounded">
-            <span class="text-muted font-bold">Detected on Phone:</span>
+            <span class="text-muted font-bold">{$LL.shannon.ca.detectedOnPhone()}</span>
             {#each nrStatus.detected_paths as path}
               <button
                 type="button"
@@ -655,7 +656,7 @@
         <!-- STATS BAR -->
         <div class="flex items-center justify-between text-[11px] p-2 bg-zinc-950 border border-border rounded flex-wrap gap-2">
           <div class="flex items-center gap-2">
-            <span class="text-muted">Total Combinations:</span>
+            <span class="text-muted">{$LL.shannon.ca.totalCombos()}</span>
             <span class="font-bold text-accent">{nrCombos.length}</span>
             <span class="text-muted">•</span>
             <span class="text-muted">EN-DC:</span>
@@ -672,7 +673,7 @@
 
           <div>
             {#if nrStatus.version > 0}
-              <span class="text-muted">Proto Version:</span>
+              <span class="text-muted">{$LL.shannon.ca.protoVersion()}</span>
               <span class="font-bold text-foreground ml-1">{nrStatus.version}</span>
             {/if}
             {#if nrStatus.id > 0}
@@ -686,9 +687,9 @@
         {#if filteredNrCombos.length === 0}
           <div class="p-8 text-center border-2 border-dashed border-border rounded space-y-2">
             <Radio class="w-8 h-8 text-muted mx-auto" />
-            <p class="font-bold text-foreground">No 5G NR / EN-DC capability combinations loaded</p>
+            <p class="font-bold text-foreground">{$LL.shannon.ca.nrEmptyTitle()}</p>
             <p class="text-[11px] text-muted max-w-md mx-auto">
-              Click <strong>"Load Demo (Pixel Sub-6)"</strong> to inspect standard Pixel 5G combinations instantly, or <strong>"Import .binarypb"</strong> to load a raw firmware capability file.
+              {$LL.shannon.ca.click()} <strong>"{$LL.shannon.ca.loadDemo()}"</strong> {$LL.shannon.ca.nrEmptyBodyB()} <strong>"{$LL.shannon.ca.importFile()}"</strong> {$LL.shannon.ca.nrEmptyBodyC()}
             </p>
           </div>
         {:else}
@@ -698,12 +699,12 @@
                 <thead class="bg-card-sub text-muted font-bold uppercase sticky top-0 border-b-2 border-border z-10">
                   <tr>
                     <th class="p-2 w-12 text-center">#</th>
-                    <th class="p-2 w-20 text-center">Type</th>
-                    <th class="p-2">Combo Definition</th>
-                    <th class="p-2">4G LTE Anchor CCs</th>
-                    <th class="p-2">5G NR Carrier CCs</th>
-                    <th class="p-2 text-center w-20">Streams</th>
-                    <th class="p-2 text-center w-24">Power / BCS</th>
+                    <th class="p-2 w-20 text-center">{$LL.shannon.ca.thType()}</th>
+                    <th class="p-2">{$LL.shannon.ca.thCombo()}</th>
+                    <th class="p-2">{$LL.shannon.ca.thLteAnchor()}</th>
+                    <th class="p-2">{$LL.shannon.ca.thNrCarriers()}</th>
+                    <th class="p-2 text-center w-20">{$LL.shannon.ca.thStreams()}</th>
+                    <th class="p-2 text-center w-24">{$LL.shannon.ca.thPowerBcs()}</th>
                   </tr>
                 </thead>
                 <tbody class="divide-y divide-border font-mono">
@@ -725,7 +726,7 @@
                       <td class="p-2">
                         <div class="flex items-center gap-1 flex-wrap">
                           {#if !combo.components_lte || combo.components_lte.length === 0}
-                            <span class="text-muted text-[10px]">None (SA)</span>
+                            <span class="text-muted text-[10px]">{$LL.shannon.ca.noneSa()}</span>
                           {:else}
                             {#each combo.components_lte as comp}
                               <span class="px-1.5 py-0.5 rounded bg-amber-950/40 border border-amber-600/60 text-amber-300 text-[10px]">
@@ -738,7 +739,7 @@
                       <td class="p-2">
                         <div class="flex items-center gap-1 flex-wrap">
                           {#if !combo.components_nr || combo.components_nr.length === 0}
-                            <span class="text-muted text-[10px]">None</span>
+                            <span class="text-muted text-[10px]">{$LL.common.none()}</span>
                           {:else}
                             {#each combo.components_nr as comp}
                               <span class="px-1.5 py-0.5 rounded bg-cyan-950/40 border border-cyan-500/60 text-cyan-300 text-[10px]">
@@ -781,40 +782,40 @@
   <!-- VIEW 2: 4G LTE CARRIER AGGREGATION -->
   {#if viewMode === 'lte'}
     <Card
-      title="Shannon LTE CA Combinations"
-      subtitle="Carrier aggregation combos, bandwidth classes, MIMO, and PLMN conf_id mapping"
+      title={$LL.shannon.ca.lteTitle()}
+      subtitle={$LL.shannon.ca.lteSubtitle()}
       tone="ice"
     >
       {#snippet action()}
         <div class="flex items-center flex-wrap gap-1.5">
           <Button variant="outline" size="sm" onclick={() => (showLteUploadModal = true)}>
             <Upload class="w-3.5 h-3.5 mr-1 text-accent" />
-            <span>Import .binarypb</span>
+            <span>{$LL.shannon.ca.importFile()}</span>
           </Button>
 
           <Button variant="outline" size="sm" onclick={downloadLteFile} disabled={combos.length === 0}>
             <Download class="w-3.5 h-3.5 mr-1 text-cyan-400" />
-            <span>Export .binarypb</span>
+            <span>{$LL.shannon.ca.exportFile()}</span>
           </Button>
 
           <Button variant="outline" size="sm" onclick={() => (showAutoGenModal = true)}>
             <Sliders class="w-3.5 h-3.5 mr-1 text-emerald-400" />
-            <span>Auto Generator</span>
+            <span>{$LL.shannon.ca.autoGen()}</span>
           </Button>
 
           <Button variant="outline" size="sm" onclick={() => (showPruneModal = true)} disabled={combos.length === 0}>
             <Filter class="w-3.5 h-3.5 mr-1 text-purple-400" />
-            <span>Prune (128 Cap)</span>
+            <span>{$LL.shannon.ca.prune()}</span>
           </Button>
 
           <Button variant="outline" size="sm" onclick={runValidation} disabled={combos.length === 0}>
             <ShieldAlert class="w-3.5 h-3.5 mr-1 text-amber-400" />
-            <span>Validate Rules</span>
+            <span>{$LL.shannon.ca.validate()}</span>
           </Button>
 
           <Button variant="primary" size="sm" onclick={saveLteFile} disabled={isSaving || combos.length === 0}>
             <Save class="w-3.5 h-3.5 mr-1" />
-            <span>{isSaving ? 'Saving...' : 'Save to System'}</span>
+            <span>{isSaving ? $LL.shannon.ca.saving() : $LL.shannon.ca.saveToSystem()}</span>
           </Button>
         </div>
       {/snippet}
@@ -824,7 +825,7 @@
         <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
           <div>
             <label class="block text-[10px] text-muted uppercase font-bold mb-1">
-              <span>Target File Path on Device</span>
+              <span>{$LL.shannon.ca.targetPath()}</span>
               <input
                 type="text"
                 bind:value={targetSavePath}
@@ -836,14 +837,14 @@
 
           <div>
             <label class="block text-[10px] text-muted uppercase font-bold mb-1">
-              <span>Search Filter (Band or Conf ID)</span>
+              <span>{$LL.shannon.ca.searchLabel()}</span>
               <div class="relative mt-1">
                 <Search class="w-3.5 h-3.5 text-muted absolute left-2.5 top-2.5" />
                 <input
                   type="text"
                   bind:value={lteSearchQuery}
                   class="neo-input w-full bg-card-sub border-2 border-border rounded pl-8 pr-3 py-1.5 text-foreground focus:outline-none focus:border-accent text-xs"
-                  placeholder="Search combo (e.g. 1A, 3C, 8)..."
+                  placeholder={$LL.shannon.ca.searchPlaceholder()}
                 />
               </div>
             </label>
@@ -853,7 +854,7 @@
         <!-- DETECTED FILES SHORTCUTS -->
         {#if status.detected_paths && status.detected_paths.length > 0}
           <div class="flex items-center gap-2 flex-wrap text-[11px] p-2 bg-card-sub border border-border rounded">
-            <span class="text-muted font-bold">Detected on Phone:</span>
+            <span class="text-muted font-bold">{$LL.shannon.ca.detectedOnPhone()}</span>
             {#each status.detected_paths as path}
               <button
                 type="button"
@@ -869,17 +870,17 @@
         <!-- STATS BAR -->
         <div class="flex items-center justify-between text-[11px] p-2 bg-zinc-950 border border-border rounded">
           <div>
-            <span class="text-muted">Total Combinations:</span>
+            <span class="text-muted">{$LL.shannon.ca.totalCombos()}</span>
             <span class="font-bold text-accent ml-1">{combos.length}</span>
             {#if combos.length > 128}
-              <Badge variant="warning" class="ml-2 text-[9px]">Exceeds 128 (May need Pruning)</Badge>
+              <Badge variant="warning" class="ml-2 text-[9px]">{$LL.shannon.ca.exceeds128()}</Badge>
             {:else if combos.length > 0}
-              <Badge variant="success" class="ml-2 text-[9px]">Within 128 Limit</Badge>
+              <Badge variant="success" class="ml-2 text-[9px]">{$LL.shannon.ca.within128()}</Badge>
             {/if}
           </div>
 
           <div>
-            <span class="text-muted">Protobuf Version:</span>
+            <span class="text-muted">{$LL.shannon.ca.protoBufVersion()}</span>
             <span class="font-bold text-foreground ml-1">{status.version}</span>
           </div>
         </div>
@@ -888,9 +889,9 @@
         {#if filteredLteCombos.length === 0}
           <div class="p-8 text-center border-2 border-dashed border-border rounded space-y-2">
             <FileSpreadsheet class="w-8 h-8 text-muted mx-auto" />
-            <p class="font-bold text-foreground">No LTE Carrier Aggregation combos loaded</p>
+            <p class="font-bold text-foreground">{$LL.shannon.ca.lteEmptyTitle()}</p>
             <p class="text-[11px] text-muted max-w-md mx-auto">
-              Click "Auto Generator" to create fallback combos from your target bands, or "Import .binarypb" to open an existing file.
+              {$LL.shannon.ca.click()} "{$LL.shannon.ca.autoGen()}" {$LL.shannon.ca.lteEmptyBodyB()} "{$LL.shannon.ca.importFile()}" {$LL.shannon.ca.lteEmptyBodyC()}
             </p>
           </div>
         {:else}
@@ -900,11 +901,11 @@
                 <thead class="bg-card-sub text-muted font-bold uppercase sticky top-0 border-b-2 border-border z-10">
                   <tr>
                     <th class="p-2 w-12 text-center">#</th>
-                    <th class="p-2">CA Combo Definition</th>
-                    <th class="p-2">Components Detail</th>
-                    <th class="p-2 text-center w-24">Streams</th>
-                    <th class="p-2 text-center w-28">PLMN Conf IDs</th>
-                    <th class="p-2 text-center w-16">Action</th>
+                    <th class="p-2">{$LL.shannon.ca.thCaCombo()}</th>
+                    <th class="p-2">{$LL.shannon.ca.thComponents()}</th>
+                    <th class="p-2 text-center w-24">{$LL.shannon.ca.thStreams()}</th>
+                    <th class="p-2 text-center w-28">{$LL.shannon.ca.thConfIds()}</th>
+                    <th class="p-2 text-center w-16">{$LL.shannon.ca.thAction()}</th>
                   </tr>
                 </thead>
                 <tbody class="divide-y divide-border font-mono">
@@ -943,7 +944,7 @@
                           type="button"
                           class="p-1 text-red-400 hover:text-red-300 hover:bg-red-950/40 rounded transition-colors cursor-pointer"
                           onclick={() => deleteLteCombo(idx)}
-                          title="Delete Combo"
+                          title={$LL.shannon.ca.deleteCombo()}
                         >
                           <Trash2 class="w-3.5 h-3.5" />
                         </button>
@@ -961,15 +962,15 @@
 </div>
 
 <!-- AUTO GENERATOR MODAL -->
-<Modal open={showAutoGenModal} onclose={() => (showAutoGenModal = false)} title="Auto CA Combo Generator" size="md">
+<Modal open={showAutoGenModal} onclose={() => (showAutoGenModal = false)} title={$LL.shannon.ca.autogenTitle()} size="md">
   <div class="space-y-4 font-mono text-xs">
     <p class="text-muted text-[11px] leading-relaxed">
-      Input carrier aggregation combinations (e.g. <code>1+3+8B+40D+28</code>). The generator will automatically generate fallback subsets, assign bandwidth classes, 4x4 MIMO, and limit spatial streams to 24.
+      {$LL.shannon.ca.autogenBodyA()} <code>1+3+8B+40D+28</code>{$LL.shannon.ca.autogenBodyB()}
     </p>
 
     <div>
       <label class="block text-[10px] text-muted uppercase font-bold mb-1">
-        <span>Target Combos (One per line)</span>
+        <span>{$LL.shannon.ca.autogenTarget()}</span>
         <textarea
           bind:value={autoGenInput}
           rows="3"
@@ -982,7 +983,7 @@
     <div class="grid grid-cols-2 gap-3">
       <div>
         <label class="block text-[10px] text-muted uppercase font-bold mb-1">
-          <span>Max Component Carriers (CC)</span>
+          <span>{$LL.shannon.ca.autogenMaxCc()}</span>
           <input
             type="number"
             min="1"
@@ -995,15 +996,15 @@
 
       <div>
         <label class="block text-[10px] text-muted uppercase font-bold mb-1">
-          <span>Uplink Carrier Aggregation</span>
+          <span>{$LL.shannon.ca.autogenUl()}</span>
           <select
             bind:value={autoGenUL}
             class="neo-input mt-1 w-full bg-card-sub border-2 border-border rounded px-2.5 py-1.5 text-foreground focus:outline-none focus:border-accent text-xs"
           >
-            <option value="none">Single UL Only (Default)</option>
-            <option value="fdd_aa">Allow FDD A+A Non-Contiguous</option>
-            <option value="tdd_aa">Allow TDD A+A Non-Contiguous</option>
-            <option value="tdd_fdd">Allow TDD+FDD Mixed UL</option>
+            <option value="none">{$LL.shannon.ca.ulSingle()}</option>
+            <option value="fdd_aa">{$LL.shannon.ca.ulFddAa()}</option>
+            <option value="tdd_aa">{$LL.shannon.ca.ulTddAa()}</option>
+            <option value="tdd_fdd">{$LL.shannon.ca.ulTddFdd()}</option>
           </select>
         </label>
       </div>
@@ -1011,7 +1012,7 @@
 
     <div>
       <label class="block text-[10px] text-muted uppercase font-bold mb-1">
-        <span>Operator Conf IDs Mapping</span>
+        <span>{$LL.shannon.ca.autogenConfIds()}</span>
         <input
           type="text"
           bind:value={autoGenConfIds}
@@ -1023,23 +1024,23 @@
   </div>
 
   {#snippet footer()}
-    <Button variant="secondary" size="sm" onclick={() => (showAutoGenModal = false)}>Cancel</Button>
+    <Button variant="secondary" size="sm" onclick={() => (showAutoGenModal = false)}>{$LL.common.cancel()}</Button>
     <Button variant="primary" size="sm" disabled={isGenerating} onclick={runAutoGen}>
-      <span>{isGenerating ? 'Generating...' : 'Generate Fallbacks'}</span>
+      <span>{isGenerating ? $LL.shannon.ca.generating() : $LL.shannon.ca.generate()}</span>
     </Button>
   {/snippet}
 </Modal>
 
 <!-- PRUNE MODAL -->
-<Modal open={showPruneModal} onclose={() => (showPruneModal = false)} title="Prune Combinations (128 Cap)" size="md">
+<Modal open={showPruneModal} onclose={() => (showPruneModal = false)} title={$LL.shannon.ca.pruneTitle()} size="md">
   <div class="space-y-4 font-mono text-xs">
     <p class="text-muted text-[11px] leading-relaxed">
-      If a cellular network does not configure <code>requestedFrequencyBands-r11</code>, devices can only report up to 128 combos in the UE Capability message. Use this tool to filter essential bands and remove duplicates.
+      {$LL.shannon.ca.pruneBodyA()} <code>requestedFrequencyBands-r11</code>{$LL.shannon.ca.pruneBodyB()}
     </p>
 
     <div>
       <label class="block text-[10px] text-muted uppercase font-bold mb-1">
-        <span>Essential Bands to Keep</span>
+        <span>{$LL.shannon.ca.pruneBands()}</span>
         <input
           type="text"
           bind:value={pruneBands}
@@ -1052,7 +1053,7 @@
     <div class="grid grid-cols-2 gap-3">
       <div>
         <label class="block text-[10px] text-muted uppercase font-bold mb-1">
-          <span>Max Combo Count</span>
+          <span>{$LL.shannon.ca.pruneMaxCount()}</span>
           <input
             type="number"
             bind:value={pruneMaxCombos}
@@ -1068,47 +1069,47 @@
           {:else}
           <input type="checkbox" bind:checked={pruneExcludeIntra} class="accent-accent" />
           {/if}
-          <span class="text-[11px] text-foreground font-bold">Exclude Intra-Band CA</span>
+          <span class="text-[11px] text-foreground font-bold">{$LL.shannon.ca.pruneExcludeIntra()}</span>
         </label>
       </div>
     </div>
   </div>
 
   {#snippet footer()}
-    <Button variant="secondary" size="sm" onclick={() => (showPruneModal = false)}>Cancel</Button>
+    <Button variant="secondary" size="sm" onclick={() => (showPruneModal = false)}>{$LL.common.cancel()}</Button>
     <Button variant="primary" size="sm" onclick={runPrune}>
-      <span>Apply Pruning</span>
+      <span>{$LL.shannon.ca.applyPruning()}</span>
     </Button>
   {/snippet}
 </Modal>
 
 <!-- VALIDATION RESULTS MODAL -->
-<Modal open={showValidationModal} onclose={() => (showValidationModal = false)} title="Shannon CA Validation Report" size="md">
+<Modal open={showValidationModal} onclose={() => (showValidationModal = false)} title={$LL.shannon.ca.validationTitle()} size="md">
   <div class="space-y-3 font-mono text-xs">
     {#if validationResult}
       <div class="flex items-center justify-between p-3 rounded bg-zinc-950 border-2 border-border">
         <div class="flex items-center gap-2">
           {#if validationResult.valid}
             <CheckCircle2 class="w-5 h-5 text-emerald-400" />
-            <span class="font-bold text-emerald-400 text-sm">Valid Configuration</span>
+            <span class="font-bold text-emerald-400 text-sm">{$LL.shannon.ca.validConfig()}</span>
           {:else}
             <XCircle class="w-5 h-5 text-red-400" />
-            <span class="font-bold text-red-400 text-sm">Rule Violations Detected</span>
+            <span class="font-bold text-red-400 text-sm">{$LL.shannon.ca.ruleViolations()}</span>
           {/if}
         </div>
         <div class="flex items-center gap-2">
           <Badge variant={validationResult.error_count > 0 ? 'danger' : 'success'}>
-            {validationResult.error_count} Errors
+            {$LL.shannon.ca.errorCount({count: validationResult.error_count})}
           </Badge>
           <Badge variant={validationResult.warning_count > 0 ? 'warning' : 'info'}>
-            {validationResult.warning_count} Warnings
+            {$LL.shannon.ca.warningCount({count: validationResult.warning_count})}
           </Badge>
         </div>
       </div>
 
       {#if validationResult.issues.length === 0}
         <p class="text-emerald-300 text-center py-4">
-          All combinations comply with Shannon modem spatial stream limits, 4x4 MIMO rules, and uplink constraints!
+          {$LL.shannon.ca.allValid()}
         </p>
       {:else}
         <div class="max-h-64 overflow-y-auto space-y-1.5 p-2 bg-zinc-900 border border-border rounded text-[11px]">
@@ -1121,15 +1122,15 @@
   </div>
 
   {#snippet footer()}
-    <Button variant="primary" size="sm" onclick={() => (showValidationModal = false)}>Close</Button>
+    <Button variant="primary" size="sm" onclick={() => (showValidationModal = false)}>{$LL.common.close()}</Button>
   {/snippet}
 </Modal>
 
 <!-- LTE UPLOAD MODAL -->
-<Modal open={showLteUploadModal} onclose={() => (showLteUploadModal = false)} title="Import Shannon LTE .binarypb File" size="sm">
+<Modal open={showLteUploadModal} onclose={() => (showLteUploadModal = false)} title={$LL.shannon.ca.lteUploadTitle()} size="sm">
   <div class="space-y-3 font-mono text-xs">
     <p class="text-muted text-[11px]">
-      Select a <code>.binarypb</code> file from your computer or phone storage to decode and edit in the browser.
+      {$LL.shannon.ca.lteUploadBodyA()} <code>.binarypb</code> {$LL.shannon.ca.lteUploadBodyB()}
     </p>
 
     <div class="p-4 border-2 border-dashed border-border rounded text-center">
@@ -1143,15 +1144,15 @@
   </div>
 
   {#snippet footer()}
-    <Button variant="secondary" size="sm" onclick={() => (showLteUploadModal = false)}>Cancel</Button>
+    <Button variant="secondary" size="sm" onclick={() => (showLteUploadModal = false)}>{$LL.common.cancel()}</Button>
   {/snippet}
 </Modal>
 
 <!-- NR UPLOAD MODAL -->
-<Modal open={showNrUploadModal} onclose={() => (showNrUploadModal = false)} title="Import Shannon 5G NR / EN-DC .binarypb File" size="sm">
+<Modal open={showNrUploadModal} onclose={() => (showNrUploadModal = false)} title={$LL.shannon.ca.nrUploadTitle()} size="sm">
   <div class="space-y-3 font-mono text-xs">
     <p class="text-muted text-[11px]">
-      Select a 5G NR or EN-DC <code>.binarypb</code> file (e.g. <code>sub6.binarypb</code>, <code>mmWave.binarypb</code>, or Pixel firmware dump) to decode and inspect.
+      {$LL.shannon.ca.nrUploadBodyA()} <code>.binarypb</code> {$LL.shannon.ca.nrUploadBodyB()} <code>sub6.binarypb</code>, <code>mmWave.binarypb</code>{$LL.shannon.ca.nrUploadBodyC()}
     </p>
 
     <div class="p-4 border-2 border-dashed border-border rounded text-center">
@@ -1165,6 +1166,6 @@
   </div>
 
   {#snippet footer()}
-    <Button variant="secondary" size="sm" onclick={() => (showNrUploadModal = false)}>Cancel</Button>
+    <Button variant="secondary" size="sm" onclick={() => (showNrUploadModal = false)}>{$LL.common.cancel()}</Button>
   {/snippet}
 </Modal>

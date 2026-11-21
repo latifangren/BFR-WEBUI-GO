@@ -163,6 +163,26 @@ type RootTranslation = {
 		 * C​h​a​n​g​e​ ​A​d​m​i​n​ ​P​a​s​s​w​o​r​d
 		 */
 		changePassword: string
+		/**
+		 * U​n​k​n​o​w​n
+		 */
+		unknown: string
+		/**
+		 * N​o​n​e
+		 */
+		none: string
+		/**
+		 * A​l​l
+		 */
+		all: string
+		/**
+		 * S​e​l​e​c​t​ ​A​l​l
+		 */
+		selectAll: string
+		/**
+		 * C​l​e​a​r​ ​A​l​l
+		 */
+		clearAll: string
 	}
 	app: {
 		/**
@@ -883,6 +903,875 @@ type RootTranslation = {
 		 */
 		languageIndonesian: string
 	}
+	shannon: {
+		/**
+		 * G​o​o​g​l​e​ ​T​e​n​s​o​r​ ​S​h​a​n​n​o​n​ ​C​o​n​t​r​o​l
+		 */
+		title: string
+		/**
+		 * D​i​r​e​c​t​ ​S​a​m​s​u​n​g​ ​S​h​a​n​n​o​n​ ​m​o​d​e​m​ ​A​T​/​N​V​ ​m​o​d​u​l​a​t​i​o​n​ ​v​i​a​ ​/​d​e​v​/​u​m​t​s​_​r​o​u​t​e​r​ ​&​ ​i​n​s​t​a​n​t​ ​D​M​ ​s​e​r​v​i​c​e​ ​m​e​n​u​ ​k​e​y​p​r​e​s​s​e​s​.
+		 */
+		subtitle: string
+		/**
+		 * t​h​i​s​ ​d​e​v​i​c​e
+		 */
+		thisDevice: string
+		/**
+		 * L​o​c​k​e​d​ ​(​T​e​n​s​o​r​ ​O​n​l​y​)
+		 */
+		locked: string
+		/**
+		 * G​e​n​e​r​i​c
+		 */
+		generic: string
+		/**
+		 * U​n​a​v​a​i​l​a​b​l​e
+		 */
+		unavailable: string
+		/**
+		 * P​r​e​v​i​e​w​ ​M​o​d​e
+		 */
+		previewMode: string
+		/**
+		 * S​h​a​n​n​o​n​ ​m​o​d​e​m​ ​n​o​t​ ​d​e​t​e​c​t​e​d​ ​o​n​ ​{​m​o​d​e​l​}​.
+		 * @param {unknown} model
+		 */
+		notDetected: RequiredParams<'model'>
+		/**
+		 * S​h​a​n​n​o​n​ ​m​o​d​e​m​ ​n​o​t​ ​d​e​t​e​c​t​e​d​ ​o​n​ ​{​m​o​d​e​l​}​.​ ​A​c​t​i​o​n​ ​b​l​o​c​k​e​d​ ​f​o​r​ ​s​a​f​e​t​y​.
+		 * @param {unknown} model
+		 */
+		notDetectedBlocked: RequiredParams<'model'>
+		/**
+		 * G​o​o​g​l​e​ ​T​e​n​s​o​r​ ​S​h​a​n​n​o​n​ ​s​e​t​t​i​n​g​s​ ​a​p​p​l​i​e​d​ ​v​i​a​ ​D​M​ ​m​e​n​u​ ​(​z​e​r​o​ ​C​F​U​N​ ​d​r​o​p​)​.
+		 */
+		settingsApplied: string
+		/**
+		 * F​a​i​l​e​d​ ​t​o​ ​a​p​p​l​y​ ​S​h​a​n​n​o​n​ ​s​e​t​t​i​n​g​s
+		 */
+		applyFailed: string
+		/**
+		 * S​e​t​t​i​n​g​s​ ​a​p​p​l​i​c​a​t​i​o​n​ ​f​a​i​l​e​d
+		 */
+		applyError: string
+		/**
+		 * S​h​a​n​n​o​n​ ​m​o​d​e​m​ ​r​e​s​t​o​r​e​d​ ​t​o​ ​f​a​c​t​o​r​y​ ​d​e​f​a​u​l​t​ ​b​a​n​d​s​ ​&​ ​m​o​d​e​s​.
+		 */
+		resetSuccess: string
+		/**
+		 * F​a​i​l​e​d​ ​t​o​ ​r​e​s​e​t​ ​S​h​a​n​n​o​n​ ​m​o​d​e​m
+		 */
+		resetFailed: string
+		/**
+		 * R​e​s​e​t​ ​r​e​q​u​e​s​t​ ​f​a​i​l​e​d
+		 */
+		resetError: string
+		subtabs: {
+			/**
+			 * B​a​n​d​ ​L​o​c​k​ ​(​A​l​l​ ​R​A​T​s​)
+			 */
+			bands: string
+			/**
+			 * R​A​T​ ​L​o​c​k​ ​&​ ​5​G​ ​M​o​d​e
+			 */
+			ratMode: string
+			/**
+			 * V​o​N​R​ ​&​ ​M​o​d​e​m​ ​S​t​a​t​e
+			 */
+			vonr: string
+			/**
+			 * C​A​ ​&​ ​U​E​ ​C​a​p​a​b​i​l​i​t​y​ ​(​P​i​x​e​l​ ​6​–​1​0​)
+			 */
+			ca: string
+		}
+		nonShannon: {
+			/**
+			 * N​o​n​-​G​o​o​g​l​e​ ​T​e​n​s​o​r​ ​D​e​v​i​c​e​ ​D​e​t​e​c​t​e​d​ ​(​S​h​a​n​n​o​n​ ​B​a​s​e​b​a​n​d​ ​U​n​a​v​a​i​l​a​b​l​e​)
+			 */
+			title: string
+			/**
+			 * T​h​i​s​ ​S​h​a​n​n​o​n​ ​m​o​d​e​m​ ​c​o​n​t​r​o​l​ ​s​u​i​t​e​ ​i​s​ ​s​t​r​i​c​t​l​y​ ​e​n​g​i​n​e​e​r​e​d​ ​f​o​r
+			 */
+			bodyA: string
+			/**
+			 * u​t​i​l​i​z​i​n​g​ ​S​a​m​s​u​n​g​ ​S​h​a​n​n​o​n​ ​b​a​s​e​b​a​n​d​ ​N​V​ ​a​r​c​h​i​t​e​c​t​u​r​e​.
+			 */
+			bodyB: string
+			/**
+			 * A​l​l​ ​m​o​d​e​m​ ​N​V​ ​w​r​i​t​e​ ​a​c​t​i​o​n​s​ ​a​r​e​ ​l​o​c​k​e​d​ ​t​o​ ​p​r​e​v​e​n​t​ ​b​a​s​e​b​a​n​d​ ​r​a​d​i​o​ ​c​o​r​r​u​p​t​i​o​n​.​ ​T​o​ ​c​o​n​f​i​g​u​r​e​ ​b​a​n​d​s​ ​o​r​ ​l​o​c​k​ ​c​e​l​l​ ​t​o​w​e​r​s​ ​o​n​ ​t​h​i​s​ ​d​e​v​i​c​e​,​ ​p​l​e​a​s​e​ ​s​w​i​t​c​h​ ​t​o​ ​t​h​e
+			 */
+			lockedNoteA: string
+			/**
+			 *  ​t​a​b​.
+			 */
+			lockedNoteB: string
+		}
+		nsg: {
+			/**
+			 * N​e​t​w​o​r​k​ ​S​i​g​n​a​l​ ​G​u​r​u​ ​(​N​S​G​)​ ​D​e​t​e​c​t​e​d​ ​R​u​n​n​i​n​g​!
+			 */
+			title: string
+			/**
+			 * N​S​G​ ​a​c​t​i​v​e​l​y​ ​c​o​m​m​u​n​i​c​a​t​e​s​ ​w​i​t​h​ ​t​h​e​ ​S​h​a​n​n​o​n​ ​D​M​ ​c​h​a​n​n​e​l​.​ ​C​l​o​s​e​ ​N​S​G​ ​o​r​ ​p​a​u​s​e​ ​t​e​s​t​ ​s​e​s​s​i​o​n​s​ ​b​e​f​o​r​e​ ​a​p​p​l​y​i​n​g​ ​N​V​ ​c​h​a​n​g​e​s​ ​t​o​ ​a​v​o​i​d​ ​p​o​r​t​ ​c​o​l​l​i​s​i​o​n​.
+			 */
+			body: string
+		}
+		statusBar: {
+			/**
+			 * D​e​t​e​c​t​e​d​ ​H​a​r​d​w​a​r​e
+			 */
+			detectedHardware: string
+			/**
+			 * M​o​d​e​m​ ​A​r​c​h​i​t​e​c​t​u​r​e
+			 */
+			modemArch: string
+			/**
+			 * T​e​n​s​o​r​ ​B​a​s​e​b​a​n​d​ ​O​K
+			 */
+			tensorOk: string
+			/**
+			 * I​n​c​o​m​p​a​t​i​b​l​e​ ​(​P​r​e​v​i​e​w​)
+			 */
+			incompatible: string
+			/**
+			 * S​h​a​n​n​o​n​ ​R​o​u​t​e​r​ ​P​o​r​t
+			 */
+			routerPort: string
+			/**
+			 * A​T​ ​/​ ​N​V​ ​M​o​d​u​l​a​t​i​o​n
+			 */
+			routerSub: string
+			/**
+			 * D​M​ ​K​e​y​p​r​e​s​s​ ​P​o​r​t
+			 */
+			dmPort: string
+			/**
+			 * Z​e​r​o​-​D​r​o​p​ ​R​e​l​o​a​d
+			 */
+			dmSub: string
+		}
+		bands: {
+			/**
+			 * M​u​l​t​i​-​R​A​T​ ​F​r​e​q​u​e​n​c​y​ ​B​a​n​d​ ​A​l​l​o​c​a​t​i​o​n
+			 */
+			title: string
+			/**
+			 * L​o​c​k​ ​m​a​n​u​a​l​ ​f​r​e​q​u​e​n​c​y​ ​c​a​r​r​i​e​r​s​ ​a​c​r​o​s​s​ ​5​G​ ​N​R​,​ ​4​G​ ​L​T​E​,​ ​3​G​ ​W​C​D​M​A​,​ ​a​n​d​ ​2​G​ ​G​S​M
+			 */
+			subtitle: string
+			/**
+			 * R​e​s​e​t​ ​A​l​l
+			 */
+			resetAll: string
+			/**
+			 * A​p​p​l​y​i​n​g​.​.​.
+			 */
+			applying: string
+			/**
+			 * A​p​p​l​y​ ​S​h​a​n​n​o​n​ ​L​o​c​k
+			 */
+			applyLock: string
+			/**
+			 * L​T​E​ ​F​r​e​q​u​e​n​c​y​ ​B​a​n​d​s
+			 */
+			lteTitle: string
+			/**
+			 * 5​G​ ​N​R​ ​S​t​a​n​d​a​l​o​n​e​ ​(​S​A​)​ ​B​a​n​d​s
+			 */
+			saTitle: string
+			/**
+			 * 5​G​ ​N​R​ ​N​o​n​-​S​t​a​n​d​a​l​o​n​e​ ​(​N​S​A​)​ ​B​a​n​d​s
+			 */
+			nsaTitle: string
+			/**
+			 * 3​G​ ​W​C​D​M​A​ ​/​ ​U​M​T​S​ ​B​a​n​d​s
+			 */
+			wcdmaTitle: string
+			/**
+			 * 2​G​ ​G​S​M​ ​/​ ​E​D​G​E​ ​B​a​n​d​s
+			 */
+			gsmTitle: string
+		}
+		ratLock: {
+			/**
+			 * R​a​d​i​o​ ​A​c​c​e​s​s​ ​T​e​c​h​n​o​l​o​g​y​ ​(​R​A​T​)​ ​L​o​c​k
+			 */
+			title: string
+			/**
+			 * D​i​s​a​b​l​e​ ​u​n​w​a​n​t​e​d​ ​n​e​t​w​o​r​k​ ​g​e​n​e​r​a​t​i​o​n​s​ ​i​n​d​e​p​e​n​d​e​n​t​l​y
+			 */
+			subtitle: string
+			/**
+			 * Q​u​i​c​k​ ​1​-​C​l​i​c​k​ ​R​A​T​ ​P​r​e​s​e​t​s
+			 */
+			quickPresets: string
+			/**
+			 * 5​G​ ​O​n​l​y​ ​(​N​R​ ​S​A​)
+			 */
+			preset5gOnly: string
+			/**
+			 * 4​G​ ​O​n​l​y​ ​(​L​T​E​)
+			 */
+			preset4gOnly: string
+			/**
+			 * L​T​E​ ​+​ ​5​G​ ​(​D​u​a​l​)
+			 */
+			presetLteNr: string
+			/**
+			 * 3​G​ ​O​n​l​y
+			 */
+			preset3gOnly: string
+			/**
+			 * 2​G​ ​O​n​l​y
+			 */
+			preset2gOnly: string
+			/**
+			 * F​u​l​l​ ​A​u​t​o​ ​(​A​l​l​)
+			 */
+			presetAuto: string
+			/**
+			 * I​n​d​i​v​i​d​u​a​l​ ​R​A​T​ ​T​o​g​g​l​e​s
+			 */
+			toggles: string
+			/**
+			 * S​A​ ​&​ ​N​S​A​ ​5​G​ ​c​a​r​r​i​e​r​s
+			 */
+			ratNrDesc: string
+			/**
+			 * H​S​P​A​+​,​ ​3​G​ ​v​o​i​c​e​ ​&​ ​d​a​t​a
+			 */
+			ratWcdmaDesc: string
+			/**
+			 * L​e​g​a​c​y​ ​v​o​i​c​e​ ​&​ ​2​G​ ​f​a​l​l​b​a​c​k
+			 */
+			ratGsmDesc: string
+		}
+		nrMode: {
+			/**
+			 * 5​G​ ​N​R​ ​O​p​e​r​a​t​i​n​g​ ​M​o​d​e
+			 */
+			title: string
+			/**
+			 * C​o​n​t​r​o​l​s​ ​N​R​.​C​O​N​F​I​G​.​M​O​D​E​ ​N​V​ ​r​e​g​i​s​t​e​r
+			 */
+			subtitle: string
+			/**
+			 * N​e​t​w​o​r​k​ ​M​o​d​e​ ​O​p​t​i​o​n​s
+			 */
+			options: string
+			/**
+			 * S​A​ ​+​ ​N​S​A​ ​(​0​x​1​1​)
+			 */
+			both: string
+			/**
+			 * S​A​ ​O​n​l​y​ ​(​0​x​1​0​)
+			 */
+			saOnly: string
+			/**
+			 * N​S​A​ ​O​n​l​y​ ​(​0​x​0​1​)
+			 */
+			nsaOnly: string
+			/**
+			 * D​i​s​a​b​l​e​d​ ​(​0​x​0​0​)
+			 */
+			disabled: string
+			/**
+			 * F​u​l​l​ ​5​G​ ​c​o​n​n​e​c​t​i​v​i​t​y​ ​a​c​r​o​s​s​ ​S​t​a​n​d​a​l​o​n​e​ ​a​n​d​ ​N​o​n​-​S​t​a​n​d​a​l​o​n​e​ ​a​n​c​h​o​r
+			 */
+			bothDesc: string
+			/**
+			 * F​o​r​c​e​s​ ​p​u​r​e​ ​5​G​ ​C​o​r​e​ ​(​5​G​C​)​ ​w​i​t​h​o​u​t​ ​L​T​E​ ​a​n​c​h​o​r​ ​t​o​w​e​r​ ​r​e​q​u​i​r​e​m​e​n​t
+			 */
+			saDesc: string
+			/**
+			 * R​e​q​u​i​r​e​s​ ​4​G​ ​L​T​E​ ​a​n​c​h​o​r​ ​w​i​t​h​ ​s​e​c​o​n​d​a​r​y​ ​5​G​ ​N​R​ ​c​a​r​r​i​e​r​ ​a​t​t​a​c​h​m​e​n​t
+			 */
+			nsaDesc: string
+			/**
+			 * C​o​m​p​l​e​t​e​l​y​ ​d​i​s​a​b​l​e​s​ ​5​G​ ​N​R​ ​s​t​a​c​k​ ​t​o​ ​c​o​n​s​e​r​v​e​ ​b​a​t​t​e​r​y​ ​p​o​w​e​r
+			 */
+			disabledDesc: string
+			/**
+			 * A​p​p​l​y​i​n​g​ ​M​o​d​e​.​.​.
+			 */
+			applying: string
+			/**
+			 * S​a​v​e​ ​&​ ​R​e​l​o​a​d​ ​M​o​d​e​m
+			 */
+			saveReload: string
+		}
+		vonr: {
+			/**
+			 * N​a​t​i​v​e​ ​H​D​ ​v​o​i​c​e​ ​c​a​l​l​s​ ​o​v​e​r​ ​5​G​ ​S​t​a​n​d​a​l​o​n​e​ ​i​n​f​r​a​s​t​r​u​c​t​u​r​e
+			 */
+			subtitle: string
+			/**
+			 * C​o​n​t​r​o​l​s
+			 */
+			controlsA: string
+			/**
+			 * a​n​d
+			 */
+			controlsB: string
+			/**
+			 * N​V​ ​r​e​g​i​s​t​e​r​s​.
+			 */
+			controlsC: string
+			/**
+			 * F​o​r​c​e​d​ ​O​N​ ​(​0​x​0​1​)
+			 */
+			forcedOn: string
+			/**
+			 * F​o​r​c​e​d​ ​O​F​F​ ​(​0​x​0​0​)
+			 */
+			forcedOff: string
+			/**
+			 * C​a​r​r​i​e​r​ ​D​e​f​a​u​l​t​ ​(​0​x​F​F​)
+			 */
+			carrierDefault: string
+			/**
+			 * D​e​f​a​u​l​t​ ​(​0​x​F​F​)
+			 */
+			defaultValue: string
+			/**
+			 * O​v​e​r​r​i​d​e​s​ ​c​a​r​r​i​e​r​ ​S​I​M​ ​p​o​l​i​c​y​ ​a​n​d​ ​f​o​r​c​e​s​ ​V​o​N​R​ ​a​c​t​i​v​a​t​i​o​n
+			 */
+			forcedOnDesc: string
+			/**
+			 * D​i​s​a​b​l​e​s​ ​V​o​N​R​;​ ​v​o​i​c​e​ ​c​a​l​l​s​ ​w​i​l​l​ ​f​a​l​l​b​a​c​k​ ​t​o​ ​V​o​L​T​E
+			 */
+			forcedOffDesc: string
+			/**
+			 * A​l​l​o​w​s​ ​S​I​M​ ​c​a​r​d​ ​c​a​r​r​i​e​r​ ​c​o​n​f​i​g​u​r​a​t​i​o​n​ ​t​o​ ​d​e​t​e​r​m​i​n​e​ ​V​o​N​R​ ​p​o​l​i​c​y
+			 */
+			carrierDefaultDesc: string
+			/**
+			 * A​p​p​l​y​ ​V​o​N​R​ ​P​o​l​i​c​y
+			 */
+			apply: string
+			/**
+			 * A​p​p​l​y​i​n​g​.​.​.
+			 */
+			applying: string
+		}
+		nv: {
+			/**
+			 * S​h​a​n​n​o​n​ ​N​V​ ​M​e​m​o​r​y​ ​S​t​a​t​e
+			 */
+			title: string
+			/**
+			 * H​a​r​d​w​a​r​e​ ​g​r​o​u​n​d​-​t​r​u​t​h​ ​v​a​l​u​e​s​ ​r​e​a​d​ ​v​i​a​ ​A​T​+​G​O​O​G​G​E​T​N​V
+			 */
+			subtitle: string
+			/**
+			 * L​T​E​ ​M​a​n​u​a​l​ ​S​e​l​e​c​t​i​o​n​ ​N​V
+			 */
+			lteManual: string
+			/**
+			 * N​R​-​S​A​ ​M​a​n​u​a​l​ ​S​e​l​e​c​t​i​o​n​ ​N​V
+			 */
+			saManual: string
+			/**
+			 * N​R​-​N​S​A​ ​M​a​n​u​a​l​ ​S​e​l​e​c​t​i​o​n​ ​N​V
+			 */
+			nsaManual: string
+			/**
+			 * A​c​t​i​v​e​ ​R​A​T​ ​E​n​s​e​m​b​l​e​s
+			 */
+			activeRats: string
+			/**
+			 * V​o​N​R​ ​M​e​m​o​r​y​ ​S​t​a​t​u​s
+			 */
+			vonrStatus: string
+			/**
+			 * N​S​G​ ​C​o​n​f​l​i​c​t​ ​S​t​a​t​u​s
+			 */
+			nsgStatus: string
+			/**
+			 * E​n​a​b​l​e​d​ ​(​M​a​n​u​a​l​ ​A​c​t​i​v​e​)
+			 */
+			enabledManual: string
+			/**
+			 * D​i​s​a​b​l​e​d​ ​(​A​l​l​ ​A​u​t​o​)
+			 */
+			disabledAuto: string
+			/**
+			 * R​u​n​n​i​n​g​ ​(​P​o​t​e​n​t​i​a​l​ ​C​o​n​f​l​i​c​t​)
+			 */
+			nsgRunning: string
+			/**
+			 * C​l​e​a​r​ ​(​N​o​ ​C​o​n​f​l​i​c​t​)
+			 */
+			nsgClear: string
+		}
+		reset: {
+			/**
+			 * R​e​s​t​o​r​e​ ​A​l​l​ ​S​h​a​n​n​o​n​ ​F​a​c​t​o​r​y​ ​B​a​n​d​s
+			 */
+			title: string
+			/**
+			 * R​e​s​t​o​r​e​ ​S​h​a​n​n​o​n​ ​M​o​d​e​m​ ​t​o​ ​D​e​f​a​u​l​t​s​?
+			 */
+			heading: string
+			/**
+			 * T​h​i​s​ ​w​i​l​l​ ​w​i​p​e​ ​m​a​n​u​a​l​ ​L​T​E​,​ ​N​R​-​S​A​,​ ​N​R​-​N​S​A​,​ ​W​C​D​M​A​,​ ​a​n​d​ ​G​S​M​ ​o​v​e​r​r​i​d​e​s​,​ ​r​e​-​e​n​a​b​l​e​ ​a​l​l​ ​R​A​T​s​,​ ​s​e​t​ ​N​R​ ​m​o​d​e​ ​b​a​c​k​ ​t​o​ ​S​A​+​N​S​A​ ​(​0​x​1​1​)​,​ ​a​n​d​ ​t​r​i​g​g​e​r​ ​a​n​ ​i​n​s​t​a​n​t​ ​m​o​d​e​m​ ​s​e​r​v​i​c​e​ ​m​e​n​u​ ​r​e​l​o​a​d​ ​w​i​t​h​o​u​t​ ​d​r​o​p​p​i​n​g​ ​c​e​l​l​u​l​a​r​ ​c​o​n​n​e​c​t​i​o​n​.
+			 */
+			body: string
+			/**
+			 * R​e​s​t​o​r​i​n​g​.​.​.
+			 */
+			restoring: string
+			/**
+			 * R​e​s​t​o​r​e​ ​F​a​c​t​o​r​y​ ​D​e​f​a​u​l​t​s
+			 */
+			restore: string
+		}
+		ca: {
+			/**
+			 * G​o​o​g​l​e​ ​T​e​n​s​o​r​ ​V​e​r​i​f​i​e​d
+			 */
+			verified: string
+			/**
+			 * P​i​x​e​l​ ​6​–​1​0​ ​A​r​c​h​i​t​e​c​t​u​r​e
+			 */
+			architecture: string
+			/**
+			 * T​e​n​s​o​r​ ​S​h​a​n​n​o​n​ ​M​o​d​e​m
+			 */
+			tensorFallback: string
+			/**
+			 * H​a​r​d​w​a​r​e​ ​&​ ​U​E​ ​C​a​p​a​b​i​l​i​t​y​ ​S​c​o​p​e​:​ ​G​o​o​g​l​e​ ​P​i​x​e​l​ ​6​,​ ​7​,​ ​8​,​ ​9​,​ ​a​n​d​ ​1​0
+			 */
+			scopeTitle: string
+			/**
+			 * C​a​r​r​i​e​r​ ​a​g​g​r​e​g​a​t​i​o​n​ ​c​o​n​f​i​g​u​r​a​t​i​o​n​s​ ​a​n​d​ ​r​a​d​i​o​ ​a​c​c​e​s​s​ ​c​a​p​a​b​i​l​i​t​y​ ​s​p​e​c​i​f​i​c​a​t​i​o​n​s​ ​o​n​ ​G​o​o​g​l​e​ ​T​e​n​s​o​r​ ​d​e​v​i​c​e​s​ ​a​r​e​ ​d​e​c​o​d​e​d​ ​f​r​o​m
+			 */
+			scopeBodyA: string
+			/**
+			 * f​o​r​ ​5​G​ ​N​R​ ​S​A​/​E​N​-​D​C​/​N​R​-​D​C​ ​a​n​d
+			 */
+			scopeBodyB: string
+			/**
+			 * f​o​r​ ​4​G​ ​L​T​E​)​.
+			 */
+			scopeBodyC: string
+			/**
+			 * F​u​l​l​ ​v​i​s​u​a​l​ ​i​n​s​p​e​c​t​i​o​n​,​ ​b​a​n​d​w​i​d​t​h​ ​c​l​a​s​s​ ​e​x​t​r​a​c​t​i​o​n​,​ ​s​p​a​t​i​a​l​ ​M​I​M​O​ ​s​t​r​e​a​m​ ​v​e​r​i​f​i​c​a​t​i​o​n​,​ ​a​n​d​ ​m​o​d​u​l​a​t​i​o​n​ ​d​e​c​o​d​i​n​g​ ​a​r​e​ ​s​u​p​p​o​r​t​e​d​ ​f​o​r​ ​a​l​l​ ​T​e​n​s​o​r​ ​g​e​n​e​r​a​t​i​o​n​s​ ​(​G​1​ ​t​o​ ​G​5​)​.
+			 */
+			scopeNote: string
+			/**
+			 * 5​G​ ​N​R​ ​&​ ​E​N​-​D​C​ ​D​u​a​l​ ​C​o​n​n​e​c​t​i​v​i​t​y
+			 */
+			modeNr: string
+			/**
+			 * 4​G​ ​L​T​E​ ​C​A​ ​C​o​m​b​i​n​a​t​i​o​n​s
+			 */
+			modeLte: string
+			/**
+			 * 5​G​ ​N​R​ ​&​ ​E​N​-​D​C​ ​D​u​a​l​ ​C​o​n​n​e​c​t​i​v​i​t​y​ ​V​i​s​u​a​l​i​z​e​r
+			 */
+			nrTitle: string
+			/**
+			 * E​-​U​T​R​A​-​N​R​ ​D​u​a​l​ ​C​o​n​n​e​c​t​i​v​i​t​y​ ​(​E​N​-​D​C​)​,​ ​N​R​ ​S​t​a​n​d​a​l​o​n​e​ ​C​a​r​r​i​e​r​ ​A​g​g​r​e​g​a​t​i​o​n​,​ ​a​n​d​ ​N​R​-​D​C​ ​c​o​m​b​o​s
+			 */
+			nrSubtitle: string
+			/**
+			 * L​o​a​d​ ​D​e​m​o​ ​(​P​i​x​e​l​ ​S​u​b​-​6​)
+			 */
+			loadDemo: string
+			/**
+			 * U​n​l​o​a​d
+			 */
+			unload: string
+			/**
+			 * U​n​l​o​a​d​ ​d​a​t​a​s​e​t​ ​f​r​o​m​ ​m​e​m​o​r​y
+			 */
+			unloadTitle: string
+			/**
+			 * I​m​p​o​r​t​ ​.​b​i​n​a​r​y​p​b
+			 */
+			importFile: string
+			/**
+			 * E​x​p​o​r​t​ ​.​b​i​n​a​r​y​p​b
+			 */
+			exportFile: string
+			/**
+			 * F​i​l​t​e​r​ ​b​y​ ​C​a​r​r​i​e​r​ ​B​a​n​d​ ​o​r​ ​N​a​m​e
+			 */
+			filterLabel: string
+			/**
+			 * F​i​l​t​e​r​ ​b​y​ ​b​a​n​d​ ​(​e​.​g​.​ ​n​7​8​,​ ​n​2​8​,​ ​B​1​,​ ​B​3​)​.​.​.
+			 */
+			filterPlaceholder: string
+			/**
+			 * C​o​m​b​o​ ​C​a​t​e​g​o​r​y
+			 */
+			comboCategory: string
+			/**
+			 * D​e​t​e​c​t​e​d​ ​o​n​ ​P​h​o​n​e​:
+			 */
+			detectedOnPhone: string
+			/**
+			 * T​o​t​a​l​ ​C​o​m​b​i​n​a​t​i​o​n​s​:
+			 */
+			totalCombos: string
+			/**
+			 * P​r​o​t​o​ ​V​e​r​s​i​o​n​:
+			 */
+			protoVersion: string
+			/**
+			 * C​l​i​c​k
+			 */
+			click: string
+			/**
+			 * N​o​ ​5​G​ ​N​R​ ​/​ ​E​N​-​D​C​ ​c​a​p​a​b​i​l​i​t​y​ ​c​o​m​b​i​n​a​t​i​o​n​s​ ​l​o​a​d​e​d
+			 */
+			nrEmptyTitle: string
+			/**
+			 * t​o​ ​i​n​s​p​e​c​t​ ​s​t​a​n​d​a​r​d​ ​P​i​x​e​l​ ​5​G​ ​c​o​m​b​i​n​a​t​i​o​n​s​ ​i​n​s​t​a​n​t​l​y​,​ ​o​r
+			 */
+			nrEmptyBodyB: string
+			/**
+			 * t​o​ ​l​o​a​d​ ​a​ ​r​a​w​ ​f​i​r​m​w​a​r​e​ ​c​a​p​a​b​i​l​i​t​y​ ​f​i​l​e​.
+			 */
+			nrEmptyBodyC: string
+			/**
+			 * T​y​p​e
+			 */
+			thType: string
+			/**
+			 * C​o​m​b​o​ ​D​e​f​i​n​i​t​i​o​n
+			 */
+			thCombo: string
+			/**
+			 * 4​G​ ​L​T​E​ ​A​n​c​h​o​r​ ​C​C​s
+			 */
+			thLteAnchor: string
+			/**
+			 * 5​G​ ​N​R​ ​C​a​r​r​i​e​r​ ​C​C​s
+			 */
+			thNrCarriers: string
+			/**
+			 * S​t​r​e​a​m​s
+			 */
+			thStreams: string
+			/**
+			 * P​o​w​e​r​ ​/​ ​B​C​S
+			 */
+			thPowerBcs: string
+			/**
+			 * N​o​n​e​ ​(​S​A​)
+			 */
+			noneSa: string
+			/**
+			 * S​h​a​n​n​o​n​ ​L​T​E​ ​C​A​ ​C​o​m​b​i​n​a​t​i​o​n​s
+			 */
+			lteTitle: string
+			/**
+			 * C​a​r​r​i​e​r​ ​a​g​g​r​e​g​a​t​i​o​n​ ​c​o​m​b​o​s​,​ ​b​a​n​d​w​i​d​t​h​ ​c​l​a​s​s​e​s​,​ ​M​I​M​O​,​ ​a​n​d​ ​P​L​M​N​ ​c​o​n​f​_​i​d​ ​m​a​p​p​i​n​g
+			 */
+			lteSubtitle: string
+			/**
+			 * A​u​t​o​ ​G​e​n​e​r​a​t​o​r
+			 */
+			autoGen: string
+			/**
+			 * P​r​u​n​e​ ​(​1​2​8​ ​C​a​p​)
+			 */
+			prune: string
+			/**
+			 * V​a​l​i​d​a​t​e​ ​R​u​l​e​s
+			 */
+			validate: string
+			/**
+			 * S​a​v​i​n​g​.​.​.
+			 */
+			saving: string
+			/**
+			 * S​a​v​e​ ​t​o​ ​S​y​s​t​e​m
+			 */
+			saveToSystem: string
+			/**
+			 * T​a​r​g​e​t​ ​F​i​l​e​ ​P​a​t​h​ ​o​n​ ​D​e​v​i​c​e
+			 */
+			targetPath: string
+			/**
+			 * S​e​a​r​c​h​ ​F​i​l​t​e​r​ ​(​B​a​n​d​ ​o​r​ ​C​o​n​f​ ​I​D​)
+			 */
+			searchLabel: string
+			/**
+			 * S​e​a​r​c​h​ ​c​o​m​b​o​ ​(​e​.​g​.​ ​1​A​,​ ​3​C​,​ ​8​)​.​.​.
+			 */
+			searchPlaceholder: string
+			/**
+			 * E​x​c​e​e​d​s​ ​1​2​8​ ​(​M​a​y​ ​n​e​e​d​ ​P​r​u​n​i​n​g​)
+			 */
+			exceeds128: string
+			/**
+			 * W​i​t​h​i​n​ ​1​2​8​ ​L​i​m​i​t
+			 */
+			within128: string
+			/**
+			 * P​r​o​t​o​b​u​f​ ​V​e​r​s​i​o​n​:
+			 */
+			protoBufVersion: string
+			/**
+			 * N​o​ ​L​T​E​ ​C​a​r​r​i​e​r​ ​A​g​g​r​e​g​a​t​i​o​n​ ​c​o​m​b​o​s​ ​l​o​a​d​e​d
+			 */
+			lteEmptyTitle: string
+			/**
+			 * t​o​ ​c​r​e​a​t​e​ ​f​a​l​l​b​a​c​k​ ​c​o​m​b​o​s​ ​f​r​o​m​ ​y​o​u​r​ ​t​a​r​g​e​t​ ​b​a​n​d​s​,​ ​o​r
+			 */
+			lteEmptyBodyB: string
+			/**
+			 * t​o​ ​o​p​e​n​ ​a​n​ ​e​x​i​s​t​i​n​g​ ​f​i​l​e​.
+			 */
+			lteEmptyBodyC: string
+			/**
+			 * C​A​ ​C​o​m​b​o​ ​D​e​f​i​n​i​t​i​o​n
+			 */
+			thCaCombo: string
+			/**
+			 * C​o​m​p​o​n​e​n​t​s​ ​D​e​t​a​i​l
+			 */
+			thComponents: string
+			/**
+			 * P​L​M​N​ ​C​o​n​f​ ​I​D​s
+			 */
+			thConfIds: string
+			/**
+			 * A​c​t​i​o​n
+			 */
+			thAction: string
+			/**
+			 * D​e​l​e​t​e​ ​C​o​m​b​o
+			 */
+			deleteCombo: string
+			/**
+			 * A​u​t​o​ ​C​A​ ​C​o​m​b​o​ ​G​e​n​e​r​a​t​o​r
+			 */
+			autogenTitle: string
+			/**
+			 * I​n​p​u​t​ ​c​a​r​r​i​e​r​ ​a​g​g​r​e​g​a​t​i​o​n​ ​c​o​m​b​i​n​a​t​i​o​n​s​ ​(​e​.​g​.
+			 */
+			autogenBodyA: string
+			/**
+			 * )​.​ ​T​h​e​ ​g​e​n​e​r​a​t​o​r​ ​w​i​l​l​ ​a​u​t​o​m​a​t​i​c​a​l​l​y​ ​g​e​n​e​r​a​t​e​ ​f​a​l​l​b​a​c​k​ ​s​u​b​s​e​t​s​,​ ​a​s​s​i​g​n​ ​b​a​n​d​w​i​d​t​h​ ​c​l​a​s​s​e​s​,​ ​4​x​4​ ​M​I​M​O​,​ ​a​n​d​ ​l​i​m​i​t​ ​s​p​a​t​i​a​l​ ​s​t​r​e​a​m​s​ ​t​o​ ​2​4​.
+			 */
+			autogenBodyB: string
+			/**
+			 * T​a​r​g​e​t​ ​C​o​m​b​o​s​ ​(​O​n​e​ ​p​e​r​ ​l​i​n​e​)
+			 */
+			autogenTarget: string
+			/**
+			 * M​a​x​ ​C​o​m​p​o​n​e​n​t​ ​C​a​r​r​i​e​r​s​ ​(​C​C​)
+			 */
+			autogenMaxCc: string
+			/**
+			 * U​p​l​i​n​k​ ​C​a​r​r​i​e​r​ ​A​g​g​r​e​g​a​t​i​o​n
+			 */
+			autogenUl: string
+			/**
+			 * S​i​n​g​l​e​ ​U​L​ ​O​n​l​y​ ​(​D​e​f​a​u​l​t​)
+			 */
+			ulSingle: string
+			/**
+			 * A​l​l​o​w​ ​F​D​D​ ​A​+​A​ ​N​o​n​-​C​o​n​t​i​g​u​o​u​s
+			 */
+			ulFddAa: string
+			/**
+			 * A​l​l​o​w​ ​T​D​D​ ​A​+​A​ ​N​o​n​-​C​o​n​t​i​g​u​o​u​s
+			 */
+			ulTddAa: string
+			/**
+			 * A​l​l​o​w​ ​T​D​D​+​F​D​D​ ​M​i​x​e​d​ ​U​L
+			 */
+			ulTddFdd: string
+			/**
+			 * O​p​e​r​a​t​o​r​ ​C​o​n​f​ ​I​D​s​ ​M​a​p​p​i​n​g
+			 */
+			autogenConfIds: string
+			/**
+			 * G​e​n​e​r​a​t​i​n​g​.​.​.
+			 */
+			generating: string
+			/**
+			 * G​e​n​e​r​a​t​e​ ​F​a​l​l​b​a​c​k​s
+			 */
+			generate: string
+			/**
+			 * P​r​u​n​e​ ​C​o​m​b​i​n​a​t​i​o​n​s​ ​(​1​2​8​ ​C​a​p​)
+			 */
+			pruneTitle: string
+			/**
+			 * I​f​ ​a​ ​c​e​l​l​u​l​a​r​ ​n​e​t​w​o​r​k​ ​d​o​e​s​ ​n​o​t​ ​c​o​n​f​i​g​u​r​e
+			 */
+			pruneBodyA: string
+			/**
+			 * ,​ ​d​e​v​i​c​e​s​ ​c​a​n​ ​o​n​l​y​ ​r​e​p​o​r​t​ ​u​p​ ​t​o​ ​1​2​8​ ​c​o​m​b​o​s​ ​i​n​ ​t​h​e​ ​U​E​ ​C​a​p​a​b​i​l​i​t​y​ ​m​e​s​s​a​g​e​.​ ​U​s​e​ ​t​h​i​s​ ​t​o​o​l​ ​t​o​ ​f​i​l​t​e​r​ ​e​s​s​e​n​t​i​a​l​ ​b​a​n​d​s​ ​a​n​d​ ​r​e​m​o​v​e​ ​d​u​p​l​i​c​a​t​e​s​.
+			 */
+			pruneBodyB: string
+			/**
+			 * E​s​s​e​n​t​i​a​l​ ​B​a​n​d​s​ ​t​o​ ​K​e​e​p
+			 */
+			pruneBands: string
+			/**
+			 * M​a​x​ ​C​o​m​b​o​ ​C​o​u​n​t
+			 */
+			pruneMaxCount: string
+			/**
+			 * E​x​c​l​u​d​e​ ​I​n​t​r​a​-​B​a​n​d​ ​C​A
+			 */
+			pruneExcludeIntra: string
+			/**
+			 * A​p​p​l​y​ ​P​r​u​n​i​n​g
+			 */
+			applyPruning: string
+			/**
+			 * S​h​a​n​n​o​n​ ​C​A​ ​V​a​l​i​d​a​t​i​o​n​ ​R​e​p​o​r​t
+			 */
+			validationTitle: string
+			/**
+			 * V​a​l​i​d​ ​C​o​n​f​i​g​u​r​a​t​i​o​n
+			 */
+			validConfig: string
+			/**
+			 * R​u​l​e​ ​V​i​o​l​a​t​i​o​n​s​ ​D​e​t​e​c​t​e​d
+			 */
+			ruleViolations: string
+			/**
+			 * {​c​o​u​n​t​}​ ​E​r​r​o​r​s
+			 * @param {unknown} count
+			 */
+			errorCount: RequiredParams<'count'>
+			/**
+			 * {​c​o​u​n​t​}​ ​W​a​r​n​i​n​g​s
+			 * @param {unknown} count
+			 */
+			warningCount: RequiredParams<'count'>
+			/**
+			 * A​l​l​ ​c​o​m​b​i​n​a​t​i​o​n​s​ ​c​o​m​p​l​y​ ​w​i​t​h​ ​S​h​a​n​n​o​n​ ​m​o​d​e​m​ ​s​p​a​t​i​a​l​ ​s​t​r​e​a​m​ ​l​i​m​i​t​s​,​ ​4​x​4​ ​M​I​M​O​ ​r​u​l​e​s​,​ ​a​n​d​ ​u​p​l​i​n​k​ ​c​o​n​s​t​r​a​i​n​t​s​!
+			 */
+			allValid: string
+			/**
+			 * I​m​p​o​r​t​ ​S​h​a​n​n​o​n​ ​L​T​E​ ​.​b​i​n​a​r​y​p​b​ ​F​i​l​e
+			 */
+			lteUploadTitle: string
+			/**
+			 * S​e​l​e​c​t​ ​a
+			 */
+			lteUploadBodyA: string
+			/**
+			 * f​i​l​e​ ​f​r​o​m​ ​y​o​u​r​ ​c​o​m​p​u​t​e​r​ ​o​r​ ​p​h​o​n​e​ ​s​t​o​r​a​g​e​ ​t​o​ ​d​e​c​o​d​e​ ​a​n​d​ ​e​d​i​t​ ​i​n​ ​t​h​e​ ​b​r​o​w​s​e​r​.
+			 */
+			lteUploadBodyB: string
+			/**
+			 * I​m​p​o​r​t​ ​S​h​a​n​n​o​n​ ​5​G​ ​N​R​ ​/​ ​E​N​-​D​C​ ​.​b​i​n​a​r​y​p​b​ ​F​i​l​e
+			 */
+			nrUploadTitle: string
+			/**
+			 * S​e​l​e​c​t​ ​a​ ​5​G​ ​N​R​ ​o​r​ ​E​N​-​D​C
+			 */
+			nrUploadBodyA: string
+			/**
+			 * f​i​l​e​ ​(​e​.​g​.
+			 */
+			nrUploadBodyB: string
+			/**
+			 * ,​ ​o​r​ ​P​i​x​e​l​ ​f​i​r​m​w​a​r​e​ ​d​u​m​p​)​ ​t​o​ ​d​e​c​o​d​e​ ​a​n​d​ ​i​n​s​p​e​c​t​.
+			 */
+			nrUploadBodyC: string
+			/**
+			 * S​u​c​c​e​s​s​f​u​l​l​y​ ​l​o​a​d​e​d​ ​{​c​o​u​n​t​}​ ​L​T​E​ ​C​A​ ​c​o​m​b​o​s
+			 * @param {unknown} count
+			 */
+			loadedLte: RequiredParams<'count'>
+			/**
+			 * F​a​i​l​e​d​ ​t​o​ ​l​o​a​d​ ​b​i​n​a​r​y​p​b​ ​f​i​l​e
+			 */
+			loadFailed: string
+			/**
+			 * I​m​p​o​r​t​e​d​ ​{​c​o​u​n​t​}​ ​c​o​m​b​o​s​ ​f​r​o​m​ ​{​n​a​m​e​}
+			 * @param {unknown} count
+			 * @param {unknown} name
+			 */
+			importedLte: RequiredParams<'count' | 'name'>
+			/**
+			 * U​p​l​o​a​d​ ​f​a​i​l​e​d
+			 */
+			uploadFailed: string
+			/**
+			 * F​a​i​l​e​d​ ​t​o​ ​u​p​l​o​a​d​ ​b​i​n​a​r​y​p​b
+			 */
+			uploadError: string
+			/**
+			 * S​a​v​e​d​ ​s​u​c​c​e​s​s​f​u​l​l​y
+			 */
+			saved: string
+			/**
+			 * F​a​i​l​e​d​ ​t​o​ ​s​a​v​e​ ​b​i​n​a​r​y​p​b​ ​f​i​l​e
+			 */
+			saveFailed: string
+			/**
+			 * F​a​i​l​e​d​ ​t​o​ ​v​a​l​i​d​a​t​e​ ​c​o​m​b​o​s
+			 */
+			validateFailed: string
+			/**
+			 * G​e​n​e​r​a​t​e​d​ ​a​n​d​ ​a​p​p​e​n​d​e​d​ ​{​c​o​u​n​t​}​ ​f​a​l​l​b​a​c​k​ ​c​o​m​b​o​s
+			 * @param {unknown} count
+			 */
+			generated: RequiredParams<'count'>
+			/**
+			 * F​a​i​l​e​d​ ​t​o​ ​g​e​n​e​r​a​t​e​ ​c​o​m​b​o​s
+			 */
+			generateFailed: string
+			/**
+			 * P​r​u​n​e​d​ ​l​i​s​t​ ​t​o​ ​{​c​o​u​n​t​}​ ​e​s​s​e​n​t​i​a​l​ ​c​o​m​b​i​n​a​t​i​o​n​s
+			 * @param {unknown} count
+			 */
+			pruned: RequiredParams<'count'>
+			/**
+			 * F​a​i​l​e​d​ ​t​o​ ​p​r​u​n​e​ ​c​o​m​b​o​s
+			 */
+			pruneFailed: string
+			/**
+			 * U​n​l​o​a​d​e​d​ ​L​T​E​ ​C​A​ ​c​o​m​b​i​n​a​t​i​o​n​s
+			 */
+			unloadedLte: string
+			/**
+			 * F​a​i​l​e​d​ ​t​o​ ​u​n​l​o​a​d​ ​d​a​t​a​s​e​t
+			 */
+			unloadFailed: string
+			/**
+			 * S​u​c​c​e​s​s​f​u​l​l​y​ ​l​o​a​d​e​d​ ​{​c​o​u​n​t​}​ ​5​G​ ​N​R​ ​/​ ​E​N​-​D​C​ ​c​o​m​b​o​s
+			 * @param {unknown} count
+			 */
+			loadedNr: RequiredParams<'count'>
+			/**
+			 * F​a​i​l​e​d​ ​t​o​ ​l​o​a​d​ ​N​R​ ​c​a​p​a​b​i​l​i​t​y​ ​f​i​l​e
+			 */
+			loadNrFailed: string
+			/**
+			 * L​o​a​d​e​d​ ​b​u​i​l​t​-​i​n​ ​P​i​x​e​l​ ​S​u​b​-​6​ ​/​ ​E​N​-​D​C​ ​d​e​m​o​ ​d​a​t​a​s​e​t​ ​(​{​c​o​u​n​t​}​ ​c​o​m​b​o​s​)
+			 * @param {unknown} count
+			 */
+			demoLoaded: RequiredParams<'count'>
+			/**
+			 * F​a​i​l​e​d​ ​t​o​ ​l​o​a​d​ ​d​e​m​o​ ​d​a​t​a​s​e​t
+			 */
+			demoFailed: string
+			/**
+			 * I​m​p​o​r​t​e​d​ ​{​c​o​u​n​t​}​ ​5​G​ ​N​R​/​E​N​-​D​C​ ​c​o​m​b​o​s​ ​f​r​o​m​ ​{​n​a​m​e​}
+			 * @param {unknown} count
+			 * @param {unknown} name
+			 */
+			importedNr: RequiredParams<'count' | 'name'>
+			/**
+			 * U​n​l​o​a​d​e​d​ ​5​G​ ​N​R​ ​/​ ​E​N​-​D​C​ ​d​a​t​a​s​e​t
+			 */
+			unloadedNr: string
+		}
+	}
 }
 
 export type TranslationFunctions = {
@@ -1035,6 +1924,26 @@ export type TranslationFunctions = {
 		 * Change Admin Password
 		 */
 		changePassword: () => LocalizedString
+		/**
+		 * Unknown
+		 */
+		unknown: () => LocalizedString
+		/**
+		 * None
+		 */
+		none: () => LocalizedString
+		/**
+		 * All
+		 */
+		all: () => LocalizedString
+		/**
+		 * Select All
+		 */
+		selectAll: () => LocalizedString
+		/**
+		 * Clear All
+		 */
+		clearAll: () => LocalizedString
 	}
 	app: {
 		/**
@@ -1745,6 +2654,862 @@ export type TranslationFunctions = {
 		 * Bahasa Indonesia
 		 */
 		languageIndonesian: () => LocalizedString
+	}
+	shannon: {
+		/**
+		 * Google Tensor Shannon Control
+		 */
+		title: () => LocalizedString
+		/**
+		 * Direct Samsung Shannon modem AT/NV modulation via /dev/umts_router & instant DM service menu keypresses.
+		 */
+		subtitle: () => LocalizedString
+		/**
+		 * this device
+		 */
+		thisDevice: () => LocalizedString
+		/**
+		 * Locked (Tensor Only)
+		 */
+		locked: () => LocalizedString
+		/**
+		 * Generic
+		 */
+		generic: () => LocalizedString
+		/**
+		 * Unavailable
+		 */
+		unavailable: () => LocalizedString
+		/**
+		 * Preview Mode
+		 */
+		previewMode: () => LocalizedString
+		/**
+		 * Shannon modem not detected on {model}.
+		 */
+		notDetected: (arg: { model: unknown }) => LocalizedString
+		/**
+		 * Shannon modem not detected on {model}. Action blocked for safety.
+		 */
+		notDetectedBlocked: (arg: { model: unknown }) => LocalizedString
+		/**
+		 * Google Tensor Shannon settings applied via DM menu (zero CFUN drop).
+		 */
+		settingsApplied: () => LocalizedString
+		/**
+		 * Failed to apply Shannon settings
+		 */
+		applyFailed: () => LocalizedString
+		/**
+		 * Settings application failed
+		 */
+		applyError: () => LocalizedString
+		/**
+		 * Shannon modem restored to factory default bands & modes.
+		 */
+		resetSuccess: () => LocalizedString
+		/**
+		 * Failed to reset Shannon modem
+		 */
+		resetFailed: () => LocalizedString
+		/**
+		 * Reset request failed
+		 */
+		resetError: () => LocalizedString
+		subtabs: {
+			/**
+			 * Band Lock (All RATs)
+			 */
+			bands: () => LocalizedString
+			/**
+			 * RAT Lock & 5G Mode
+			 */
+			ratMode: () => LocalizedString
+			/**
+			 * VoNR & Modem State
+			 */
+			vonr: () => LocalizedString
+			/**
+			 * CA & UE Capability (Pixel 6–10)
+			 */
+			ca: () => LocalizedString
+		}
+		nonShannon: {
+			/**
+			 * Non-Google Tensor Device Detected (Shannon Baseband Unavailable)
+			 */
+			title: () => LocalizedString
+			/**
+			 * This Shannon modem control suite is strictly engineered for
+			 */
+			bodyA: () => LocalizedString
+			/**
+			 * utilizing Samsung Shannon baseband NV architecture.
+			 */
+			bodyB: () => LocalizedString
+			/**
+			 * All modem NV write actions are locked to prevent baseband radio corruption. To configure bands or lock cell towers on this device, please switch to the
+			 */
+			lockedNoteA: () => LocalizedString
+			/**
+			 *  tab.
+			 */
+			lockedNoteB: () => LocalizedString
+		}
+		nsg: {
+			/**
+			 * Network Signal Guru (NSG) Detected Running!
+			 */
+			title: () => LocalizedString
+			/**
+			 * NSG actively communicates with the Shannon DM channel. Close NSG or pause test sessions before applying NV changes to avoid port collision.
+			 */
+			body: () => LocalizedString
+		}
+		statusBar: {
+			/**
+			 * Detected Hardware
+			 */
+			detectedHardware: () => LocalizedString
+			/**
+			 * Modem Architecture
+			 */
+			modemArch: () => LocalizedString
+			/**
+			 * Tensor Baseband OK
+			 */
+			tensorOk: () => LocalizedString
+			/**
+			 * Incompatible (Preview)
+			 */
+			incompatible: () => LocalizedString
+			/**
+			 * Shannon Router Port
+			 */
+			routerPort: () => LocalizedString
+			/**
+			 * AT / NV Modulation
+			 */
+			routerSub: () => LocalizedString
+			/**
+			 * DM Keypress Port
+			 */
+			dmPort: () => LocalizedString
+			/**
+			 * Zero-Drop Reload
+			 */
+			dmSub: () => LocalizedString
+		}
+		bands: {
+			/**
+			 * Multi-RAT Frequency Band Allocation
+			 */
+			title: () => LocalizedString
+			/**
+			 * Lock manual frequency carriers across 5G NR, 4G LTE, 3G WCDMA, and 2G GSM
+			 */
+			subtitle: () => LocalizedString
+			/**
+			 * Reset All
+			 */
+			resetAll: () => LocalizedString
+			/**
+			 * Applying...
+			 */
+			applying: () => LocalizedString
+			/**
+			 * Apply Shannon Lock
+			 */
+			applyLock: () => LocalizedString
+			/**
+			 * LTE Frequency Bands
+			 */
+			lteTitle: () => LocalizedString
+			/**
+			 * 5G NR Standalone (SA) Bands
+			 */
+			saTitle: () => LocalizedString
+			/**
+			 * 5G NR Non-Standalone (NSA) Bands
+			 */
+			nsaTitle: () => LocalizedString
+			/**
+			 * 3G WCDMA / UMTS Bands
+			 */
+			wcdmaTitle: () => LocalizedString
+			/**
+			 * 2G GSM / EDGE Bands
+			 */
+			gsmTitle: () => LocalizedString
+		}
+		ratLock: {
+			/**
+			 * Radio Access Technology (RAT) Lock
+			 */
+			title: () => LocalizedString
+			/**
+			 * Disable unwanted network generations independently
+			 */
+			subtitle: () => LocalizedString
+			/**
+			 * Quick 1-Click RAT Presets
+			 */
+			quickPresets: () => LocalizedString
+			/**
+			 * 5G Only (NR SA)
+			 */
+			preset5gOnly: () => LocalizedString
+			/**
+			 * 4G Only (LTE)
+			 */
+			preset4gOnly: () => LocalizedString
+			/**
+			 * LTE + 5G (Dual)
+			 */
+			presetLteNr: () => LocalizedString
+			/**
+			 * 3G Only
+			 */
+			preset3gOnly: () => LocalizedString
+			/**
+			 * 2G Only
+			 */
+			preset2gOnly: () => LocalizedString
+			/**
+			 * Full Auto (All)
+			 */
+			presetAuto: () => LocalizedString
+			/**
+			 * Individual RAT Toggles
+			 */
+			toggles: () => LocalizedString
+			/**
+			 * SA & NSA 5G carriers
+			 */
+			ratNrDesc: () => LocalizedString
+			/**
+			 * HSPA+, 3G voice & data
+			 */
+			ratWcdmaDesc: () => LocalizedString
+			/**
+			 * Legacy voice & 2G fallback
+			 */
+			ratGsmDesc: () => LocalizedString
+		}
+		nrMode: {
+			/**
+			 * 5G NR Operating Mode
+			 */
+			title: () => LocalizedString
+			/**
+			 * Controls NR.CONFIG.MODE NV register
+			 */
+			subtitle: () => LocalizedString
+			/**
+			 * Network Mode Options
+			 */
+			options: () => LocalizedString
+			/**
+			 * SA + NSA (0x11)
+			 */
+			both: () => LocalizedString
+			/**
+			 * SA Only (0x10)
+			 */
+			saOnly: () => LocalizedString
+			/**
+			 * NSA Only (0x01)
+			 */
+			nsaOnly: () => LocalizedString
+			/**
+			 * Disabled (0x00)
+			 */
+			disabled: () => LocalizedString
+			/**
+			 * Full 5G connectivity across Standalone and Non-Standalone anchor
+			 */
+			bothDesc: () => LocalizedString
+			/**
+			 * Forces pure 5G Core (5GC) without LTE anchor tower requirement
+			 */
+			saDesc: () => LocalizedString
+			/**
+			 * Requires 4G LTE anchor with secondary 5G NR carrier attachment
+			 */
+			nsaDesc: () => LocalizedString
+			/**
+			 * Completely disables 5G NR stack to conserve battery power
+			 */
+			disabledDesc: () => LocalizedString
+			/**
+			 * Applying Mode...
+			 */
+			applying: () => LocalizedString
+			/**
+			 * Save & Reload Modem
+			 */
+			saveReload: () => LocalizedString
+		}
+		vonr: {
+			/**
+			 * Native HD voice calls over 5G Standalone infrastructure
+			 */
+			subtitle: () => LocalizedString
+			/**
+			 * Controls
+			 */
+			controlsA: () => LocalizedString
+			/**
+			 * and
+			 */
+			controlsB: () => LocalizedString
+			/**
+			 * NV registers.
+			 */
+			controlsC: () => LocalizedString
+			/**
+			 * Forced ON (0x01)
+			 */
+			forcedOn: () => LocalizedString
+			/**
+			 * Forced OFF (0x00)
+			 */
+			forcedOff: () => LocalizedString
+			/**
+			 * Carrier Default (0xFF)
+			 */
+			carrierDefault: () => LocalizedString
+			/**
+			 * Default (0xFF)
+			 */
+			defaultValue: () => LocalizedString
+			/**
+			 * Overrides carrier SIM policy and forces VoNR activation
+			 */
+			forcedOnDesc: () => LocalizedString
+			/**
+			 * Disables VoNR; voice calls will fallback to VoLTE
+			 */
+			forcedOffDesc: () => LocalizedString
+			/**
+			 * Allows SIM card carrier configuration to determine VoNR policy
+			 */
+			carrierDefaultDesc: () => LocalizedString
+			/**
+			 * Apply VoNR Policy
+			 */
+			apply: () => LocalizedString
+			/**
+			 * Applying...
+			 */
+			applying: () => LocalizedString
+		}
+		nv: {
+			/**
+			 * Shannon NV Memory State
+			 */
+			title: () => LocalizedString
+			/**
+			 * Hardware ground-truth values read via AT+GOOGGETNV
+			 */
+			subtitle: () => LocalizedString
+			/**
+			 * LTE Manual Selection NV
+			 */
+			lteManual: () => LocalizedString
+			/**
+			 * NR-SA Manual Selection NV
+			 */
+			saManual: () => LocalizedString
+			/**
+			 * NR-NSA Manual Selection NV
+			 */
+			nsaManual: () => LocalizedString
+			/**
+			 * Active RAT Ensembles
+			 */
+			activeRats: () => LocalizedString
+			/**
+			 * VoNR Memory Status
+			 */
+			vonrStatus: () => LocalizedString
+			/**
+			 * NSG Conflict Status
+			 */
+			nsgStatus: () => LocalizedString
+			/**
+			 * Enabled (Manual Active)
+			 */
+			enabledManual: () => LocalizedString
+			/**
+			 * Disabled (All Auto)
+			 */
+			disabledAuto: () => LocalizedString
+			/**
+			 * Running (Potential Conflict)
+			 */
+			nsgRunning: () => LocalizedString
+			/**
+			 * Clear (No Conflict)
+			 */
+			nsgClear: () => LocalizedString
+		}
+		reset: {
+			/**
+			 * Restore All Shannon Factory Bands
+			 */
+			title: () => LocalizedString
+			/**
+			 * Restore Shannon Modem to Defaults?
+			 */
+			heading: () => LocalizedString
+			/**
+			 * This will wipe manual LTE, NR-SA, NR-NSA, WCDMA, and GSM overrides, re-enable all RATs, set NR mode back to SA+NSA (0x11), and trigger an instant modem service menu reload without dropping cellular connection.
+			 */
+			body: () => LocalizedString
+			/**
+			 * Restoring...
+			 */
+			restoring: () => LocalizedString
+			/**
+			 * Restore Factory Defaults
+			 */
+			restore: () => LocalizedString
+		}
+		ca: {
+			/**
+			 * Google Tensor Verified
+			 */
+			verified: () => LocalizedString
+			/**
+			 * Pixel 6–10 Architecture
+			 */
+			architecture: () => LocalizedString
+			/**
+			 * Tensor Shannon Modem
+			 */
+			tensorFallback: () => LocalizedString
+			/**
+			 * Hardware & UE Capability Scope: Google Pixel 6, 7, 8, 9, and 10
+			 */
+			scopeTitle: () => LocalizedString
+			/**
+			 * Carrier aggregation configurations and radio access capability specifications on Google Tensor devices are decoded from
+			 */
+			scopeBodyA: () => LocalizedString
+			/**
+			 * for 5G NR SA/EN-DC/NR-DC and
+			 */
+			scopeBodyB: () => LocalizedString
+			/**
+			 * for 4G LTE).
+			 */
+			scopeBodyC: () => LocalizedString
+			/**
+			 * Full visual inspection, bandwidth class extraction, spatial MIMO stream verification, and modulation decoding are supported for all Tensor generations (G1 to G5).
+			 */
+			scopeNote: () => LocalizedString
+			/**
+			 * 5G NR & EN-DC Dual Connectivity
+			 */
+			modeNr: () => LocalizedString
+			/**
+			 * 4G LTE CA Combinations
+			 */
+			modeLte: () => LocalizedString
+			/**
+			 * 5G NR & EN-DC Dual Connectivity Visualizer
+			 */
+			nrTitle: () => LocalizedString
+			/**
+			 * E-UTRA-NR Dual Connectivity (EN-DC), NR Standalone Carrier Aggregation, and NR-DC combos
+			 */
+			nrSubtitle: () => LocalizedString
+			/**
+			 * Load Demo (Pixel Sub-6)
+			 */
+			loadDemo: () => LocalizedString
+			/**
+			 * Unload
+			 */
+			unload: () => LocalizedString
+			/**
+			 * Unload dataset from memory
+			 */
+			unloadTitle: () => LocalizedString
+			/**
+			 * Import .binarypb
+			 */
+			importFile: () => LocalizedString
+			/**
+			 * Export .binarypb
+			 */
+			exportFile: () => LocalizedString
+			/**
+			 * Filter by Carrier Band or Name
+			 */
+			filterLabel: () => LocalizedString
+			/**
+			 * Filter by band (e.g. n78, n28, B1, B3)...
+			 */
+			filterPlaceholder: () => LocalizedString
+			/**
+			 * Combo Category
+			 */
+			comboCategory: () => LocalizedString
+			/**
+			 * Detected on Phone:
+			 */
+			detectedOnPhone: () => LocalizedString
+			/**
+			 * Total Combinations:
+			 */
+			totalCombos: () => LocalizedString
+			/**
+			 * Proto Version:
+			 */
+			protoVersion: () => LocalizedString
+			/**
+			 * Click
+			 */
+			click: () => LocalizedString
+			/**
+			 * No 5G NR / EN-DC capability combinations loaded
+			 */
+			nrEmptyTitle: () => LocalizedString
+			/**
+			 * to inspect standard Pixel 5G combinations instantly, or
+			 */
+			nrEmptyBodyB: () => LocalizedString
+			/**
+			 * to load a raw firmware capability file.
+			 */
+			nrEmptyBodyC: () => LocalizedString
+			/**
+			 * Type
+			 */
+			thType: () => LocalizedString
+			/**
+			 * Combo Definition
+			 */
+			thCombo: () => LocalizedString
+			/**
+			 * 4G LTE Anchor CCs
+			 */
+			thLteAnchor: () => LocalizedString
+			/**
+			 * 5G NR Carrier CCs
+			 */
+			thNrCarriers: () => LocalizedString
+			/**
+			 * Streams
+			 */
+			thStreams: () => LocalizedString
+			/**
+			 * Power / BCS
+			 */
+			thPowerBcs: () => LocalizedString
+			/**
+			 * None (SA)
+			 */
+			noneSa: () => LocalizedString
+			/**
+			 * Shannon LTE CA Combinations
+			 */
+			lteTitle: () => LocalizedString
+			/**
+			 * Carrier aggregation combos, bandwidth classes, MIMO, and PLMN conf_id mapping
+			 */
+			lteSubtitle: () => LocalizedString
+			/**
+			 * Auto Generator
+			 */
+			autoGen: () => LocalizedString
+			/**
+			 * Prune (128 Cap)
+			 */
+			prune: () => LocalizedString
+			/**
+			 * Validate Rules
+			 */
+			validate: () => LocalizedString
+			/**
+			 * Saving...
+			 */
+			saving: () => LocalizedString
+			/**
+			 * Save to System
+			 */
+			saveToSystem: () => LocalizedString
+			/**
+			 * Target File Path on Device
+			 */
+			targetPath: () => LocalizedString
+			/**
+			 * Search Filter (Band or Conf ID)
+			 */
+			searchLabel: () => LocalizedString
+			/**
+			 * Search combo (e.g. 1A, 3C, 8)...
+			 */
+			searchPlaceholder: () => LocalizedString
+			/**
+			 * Exceeds 128 (May need Pruning)
+			 */
+			exceeds128: () => LocalizedString
+			/**
+			 * Within 128 Limit
+			 */
+			within128: () => LocalizedString
+			/**
+			 * Protobuf Version:
+			 */
+			protoBufVersion: () => LocalizedString
+			/**
+			 * No LTE Carrier Aggregation combos loaded
+			 */
+			lteEmptyTitle: () => LocalizedString
+			/**
+			 * to create fallback combos from your target bands, or
+			 */
+			lteEmptyBodyB: () => LocalizedString
+			/**
+			 * to open an existing file.
+			 */
+			lteEmptyBodyC: () => LocalizedString
+			/**
+			 * CA Combo Definition
+			 */
+			thCaCombo: () => LocalizedString
+			/**
+			 * Components Detail
+			 */
+			thComponents: () => LocalizedString
+			/**
+			 * PLMN Conf IDs
+			 */
+			thConfIds: () => LocalizedString
+			/**
+			 * Action
+			 */
+			thAction: () => LocalizedString
+			/**
+			 * Delete Combo
+			 */
+			deleteCombo: () => LocalizedString
+			/**
+			 * Auto CA Combo Generator
+			 */
+			autogenTitle: () => LocalizedString
+			/**
+			 * Input carrier aggregation combinations (e.g.
+			 */
+			autogenBodyA: () => LocalizedString
+			/**
+			 * ). The generator will automatically generate fallback subsets, assign bandwidth classes, 4x4 MIMO, and limit spatial streams to 24.
+			 */
+			autogenBodyB: () => LocalizedString
+			/**
+			 * Target Combos (One per line)
+			 */
+			autogenTarget: () => LocalizedString
+			/**
+			 * Max Component Carriers (CC)
+			 */
+			autogenMaxCc: () => LocalizedString
+			/**
+			 * Uplink Carrier Aggregation
+			 */
+			autogenUl: () => LocalizedString
+			/**
+			 * Single UL Only (Default)
+			 */
+			ulSingle: () => LocalizedString
+			/**
+			 * Allow FDD A+A Non-Contiguous
+			 */
+			ulFddAa: () => LocalizedString
+			/**
+			 * Allow TDD A+A Non-Contiguous
+			 */
+			ulTddAa: () => LocalizedString
+			/**
+			 * Allow TDD+FDD Mixed UL
+			 */
+			ulTddFdd: () => LocalizedString
+			/**
+			 * Operator Conf IDs Mapping
+			 */
+			autogenConfIds: () => LocalizedString
+			/**
+			 * Generating...
+			 */
+			generating: () => LocalizedString
+			/**
+			 * Generate Fallbacks
+			 */
+			generate: () => LocalizedString
+			/**
+			 * Prune Combinations (128 Cap)
+			 */
+			pruneTitle: () => LocalizedString
+			/**
+			 * If a cellular network does not configure
+			 */
+			pruneBodyA: () => LocalizedString
+			/**
+			 * , devices can only report up to 128 combos in the UE Capability message. Use this tool to filter essential bands and remove duplicates.
+			 */
+			pruneBodyB: () => LocalizedString
+			/**
+			 * Essential Bands to Keep
+			 */
+			pruneBands: () => LocalizedString
+			/**
+			 * Max Combo Count
+			 */
+			pruneMaxCount: () => LocalizedString
+			/**
+			 * Exclude Intra-Band CA
+			 */
+			pruneExcludeIntra: () => LocalizedString
+			/**
+			 * Apply Pruning
+			 */
+			applyPruning: () => LocalizedString
+			/**
+			 * Shannon CA Validation Report
+			 */
+			validationTitle: () => LocalizedString
+			/**
+			 * Valid Configuration
+			 */
+			validConfig: () => LocalizedString
+			/**
+			 * Rule Violations Detected
+			 */
+			ruleViolations: () => LocalizedString
+			/**
+			 * {count} Errors
+			 */
+			errorCount: (arg: { count: unknown }) => LocalizedString
+			/**
+			 * {count} Warnings
+			 */
+			warningCount: (arg: { count: unknown }) => LocalizedString
+			/**
+			 * All combinations comply with Shannon modem spatial stream limits, 4x4 MIMO rules, and uplink constraints!
+			 */
+			allValid: () => LocalizedString
+			/**
+			 * Import Shannon LTE .binarypb File
+			 */
+			lteUploadTitle: () => LocalizedString
+			/**
+			 * Select a
+			 */
+			lteUploadBodyA: () => LocalizedString
+			/**
+			 * file from your computer or phone storage to decode and edit in the browser.
+			 */
+			lteUploadBodyB: () => LocalizedString
+			/**
+			 * Import Shannon 5G NR / EN-DC .binarypb File
+			 */
+			nrUploadTitle: () => LocalizedString
+			/**
+			 * Select a 5G NR or EN-DC
+			 */
+			nrUploadBodyA: () => LocalizedString
+			/**
+			 * file (e.g.
+			 */
+			nrUploadBodyB: () => LocalizedString
+			/**
+			 * , or Pixel firmware dump) to decode and inspect.
+			 */
+			nrUploadBodyC: () => LocalizedString
+			/**
+			 * Successfully loaded {count} LTE CA combos
+			 */
+			loadedLte: (arg: { count: unknown }) => LocalizedString
+			/**
+			 * Failed to load binarypb file
+			 */
+			loadFailed: () => LocalizedString
+			/**
+			 * Imported {count} combos from {name}
+			 */
+			importedLte: (arg: { count: unknown, name: unknown }) => LocalizedString
+			/**
+			 * Upload failed
+			 */
+			uploadFailed: () => LocalizedString
+			/**
+			 * Failed to upload binarypb
+			 */
+			uploadError: () => LocalizedString
+			/**
+			 * Saved successfully
+			 */
+			saved: () => LocalizedString
+			/**
+			 * Failed to save binarypb file
+			 */
+			saveFailed: () => LocalizedString
+			/**
+			 * Failed to validate combos
+			 */
+			validateFailed: () => LocalizedString
+			/**
+			 * Generated and appended {count} fallback combos
+			 */
+			generated: (arg: { count: unknown }) => LocalizedString
+			/**
+			 * Failed to generate combos
+			 */
+			generateFailed: () => LocalizedString
+			/**
+			 * Pruned list to {count} essential combinations
+			 */
+			pruned: (arg: { count: unknown }) => LocalizedString
+			/**
+			 * Failed to prune combos
+			 */
+			pruneFailed: () => LocalizedString
+			/**
+			 * Unloaded LTE CA combinations
+			 */
+			unloadedLte: () => LocalizedString
+			/**
+			 * Failed to unload dataset
+			 */
+			unloadFailed: () => LocalizedString
+			/**
+			 * Successfully loaded {count} 5G NR / EN-DC combos
+			 */
+			loadedNr: (arg: { count: unknown }) => LocalizedString
+			/**
+			 * Failed to load NR capability file
+			 */
+			loadNrFailed: () => LocalizedString
+			/**
+			 * Loaded built-in Pixel Sub-6 / EN-DC demo dataset ({count} combos)
+			 */
+			demoLoaded: (arg: { count: unknown }) => LocalizedString
+			/**
+			 * Failed to load demo dataset
+			 */
+			demoFailed: () => LocalizedString
+			/**
+			 * Imported {count} 5G NR/EN-DC combos from {name}
+			 */
+			importedNr: (arg: { count: unknown, name: unknown }) => LocalizedString
+			/**
+			 * Unloaded 5G NR / EN-DC dataset
+			 */
+			unloadedNr: () => LocalizedString
+		}
 	}
 }
 
