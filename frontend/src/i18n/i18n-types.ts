@@ -11815,6 +11815,284 @@ type RootTranslation = {
 			uploadFailed: string
 		}
 	}
+	tools: {
+		/**
+		 * S​y​s​t​e​m​ ​T​o​o​l​s​ ​&​ ​B​a​c​k​u​p
+		 */
+		title: string
+		/**
+		 * D​o​w​n​l​o​a​d​ ​f​u​l​l​ ​J​S​O​N​ ​c​o​n​f​i​g​u​r​a​t​i​o​n​ ​b​a​c​k​u​p
+		 */
+		exportTitle: string
+		/**
+		 * E​x​p​o​r​t​ ​B​a​c​k​u​p
+		 */
+		exportBackup: string
+		/**
+		 * R​e​s​t​o​r​e​ ​s​y​s​t​e​m​ ​c​o​n​f​i​g​u​r​a​t​i​o​n​ ​f​r​o​m​ ​J​S​O​N
+		 */
+		importTitle: string
+		/**
+		 * I​m​p​o​r​t
+		 */
+		'import': string
+		/**
+		 * C​o​n​f​i​g​u​r​e​ ​W​e​b​D​A​V​ ​C​l​o​u​d​ ​B​a​c​k​u​p
+		 */
+		cloudTitle: string
+		/**
+		 * C​l​o​u​d​ ​S​y​n​c
+		 */
+		cloudSync: string
+		/**
+		 * E​x​p​o​r​t
+		 */
+		'export': string
+		/**
+		 * R​e​s​t​o​r​e
+		 */
+		restore: string
+		security: {
+			/**
+			 * S​e​c​u​r​i​t​y​ ​&​ ​A​u​t​h​e​n​t​i​c​a​t​i​o​n
+			 */
+			title: string
+			/**
+			 * M​a​n​a​g​e​ ​r​o​o​t​ ​W​e​b​U​I​ ​a​c​c​e​s​s​ ​c​r​e​d​e​n​t​i​a​l​s
+			 */
+			subtitle: string
+			/**
+			 * A​d​m​i​n​ ​W​e​b​U​I​ ​P​a​s​s​w​o​r​d
+			 */
+			adminPassword: string
+			/**
+			 * U​p​d​a​t​e​ ​a​d​m​i​n​i​s​t​r​a​t​i​v​e​ ​a​u​t​h​e​n​t​i​c​a​t​i​o​n​ ​p​a​s​s​w​o​r​d​ ​f​o​r​ ​t​h​i​s​ ​d​e​v​i​c​e​.
+			 */
+			adminPasswordDesc: string
+		}
+		backup: {
+			/**
+			 * C​o​n​f​i​g​u​r​a​t​i​o​n​ ​B​a​c​k​u​p​ ​&​ ​C​l​o​u​d​ ​S​y​n​c​h​r​o​n​i​z​a​t​i​o​n
+			 */
+			title: string
+		}
+		cloud: {
+			/**
+			 * C​l​o​u​d​ ​P​r​o​v​i​d​e​r
+			 */
+			provider: string
+			/**
+			 * D​i​s​a​b​l​e​d
+			 */
+			disabled: string
+			/**
+			 * N​o​ ​c​l​o​u​d​ ​e​n​d​p​o​i​n​t​ ​c​o​n​f​i​g​u​r​e​d
+			 */
+			noEndpoint: string
+			/**
+			 * L​a​s​t​ ​S​y​n​c​e​d​:
+			 */
+			lastSynced: string
+			/**
+			 * N​e​v​e​r
+			 */
+			never: string
+			/**
+			 * I​n​s​t​a​n​t​ ​C​l​o​u​d​ ​O​p​e​r​a​t​i​o​n​s
+			 */
+			instantOps: string
+			/**
+			 * P​u​s​h​ ​l​o​c​a​l​ ​c​o​n​f​i​g​u​r​a​t​i​o​n​ ​s​e​t​t​i​n​g​s​ ​(​n​e​t​w​o​r​k​ ​t​w​e​a​k​s​,​ ​D​N​S​,​ ​T​T​L​,​ ​s​h​o​r​t​c​u​t​s​,​ ​c​h​a​r​g​i​n​g​ ​l​i​m​i​t​s​)​ ​t​o​ ​r​e​m​o​t​e​ ​c​l​o​u​d​ ​r​e​p​o​s​i​t​o​r​y​.
+			 */
+			instantOpsDesc: string
+			/**
+			 * S​y​n​c​i​n​g​.​.​.
+			 */
+			syncing: string
+			/**
+			 * S​y​n​c​ ​C​l​o​u​d​ ​N​o​w
+			 */
+			syncNow: string
+		}
+		local: {
+			/**
+			 * L​o​c​a​l​ ​C​o​n​f​i​g​u​r​a​t​i​o​n​ ​S​n​a​p​s​h​o​t
+			 */
+			title: string
+			/**
+			 * C​r​e​a​t​e​ ​o​r​ ​r​e​s​t​o​r​e​ ​o​f​f​l​i​n​e​ ​s​n​a​p​s​h​o​t​s​.​ ​E​n​c​o​d​e​s​ ​f​u​l​l​ ​B​F​R​ ​d​a​e​m​o​n​ ​c​o​n​f​i​g​u​r​a​t​i​o​n​ ​i​n​t​o​ ​a​ ​s​i​n​g​l​e​ ​p​o​r​t​a​b​l​e​ ​J​S​O​N​ ​f​i​l​e​.
+			 */
+			desc: string
+		}
+		modules: {
+			/**
+			 * R​o​o​t​ ​M​o​d​u​l​e​s
+			 */
+			title: string
+			/**
+			 * M​a​n​a​g​e​ ​M​a​g​i​s​k​ ​/​ ​K​e​r​n​e​l​S​U​ ​e​x​t​e​n​s​i​o​n​s
+			 */
+			subtitle: string
+			/**
+			 * S​y​s​t​e​m​l​e​s​s​ ​M​o​d​u​l​e​ ​O​v​e​r​l​a​y​s
+			 */
+			overlays: string
+			/**
+			 * I​n​s​p​e​c​t​,​ ​t​o​g​g​l​e​,​ ​o​r​ ​f​l​a​s​h​ ​m​o​d​u​l​e​s​ ​i​n​ ​t​h​e​ ​d​e​d​i​c​a​t​e​d​ ​M​o​d​u​l​e​s​ ​c​o​n​t​r​o​l​ ​c​e​n​t​e​r​.
+			 */
+			overlaysDesc: string
+			/**
+			 * O​p​e​n​ ​M​o​d​u​l​e​s
+			 */
+			openModules: string
+		}
+		cloudModal: {
+			/**
+			 * C​l​o​u​d​ ​B​a​c​k​u​p​ ​&​ ​W​e​b​D​A​V​ ​S​y​n​c​h​r​o​n​i​z​a​t​i​o​n
+			 */
+			title: string
+			/**
+			 * E​n​a​b​l​e​ ​A​u​t​o​m​a​t​i​c​ ​C​l​o​u​d​ ​S​y​n​c
+			 */
+			enableAuto: string
+			/**
+			 * S​c​h​e​d​u​l​e​d​ ​r​e​m​o​t​e​ ​b​a​c​k​u​p​ ​s​y​n​c
+			 */
+			enableAutoDesc: string
+			/**
+			 * P​r​o​v​i​d​e​r​ ​P​r​o​t​o​c​o​l
+			 */
+			providerLabel: string
+			/**
+			 * W​e​b​D​A​V​ ​(​N​e​x​t​c​l​o​u​d​,​ ​o​w​n​C​l​o​u​d​,​ ​F​a​s​t​m​a​i​l​,​ ​B​o​x​)
+			 */
+			providerWebdav: string
+			/**
+			 * W​e​b​D​A​V​ ​S​e​r​v​e​r​ ​E​n​d​p​o​i​n​t​ ​U​R​L
+			 */
+			endpointLabel: string
+			/**
+			 * U​s​e​r​n​a​m​e
+			 */
+			username: string
+			/**
+			 * e​.​g​.​ ​a​d​m​i​n​ ​o​r​ ​s​e​r​v​i​c​e​ ​a​c​c​o​u​n​t
+			 */
+			usernamePlaceholder: string
+			/**
+			 * P​a​s​s​w​o​r​d​ ​/​ ​A​p​p​ ​T​o​k​e​n
+			 */
+			passwordLabel: string
+			/**
+			 * E​n​t​e​r​ ​W​e​b​D​A​V​ ​t​o​k​e​n​ ​o​r​ ​p​a​s​s​w​o​r​d
+			 */
+			passwordPlaceholder: string
+			/**
+			 * S​y​n​c​ ​I​n​t​e​r​v​a​l
+			 */
+			intervalLabel: string
+			/**
+			 * E​v​e​r​y​ ​6​ ​H​o​u​r​s
+			 */
+			interval6: string
+			/**
+			 * E​v​e​r​y​ ​1​2​ ​H​o​u​r​s
+			 */
+			interval12: string
+			/**
+			 * E​v​e​r​y​ ​2​4​ ​H​o​u​r​s​ ​(​D​a​i​l​y​)
+			 */
+			interval24: string
+			/**
+			 * E​v​e​r​y​ ​4​8​ ​H​o​u​r​s​ ​(​2​ ​D​a​y​s​)
+			 */
+			interval48: string
+			/**
+			 * S​a​v​i​n​g​.​.​.
+			 */
+			saving: string
+			/**
+			 * S​a​v​e​ ​S​e​t​t​i​n​g​s
+			 */
+			saveSettings: string
+		}
+		importModal: {
+			/**
+			 * R​e​s​t​o​r​e​ ​C​o​n​f​i​g​u​r​a​t​i​o​n​ ​f​r​o​m​ ​B​a​c​k​u​p
+			 */
+			title: string
+			/**
+			 * W​a​r​n​i​n​g​:​ ​C​o​n​f​i​g​u​r​a​t​i​o​n​ ​O​v​e​r​w​r​i​t​e
+			 */
+			warningTitle: string
+			/**
+			 * I​m​p​o​r​t​i​n​g​ ​a​ ​b​a​c​k​u​p​ ​w​i​l​l​ ​r​e​p​l​a​c​e​ ​c​u​r​r​e​n​t​ ​s​y​s​t​e​m​ ​p​a​r​a​m​e​t​e​r​s​,​ ​n​e​t​w​o​r​k​ ​t​w​e​a​k​s​,​ ​D​N​S​,​ ​T​T​L​,​ ​a​n​d​ ​s​h​o​r​t​c​u​t​s​.
+			 */
+			warningBody: string
+			/**
+			 * S​e​l​e​c​t​ ​B​a​c​k​u​p​ ​J​S​O​N​ ​F​i​l​e
+			 */
+			selectFile: string
+			/**
+			 * O​r​ ​P​a​s​t​e​ ​J​S​O​N​ ​P​a​y​l​o​a​d
+			 */
+			pasteJson: string
+			/**
+			 * P​a​s​t​e​ ​J​S​O​N​ ​c​o​n​f​i​g​u​r​a​t​i​o​n​ ​p​a​y​l​o​a​d​ ​h​e​r​e​.​.​.
+			 */
+			pastePlaceholder: string
+			/**
+			 * I​m​p​o​r​t​i​n​g​.​.​.
+			 */
+			importing: string
+			/**
+			 * R​e​s​t​o​r​e​ ​C​o​n​f​i​g​u​r​a​t​i​o​n
+			 */
+			restore: string
+		}
+		toasts: {
+			/**
+			 * C​l​o​u​d​ ​b​a​c​k​u​p​ ​s​e​t​t​i​n​g​s​ ​s​a​v​e​d​ ​s​u​c​c​e​s​s​f​u​l​l​y​.
+			 */
+			cloudSaved: string
+			/**
+			 * F​a​i​l​e​d​ ​t​o​ ​s​a​v​e​ ​c​l​o​u​d​ ​c​o​n​f​i​g
+			 */
+			saveCloudFailed: string
+			/**
+			 * C​l​o​u​d​ ​s​y​n​c​h​r​o​n​i​z​a​t​i​o​n​ ​s​u​c​c​e​e​d​e​d​!
+			 */
+			syncSucceeded: string
+			/**
+			 * C​l​o​u​d​ ​s​y​n​c​ ​f​a​i​l​e​d
+			 */
+			syncFailed: string
+			/**
+			 * E​r​r​o​r​ ​t​r​i​g​g​e​r​i​n​g​ ​c​l​o​u​d​ ​s​y​n​c
+			 */
+			syncError: string
+			/**
+			 * C​o​n​f​i​g​u​r​a​t​i​o​n​ ​b​a​c​k​u​p​ ​e​x​p​o​r​t​e​d​.
+			 */
+			exported: string
+			/**
+			 * P​l​e​a​s​e​ ​s​e​l​e​c​t​ ​a​ ​v​a​l​i​d​ ​J​S​O​N​ ​b​a​c​k​u​p​ ​f​i​l​e
+			 */
+			selectValidJson: string
+			/**
+			 * B​a​c​k​u​p​ ​c​o​n​f​i​g​u​r​a​t​i​o​n​ ​i​m​p​o​r​t​e​d​ ​s​u​c​c​e​s​s​f​u​l​l​y​!
+			 */
+			imported: string
+			/**
+			 * F​a​i​l​e​d​ ​t​o​ ​i​m​p​o​r​t​ ​b​a​c​k​u​p​ ​p​a​y​l​o​a​d
+			 */
+			importFailed: string
+			/**
+			 * I​n​v​a​l​i​d​ ​J​S​O​N​ ​b​a​c​k​u​p​ ​f​o​r​m​a​t
+			 */
+			invalidJson: string
+		}
+	}
 }
 
 export type TranslationFunctions = {
@@ -23298,6 +23576,284 @@ export type TranslationFunctions = {
 			 * Failed to upload binary
 			 */
 			uploadFailed: () => LocalizedString
+		}
+	}
+	tools: {
+		/**
+		 * System Tools & Backup
+		 */
+		title: () => LocalizedString
+		/**
+		 * Download full JSON configuration backup
+		 */
+		exportTitle: () => LocalizedString
+		/**
+		 * Export Backup
+		 */
+		exportBackup: () => LocalizedString
+		/**
+		 * Restore system configuration from JSON
+		 */
+		importTitle: () => LocalizedString
+		/**
+		 * Import
+		 */
+		'import': () => LocalizedString
+		/**
+		 * Configure WebDAV Cloud Backup
+		 */
+		cloudTitle: () => LocalizedString
+		/**
+		 * Cloud Sync
+		 */
+		cloudSync: () => LocalizedString
+		/**
+		 * Export
+		 */
+		'export': () => LocalizedString
+		/**
+		 * Restore
+		 */
+		restore: () => LocalizedString
+		security: {
+			/**
+			 * Security & Authentication
+			 */
+			title: () => LocalizedString
+			/**
+			 * Manage root WebUI access credentials
+			 */
+			subtitle: () => LocalizedString
+			/**
+			 * Admin WebUI Password
+			 */
+			adminPassword: () => LocalizedString
+			/**
+			 * Update administrative authentication password for this device.
+			 */
+			adminPasswordDesc: () => LocalizedString
+		}
+		backup: {
+			/**
+			 * Configuration Backup & Cloud Synchronization
+			 */
+			title: () => LocalizedString
+		}
+		cloud: {
+			/**
+			 * Cloud Provider
+			 */
+			provider: () => LocalizedString
+			/**
+			 * Disabled
+			 */
+			disabled: () => LocalizedString
+			/**
+			 * No cloud endpoint configured
+			 */
+			noEndpoint: () => LocalizedString
+			/**
+			 * Last Synced:
+			 */
+			lastSynced: () => LocalizedString
+			/**
+			 * Never
+			 */
+			never: () => LocalizedString
+			/**
+			 * Instant Cloud Operations
+			 */
+			instantOps: () => LocalizedString
+			/**
+			 * Push local configuration settings (network tweaks, DNS, TTL, shortcuts, charging limits) to remote cloud repository.
+			 */
+			instantOpsDesc: () => LocalizedString
+			/**
+			 * Syncing...
+			 */
+			syncing: () => LocalizedString
+			/**
+			 * Sync Cloud Now
+			 */
+			syncNow: () => LocalizedString
+		}
+		local: {
+			/**
+			 * Local Configuration Snapshot
+			 */
+			title: () => LocalizedString
+			/**
+			 * Create or restore offline snapshots. Encodes full BFR daemon configuration into a single portable JSON file.
+			 */
+			desc: () => LocalizedString
+		}
+		modules: {
+			/**
+			 * Root Modules
+			 */
+			title: () => LocalizedString
+			/**
+			 * Manage Magisk / KernelSU extensions
+			 */
+			subtitle: () => LocalizedString
+			/**
+			 * Systemless Module Overlays
+			 */
+			overlays: () => LocalizedString
+			/**
+			 * Inspect, toggle, or flash modules in the dedicated Modules control center.
+			 */
+			overlaysDesc: () => LocalizedString
+			/**
+			 * Open Modules
+			 */
+			openModules: () => LocalizedString
+		}
+		cloudModal: {
+			/**
+			 * Cloud Backup & WebDAV Synchronization
+			 */
+			title: () => LocalizedString
+			/**
+			 * Enable Automatic Cloud Sync
+			 */
+			enableAuto: () => LocalizedString
+			/**
+			 * Scheduled remote backup sync
+			 */
+			enableAutoDesc: () => LocalizedString
+			/**
+			 * Provider Protocol
+			 */
+			providerLabel: () => LocalizedString
+			/**
+			 * WebDAV (Nextcloud, ownCloud, Fastmail, Box)
+			 */
+			providerWebdav: () => LocalizedString
+			/**
+			 * WebDAV Server Endpoint URL
+			 */
+			endpointLabel: () => LocalizedString
+			/**
+			 * Username
+			 */
+			username: () => LocalizedString
+			/**
+			 * e.g. admin or service account
+			 */
+			usernamePlaceholder: () => LocalizedString
+			/**
+			 * Password / App Token
+			 */
+			passwordLabel: () => LocalizedString
+			/**
+			 * Enter WebDAV token or password
+			 */
+			passwordPlaceholder: () => LocalizedString
+			/**
+			 * Sync Interval
+			 */
+			intervalLabel: () => LocalizedString
+			/**
+			 * Every 6 Hours
+			 */
+			interval6: () => LocalizedString
+			/**
+			 * Every 12 Hours
+			 */
+			interval12: () => LocalizedString
+			/**
+			 * Every 24 Hours (Daily)
+			 */
+			interval24: () => LocalizedString
+			/**
+			 * Every 48 Hours (2 Days)
+			 */
+			interval48: () => LocalizedString
+			/**
+			 * Saving...
+			 */
+			saving: () => LocalizedString
+			/**
+			 * Save Settings
+			 */
+			saveSettings: () => LocalizedString
+		}
+		importModal: {
+			/**
+			 * Restore Configuration from Backup
+			 */
+			title: () => LocalizedString
+			/**
+			 * Warning: Configuration Overwrite
+			 */
+			warningTitle: () => LocalizedString
+			/**
+			 * Importing a backup will replace current system parameters, network tweaks, DNS, TTL, and shortcuts.
+			 */
+			warningBody: () => LocalizedString
+			/**
+			 * Select Backup JSON File
+			 */
+			selectFile: () => LocalizedString
+			/**
+			 * Or Paste JSON Payload
+			 */
+			pasteJson: () => LocalizedString
+			/**
+			 * Paste JSON configuration payload here...
+			 */
+			pastePlaceholder: () => LocalizedString
+			/**
+			 * Importing...
+			 */
+			importing: () => LocalizedString
+			/**
+			 * Restore Configuration
+			 */
+			restore: () => LocalizedString
+		}
+		toasts: {
+			/**
+			 * Cloud backup settings saved successfully.
+			 */
+			cloudSaved: () => LocalizedString
+			/**
+			 * Failed to save cloud config
+			 */
+			saveCloudFailed: () => LocalizedString
+			/**
+			 * Cloud synchronization succeeded!
+			 */
+			syncSucceeded: () => LocalizedString
+			/**
+			 * Cloud sync failed
+			 */
+			syncFailed: () => LocalizedString
+			/**
+			 * Error triggering cloud sync
+			 */
+			syncError: () => LocalizedString
+			/**
+			 * Configuration backup exported.
+			 */
+			exported: () => LocalizedString
+			/**
+			 * Please select a valid JSON backup file
+			 */
+			selectValidJson: () => LocalizedString
+			/**
+			 * Backup configuration imported successfully!
+			 */
+			imported: () => LocalizedString
+			/**
+			 * Failed to import backup payload
+			 */
+			importFailed: () => LocalizedString
+			/**
+			 * Invalid JSON backup format
+			 */
+			invalidJson: () => LocalizedString
 		}
 	}
 }
