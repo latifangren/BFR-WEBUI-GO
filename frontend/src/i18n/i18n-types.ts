@@ -3101,6 +3101,383 @@ type RootTranslation = {
 			tensorPrivate: string
 		}
 	}
+	scrcpy: {
+		/**
+		 * S​C​R​C​P​Y​ ​R​E​M​O​T​E​ ​C​O​N​T​R​O​L
+		 */
+		title: string
+		/**
+		 * L​o​w​-​l​a​t​e​n​c​y​ ​h​a​r​d​w​a​r​e​ ​v​i​d​e​o​ ​m​i​r​r​o​r​i​n​g​ ​w​i​t​h​ ​z​e​r​o​-​d​e​l​a​y​ ​p​o​i​n​t​e​r​ ​i​n​j​e​c​t​i​o​n
+		 */
+		subtitle: string
+		/**
+		 * L​I​V​E​ ​{​f​p​s​}​ ​F​P​S
+		 * @param {unknown} fps
+		 */
+		liveFps: RequiredParams<'fps'>
+		/**
+		 * L​I​V​E​ ​(​I​d​l​e​ ​6​0​H​z​)
+		 */
+		liveIdle: string
+		/**
+		 * C​O​N​N​E​C​T​I​N​G​.​.​.
+		 */
+		connectingBadge: string
+		/**
+		 * O​F​F​L​I​N​E
+		 */
+		offline: string
+		/**
+		 * T​o​g​g​l​e​ ​s​t​r​e​a​m​ ​c​u​s​t​o​m​i​z​a​t​i​o​n​ ​s​i​d​e​b​a​r
+		 */
+		settingsTitle: string
+		/**
+		 * S​n​a​p
+		 */
+		snap: string
+		/**
+		 * C​a​p​t​u​r​e​ ​i​n​s​t​a​n​t​ ​s​c​r​e​e​n​s​h​o​t​ ​t​o​ ​P​N​G
+		 */
+		snapTitle: string
+		/**
+		 * T​o​g​g​l​e​ ​p​h​o​n​e​ ​s​t​a​g​e​ ​f​u​l​l​s​c​r​e​e​n
+		 */
+		fullscreenTitle: string
+		/**
+		 * E​x​i​t
+		 */
+		exitFullscreen: string
+		/**
+		 * F​u​l​l
+		 */
+		enterFullscreen: string
+		/**
+		 * S​t​o​p​ ​S​t​r​e​a​m
+		 */
+		stopStream: string
+		/**
+		 * S​t​a​r​t​ ​M​i​r​r​o​r​i​n​g
+		 */
+		startMirroring: string
+		/**
+		 * S​t​a​r​t​i​n​g​.​.​.
+		 */
+		starting: string
+		/**
+		 * C​o​n​n​e​c​t​i​n​g​.​.​.
+		 */
+		connecting: string
+		/**
+		 * S​t​r​e​a​m​ ​s​e​t​t​i​n​g​s​ ​m​o​d​i​f​i​e​d​.​ ​R​e​s​t​a​r​t​ ​s​e​s​s​i​o​n​ ​t​o​ ​a​p​p​l​y​ ​n​e​w​ ​b​i​t​r​a​t​e​/​r​e​s​o​l​u​t​i​o​n​.
+		 */
+		settingsChanged: string
+		/**
+		 * R​e​s​t​a​r​t
+		 */
+		restart: string
+		/**
+		 * P​C​ ​K​e​y​b​o​a​r​d​ ​C​a​p​t​u​r​e​d
+		 */
+		keyboardCaptured: string
+		offlineOverlay: {
+			/**
+			 * M​i​r​r​o​r​i​n​g​ ​I​n​a​c​t​i​v​e
+			 */
+			title: string
+			/**
+			 * C​o​n​n​e​c​t​ ​t​o​ ​y​o​u​r​ ​d​e​v​i​c​e​'​s​ ​n​a​t​i​v​e​ ​l​o​w​-​l​a​t​e​n​c​y​ ​s​c​r​c​p​y​ ​s​e​r​v​e​r​ ​e​n​g​i​n​e
+			 */
+			body: string
+			/**
+			 * H​a​r​d​w​a​r​e​ ​T​o​u​c​h
+			 */
+			hardwareTouch: string
+		}
+		nav: {
+			/**
+			 * H​o​m​e
+			 */
+			home: string
+			/**
+			 * A​n​d​r​o​i​d​ ​H​o​m​e​ ​(​K​e​y​c​o​d​e​ ​3​)
+			 */
+			homeTitle: string
+			/**
+			 * A​n​d​r​o​i​d​ ​B​a​c​k​ ​(​K​e​y​c​o​d​e​ ​4​ ​/​ ​E​s​c​)
+			 */
+			backTitle: string
+			/**
+			 * R​e​c​e​n​t​s
+			 */
+			recents: string
+			/**
+			 * A​n​d​r​o​i​d​ ​R​e​c​e​n​t​s​ ​/​ ​A​p​p​ ​S​w​i​t​c​h​e​r​ ​(​K​e​y​c​o​d​e​ ​1​8​7​)
+			 */
+			recentsTitle: string
+			/**
+			 * V​o​l​u​m​e​ ​D​o​w​n​ ​(​K​e​y​c​o​d​e​ ​2​5​)
+			 */
+			volDownTitle: string
+			/**
+			 * V​o​l​u​m​e​ ​U​p​ ​(​K​e​y​c​o​d​e​ ​2​4​)
+			 */
+			volUpTitle: string
+			/**
+			 * P​h​y​s​i​c​a​l​ ​P​o​w​e​r​ ​K​e​y​ ​(​K​e​y​c​o​d​e​ ​2​6​)
+			 */
+			powerTitle: string
+			/**
+			 * T​u​r​n​ ​P​h​y​s​i​c​a​l​ ​S​c​r​e​e​n​ ​O​N
+			 */
+			screenOnTitle: string
+			/**
+			 * T​u​r​n​ ​P​h​y​s​i​c​a​l​ ​S​c​r​e​e​n​ ​O​F​F​ ​(​S​a​v​e​ ​B​a​t​t​e​r​y​ ​&​ ​H​e​a​t​)
+			 */
+			screenOffTitle: string
+			/**
+			 * E​n​a​b​l​e​ ​P​C​ ​K​e​y​b​o​a​r​d​ ​C​a​p​t​u​r​e
+			 */
+			keyboardOnTitle: string
+			/**
+			 * D​i​s​a​b​l​e​ ​P​C​ ​K​e​y​b​o​a​r​d​ ​C​a​p​t​u​r​e
+			 */
+			keyboardOffTitle: string
+		}
+		stream: {
+			/**
+			 * S​t​r​e​a​m​ ​C​u​s​t​o​m​i​z​a​t​i​o​n
+			 */
+			title: string
+			/**
+			 * A​d​j​u​s​t​ ​e​n​c​o​d​e​r​ ​q​u​a​l​i​t​y​ ​&​ ​p​a​r​a​m​e​t​e​r​s
+			 */
+			subtitle: string
+			/**
+			 * R​e​s​o​l​u​t​i​o​n​ ​L​i​m​i​t
+			 */
+			resolutionLimit: string
+			/**
+			 * O​r​i​g​i​n​a​l​ ​(​N​o​ ​S​c​a​l​e​)
+			 */
+			nativeDesc: string
+			/**
+			 * F​a​s​t​ ​(​9​6​0​)
+			 */
+			fastDesc: string
+			/**
+			 * V​i​d​e​o​ ​B​i​t​r​a​t​e
+			 */
+			bitrate: string
+			/**
+			 * L​o​w
+			 */
+			bitrateLow: string
+			/**
+			 * B​a​l​a​n​c​e​d
+			 */
+			bitrateBalanced: string
+			/**
+			 * H​i​g​h
+			 */
+			bitrateHigh: string
+			/**
+			 * V​e​r​y​ ​H​i​g​h
+			 */
+			bitrateVeryHigh: string
+			/**
+			 * N​e​a​r​ ​L​o​s​s​l​e​s​s
+			 */
+			bitrateNearLossless: string
+			/**
+			 * C​u​s​t​o​m​:
+			 */
+			custom: string
+			/**
+			 * A​p​p​l​y
+			 */
+			apply: string
+			/**
+			 * T​a​r​g​e​t​ ​F​P​S
+			 */
+			targetFps: string
+			/**
+			 * T​a​r​g​e​t​ ​D​i​s​p​l​a​y
+			 */
+			targetDisplay: string
+			/**
+			 * M​a​i​n​ ​(​0​)
+			 */
+			mainDisplay: string
+			/**
+			 * C​o​v​e​r​ ​(​1​)
+			 */
+			coverDisplay: string
+			/**
+			 * T​u​r​n​ ​o​f​f​ ​p​h​y​s​i​c​a​l​ ​s​c​r​e​e​n​ ​o​n​ ​s​t​r​e​a​m​ ​l​a​u​n​c​h
+			 */
+			turnScreenOff: string
+			/**
+			 * K​e​e​p​ ​d​e​v​i​c​e​ ​a​w​a​k​e​ ​w​h​i​l​e​ ​m​i​r​r​o​r​i​n​g
+			 */
+			stayAwake: string
+		}
+		diagnostics: {
+			/**
+			 * D​i​a​g​n​o​s​t​i​c​s​ ​&​ ​T​e​l​e​m​e​t​r​y
+			 */
+			title: string
+			/**
+			 * H​a​r​d​w​a​r​e​ ​d​e​c​o​d​i​n​g​ ​&​ ​p​i​p​e​l​i​n​e​ ​m​e​t​r​i​c​s
+			 */
+			subtitle: string
+			/**
+			 * L​i​v​e​ ​R​e​f​r​e​s​h​ ​R​a​t​e
+			 */
+			liveRefreshRate: string
+			/**
+			 * I​d​l​e
+			 */
+			idle: string
+			/**
+			 * (​6​0​H​z​ ​S​t​a​n​d​b​y​)
+			 */
+			standby: string
+			/**
+			 * {​f​r​a​m​e​s​}​ ​f​r​a​m​e​s​ ​d​e​c​o​d​e​d
+			 * @param {unknown} frames
+			 */
+			framesDecoded: RequiredParams<'frames'>
+			/**
+			 * N​o​ ​f​r​a​m​e​s
+			 */
+			noFrames: string
+			/**
+			 * A​c​t​i​v​e​ ​H​a​r​d​w​a​r​e​ ​E​n​c​o​d​e​r
+			 */
+			activeEncoder: string
+			/**
+			 * D​e​t​e​c​t​i​n​g​.​.​.
+			 */
+			detecting: string
+			/**
+			 * D​i​s​p​l​a​y​ ​O​u​t​p​u​t
+			 */
+			displayOutput: string
+			/**
+			 * C​o​d​e​c​ ​P​r​o​f​i​l​e
+			 */
+			codecProfile: string
+			/**
+			 * E​n​c​o​d​e​r​ ​B​i​t​r​a​t​e
+			 */
+			encoderBitrate: string
+			/**
+			 * P​i​p​e​l​i​n​e​ ​L​a​t​e​n​c​y
+			 */
+			pipelineLatency: string
+		}
+		injection: {
+			/**
+			 * D​i​r​e​c​t​ ​T​e​x​t​ ​I​n​j​e​c​t​i​o​n
+			 */
+			title: string
+			/**
+			 * S​e​n​d​ ​s​t​r​i​n​g​s​,​ ​p​a​s​s​w​o​r​d​s​ ​o​r​ ​U​R​L​s​ ​t​o​ ​p​h​o​n​e
+			 */
+			subtitle: string
+			/**
+			 * P​a​s​t​e​ ​U​R​L​ ​o​r​ ​t​y​p​e​ ​s​t​r​i​n​g​ ​t​o​ ​s​e​n​d​.​.​.
+			 */
+			placeholder: string
+			/**
+			 * I​n​j​e​c​t​ ​s​t​r​i​n​g​ ​t​o​ ​a​c​t​i​v​e​ ​i​n​p​u​t​ ​f​i​e​l​d
+			 */
+			sendTitle: string
+			/**
+			 * Q​u​i​c​k​:
+			 */
+			quick: string
+		}
+		toasts: {
+			/**
+			 * H​a​r​d​w​a​r​e​ ​s​c​r​e​e​n​ ​s​t​r​e​a​m​ ​c​o​n​n​e​c​t​e​d
+			 */
+			connected: string
+			/**
+			 * S​c​r​c​p​y​ ​L​i​v​e
+			 */
+			connectedTitle: string
+			/**
+			 * C​o​n​n​e​c​t​i​o​n​ ​t​o​ ​s​c​r​c​p​y​ ​s​e​r​v​e​r​ ​l​o​s​t
+			 */
+			lost: string
+			/**
+			 * C​o​n​n​e​c​t​i​o​n​ ​E​r​r​o​r
+			 */
+			lostTitle: string
+			/**
+			 * T​e​x​t​ ​s​e​n​t​ ​t​o​ ​d​e​v​i​c​e
+			 */
+			textSent: string
+			/**
+			 * I​n​j​e​c​t​e​d
+			 */
+			textSentTitle: string
+			/**
+			 * S​e​n​t​:​ ​{​t​e​x​t​}
+			 * @param {unknown} text
+			 */
+			quickSent: RequiredParams<'text'>
+			/**
+			 * Q​u​i​c​k​ ​I​n​p​u​t
+			 */
+			quickSentTitle: string
+			/**
+			 * D​e​v​i​c​e​ ​p​h​y​s​i​c​a​l​ ​p​a​n​e​l​ ​p​o​w​e​r​e​d​ ​o​f​f​ ​(​t​o​u​c​h​ ​&​ ​m​i​r​r​o​r​ ​a​c​t​i​v​e​)
+			 */
+			screenOff: string
+			/**
+			 * D​e​v​i​c​e​ ​p​h​y​s​i​c​a​l​ ​p​a​n​e​l​ ​p​o​w​e​r​e​d​ ​o​n
+			 */
+			screenOn: string
+			/**
+			 * D​i​s​p​l​a​y​ ​P​o​w​e​r
+			 */
+			displayPowerTitle: string
+			/**
+			 * S​t​a​r​t​ ​m​i​r​r​o​r​i​n​g​ ​b​e​f​o​r​e​ ​t​a​k​i​n​g​ ​a​ ​s​c​r​e​e​n​s​h​o​t
+			 */
+			screenshotFirst: string
+			/**
+			 * S​c​r​e​e​n​s​h​o​t
+			 */
+			screenshotTitle: string
+			/**
+			 * S​a​v​e​d​ ​s​c​r​e​e​n​s​h​o​t​ ​t​o​ ​d​o​w​n​l​o​a​d​s​ ​f​o​l​d​e​r
+			 */
+			screenshotSaved: string
+			/**
+			 * S​c​r​e​e​n​s​h​o​t​ ​S​a​v​e​d
+			 */
+			screenshotSavedTitle: string
+			/**
+			 * F​a​i​l​e​d​ ​t​o​ ​c​a​p​t​u​r​e​ ​f​r​a​m​e​ ​f​r​o​m​ ​c​a​n​v​a​s
+			 */
+			screenshotFailed: string
+			/**
+			 * S​c​r​e​e​n​s​h​o​t​ ​E​r​r​o​r
+			 */
+			screenshotErrorTitle: string
+			/**
+			 * P​C​ ​K​e​y​b​o​a​r​d​ ​c​a​p​t​u​r​e​d​:​ ​t​y​p​i​n​g​ ​s​e​n​d​s​ ​k​e​y​s​ ​d​i​r​e​c​t​l​y​ ​t​o​ ​d​e​v​i​c​e
+			 */
+			keyboardOn: string
+			/**
+			 * K​e​y​b​o​a​r​d​ ​O​N
+			 */
+			keyboardOnTitle: string
+		}
+	}
 }
 
 export type TranslationFunctions = {
@@ -6154,6 +6531,380 @@ export type TranslationFunctions = {
 			 * Google Tensor Shannon Hardware Band Locking is a private feature only.
 			 */
 			tensorPrivate: () => LocalizedString
+		}
+	}
+	scrcpy: {
+		/**
+		 * SCRCPY REMOTE CONTROL
+		 */
+		title: () => LocalizedString
+		/**
+		 * Low-latency hardware video mirroring with zero-delay pointer injection
+		 */
+		subtitle: () => LocalizedString
+		/**
+		 * LIVE {fps} FPS
+		 */
+		liveFps: (arg: { fps: unknown }) => LocalizedString
+		/**
+		 * LIVE (Idle 60Hz)
+		 */
+		liveIdle: () => LocalizedString
+		/**
+		 * CONNECTING...
+		 */
+		connectingBadge: () => LocalizedString
+		/**
+		 * OFFLINE
+		 */
+		offline: () => LocalizedString
+		/**
+		 * Toggle stream customization sidebar
+		 */
+		settingsTitle: () => LocalizedString
+		/**
+		 * Snap
+		 */
+		snap: () => LocalizedString
+		/**
+		 * Capture instant screenshot to PNG
+		 */
+		snapTitle: () => LocalizedString
+		/**
+		 * Toggle phone stage fullscreen
+		 */
+		fullscreenTitle: () => LocalizedString
+		/**
+		 * Exit
+		 */
+		exitFullscreen: () => LocalizedString
+		/**
+		 * Full
+		 */
+		enterFullscreen: () => LocalizedString
+		/**
+		 * Stop Stream
+		 */
+		stopStream: () => LocalizedString
+		/**
+		 * Start Mirroring
+		 */
+		startMirroring: () => LocalizedString
+		/**
+		 * Starting...
+		 */
+		starting: () => LocalizedString
+		/**
+		 * Connecting...
+		 */
+		connecting: () => LocalizedString
+		/**
+		 * Stream settings modified. Restart session to apply new bitrate/resolution.
+		 */
+		settingsChanged: () => LocalizedString
+		/**
+		 * Restart
+		 */
+		restart: () => LocalizedString
+		/**
+		 * PC Keyboard Captured
+		 */
+		keyboardCaptured: () => LocalizedString
+		offlineOverlay: {
+			/**
+			 * Mirroring Inactive
+			 */
+			title: () => LocalizedString
+			/**
+			 * Connect to your device's native low-latency scrcpy server engine
+			 */
+			body: () => LocalizedString
+			/**
+			 * Hardware Touch
+			 */
+			hardwareTouch: () => LocalizedString
+		}
+		nav: {
+			/**
+			 * Home
+			 */
+			home: () => LocalizedString
+			/**
+			 * Android Home (Keycode 3)
+			 */
+			homeTitle: () => LocalizedString
+			/**
+			 * Android Back (Keycode 4 / Esc)
+			 */
+			backTitle: () => LocalizedString
+			/**
+			 * Recents
+			 */
+			recents: () => LocalizedString
+			/**
+			 * Android Recents / App Switcher (Keycode 187)
+			 */
+			recentsTitle: () => LocalizedString
+			/**
+			 * Volume Down (Keycode 25)
+			 */
+			volDownTitle: () => LocalizedString
+			/**
+			 * Volume Up (Keycode 24)
+			 */
+			volUpTitle: () => LocalizedString
+			/**
+			 * Physical Power Key (Keycode 26)
+			 */
+			powerTitle: () => LocalizedString
+			/**
+			 * Turn Physical Screen ON
+			 */
+			screenOnTitle: () => LocalizedString
+			/**
+			 * Turn Physical Screen OFF (Save Battery & Heat)
+			 */
+			screenOffTitle: () => LocalizedString
+			/**
+			 * Enable PC Keyboard Capture
+			 */
+			keyboardOnTitle: () => LocalizedString
+			/**
+			 * Disable PC Keyboard Capture
+			 */
+			keyboardOffTitle: () => LocalizedString
+		}
+		stream: {
+			/**
+			 * Stream Customization
+			 */
+			title: () => LocalizedString
+			/**
+			 * Adjust encoder quality & parameters
+			 */
+			subtitle: () => LocalizedString
+			/**
+			 * Resolution Limit
+			 */
+			resolutionLimit: () => LocalizedString
+			/**
+			 * Original (No Scale)
+			 */
+			nativeDesc: () => LocalizedString
+			/**
+			 * Fast (960)
+			 */
+			fastDesc: () => LocalizedString
+			/**
+			 * Video Bitrate
+			 */
+			bitrate: () => LocalizedString
+			/**
+			 * Low
+			 */
+			bitrateLow: () => LocalizedString
+			/**
+			 * Balanced
+			 */
+			bitrateBalanced: () => LocalizedString
+			/**
+			 * High
+			 */
+			bitrateHigh: () => LocalizedString
+			/**
+			 * Very High
+			 */
+			bitrateVeryHigh: () => LocalizedString
+			/**
+			 * Near Lossless
+			 */
+			bitrateNearLossless: () => LocalizedString
+			/**
+			 * Custom:
+			 */
+			custom: () => LocalizedString
+			/**
+			 * Apply
+			 */
+			apply: () => LocalizedString
+			/**
+			 * Target FPS
+			 */
+			targetFps: () => LocalizedString
+			/**
+			 * Target Display
+			 */
+			targetDisplay: () => LocalizedString
+			/**
+			 * Main (0)
+			 */
+			mainDisplay: () => LocalizedString
+			/**
+			 * Cover (1)
+			 */
+			coverDisplay: () => LocalizedString
+			/**
+			 * Turn off physical screen on stream launch
+			 */
+			turnScreenOff: () => LocalizedString
+			/**
+			 * Keep device awake while mirroring
+			 */
+			stayAwake: () => LocalizedString
+		}
+		diagnostics: {
+			/**
+			 * Diagnostics & Telemetry
+			 */
+			title: () => LocalizedString
+			/**
+			 * Hardware decoding & pipeline metrics
+			 */
+			subtitle: () => LocalizedString
+			/**
+			 * Live Refresh Rate
+			 */
+			liveRefreshRate: () => LocalizedString
+			/**
+			 * Idle
+			 */
+			idle: () => LocalizedString
+			/**
+			 * (60Hz Standby)
+			 */
+			standby: () => LocalizedString
+			/**
+			 * {frames} frames decoded
+			 */
+			framesDecoded: (arg: { frames: unknown }) => LocalizedString
+			/**
+			 * No frames
+			 */
+			noFrames: () => LocalizedString
+			/**
+			 * Active Hardware Encoder
+			 */
+			activeEncoder: () => LocalizedString
+			/**
+			 * Detecting...
+			 */
+			detecting: () => LocalizedString
+			/**
+			 * Display Output
+			 */
+			displayOutput: () => LocalizedString
+			/**
+			 * Codec Profile
+			 */
+			codecProfile: () => LocalizedString
+			/**
+			 * Encoder Bitrate
+			 */
+			encoderBitrate: () => LocalizedString
+			/**
+			 * Pipeline Latency
+			 */
+			pipelineLatency: () => LocalizedString
+		}
+		injection: {
+			/**
+			 * Direct Text Injection
+			 */
+			title: () => LocalizedString
+			/**
+			 * Send strings, passwords or URLs to phone
+			 */
+			subtitle: () => LocalizedString
+			/**
+			 * Paste URL or type string to send...
+			 */
+			placeholder: () => LocalizedString
+			/**
+			 * Inject string to active input field
+			 */
+			sendTitle: () => LocalizedString
+			/**
+			 * Quick:
+			 */
+			quick: () => LocalizedString
+		}
+		toasts: {
+			/**
+			 * Hardware screen stream connected
+			 */
+			connected: () => LocalizedString
+			/**
+			 * Scrcpy Live
+			 */
+			connectedTitle: () => LocalizedString
+			/**
+			 * Connection to scrcpy server lost
+			 */
+			lost: () => LocalizedString
+			/**
+			 * Connection Error
+			 */
+			lostTitle: () => LocalizedString
+			/**
+			 * Text sent to device
+			 */
+			textSent: () => LocalizedString
+			/**
+			 * Injected
+			 */
+			textSentTitle: () => LocalizedString
+			/**
+			 * Sent: {text}
+			 */
+			quickSent: (arg: { text: unknown }) => LocalizedString
+			/**
+			 * Quick Input
+			 */
+			quickSentTitle: () => LocalizedString
+			/**
+			 * Device physical panel powered off (touch & mirror active)
+			 */
+			screenOff: () => LocalizedString
+			/**
+			 * Device physical panel powered on
+			 */
+			screenOn: () => LocalizedString
+			/**
+			 * Display Power
+			 */
+			displayPowerTitle: () => LocalizedString
+			/**
+			 * Start mirroring before taking a screenshot
+			 */
+			screenshotFirst: () => LocalizedString
+			/**
+			 * Screenshot
+			 */
+			screenshotTitle: () => LocalizedString
+			/**
+			 * Saved screenshot to downloads folder
+			 */
+			screenshotSaved: () => LocalizedString
+			/**
+			 * Screenshot Saved
+			 */
+			screenshotSavedTitle: () => LocalizedString
+			/**
+			 * Failed to capture frame from canvas
+			 */
+			screenshotFailed: () => LocalizedString
+			/**
+			 * Screenshot Error
+			 */
+			screenshotErrorTitle: () => LocalizedString
+			/**
+			 * PC Keyboard captured: typing sends keys directly to device
+			 */
+			keyboardOn: () => LocalizedString
+			/**
+			 * Keyboard ON
+			 */
+			keyboardOnTitle: () => LocalizedString
 		}
 	}
 }
