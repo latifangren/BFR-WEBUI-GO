@@ -152,7 +152,7 @@ class NavigationStore {
     this.activeTab = target
     this.sidebarOpen = false
     if (typeof window !== 'undefined') {
-      window.location.hash = target
+      window.location.hash = tabId === 'qos' ? 'qos' : target
     }
   }
 

@@ -6,6 +6,7 @@ import (
 	"os/exec"
 	"regexp"
 	"strconv"
+	"strings"
 
 	"bfr-webui-go/internal/config"
 )
@@ -14,6 +15,10 @@ var (
 	reMode  = regexp.MustCompile(`^[0-7]{3,4}$`)
 	reOwner = regexp.MustCompile(`^[a-zA-Z0-9_-]+(:[a-zA-Z0-9_-]+)?$`)
 )
+
+func shellQuote(value string) string {
+	return "'" + strings.ReplaceAll(value, "'", "'\\''") + "'"
+}
 
 func ChangePermissions(targetPath string, modeStr string, ownerStr string) error {
 	cleanPath, err := SanitizePath(targetPath)
@@ -43,7 +48,7 @@ func ChangePermissions(targetPath string, modeStr string, ownerStr string) error
 		if isDir {
 			chmodFlags = "-R "
 		}
-		cmdStr := fmt.Sprintf("chmod %s%s %s", chmodFlags, modeStr, cleanPath)
+		cmdStr := fmt.Sprintf("chmod %s%s -- %s", chmodFlags, modeStr, shellQuote(cleanPath))
 		if out, err := exec.Command(config.SUBin, "-c", cmdStr).CombinedOutput(); err != nil {
 			return fmt.Errorf("chmod error: %v, out: %s", err, string(out))
 		}
@@ -58,7 +63,7 @@ func ChangePermissions(targetPath string, modeStr string, ownerStr string) error
 		if isDir {
 			chownFlags = "-R "
 		}
-		cmdStr := fmt.Sprintf("chown %s%s %s", chownFlags, ownerStr, cleanPath)
+		cmdStr := fmt.Sprintf("chown %s%s -- %s", chownFlags, ownerStr, shellQuote(cleanPath))
 		if out, err := exec.Command(config.SUBin, "-c", cmdStr).CombinedOutput(); err != nil {
 			return fmt.Errorf("chown error: %v, out: %s", err, string(out))
 		}

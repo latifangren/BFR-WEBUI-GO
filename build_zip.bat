@@ -26,6 +26,8 @@ set VER=local
 for /f "tokens=2 delims==" %%i in ('findstr "version=" module.prop') do set VER=%%i
 
 echo 2. Compiling frontend production bundle (Svelte 5 + Vite)...
+set VITE_HAS_VENDOR_MODEM=true
+if /i "%FLAVOR%"=="nomodem" set VITE_HAS_VENDOR_MODEM=false
 cd frontend
 where bun >nul 2>nul
 if %errorlevel% equ 0 (
@@ -55,6 +57,13 @@ if %errorlevel% neq 0 (
     echo [ERROR] Go build failed.
     pause
     exit /b %errorlevel%
+)
+if /i "%FLAVOR%"=="nomodem" (
+    python scripts\audit_nomodem.py webui
+    if errorlevel 1 (
+        echo [ERROR] No-Modem audit failed.
+        exit /b 1
+    )
 )
 
 echo 4. Packaging Magisk zip using tar.exe...

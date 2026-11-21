@@ -344,12 +344,12 @@ func (t *Tracker) updateLocked() {
 	}
 
 	t.lastUpdated = now
-	t.saveLocked()
 }
 
 func (t *Tracker) start() {
 	t.mu.Lock()
 	t.updateLocked()
+	t.saveLocked()
 	t.mu.Unlock()
 
 	go func() {
@@ -358,6 +358,7 @@ func (t *Tracker) start() {
 		for range ticker.C {
 			t.mu.Lock()
 			t.updateLocked()
+			t.saveLocked()
 			t.mu.Unlock()
 		}
 	}()

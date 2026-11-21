@@ -76,18 +76,20 @@ Jika Anda ingin memasang atau menguji binary secara manual tanpa membuat paket m
 
 1. Pastikan perangkat terhubung ke Wi-Fi atau gunakan IP lokal perangkat.
 2. Buka browser (Chrome, Kiwi, Firefox, dll) di perangkat Android Anda atau perangkat lain di jaringan lokal yang sama.
-3. Masuk ke URL:
+3. Buka URL HTTPS:
    ```text
-   http://localhost:80
+   https://localhost
    ```
-   *Atau dari perangkat lain di Wi-Fi yang sama:*
+   *Atau dari perangkat lain di jaringan lokal yang sama:*
    ```text
-   http://<IP_ANDROID_ANDA>:80
+   https://<IP_ANDROID_ANDA>
    ```
-4. Masukkan password default saat login:
+   Browser dapat menampilkan peringatan karena sertifikat yang dibuat otomatis bersifat self-signed. HTTP di port 80 mengalihkan navigasi aman ke HTTPS; HTTP tanpa enkripsi hanya tersedia jika layanan dijalankan dengan `--allow-http`.
+4. Masukkan password awal saat login:
    ```text
    bfr
    ```
+   Dialog penggantian password akan langsung terbuka; tetapkan password baru sebelum menggunakan fitur yang dilindungi.
 
 ---
 

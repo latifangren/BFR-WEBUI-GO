@@ -76,18 +76,20 @@ If you wish to test or install the binary manually without wrapping it into a zi
 
 1. Ensure your device is connected to a local Wi-Fi network or use localhost network.
 2. Open any web browser (Chrome, Kiwi, Firefox, etc.) on your Android device or another device on the same local network.
-3. Access the URL:
+3. Access the HTTPS URL:
    ```text
-   http://localhost:80
+   https://localhost
    ```
    *Or from another device in the same local network:*
    ```text
-   http://<YOUR_ANDROID_IP>:80
+   https://<YOUR_ANDROID_IP>
    ```
-4. Enter the default password on login:
+   The browser may show a warning for the automatically generated self-signed certificate. HTTP requests on port 80 redirect safe navigation to HTTPS; plaintext HTTP is available only when launched with `--allow-http`.
+4. Enter the initial password on login:
    ```text
    bfr
    ```
+   The password change dialog opens immediately; set a new password before using protected features.
 
 ---
 

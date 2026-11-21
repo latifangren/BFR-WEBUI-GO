@@ -6,6 +6,7 @@
     title?: string
     size?: 'sm' | 'md' | 'lg' | 'xl'
     class?: string
+    dismissible?: boolean
     onclose?: () => void
     children?: Snippet
     footer?: Snippet
@@ -16,12 +17,14 @@
     title,
     size = 'md',
     class: className = '',
+    dismissible = true,
     onclose,
     children,
     footer,
   }: Props = $props()
 
   function handleClose() {
+    if (!dismissible) return
     open = false
     onclose?.()
   }
@@ -58,13 +61,15 @@
           <h3 class="text-sm font-bold font-mono tracking-wider uppercase text-foreground">
             {title}
           </h3>
-          <button
-            type="button"
-            class="text-muted hover:text-foreground font-mono text-lg leading-none cursor-pointer"
-            onclick={handleClose}
-          >
-            &times;
-          </button>
+          {#if dismissible}
+            <button
+              type="button"
+              class="text-muted hover:text-foreground font-mono text-lg leading-none cursor-pointer"
+              onclick={handleClose}
+            >
+              &times;
+            </button>
+          {/if}
         </div>
       {/if}
 

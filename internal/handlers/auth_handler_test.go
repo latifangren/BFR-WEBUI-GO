@@ -93,22 +93,44 @@ func TestAuthHandler_RequireAuth(t *testing.T) {
 		t.Errorf("expected status 401, got %d", rr1.Code)
 	}
 
-	// 2. Request with valid cookie -> 200
+	// 2. A default-password session can only change the password or log out.
 	token, ok, _ := authMgr.Authenticate(auth.DefaultPassword, "127.0.0.1:1234")
 	if !ok {
 		t.Fatalf("failed to authenticate for session token")
 	}
 
 	req2 := httptest.NewRequest("GET", "/api/protected", nil)
-	req2.AddCookie(&http.Cookie{
-		Name:  auth.CookieName,
-		Value: token,
-	})
+	req2.AddCookie(&http.Cookie{Name: auth.CookieName, Value: token})
 	rr2 := httptest.NewRecorder()
 	protectedHandler(rr2, req2)
+	if rr2.Code != http.StatusForbidden {
+		t.Errorf("expected status 403 while default password is active, got %d", rr2.Code)
+	}
 
-	if rr2.Code != http.StatusOK {
-		t.Errorf("expected status 200, got %d", rr2.Code)
+	changePasswordHandler := handler.RequireAuth(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+	})
+	reqChange := httptest.NewRequest("POST", "/api/auth/change-password", nil)
+	reqChange.AddCookie(&http.Cookie{Name: auth.CookieName, Value: token})
+	rrChange := httptest.NewRecorder()
+	changePasswordHandler(rrChange, reqChange)
+	if rrChange.Code != http.StatusOK {
+		t.Errorf("expected password-change route to remain available, got %d", rrChange.Code)
+	}
+
+	if err := authMgr.ChangePassword(auth.DefaultPassword, "new-secure-password"); err != nil {
+		t.Fatalf("failed to change default password: %v", err)
+	}
+	newToken, ok, _ := authMgr.Authenticate("new-secure-password", "127.0.0.1:1234")
+	if !ok {
+		t.Fatalf("failed to authenticate with updated password")
+	}
+	req3 := httptest.NewRequest("GET", "/api/protected", nil)
+	req3.AddCookie(&http.Cookie{Name: auth.CookieName, Value: newToken})
+	rr3 := httptest.NewRecorder()
+	protectedHandler(rr3, req3)
+	if rr3.Code != http.StatusOK {
+		t.Errorf("expected status 200 after changing the default password, got %d", rr3.Code)
 	}
 }
 

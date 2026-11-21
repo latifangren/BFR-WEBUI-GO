@@ -10,6 +10,7 @@ export interface LoginPayload {
 
 export interface LoginResponse {
   success: boolean
-  message: string
+  message?: string
+  is_default_pass?: boolean
 }
 

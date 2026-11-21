@@ -19,7 +19,7 @@ if not exist ".tmp" mkdir .tmp
 :: ========================================================
 echo.
 echo [1/4] Preparing Full Modem frontend assets...
-git checkout frontend/src/config/features.ts frontend/src/components/tabs/vendor_tabs.ts >nul 2>&1
+set VITE_HAS_VENDOR_MODEM=true
 cd frontend
 call bun run build
 if !ERRORLEVEL! neq 0 (
@@ -66,17 +66,13 @@ echo [SUCCESS] Full Modem Zip created: BFR-WEBUI-Magisk-!VERSION!.zip
 :: ========================================================
 echo.
 echo [3/4] Preparing Clean No-Modem frontend assets...
-echo export const HAS_VENDOR_MODEM = false;> frontend\src\config\features.ts
-echo import type { Component } from 'svelte';> frontend\src\components\tabs\vendor_tabs.ts
-echo.>> frontend\src\components\tabs\vendor_tabs.ts
-echo export const VENDOR_TABS: Record^<string, Component^> = {};>> frontend\src\components\tabs\vendor_tabs.ts
+set VITE_HAS_VENDOR_MODEM=false
 
 cd frontend
 call bun run build
 if !ERRORLEVEL! neq 0 (
     echo [ERROR] Frontend build failed for No-Modem!
     cd ..
-    git checkout frontend/src/config/features.ts frontend/src/components/tabs/vendor_tabs.ts >nul 2>&1
     exit /b 1
 )
 cd ..
@@ -88,21 +84,21 @@ mkdir ".tmp\pkg-nomodem"
 go build -tags nomodem -ldflags="-s -w" -o .tmp\pkg-nomodem\webui .
 if !ERRORLEVEL! neq 0 (
     echo [ERROR] Go build failed for No-Modem!
-    git checkout frontend/src/config/features.ts frontend/src/components/tabs/vendor_tabs.ts >nul 2>&1
     exit /b 1
 )
 
-:: Restore frontend files immediately
-git checkout frontend/src/config/features.ts frontend/src/components/tabs/vendor_tabs.ts >nul 2>&1
-
-:: Run security audit if python available
+:: Run security audit if Python is available
 python --version >nul 2>&1
 if !ERRORLEVEL! equ 0 (
     echo [INFO] Running zero-leak forensic audit on No-Modem binary...
     python scripts\audit_nomodem.py .tmp\pkg-nomodem\webui
     if !ERRORLEVEL! neq 0 (
-        echo [SECURITY WARNING] Audit reported signatures in No-Modem binary!
+        echo [ERROR] Audit reported signatures in No-Modem binary!
+        exit /b 1
     )
+) else (
+    echo [ERROR] Python is required to audit the No-Modem binary.
+    exit /b 1
 )
 
 echo [INFO] Packaging BFR-WEBUI-Magisk-!VERSION!-nomodem.zip...

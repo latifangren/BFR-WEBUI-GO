@@ -23,7 +23,7 @@ frontend/src/
 ├── stores/
 │   └── theme.svelte.ts # Reactive theme switcher (light/dark AMOLED mode)
 └── components/
-    ├── layout/         # Header, Sidebar, BottomNav, Toast
+    ├── layout/         # Header, Sidebar, BottomPopoverNav, Toast
     └── ui/             # Reusable primitives (Card, Button, Badge, Modal, Input)
 ```
 

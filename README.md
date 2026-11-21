@@ -102,8 +102,8 @@ BFR-WEBUI-GO Architecture
 1. Download `BFR-WEBUI-Magisk-v1.2.8.zip` from the [Releases](https://github.com/latifangren/BFR-WEBUI-GO/releases) page.
 2. Open the **Magisk / KernelSU / APatch** app -> navigate to the **Modules** tab -> select **Install from storage** -> choose the downloaded ZIP file -> wait for the installation process to complete -> **Reboot** your device.
 3. Open a browser on any device connected to the same Wi-Fi or hotspot network and navigate to:
-   - **HTTP**: `http://<DEVICE-IP>` (standard port 80 default)
    - **HTTPS**: `https://<DEVICE-IP>` (standard port 443 default, direct access without extra port)
+   - HTTP on port 80 redirects safe navigation requests to HTTPS. Pass `--allow-http` only when you intentionally need plaintext HTTP on an isolated network.
 
 ---
 
@@ -129,6 +129,7 @@ BFR-WEBUI-GO Architecture
 ### Prerequisites
 - **Go**: Version 1.22 or higher
 - **Bun or Node.js**: Bun (recommended) or Node.js 18+ (pnpm/npm)
+- **Python 3**: Required by no-modem release scripts for the embedded-binary leak audit.
 
 ### One-Click Build & Packaging
 The build scripts automatically detect your active Git branch and compile with the appropriate build tags:
@@ -146,12 +147,12 @@ The build scripts automatically detect your active Git branch and compile with t
 ### Manual Cross-Compilation
 - **Full Private Build**:
   ```bash
-  cd frontend && bun run build && cd ..
+  cd frontend && VITE_HAS_VENDOR_MODEM=true bun run build && cd ..
   CGO_ENABLED=0 GOOS=android GOARCH=arm64 go build -ldflags "-s -w" -o webui .
   ```
 - **Public Clean Non-Modem Build**:
   ```bash
-  cd frontend && bun run build && cd ..
+  cd frontend && VITE_HAS_VENDOR_MODEM=false bun run build && cd ..
   CGO_ENABLED=0 GOOS=android GOARCH=arm64 go build -tags nomodem -ldflags "-s -w" -o webui .
   ```
 

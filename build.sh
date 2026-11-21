@@ -16,6 +16,11 @@ echo " BFR-WEBUI-GO Builder [Target Flavor: ${FLAVOR}]"
 echo "========================================================"
 
 echo "1. Compiling frontend (Svelte 5 + Vite)..."
+if [ "$FLAVOR" = "nomodem" ]; then
+    export VITE_HAS_VENDOR_MODEM=false
+else
+    export VITE_HAS_VENDOR_MODEM=true
+fi
 (cd frontend && (bun run build || pnpm build || npm run build))
 
 echo "2. Building Go binary for Android ARM64..."
@@ -33,5 +38,16 @@ else
 fi
 
 go build $BUILD_TAGS -ldflags "-s -w" -o bfr-webui-android-arm64 .
+
+if [ "$FLAVOR" = "nomodem" ]; then
+    if command -v python3 >/dev/null 2>&1; then
+        python3 scripts/audit_nomodem.py bfr-webui-android-arm64
+    elif command -v python >/dev/null 2>&1; then
+        python scripts/audit_nomodem.py bfr-webui-android-arm64
+    else
+        echo "[ERROR] Python is required to audit the no-modem binary."
+        exit 1
+    fi
+fi
 
 echo "[SUCCESS] Build successful: bfr-webui-android-arm64 (${FLAVOR})"

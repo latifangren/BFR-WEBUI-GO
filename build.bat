@@ -18,6 +18,8 @@ echo  BFR-WEBUI-GO Builder [Target Flavor: %FLAVOR%]
 echo ========================================================
 
 echo 1. Compiling frontend (Svelte 5 + Vite)...
+set VITE_HAS_VENDOR_MODEM=true
+if /i "%FLAVOR%"=="nomodem" set VITE_HAS_VENDOR_MODEM=false
 cd frontend
 where bun >nul 2>nul
 if %errorlevel% equ 0 (
@@ -49,6 +51,14 @@ go build %BUILD_TAGS% -ldflags "-s -w" -o bfr-webui-android-arm64 .
 if %errorlevel% neq 0 (
     echo [ERROR] Go build failed.
     exit /b %errorlevel%
+)
+
+if /i "%FLAVOR%"=="nomodem" (
+    python scripts\audit_nomodem.py bfr-webui-android-arm64
+    if errorlevel 1 (
+        echo [ERROR] No-Modem audit failed.
+        exit /b 1
+    )
 )
 
 echo [SUCCESS] Build successful: bfr-webui-android-arm64 (%FLAVOR%)

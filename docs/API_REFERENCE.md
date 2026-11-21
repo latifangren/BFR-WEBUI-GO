@@ -7,9 +7,10 @@ This document provides complete documentation for the REST API endpoints and Web
 ## 🔒 Authentication & Security
 
 All API endpoints (except `/api/auth/login` and `/api/auth/status`) require session authentication.
-- **Session Cookie**: Set upon login (`SameSite=Strict`, `HttpOnly`).
+- **Session Cookie**: Set upon login (`SameSite=Lax`, `HttpOnly`, and `Secure` when HTTPS is used).
 - **Security Headers**: All responses include `X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`, and `Referrer-Policy: no-referrer`.
-- **Body Limit**: POST/PUT requests enforce a 1MB payload limit via `http.MaxBytesReader` (except file uploads which permit up to 32MB).
+- **Default Password**: A session created with the initial password may only change the password or log out until a new password is set.
+- **Body Limit**: Most POST/PUT/PATCH requests are capped at 1MB. Large upload endpoints enforce their own limits.
 
 ---
 
@@ -27,7 +28,8 @@ Authenticates a user session.
 - **Response** (`200 OK`):
   ```json
   {
-    "success": true
+    "success": true,
+    "is_default_pass": false
   }
   ```
 
@@ -37,7 +39,8 @@ Checks if the current session is authenticated.
 - **Response** (`200 OK`):
   ```json
   {
-    "authenticated": true
+    "authenticated": true,
+    "is_default_pass": false
   }
   ```
 

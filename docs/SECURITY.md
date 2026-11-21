@@ -14,19 +14,21 @@ Because **BFR-WEBUI-GO** runs as a root process on Android devices via Magisk / 
 
 ### 1. Input Sanitization & Command Injection Defense
 - **Strict Parameter Validation**: Input values for sysctl keys, DNS IP addresses, network interface names, MTU ranges (68–9000), TxQueueLen (0–100000), RPS bitmasks, and power actions are validated against strict whitelist regular expressions and `net.ParseIP` checks before shell execution.
-- **Root Shell Command Isolation**: Parameters passed to `config.SUBin` (`su`, `ksu`, `apatch`) are checked against strict character sets.
+- **Root Shell Command Isolation**: Parameters passed to `config.SUBin` are validated and filesystem paths are single-quoted before they reach the shell.
 
 ### 2. Path Traversal & File Manager Sandboxing
-- **Base Directory Restriction (`SanitizePath`)**: All file operations (`List`, `Read`, `Save`, `Upload`, `Delete`, `Copy`, `Move`, `Permissions`, `Search`) sanitize user paths with `filepath.Clean`, resolve symlink targets (`filepath.EvalSymlinks`), and verify that the target remains strictly within allowed base directories (`config.AllowedDirs`, defaulting to `/sdcard`, `/storage`, `/data/adb`, `/data/local/tmp`, `/data/system`).
+- **Base Directory Restriction (`SanitizePath`)**: All file operations (`List`, `Read`, `Save`, `Upload`, `Delete`, `Copy`, `Move`, `Permissions`, `Search`) sanitize user paths with `filepath.Clean`, resolve symlink targets (`filepath.EvalSymlinks`), and verify that the target remains strictly within allowed base directories (`config.AllowedDirs`, defaulting to `/` for full root navigation; deployments can narrow this with `BFR_ALLOWED_DIRS`).
 - **Zip Slip Vulnerability Protection**: Archive extraction (`ExtractZip`) evaluates clean destination paths against target entries before extraction to block malicious relative path traversal within `.zip` archives.
 
 ### 3. Session & Authentication Hardening
 - **Secure Password Validation**: Unauthenticated requests are rejected with `HTTP 401 Unauthorized`.
 - **CSPRNG Session Tokens**: Session tokens are generated using `crypto/rand` (CSPRNG). If secure random bytes cannot be read, authentication requests return an explicit error.
-- **Cookie Security**: Authentication cookies use `SameSite=Strict` and `HttpOnly` attributes.
+- **Cookie Security**: Authentication cookies use `SameSite=Lax` and `HttpOnly`; the `Secure` attribute is enabled for HTTPS sessions.
+- **Initial Password Gate**: Sessions authenticated with the initial password may only change the password or log out until the password is replaced.
 
 ### 4. HTTP Transport & Payload Protection
-- **Request Body Limits**: All POST/PUT/PATCH requests enforce a 1MB payload ceiling via `http.MaxBytesReader` (except file uploads which permit up to 32MB).
+- **Request Body Limits**: Most POST/PUT/PATCH requests have a 1MB limit; larger upload routes apply endpoint-specific limits. HTTP request reads have a five-minute deadline.
+- **HTTPS by Default**: When HTTPS is available, the HTTP listener redirects GET/HEAD requests to HTTPS and rejects other methods. Use `--allow-http` only for isolated deployments that intentionally need plaintext HTTP.
 - **Security Headers**: Every HTTP response sets `X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`, and `Referrer-Policy: no-referrer`.
 - **Graceful Shutdown**: The HTTP server handles `SIGINT` and `SIGTERM` OS signals to cleanly terminate active requests.
 

@@ -102,8 +102,8 @@ Arsitektur BFR-WEBUI-GO
 1. Unduh file `BFR-WEBUI-Magisk-v1.2.8.zip` dari halaman [Releases](https://github.com/latifangren/BFR-WEBUI-GO/releases).
 2. Buka aplikasi **Magisk / KernelSU / APatch** -> buka tab **Modul** -> pilih **Pasang dari penyimpanan (Install from storage)** -> pilih file ZIP yang telah diunduh -> tunggu hingga proses selesai -> **Reboot HP**.
 3. Buka browser di perangkat lain yang terhubung ke jaringan Wi-Fi / hotspot yang sama dan akses:
-   - **HTTP**: `http://<IP-HP>` (port standar 80 default)
    - **HTTPS**: `https://<IP-HP>` (port standar 443 default, langsung akses tanpa port tambahan)
+   - HTTP di port 80 mengalihkan navigasi aman ke HTTPS. Gunakan `--allow-http` hanya jika memang memerlukan HTTP tanpa enkripsi pada jaringan terisolasi.
 
 ---
 
@@ -129,6 +129,7 @@ Arsitektur BFR-WEBUI-GO
 ### Prasyarat
 - **Go**: Versi 1.22 atau lebih baru
 - **Bun atau Node.js**: Bun (direkomendasikan) atau Node.js 18+ (pnpm/npm)
+- **Python 3**: Diperlukan skrip rilis no-modem untuk memindai kebocoran string pada biner.
 
 ### Kompilasi & Packaging Satu Perintah
 Skrip build secara otomatis mendeteksi branch Git aktif dan menerapkan build tag yang sesuai:
@@ -146,12 +147,12 @@ Skrip build secara otomatis mendeteksi branch Git aktif dan menerapkan build tag
 ### Kompilasi Biner Standalone (Manual)
 - **Build Penuh (Private)**:
   ```bash
-  cd frontend && bun run build && cd ..
+  cd frontend && VITE_HAS_VENDOR_MODEM=true bun run build && cd ..
   CGO_ENABLED=0 GOOS=android GOARCH=arm64 go build -ldflags "-s -w" -o webui .
   ```
 - **Build Publik Non-Modem**:
   ```bash
-  cd frontend && bun run build && cd ..
+  cd frontend && VITE_HAS_VENDOR_MODEM=false bun run build && cd ..
   CGO_ENABLED=0 GOOS=android GOARCH=arm64 go build -tags nomodem -ldflags "-s -w" -o webui .
   ```
 

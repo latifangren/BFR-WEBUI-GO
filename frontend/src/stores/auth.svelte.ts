@@ -39,6 +39,7 @@ class AuthStore {
       const res = await api.post<LoginResponse>('/api/auth/login', payload)
       if (res.success) {
         this.authenticated = true
+        this.isDefaultPass = res.is_default_pass ?? false
         if (typeof window !== 'undefined') {
           // Lets background stores (e.g. sysinfo polling) resume.
           window.dispatchEvent(new CustomEvent('bfr:authenticated'))

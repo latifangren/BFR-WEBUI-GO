@@ -191,6 +191,14 @@ func (h *AuthHandler) RequireAuth(next http.HandlerFunc) http.HandlerFunc {
 			})
 			return
 		}
+		if h.authMgr.IsDefaultPassword() && r.URL.Path != "/api/auth/change-password" && r.URL.Path != "/api/auth/logout" {
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusForbidden)
+			_ = json.NewEncoder(w).Encode(map[string]interface{}{
+				"error": "Change the default password before using protected features.",
+			})
+			return
+		}
 		next(w, r)
 	}
 }

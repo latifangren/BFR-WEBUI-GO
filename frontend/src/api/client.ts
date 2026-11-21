@@ -35,17 +35,22 @@ export async function request<T>(endpoint: string, options: RequestInit = {}): P
       window.dispatchEvent(new CustomEvent('bfr:unauthorized'))
     }
 
-    let errorData: unknown
-    try {
-      errorData = await response.json()
-    } catch {
-      errorData = await response.text()
+    const errorBody = await response.text()
+    let errorData: unknown = errorBody
+    if (errorBody !== "") {
+      try {
+        errorData = JSON.parse(errorBody)
+      } catch {
+        // Preserve plain-text and HTML error bodies for the caller.
+      }
     }
     const message =
       typeof errorData === 'object' && errorData !== null && 'error' in errorData
         ? String((errorData as { error: unknown }).error)
         : typeof errorData === 'object' && errorData !== null && 'message' in errorData
           ? String((errorData as { message: unknown }).message)
+          : typeof errorData === 'string' && errorData.trim() !== ''
+          ? errorData
           : `HTTP ${response.status}: ${response.statusText}`
 
     throw new ApiError(message, response.status, errorData)

@@ -2,16 +2,18 @@
   import { Lock, KeyRound, Check, AlertCircle } from '@lucide/svelte'
   import { api } from '../../api/client'
   import { toastStore } from '../../stores/toast.svelte'
+  import { authStore } from '../../stores/auth.svelte'
   import Modal from '../ui/Modal.svelte'
   import Button from '../ui/Button.svelte'
   import Input from '../ui/Input.svelte'
 
   interface Props {
     open?: boolean
+    forced?: boolean
     onclose?: () => void
   }
 
-  let { open = $bindable(false), onclose }: Props = $props()
+  let { open = $bindable(false), forced = false, onclose }: Props = $props()
 
   let currentPassword = $state('')
   let newPassword = $state('')
@@ -20,6 +22,7 @@
   let errorMessage = $state('')
 
   function handleClose() {
+    if (forced && authStore.isDefaultPass) return
     currentPassword = ''
     newPassword = ''
     confirmPassword = ''
@@ -57,6 +60,12 @@
       )
 
       if (res && res.success) {
+        const signedIn = await authStore.login({ password: newPassword })
+        if (!signedIn) {
+          authStore.authenticated = false
+          errorMessage = 'Password changed. Please sign in with the new password.'
+          return
+        }
         toastStore.success('Admin password updated successfully')
         handleClose()
       } else {
@@ -77,13 +86,14 @@
   open={open}
   title="Change Admin Password"
   class="max-w-md"
+  dismissible={!forced || !authStore.isDefaultPass}
   onclose={handleClose}
 >
   <form onsubmit={(e) => { e.preventDefault(); handleSubmit() }} class="space-y-4 font-mono text-xs">
     <div class="flex items-center gap-2.5 p-3 bg-card-sub border border-border rounded text-muted">
       <KeyRound class="w-4 h-4 text-accent shrink-0" />
       <span class="text-[11px] leading-relaxed">
-        Update WebUI authentication credentials. Default initial password is <code class="text-accent font-bold">admin</code>.
+        Update WebUI authentication credentials. The initial password is <code class="text-accent font-bold">bfr</code>. Change it before using other features.
       </span>
     </div>
 
@@ -121,15 +131,27 @@
     </div>
 
     <div class="flex justify-end gap-2 pt-3 border-t border-border">
-      <Button
-        variant="ghost"
-        size="md"
-        type="button"
-        disabled={isLoading}
-        onclick={handleClose}
-      >
-        Cancel
-      </Button>
+      {#if forced && authStore.isDefaultPass}
+        <Button
+          variant="ghost"
+          size="md"
+          type="button"
+          disabled={isLoading}
+          onclick={() => authStore.logout()}
+        >
+          Log out
+        </Button>
+      {:else}
+        <Button
+          variant="ghost"
+          size="md"
+          type="button"
+          disabled={isLoading}
+          onclick={handleClose}
+        >
+          Cancel
+        </Button>
+      {/if}
       <Button
         variant="primary"
         size="md"

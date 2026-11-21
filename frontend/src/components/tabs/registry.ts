@@ -8,15 +8,9 @@ export interface TabModule {
 
 export type TabLoader = () => Promise<TabModule>
 
-// Vendor tabs stay statically imported (per-flavor file, overwritten at build
-// time for the nomodem variant). Wrap them so every tab resolves through the
-// same async loader interface.
-const vendorLoaders: Record<string, TabLoader> = Object.fromEntries(
-  Object.entries(VENDOR_TABS).map(([id, component]) => [
-    id,
-    () => Promise.resolve({ default: component }),
-  ])
-)
+// Vendor tabs are lazy-loaded; no-modem builds resolve this import to an empty
+// registry so vendor components never enter the bundle.
+const vendorLoaders: Record<string, TabLoader> = VENDOR_TABS
 
 // Dynamic per-tab imports: each tab becomes its own chunk so the initial
 // bundle stays small on the phone's WebUI. The terminal chunk (xterm) in
@@ -36,7 +30,6 @@ export const TAB_LOADERS: Record<string, TabLoader> = {
   files: () => import('./files/TabFileManager.svelte'),
   logs: () => import('./logs/TabLogs.svelte'),
   proxy: () => import('./proxy/TabProxy.svelte'),
-  qos: () => import('./qos/TabQoS.svelte'),
   vnstat: () => import('./vnstat/TabVnstat.svelte'),
   nas: () => import('./nas/TabNAS.svelte'),
   tunnel: () => import('./tunnel/TabTunnel.svelte'),

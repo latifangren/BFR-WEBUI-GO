@@ -5,6 +5,7 @@ import (
 	"io/fs"
 	"log"
 	"net/http"
+	"strconv"
 	"strings"
 
 	"bfr-webui-go/frontend"
@@ -59,11 +60,52 @@ func (g *gzipResponseWriter) Close() {
 	}
 }
 
+func acceptsGzip(header string) bool {
+	gzipFound := false
+	gzipAccepted := false
+	wildcardAccepted := false
+
+	for _, item := range strings.Split(header, ",") {
+		parts := strings.Split(item, ";")
+		encoding := strings.TrimSpace(parts[0])
+		if encoding == "" {
+			continue
+		}
+
+		quality := 1.0
+		for _, parameter := range parts[1:] {
+			name, value, ok := strings.Cut(strings.TrimSpace(parameter), "=")
+			if !ok || !strings.EqualFold(strings.TrimSpace(name), "q") {
+				continue
+			}
+			parsed, err := strconv.ParseFloat(strings.TrimSpace(value), 64)
+			if err != nil || parsed < 0 || parsed > 1 {
+				quality = 0
+			} else {
+				quality = parsed
+			}
+		}
+
+		switch {
+		case strings.EqualFold(encoding, "gzip"):
+			gzipFound = true
+			gzipAccepted = quality > 0
+		case encoding == "*":
+			wildcardAccepted = quality > 0
+		}
+	}
+
+	if gzipFound {
+		return gzipAccepted
+	}
+	return wildcardAccepted
+}
+
 // GzipMiddleware wraps an http.Handler to compress responses with gzip.
 func GzipMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		path := strings.ToLower(r.URL.Path)
-		if !strings.Contains(r.Header.Get("Accept-Encoding"), "gzip") ||
+		if !acceptsGzip(r.Header.Get("Accept-Encoding")) ||
 			strings.Contains(strings.ToLower(r.Header.Get("Upgrade")), "websocket") ||
 			strings.HasPrefix(path, "/api/proxy/logs") ||
 			strings.HasSuffix(path, ".jpg") ||
@@ -130,6 +172,10 @@ func RegisterRoutes(mux *http.ServeMux, authMgr *auth.Manager) {
 	// SPA Route Handler: Serve static assets if file exists, otherwise serve index.html with no-cache
 	mux.HandleFunc("/", securityHeaders(func(w http.ResponseWriter, r *http.Request) {
 		reqPath := strings.TrimPrefix(r.URL.Path, "/")
+		if reqPath == "api" || strings.HasPrefix(reqPath, "api/") {
+			http.NotFound(w, r)
+			return
+		}
 		if reqPath != "" && reqPath != "index.html" {
 			if f, err := distFS.Open(reqPath); err == nil {
 				_ = f.Close()

@@ -5,9 +5,12 @@ import (
 	"crypto/tls"
 	"flag"
 	"log"
+	"net"
 	"net/http"
+	"net/url"
 	"os"
 	"os/signal"
+	"strings"
 	"syscall"
 	"time"
 
@@ -28,11 +31,47 @@ import (
 	_ "bfr-webui-go/internal/vnstat"
 )
 
+func httpsRedirectHandler(port string) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodGet && r.Method != http.MethodHead {
+			http.Error(w, "Use HTTPS for this request", http.StatusUpgradeRequired)
+			return
+		}
+
+		host := r.Host
+		if parsedHost, _, err := net.SplitHostPort(host); err == nil {
+			host = parsedHost
+		} else {
+			host = strings.TrimPrefix(strings.TrimSuffix(host, "]"), "[")
+		}
+		if host == "" || strings.ContainsAny(host, "/\\@?#\r\n \t") {
+			http.Error(w, "Invalid request host", http.StatusBadRequest)
+			return
+		}
+
+		hostPort := host
+		if port != "443" {
+			hostPort = net.JoinHostPort(host, port)
+		} else if strings.Contains(host, ":") {
+			hostPort = "[" + host + "]"
+		}
+		location := (&url.URL{
+			Scheme:   "https",
+			Host:     hostPort,
+			Path:     r.URL.Path,
+			RawPath:  r.URL.RawPath,
+			RawQuery: r.URL.RawQuery,
+		}).String()
+		http.Redirect(w, r, location, http.StatusTemporaryRedirect)
+	})
+}
+
 func main() {
 	logger.SetupGlobalLogHook()
 
-	port := flag.String("port", "80", "HTTP server port")
+	port := flag.String("port", "80", "HTTP listener port used for HTTPS redirects")
 	httpsPort := flag.String("https-port", "443", "HTTPS server port (0 to disable)")
+	allowHTTP := flag.Bool("allow-http", false, "Serve plain HTTP instead of redirecting to HTTPS")
 	applyTweaks := flag.Bool("apply-tweaks", false, "Apply all optimized network tweaks and exit")
 	flag.Parse()
 
@@ -144,14 +183,6 @@ func main() {
 		hotspot.GetReconciler().Start()
 	}()
 
-	addr := ":" + *port
-	server := &http.Server{
-		Addr:              addr,
-		Handler:           handlers.GzipMiddleware(mux),
-		ReadHeaderTimeout: 10 * time.Second,
-		IdleTimeout:       120 * time.Second,
-	}
-
 	var httpsServer *http.Server
 	if *httpsPort != "" && *httpsPort != "0" {
 		certPath, keyPath, err := tlsgen.EnsureCertificates("")
@@ -163,6 +194,7 @@ func main() {
 				Addr:              httpsAddr,
 				Handler:           handlers.GzipMiddleware(mux),
 				TLSConfig:         &tls.Config{MinVersion: tls.VersionTLS12},
+				ReadTimeout:       5 * time.Minute,
 				ReadHeaderTimeout: 10 * time.Second,
 				IdleTimeout:       120 * time.Second,
 			}
@@ -173,6 +205,22 @@ func main() {
 				}
 			}()
 		}
+	}
+	if httpsServer == nil && !*allowHTTP {
+		log.Fatal("HTTPS is unavailable; explicitly pass --allow-http to serve plaintext HTTP")
+	}
+
+	addr := ":" + *port
+	httpHandler := http.Handler(handlers.GzipMiddleware(mux))
+	if httpsServer != nil && !*allowHTTP {
+		httpHandler = httpsRedirectHandler(*httpsPort)
+	}
+	server := &http.Server{
+		Addr:              addr,
+		Handler:           httpHandler,
+		ReadHeaderTimeout: 10 * time.Second,
+		ReadTimeout:       5 * time.Minute,
+		IdleTimeout:       120 * time.Second,
 	}
 
 	// L-5: Graceful shutdown on SIGINT / SIGTERM.

@@ -53,5 +53,5 @@ func registerSystemRoutes(rc *routeContext) {
 	// System Logs URLs
 	rc.mux.HandleFunc("/api/logs", rc.wrap(HandleLogs, true))
 	rc.mux.HandleFunc("/api/logs/clear", rc.wrap(HandleLogsClear, true))
-	rc.mux.HandleFunc("/api/logs/logcat/stream", rc.logcatH.HandleWS)
+	rc.mux.HandleFunc("/api/logs/logcat/stream", rc.wrap(rc.logcatH.HandleWS, true))
 }

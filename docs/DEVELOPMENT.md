@@ -77,7 +77,7 @@ The codebase is split into modular Go backend packages and a modern Svelte 5 SPA
 
 ### Frontend Structure (`frontend/`)
 - **`frontend/src/App.svelte`**: Main application shell with dynamic reactive tab resolution via `frontend/src/components/tabs/registry.ts`.
-- **`frontend/src/components/layout/`**: Header, Sidebar, BottomNav, and Toast notifications.
+- **`frontend/src/components/layout/`**: Header, Sidebar, BottomPopoverNav, and Toast notifications.
 - **`frontend/src/components/tabs/`**: Individual tab components categorized under System, Network, Services, Connectivity, Diagnostics, and About.
 - **`frontend/src/components/ui/`**: Reusable Neo-Brutalist design components (Card, Button, Badge, Modal, Input, Toggle).
 - **`frontend/src/stores/`**: Reactive Svelte 5 rune stores (`auth.svelte.ts`, `navigation.svelte.ts`, `toast.svelte.ts`, `theme.svelte.ts`).

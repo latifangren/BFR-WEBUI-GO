@@ -7,6 +7,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [Unreleased]
+### Security
+- **File Manager Shell Quoting**: Added shell quoting and `--` option terminators for `chmod`/`chown` commands invoked via `su -c` to prevent shell injection from special characters in file paths.
+- **Default Password Enforcement**: Restricted protected API routes and WebSocket streams (`/api/terminal/ws`, `/api/scrcpy/ws`, `/api/logs/logcat/stream`) with HTTP `403` while the default password (`bfr`) is active, permitting only password change and logout; added a non-dismissible password-change modal in the UI with automatic re-authentication on update.
+- **HTTPS-by-Default & Server Timeouts**: Redirected plaintext `GET`/`HEAD` HTTP requests to HTTPS and rejected other HTTP methods with `426 Upgrade Required` unless `--allow-http` is passed; added a 5-minute `ReadTimeout` to HTTP and HTTPS servers.
+
+### Fixed
+- **Router & Fetch Client**: Parsed `Accept-Encoding` quality values properly (`gzip;q=0` and wildcard precedence), returned HTTP `404` instead of SPA HTML for unknown `/api/*` endpoints, and fixed non-JSON error body handling in `frontend/src/api/client.ts` to read the response stream only once.
+- **No-Modem Flavor Isolation**: Switched vendor tab gating to `VITE_HAS_VENDOR_MODEM` with conditional Vite module aliasing (`vendor_tabs.nomodem.ts`) so vendor chunks are physically excluded from no-modem bundles while remaining lazy-loaded in full builds, and enforced `scripts/audit_nomodem.py` failure checks across build scripts.
+- **QoS Hash Navigation**: Preserved `#qos` deep-linking so navigating to `#qos` opens the QoS sub-tab inside Hotspot.
+- **Offline API Docs**: Replaced the external Scalar CDN page on `/docs` with an embedded offline OpenAPI viewer reading `/openapi.json`.
+
+### Changed
+- **VnStat Flash-Wear Reduction**: Stopped writing `vnstat_data.json` on every `GetStats()` read; persistence now occurs on startup, every 5 minutes via ticker, and on explicit resets.
+- **Documentation Accuracy**: Synchronized `README*.md`, `docs/SECURITY.md`, `docs/API_REFERENCE.md`, `docs/INSTALLATION_*.md`, `docs/MODEM-ISOLATION.md`, `docs/PROJECT_STRUCTURE.md`, `docs/DEVELOPMENT.md`, and `docs/DESIGN.md` with current authentication, transport, build, and UI behavior.
+
+### Removed
+- **Unused Frontend Components**: Removed dead `BottomNav.svelte` and unreachable standalone `TabQoS.svelte` (QoS remains integrated in `TabHotspot.svelte`).
+
+---
+
 ## [1.2.8] - 2026-10-21
 ### Security
 - **Authentication Hardening**: Replaced new password hashes with bcrypt while preserving legacy hash verification, secured wallpaper upload and deletion routes, enabled secure session cookies over TLS, and removed query-string session token authentication from WebSocket endpoints.

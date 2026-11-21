@@ -1,7 +1,5 @@
 package handlers
 
-import "net/http"
-
 func registerServiceRoutes(rc *routeContext) {
 	// Auth URLs
 	rc.mux.HandleFunc("/api/auth/status", rc.wrap(rc.authH.Status, false))
@@ -48,29 +46,10 @@ func registerServiceRoutes(rc *routeContext) {
 	rc.mux.HandleFunc("/api/ssh/config", rc.wrap(HandleSSHConfig, true))
 	rc.mux.HandleFunc("/api/ssh/control", rc.wrap(HandleSSHControl, true))
 
-	// Remote Screen Scrcpy WS
-	rc.mux.HandleFunc("/api/scrcpy/ws", rc.scrcpyH.HandleWS)
-
-	// Terminal WS (WS connection does auth verification inside handle method)
-	rc.mux.HandleFunc("/api/terminal/ws", rc.termH.HandleWS)
+	// WebSocket routes use the shared auth gate before their handler-level checks.
+	rc.mux.HandleFunc("/api/scrcpy/ws", rc.wrap(rc.scrcpyH.HandleWS, true))
+	rc.mux.HandleFunc("/api/terminal/ws", rc.wrap(rc.termH.HandleWS, true))
 
 	// API Docs URL
-	rc.mux.HandleFunc("/docs", rc.wrap(func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Content-Type", "text/html; charset=utf-8")
-		html := `<!doctype html>
-<html>
-<head>
-  <title>BFR WEBUI GO API Docs</title>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <style>body { margin: 0; background: #0f172a; color: #fff; }</style>
-</head>
-<body>
-  <script id="api-reference" data-url="/openapi.json"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@scalar/api-reference"></script>
-  <noscript><p style="padding:20px;">OpenAPI specification is available at <a href="/openapi.json" style="color:#60a5fa">/openapi.json</a></p></noscript>
-</body>
-</html>`
-		_, _ = w.Write([]byte(html))
-	}, false))
+	rc.mux.HandleFunc("/docs", rc.wrap(HandleAPIDocs, false))
 }

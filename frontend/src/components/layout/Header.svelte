@@ -22,6 +22,12 @@
   let showAppearanceModal = $state(false)
   let showChangePasswordModal = $state(false)
 
+  $effect(() => {
+    if (authStore.authenticated && authStore.isDefaultPass) {
+      showChangePasswordModal = true
+    }
+  })
+
   const freeRamText = $derived.by(() => {
     const stats = sysinfoStore.stats
     if (!stats) return ''
@@ -191,5 +197,6 @@
 />
 <ChangePasswordModal
   open={showChangePasswordModal}
+  forced={authStore.isDefaultPass}
   onclose={() => (showChangePasswordModal = false)}
 />

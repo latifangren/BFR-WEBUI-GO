@@ -30,7 +30,7 @@ BFR-WEBUI-GO/
 │   └── PROJECT_STRUCTURE.md     # Dokumen Struktur Proyek (Dokumen Ini)
 │
 ├── internal/                    # Kode Sumber Backend (Go Internal Packages)
-│   ├── auth/                    # Sesi login, Cookie SameSite=Strict, CSPRNG Token
+│   ├── auth/                    # Sesi login, Cookie SameSite=Lax, CSPRNG Token
 │   ├── charger/                 # Kontrol sysfs pengisian daya baterai & auto-detect PMIC
 │   ├── config/                  # Pengaturan Environment Variables terpusat (BFR_*)
 │   ├── filemanager/             # Modul operasi berkas (ops, archive, search, perm)
@@ -70,7 +70,7 @@ BFR-WEBUI-GO/
         │   └── client.ts        # Typed fetch client dengan interceptor & auth handler
         │
         ├── components/          # Komponen Svelte 5 Berbasis Kategori
-        │   ├── layout/          # Header, Sidebar, BottomNav, Toasts, AppearanceModal
+        │   ├── layout/          # Header, Sidebar, BottomPopoverNav, Toasts, AppearanceModal
         │   ├── ui/              # Komponen Reusable (Card, Button, Badge, Modal, Input)
         │   └── tabs/            # Tab Views & registry.ts (Pemetaan Dinamis Komponen Tab)
         │       ├── overview/    # Tab Overview & CasaOS Application Shortcuts

@@ -29,8 +29,18 @@
   let prefillLimitClient = $state<ConnectedClient | null>(null)
   let externalBlockMAC = $state('')
 
-  onMount(async () => {
-    await fetchAll()
+  onMount(() => {
+    const syncSubtabFromHash = () => {
+      if (window.location.hash === '#qos') {
+        activeTab = 'qos'
+      }
+    }
+
+    syncSubtabFromHash()
+    window.addEventListener('hashchange', syncSubtabFromHash)
+    void fetchAll()
+
+    return () => window.removeEventListener('hashchange', syncSubtabFromHash)
   })
 
   async function fetchAll() {
