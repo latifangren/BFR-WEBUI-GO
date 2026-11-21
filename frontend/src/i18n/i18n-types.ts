@@ -8050,6 +8050,247 @@ type RootTranslation = {
 			executeFailed: string
 		}
 	}
+	sysinfo: {
+		/**
+		 * H​a​r​d​w​a​r​e​ ​&​ ​S​y​s​t​e​m​ ​T​e​l​e​m​e​t​r​y
+		 */
+		title: string
+		error: {
+			/**
+			 * T​e​l​e​m​e​t​r​y​ ​E​r​r​o​r
+			 */
+			title: string
+		}
+		/**
+		 * L​o​a​d​i​n​g​ ​h​a​r​d​w​a​r​e​ ​c​o​u​n​t​e​r​s​ ​a​n​d​ ​t​e​l​e​m​e​t​r​y​.​.​.
+		 */
+		loading: string
+		device: {
+			/**
+			 * D​e​v​i​c​e​ ​S​p​e​c​i​f​i​c​a​t​i​o​n​s​ ​&​ ​H​a​r​d​w​a​r​e​ ​I​n​f​o
+			 */
+			title: string
+			/**
+			 * D​e​v​i​c​e​ ​M​o​d​e​l
+			 */
+			model: string
+			/**
+			 * A​n​d​r​o​i​d​ ​D​e​v​i​c​e
+			 */
+			modelFallback: string
+			/**
+			 * A​n​d​r​o​i​d​ ​V​e​r​s​i​o​n
+			 */
+			androidVersion: string
+			/**
+			 * A​n​d​r​o​i​d​ ​{​a​n​d​r​o​i​d​}​ ​(​A​P​I​ ​{​s​d​k​}​)
+			 * @param {unknown} android
+			 * @param {unknown} sdk
+			 */
+			androidVersionValue: RequiredParams<'android' | 'sdk'>
+			/**
+			 * K​e​r​n​e​l​ ​R​e​l​e​a​s​e
+			 */
+			kernel: string
+			/**
+			 * L​i​n​u​x
+			 */
+			kernelFallback: string
+			/**
+			 * S​e​c​u​r​i​t​y​ ​P​a​t​c​h
+			 */
+			securityPatch: string
+			/**
+			 * R​e​s​o​l​u​t​i​o​n​ ​&​ ​D​e​n​s​i​t​y
+			 */
+			resolution: string
+			/**
+			 * S​y​s​t​e​m​ ​U​p​t​i​m​e
+			 */
+			uptime: string
+		}
+		battery: {
+			/**
+			 * B​a​t​t​e​r​y​ ​&​ ​P​o​w​e​r​ ​S​u​b​s​y​s​t​e​m
+			 */
+			title: string
+			/**
+			 * C​h​a​r​g​e​ ​L​e​v​e​l
+			 */
+			chargeLevel: string
+			/**
+			 * B​a​t​t​e​r​y​ ​l​e​v​e​l
+			 */
+			levelLabel: string
+			/**
+			 * H​e​a​l​t​h
+			 */
+			health: string
+			/**
+			 * V​o​l​t​a​g​e
+			 */
+			voltage: string
+			/**
+			 * B​a​t​t​e​r​y​ ​T​e​m​p
+			 */
+			temp: string
+		}
+		cpu: {
+			/**
+			 * C​P​U​ ​C​o​r​e​ ​A​c​t​i​v​i​t​y​ ​&​ ​T​h​e​r​m​a​l​s
+			 */
+			title: string
+			/**
+			 * T​o​t​a​l​ ​C​P​U​ ​U​t​i​l​i​z​a​t​i​o​n
+			 */
+			totalUtilization: string
+			/**
+			 * C​P​U​ ​u​s​a​g​e
+			 */
+			usageLabel: string
+			/**
+			 * A​c​t​i​v​e​ ​C​o​r​e​s​ ​(​{​c​o​u​n​t​}​ ​T​h​r​e​a​d​s​)
+			 * @param {unknown} count
+			 */
+			activeCores: RequiredParams<'count'>
+			/**
+			 * C​o​r​e​ ​{​c​o​r​e​}
+			 * @param {unknown} core
+			 */
+			core: RequiredParams<'core'>
+			/**
+			 * O​f​f​l​i​n​e
+			 */
+			offline: string
+		}
+		memory: {
+			/**
+			 * R​A​M​ ​&​ ​S​w​a​p​ ​M​e​m​o​r​y
+			 */
+			title: string
+			/**
+			 * P​h​y​s​i​c​a​l​ ​R​A​M​ ​(​{​p​c​t​}​%​)
+			 * @param {unknown} pct
+			 */
+			physicalRam: RequiredParams<'pct'>
+			/**
+			 * M​e​m​o​r​y​ ​u​s​a​g​e
+			 */
+			usageLabel: string
+			/**
+			 * F​r​e​e​:​ ​{​f​r​e​e​}
+			 * @param {unknown} free
+			 */
+			free: RequiredParams<'free'>
+			/**
+			 * A​v​a​i​l​a​b​l​e​:​ ​{​a​v​a​i​l​a​b​l​e​}
+			 * @param {unknown} available
+			 */
+			available: RequiredParams<'available'>
+			/**
+			 * Z​R​A​M​ ​/​ ​S​w​a​p​ ​(​{​p​c​t​}​%​)
+			 * @param {unknown} pct
+			 */
+			swap: RequiredParams<'pct'>
+		}
+		governor: {
+			/**
+			 * C​P​U​ ​S​c​a​l​i​n​g​ ​&​ ​S​c​h​e​d​u​l​i​n​g​ ​P​o​l​i​c​y
+			 */
+			title: string
+			/**
+			 * A​c​t​i​v​e​ ​G​o​v​e​r​n​o​r​ ​P​o​l​i​c​y
+			 */
+			activePolicy: string
+			/**
+			 * K​e​r​n​e​l​ ​M​a​n​a​g​e​m​e​n​t
+			 */
+			kernelManagement: string
+			/**
+			 * C​P​U​ ​c​l​u​s​t​e​r​ ​c​l​o​c​k​ ​f​r​e​q​u​e​n​c​i​e​s​,​ ​s​c​a​l​i​n​g​ ​g​o​v​e​r​n​o​r​s​,​ ​a​n​d​ ​V​M​ ​s​w​a​p​p​i​n​e​s​s​ ​a​r​e​ ​n​o​w​ ​m​a​n​a​g​e​d​ ​w​i​t​h​ ​p​e​r​s​i​s​t​e​n​t​ ​s​t​o​r​a​g​e​ ​i​n​ ​t​h​e​ 
+			 */
+			bodyA: string
+			/**
+			 * .
+			 */
+			bodyB: string
+			/**
+			 * O​p​e​n​ ​K​e​r​n​e​l​ ​M​a​n​a​g​e​r
+			 */
+			openKernelManager: string
+		}
+		thermal: {
+			/**
+			 * T​h​e​r​m​a​l​ ​S​e​n​s​o​r​s​ ​T​e​l​e​m​e​t​r​y
+			 */
+			title: string
+			/**
+			 * P​r​i​m​a​r​y​ ​S​o​C​ ​T​e​m​p
+			 */
+			primarySocTemp: string
+			/**
+			 * S​t​a​n​d​a​r​d​ ​t​h​e​r​m​a​l​ ​z​o​n​e​s​ ​a​c​t​i​v​e​.
+			 */
+			standardZones: string
+		}
+		storage: {
+			/**
+			 * S​t​o​r​a​g​e​ ​F​i​l​e​s​y​s​t​e​m​s
+			 */
+			title: string
+			/**
+			 * {​p​c​t​}​%​ ​u​s​e​d
+			 * @param {unknown} pct
+			 */
+			usedPct: RequiredParams<'pct'>
+			/**
+			 * U​s​e​d​:​ ​{​u​s​e​d​}
+			 * @param {unknown} used
+			 */
+			used: RequiredParams<'used'>
+			/**
+			 * F​r​e​e​:​ ​{​f​r​e​e​}
+			 * @param {unknown} free
+			 */
+			free: RequiredParams<'free'>
+			/**
+			 * T​o​t​a​l​:​ ​{​t​o​t​a​l​}
+			 * @param {unknown} total
+			 */
+			total: RequiredParams<'total'>
+			/**
+			 * N​o​ ​d​i​s​k​ ​p​a​r​t​i​t​i​o​n​s​ ​m​o​u​n​t​e​d​.
+			 */
+			empty: string
+		}
+		services: {
+			/**
+			 * R​o​o​t​ ​D​a​e​m​o​n​ ​S​e​r​v​i​c​e​s
+			 */
+			title: string
+			/**
+			 * S​t​o​p​p​e​d
+			 */
+			stopped: string
+			/**
+			 * P​I​D​:​ ​{​p​i​d​}
+			 * @param {unknown} pid
+			 */
+			pid: RequiredParams<'pid'>
+			/**
+			 * C​P​U​:
+			 */
+			cpuLabel: string
+			/**
+			 * R​A​M​:
+			 */
+			ramLabel: string
+			/**
+			 * N​o​ ​s​e​r​v​i​c​e​ ​h​o​o​k​s​ ​d​e​t​e​c​t​e​d​.
+			 */
+			empty: string
+		}
+	}
 }
 
 export type TranslationFunctions = {
@@ -15881,6 +16122,234 @@ export type TranslationFunctions = {
 			 * Failed to execute power action
 			 */
 			executeFailed: () => LocalizedString
+		}
+	}
+	sysinfo: {
+		/**
+		 * Hardware & System Telemetry
+		 */
+		title: () => LocalizedString
+		error: {
+			/**
+			 * Telemetry Error
+			 */
+			title: () => LocalizedString
+		}
+		/**
+		 * Loading hardware counters and telemetry...
+		 */
+		loading: () => LocalizedString
+		device: {
+			/**
+			 * Device Specifications & Hardware Info
+			 */
+			title: () => LocalizedString
+			/**
+			 * Device Model
+			 */
+			model: () => LocalizedString
+			/**
+			 * Android Device
+			 */
+			modelFallback: () => LocalizedString
+			/**
+			 * Android Version
+			 */
+			androidVersion: () => LocalizedString
+			/**
+			 * Android {android} (API {sdk})
+			 */
+			androidVersionValue: (arg: { android: unknown, sdk: unknown }) => LocalizedString
+			/**
+			 * Kernel Release
+			 */
+			kernel: () => LocalizedString
+			/**
+			 * Linux
+			 */
+			kernelFallback: () => LocalizedString
+			/**
+			 * Security Patch
+			 */
+			securityPatch: () => LocalizedString
+			/**
+			 * Resolution & Density
+			 */
+			resolution: () => LocalizedString
+			/**
+			 * System Uptime
+			 */
+			uptime: () => LocalizedString
+		}
+		battery: {
+			/**
+			 * Battery & Power Subsystem
+			 */
+			title: () => LocalizedString
+			/**
+			 * Charge Level
+			 */
+			chargeLevel: () => LocalizedString
+			/**
+			 * Battery level
+			 */
+			levelLabel: () => LocalizedString
+			/**
+			 * Health
+			 */
+			health: () => LocalizedString
+			/**
+			 * Voltage
+			 */
+			voltage: () => LocalizedString
+			/**
+			 * Battery Temp
+			 */
+			temp: () => LocalizedString
+		}
+		cpu: {
+			/**
+			 * CPU Core Activity & Thermals
+			 */
+			title: () => LocalizedString
+			/**
+			 * Total CPU Utilization
+			 */
+			totalUtilization: () => LocalizedString
+			/**
+			 * CPU usage
+			 */
+			usageLabel: () => LocalizedString
+			/**
+			 * Active Cores ({count} Threads)
+			 */
+			activeCores: (arg: { count: unknown }) => LocalizedString
+			/**
+			 * Core {core}
+			 */
+			core: (arg: { core: unknown }) => LocalizedString
+			/**
+			 * Offline
+			 */
+			offline: () => LocalizedString
+		}
+		memory: {
+			/**
+			 * RAM & Swap Memory
+			 */
+			title: () => LocalizedString
+			/**
+			 * Physical RAM ({pct}%)
+			 */
+			physicalRam: (arg: { pct: unknown }) => LocalizedString
+			/**
+			 * Memory usage
+			 */
+			usageLabel: () => LocalizedString
+			/**
+			 * Free: {free}
+			 */
+			free: (arg: { free: unknown }) => LocalizedString
+			/**
+			 * Available: {available}
+			 */
+			available: (arg: { available: unknown }) => LocalizedString
+			/**
+			 * ZRAM / Swap ({pct}%)
+			 */
+			swap: (arg: { pct: unknown }) => LocalizedString
+		}
+		governor: {
+			/**
+			 * CPU Scaling & Scheduling Policy
+			 */
+			title: () => LocalizedString
+			/**
+			 * Active Governor Policy
+			 */
+			activePolicy: () => LocalizedString
+			/**
+			 * Kernel Management
+			 */
+			kernelManagement: () => LocalizedString
+			/**
+			 * CPU cluster clock frequencies, scaling governors, and VM swappiness are now managed with persistent storage in the 
+			 */
+			bodyA: () => LocalizedString
+			/**
+			 * .
+			 */
+			bodyB: () => LocalizedString
+			/**
+			 * Open Kernel Manager
+			 */
+			openKernelManager: () => LocalizedString
+		}
+		thermal: {
+			/**
+			 * Thermal Sensors Telemetry
+			 */
+			title: () => LocalizedString
+			/**
+			 * Primary SoC Temp
+			 */
+			primarySocTemp: () => LocalizedString
+			/**
+			 * Standard thermal zones active.
+			 */
+			standardZones: () => LocalizedString
+		}
+		storage: {
+			/**
+			 * Storage Filesystems
+			 */
+			title: () => LocalizedString
+			/**
+			 * {pct}% used
+			 */
+			usedPct: (arg: { pct: unknown }) => LocalizedString
+			/**
+			 * Used: {used}
+			 */
+			used: (arg: { used: unknown }) => LocalizedString
+			/**
+			 * Free: {free}
+			 */
+			free: (arg: { free: unknown }) => LocalizedString
+			/**
+			 * Total: {total}
+			 */
+			total: (arg: { total: unknown }) => LocalizedString
+			/**
+			 * No disk partitions mounted.
+			 */
+			empty: () => LocalizedString
+		}
+		services: {
+			/**
+			 * Root Daemon Services
+			 */
+			title: () => LocalizedString
+			/**
+			 * Stopped
+			 */
+			stopped: () => LocalizedString
+			/**
+			 * PID: {pid}
+			 */
+			pid: (arg: { pid: unknown }) => LocalizedString
+			/**
+			 * CPU:
+			 */
+			cpuLabel: () => LocalizedString
+			/**
+			 * RAM:
+			 */
+			ramLabel: () => LocalizedString
+			/**
+			 * No service hooks detected.
+			 */
+			empty: () => LocalizedString
 		}
 	}
 }
