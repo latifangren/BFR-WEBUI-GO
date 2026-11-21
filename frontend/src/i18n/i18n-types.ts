@@ -59,6 +59,110 @@ type RootTranslation = {
 		 * C​l​o​s​e​ ​n​a​v​i​g​a​t​i​o​n
 		 */
 		closeNav: string
+		/**
+		 * S​l​i​d​e​r
+		 */
+		slider: string
+		/**
+		 * P​r​o​g​r​e​s​s
+		 */
+		progress: string
+		/**
+		 * R​e​f​r​e​s​h
+		 */
+		refresh: string
+		/**
+		 * C​l​e​a​r
+		 */
+		clear: string
+		/**
+		 * A​c​t​i​o​n​s
+		 */
+		actions: string
+		/**
+		 * D​e​l​e​t​e
+		 */
+		'delete': string
+		/**
+		 * R​e​t​r​y
+		 */
+		retry: string
+		/**
+		 * C​o​n​f​i​r​m
+		 */
+		confirm: string
+		/**
+		 * B​a​c​k
+		 */
+		back: string
+		/**
+		 * E​d​i​t
+		 */
+		edit: string
+		/**
+		 * Y​e​s
+		 */
+		yes: string
+		/**
+		 * N​o
+		 */
+		no: string
+		/**
+		 * E​n​a​b​l​e
+		 */
+		enable: string
+		/**
+		 * D​i​s​a​b​l​e
+		 */
+		disable: string
+		/**
+		 * S​t​a​r​t
+		 */
+		start: string
+		/**
+		 * S​t​o​p
+		 */
+		stop: string
+		/**
+		 * S​e​t​t​i​n​g​s
+		 */
+		settings: string
+		/**
+		 * S​e​a​r​c​h
+		 */
+		search: string
+		/**
+		 * C​o​p​y
+		 */
+		copy: string
+		/**
+		 * D​o​w​n​l​o​a​d
+		 */
+		download: string
+		/**
+		 * U​p​l​o​a​d
+		 */
+		upload: string
+		/**
+		 * S​t​a​t​u​s
+		 */
+		status: string
+		/**
+		 * D​o​n​e
+		 */
+		done: string
+		/**
+		 * P​a​u​s​e
+		 */
+		pause: string
+		/**
+		 * R​e​s​u​m​e
+		 */
+		resume: string
+		/**
+		 * C​h​a​n​g​e​ ​A​d​m​i​n​ ​P​a​s​s​w​o​r​d
+		 */
+		changePassword: string
 	}
 	app: {
 		/**
@@ -115,10 +219,6 @@ type RootTranslation = {
 		 * A​p​p​e​a​r​a​n​c​e​ ​S​t​u​d​i​o​ ​(​T​h​e​m​e​ ​&​ ​S​t​y​l​e​)
 		 */
 		appearance: string
-		/**
-		 * C​h​a​n​g​e​ ​A​d​m​i​n​ ​P​a​s​s​w​o​r​d
-		 */
-		changePassword: string
 		/**
 		 * L​o​g​o​u​t
 		 */
@@ -181,6 +281,64 @@ type RootTranslation = {
 		 * C​o​n​n​e​c​t​ ​&​ ​C​o​m​m​u​n​i​t​y
 		 */
 		connectCommunity: string
+	}
+	changePassword: {
+		/**
+		 * U​p​d​a​t​e​ ​W​e​b​U​I​ ​a​u​t​h​e​n​t​i​c​a​t​i​o​n​ ​c​r​e​d​e​n​t​i​a​l​s​.​ ​D​e​f​a​u​l​t​ ​i​n​i​t​i​a​l​ ​p​a​s​s​w​o​r​d​ ​i​s
+		 */
+		info: string
+		/**
+		 * C​u​r​r​e​n​t​ ​p​a​s​s​w​o​r​d​ ​i​s​ ​r​e​q​u​i​r​e​d​.
+		 */
+		currentRequired: string
+		/**
+		 * N​e​w​ ​p​a​s​s​w​o​r​d​ ​m​u​s​t​ ​b​e​ ​a​t​ ​l​e​a​s​t​ ​3​ ​c​h​a​r​a​c​t​e​r​s​.
+		 */
+		newMinLength: string
+		/**
+		 * N​e​w​ ​p​a​s​s​w​o​r​d​s​ ​d​o​ ​n​o​t​ ​m​a​t​c​h​.
+		 */
+		mismatch: string
+		/**
+		 * A​d​m​i​n​ ​p​a​s​s​w​o​r​d​ ​u​p​d​a​t​e​d​ ​s​u​c​c​e​s​s​f​u​l​l​y
+		 */
+		updatedToast: string
+		/**
+		 * F​a​i​l​e​d​ ​t​o​ ​c​h​a​n​g​e​ ​p​a​s​s​w​o​r​d
+		 */
+		failed: string
+		/**
+		 * C​u​r​r​e​n​t​ ​P​a​s​s​w​o​r​d
+		 */
+		current: string
+		/**
+		 * E​n​t​e​r​ ​a​c​t​i​v​e​ ​p​a​s​s​w​o​r​d
+		 */
+		currentPlaceholder: string
+		/**
+		 * N​e​w​ ​P​a​s​s​w​o​r​d​ ​(​m​i​n​.​ ​3​ ​c​h​a​r​s​)
+		 */
+		'new': string
+		/**
+		 * E​n​t​e​r​ ​n​e​w​ ​p​a​s​s​w​o​r​d
+		 */
+		newPlaceholder: string
+		/**
+		 * C​o​n​f​i​r​m​ ​N​e​w​ ​P​a​s​s​w​o​r​d
+		 */
+		confirm: string
+		/**
+		 * R​e​-​e​n​t​e​r​ ​n​e​w​ ​p​a​s​s​w​o​r​d
+		 */
+		confirmPlaceholder: string
+		/**
+		 * U​p​d​a​t​i​n​g​.​.​.
+		 */
+		updating: string
+		/**
+		 * U​p​d​a​t​e​ ​P​a​s​s​w​o​r​d
+		 */
+		update: string
 	}
 	toast: {
 		/**
@@ -773,6 +931,110 @@ export type TranslationFunctions = {
 		 * Close navigation
 		 */
 		closeNav: () => LocalizedString
+		/**
+		 * Slider
+		 */
+		slider: () => LocalizedString
+		/**
+		 * Progress
+		 */
+		progress: () => LocalizedString
+		/**
+		 * Refresh
+		 */
+		refresh: () => LocalizedString
+		/**
+		 * Clear
+		 */
+		clear: () => LocalizedString
+		/**
+		 * Actions
+		 */
+		actions: () => LocalizedString
+		/**
+		 * Delete
+		 */
+		'delete': () => LocalizedString
+		/**
+		 * Retry
+		 */
+		retry: () => LocalizedString
+		/**
+		 * Confirm
+		 */
+		confirm: () => LocalizedString
+		/**
+		 * Back
+		 */
+		back: () => LocalizedString
+		/**
+		 * Edit
+		 */
+		edit: () => LocalizedString
+		/**
+		 * Yes
+		 */
+		yes: () => LocalizedString
+		/**
+		 * No
+		 */
+		no: () => LocalizedString
+		/**
+		 * Enable
+		 */
+		enable: () => LocalizedString
+		/**
+		 * Disable
+		 */
+		disable: () => LocalizedString
+		/**
+		 * Start
+		 */
+		start: () => LocalizedString
+		/**
+		 * Stop
+		 */
+		stop: () => LocalizedString
+		/**
+		 * Settings
+		 */
+		settings: () => LocalizedString
+		/**
+		 * Search
+		 */
+		search: () => LocalizedString
+		/**
+		 * Copy
+		 */
+		copy: () => LocalizedString
+		/**
+		 * Download
+		 */
+		download: () => LocalizedString
+		/**
+		 * Upload
+		 */
+		upload: () => LocalizedString
+		/**
+		 * Status
+		 */
+		status: () => LocalizedString
+		/**
+		 * Done
+		 */
+		done: () => LocalizedString
+		/**
+		 * Pause
+		 */
+		pause: () => LocalizedString
+		/**
+		 * Resume
+		 */
+		resume: () => LocalizedString
+		/**
+		 * Change Admin Password
+		 */
+		changePassword: () => LocalizedString
 	}
 	app: {
 		/**
@@ -825,10 +1087,6 @@ export type TranslationFunctions = {
 		 * Appearance Studio (Theme & Style)
 		 */
 		appearance: () => LocalizedString
-		/**
-		 * Change Admin Password
-		 */
-		changePassword: () => LocalizedString
 		/**
 		 * Logout
 		 */
@@ -891,6 +1149,64 @@ export type TranslationFunctions = {
 		 * Connect & Community
 		 */
 		connectCommunity: () => LocalizedString
+	}
+	changePassword: {
+		/**
+		 * Update WebUI authentication credentials. Default initial password is
+		 */
+		info: () => LocalizedString
+		/**
+		 * Current password is required.
+		 */
+		currentRequired: () => LocalizedString
+		/**
+		 * New password must be at least 3 characters.
+		 */
+		newMinLength: () => LocalizedString
+		/**
+		 * New passwords do not match.
+		 */
+		mismatch: () => LocalizedString
+		/**
+		 * Admin password updated successfully
+		 */
+		updatedToast: () => LocalizedString
+		/**
+		 * Failed to change password
+		 */
+		failed: () => LocalizedString
+		/**
+		 * Current Password
+		 */
+		current: () => LocalizedString
+		/**
+		 * Enter active password
+		 */
+		currentPlaceholder: () => LocalizedString
+		/**
+		 * New Password (min. 3 chars)
+		 */
+		'new': () => LocalizedString
+		/**
+		 * Enter new password
+		 */
+		newPlaceholder: () => LocalizedString
+		/**
+		 * Confirm New Password
+		 */
+		confirm: () => LocalizedString
+		/**
+		 * Re-enter new password
+		 */
+		confirmPlaceholder: () => LocalizedString
+		/**
+		 * Updating...
+		 */
+		updating: () => LocalizedString
+		/**
+		 * Update Password
+		 */
+		update: () => LocalizedString
 	}
 	toast: {
 		/**

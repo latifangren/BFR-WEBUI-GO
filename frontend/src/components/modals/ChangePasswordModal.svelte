@@ -2,6 +2,7 @@
   import { Lock, KeyRound, Check, AlertCircle } from '@lucide/svelte'
   import { api } from '../../api/client'
   import { toastStore } from '../../stores/toast.svelte'
+  import { LL } from '../../i18n/i18n-svelte'
   import Modal from '../ui/Modal.svelte'
   import Button from '../ui/Button.svelte'
   import Input from '../ui/Input.svelte'
@@ -32,17 +33,17 @@
     errorMessage = ''
 
     if (!currentPassword) {
-      errorMessage = 'Current password is required.'
+      errorMessage = $LL.changePassword.currentRequired()
       return
     }
 
     if (newPassword.length < 3) {
-      errorMessage = 'New password must be at least 3 characters.'
+      errorMessage = $LL.changePassword.newMinLength()
       return
     }
 
     if (newPassword !== confirmPassword) {
-      errorMessage = 'New passwords do not match.'
+      errorMessage = $LL.changePassword.mismatch()
       return
     }
 
@@ -57,14 +58,14 @@
       )
 
       if (res && res.success) {
-        toastStore.success('Admin password updated successfully')
+        toastStore.success($LL.changePassword.updatedToast())
         handleClose()
       } else {
-        errorMessage = res?.error || 'Failed to change password'
+        errorMessage = res?.error || $LL.changePassword.failed()
         toastStore.error(errorMessage)
       }
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : 'Failed to change password'
+      const msg = err instanceof Error ? err.message : $LL.changePassword.failed()
       errorMessage = msg
       toastStore.error(msg)
     } finally {
@@ -75,7 +76,7 @@
 
 <Modal
   open={open}
-  title="Change Admin Password"
+  title={$LL.common.changePassword()}
   class="max-w-md"
   onclose={handleClose}
 >
@@ -83,7 +84,7 @@
     <div class="flex items-center gap-2.5 p-3 bg-card-sub border border-border rounded text-muted">
       <KeyRound class="w-4 h-4 text-accent shrink-0" />
       <span class="text-[11px] leading-relaxed">
-        Update WebUI authentication credentials. Default initial password is <code class="text-accent font-bold">admin</code>.
+        {$LL.changePassword.info()} <code class="text-accent font-bold">admin</code>.
       </span>
     </div>
 
@@ -96,25 +97,25 @@
 
     <div class="space-y-3">
       <Input
-        label="Current Password"
+        label={$LL.changePassword.current()}
         type="password"
-        placeholder="Enter active password"
+        placeholder={$LL.changePassword.currentPlaceholder()}
         bind:value={currentPassword}
         disabled={isLoading}
       />
 
       <Input
-        label="New Password (min. 3 chars)"
+        label={$LL.changePassword.new()}
         type="password"
-        placeholder="Enter new password"
+        placeholder={$LL.changePassword.newPlaceholder()}
         bind:value={newPassword}
         disabled={isLoading}
       />
 
       <Input
-        label="Confirm New Password"
+        label={$LL.changePassword.confirm()}
         type="password"
-        placeholder="Re-enter new password"
+        placeholder={$LL.changePassword.confirmPlaceholder()}
         bind:value={confirmPassword}
         disabled={isLoading}
       />
@@ -128,7 +129,7 @@
         disabled={isLoading}
         onclick={handleClose}
       >
-        Cancel
+        {$LL.common.cancel()}
       </Button>
       <Button
         variant="primary"
@@ -137,7 +138,7 @@
         disabled={isLoading || !currentPassword || !newPassword || !confirmPassword}
       >
         <Check class="w-3.5 h-3.5 mr-1" />
-        <span>{isLoading ? 'Updating...' : 'Update Password'}</span>
+        <span>{isLoading ? $LL.changePassword.updating() : $LL.changePassword.update()}</span>
       </Button>
     </div>
   </form>

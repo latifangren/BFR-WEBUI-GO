@@ -165,8 +165,8 @@
           type="button"
           class="p-1.5 rounded bg-card-sub border border-border text-muted hover:text-accent hover:border-accent cursor-pointer transition-colors"
           onclick={() => (showChangePasswordModal = true)}
-          title={$LL.header.changePassword()}
-          aria-label={$LL.header.changePassword()}
+          title={$LL.common.changePassword()}
+          aria-label={$LL.common.changePassword()}
         >
           <KeyRound class="w-4 h-4" />
         </button>

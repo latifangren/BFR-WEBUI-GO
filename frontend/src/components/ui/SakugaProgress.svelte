@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { LL } from '../../i18n/i18n-svelte'
+
   // Native progress bar: plain Svelte reactivity, no element sync, so the
   // value can never get stuck at 0% the way the custom-element wrapper did
   // (calling el.set on an un-upgraded element threw and killed the effect).
@@ -27,7 +29,7 @@
     aria-valuenow={pct}
     aria-valuemin={0}
     aria-valuemax={100}
-    aria-label={label || 'Progress'}
+    aria-label={label || $LL.common.progress()}
   >
     <div class="sakuga-progress-fill h-full" style="width: {pct}%"></div>
   </div>
