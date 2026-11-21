@@ -63,6 +63,7 @@
   import Input from '../../ui/Input.svelte'
   import { themeStore } from '../../../stores/theme.svelte'
   import SakugaCheckbox from '../../ui/SakugaCheckbox.svelte'
+  import { LL } from '../../../i18n/i18n-svelte'
 
   let config = $state<NASConfig>({
     enabled: false,
@@ -129,7 +130,7 @@
         status.primary_ip.startsWith('192.168.43.') ||
         status.primary_ip.startsWith('192.168.50.')
       list.push({
-        label: isHotspot ? 'Wi-Fi SoftAP / Hotspot' : 'Primary Network / LAN',
+        label: isHotspot ? $LL.nas.endpoints.hotspot() : $LL.nas.endpoints.primaryLan(),
         url: `http://${status.primary_ip}:${port}/`,
         ip: status.primary_ip,
         isPrimary: true,
@@ -143,7 +144,7 @@
           const isHotspot =
             ip.startsWith('192.168.43.') || ip.startsWith('192.168.50.')
           list.push({
-            label: isHotspot ? 'Wi-Fi Hotspot' : 'Network Interface',
+            label: isHotspot ? $LL.nas.endpoints.wifiHotspot() : $LL.nas.endpoints.networkInterface(),
             url: `http://${ip}:${port}/`,
             ip,
             isPrimary: false,
@@ -155,7 +156,7 @@
     if (list.length === 0) {
       const fallbackIp = status.primary_ip || '127.0.0.1'
       list.push({
-        label: 'Localhost Loopback',
+        label: $LL.nas.endpoints.localhost(),
         url: `http://${fallbackIp}:${port}/`,
         ip: fallbackIp,
         isPrimary: true,
@@ -220,7 +221,7 @@
 
   async function startNAS() {
     if (config.auth_required && (!config.username?.trim() || !config.password)) {
-      toastStore.error('Set a NAS username and password before starting the authenticated share.')
+      toastStore.error($LL.nas.toasts.setCredentialsStart())
       return
     }
     try {
@@ -246,12 +247,12 @@
         if (res?.status) status = { ...status, ...res.status }
         config.enabled = true
         toastStore.success(
-          `NAS ${payload.protocol?.toUpperCase()} server started on port ${payload.port}`
+          $LL.nas.toasts.started({ protocol: (payload.protocol || 'webdav').toUpperCase(), port: payload.port })
         )
       }
     } catch (err: unknown) {
       toastStore.error(
-        err instanceof Error ? err.message : 'Failed to start NAS server'
+        err instanceof Error ? err.message : $LL.nas.toasts.startFailed()
       )
     } finally {
       isToggling = false
@@ -274,11 +275,11 @@
         status.running = false
         if (res?.status) status = { ...status, ...res.status }
         config.enabled = false
-        toastStore.success('NAS File Server stopped.')
+        toastStore.success($LL.nas.toasts.stopped())
       }
     } catch (err: unknown) {
       toastStore.error(
-        err instanceof Error ? err.message : 'Failed to stop NAS server'
+        err instanceof Error ? err.message : $LL.nas.toasts.stopFailed()
       )
     } finally {
       isToggling = false
@@ -287,7 +288,7 @@
 
   async function saveConfig() {
     if (config.auth_required && (!config.username?.trim() || !config.password)) {
-      toastStore.error('Set a NAS username and password before saving an authenticated share.')
+      toastStore.error($LL.nas.toasts.setCredentialsSave())
       return
     }
     try {
@@ -311,13 +312,13 @@
         if (res?.status) status = { ...status, ...res.status }
         toastStore.success(
           isServerRunning
-            ? 'NAS server restarted with updated configuration.'
-            : 'NAS server configuration saved.'
+            ? $LL.nas.toasts.restarted()
+            : $LL.nas.toasts.saved()
         )
       }
     } catch (err: unknown) {
       toastStore.error(
-        err instanceof Error ? err.message : 'Failed to save configuration'
+        err instanceof Error ? err.message : $LL.nas.toasts.saveFailed()
       )
     } finally {
       isSaving = false
@@ -360,12 +361,12 @@
 
     if (success) {
       copiedUrl = text
-      toastStore.success('Copied to clipboard!')
+      toastStore.success($LL.nas.toasts.copied())
       setTimeout(() => {
         if (copiedUrl === text) copiedUrl = null
       }, 2000)
     } else {
-      toastStore.error('Failed to copy to clipboard')
+      toastStore.error($LL.nas.toasts.copyFailed())
     }
   }
 </script>
@@ -384,23 +385,23 @@
           <h2
             class="text-base sm:text-lg font-mono font-bold uppercase tracking-wider text-foreground"
           >
-            NAS & WebDAV File Sharing
+            {$LL.nas.title()}
           </h2>
           <Badge variant={isServerRunning ? 'success' : 'default'}>
-            {isServerRunning ? 'Active' : 'Stopped'}
+            {isServerRunning ? $LL.nas.status.active() : $LL.nas.status.stopped()}
           </Badge>
           <Badge variant="info">
             {(config.protocol || 'webdav').toUpperCase()}
           </Badge>
           {#if config.read_only}
-            <Badge variant="warning">Read-Only</Badge>
+            <Badge variant="warning">{$LL.nas.config.readOnly()}</Badge>
           {/if}
           {#if config.auth_required}
-            <Badge variant="default">Auth</Badge>
+            <Badge variant="default">{$LL.nas.status.auth()}</Badge>
           {/if}
         </div>
         <p class="text-xs text-muted font-mono">
-          Expose Android storage to LAN & Wi-Fi Hotspot via WebDAV or HTTP
+          {$LL.nas.subtitle()}
         </p>
       </div>
     </div>
@@ -413,7 +414,7 @@
         onclick={fetchNAS}
       >
         <RefreshCw class="w-3.5 h-3.5 mr-1.5 {isLoading ? 'animate-spin' : ''}" />
-        <span>Refresh</span>
+        <span>{$LL.common.refresh()}</span>
       </Button>
 
       {#if isServerRunning}
@@ -425,7 +426,7 @@
           class="shadow-[2px_2px_0px_#000] dark:shadow-[2px_2px_0px_rgba(255,255,255,0.05)]"
         >
           <Square class="w-3.5 h-3.5 mr-1.5 {isToggling ? 'animate-spin' : ''}" />
-          <span>Stop NAS</span>
+          <span>{$LL.nas.stopNas()}</span>
         </Button>
       {:else}
         <Button
@@ -436,7 +437,7 @@
           class="shadow-[2px_2px_0px_#000] dark:shadow-[2px_2px_0px_rgba(255,255,255,0.05)]"
         >
           <Play class="w-3.5 h-3.5 mr-1.5 {isToggling ? 'animate-spin' : ''}" />
-          <span>Start NAS</span>
+          <span>{$LL.nas.startNas()}</span>
         </Button>
       {/if}
     </div>
@@ -445,14 +446,14 @@
   <div class="grid grid-cols-1 lg:grid-cols-12 gap-3 sm:gap-6">
     <!-- KARTU 1: Server Configuration -->
     <Card
-      title="Server Configuration"
-      subtitle="Configure file sharing path, network port, protocol, and security"
+      title={$LL.nas.config.title()}
+      subtitle={$LL.nas.config.subtitle()}
       tone="ice"
       class="lg:col-span-7"
     >
       {#snippet action()}
         <Badge variant={config.protocol === 'webdav' ? 'success' : 'default'}>
-          {config.protocol === 'webdav' ? 'WEBDAV MODE' : 'HTTP MODE'}
+          {config.protocol === 'webdav' ? $LL.nas.config.webdavMode() : $LL.nas.config.httpMode()}
         </Badge>
       {/snippet}
 
@@ -460,12 +461,12 @@
         <!-- Share Path with Presets -->
         <div class="space-y-1.5">
           <Input
-            label="Share Path (Root Directory)"
+            label={$LL.nas.config.sharePath()}
             placeholder="/sdcard"
             bind:value={config.share_path}
           />
           <div class="flex items-center gap-1.5 flex-wrap pt-0.5">
-            <span class="text-[10px] text-muted uppercase font-bold">Presets:</span>
+            <span class="text-[10px] text-muted uppercase font-bold">{$LL.nas.config.presets()}</span>
             {#each ['/sdcard', '/storage/emulated/0', '/data/media/0'] as preset}
               <button
                 type="button"
@@ -482,7 +483,7 @@
         <div class="space-y-1.5">
           <Input
             type="number"
-            label="Server Network Port"
+            label={$LL.nas.config.port()}
             placeholder="85"
             value={String(config.port)}
             oninput={(e) => {
@@ -491,14 +492,14 @@
             }}
           />
           <p class="text-[10px] text-muted">
-            Port used by the file server daemon (default: 85). Fully configurable via WebUI.
+            {$LL.nas.config.portHint()}
           </p>
         </div>
 
         <!-- Protocol Selector: WebDAV vs HTTP -->
         <div class="space-y-1.5 pt-1">
           <span class="block text-muted uppercase font-bold tracking-wider text-[11px]">
-            File Sharing Protocol
+            {$LL.nas.config.protocol()}
           </span>
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
             <!-- WebDAV Option -->
@@ -512,14 +513,14 @@
               <div class="flex items-center justify-between">
                 <span class="font-bold text-xs uppercase flex items-center gap-1.5 text-foreground">
                   <Server class="w-3.5 h-3.5 text-accent" />
-                  WebDAV Server
+                  {$LL.nas.config.webdavServer()}
                 </span>
                 {#if config.protocol === 'webdav'}
-                  <Badge variant="success" class="text-[9px]">Active</Badge>
+                  <Badge variant="success" class="text-[9px]">{$LL.nas.status.active()}</Badge>
                 {/if}
               </div>
               <p class="text-[10px] text-muted mt-1.5 leading-relaxed">
-                Map Network Drive (Windows), Solid Explorer, VLC media streaming, Finder (macOS), Nautilus (Linux).
+                {$LL.nas.config.webdavDesc()}
               </p>
             </button>
 
@@ -534,14 +535,14 @@
               <div class="flex items-center justify-between">
                 <span class="font-bold text-xs uppercase flex items-center gap-1.5 text-foreground">
                   <Globe class="w-3.5 h-3.5 text-cyan-400" />
-                  HTTP Web Browser
+                  {$LL.nas.config.httpBrowser()}
                 </span>
                 {#if config.protocol === 'http'}
-                  <Badge variant="info" class="text-[9px]">Active</Badge>
+                  <Badge variant="info" class="text-[9px]">{$LL.nas.status.active()}</Badge>
                 {/if}
               </div>
               <p class="text-[10px] text-muted mt-1.5 leading-relaxed">
-                Lightweight web-based directory index for simple downloads directly in web browsers.
+                {$LL.nas.config.httpDesc()}
               </p>
             </button>
           </div>
@@ -554,9 +555,9 @@
             class="flex items-center justify-between p-3 bg-card-sub border-2 border-border rounded-lg cursor-pointer hover:border-accent transition-colors shadow-[2px_2px_0px_#000] dark:shadow-[2px_2px_0px_rgba(255,255,255,0.05)]"
           >
             <div class="space-y-0.5">
-              <span class="font-bold text-foreground block">Read-Only Mode</span>
+              <span class="font-bold text-foreground block">{$LL.nas.config.readOnlyMode()}</span>
               <span class="text-[10px] text-muted block">
-                Prohibit clients from writing, deleting, or moving files (blocks PUT, DELETE, MKCOL).
+                {$LL.nas.config.readOnlyDesc()}
               </span>
             </div>
             {#if themeStore.useSakugaControls()}
@@ -571,12 +572,12 @@
           </label>
           {#if !config.read_only}
             <div class="rounded-lg border border-amber-500/50 bg-amber-500/10 p-3 text-[11px] text-amber-200">
-              Writable sharing lets network clients create, change, and delete files in the selected directory. Enable it only on a trusted network.
+              {$LL.nas.config.writableWarning()}
             </div>
           {/if}
           {#if !config.auth_required}
             <div class="rounded-lg border border-amber-500/50 bg-amber-500/10 p-3 text-[11px] text-amber-200">
-              Authentication is disabled. Anyone who can reach this port can access the shared files.
+              {$LL.nas.config.authDisabledWarning()}
             </div>
           {/if}
 
@@ -586,10 +587,10 @@
           >
             <div class="space-y-0.5">
               <span class="font-bold text-foreground block">
-                Authentication Required (HTTP Basic Auth)
+                {$LL.nas.config.authRequired()}
               </span>
               <span class="text-[10px] text-muted block">
-                Require username and password credentials before granting access to shared files.
+                {$LL.nas.config.authRequiredDesc()}
               </span>
             </div>
             {#if themeStore.useSakugaControls()}
@@ -610,17 +611,17 @@
             >
               <div class="flex items-center gap-1.5 text-accent font-bold">
                 <Lock class="w-4 h-4" />
-                <span>NAS Access Credentials</span>
+                <span>{$LL.nas.config.credentials()}</span>
               </div>
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <Input
-                  label="Username"
+                  label={$LL.nas.config.username()}
                   placeholder="admin"
                   bind:value={config.username}
                 />
                 <div class="space-y-1 w-full">
                   <span class="block text-xs font-mono font-bold uppercase text-muted tracking-wider">
-                    Password
+                    {$LL.nas.config.password()}
                   </span>
                   <div class="relative">
                     <input
@@ -633,7 +634,7 @@
                       type="button"
                       class="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted hover:text-foreground cursor-pointer"
                       onclick={() => (showPassword = !showPassword)}
-                      title={showPassword ? 'Hide password' : 'Show password'}
+                      title={showPassword ? $LL.nas.config.hidePassword() : $LL.nas.config.showPassword()}
                     >
                       {#if showPassword}
                         <EyeOff class="w-4 h-4" />
@@ -659,10 +660,10 @@
           >
             {#if isSaving}
               <RefreshCw class="w-4 h-4 mr-2 animate-spin" />
-              <span>Applying Changes...</span>
+              <span>{$LL.nas.config.applying()}</span>
             {:else}
               <Check class="w-4 h-4 mr-2" />
-              <span>{isServerRunning ? 'Apply Changes & Restart NAS' : 'Save Configuration'}</span>
+              <span>{isServerRunning ? $LL.nas.config.applyRestart() : $LL.nas.config.saveConfig()}</span>
             {/if}
           </Button>
         </div>
@@ -671,14 +672,14 @@
 
     <!-- KARTU 2: Direct Access & Live Network Endpoints -->
     <Card
-      title="Live Network Endpoints"
-      subtitle="Accessible URLs across Wi-Fi SoftAP and local network"
+      title={$LL.nas.endpoints.title()}
+      subtitle={$LL.nas.endpoints.subtitle()}
       tone="peach"
       class="lg:col-span-5"
     >
       {#snippet action()}
         <Badge variant={isServerRunning ? 'success' : 'default'}>
-          {isServerRunning ? 'READY' : 'OFFLINE'}
+          {isServerRunning ? $LL.nas.status.ready() : $LL.nas.status.offline()}
         </Badge>
       {/snippet}
 
@@ -691,7 +692,7 @@
             <div class="flex items-center justify-between font-mono text-xs">
               <span class="text-muted uppercase font-bold flex items-center gap-1.5">
                 <Database class="w-3.5 h-3.5 text-accent" />
-                Storage Utilization
+                {$LL.nas.endpoints.storageTitle()}
               </span>
               <span class="font-black text-foreground">
                 {status.storage_used} / {status.storage_total} ({storagePercent()}%)
@@ -707,8 +708,8 @@
               ></div>
             </div>
             <div class="flex items-center justify-between text-[10px] text-muted">
-              <span>Path: {status.share_path || config.share_path}</span>
-              <span>Available on network</span>
+              <span>{$LL.nas.endpoints.path()} {status.share_path || config.share_path}</span>
+              <span>{$LL.nas.endpoints.available()}</span>
             </div>
           </div>
         {/if}
@@ -716,7 +717,7 @@
         <!-- Active Endpoints List -->
         <div class="space-y-3">
           <span class="block text-muted uppercase font-bold tracking-wider text-[11px]">
-            Network Access Links:
+            {$LL.nas.endpoints.links()}
           </span>
 
           {#if !isServerRunning}
@@ -725,7 +726,7 @@
             >
               <HardDrive class="w-6 h-6 text-muted mx-auto" />
               <p class="text-xs text-muted">
-                Server is currently stopped. Click "Start NAS" above to activate these network endpoints.
+                {$LL.nas.endpoints.stoppedA()}{$LL.nas.startNas()}{$LL.nas.endpoints.stoppedB()}
               </p>
             </div>
           {/if}
@@ -746,7 +747,7 @@
                   {ep.label}
                 </span>
                 {#if ep.isPrimary}
-                  <Badge variant="info">Primary</Badge>
+                  <Badge variant="info">{$LL.nas.endpoints.primary()}</Badge>
                 {/if}
               </div>
 
@@ -758,7 +759,7 @@
                   <button
                     type="button"
                     class="p-1 rounded hover:bg-white/10 text-muted hover:text-foreground transition-colors cursor-pointer"
-                    title="Copy URL"
+                    title={$LL.nas.endpoints.copyUrl()}
                     onclick={() => copyToClipboard(ep.url)}
                   >
                     {#if copiedUrl === ep.url}
@@ -772,7 +773,7 @@
                     target="_blank"
                     rel="noopener noreferrer"
                     class="p-1 rounded hover:bg-white/10 text-muted hover:text-foreground transition-colors"
-                    title="Open in new browser tab"
+                    title={$LL.nas.endpoints.openTab()}
                   >
                     <ExternalLink class="w-4 h-4" />
                   </a>
@@ -787,14 +788,14 @@
           class="p-3 bg-black/40 border border-border rounded font-mono text-[11px] space-y-1.5 text-muted"
         >
           <div class="flex items-center justify-between text-foreground font-bold">
-            <span>Status Summary</span>
+            <span>{$LL.nas.summary.title()}</span>
             <span class={isServerRunning ? 'text-emerald-400' : 'text-zinc-500'}>
-              {isServerRunning ? '● Live' : '○ Inactive'}
+              {isServerRunning ? $LL.nas.summary.live() : $LL.nas.summary.inactive()}
             </span>
           </div>
-          <div>Mode: <strong class="text-foreground">{(config.protocol || 'webdav').toUpperCase()}</strong></div>
-          <div>Access: <strong class="text-foreground">{config.auth_required ? `Protected (${config.username})` : 'Anonymous (No password)'}</strong></div>
-          <div>Permissions: <strong class="text-foreground">{config.read_only ? 'Read-Only' : 'Read & Write'}</strong></div>
+          <div>{$LL.nas.summary.mode()} <strong class="text-foreground">{(config.protocol || 'webdav').toUpperCase()}</strong></div>
+          <div>{$LL.nas.summary.access()} <strong class="text-foreground">{config.auth_required ? $LL.nas.summary.protected({ username: config.username }) : $LL.nas.summary.anonymous()}</strong></div>
+          <div>{$LL.nas.summary.permissions()} <strong class="text-foreground">{config.read_only ? $LL.nas.config.readOnly() : $LL.nas.summary.readWrite()}</strong></div>
         </div>
       </div>
     </Card>
@@ -802,8 +803,8 @@
 
   <!-- KARTU 3: OS Mount & Connection Guide (Interactive Tabs) -->
   <Card
-    title="OS Mount & Connection Guide"
-    subtitle="Step-by-step instructions to map network drive across operating systems"
+    title={$LL.nas.guide.title()}
+    subtitle={$LL.nas.guide.subtitle()}
     tone="lavender"
   >
     <div class="space-y-5 font-mono text-xs">
@@ -820,7 +821,7 @@
           onclick={() => (activeOsTab = 'windows')}
         >
           <Monitor class="w-3.5 h-3.5" />
-          <span>Windows (Map Drive)</span>
+          <span>{$LL.nas.guide.windows()}</span>
         </button>
 
         <button
@@ -832,7 +833,7 @@
           onclick={() => (activeOsTab = 'android')}
         >
           <Smartphone class="w-3.5 h-3.5" />
-          <span>Android & iOS</span>
+          <span>{$LL.nas.guide.android()}</span>
         </button>
 
         <button
@@ -844,7 +845,7 @@
           onclick={() => (activeOsTab = 'macos')}
         >
           <Laptop class="w-3.5 h-3.5" />
-          <span>macOS (Finder)</span>
+          <span>{$LL.nas.guide.macos()}</span>
         </button>
 
         <button
@@ -856,7 +857,7 @@
           onclick={() => (activeOsTab = 'linux')}
         >
           <Terminal class="w-3.5 h-3.5" />
-          <span>Linux (Nautilus/Dolphin)</span>
+          <span>{$LL.nas.guide.linux()}</span>
         </button>
       </div>
 
@@ -865,7 +866,7 @@
         <div class="space-y-3">
           <div class="flex items-center justify-between">
             <span class="font-bold text-foreground uppercase tracking-wider">
-              Map Network Drive in Windows File Explorer
+              {$LL.nas.guide.windowsTitle()}
             </span>
             <Badge variant="info">WebDAV</Badge>
           </div>
@@ -873,16 +874,16 @@
           <ol class="space-y-2.5 text-zinc-300">
             <li class="flex items-start gap-2">
               <span class="w-5 h-5 rounded bg-accent/20 text-accent font-black flex items-center justify-center shrink-0">1</span>
-              <span>Open <strong>File Explorer</strong>, right-click on <strong>This PC</strong>, and choose <strong>"Map network drive..."</strong>.</span>
+              <span>{$LL.nas.guide.winStep1A()}<strong>File Explorer</strong>{$LL.nas.guide.winStep1B()}<strong>This PC</strong>{$LL.nas.guide.winStep1C()}<strong>"Map network drive..."</strong>{$LL.nas.guide.winStep1D()}</span>
             </li>
             <li class="flex items-start gap-2">
               <span class="w-5 h-5 rounded bg-accent/20 text-accent font-black flex items-center justify-center shrink-0">2</span>
-              <span>Assign an available drive letter (e.g., <code>Z:</code>).</span>
+              <span>{$LL.nas.guide.winStep2A()}<code>Z:</code>{$LL.nas.guide.winStep2B()}</span>
             </li>
             <li class="flex items-start gap-2">
               <span class="w-5 h-5 rounded bg-accent/20 text-accent font-black flex items-center justify-center shrink-0">3</span>
               <div class="space-y-1 w-full">
-                <span>Enter the WebDAV folder URL:</span>
+                <span>{$LL.nas.guide.winStep3()}</span>
                 <div class="flex items-center gap-2 p-2 bg-black/60 border border-border rounded font-mono text-xs">
                   <code class="text-accent font-bold select-all">http://{activeTargetIp()}:{activeTargetPort}/</code>
                   <button
@@ -894,7 +895,7 @@
                   </button>
                 </div>
                 <span class="text-[10px] text-muted block">
-                  Alternate UNC path syntax: <code>\\{activeTargetIp()}@{activeTargetPort}\DavWWWRoot</code>
+                  {$LL.nas.guide.winAltA()}<code>\\{activeTargetIp()}@{activeTargetPort}\DavWWWRoot</code>
                 </span>
               </div>
             </li>
@@ -902,18 +903,18 @@
               <span class="w-5 h-5 rounded bg-accent/20 text-accent font-black flex items-center justify-center shrink-0">4</span>
               <span>
                 {#if config.auth_required}
-                  Check <strong>"Connect using different credentials"</strong> and enter username (<code>{config.username}</code>) and your password.
+                  {$LL.nas.guide.winStep4AuthA()}<strong>"Connect using different credentials"</strong>{$LL.nas.guide.winStep4AuthB()}<code>{config.username}</code>{$LL.nas.guide.winStep4AuthC()}
                 {:else}
-                  Click <strong>Finish</strong> to mount the drive immediately.
+                  {$LL.nas.guide.winStep4GuestA()}<strong>Finish</strong>{$LL.nas.guide.winStep4GuestB()}
                 {/if}
               </span>
             </li>
           </ol>
 
           <div class="p-3 bg-card-sub border border-border rounded text-[11px] text-muted space-y-1">
-            <span class="font-bold text-amber-400 block">Windows WebClient Notice:</span>
+            <span class="font-bold text-amber-400 block">{$LL.nas.guide.winNoticeTitle()}</span>
             <p>
-              Windows requires HTTP Basic Auth enabled in the registry for unencrypted WebDAV links (<code>BasicAuthLevel = 2</code> under <code>HKLM\SYSTEM\CurrentControlSet\Services\WebClient\Parameters</code>). Alternatively, use third-party tools like <strong>RaiDrive</strong> or <strong>Cyberduck</strong>.
+              {$LL.nas.guide.winNoticeA()}<code>BasicAuthLevel = 2</code>{$LL.nas.guide.winNoticeB()}<code>HKLM\SYSTEM\CurrentControlSet\Services\WebClient\Parameters</code>{$LL.nas.guide.winNoticeC()}<strong>RaiDrive</strong>{$LL.nas.guide.winNoticeD()}<strong>Cyberduck</strong>{$LL.nas.guide.winNoticeE()}
             </p>
           </div>
         </div>
@@ -924,7 +925,7 @@
         <div class="space-y-3">
           <div class="flex items-center justify-between">
             <span class="font-bold text-foreground uppercase tracking-wider">
-              Connect from Mobile Devices (Android & iOS)
+              {$LL.nas.guide.androidTitle()}
             </span>
             <Badge variant="success">Solid / MiX / VLC</Badge>
           </div>
@@ -937,12 +938,12 @@
                 Solid Explorer / MiXplorer
               </span>
               <ol class="space-y-1 text-[11px] text-zinc-300">
-                <li>1. Tap the <strong>+</strong> button and choose <strong>Storage Manager</strong>.</li>
-                <li>2. Select <strong>WebDAV</strong> protocol.</li>
-                <li>3. Server Address: <code>{activeTargetIp()}</code>, Port: <code>{activeTargetPort}</code>.</li>
-                <li>4. Path: <code>/</code>.</li>
+                <li>1. {$LL.nas.guide.andStep1A()}<strong>+</strong>{$LL.nas.guide.andStep1B()}<strong>Storage Manager</strong>{$LL.nas.guide.andStep1C()}</li>
+                <li>2. {$LL.nas.guide.andStep2A()}<strong>WebDAV</strong>{$LL.nas.guide.andStep2B()}</li>
+                <li>3. {$LL.nas.guide.andStep3A()}<code>{activeTargetIp()}</code>{$LL.nas.guide.andStep3B()}<code>{activeTargetPort}</code>{$LL.nas.guide.andStep3C()}</li>
+                <li>4. {$LL.nas.guide.andStep4A()}<code>/</code>{$LL.nas.guide.andStep4B()}</li>
                 {#if config.auth_required}
-                  <li>5. Enter Username: <code>{config.username}</code> & Password.</li>
+                  <li>5. {$LL.nas.guide.andStep5A()}<code>{config.username}</code>{$LL.nas.guide.andStep5B()}</li>
                 {/if}
               </ol>
             </div>
@@ -951,13 +952,13 @@
             <div class="p-3 bg-card-sub border-2 border-border rounded-lg space-y-2">
               <span class="font-bold text-foreground text-xs uppercase flex items-center gap-1.5">
                 <Play class="w-3.5 h-3.5 text-amber-400" />
-                VLC Media Player Streaming
+                {$LL.nas.guide.vlcTitle()}
               </span>
               <ol class="space-y-1 text-[11px] text-zinc-300">
-                <li>1. Open VLC on your phone or tablet.</li>
-                <li>2. Go to <strong>Browse</strong> tab -&gt; <strong>Local Network</strong>.</li>
-                <li>3. Add new network stream or WebDAV location.</li>
-                <li>4. Stream movies and music directly without downloading!</li>
+                <li>1. {$LL.nas.guide.vlcStep1()}</li>
+                <li>2. {$LL.nas.guide.vlcStep2A()}<strong>Browse</strong>{$LL.nas.guide.vlcStep2B()}<strong>Local Network</strong>{$LL.nas.guide.vlcStep2C()}</li>
+                <li>3. {$LL.nas.guide.vlcStep3()}</li>
+                <li>4. {$LL.nas.guide.vlcStep4()}</li>
               </ol>
             </div>
           </div>
@@ -969,7 +970,7 @@
         <div class="space-y-3">
           <div class="flex items-center justify-between">
             <span class="font-bold text-foreground uppercase tracking-wider">
-              Mount in macOS Finder
+              {$LL.nas.guide.macosTitle()}
             </span>
             <Badge variant="info">Cmd + K</Badge>
           </div>
@@ -977,16 +978,16 @@
           <ol class="space-y-2.5 text-zinc-300">
             <li class="flex items-start gap-2">
               <span class="w-5 h-5 rounded bg-accent/20 text-accent font-black flex items-center justify-center shrink-0">1</span>
-              <span>Open <strong>Finder</strong> on macOS.</span>
+              <span>{$LL.nas.guide.macStep1A()}<strong>Finder</strong>{$LL.nas.guide.macStep1B()}</span>
             </li>
             <li class="flex items-start gap-2">
               <span class="w-5 h-5 rounded bg-accent/20 text-accent font-black flex items-center justify-center shrink-0">2</span>
-              <span>Press <kbd class="px-1.5 py-0.5 rounded bg-black/60 border border-border text-foreground font-mono">Cmd + K</kbd> (or go to menu <strong>Go -&gt; Connect to Server...</strong>).</span>
+              <span>{$LL.nas.guide.macStep2A()}<kbd class="px-1.5 py-0.5 rounded bg-black/60 border border-border text-foreground font-mono">Cmd + K</kbd>{$LL.nas.guide.macStep2B()}<strong>Go -&gt; Connect to Server...</strong>{$LL.nas.guide.macStep2C()}</span>
             </li>
             <li class="flex items-start gap-2">
               <span class="w-5 h-5 rounded bg-accent/20 text-accent font-black flex items-center justify-center shrink-0">3</span>
               <div class="space-y-1 w-full">
-                <span>Enter the Server Address:</span>
+                <span>{$LL.nas.guide.macStep3()}</span>
                 <div class="flex items-center gap-2 p-2 bg-black/60 border border-border rounded font-mono text-xs">
                   <code class="text-accent font-bold select-all">http://{activeTargetIp()}:{activeTargetPort}/</code>
                   <button
@@ -1002,11 +1003,11 @@
             <li class="flex items-start gap-2">
               <span class="w-5 h-5 rounded bg-accent/20 text-accent font-black flex items-center justify-center shrink-0">4</span>
               <span>
-                Click <strong>Connect</strong>.
+                {$LL.nas.guide.macStep4A()}<strong>Connect</strong>{$LL.nas.guide.macStep4B()}
                 {#if config.auth_required}
-                  Select <strong>Registered User</strong> and enter Username: <code>{config.username}</code>.
+                  {$LL.nas.guide.macStep4AuthA()}<strong>Registered User</strong>{$LL.nas.guide.macStep4AuthB()}<code>{config.username}</code>{$LL.nas.guide.macStep4AuthC()}
                 {:else}
-                  Select <strong>Guest</strong>.
+                  {$LL.nas.guide.macStep4GuestA()}<strong>Guest</strong>{$LL.nas.guide.macStep4GuestB()}
                 {/if}
               </span>
             </li>
@@ -1019,7 +1020,7 @@
         <div class="space-y-3">
           <div class="flex items-center justify-between">
             <span class="font-bold text-foreground uppercase tracking-wider">
-              Mount in Linux File Managers (GNOME Nautilus, KDE Dolphin, gio)
+              {$LL.nas.guide.linuxTitle()}
             </span>
             <Badge variant="info">dav://</Badge>
           </div>
@@ -1027,9 +1028,9 @@
           <div class="space-y-3 text-zinc-300">
             <!-- Nautilus / Files -->
             <div class="p-3 bg-card-sub border border-border rounded-lg space-y-1.5">
-              <span class="font-bold text-foreground text-xs block">GNOME Nautilus / Files:</span>
+              <span class="font-bold text-foreground text-xs block">{$LL.nas.guide.nautilusTitle()}</span>
               <p class="text-[11px] text-muted">
-                Press <kbd class="px-1 py-0.5 rounded bg-black/60 border border-border font-mono">Ctrl + L</kbd> or click <strong>Other Locations</strong> -&gt; <strong>Connect to Server</strong>:
+                {$LL.nas.guide.linuxNautilusA()}<kbd class="px-1 py-0.5 rounded bg-black/60 border border-border font-mono">Ctrl + L</kbd>{$LL.nas.guide.linuxNautilusB()}<strong>Other Locations</strong>{$LL.nas.guide.linuxNautilusC()}<strong>Connect to Server</strong>{$LL.nas.guide.linuxNautilusD()}
               </p>
               <div class="flex items-center gap-2 p-2 bg-black/60 border border-border rounded font-mono text-xs">
                 <code class="text-accent font-bold select-all">dav://{activeTargetIp()}:{activeTargetPort}/</code>
@@ -1045,7 +1046,7 @@
 
             <!-- Command line gio mount -->
             <div class="p-3 bg-card-sub border border-border rounded-lg space-y-1.5">
-              <span class="font-bold text-foreground text-xs block">Command Line (gvfs / gio mount):</span>
+              <span class="font-bold text-foreground text-xs block">{$LL.nas.guide.cliTitle()}</span>
               <div class="flex items-center gap-2 p-2 bg-black/60 border border-border rounded font-mono text-xs">
                 <code class="text-emerald-400 select-all">gio mount dav://{activeTargetIp()}:{activeTargetPort}/</code>
                 <button

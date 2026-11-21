@@ -1772,6 +1772,583 @@ type RootTranslation = {
 			unloadedNr: string
 		}
 	}
+	nas: {
+		/**
+		 * N​A​S​ ​&​ ​W​e​b​D​A​V​ ​F​i​l​e​ ​S​h​a​r​i​n​g
+		 */
+		title: string
+		/**
+		 * E​x​p​o​s​e​ ​A​n​d​r​o​i​d​ ​s​t​o​r​a​g​e​ ​t​o​ ​L​A​N​ ​&​ ​W​i​-​F​i​ ​H​o​t​s​p​o​t​ ​v​i​a​ ​W​e​b​D​A​V​ ​o​r​ ​H​T​T​P
+		 */
+		subtitle: string
+		/**
+		 * S​t​a​r​t​ ​N​A​S
+		 */
+		startNas: string
+		/**
+		 * S​t​o​p​ ​N​A​S
+		 */
+		stopNas: string
+		status: {
+			/**
+			 * A​c​t​i​v​e
+			 */
+			active: string
+			/**
+			 * S​t​o​p​p​e​d
+			 */
+			stopped: string
+			/**
+			 * R​E​A​D​Y
+			 */
+			ready: string
+			/**
+			 * O​F​F​L​I​N​E
+			 */
+			offline: string
+			/**
+			 * A​u​t​h
+			 */
+			auth: string
+		}
+		config: {
+			/**
+			 * S​e​r​v​e​r​ ​C​o​n​f​i​g​u​r​a​t​i​o​n
+			 */
+			title: string
+			/**
+			 * C​o​n​f​i​g​u​r​e​ ​f​i​l​e​ ​s​h​a​r​i​n​g​ ​p​a​t​h​,​ ​n​e​t​w​o​r​k​ ​p​o​r​t​,​ ​p​r​o​t​o​c​o​l​,​ ​a​n​d​ ​s​e​c​u​r​i​t​y
+			 */
+			subtitle: string
+			/**
+			 * W​E​B​D​A​V​ ​M​O​D​E
+			 */
+			webdavMode: string
+			/**
+			 * H​T​T​P​ ​M​O​D​E
+			 */
+			httpMode: string
+			/**
+			 * S​h​a​r​e​ ​P​a​t​h​ ​(​R​o​o​t​ ​D​i​r​e​c​t​o​r​y​)
+			 */
+			sharePath: string
+			/**
+			 * P​r​e​s​e​t​s​:
+			 */
+			presets: string
+			/**
+			 * S​e​r​v​e​r​ ​N​e​t​w​o​r​k​ ​P​o​r​t
+			 */
+			port: string
+			/**
+			 * P​o​r​t​ ​u​s​e​d​ ​b​y​ ​t​h​e​ ​f​i​l​e​ ​s​e​r​v​e​r​ ​d​a​e​m​o​n​ ​(​d​e​f​a​u​l​t​:​ ​8​5​)​.​ ​F​u​l​l​y​ ​c​o​n​f​i​g​u​r​a​b​l​e​ ​v​i​a​ ​W​e​b​U​I​.
+			 */
+			portHint: string
+			/**
+			 * F​i​l​e​ ​S​h​a​r​i​n​g​ ​P​r​o​t​o​c​o​l
+			 */
+			protocol: string
+			/**
+			 * W​e​b​D​A​V​ ​S​e​r​v​e​r
+			 */
+			webdavServer: string
+			/**
+			 * M​a​p​ ​N​e​t​w​o​r​k​ ​D​r​i​v​e​ ​(​W​i​n​d​o​w​s​)​,​ ​S​o​l​i​d​ ​E​x​p​l​o​r​e​r​,​ ​V​L​C​ ​m​e​d​i​a​ ​s​t​r​e​a​m​i​n​g​,​ ​F​i​n​d​e​r​ ​(​m​a​c​O​S​)​,​ ​N​a​u​t​i​l​u​s​ ​(​L​i​n​u​x​)​.
+			 */
+			webdavDesc: string
+			/**
+			 * H​T​T​P​ ​W​e​b​ ​B​r​o​w​s​e​r
+			 */
+			httpBrowser: string
+			/**
+			 * L​i​g​h​t​w​e​i​g​h​t​ ​w​e​b​-​b​a​s​e​d​ ​d​i​r​e​c​t​o​r​y​ ​i​n​d​e​x​ ​f​o​r​ ​s​i​m​p​l​e​ ​d​o​w​n​l​o​a​d​s​ ​d​i​r​e​c​t​l​y​ ​i​n​ ​w​e​b​ ​b​r​o​w​s​e​r​s​.
+			 */
+			httpDesc: string
+			/**
+			 * R​e​a​d​-​O​n​l​y
+			 */
+			readOnly: string
+			/**
+			 * R​e​a​d​-​O​n​l​y​ ​M​o​d​e
+			 */
+			readOnlyMode: string
+			/**
+			 * P​r​o​h​i​b​i​t​ ​c​l​i​e​n​t​s​ ​f​r​o​m​ ​w​r​i​t​i​n​g​,​ ​d​e​l​e​t​i​n​g​,​ ​o​r​ ​m​o​v​i​n​g​ ​f​i​l​e​s​ ​(​b​l​o​c​k​s​ ​P​U​T​,​ ​D​E​L​E​T​E​,​ ​M​K​C​O​L​)​.
+			 */
+			readOnlyDesc: string
+			/**
+			 * W​r​i​t​a​b​l​e​ ​s​h​a​r​i​n​g​ ​l​e​t​s​ ​n​e​t​w​o​r​k​ ​c​l​i​e​n​t​s​ ​c​r​e​a​t​e​,​ ​c​h​a​n​g​e​,​ ​a​n​d​ ​d​e​l​e​t​e​ ​f​i​l​e​s​ ​i​n​ ​t​h​e​ ​s​e​l​e​c​t​e​d​ ​d​i​r​e​c​t​o​r​y​.​ ​E​n​a​b​l​e​ ​i​t​ ​o​n​l​y​ ​o​n​ ​a​ ​t​r​u​s​t​e​d​ ​n​e​t​w​o​r​k​.
+			 */
+			writableWarning: string
+			/**
+			 * A​u​t​h​e​n​t​i​c​a​t​i​o​n​ ​i​s​ ​d​i​s​a​b​l​e​d​.​ ​A​n​y​o​n​e​ ​w​h​o​ ​c​a​n​ ​r​e​a​c​h​ ​t​h​i​s​ ​p​o​r​t​ ​c​a​n​ ​a​c​c​e​s​s​ ​t​h​e​ ​s​h​a​r​e​d​ ​f​i​l​e​s​.
+			 */
+			authDisabledWarning: string
+			/**
+			 * A​u​t​h​e​n​t​i​c​a​t​i​o​n​ ​R​e​q​u​i​r​e​d​ ​(​H​T​T​P​ ​B​a​s​i​c​ ​A​u​t​h​)
+			 */
+			authRequired: string
+			/**
+			 * R​e​q​u​i​r​e​ ​u​s​e​r​n​a​m​e​ ​a​n​d​ ​p​a​s​s​w​o​r​d​ ​c​r​e​d​e​n​t​i​a​l​s​ ​b​e​f​o​r​e​ ​g​r​a​n​t​i​n​g​ ​a​c​c​e​s​s​ ​t​o​ ​s​h​a​r​e​d​ ​f​i​l​e​s​.
+			 */
+			authRequiredDesc: string
+			/**
+			 * N​A​S​ ​A​c​c​e​s​s​ ​C​r​e​d​e​n​t​i​a​l​s
+			 */
+			credentials: string
+			/**
+			 * U​s​e​r​n​a​m​e
+			 */
+			username: string
+			/**
+			 * P​a​s​s​w​o​r​d
+			 */
+			password: string
+			/**
+			 * H​i​d​e​ ​p​a​s​s​w​o​r​d
+			 */
+			hidePassword: string
+			/**
+			 * S​h​o​w​ ​p​a​s​s​w​o​r​d
+			 */
+			showPassword: string
+			/**
+			 * A​p​p​l​y​i​n​g​ ​C​h​a​n​g​e​s​.​.​.
+			 */
+			applying: string
+			/**
+			 * A​p​p​l​y​ ​C​h​a​n​g​e​s​ ​&​ ​R​e​s​t​a​r​t​ ​N​A​S
+			 */
+			applyRestart: string
+			/**
+			 * S​a​v​e​ ​C​o​n​f​i​g​u​r​a​t​i​o​n
+			 */
+			saveConfig: string
+		}
+		endpoints: {
+			/**
+			 * L​i​v​e​ ​N​e​t​w​o​r​k​ ​E​n​d​p​o​i​n​t​s
+			 */
+			title: string
+			/**
+			 * A​c​c​e​s​s​i​b​l​e​ ​U​R​L​s​ ​a​c​r​o​s​s​ ​W​i​-​F​i​ ​S​o​f​t​A​P​ ​a​n​d​ ​l​o​c​a​l​ ​n​e​t​w​o​r​k
+			 */
+			subtitle: string
+			/**
+			 * W​i​-​F​i​ ​S​o​f​t​A​P​ ​/​ ​H​o​t​s​p​o​t
+			 */
+			hotspot: string
+			/**
+			 * P​r​i​m​a​r​y​ ​N​e​t​w​o​r​k​ ​/​ ​L​A​N
+			 */
+			primaryLan: string
+			/**
+			 * W​i​-​F​i​ ​H​o​t​s​p​o​t
+			 */
+			wifiHotspot: string
+			/**
+			 * N​e​t​w​o​r​k​ ​I​n​t​e​r​f​a​c​e
+			 */
+			networkInterface: string
+			/**
+			 * L​o​c​a​l​h​o​s​t​ ​L​o​o​p​b​a​c​k
+			 */
+			localhost: string
+			/**
+			 * S​t​o​r​a​g​e​ ​U​t​i​l​i​z​a​t​i​o​n
+			 */
+			storageTitle: string
+			/**
+			 * P​a​t​h​:
+			 */
+			path: string
+			/**
+			 * A​v​a​i​l​a​b​l​e​ ​o​n​ ​n​e​t​w​o​r​k
+			 */
+			available: string
+			/**
+			 * N​e​t​w​o​r​k​ ​A​c​c​e​s​s​ ​L​i​n​k​s​:
+			 */
+			links: string
+			/**
+			 * S​e​r​v​e​r​ ​i​s​ ​c​u​r​r​e​n​t​l​y​ ​s​t​o​p​p​e​d​.​ ​C​l​i​c​k​ ​"
+			 */
+			stoppedA: string
+			/**
+			 * "​ ​a​b​o​v​e​ ​t​o​ ​a​c​t​i​v​a​t​e​ ​t​h​e​s​e​ ​n​e​t​w​o​r​k​ ​e​n​d​p​o​i​n​t​s​.
+			 */
+			stoppedB: string
+			/**
+			 * P​r​i​m​a​r​y
+			 */
+			primary: string
+			/**
+			 * C​o​p​y​ ​U​R​L
+			 */
+			copyUrl: string
+			/**
+			 * O​p​e​n​ ​i​n​ ​n​e​w​ ​b​r​o​w​s​e​r​ ​t​a​b
+			 */
+			openTab: string
+		}
+		summary: {
+			/**
+			 * S​t​a​t​u​s​ ​S​u​m​m​a​r​y
+			 */
+			title: string
+			/**
+			 * ●​ ​L​i​v​e
+			 */
+			live: string
+			/**
+			 * ○​ ​I​n​a​c​t​i​v​e
+			 */
+			inactive: string
+			/**
+			 * M​o​d​e​:
+			 */
+			mode: string
+			/**
+			 * A​c​c​e​s​s​:
+			 */
+			access: string
+			/**
+			 * P​e​r​m​i​s​s​i​o​n​s​:
+			 */
+			permissions: string
+			/**
+			 * P​r​o​t​e​c​t​e​d​ ​(​{​u​s​e​r​n​a​m​e​}​)
+			 * @param {unknown} username
+			 */
+			'protected': RequiredParams<'username'>
+			/**
+			 * A​n​o​n​y​m​o​u​s​ ​(​N​o​ ​p​a​s​s​w​o​r​d​)
+			 */
+			anonymous: string
+			/**
+			 * R​e​a​d​ ​&​ ​W​r​i​t​e
+			 */
+			readWrite: string
+		}
+		guide: {
+			/**
+			 * O​S​ ​M​o​u​n​t​ ​&​ ​C​o​n​n​e​c​t​i​o​n​ ​G​u​i​d​e
+			 */
+			title: string
+			/**
+			 * S​t​e​p​-​b​y​-​s​t​e​p​ ​i​n​s​t​r​u​c​t​i​o​n​s​ ​t​o​ ​m​a​p​ ​n​e​t​w​o​r​k​ ​d​r​i​v​e​ ​a​c​r​o​s​s​ ​o​p​e​r​a​t​i​n​g​ ​s​y​s​t​e​m​s
+			 */
+			subtitle: string
+			/**
+			 * W​i​n​d​o​w​s​ ​(​M​a​p​ ​D​r​i​v​e​)
+			 */
+			windows: string
+			/**
+			 * A​n​d​r​o​i​d​ ​&​ ​i​O​S
+			 */
+			android: string
+			/**
+			 * m​a​c​O​S​ ​(​F​i​n​d​e​r​)
+			 */
+			macos: string
+			/**
+			 * L​i​n​u​x​ ​(​N​a​u​t​i​l​u​s​/​D​o​l​p​h​i​n​)
+			 */
+			linux: string
+			/**
+			 * M​a​p​ ​N​e​t​w​o​r​k​ ​D​r​i​v​e​ ​i​n​ ​W​i​n​d​o​w​s​ ​F​i​l​e​ ​E​x​p​l​o​r​e​r
+			 */
+			windowsTitle: string
+			/**
+			 * O​p​e​n​ 
+			 */
+			winStep1A: string
+			/**
+			 * ,​ ​r​i​g​h​t​-​c​l​i​c​k​ ​o​n​ 
+			 */
+			winStep1B: string
+			/**
+			 * ,​ ​a​n​d​ ​c​h​o​o​s​e​ 
+			 */
+			winStep1C: string
+			/**
+			 * .
+			 */
+			winStep1D: string
+			/**
+			 * A​s​s​i​g​n​ ​a​n​ ​a​v​a​i​l​a​b​l​e​ ​d​r​i​v​e​ ​l​e​t​t​e​r​ ​(​e​.​g​.​,​ 
+			 */
+			winStep2A: string
+			/**
+			 * )​.
+			 */
+			winStep2B: string
+			/**
+			 * E​n​t​e​r​ ​t​h​e​ ​W​e​b​D​A​V​ ​f​o​l​d​e​r​ ​U​R​L​:
+			 */
+			winStep3: string
+			/**
+			 * A​l​t​e​r​n​a​t​e​ ​U​N​C​ ​p​a​t​h​ ​s​y​n​t​a​x​:​ 
+			 */
+			winAltA: string
+			/**
+			 * C​h​e​c​k​ 
+			 */
+			winStep4AuthA: string
+			/**
+			 *  ​a​n​d​ ​e​n​t​e​r​ ​u​s​e​r​n​a​m​e​ ​(
+			 */
+			winStep4AuthB: string
+			/**
+			 * )​ ​a​n​d​ ​y​o​u​r​ ​p​a​s​s​w​o​r​d​.
+			 */
+			winStep4AuthC: string
+			/**
+			 * C​l​i​c​k​ 
+			 */
+			winStep4GuestA: string
+			/**
+			 *  ​t​o​ ​m​o​u​n​t​ ​t​h​e​ ​d​r​i​v​e​ ​i​m​m​e​d​i​a​t​e​l​y​.
+			 */
+			winStep4GuestB: string
+			/**
+			 * W​i​n​d​o​w​s​ ​W​e​b​C​l​i​e​n​t​ ​N​o​t​i​c​e​:
+			 */
+			winNoticeTitle: string
+			/**
+			 * W​i​n​d​o​w​s​ ​r​e​q​u​i​r​e​s​ ​H​T​T​P​ ​B​a​s​i​c​ ​A​u​t​h​ ​e​n​a​b​l​e​d​ ​i​n​ ​t​h​e​ ​r​e​g​i​s​t​r​y​ ​f​o​r​ ​u​n​e​n​c​r​y​p​t​e​d​ ​W​e​b​D​A​V​ ​l​i​n​k​s​ ​(
+			 */
+			winNoticeA: string
+			/**
+			 *  ​u​n​d​e​r​ 
+			 */
+			winNoticeB: string
+			/**
+			 * )​.​ ​A​l​t​e​r​n​a​t​i​v​e​l​y​,​ ​u​s​e​ ​t​h​i​r​d​-​p​a​r​t​y​ ​t​o​o​l​s​ ​l​i​k​e​ 
+			 */
+			winNoticeC: string
+			/**
+			 *  ​o​r​ 
+			 */
+			winNoticeD: string
+			/**
+			 * .
+			 */
+			winNoticeE: string
+			/**
+			 * C​o​n​n​e​c​t​ ​f​r​o​m​ ​M​o​b​i​l​e​ ​D​e​v​i​c​e​s​ ​(​A​n​d​r​o​i​d​ ​&​ ​i​O​S​)
+			 */
+			androidTitle: string
+			/**
+			 * T​a​p​ ​t​h​e​ 
+			 */
+			andStep1A: string
+			/**
+			 *  ​b​u​t​t​o​n​ ​a​n​d​ ​c​h​o​o​s​e​ 
+			 */
+			andStep1B: string
+			/**
+			 * .
+			 */
+			andStep1C: string
+			/**
+			 * S​e​l​e​c​t​ 
+			 */
+			andStep2A: string
+			/**
+			 *  ​p​r​o​t​o​c​o​l​.
+			 */
+			andStep2B: string
+			/**
+			 * S​e​r​v​e​r​ ​A​d​d​r​e​s​s​:​ 
+			 */
+			andStep3A: string
+			/**
+			 * ,​ ​P​o​r​t​:​ 
+			 */
+			andStep3B: string
+			/**
+			 * .
+			 */
+			andStep3C: string
+			/**
+			 * P​a​t​h​:​ 
+			 */
+			andStep4A: string
+			/**
+			 * .
+			 */
+			andStep4B: string
+			/**
+			 * E​n​t​e​r​ ​U​s​e​r​n​a​m​e​:​ 
+			 */
+			andStep5A: string
+			/**
+			 *  ​&​ ​P​a​s​s​w​o​r​d​.
+			 */
+			andStep5B: string
+			/**
+			 * V​L​C​ ​M​e​d​i​a​ ​P​l​a​y​e​r​ ​S​t​r​e​a​m​i​n​g
+			 */
+			vlcTitle: string
+			/**
+			 * O​p​e​n​ ​V​L​C​ ​o​n​ ​y​o​u​r​ ​p​h​o​n​e​ ​o​r​ ​t​a​b​l​e​t​.
+			 */
+			vlcStep1: string
+			/**
+			 * G​o​ ​t​o​ 
+			 */
+			vlcStep2A: string
+			/**
+			 *  ​t​a​b​ ​-​>​ 
+			 */
+			vlcStep2B: string
+			/**
+			 * .
+			 */
+			vlcStep2C: string
+			/**
+			 * A​d​d​ ​n​e​w​ ​n​e​t​w​o​r​k​ ​s​t​r​e​a​m​ ​o​r​ ​W​e​b​D​A​V​ ​l​o​c​a​t​i​o​n​.
+			 */
+			vlcStep3: string
+			/**
+			 * S​t​r​e​a​m​ ​m​o​v​i​e​s​ ​a​n​d​ ​m​u​s​i​c​ ​d​i​r​e​c​t​l​y​ ​w​i​t​h​o​u​t​ ​d​o​w​n​l​o​a​d​i​n​g​!
+			 */
+			vlcStep4: string
+			/**
+			 * M​o​u​n​t​ ​i​n​ ​m​a​c​O​S​ ​F​i​n​d​e​r
+			 */
+			macosTitle: string
+			/**
+			 * O​p​e​n​ 
+			 */
+			macStep1A: string
+			/**
+			 *  ​o​n​ ​m​a​c​O​S​.
+			 */
+			macStep1B: string
+			/**
+			 * P​r​e​s​s​ 
+			 */
+			macStep2A: string
+			/**
+			 *  ​(​o​r​ ​g​o​ ​t​o​ ​m​e​n​u​ 
+			 */
+			macStep2B: string
+			/**
+			 * )​.
+			 */
+			macStep2C: string
+			/**
+			 * E​n​t​e​r​ ​t​h​e​ ​S​e​r​v​e​r​ ​A​d​d​r​e​s​s​:
+			 */
+			macStep3: string
+			/**
+			 * C​l​i​c​k​ 
+			 */
+			macStep4A: string
+			/**
+			 * .
+			 */
+			macStep4B: string
+			/**
+			 *  ​S​e​l​e​c​t​ 
+			 */
+			macStep4AuthA: string
+			/**
+			 *  ​a​n​d​ ​e​n​t​e​r​ ​U​s​e​r​n​a​m​e​:​ 
+			 */
+			macStep4AuthB: string
+			/**
+			 * .
+			 */
+			macStep4AuthC: string
+			/**
+			 *  ​S​e​l​e​c​t​ 
+			 */
+			macStep4GuestA: string
+			/**
+			 * .
+			 */
+			macStep4GuestB: string
+			/**
+			 * M​o​u​n​t​ ​i​n​ ​L​i​n​u​x​ ​F​i​l​e​ ​M​a​n​a​g​e​r​s​ ​(​G​N​O​M​E​ ​N​a​u​t​i​l​u​s​,​ ​K​D​E​ ​D​o​l​p​h​i​n​,​ ​g​i​o​)
+			 */
+			linuxTitle: string
+			/**
+			 * G​N​O​M​E​ ​N​a​u​t​i​l​u​s​ ​/​ ​F​i​l​e​s​:
+			 */
+			nautilusTitle: string
+			/**
+			 * P​r​e​s​s​ 
+			 */
+			linuxNautilusA: string
+			/**
+			 *  ​o​r​ ​c​l​i​c​k​ 
+			 */
+			linuxNautilusB: string
+			/**
+			 *  ​-​>​ 
+			 */
+			linuxNautilusC: string
+			/**
+			 * :
+			 */
+			linuxNautilusD: string
+			/**
+			 * C​o​m​m​a​n​d​ ​L​i​n​e​ ​(​g​v​f​s​ ​/​ ​g​i​o​ ​m​o​u​n​t​)​:
+			 */
+			cliTitle: string
+		}
+		toasts: {
+			/**
+			 * S​e​t​ ​a​ ​N​A​S​ ​u​s​e​r​n​a​m​e​ ​a​n​d​ ​p​a​s​s​w​o​r​d​ ​b​e​f​o​r​e​ ​s​t​a​r​t​i​n​g​ ​t​h​e​ ​a​u​t​h​e​n​t​i​c​a​t​e​d​ ​s​h​a​r​e​.
+			 */
+			setCredentialsStart: string
+			/**
+			 * N​A​S​ ​{​p​r​o​t​o​c​o​l​}​ ​s​e​r​v​e​r​ ​s​t​a​r​t​e​d​ ​o​n​ ​p​o​r​t​ ​{​p​o​r​t​}
+			 * @param {unknown} port
+			 * @param {unknown} protocol
+			 */
+			started: RequiredParams<'port' | 'protocol'>
+			/**
+			 * F​a​i​l​e​d​ ​t​o​ ​s​t​a​r​t​ ​N​A​S​ ​s​e​r​v​e​r
+			 */
+			startFailed: string
+			/**
+			 * N​A​S​ ​F​i​l​e​ ​S​e​r​v​e​r​ ​s​t​o​p​p​e​d​.
+			 */
+			stopped: string
+			/**
+			 * F​a​i​l​e​d​ ​t​o​ ​s​t​o​p​ ​N​A​S​ ​s​e​r​v​e​r
+			 */
+			stopFailed: string
+			/**
+			 * S​e​t​ ​a​ ​N​A​S​ ​u​s​e​r​n​a​m​e​ ​a​n​d​ ​p​a​s​s​w​o​r​d​ ​b​e​f​o​r​e​ ​s​a​v​i​n​g​ ​a​n​ ​a​u​t​h​e​n​t​i​c​a​t​e​d​ ​s​h​a​r​e​.
+			 */
+			setCredentialsSave: string
+			/**
+			 * N​A​S​ ​s​e​r​v​e​r​ ​r​e​s​t​a​r​t​e​d​ ​w​i​t​h​ ​u​p​d​a​t​e​d​ ​c​o​n​f​i​g​u​r​a​t​i​o​n​.
+			 */
+			restarted: string
+			/**
+			 * N​A​S​ ​s​e​r​v​e​r​ ​c​o​n​f​i​g​u​r​a​t​i​o​n​ ​s​a​v​e​d​.
+			 */
+			saved: string
+			/**
+			 * F​a​i​l​e​d​ ​t​o​ ​s​a​v​e​ ​c​o​n​f​i​g​u​r​a​t​i​o​n
+			 */
+			saveFailed: string
+			/**
+			 * C​o​p​i​e​d​ ​t​o​ ​c​l​i​p​b​o​a​r​d​!
+			 */
+			copied: string
+			/**
+			 * F​a​i​l​e​d​ ​t​o​ ​c​o​p​y​ ​t​o​ ​c​l​i​p​b​o​a​r​d
+			 */
+			copyFailed: string
+		}
+	}
 }
 
 export type TranslationFunctions = {
@@ -3509,6 +4086,580 @@ export type TranslationFunctions = {
 			 * Unloaded 5G NR / EN-DC dataset
 			 */
 			unloadedNr: () => LocalizedString
+		}
+	}
+	nas: {
+		/**
+		 * NAS & WebDAV File Sharing
+		 */
+		title: () => LocalizedString
+		/**
+		 * Expose Android storage to LAN & Wi-Fi Hotspot via WebDAV or HTTP
+		 */
+		subtitle: () => LocalizedString
+		/**
+		 * Start NAS
+		 */
+		startNas: () => LocalizedString
+		/**
+		 * Stop NAS
+		 */
+		stopNas: () => LocalizedString
+		status: {
+			/**
+			 * Active
+			 */
+			active: () => LocalizedString
+			/**
+			 * Stopped
+			 */
+			stopped: () => LocalizedString
+			/**
+			 * READY
+			 */
+			ready: () => LocalizedString
+			/**
+			 * OFFLINE
+			 */
+			offline: () => LocalizedString
+			/**
+			 * Auth
+			 */
+			auth: () => LocalizedString
+		}
+		config: {
+			/**
+			 * Server Configuration
+			 */
+			title: () => LocalizedString
+			/**
+			 * Configure file sharing path, network port, protocol, and security
+			 */
+			subtitle: () => LocalizedString
+			/**
+			 * WEBDAV MODE
+			 */
+			webdavMode: () => LocalizedString
+			/**
+			 * HTTP MODE
+			 */
+			httpMode: () => LocalizedString
+			/**
+			 * Share Path (Root Directory)
+			 */
+			sharePath: () => LocalizedString
+			/**
+			 * Presets:
+			 */
+			presets: () => LocalizedString
+			/**
+			 * Server Network Port
+			 */
+			port: () => LocalizedString
+			/**
+			 * Port used by the file server daemon (default: 85). Fully configurable via WebUI.
+			 */
+			portHint: () => LocalizedString
+			/**
+			 * File Sharing Protocol
+			 */
+			protocol: () => LocalizedString
+			/**
+			 * WebDAV Server
+			 */
+			webdavServer: () => LocalizedString
+			/**
+			 * Map Network Drive (Windows), Solid Explorer, VLC media streaming, Finder (macOS), Nautilus (Linux).
+			 */
+			webdavDesc: () => LocalizedString
+			/**
+			 * HTTP Web Browser
+			 */
+			httpBrowser: () => LocalizedString
+			/**
+			 * Lightweight web-based directory index for simple downloads directly in web browsers.
+			 */
+			httpDesc: () => LocalizedString
+			/**
+			 * Read-Only
+			 */
+			readOnly: () => LocalizedString
+			/**
+			 * Read-Only Mode
+			 */
+			readOnlyMode: () => LocalizedString
+			/**
+			 * Prohibit clients from writing, deleting, or moving files (blocks PUT, DELETE, MKCOL).
+			 */
+			readOnlyDesc: () => LocalizedString
+			/**
+			 * Writable sharing lets network clients create, change, and delete files in the selected directory. Enable it only on a trusted network.
+			 */
+			writableWarning: () => LocalizedString
+			/**
+			 * Authentication is disabled. Anyone who can reach this port can access the shared files.
+			 */
+			authDisabledWarning: () => LocalizedString
+			/**
+			 * Authentication Required (HTTP Basic Auth)
+			 */
+			authRequired: () => LocalizedString
+			/**
+			 * Require username and password credentials before granting access to shared files.
+			 */
+			authRequiredDesc: () => LocalizedString
+			/**
+			 * NAS Access Credentials
+			 */
+			credentials: () => LocalizedString
+			/**
+			 * Username
+			 */
+			username: () => LocalizedString
+			/**
+			 * Password
+			 */
+			password: () => LocalizedString
+			/**
+			 * Hide password
+			 */
+			hidePassword: () => LocalizedString
+			/**
+			 * Show password
+			 */
+			showPassword: () => LocalizedString
+			/**
+			 * Applying Changes...
+			 */
+			applying: () => LocalizedString
+			/**
+			 * Apply Changes & Restart NAS
+			 */
+			applyRestart: () => LocalizedString
+			/**
+			 * Save Configuration
+			 */
+			saveConfig: () => LocalizedString
+		}
+		endpoints: {
+			/**
+			 * Live Network Endpoints
+			 */
+			title: () => LocalizedString
+			/**
+			 * Accessible URLs across Wi-Fi SoftAP and local network
+			 */
+			subtitle: () => LocalizedString
+			/**
+			 * Wi-Fi SoftAP / Hotspot
+			 */
+			hotspot: () => LocalizedString
+			/**
+			 * Primary Network / LAN
+			 */
+			primaryLan: () => LocalizedString
+			/**
+			 * Wi-Fi Hotspot
+			 */
+			wifiHotspot: () => LocalizedString
+			/**
+			 * Network Interface
+			 */
+			networkInterface: () => LocalizedString
+			/**
+			 * Localhost Loopback
+			 */
+			localhost: () => LocalizedString
+			/**
+			 * Storage Utilization
+			 */
+			storageTitle: () => LocalizedString
+			/**
+			 * Path:
+			 */
+			path: () => LocalizedString
+			/**
+			 * Available on network
+			 */
+			available: () => LocalizedString
+			/**
+			 * Network Access Links:
+			 */
+			links: () => LocalizedString
+			/**
+			 * Server is currently stopped. Click "
+			 */
+			stoppedA: () => LocalizedString
+			/**
+			 * " above to activate these network endpoints.
+			 */
+			stoppedB: () => LocalizedString
+			/**
+			 * Primary
+			 */
+			primary: () => LocalizedString
+			/**
+			 * Copy URL
+			 */
+			copyUrl: () => LocalizedString
+			/**
+			 * Open in new browser tab
+			 */
+			openTab: () => LocalizedString
+		}
+		summary: {
+			/**
+			 * Status Summary
+			 */
+			title: () => LocalizedString
+			/**
+			 * ● Live
+			 */
+			live: () => LocalizedString
+			/**
+			 * ○ Inactive
+			 */
+			inactive: () => LocalizedString
+			/**
+			 * Mode:
+			 */
+			mode: () => LocalizedString
+			/**
+			 * Access:
+			 */
+			access: () => LocalizedString
+			/**
+			 * Permissions:
+			 */
+			permissions: () => LocalizedString
+			/**
+			 * Protected ({username})
+			 */
+			'protected': (arg: { username: unknown }) => LocalizedString
+			/**
+			 * Anonymous (No password)
+			 */
+			anonymous: () => LocalizedString
+			/**
+			 * Read & Write
+			 */
+			readWrite: () => LocalizedString
+		}
+		guide: {
+			/**
+			 * OS Mount & Connection Guide
+			 */
+			title: () => LocalizedString
+			/**
+			 * Step-by-step instructions to map network drive across operating systems
+			 */
+			subtitle: () => LocalizedString
+			/**
+			 * Windows (Map Drive)
+			 */
+			windows: () => LocalizedString
+			/**
+			 * Android & iOS
+			 */
+			android: () => LocalizedString
+			/**
+			 * macOS (Finder)
+			 */
+			macos: () => LocalizedString
+			/**
+			 * Linux (Nautilus/Dolphin)
+			 */
+			linux: () => LocalizedString
+			/**
+			 * Map Network Drive in Windows File Explorer
+			 */
+			windowsTitle: () => LocalizedString
+			/**
+			 * Open 
+			 */
+			winStep1A: () => LocalizedString
+			/**
+			 * , right-click on 
+			 */
+			winStep1B: () => LocalizedString
+			/**
+			 * , and choose 
+			 */
+			winStep1C: () => LocalizedString
+			/**
+			 * .
+			 */
+			winStep1D: () => LocalizedString
+			/**
+			 * Assign an available drive letter (e.g., 
+			 */
+			winStep2A: () => LocalizedString
+			/**
+			 * ).
+			 */
+			winStep2B: () => LocalizedString
+			/**
+			 * Enter the WebDAV folder URL:
+			 */
+			winStep3: () => LocalizedString
+			/**
+			 * Alternate UNC path syntax: 
+			 */
+			winAltA: () => LocalizedString
+			/**
+			 * Check 
+			 */
+			winStep4AuthA: () => LocalizedString
+			/**
+			 *  and enter username (
+			 */
+			winStep4AuthB: () => LocalizedString
+			/**
+			 * ) and your password.
+			 */
+			winStep4AuthC: () => LocalizedString
+			/**
+			 * Click 
+			 */
+			winStep4GuestA: () => LocalizedString
+			/**
+			 *  to mount the drive immediately.
+			 */
+			winStep4GuestB: () => LocalizedString
+			/**
+			 * Windows WebClient Notice:
+			 */
+			winNoticeTitle: () => LocalizedString
+			/**
+			 * Windows requires HTTP Basic Auth enabled in the registry for unencrypted WebDAV links (
+			 */
+			winNoticeA: () => LocalizedString
+			/**
+			 *  under 
+			 */
+			winNoticeB: () => LocalizedString
+			/**
+			 * ). Alternatively, use third-party tools like 
+			 */
+			winNoticeC: () => LocalizedString
+			/**
+			 *  or 
+			 */
+			winNoticeD: () => LocalizedString
+			/**
+			 * .
+			 */
+			winNoticeE: () => LocalizedString
+			/**
+			 * Connect from Mobile Devices (Android & iOS)
+			 */
+			androidTitle: () => LocalizedString
+			/**
+			 * Tap the 
+			 */
+			andStep1A: () => LocalizedString
+			/**
+			 *  button and choose 
+			 */
+			andStep1B: () => LocalizedString
+			/**
+			 * .
+			 */
+			andStep1C: () => LocalizedString
+			/**
+			 * Select 
+			 */
+			andStep2A: () => LocalizedString
+			/**
+			 *  protocol.
+			 */
+			andStep2B: () => LocalizedString
+			/**
+			 * Server Address: 
+			 */
+			andStep3A: () => LocalizedString
+			/**
+			 * , Port: 
+			 */
+			andStep3B: () => LocalizedString
+			/**
+			 * .
+			 */
+			andStep3C: () => LocalizedString
+			/**
+			 * Path: 
+			 */
+			andStep4A: () => LocalizedString
+			/**
+			 * .
+			 */
+			andStep4B: () => LocalizedString
+			/**
+			 * Enter Username: 
+			 */
+			andStep5A: () => LocalizedString
+			/**
+			 *  & Password.
+			 */
+			andStep5B: () => LocalizedString
+			/**
+			 * VLC Media Player Streaming
+			 */
+			vlcTitle: () => LocalizedString
+			/**
+			 * Open VLC on your phone or tablet.
+			 */
+			vlcStep1: () => LocalizedString
+			/**
+			 * Go to 
+			 */
+			vlcStep2A: () => LocalizedString
+			/**
+			 *  tab -> 
+			 */
+			vlcStep2B: () => LocalizedString
+			/**
+			 * .
+			 */
+			vlcStep2C: () => LocalizedString
+			/**
+			 * Add new network stream or WebDAV location.
+			 */
+			vlcStep3: () => LocalizedString
+			/**
+			 * Stream movies and music directly without downloading!
+			 */
+			vlcStep4: () => LocalizedString
+			/**
+			 * Mount in macOS Finder
+			 */
+			macosTitle: () => LocalizedString
+			/**
+			 * Open 
+			 */
+			macStep1A: () => LocalizedString
+			/**
+			 *  on macOS.
+			 */
+			macStep1B: () => LocalizedString
+			/**
+			 * Press 
+			 */
+			macStep2A: () => LocalizedString
+			/**
+			 *  (or go to menu 
+			 */
+			macStep2B: () => LocalizedString
+			/**
+			 * ).
+			 */
+			macStep2C: () => LocalizedString
+			/**
+			 * Enter the Server Address:
+			 */
+			macStep3: () => LocalizedString
+			/**
+			 * Click 
+			 */
+			macStep4A: () => LocalizedString
+			/**
+			 * .
+			 */
+			macStep4B: () => LocalizedString
+			/**
+			 *  Select 
+			 */
+			macStep4AuthA: () => LocalizedString
+			/**
+			 *  and enter Username: 
+			 */
+			macStep4AuthB: () => LocalizedString
+			/**
+			 * .
+			 */
+			macStep4AuthC: () => LocalizedString
+			/**
+			 *  Select 
+			 */
+			macStep4GuestA: () => LocalizedString
+			/**
+			 * .
+			 */
+			macStep4GuestB: () => LocalizedString
+			/**
+			 * Mount in Linux File Managers (GNOME Nautilus, KDE Dolphin, gio)
+			 */
+			linuxTitle: () => LocalizedString
+			/**
+			 * GNOME Nautilus / Files:
+			 */
+			nautilusTitle: () => LocalizedString
+			/**
+			 * Press 
+			 */
+			linuxNautilusA: () => LocalizedString
+			/**
+			 *  or click 
+			 */
+			linuxNautilusB: () => LocalizedString
+			/**
+			 *  -> 
+			 */
+			linuxNautilusC: () => LocalizedString
+			/**
+			 * :
+			 */
+			linuxNautilusD: () => LocalizedString
+			/**
+			 * Command Line (gvfs / gio mount):
+			 */
+			cliTitle: () => LocalizedString
+		}
+		toasts: {
+			/**
+			 * Set a NAS username and password before starting the authenticated share.
+			 */
+			setCredentialsStart: () => LocalizedString
+			/**
+			 * NAS {protocol} server started on port {port}
+			 */
+			started: (arg: { port: unknown, protocol: unknown }) => LocalizedString
+			/**
+			 * Failed to start NAS server
+			 */
+			startFailed: () => LocalizedString
+			/**
+			 * NAS File Server stopped.
+			 */
+			stopped: () => LocalizedString
+			/**
+			 * Failed to stop NAS server
+			 */
+			stopFailed: () => LocalizedString
+			/**
+			 * Set a NAS username and password before saving an authenticated share.
+			 */
+			setCredentialsSave: () => LocalizedString
+			/**
+			 * NAS server restarted with updated configuration.
+			 */
+			restarted: () => LocalizedString
+			/**
+			 * NAS server configuration saved.
+			 */
+			saved: () => LocalizedString
+			/**
+			 * Failed to save configuration
+			 */
+			saveFailed: () => LocalizedString
+			/**
+			 * Copied to clipboard!
+			 */
+			copied: () => LocalizedString
+			/**
+			 * Failed to copy to clipboard
+			 */
+			copyFailed: () => LocalizedString
 		}
 	}
 }
