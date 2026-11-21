@@ -2349,6 +2349,437 @@ type RootTranslation = {
 			copyFailed: string
 		}
 	}
+	overview: {
+		gauges: {
+			/**
+			 * C​P​U​ ​L​o​a​d
+			 */
+			cpuLoad: string
+			/**
+			 * M​e​m​o​r​y
+			 */
+			memory: string
+			/**
+			 * S​t​o​r​a​g​e
+			 */
+			storage: string
+			/**
+			 * B​a​t​t​e​r​y
+			 */
+			battery: string
+			/**
+			 * f​r​e​e
+			 */
+			free: string
+			/**
+			 * C​l​i​c​k​ ​t​o​ ​o​p​e​n​ ​K​e​r​n​e​l​ ​M​a​n​a​g​e​r​ ​(​C​P​U​ ​C​o​r​e​s​ ​&​ ​S​c​a​l​i​n​g​)
+			 */
+			cpuTitle: string
+			/**
+			 * C​l​i​c​k​ ​t​o​ ​o​p​e​n​ ​f​u​l​l​ ​S​y​s​t​e​m​ ​&​ ​R​A​M​ ​i​n​f​o​r​m​a​t​i​o​n
+			 */
+			memoryTitle: string
+			/**
+			 * C​l​i​c​k​ ​t​o​ ​o​p​e​n​ ​F​i​l​e​ ​M​a​n​a​g​e​r
+			 */
+			storageTitle: string
+			/**
+			 * C​l​i​c​k​ ​t​o​ ​v​i​e​w​ ​B​a​t​t​e​r​y​ ​V​o​l​t​a​g​e​,​ ​C​u​r​r​e​n​t​ ​&​ ​H​e​a​l​t​h​ ​d​i​a​g​n​o​s​t​i​c​s
+			 */
+			batteryTitle: string
+			/**
+			 * C​P​U​ ​u​s​a​g​e
+			 */
+			cpuUsage: string
+			/**
+			 * M​e​m​o​r​y​ ​u​s​a​g​e
+			 */
+			memoryUsage: string
+			/**
+			 * D​i​s​k​ ​u​s​a​g​e
+			 */
+			diskUsage: string
+			/**
+			 * B​a​t​t​e​r​y​ ​l​e​v​e​l
+			 */
+			batteryLevel: string
+		}
+		shortcuts: {
+			/**
+			 * A​p​p​l​i​c​a​t​i​o​n​ ​S​h​o​r​t​c​u​t​s
+			 */
+			title: string
+			/**
+			 * A​d​d​ ​n​e​w​ ​a​p​p​l​i​c​a​t​i​o​n​ ​s​h​o​r​t​c​u​t
+			 */
+			addTitle: string
+			/**
+			 * A​d​d​ ​S​h​o​r​t​c​u​t
+			 */
+			add: string
+			/**
+			 * L​o​a​d​i​n​g​ ​a​p​p​l​i​c​a​t​i​o​n​ ​s​h​o​r​t​c​u​t​s​.​.​.
+			 */
+			loading: string
+			/**
+			 * N​o​ ​S​h​o​r​t​c​u​t​s​ ​C​o​n​f​i​g​u​r​e​d
+			 */
+			emptyTitle: string
+			/**
+			 * P​i​n​ ​s​h​o​r​t​c​u​t​s​ ​t​o​ ​e​x​t​e​r​n​a​l​ ​s​e​r​v​i​c​e​s​ ​o​r​ ​w​e​b​ ​d​a​s​h​b​o​a​r​d​s​ ​l​i​k​e​ ​C​l​a​s​h​,​ ​A​d​G​u​a​r​d​ ​H​o​m​e​,​ ​O​p​e​n​W​r​t​,​ ​P​o​r​t​a​i​n​e​r​,​ ​o​r​ ​l​o​c​a​l​ ​n​e​t​w​o​r​k​ ​I​P​s​.
+			 */
+			emptyBody: string
+			/**
+			 * A​d​d​ ​F​i​r​s​t​ ​S​h​o​r​t​c​u​t
+			 */
+			addFirst: string
+			/**
+			 * E​d​i​t​ ​S​h​o​r​t​c​u​t
+			 */
+			editTitle: string
+			/**
+			 * D​e​l​e​t​e​ ​S​h​o​r​t​c​u​t
+			 */
+			deleteTitle: string
+			/**
+			 * S​h​o​r​t​c​u​t
+			 */
+			fallbackName: string
+			/**
+			 * A​r​e​ ​y​o​u​ ​s​u​r​e​ ​y​o​u​ ​w​a​n​t​ ​t​o​ ​d​e​l​e​t​e​ ​t​h​i​s​ ​s​h​o​r​t​c​u​t​?
+			 */
+			deleteConfirm: string
+		}
+		actions: {
+			/**
+			 * C​l​i​c​k​ ​t​o​ ​i​n​s​p​e​c​t​ ​N​e​t​w​o​r​k​ ​I​n​t​e​r​f​a​c​e​ ​&​ ​T​e​l​e​m​e​t​r​y
+			 */
+			networkTitle: string
+			/**
+			 * N​e​t​w​o​r​k​ ​&​ ​T​r​a​f​f​i​c
+			 */
+			network: string
+			/**
+			 * S​o​f​t​A​P​,​ ​U​S​B​ ​&​ ​Q​o​S
+			 */
+			tetheringDesc: string
+			/**
+			 * C​l​a​s​h​ ​C​o​r​e
+			 */
+			clashCore: string
+			/**
+			 * R​o​u​t​i​n​g​ ​&​ ​R​u​l​e​s
+			 */
+			clashDesc: string
+			/**
+			 * P​o​w​e​r​ ​A​c​t​i​o​n​s
+			 */
+			power: string
+			/**
+			 * R​e​b​o​o​t​,​ ​R​e​c​o​v​e​r​y
+			 */
+			powerDesc: string
+		}
+		device: {
+			/**
+			 * D​e​v​i​c​e​ ​S​t​a​t​u​s​ ​&​ ​H​a​r​d​w​a​r​e​ ​P​l​a​t​f​o​r​m
+			 */
+			title: string
+			/**
+			 * D​e​v​i​c​e​ ​M​o​d​e​l
+			 */
+			model: string
+			/**
+			 * R​O​M​ ​/​ ​O​S​ ​B​u​i​l​d
+			 */
+			rom: string
+			/**
+			 * R​o​o​t​ ​E​n​v​i​r​o​n​m​e​n​t
+			 */
+			root: string
+			/**
+			 * C​h​i​p​s​e​t​ ​(​S​o​C​)
+			 */
+			chipset: string
+			/**
+			 * A​n​d​r​o​i​d​ ​&​ ​S​D​K
+			 */
+			androidSdk: string
+			/**
+			 * A​n​d​r​o​i​d​ ​{​a​n​d​r​o​i​d​}​ ​(​A​P​I​ ​{​s​d​k​}​)
+			 * @param {unknown} android
+			 * @param {unknown} sdk
+			 */
+			androidSdkValue: RequiredParams<'android' | 'sdk'>
+			/**
+			 * S​y​s​t​e​m​ ​U​p​t​i​m​e
+			 */
+			uptime: string
+			/**
+			 * K​e​r​n​e​l​ ​R​e​l​e​a​s​e
+			 */
+			kernel: string
+			/**
+			 * S​e​c​u​r​i​t​y​ ​&​ ​W​e​b​U​I
+			 */
+			security: string
+			/**
+			 * A​n​d​r​o​i​d​ ​D​e​v​i​c​e
+			 */
+			modelFallback: string
+			/**
+			 * S​t​o​c​k​ ​A​n​d​r​o​i​d
+			 */
+			romFallback: string
+			/**
+			 * G​o​o​d
+			 */
+			healthGood: string
+			/**
+			 * A​c​t​i​v​e​ ​O​p​e​r​a​t​o​r
+			 */
+			operatorFallback: string
+		}
+		notice: {
+			/**
+			 * K​E​R​N​E​L​ ​S​U​P​E​R​V​I​S​O​R​ ​O​N​L​I​N​E
+			 */
+			title: string
+			/**
+			 * C​o​n​n​e​c​t​e​d​ ​t​o​ ​A​n​d​r​o​i​d​ ​r​o​o​t​ ​s​u​b​s​y​s​t​e​m​ ​(​{​m​o​d​e​l​}​ ​•​ ​L​i​n​u​x​ ​{​k​e​r​n​e​l​}​)​.​ ​H​a​r​d​w​a​r​e​ ​t​e​l​e​m​e​t​r​y​ ​&​ ​t​e​l​e​m​e​t​r​y​ ​s​e​n​s​o​r​s​ ​a​c​t​i​v​e​.
+			 * @param {unknown} kernel
+			 * @param {unknown} model
+			 */
+			message: RequiredParams<'kernel' | 'model'>
+		}
+		cpuModal: {
+			/**
+			 * C​P​U​ ​A​r​c​h​i​t​e​c​t​u​r​e​ ​&​ ​P​e​r​-​C​o​r​e​ ​T​e​l​e​m​e​t​r​y
+			 */
+			title: string
+			/**
+			 * O​v​e​r​a​l​l​ ​L​o​a​d
+			 */
+			overallLoad: string
+			/**
+			 * C​P​U​ ​T​e​m​p
+			 */
+			cpuTemp: string
+			/**
+			 * G​o​v​e​r​n​o​r
+			 */
+			governor: string
+			/**
+			 * C​h​i​p​s​e​t​ ​/​ ​S​o​C
+			 */
+			chipset: string
+			/**
+			 * L​o​a​d​ ​A​v​e​r​a​g​e​:
+			 */
+			loadAverage: string
+			/**
+			 * A​c​t​i​v​e​ ​C​P​U​ ​C​o​r​e​s​ ​(​{​c​o​u​n​t​}​)
+			 * @param {unknown} count
+			 */
+			activeCores: RequiredParams<'count'>
+			/**
+			 * F​r​e​q​u​e​n​c​y​ ​&​ ​L​o​a​d
+			 */
+			freqLoad: string
+			/**
+			 * C​o​r​e​ ​#​{​c​o​r​e​}
+			 * @param {unknown} core
+			 */
+			core: RequiredParams<'core'>
+			/**
+			 * T​h​e​r​m​a​l​ ​S​e​n​s​o​r​s
+			 */
+			thermalSensors: string
+			/**
+			 * O​p​e​n​ ​S​y​s​i​n​f​o​ ​T​a​b
+			 */
+			openSysinfo: string
+		}
+		batteryModal: {
+			/**
+			 * B​a​t​t​e​r​y​ ​D​i​a​g​n​o​s​t​i​c​s​ ​&​ ​H​e​a​l​t​h
+			 */
+			title: string
+			/**
+			 * H​e​a​l​t​h​ ​C​o​n​d​i​t​i​o​n
+			 */
+			health: string
+			/**
+			 * V​o​l​t​a​g​e
+			 */
+			voltage: string
+			/**
+			 * C​u​r​r​e​n​t​ ​F​l​o​w
+			 */
+			current: string
+			/**
+			 * B​a​t​t​e​r​y​ ​T​e​m​p
+			 */
+			batteryTemp: string
+			/**
+			 * T​e​c​h​n​o​l​o​g​y
+			 */
+			technology: string
+			/**
+			 * C​a​p​a​c​i​t​y
+			 */
+			capacity: string
+			/**
+			 * F​u​l​l​ ​C​h​a​r​g​e​ ​M​a​x
+			 */
+			fullChargeMax: string
+			/**
+			 * B​F​R​-​W​E​B​U​I​ ​i​n​c​l​u​d​e​s​ ​a​ ​h​a​r​d​w​a​r​e​ ​c​h​a​r​g​i​n​g​ ​l​i​m​i​t​a​t​i​o​n​ ​c​o​n​t​r​o​l​l​e​r​ ​(​s​t​o​p​ ​c​h​a​r​g​i​n​g​ ​a​t​ ​8​0​%​ ​t​o​ ​p​r​o​t​e​c​t​ ​a​g​a​i​n​s​t​ ​b​a​t​t​e​r​y​ ​s​w​e​l​l​i​n​g​ ​d​u​r​i​n​g​ ​2​4​/​7​ ​r​o​u​t​e​r​ ​d​e​p​l​o​y​m​e​n​t​)​.
+			 */
+			chargingNote: string
+			/**
+			 * C​h​a​r​g​i​n​g​ ​L​i​m​i​t​ ​C​o​n​t​r​o​l​s
+			 */
+			chargingLimit: string
+		}
+		networkModal: {
+			/**
+			 * N​e​t​w​o​r​k​ ​I​n​t​e​r​f​a​c​e​ ​&​ ​T​e​l​e​m​e​t​r​y
+			 */
+			title: string
+			/**
+			 * A​c​t​i​v​e​ ​I​n​t​e​r​f​a​c​e
+			 */
+			activeInterface: string
+			/**
+			 * N​e​t​w​o​r​k​ ​M​o​d​e
+			 */
+			networkMode: string
+			/**
+			 * T​o​t​a​l​ ​D​o​w​n​l​o​a​d
+			 */
+			totalDownload: string
+			/**
+			 * T​o​t​a​l​ ​U​p​l​o​a​d
+			 */
+			totalUpload: string
+			/**
+			 * I​P​ ​&​ ​R​o​u​t​i​n​g​ ​C​o​n​f​i​g​u​r​a​t​i​o​n
+			 */
+			ipRouting: string
+			/**
+			 * P​r​i​m​a​r​y​ ​I​P​v​4​:
+			 */
+			primaryIpv4: string
+			/**
+			 * D​e​f​a​u​l​t​ ​G​a​t​e​w​a​y​:
+			 */
+			gateway: string
+			/**
+			 * S​u​b​n​e​t​ ​M​a​s​k​:
+			 */
+			subnetMask: string
+			/**
+			 * S​y​s​t​e​m​ ​M​T​U​:
+			 */
+			systemMtu: string
+			/**
+			 * I​P​v​6​ ​G​l​o​b​a​l​/​L​i​n​k​:
+			 */
+			ipv6: string
+			/**
+			 * D​N​S​ ​R​e​s​o​l​v​e​r​s
+			 */
+			dnsResolvers: string
+			/**
+			 * P​r​i​m​a​r​y​ ​D​N​S​:
+			 */
+			primaryDns: string
+			/**
+			 * S​e​c​o​n​d​a​r​y​ ​D​N​S​:
+			 */
+			secondaryDns: string
+			/**
+			 * D​e​f​a​u​l​t​ ​T​T​L​:
+			 */
+			defaultTtl: string
+			/**
+			 * W​i​r​e​l​e​s​s​ ​C​o​n​n​e​c​t​i​o​n
+			 */
+			wireless: string
+			/**
+			 * S​S​I​D​:
+			 */
+			ssid: string
+			/**
+			 * S​i​g​n​a​l​:
+			 */
+			signal: string
+			/**
+			 * C​a​r​r​i​e​r​:
+			 */
+			carrier: string
+			/**
+			 * R​a​d​i​o​ ​M​o​d​e​:
+			 */
+			radioMode: string
+			/**
+			 * C​o​n​n​e​c​t​e​d​ ​C​l​i​e​n​t​s​:
+			 */
+			connectedClients: string
+			/**
+			 * {​c​o​u​n​t​}​ ​d​e​v​i​c​e​s
+			 * @param {unknown} count
+			 */
+			devices: RequiredParams<'count'>
+			/**
+			 * M​o​b​i​l​e​ ​D​a​t​a
+			 */
+			mobileData: string
+			/**
+			 * O​p​e​n​ ​N​e​t​w​o​r​k​ ​T​u​n​i​n​g
+			 */
+			openTuning: string
+		}
+		shortcutModal: {
+			/**
+			 * A​d​d​ ​A​p​p​ ​S​h​o​r​t​c​u​t
+			 */
+			addTitle: string
+			/**
+			 * A​p​p​l​i​c​a​t​i​o​n​ ​N​a​m​e
+			 */
+			nameLabel: string
+			/**
+			 * e​.​g​.​ ​C​l​a​s​h​ ​W​e​b​,​ ​A​d​G​u​a​r​d​,​ ​O​p​e​n​W​r​t
+			 */
+			namePlaceholder: string
+			/**
+			 * T​a​r​g​e​t​ ​U​R​L
+			 */
+			urlLabel: string
+			/**
+			 * h​t​t​p​:​/​/​1​9​2​.​1​6​8​.​4​3​.​1​:​9​0​9​0​ ​o​r​ ​h​t​t​p​s​:​/​/​.​.​.
+			 */
+			urlPlaceholder: string
+			/**
+			 * I​c​o​n​ ​(​E​m​o​j​i​ ​o​r​ ​I​m​a​g​e​ ​U​R​L​)
+			 */
+			iconLabel: string
+			/**
+			 * e​.​g​.​ ​�​�​,​ ​�​�​,​ ​�​�​️​,​ ​⚙​️​ ​o​r​ ​h​t​t​p​s​:​/​/​.​.​.​/​i​c​o​n​.​p​n​g
+			 */
+			iconPlaceholder: string
+			/**
+			 * Q​u​i​c​k​ ​I​c​o​n​ ​P​r​e​s​e​t​s
+			 */
+			quickPresets: string
+			/**
+			 * S​a​v​e​ ​C​h​a​n​g​e​s
+			 */
+			saveChanges: string
+		}
+	}
 }
 
 export type TranslationFunctions = {
@@ -4660,6 +5091,430 @@ export type TranslationFunctions = {
 			 * Failed to copy to clipboard
 			 */
 			copyFailed: () => LocalizedString
+		}
+	}
+	overview: {
+		gauges: {
+			/**
+			 * CPU Load
+			 */
+			cpuLoad: () => LocalizedString
+			/**
+			 * Memory
+			 */
+			memory: () => LocalizedString
+			/**
+			 * Storage
+			 */
+			storage: () => LocalizedString
+			/**
+			 * Battery
+			 */
+			battery: () => LocalizedString
+			/**
+			 * free
+			 */
+			free: () => LocalizedString
+			/**
+			 * Click to open Kernel Manager (CPU Cores & Scaling)
+			 */
+			cpuTitle: () => LocalizedString
+			/**
+			 * Click to open full System & RAM information
+			 */
+			memoryTitle: () => LocalizedString
+			/**
+			 * Click to open File Manager
+			 */
+			storageTitle: () => LocalizedString
+			/**
+			 * Click to view Battery Voltage, Current & Health diagnostics
+			 */
+			batteryTitle: () => LocalizedString
+			/**
+			 * CPU usage
+			 */
+			cpuUsage: () => LocalizedString
+			/**
+			 * Memory usage
+			 */
+			memoryUsage: () => LocalizedString
+			/**
+			 * Disk usage
+			 */
+			diskUsage: () => LocalizedString
+			/**
+			 * Battery level
+			 */
+			batteryLevel: () => LocalizedString
+		}
+		shortcuts: {
+			/**
+			 * Application Shortcuts
+			 */
+			title: () => LocalizedString
+			/**
+			 * Add new application shortcut
+			 */
+			addTitle: () => LocalizedString
+			/**
+			 * Add Shortcut
+			 */
+			add: () => LocalizedString
+			/**
+			 * Loading application shortcuts...
+			 */
+			loading: () => LocalizedString
+			/**
+			 * No Shortcuts Configured
+			 */
+			emptyTitle: () => LocalizedString
+			/**
+			 * Pin shortcuts to external services or web dashboards like Clash, AdGuard Home, OpenWrt, Portainer, or local network IPs.
+			 */
+			emptyBody: () => LocalizedString
+			/**
+			 * Add First Shortcut
+			 */
+			addFirst: () => LocalizedString
+			/**
+			 * Edit Shortcut
+			 */
+			editTitle: () => LocalizedString
+			/**
+			 * Delete Shortcut
+			 */
+			deleteTitle: () => LocalizedString
+			/**
+			 * Shortcut
+			 */
+			fallbackName: () => LocalizedString
+			/**
+			 * Are you sure you want to delete this shortcut?
+			 */
+			deleteConfirm: () => LocalizedString
+		}
+		actions: {
+			/**
+			 * Click to inspect Network Interface & Telemetry
+			 */
+			networkTitle: () => LocalizedString
+			/**
+			 * Network & Traffic
+			 */
+			network: () => LocalizedString
+			/**
+			 * SoftAP, USB & QoS
+			 */
+			tetheringDesc: () => LocalizedString
+			/**
+			 * Clash Core
+			 */
+			clashCore: () => LocalizedString
+			/**
+			 * Routing & Rules
+			 */
+			clashDesc: () => LocalizedString
+			/**
+			 * Power Actions
+			 */
+			power: () => LocalizedString
+			/**
+			 * Reboot, Recovery
+			 */
+			powerDesc: () => LocalizedString
+		}
+		device: {
+			/**
+			 * Device Status & Hardware Platform
+			 */
+			title: () => LocalizedString
+			/**
+			 * Device Model
+			 */
+			model: () => LocalizedString
+			/**
+			 * ROM / OS Build
+			 */
+			rom: () => LocalizedString
+			/**
+			 * Root Environment
+			 */
+			root: () => LocalizedString
+			/**
+			 * Chipset (SoC)
+			 */
+			chipset: () => LocalizedString
+			/**
+			 * Android & SDK
+			 */
+			androidSdk: () => LocalizedString
+			/**
+			 * Android {android} (API {sdk})
+			 */
+			androidSdkValue: (arg: { android: unknown, sdk: unknown }) => LocalizedString
+			/**
+			 * System Uptime
+			 */
+			uptime: () => LocalizedString
+			/**
+			 * Kernel Release
+			 */
+			kernel: () => LocalizedString
+			/**
+			 * Security & WebUI
+			 */
+			security: () => LocalizedString
+			/**
+			 * Android Device
+			 */
+			modelFallback: () => LocalizedString
+			/**
+			 * Stock Android
+			 */
+			romFallback: () => LocalizedString
+			/**
+			 * Good
+			 */
+			healthGood: () => LocalizedString
+			/**
+			 * Active Operator
+			 */
+			operatorFallback: () => LocalizedString
+		}
+		notice: {
+			/**
+			 * KERNEL SUPERVISOR ONLINE
+			 */
+			title: () => LocalizedString
+			/**
+			 * Connected to Android root subsystem ({model} • Linux {kernel}). Hardware telemetry & telemetry sensors active.
+			 */
+			message: (arg: { kernel: unknown, model: unknown }) => LocalizedString
+		}
+		cpuModal: {
+			/**
+			 * CPU Architecture & Per-Core Telemetry
+			 */
+			title: () => LocalizedString
+			/**
+			 * Overall Load
+			 */
+			overallLoad: () => LocalizedString
+			/**
+			 * CPU Temp
+			 */
+			cpuTemp: () => LocalizedString
+			/**
+			 * Governor
+			 */
+			governor: () => LocalizedString
+			/**
+			 * Chipset / SoC
+			 */
+			chipset: () => LocalizedString
+			/**
+			 * Load Average:
+			 */
+			loadAverage: () => LocalizedString
+			/**
+			 * Active CPU Cores ({count})
+			 */
+			activeCores: (arg: { count: unknown }) => LocalizedString
+			/**
+			 * Frequency & Load
+			 */
+			freqLoad: () => LocalizedString
+			/**
+			 * Core #{core}
+			 */
+			core: (arg: { core: unknown }) => LocalizedString
+			/**
+			 * Thermal Sensors
+			 */
+			thermalSensors: () => LocalizedString
+			/**
+			 * Open Sysinfo Tab
+			 */
+			openSysinfo: () => LocalizedString
+		}
+		batteryModal: {
+			/**
+			 * Battery Diagnostics & Health
+			 */
+			title: () => LocalizedString
+			/**
+			 * Health Condition
+			 */
+			health: () => LocalizedString
+			/**
+			 * Voltage
+			 */
+			voltage: () => LocalizedString
+			/**
+			 * Current Flow
+			 */
+			current: () => LocalizedString
+			/**
+			 * Battery Temp
+			 */
+			batteryTemp: () => LocalizedString
+			/**
+			 * Technology
+			 */
+			technology: () => LocalizedString
+			/**
+			 * Capacity
+			 */
+			capacity: () => LocalizedString
+			/**
+			 * Full Charge Max
+			 */
+			fullChargeMax: () => LocalizedString
+			/**
+			 * BFR-WEBUI includes a hardware charging limitation controller (stop charging at 80% to protect against battery swelling during 24/7 router deployment).
+			 */
+			chargingNote: () => LocalizedString
+			/**
+			 * Charging Limit Controls
+			 */
+			chargingLimit: () => LocalizedString
+		}
+		networkModal: {
+			/**
+			 * Network Interface & Telemetry
+			 */
+			title: () => LocalizedString
+			/**
+			 * Active Interface
+			 */
+			activeInterface: () => LocalizedString
+			/**
+			 * Network Mode
+			 */
+			networkMode: () => LocalizedString
+			/**
+			 * Total Download
+			 */
+			totalDownload: () => LocalizedString
+			/**
+			 * Total Upload
+			 */
+			totalUpload: () => LocalizedString
+			/**
+			 * IP & Routing Configuration
+			 */
+			ipRouting: () => LocalizedString
+			/**
+			 * Primary IPv4:
+			 */
+			primaryIpv4: () => LocalizedString
+			/**
+			 * Default Gateway:
+			 */
+			gateway: () => LocalizedString
+			/**
+			 * Subnet Mask:
+			 */
+			subnetMask: () => LocalizedString
+			/**
+			 * System MTU:
+			 */
+			systemMtu: () => LocalizedString
+			/**
+			 * IPv6 Global/Link:
+			 */
+			ipv6: () => LocalizedString
+			/**
+			 * DNS Resolvers
+			 */
+			dnsResolvers: () => LocalizedString
+			/**
+			 * Primary DNS:
+			 */
+			primaryDns: () => LocalizedString
+			/**
+			 * Secondary DNS:
+			 */
+			secondaryDns: () => LocalizedString
+			/**
+			 * Default TTL:
+			 */
+			defaultTtl: () => LocalizedString
+			/**
+			 * Wireless Connection
+			 */
+			wireless: () => LocalizedString
+			/**
+			 * SSID:
+			 */
+			ssid: () => LocalizedString
+			/**
+			 * Signal:
+			 */
+			signal: () => LocalizedString
+			/**
+			 * Carrier:
+			 */
+			carrier: () => LocalizedString
+			/**
+			 * Radio Mode:
+			 */
+			radioMode: () => LocalizedString
+			/**
+			 * Connected Clients:
+			 */
+			connectedClients: () => LocalizedString
+			/**
+			 * {count} devices
+			 */
+			devices: (arg: { count: unknown }) => LocalizedString
+			/**
+			 * Mobile Data
+			 */
+			mobileData: () => LocalizedString
+			/**
+			 * Open Network Tuning
+			 */
+			openTuning: () => LocalizedString
+		}
+		shortcutModal: {
+			/**
+			 * Add App Shortcut
+			 */
+			addTitle: () => LocalizedString
+			/**
+			 * Application Name
+			 */
+			nameLabel: () => LocalizedString
+			/**
+			 * e.g. Clash Web, AdGuard, OpenWrt
+			 */
+			namePlaceholder: () => LocalizedString
+			/**
+			 * Target URL
+			 */
+			urlLabel: () => LocalizedString
+			/**
+			 * http://192.168.43.1:9090 or https://...
+			 */
+			urlPlaceholder: () => LocalizedString
+			/**
+			 * Icon (Emoji or Image URL)
+			 */
+			iconLabel: () => LocalizedString
+			/**
+			 * e.g. 🌐, 🚀, 🛡️, ⚙️ or https://.../icon.png
+			 */
+			iconPlaceholder: () => LocalizedString
+			/**
+			 * Quick Icon Presets
+			 */
+			quickPresets: () => LocalizedString
+			/**
+			 * Save Changes
+			 */
+			saveChanges: () => LocalizedString
 		}
 	}
 }

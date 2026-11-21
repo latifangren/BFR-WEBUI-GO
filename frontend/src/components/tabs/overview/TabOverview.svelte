@@ -34,6 +34,7 @@
   import AnimatedNumber from '../../ui/AnimatedNumber.svelte'
   import { themeStore } from '../../../stores/theme.svelte'
   import SakugaProgress from '../../ui/SakugaProgress.svelte'
+  import { LL } from '../../../i18n/i18n-svelte'
 
   interface ShortcutItem {
     id: string
@@ -133,7 +134,7 @@
   async function deleteShortcut(id: string, e: MouseEvent) {
     e.stopPropagation()
     e.preventDefault()
-    if (!confirm('Are you sure you want to delete this shortcut?')) return
+    if (!confirm($LL.overview.shortcuts.deleteConfirm())) return
     try {
       const res = await api.post<{ success: boolean; shortcuts: ShortcutItem[] }>('/api/shortcuts/delete', { id })
       if (res && Array.isArray(res.shortcuts)) {
@@ -198,12 +199,12 @@
     <div
       class="neo-card bg-card p-3 sm:p-4 rounded flex flex-col justify-between cursor-pointer hover:border-accent transition-colors group select-none overflow-hidden"
       onclick={() => navigationStore.setTab('kernel')}
-      title="Click to open Kernel Manager (CPU Cores & Scaling)"
+      title={$LL.overview.gauges.cpuTitle()}
     >
       <div>
         <div class="flex items-center justify-between text-muted mb-2 font-mono text-xs">
           <span class="font-bold uppercase tracking-wider group-hover:text-accent transition-colors flex items-center gap-1">
-            CPU Load
+            {$LL.overview.gauges.cpuLoad()}
             <span class="text-[10px] text-accent font-mono opacity-80">↗</span>
           </span>
           <div class="neo-icon-box text-pink-500 bg-pink-500/10 border-pink-500/30">
@@ -221,7 +222,7 @@
           {/if}
         </div>
 {#if themeStore.useSakugaControls()}
-          <SakugaProgress value={(stats ? Math.min(stats.cpu_usage, 100) : 0) / 100} label="CPU usage" />
+          <SakugaProgress value={(stats ? Math.min(stats.cpu_usage, 100) : 0) / 100} label={$LL.overview.gauges.cpuUsage()} />
         {:else}
         <div class="neo-progress mt-3">
           <div
@@ -240,11 +241,11 @@
     <div
       class="neo-card bg-card p-3 sm:p-4 rounded flex flex-col justify-between cursor-pointer hover:border-accent transition-colors select-none overflow-hidden"
       onclick={() => navigationStore.setTab('sysinfo')}
-      title="Click to open full System & RAM information"
+      title={$LL.overview.gauges.memoryTitle()}
     >
       <div>
         <div class="flex items-center justify-between text-muted mb-2 font-mono text-xs">
-          <span class="font-bold uppercase tracking-wider">Memory</span>
+          <span class="font-bold uppercase tracking-wider">{$LL.overview.gauges.memory()}</span>
           <div class="neo-icon-box text-purple-400 bg-purple-500/10 border-purple-500/30">
             <HardDrive class="w-4 h-4 text-purple-400" />
           </div>
@@ -258,12 +259,12 @@
               {stats ? formatBytes(stats.mem_used) : '0 B'} / {stats ? formatBytes(stats.mem_total) : '0 B'}
             </div>
             <div class="text-[10px] text-muted">
-              {stats ? formatBytes(stats.mem_available || stats.mem_free) : '0 B'} free
+              {stats ? formatBytes(stats.mem_available || stats.mem_free) : '0 B'} {$LL.overview.gauges.free()}
             </div>
           </div>
         </div>
 {#if themeStore.useSakugaControls()}
-          <SakugaProgress value={(stats ? Math.min(stats.mem_used_pct, 100) : 0) / 100} label="Memory usage" />
+          <SakugaProgress value={(stats ? Math.min(stats.mem_used_pct, 100) : 0) / 100} label={$LL.overview.gauges.memoryUsage()} />
         {:else}
         <div class="neo-progress mt-3">
           <div
@@ -282,11 +283,11 @@
     <div
       class="neo-card bg-card p-3 sm:p-4 rounded flex flex-col justify-between cursor-pointer hover:border-accent transition-colors select-none overflow-hidden"
       onclick={() => navigationStore.setTab('files')}
-      title="Click to open File Manager"
+      title={$LL.overview.gauges.storageTitle()}
     >
       <div>
         <div class="flex items-center justify-between text-muted mb-2 font-mono text-xs">
-          <span class="font-bold uppercase tracking-wider">Storage</span>
+          <span class="font-bold uppercase tracking-wider">{$LL.overview.gauges.storage()}</span>
           <div class="neo-icon-box text-cyan-400 bg-cyan-500/10 border-cyan-500/30">
             <HardDrive class="w-4 h-4 text-cyan-400" />
           </div>
@@ -300,12 +301,12 @@
               {stats ? formatBytes(stats.disk_used) : '0 B'} / {stats ? formatBytes(stats.disk_total) : '0 B'}
             </div>
             <div class="text-[10px] text-muted">
-              {stats ? formatBytes(stats.disk_free) : '0 B'} free
+              {stats ? formatBytes(stats.disk_free) : '0 B'} {$LL.overview.gauges.free()}
             </div>
           </div>
         </div>
 {#if themeStore.useSakugaControls()}
-          <SakugaProgress value={(stats ? Math.min(stats.disk_used_pct, 100) : 0) / 100} label="Disk usage" />
+          <SakugaProgress value={(stats ? Math.min(stats.disk_used_pct, 100) : 0) / 100} label={$LL.overview.gauges.diskUsage()} />
         {:else}
         <div class="neo-progress mt-3">
           <div
@@ -324,12 +325,12 @@
     <div
       class="neo-card bg-card p-3 sm:p-4 rounded flex flex-col justify-between cursor-pointer hover:border-accent transition-colors group select-none overflow-hidden"
       onclick={() => (showBatteryModal = true)}
-      title="Click to view Battery Voltage, Current & Health diagnostics"
+      title={$LL.overview.gauges.batteryTitle()}
     >
       <div>
         <div class="flex items-center justify-between text-muted mb-2 font-mono text-xs">
           <span class="font-bold uppercase tracking-wider group-hover:text-accent transition-colors flex items-center gap-1">
-            Battery
+            {$LL.overview.gauges.battery()}
             <span class="text-[10px] text-accent font-mono opacity-80">↗</span>
           </span>
           <div class="neo-icon-box text-emerald-400 bg-emerald-500/10 border-emerald-500/30 relative">
@@ -350,7 +351,7 @@
           </span>
         </div>
 {#if themeStore.useSakugaControls()}
-          <SakugaProgress value={(stats ? Math.min(stats.battery_level, 100) : 0) / 100} label="Battery level" />
+          <SakugaProgress value={(stats ? Math.min(stats.battery_level, 100) : 0) / 100} label={$LL.overview.gauges.batteryLevel()} />
         {:else}
         <div class="neo-progress mt-3">
           <div
@@ -366,23 +367,23 @@
   </div>
 
   <!-- Application Shortcuts (CasaOS Style) -->
-  <Card title="Application Shortcuts">
+  <Card title={$LL.overview.shortcuts.title()}>
     {#snippet action()}
       <Button
         variant="secondary"
         size="sm"
         onclick={openAddModal}
-        title="Add new application shortcut"
+        title={$LL.overview.shortcuts.addTitle()}
       >
         <Plus class="w-3.5 h-3.5 mr-1" />
-        <span>Add Shortcut</span>
+        <span>{$LL.overview.shortcuts.add()}</span>
       </Button>
     {/snippet}
 
     {#if isLoadingShortcuts && shortcuts.length === 0}
       <div class="p-8 text-center text-xs font-mono text-muted">
         <Activity class="w-5 h-5 animate-spin mx-auto mb-2 text-accent" />
-        Loading application shortcuts...
+        {$LL.overview.shortcuts.loading()}
       </div>
     {:else if shortcuts.length === 0}
       <div class="p-6 text-center border-2 border-dashed border-border rounded-lg space-y-3 font-mono">
@@ -390,14 +391,14 @@
           <Globe class="w-5 h-5 text-accent" />
         </div>
         <div>
-          <h4 class="text-xs font-bold uppercase text-foreground">No Shortcuts Configured</h4>
+          <h4 class="text-xs font-bold uppercase text-foreground">{$LL.overview.shortcuts.emptyTitle()}</h4>
           <p class="text-[11px] text-muted max-w-sm mx-auto mt-1">
-            Pin shortcuts to external services or web dashboards like Clash, AdGuard Home, OpenWrt, Portainer, or local network IPs.
+            {$LL.overview.shortcuts.emptyBody()}
           </p>
         </div>
         <Button variant="primary" size="sm" onclick={openAddModal}>
           <Plus class="w-3.5 h-3.5 mr-1" />
-          <span>Add First Shortcut</span>
+          <span>{$LL.overview.shortcuts.addFirst()}</span>
         </Button>
       </div>
     {:else}
@@ -409,7 +410,7 @@
               <button
                 type="button"
                 class="p-1 text-muted hover:text-foreground cursor-pointer transition-colors"
-                title="Edit Shortcut"
+                title={$LL.overview.shortcuts.editTitle()}
                 onclick={(e) => openEditModal(item, e)}
               >
                 <Edit3 class="w-3 h-3" />
@@ -417,7 +418,7 @@
               <button
                 type="button"
                 class="p-1 text-muted hover:text-red-400 cursor-pointer transition-colors"
-                title="Delete Shortcut"
+                title={$LL.overview.shortcuts.deleteTitle()}
                 onclick={(e) => deleteShortcut(item.id, e)}
               >
                 <Trash2 class="w-3 h-3" />
@@ -449,7 +450,7 @@
 
               <div class="w-full">
                 <span class="text-xs font-bold text-foreground truncate block group-hover:text-accent transition-colors">
-                  {item.title || item.name || 'Shortcut'}
+                  {item.title || item.name || $LL.overview.shortcuts.fallbackName()}
                 </span>
                 <span class="text-[10px] text-muted truncate block">
                   {formatUrlDomain(item.url)}
@@ -470,7 +471,7 @@
     <div
       class="neo-button bg-card hover:bg-card-sub p-2.5 sm:p-4 rounded border-2 border-border text-left flex items-center justify-between cursor-pointer hover:border-accent group select-none transition-colors"
       onclick={() => (showNetworkModal = true)}
-      title="Click to inspect Network Interface & Telemetry"
+      title={$LL.overview.actions.networkTitle()}
       role="button"
       tabindex="0"
     >
@@ -480,7 +481,7 @@
         </div>
         <div>
           <h4 class="font-mono font-bold text-xs uppercase text-foreground flex items-center gap-1 group-hover:text-accent transition-colors">
-            Network & Traffic
+            {$LL.overview.actions.network()}
             <span class="text-[10px] text-accent font-mono opacity-80">↗</span>
           </h4>
           <p class="text-[11px] font-mono text-muted truncate max-w-[150px] sm:max-w-[180px]">
@@ -507,8 +508,8 @@
           <Wifi class="w-4 h-4 sm:w-5 sm:h-5" />
         </div>
         <div>
-          <h4 class="font-mono font-bold text-xs uppercase text-foreground">Tethering & QoS</h4>
-          <p class="text-[11px] font-mono text-muted">SoftAP, USB & QoS</p>
+          <h4 class="font-mono font-bold text-xs uppercase text-foreground">{$LL.nav.tabs.hotspot()}</h4>
+          <p class="text-[11px] font-mono text-muted">{$LL.overview.actions.tetheringDesc()}</p>
         </div>
       </div>
       <ArrowRight class="w-4 h-4 text-muted group-hover:text-foreground transition-colors hidden sm:block" />
@@ -524,8 +525,8 @@
           <Shield class="w-4 h-4 sm:w-5 sm:h-5" />
         </div>
         <div>
-          <h4 class="font-mono font-bold text-xs uppercase text-foreground">Clash Core</h4>
-          <p class="text-[11px] font-mono text-muted">Routing & Rules</p>
+          <h4 class="font-mono font-bold text-xs uppercase text-foreground">{$LL.overview.actions.clashCore()}</h4>
+          <p class="text-[11px] font-mono text-muted">{$LL.overview.actions.clashDesc()}</p>
         </div>
       </div>
       <ArrowRight class="w-4 h-4 text-muted group-hover:text-foreground transition-colors hidden sm:block" />
@@ -541,8 +542,8 @@
           <Power class="w-4 h-4 sm:w-5 sm:h-5" />
         </div>
         <div>
-          <h4 class="font-mono font-bold text-xs uppercase text-foreground">Power Actions</h4>
-          <p class="text-[11px] font-mono text-muted">Reboot, Recovery</p>
+          <h4 class="font-mono font-bold text-xs uppercase text-foreground">{$LL.overview.actions.power()}</h4>
+          <p class="text-[11px] font-mono text-muted">{$LL.overview.actions.powerDesc()}</p>
         </div>
       </div>
       <ArrowRight class="w-4 h-4 text-muted group-hover:text-foreground transition-colors hidden sm:block" />
@@ -550,13 +551,13 @@
   </div>
 
   <!-- Device Status & Platform Specs -->
-  <Card title="Device Status & Hardware Platform">
+  <Card title={$LL.overview.device.title()}>
     <div class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-2 sm:gap-3 font-mono text-xs">
       <!-- 1. Device Model -->
       <div class="bg-card-sub border border-border p-2.5 sm:p-3 rounded space-y-1">
-        <span class="text-[10px] text-muted uppercase font-bold">Device Model</span>
+        <span class="text-[10px] text-muted uppercase font-bold">{$LL.overview.device.model()}</span>
         <p class="font-bold text-foreground truncate" title={stats?.model}>
-          {stats?.model || 'Android Device'}
+          {stats?.model || $LL.overview.device.modelFallback()}
           {#if stats?.device_name}
             <span class="text-[10px] text-muted font-normal">({stats.device_name})</span>
           {/if}
@@ -565,15 +566,15 @@
 
       <!-- 2. ROM / OS Build -->
       <div class="bg-card-sub border border-border p-2.5 sm:p-3 rounded space-y-1">
-        <span class="text-[10px] text-muted uppercase font-bold">ROM / OS Build</span>
+        <span class="text-[10px] text-muted uppercase font-bold">{$LL.overview.device.rom()}</span>
         <p class="font-bold text-foreground truncate" title={stats?.rom}>
-          {stats?.rom || 'Stock Android'}
+          {stats?.rom || $LL.overview.device.romFallback()}
         </p>
       </div>
 
       <!-- 3. Root Provider -->
       <div class="bg-card-sub border border-border p-2.5 sm:p-3 rounded space-y-1">
-        <span class="text-[10px] text-muted uppercase font-bold">Root Environment</span>
+        <span class="text-[10px] text-muted uppercase font-bold">{$LL.overview.device.root()}</span>
         <p class="font-bold text-emerald-400 flex items-center gap-1.5 truncate">
           <span class="w-2 h-2 rounded-full bg-emerald-400 shrink-0"></span>
           <span>{stats?.root_type || 'Rooted (su)'}</span>
@@ -582,7 +583,7 @@
 
       <!-- 4. SoC / Chipset -->
       <div class="bg-card-sub border border-border p-2.5 sm:p-3 rounded space-y-1">
-        <span class="text-[10px] text-muted uppercase font-bold">Chipset (SoC)</span>
+        <span class="text-[10px] text-muted uppercase font-bold">{$LL.overview.device.chipset()}</span>
         <p class="font-bold text-foreground truncate" title={stats?.chipset}>
           {stats?.chipset || 'Generic ARM64'}
         </p>
@@ -590,15 +591,15 @@
 
       <!-- 5. Android & SDK -->
       <div class="bg-card-sub border border-border p-2.5 sm:p-3 rounded space-y-1">
-        <span class="text-[10px] text-muted uppercase font-bold">Android & SDK</span>
+        <span class="text-[10px] text-muted uppercase font-bold">{$LL.overview.device.androidSdk()}</span>
         <p class="font-bold text-foreground">
-          Android {stats?.android_ver || 'N/A'} (API {stats?.sdk_ver || 'N/A'})
+          {$LL.overview.device.androidSdkValue({ android: stats?.android_ver || 'N/A', sdk: stats?.sdk_ver || 'N/A' })}
         </p>
       </div>
 
       <!-- 6. System Uptime -->
       <div class="bg-card-sub border border-border p-2.5 sm:p-3 rounded space-y-1">
-        <span class="text-[10px] text-muted uppercase font-bold">System Uptime</span>
+        <span class="text-[10px] text-muted uppercase font-bold">{$LL.overview.device.uptime()}</span>
         <p class="font-bold text-accent">
           {stats ? formatUptime(stats.uptime) : '0m'}
         </p>
@@ -606,7 +607,7 @@
 
       <!-- 7. Kernel Version -->
       <div class="bg-card-sub border border-border p-2.5 sm:p-3 rounded space-y-1">
-        <span class="text-[10px] text-muted uppercase font-bold">Kernel Release</span>
+        <span class="text-[10px] text-muted uppercase font-bold">{$LL.overview.device.kernel()}</span>
         <p class="font-bold text-foreground truncate" title={stats?.kernel}>
           {stats?.kernel || 'Linux'}
         </p>
@@ -614,7 +615,7 @@
 
       <!-- 8. Platform & Security -->
       <div class="bg-card-sub border border-border p-2.5 sm:p-3 rounded space-y-1">
-        <span class="text-[10px] text-muted uppercase font-bold">Security & WebUI</span>
+        <span class="text-[10px] text-muted uppercase font-bold">{$LL.overview.device.security()}</span>
         <p class="font-bold text-foreground truncate">
           {stats?.selinux || 'Enforcing'} • {stats?.webui_version || 'v1.2.8'}
         </p>
@@ -624,8 +625,8 @@
 
   <!-- System Notice Banner -->
   <NoticeBanner
-    title="KERNEL SUPERVISOR ONLINE"
-    message={`Connected to Android root subsystem (${stats?.model || 'Android Device'} • Linux ${stats?.kernel || 'Kernel'}). Hardware telemetry & telemetry sensors active.`}
+    title={$LL.overview.notice.title()}
+    message={$LL.overview.notice.message({ model: stats?.model || $LL.overview.device.modelFallback(), kernel: stats?.kernel || 'Kernel' })}
     icon="bulb"
   />
 </div>
@@ -633,7 +634,7 @@
 <!-- CPU Detail Telemetry Modal -->
 <Modal
   open={showCpuModal}
-  title="CPU Architecture & Per-Core Telemetry"
+  title={$LL.overview.cpuModal.title()}
   onclose={() => (showCpuModal = false)}
   class="!max-w-2xl"
 >
@@ -641,19 +642,19 @@
     <!-- Summary Header Cards -->
     <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
       <div class="p-2.5 rounded bg-card-sub border border-border space-y-1">
-        <span class="text-[10px] text-muted uppercase font-bold block">Overall Load</span>
+        <span class="text-[10px] text-muted uppercase font-bold block">{$LL.overview.cpuModal.overallLoad()}</span>
         <span class="text-lg font-black text-accent">{stats ? stats.cpu_usage.toFixed(1) : 0}%</span>
       </div>
       <div class="p-2.5 rounded bg-card-sub border border-border space-y-1">
-        <span class="text-[10px] text-muted uppercase font-bold block">CPU Temp</span>
+        <span class="text-[10px] text-muted uppercase font-bold block">{$LL.overview.cpuModal.cpuTemp()}</span>
         <span class="text-lg font-black text-amber-400">{stats?.cpu_temp ? stats.cpu_temp.toFixed(1) + '°C' : 'N/A'}</span>
       </div>
       <div class="p-2.5 rounded bg-card-sub border border-border space-y-1">
-        <span class="text-[10px] text-muted uppercase font-bold block">Governor</span>
+        <span class="text-[10px] text-muted uppercase font-bold block">{$LL.overview.cpuModal.governor()}</span>
         <span class="text-xs font-bold text-foreground truncate block">{stats?.governor || 'schedutil'}</span>
       </div>
       <div class="p-2.5 rounded bg-card-sub border border-border space-y-1">
-        <span class="text-[10px] text-muted uppercase font-bold block">Chipset / SoC</span>
+        <span class="text-[10px] text-muted uppercase font-bold block">{$LL.overview.cpuModal.chipset()}</span>
         <span class="text-xs font-bold text-foreground truncate block">{stats?.soc || 'ARM64'}</span>
       </div>
     </div>
@@ -661,7 +662,7 @@
     <!-- Load Average Strip -->
     {#if stats?.load_avg}
       <div class="p-2.5 rounded bg-card-sub border border-border flex items-center justify-between flex-wrap gap-2 text-[11px]">
-        <span class="text-muted font-bold uppercase text-[10px]">Load Average:</span>
+        <span class="text-muted font-bold uppercase text-[10px]">{$LL.overview.cpuModal.loadAverage()}</span>
         <div class="flex items-center gap-3">
           <span>1m: <strong class="text-foreground">{stats.load_avg.one.toFixed(2)}</strong></span>
           <span>5m: <strong class="text-foreground">{stats.load_avg.five.toFixed(2)}</strong></span>
@@ -673,14 +674,14 @@
     <!-- Per Core Frequency & Usage Grid -->
     <div class="space-y-2">
       <div class="flex items-center justify-between text-[11px] font-bold uppercase text-muted">
-        <span>Active CPU Cores ({stats?.cpu_cores?.length || 0})</span>
-        <span>Frequency & Load</span>
+        <span>{$LL.overview.cpuModal.activeCores({ count: stats?.cpu_cores?.length || 0 })}</span>
+        <span>{$LL.overview.cpuModal.freqLoad()}</span>
       </div>
       <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
         {#each stats?.cpu_cores || [] as core}
           <div class="p-2 rounded bg-card-sub border border-border space-y-1.5">
             <div class="flex items-center justify-between">
-              <span class="font-bold text-accent">Core #{core.core}</span>
+              <span class="font-bold text-accent">{$LL.overview.cpuModal.core({ core: core.core })}</span>
               <span class="text-[10px] text-muted font-bold">{(core.freq_mhz / 1000).toFixed(2)} GHz</span>
             </div>
             <div class="w-full bg-card border border-border h-1.5 rounded overflow-hidden">
@@ -701,7 +702,7 @@
     <!-- Thermal Sensors / Zones -->
     {#if stats?.thermals && stats.thermals.length > 0}
       <div class="space-y-2">
-        <span class="text-[11px] font-bold uppercase text-muted block">Thermal Sensors</span>
+        <span class="text-[11px] font-bold uppercase text-muted block">{$LL.overview.cpuModal.thermalSensors()}</span>
         <div class="grid grid-cols-2 sm:grid-cols-3 gap-2 max-h-36 overflow-y-auto pr-1">
           {#each stats.thermals as tz}
             <div class="p-2 rounded bg-card-sub border border-border flex items-center justify-between">
@@ -725,11 +726,11 @@
         navigationStore.setTab('sysinfo')
       }}
     >
-      <span>Open Sysinfo Tab</span>
+      <span>{$LL.overview.cpuModal.openSysinfo()}</span>
       <ArrowRight class="w-3.5 h-3.5 ml-1" />
     </Button>
     <Button variant="primary" size="sm" onclick={() => (showCpuModal = false)}>
-      <span>Close</span>
+      <span>{$LL.common.close()}</span>
     </Button>
   {/snippet}
 </Modal>
@@ -737,7 +738,7 @@
 <!-- Battery Detail Telemetry Modal -->
 <Modal
   open={showBatteryModal}
-  title="Battery Diagnostics & Health"
+  title={$LL.overview.batteryModal.title()}
   onclose={() => (showBatteryModal = false)}
   class="!max-w-xl"
 >
@@ -755,14 +756,14 @@
         <div>
           <div class="text-xl font-black text-foreground">{stats ? stats.battery_level : 0}%</div>
           <p class="text-[11px] text-muted">
-            Status: <span class="text-emerald-400 font-bold">{stats?.battery_status || 'Discharging'}</span>
+            {$LL.common.status()}: <span class="text-emerald-400 font-bold">{stats?.battery_status || $LL.header.discharging()}</span>
           </p>
         </div>
       </div>
       <div class="text-right">
-        <span class="text-[10px] text-muted uppercase font-bold block">Health Condition</span>
+        <span class="text-[10px] text-muted uppercase font-bold block">{$LL.overview.batteryModal.health()}</span>
         <span class="text-xs font-bold text-emerald-400 uppercase">
-          {stats?.battery_detail?.health || 'Good'}
+          {stats?.battery_detail?.health || $LL.overview.device.healthGood()}
         </span>
       </div>
     </div>
@@ -770,42 +771,42 @@
     <!-- Battery Metrics Grid -->
     <div class="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
       <div class="p-2.5 rounded bg-card-sub border border-border space-y-1">
-        <span class="text-[10px] text-muted uppercase font-bold block">Voltage</span>
+        <span class="text-[10px] text-muted uppercase font-bold block">{$LL.overview.batteryModal.voltage()}</span>
         <span class="text-sm font-bold text-foreground">
           {stats?.battery_detail?.voltage_mv ? (stats.battery_detail.voltage_mv / 1000).toFixed(3) + ' V' : 'N/A'}
         </span>
       </div>
 
       <div class="p-2.5 rounded bg-card-sub border border-border space-y-1">
-        <span class="text-[10px] text-muted uppercase font-bold block">Current Flow</span>
+        <span class="text-[10px] text-muted uppercase font-bold block">{$LL.overview.batteryModal.current()}</span>
         <span class="text-sm font-bold {stats?.battery_detail?.current_now && stats.battery_detail.current_now < 0 ? 'text-amber-400' : 'text-emerald-400'}">
           {stats?.battery_detail?.current_now !== undefined ? stats.battery_detail.current_now + ' mA' : 'N/A'}
         </span>
       </div>
 
       <div class="p-2.5 rounded bg-card-sub border border-border space-y-1">
-        <span class="text-[10px] text-muted uppercase font-bold block">Battery Temp</span>
+        <span class="text-[10px] text-muted uppercase font-bold block">{$LL.overview.batteryModal.batteryTemp()}</span>
         <span class="text-sm font-bold {stats?.battery_temp && stats.battery_temp > 42 ? 'text-red-400' : 'text-amber-400'}">
           {stats?.battery_temp ? stats.battery_temp.toFixed(1) + ' °C' : 'N/A'}
         </span>
       </div>
 
       <div class="p-2.5 rounded bg-card-sub border border-border space-y-1">
-        <span class="text-[10px] text-muted uppercase font-bold block">Technology</span>
+        <span class="text-[10px] text-muted uppercase font-bold block">{$LL.overview.batteryModal.technology()}</span>
         <span class="text-sm font-bold text-foreground">
           {stats?.battery_detail?.technology || 'Li-poly'}
         </span>
       </div>
 
       <div class="p-2.5 rounded bg-card-sub border border-border space-y-1">
-        <span class="text-[10px] text-muted uppercase font-bold block">Capacity</span>
+        <span class="text-[10px] text-muted uppercase font-bold block">{$LL.overview.batteryModal.capacity()}</span>
         <span class="text-sm font-bold text-foreground">
           {stats?.battery_detail?.capacity || stats?.battery_level || 0}%
         </span>
       </div>
 
       <div class="p-2.5 rounded bg-card-sub border border-border space-y-1">
-        <span class="text-[10px] text-muted uppercase font-bold block">Full Charge Max</span>
+        <span class="text-[10px] text-muted uppercase font-bold block">{$LL.overview.batteryModal.fullChargeMax()}</span>
         <span class="text-sm font-bold text-foreground">
           {stats?.battery_detail?.charge_full ? stats.battery_detail.charge_full + ' mAh' : 'N/A'}
         </span>
@@ -816,7 +817,7 @@
     <div class="p-3 rounded bg-card-sub border border-border/80 flex items-start gap-2.5">
       <Zap class="w-4 h-4 text-accent shrink-0 mt-0.5" />
       <p class="text-[11px] text-muted leading-relaxed">
-        BFR-WEBUI includes a hardware charging limitation controller (stop charging at 80% to protect against battery swelling during 24/7 router deployment).
+        {$LL.overview.batteryModal.chargingNote()}
       </p>
     </div>
   </div>
@@ -830,11 +831,11 @@
         navigationStore.setTab('charger')
       }}
     >
-      <span>Charging Limit Controls</span>
+      <span>{$LL.overview.batteryModal.chargingLimit()}</span>
       <ArrowRight class="w-3.5 h-3.5 ml-1" />
     </Button>
     <Button variant="primary" size="sm" onclick={() => (showBatteryModal = false)}>
-      <span>Close</span>
+      <span>{$LL.common.close()}</span>
     </Button>
   {/snippet}
 </Modal>
@@ -842,7 +843,7 @@
 <!-- Network Detail Telemetry Modal -->
 <Modal
   open={showNetworkModal}
-  title="Network Interface & Telemetry"
+  title={$LL.overview.networkModal.title()}
   onclose={() => (showNetworkModal = false)}
   class="!max-w-2xl"
 >
@@ -850,28 +851,28 @@
     <!-- Active Interface & Traffic Header -->
     <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
       <div class="p-2.5 rounded bg-card-sub border border-border space-y-1">
-        <span class="text-[10px] text-muted uppercase font-bold block">Active Interface</span>
+        <span class="text-[10px] text-muted uppercase font-bold block">{$LL.overview.networkModal.activeInterface()}</span>
         <span class="text-sm font-black text-accent truncate block">
           {stats?.network?.interface || stats?.network_detail?.interface || (stats?.network_detail?.wifi_ssid ? 'wlan0' : 'rmnet0')}
         </span>
       </div>
 
       <div class="p-2.5 rounded bg-card-sub border border-border space-y-1">
-        <span class="text-[10px] text-muted uppercase font-bold block">Network Mode</span>
+        <span class="text-[10px] text-muted uppercase font-bold block">{$LL.overview.networkModal.networkMode()}</span>
         <span class="text-sm font-bold text-emerald-400 truncate block">
           {stats?.network_detail?.sim_slots?.[0]?.network_type || (stats?.network_detail?.wifi_ssid ? 'Wi-Fi 802.11' : 'Cellular LTE/5G')}
         </span>
       </div>
 
       <div class="p-2.5 rounded bg-card-sub border border-border space-y-1">
-        <span class="text-[10px] text-muted uppercase font-bold block">Total Download</span>
+        <span class="text-[10px] text-muted uppercase font-bold block">{$LL.overview.networkModal.totalDownload()}</span>
         <span class="text-sm font-black text-foreground truncate block">
           {formatBytes(stats?.net_rx || 0)}
         </span>
       </div>
 
       <div class="p-2.5 rounded bg-card-sub border border-border space-y-1">
-        <span class="text-[10px] text-muted uppercase font-bold block">Total Upload</span>
+        <span class="text-[10px] text-muted uppercase font-bold block">{$LL.overview.networkModal.totalUpload()}</span>
         <span class="text-sm font-black text-foreground truncate block">
           {formatBytes(stats?.net_tx || 0)}
         </span>
@@ -881,34 +882,34 @@
     <!-- IP Addresses & Gateway Details -->
     <div class="p-3 bg-card-sub border border-border rounded space-y-2">
       <div class="flex items-center justify-between border-b border-border/70 pb-1.5">
-        <span class="font-bold text-foreground uppercase tracking-wider text-[11px]">IP & Routing Configuration</span>
+        <span class="font-bold text-foreground uppercase tracking-wider text-[11px]">{$LL.overview.networkModal.ipRouting()}</span>
         <Badge variant="info">IPv4 / IPv6</Badge>
       </div>
 
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px]">
         <div class="flex items-center justify-between p-2 rounded bg-card border border-border">
-          <span class="text-muted">Primary IPv4:</span>
+          <span class="text-muted">{$LL.overview.networkModal.primaryIpv4()}</span>
           <span class="font-bold text-accent select-text">
             {stats?.network_detail?.ip_addresses?.find((ip) => ip.includes('.')) || stats?.network_detail?.ip || '192.168.43.1'}
           </span>
         </div>
 
         <div class="flex items-center justify-between p-2 rounded bg-card border border-border">
-          <span class="text-muted">Default Gateway:</span>
+          <span class="text-muted">{$LL.overview.networkModal.gateway()}</span>
           <span class="font-bold text-foreground select-text">
             {stats?.network_detail?.gateway || '192.168.43.1'}
           </span>
         </div>
 
         <div class="flex items-center justify-between p-2 rounded bg-card border border-border">
-          <span class="text-muted">Subnet Mask:</span>
+          <span class="text-muted">{$LL.overview.networkModal.subnetMask()}</span>
           <span class="font-bold text-foreground select-text">
             255.255.255.0 (/24)
           </span>
         </div>
 
         <div class="flex items-center justify-between p-2 rounded bg-card border border-border">
-          <span class="text-muted">System MTU:</span>
+          <span class="text-muted">{$LL.overview.networkModal.systemMtu()}</span>
           <span class="font-bold text-foreground select-text">
             {stats?.mtu || '1500'}
           </span>
@@ -918,7 +919,7 @@
       <!-- IPv6 if present -->
       {#if stats?.network_detail?.ip_addresses?.some((ip) => ip.includes(':'))}
         <div class="p-2 rounded bg-card border border-border flex flex-col sm:flex-row sm:items-center justify-between gap-1 text-[10px]">
-          <span class="text-muted">IPv6 Global/Link:</span>
+          <span class="text-muted">{$LL.overview.networkModal.ipv6()}</span>
           <span class="font-mono text-cyan-400 font-bold select-text break-all">
             {stats.network_detail.ip_addresses.filter((ip) => ip.includes(':')).join(', ')}
           </span>
@@ -931,20 +932,20 @@
       <!-- DNS Resolvers -->
       <div class="p-3 bg-card-sub border border-border rounded space-y-2">
         <div class="flex items-center justify-between border-b border-border/70 pb-1.5">
-          <span class="font-bold text-foreground uppercase tracking-wider text-[11px]">DNS Resolvers</span>
+          <span class="font-bold text-foreground uppercase tracking-wider text-[11px]">{$LL.overview.networkModal.dnsResolvers()}</span>
           <span class="text-[10px] text-muted">Port 53 / 1053</span>
         </div>
         <div class="space-y-1.5 text-[11px]">
           <div class="flex items-center justify-between">
-            <span class="text-muted">Primary DNS:</span>
+            <span class="text-muted">{$LL.overview.networkModal.primaryDns()}</span>
             <span class="font-bold text-emerald-400 select-text">{stats?.network_detail?.dns1 || stats?.network_detail?.dns?.[0] || '1.1.1.1'}</span>
           </div>
           <div class="flex items-center justify-between">
-            <span class="text-muted">Secondary DNS:</span>
+            <span class="text-muted">{$LL.overview.networkModal.secondaryDns()}</span>
             <span class="font-bold text-emerald-400 select-text">{stats?.network_detail?.dns2 || stats?.network_detail?.dns?.[1] || '1.0.0.1'}</span>
           </div>
           <div class="flex items-center justify-between">
-            <span class="text-muted">Default TTL:</span>
+            <span class="text-muted">{$LL.overview.networkModal.defaultTtl()}</span>
             <span class="font-bold text-accent">{stats?.default_ttl || '64'}</span>
           </div>
         </div>
@@ -953,32 +954,32 @@
       <!-- Wi-Fi / Cellular Connection -->
       <div class="p-3 bg-card-sub border border-border rounded space-y-2">
         <div class="flex items-center justify-between border-b border-border/70 pb-1.5">
-          <span class="font-bold text-foreground uppercase tracking-wider text-[11px]">Wireless Connection</span>
-          <Badge variant="default">{stats?.network_detail?.wifi_ssid ? 'Wi-Fi' : 'Mobile Data'}</Badge>
+          <span class="font-bold text-foreground uppercase tracking-wider text-[11px]">{$LL.overview.networkModal.wireless()}</span>
+          <Badge variant="default">{stats?.network_detail?.wifi_ssid ? 'Wi-Fi' : $LL.overview.networkModal.mobileData()}</Badge>
         </div>
         <div class="space-y-1.5 text-[11px]">
           {#if stats?.network_detail?.wifi_ssid}
             <div class="flex items-center justify-between">
-              <span class="text-muted">SSID:</span>
+              <span class="text-muted">{$LL.overview.networkModal.ssid()}</span>
               <span class="font-bold text-accent">{stats.network_detail.wifi_ssid}</span>
             </div>
             <div class="flex items-center justify-between">
-              <span class="text-muted">Signal:</span>
+              <span class="text-muted">{$LL.overview.networkModal.signal()}</span>
               <span class="font-bold text-foreground">{stats.network_detail.wifi_signal || `${stats.network_detail.wifi_rssi || -60} dBm`}</span>
             </div>
           {:else}
             <div class="flex items-center justify-between">
-              <span class="text-muted">Carrier:</span>
-              <span class="font-bold text-accent">{stats?.network_detail?.sim_slots?.[0]?.operator || 'Active Operator'}</span>
+              <span class="text-muted">{$LL.overview.networkModal.carrier()}</span>
+              <span class="font-bold text-accent">{stats?.network_detail?.sim_slots?.[0]?.operator || $LL.overview.device.operatorFallback()}</span>
             </div>
             <div class="flex items-center justify-between">
-              <span class="text-muted">Radio Mode:</span>
+              <span class="text-muted">{$LL.overview.networkModal.radioMode()}</span>
               <span class="font-bold text-foreground">{stats?.network_detail?.sim_slots?.[0]?.network_type || '4G LTE-A / 5G'}</span>
             </div>
           {/if}
           <div class="flex items-center justify-between">
-            <span class="text-muted">Connected Clients:</span>
-            <span class="font-bold text-cyan-400">{stats?.network_detail?.hotspot_clients ?? 0} devices</span>
+            <span class="text-muted">{$LL.overview.networkModal.connectedClients()}</span>
+            <span class="font-bold text-cyan-400">{$LL.overview.networkModal.devices({ count: stats?.network_detail?.hotspot_clients ?? 0 })}</span>
           </div>
         </div>
       </div>
@@ -996,7 +997,7 @@
         }}
       >
         <ArrowRight class="w-3.5 h-3.5 mr-1" />
-        <span>Open Network Tuning</span>
+        <span>{$LL.overview.networkModal.openTuning()}</span>
       </Button>
 
       <Button
@@ -1004,7 +1005,7 @@
         size="sm"
         onclick={() => (showNetworkModal = false)}
       >
-        Close
+        {$LL.common.close()}
       </Button>
     </div>
   {/snippet}
@@ -1013,32 +1014,32 @@
 <!-- Add / Edit Shortcut Modal -->
 <Modal
   open={showAddShortcutModal}
-  title={shortcutForm.id ? 'Edit Shortcut' : 'Add App Shortcut'}
+  title={shortcutForm.id ? $LL.overview.shortcuts.editTitle() : $LL.overview.shortcutModal.addTitle()}
   onclose={() => (showAddShortcutModal = false)}
   class="!max-w-md"
 >
   <form onsubmit={(e) => { e.preventDefault(); saveShortcut(); }} class="space-y-3 font-mono text-xs">
     <Input
-      label="Application Name"
-      placeholder="e.g. Clash Web, AdGuard, OpenWrt"
+      label={$LL.overview.shortcutModal.nameLabel()}
+      placeholder={$LL.overview.shortcutModal.namePlaceholder()}
       bind:value={shortcutForm.title}
     />
 
     <Input
-      label="Target URL"
-      placeholder="http://192.168.43.1:9090 or https://..."
+      label={$LL.overview.shortcutModal.urlLabel()}
+      placeholder={$LL.overview.shortcutModal.urlPlaceholder()}
       bind:value={shortcutForm.url}
     />
 
     <Input
-      label="Icon (Emoji or Image URL)"
-      placeholder="e.g. 🌐, 🚀, 🛡️, ⚙️ or https://.../icon.png"
+      label={$LL.overview.shortcutModal.iconLabel()}
+      placeholder={$LL.overview.shortcutModal.iconPlaceholder()}
       bind:value={shortcutForm.icon_url}
     />
 
     <!-- Quick Emoji Presets -->
     <div class="space-y-1">
-      <span class="text-[10px] font-bold text-muted uppercase block">Quick Icon Presets</span>
+      <span class="text-[10px] font-bold text-muted uppercase block">{$LL.overview.shortcutModal.quickPresets()}</span>
       <div class="flex items-center gap-1.5 flex-wrap">
         {#each ['🌐', '🛡️', '⚙️', '📊', '📡', '🚀', '⚡', '💻', '📁', '🏠'] as emoji}
           <button
@@ -1059,7 +1060,7 @@
       size="sm"
       onclick={() => (showAddShortcutModal = false)}
     >
-      Cancel
+      {$LL.common.cancel()}
     </Button>
     <Button
       variant="primary"
@@ -1067,7 +1068,7 @@
       disabled={!shortcutForm.title.trim() || !shortcutForm.url.trim()}
       onclick={saveShortcut}
     >
-      {shortcutForm.id ? 'Save Changes' : 'Add Shortcut'}
+      {shortcutForm.id ? $LL.overview.shortcutModal.saveChanges() : $LL.overview.shortcuts.add()}
     </Button>
   {/snippet}
 </Modal>
