@@ -592,7 +592,7 @@
             onclick={isAllSelected ? deselectAll : selectAll}
           >
             <Check class="w-3.5 h-3.5 mr-1" />
-            <span>{isAllSelected ? $LL.samsung.bands.deselectAll() : $LL.common.selectAll()}</span>
+            <span>{isAllSelected ? $LL.common.deselectAll() : $LL.common.selectAll()}</span>
           </Button>
 
           {#if selectedBandIds.length > 0}

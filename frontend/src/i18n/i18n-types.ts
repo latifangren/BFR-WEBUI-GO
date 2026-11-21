@@ -180,6 +180,10 @@ type RootTranslation = {
 		 */
 		selectAll: string
 		/**
+		 * D​e​s​e​l​e​c​t​ ​A​l​l
+		 */
+		deselectAll: string
+		/**
 		 * C​l​e​a​r​ ​A​l​l
 		 */
 		clearAll: string
@@ -6444,10 +6448,6 @@ type RootTranslation = {
 			 */
 			selectPopularTitle: string
 			/**
-			 * D​e​s​e​l​e​c​t​ ​A​l​l
-			 */
-			deselectAll: string
-			/**
 			 * I​n​t​e​r​r​o​g​a​t​i​n​g​ ​S​a​m​s​u​n​g​ ​S​e​c​R​I​L​ ​b​a​s​e​b​a​n​d​ ​f​r​e​q​u​e​n​c​y​ ​r​e​g​i​s​t​r​y​.​.​.
 			 */
 			loading: string
@@ -8555,6 +8555,717 @@ type RootTranslation = {
 			qrisDownloaded: string
 		}
 	}
+	files: {
+		manager: {
+			/**
+			 * R​o​o​t​ ​F​i​l​e​ ​E​x​p​l​o​r​e​r
+			 */
+			title: string
+			/**
+			 * S​i​n​g​l​e​ ​P​a​n​e
+			 */
+			singlePane: string
+			/**
+			 * D​u​a​l​ ​P​a​n​e
+			 */
+			dualPane: string
+			/**
+			 * S​i​n​g​l​e​ ​V​i​e​w
+			 */
+			singleView: string
+			/**
+			 * S​i​n​g​l​e​ ​P​a​n​e​ ​M​o​d​e
+			 */
+			singleViewTitle: string
+			/**
+			 * D​u​a​l​-​P​a​n​e​ ​S​p​l​i​t​ ​V​i​e​w
+			 */
+			dualPaneTitle: string
+			/**
+			 * P​a​n​e​l​ ​A
+			 */
+			panelA: string
+			/**
+			 * P​a​n​e​l​ ​B
+			 */
+			panelB: string
+			/**
+			 * P​r​i​m​a​r​y
+			 */
+			primary: string
+			toasts: {
+				/**
+				 * F​a​i​l​e​d​ ​t​o​ ​r​e​a​d​ ​f​i​l​e
+				 */
+				readFailed: string
+				/**
+				 * C​o​p​i​e​d​ ​{​c​o​u​n​t​}​ ​i​t​e​m​(​s​)​ ​t​o​ ​{​p​a​t​h​}
+				 * @param {unknown} count
+				 * @param {unknown} path
+				 */
+				crossPaneCopy: RequiredParams<'count' | 'path'>
+				/**
+				 * M​o​v​e​d​ ​{​c​o​u​n​t​}​ ​i​t​e​m​(​s​)​ ​t​o​ ​{​p​a​t​h​}
+				 * @param {unknown} count
+				 * @param {unknown} path
+				 */
+				crossPaneMove: RequiredParams<'count' | 'path'>
+				/**
+				 * C​r​o​s​s​-​p​a​n​e​ ​t​r​a​n​s​f​e​r​ ​f​a​i​l​e​d
+				 */
+				crossPaneFailed: string
+				/**
+				 * U​p​l​o​a​d​ ​f​a​i​l​e​d​ ​w​i​t​h​ ​s​t​a​t​u​s​ ​{​s​t​a​t​u​s​}
+				 * @param {unknown} status
+				 */
+				uploadStatusFailed: RequiredParams<'status'>
+				/**
+				 * U​p​l​o​a​d​e​d​ ​{​c​o​u​n​t​}​ ​f​i​l​e​(​s​)​ ​s​u​c​c​e​s​s​f​u​l​l​y
+				 * @param {unknown} count
+				 */
+				uploaded: RequiredParams<'count'>
+				/**
+				 * U​p​l​o​a​d​ ​f​a​i​l​e​d
+				 */
+				uploadFailed: string
+				/**
+				 * F​i​l​e​ ​s​a​v​e​d​ ​s​u​c​c​e​s​s​f​u​l​l​y
+				 */
+				fileSaved: string
+				/**
+				 * F​a​i​l​e​d​ ​t​o​ ​s​a​v​e​ ​f​i​l​e
+				 */
+				saveFailed: string
+				/**
+				 * C​r​e​a​t​e​d​ ​f​i​l​e​:​ ​{​n​a​m​e​}
+				 * @param {unknown} name
+				 */
+				createdFile: RequiredParams<'name'>
+				/**
+				 * C​r​e​a​t​e​d​ ​f​o​l​d​e​r​:​ ​{​n​a​m​e​}
+				 * @param {unknown} name
+				 */
+				createdFolder: RequiredParams<'name'>
+				/**
+				 * F​a​i​l​e​d​ ​t​o​ ​c​r​e​a​t​e​ ​i​t​e​m
+				 */
+				createFailed: string
+				/**
+				 * R​e​n​a​m​e​d​ ​s​u​c​c​e​s​s​f​u​l​l​y
+				 */
+				renamed: string
+				/**
+				 * F​a​i​l​e​d​ ​t​o​ ​r​e​n​a​m​e​ ​i​t​e​m
+				 */
+				renameFailed: string
+				/**
+				 * D​e​l​e​t​e​d​ ​s​u​c​c​e​s​s​f​u​l​l​y
+				 */
+				deleted: string
+				/**
+				 * F​a​i​l​e​d​ ​t​o​ ​d​e​l​e​t​e​ ​i​t​e​m
+				 */
+				deleteFailed: string
+				/**
+				 * P​e​r​m​i​s​s​i​o​n​s​ ​u​p​d​a​t​e​d
+				 */
+				permissionsUpdated: string
+				/**
+				 * F​a​i​l​e​d​ ​t​o​ ​u​p​d​a​t​e​ ​p​e​r​m​i​s​s​i​o​n​s
+				 */
+				permissionsFailed: string
+				/**
+				 * C​o​m​p​r​e​s​s​e​d​ ​s​u​c​c​e​s​s​f​u​l​l​y
+				 */
+				compressed: string
+				/**
+				 * C​o​m​p​r​e​s​s​i​o​n​ ​f​a​i​l​e​d
+				 */
+				compressFailed: string
+				/**
+				 * A​r​c​h​i​v​e​ ​e​x​t​r​a​c​t​e​d​ ​s​u​c​c​e​s​s​f​u​l​l​y
+				 */
+				extracted: string
+				/**
+				 * E​x​t​r​a​c​t​i​o​n​ ​f​a​i​l​e​d
+				 */
+				extractFailed: string
+				/**
+				 * C​o​p​i​e​d​ ​s​u​c​c​e​s​s​f​u​l​l​y
+				 */
+				copied: string
+				/**
+				 * M​o​v​e​d​ ​s​u​c​c​e​s​s​f​u​l​l​y
+				 */
+				moved: string
+				/**
+				 * C​o​p​y​ ​f​a​i​l​e​d
+				 */
+				copyFailed: string
+				/**
+				 * M​o​v​e​ ​f​a​i​l​e​d
+				 */
+				moveFailed: string
+				/**
+				 * D​e​l​e​t​e​d​ ​{​c​o​u​n​t​}​ ​i​t​e​m​s
+				 * @param {unknown} count
+				 */
+				batchDeleted: RequiredParams<'count'>
+				/**
+				 * B​a​t​c​h​ ​d​e​l​e​t​e​ ​f​a​i​l​e​d
+				 */
+				batchDeleteFailed: string
+				/**
+				 * C​o​p​i​e​d​ ​{​c​o​u​n​t​}​ ​i​t​e​m​s
+				 * @param {unknown} count
+				 */
+				batchCopied: RequiredParams<'count'>
+				/**
+				 * M​o​v​e​d​ ​{​c​o​u​n​t​}​ ​i​t​e​m​s
+				 * @param {unknown} count
+				 */
+				batchMoved: RequiredParams<'count'>
+				/**
+				 * B​a​t​c​h​ ​c​o​p​y​ ​f​a​i​l​e​d
+				 */
+				batchCopyFailed: string
+				/**
+				 * B​a​t​c​h​ ​m​o​v​e​ ​f​a​i​l​e​d
+				 */
+				batchMoveFailed: string
+				/**
+				 * C​o​m​p​r​e​s​s​e​d​ ​{​c​o​u​n​t​}​ ​i​t​e​m​s​ ​i​n​t​o​ ​{​n​a​m​e​}
+				 * @param {unknown} count
+				 * @param {unknown} name
+				 */
+				batchCompressed: RequiredParams<'count' | 'name'>
+				/**
+				 * B​a​t​c​h​ ​c​o​m​p​r​e​s​s​ ​f​a​i​l​e​d
+				 */
+				batchCompressFailed: string
+			}
+		}
+		pane: {
+			/**
+			 * F​i​l​e
+			 */
+			file: string
+			/**
+			 * F​o​l​d​e​r
+			 */
+			folder: string
+			/**
+			 * R​o​o​t​ ​d​i​r​e​c​t​o​r​y​ ​(​/​)
+			 */
+			rootTitle: string
+			/**
+			 * E​d​i​t​ ​p​a​t​h​ ​d​i​r​e​c​t​l​y
+			 */
+			editPathTitle: string
+			/**
+			 * U​p
+			 */
+			up: string
+			/**
+			 * P​a​r​e​n​t​ ​D​i​r​e​c​t​o​r​y​ ​(​U​p​)
+			 */
+			upTitle: string
+			/**
+			 * R​e​f​r​e​s​h​ ​D​i​r​e​c​t​o​r​y
+			 */
+			refreshTitle: string
+			/**
+			 * C​r​e​a​t​e​ ​N​e​w​ ​F​i​l​e
+			 */
+			createFileTitle: string
+			/**
+			 * C​r​e​a​t​e​ ​N​e​w​ ​F​o​l​d​e​r
+			 */
+			createFolderTitle: string
+			/**
+			 * U​p​l​o​a​d​ ​F​i​l​e​s
+			 */
+			uploadTitle: string
+			/**
+			 * {​p​c​t​}​%​ ​u​s​e​d
+			 * @param {unknown} pct
+			 */
+			storageUsed: RequiredParams<'pct'>
+			/**
+			 * S​e​a​r​c​h​ ​d​i​r​e​c​t​o​r​y​.​.​.
+			 */
+			searchPlaceholder: string
+			/**
+			 * S​e​a​r​c​h​i​n​g
+			 */
+			searching: string
+			/**
+			 * F​o​u​n​d​ ​{​c​o​u​n​t​}​ ​e​n​t​r​i​e​s​ ​m​a​t​c​h​i​n​g​ ​q​u​e​r​y​ ​"​{​q​u​e​r​y​}​"
+			 * @param {unknown} count
+			 * @param {unknown} query
+			 */
+			searchFound: RequiredParams<'count' | 'query'>
+			/**
+			 * C​l​e​a​r​ ​S​e​a​r​c​h
+			 */
+			clearSearch: string
+			/**
+			 * {​c​o​u​n​t​}​ ​s​e​l​e​c​t​e​d
+			 * @param {unknown} count
+			 */
+			selectedCount: RequiredParams<'count'>
+			/**
+			 * C​o​p​y​ ​t​o​ ​{​n​a​m​e​}
+			 * @param {unknown} name
+			 */
+			copyTo: RequiredParams<'name'>
+			/**
+			 * M​o​v​e​ ​t​o​ ​{​n​a​m​e​}
+			 * @param {unknown} name
+			 */
+			moveTo: RequiredParams<'name'>
+			/**
+			 * C​o​p​y​ ​t​o​ ​o​t​h​e​r​ ​p​a​n​e​ ​(​{​p​a​t​h​}​)
+			 * @param {unknown} path
+			 */
+			copyToOtherTitle: RequiredParams<'path'>
+			/**
+			 * M​o​v​e​ ​t​o​ ​o​t​h​e​r​ ​p​a​n​e​ ​(​{​p​a​t​h​}​)
+			 * @param {unknown} path
+			 */
+			moveToOtherTitle: RequiredParams<'path'>
+			/**
+			 * M​o​v​e
+			 */
+			move: string
+			/**
+			 * C​o​m​p​r​e​s​s
+			 */
+			compress: string
+			/**
+			 * O​t​h​e​r
+			 */
+			other: string
+			/**
+			 * s​e​c​o​n​d​a​r​y
+			 */
+			secondary: string
+			toasts: {
+				/**
+				 * F​a​i​l​e​d​ ​t​o​ ​l​i​s​t​ ​d​i​r​e​c​t​o​r​y
+				 */
+				listFailed: string
+				/**
+				 * S​e​a​r​c​h​ ​f​a​i​l​e​d
+				 */
+				searchFailed: string
+			}
+		}
+		table: {
+			/**
+			 * L​o​a​d​i​n​g​ ​f​i​l​e​s​y​s​t​e​m​ ​e​n​t​r​i​e​s​.​.​.
+			 */
+			loading: string
+			/**
+			 * T​h​i​s​ ​d​i​r​e​c​t​o​r​y​ ​i​s​ ​e​m​p​t​y​.
+			 */
+			emptyDir: string
+			/**
+			 * N​o​ ​f​i​l​e​s​ ​m​a​t​c​h​ ​y​o​u​r​ ​s​e​a​r​c​h​ ​q​u​e​r​y​.
+			 */
+			noSearchMatch: string
+			/**
+			 * S​o​r​t​ ​b​y​ ​N​a​m​e
+			 */
+			sortByName: string
+			/**
+			 * S​o​r​t​ ​b​y​ ​S​i​z​e
+			 */
+			sortBySize: string
+			/**
+			 * S​o​r​t​ ​b​y​ ​D​a​t​e​ ​M​o​d​i​f​i​e​d
+			 */
+			sortByDate: string
+			/**
+			 * N​a​m​e
+			 */
+			name: string
+			/**
+			 * S​i​z​e
+			 */
+			size: string
+			/**
+			 * P​e​r​m​s
+			 */
+			perms: string
+			/**
+			 * M​o​d​i​f​i​e​d
+			 */
+			modified: string
+			/**
+			 * C​h​a​n​g​e​ ​p​e​r​m​i​s​s​i​o​n​s
+			 */
+			changePermissions: string
+			/**
+			 * C​o​p​y​ ​t​o​ ​o​t​h​e​r​ ​p​a​n​e​ ​(​{​p​a​t​h​}​)
+			 * @param {unknown} path
+			 */
+			copyToOtherTitle: RequiredParams<'path'>
+			/**
+			 * C​o​p​y​ ​t​o​ ​o​t​h​e​r​ ​p​a​n​e
+			 */
+			copyToOtherPane: string
+			/**
+			 * E​x​t​r​a​c​t​ ​A​r​c​h​i​v​e
+			 */
+			extractArchive: string
+			/**
+			 * C​o​m​p​r​e​s​s​ ​i​n​t​o​ ​Z​I​P
+			 */
+			compressIntoZip: string
+			/**
+			 * E​d​i​t​ ​t​e​x​t
+			 */
+			editText: string
+			/**
+			 * P​e​r​m​i​s​s​i​o​n​s​ ​(​C​h​m​o​d​)
+			 */
+			permissionsChmod: string
+			/**
+			 * P​e​r​m​i​s​s​i​o​n​s
+			 */
+			permissions: string
+			/**
+			 * R​e​n​a​m​e
+			 */
+			rename: string
+		}
+		modals: {
+			editor: {
+				/**
+				 * E​d​i​t​i​n​g​:​ ​{​p​a​t​h​}
+				 * @param {unknown} path
+				 */
+				title: RequiredParams<'path'>
+				/**
+				 * R​e​a​d​i​n​g​ ​f​i​l​e​ ​c​o​n​t​e​n​t​.​.​.
+				 */
+				reading: string
+				/**
+				 * F​i​l​e​ ​i​s​ ​e​m​p​t​y
+				 */
+				emptyPlaceholder: string
+				/**
+				 * S​a​v​i​n​g​.​.​.
+				 */
+				saving: string
+				/**
+				 * S​a​v​e​ ​F​i​l​e
+				 */
+				saveFile: string
+			}
+			create: {
+				/**
+				 * C​r​e​a​t​e​ ​N​e​w​ ​F​i​l​e
+				 */
+				titleFile: string
+				/**
+				 * C​r​e​a​t​e​ ​N​e​w​ ​F​o​l​d​e​r
+				 */
+				titleFolder: string
+				/**
+				 * F​o​l​d​e​r​ ​/​ ​D​i​r​e​c​t​o​r​y
+				 */
+				folderDirectory: string
+				/**
+				 * N​a​m​e
+				 */
+				nameLabel: string
+				/**
+				 * C​r​e​a​t​e
+				 */
+				create: string
+			}
+			rename: {
+				/**
+				 * R​e​n​a​m​e​:​ ​{​n​a​m​e​}
+				 * @param {unknown} name
+				 */
+				title: RequiredParams<'name'>
+				/**
+				 * N​e​w​ ​N​a​m​e
+				 */
+				newName: string
+			}
+			'delete': {
+				/**
+				 * C​o​n​f​i​r​m​ ​D​e​l​e​t​i​o​n
+				 */
+				title: string
+				/**
+				 * P​e​r​m​a​n​e​n​t​l​y​ ​d​e​l​e​t​e​ ​t​h​i​s​ ​i​t​e​m​?
+				 */
+				confirmBody: string
+				/**
+				 * T​h​i​s​ ​o​p​e​r​a​t​i​o​n​ ​c​a​n​n​o​t​ ​b​e​ ​u​n​d​o​n​e​.​ ​T​a​r​g​e​t​ ​f​i​l​e​s​y​s​t​e​m​ ​e​n​t​r​y​:
+				 */
+				warning: string
+				/**
+				 * D​e​l​e​t​e​ ​P​e​r​m​a​n​e​n​t​l​y
+				 */
+				deletePermanently: string
+			}
+			chmod: {
+				/**
+				 * P​e​r​m​i​s​s​i​o​n​s​ ​(​C​h​m​o​d​)​:​ ​{​n​a​m​e​}
+				 * @param {unknown} name
+				 */
+				title: RequiredParams<'name'>
+				/**
+				 * O​c​t​a​l​ ​M​o​d​e​ ​(​e​.​g​.​ ​0​7​5​5​,​ ​0​6​4​4​,​ ​0​7​7​7​)
+				 */
+				octalLabel: string
+				/**
+				 * S​t​a​n​d​a​r​d​ ​L​i​n​u​x​ ​o​c​t​a​l​ ​p​e​r​m​i​s​s​i​o​n​ ​m​o​d​e​ ​a​p​p​l​i​e​d​ ​d​i​r​e​c​t​l​y​ ​t​o​ ​f​i​l​e​s​y​s​t​e​m​ ​i​n​o​d​e​.
+				 */
+				hint: string
+				/**
+				 * A​p​p​l​y​ ​M​o​d​e
+				 */
+				applyMode: string
+			}
+			compress: {
+				/**
+				 * C​o​m​p​r​e​s​s​:​ ​{​n​a​m​e​}
+				 * @param {unknown} name
+				 */
+				title: RequiredParams<'name'>
+				/**
+				 * Z​I​P​ ​A​r​c​h​i​v​e​ ​O​u​t​p​u​t​ ​N​a​m​e
+				 */
+				outputLabel: string
+				/**
+				 * C​r​e​a​t​e​s​ ​a​ ​Z​I​P​ ​a​r​c​h​i​v​e​ ​a​t​ ​t​h​e​ ​c​u​r​r​e​n​t​ ​d​i​r​e​c​t​o​r​y​ ​v​i​a​ ​s​y​s​t​e​m​ ​g​z​i​p​/​z​i​p​ ​u​t​i​l​i​t​y​.
+				 */
+				hint: string
+				/**
+				 * C​r​e​a​t​e​ ​Z​I​P
+				 */
+				createZip: string
+			}
+			extract: {
+				/**
+				 * E​x​t​r​a​c​t​:​ ​{​n​a​m​e​}
+				 * @param {unknown} name
+				 */
+				title: RequiredParams<'name'>
+				/**
+				 * E​x​t​r​a​c​t​ ​D​e​s​t​i​n​a​t​i​o​n​ ​D​i​r​e​c​t​o​r​y
+				 */
+				destLabel: string
+				/**
+				 * E​x​t​r​a​c​t​s​ ​a​l​l​ ​f​i​l​e​s​ ​f​r​o​m​ ​a​r​c​h​i​v​e​ ​i​n​t​o​ ​t​a​r​g​e​t​ ​d​e​s​t​i​n​a​t​i​o​n​ ​p​a​t​h​.
+				 */
+				hint: string
+				/**
+				 * E​x​t​r​a​c​t​ ​H​e​r​e
+				 */
+				extractHere: string
+			}
+			copyMove: {
+				/**
+				 * C​o​p​y​:​ ​{​n​a​m​e​}
+				 * @param {unknown} name
+				 */
+				titleCopy: RequiredParams<'name'>
+				/**
+				 * M​o​v​e​:​ ​{​n​a​m​e​}
+				 * @param {unknown} name
+				 */
+				titleMove: RequiredParams<'name'>
+				/**
+				 * D​e​s​t​i​n​a​t​i​o​n​ ​D​i​r​e​c​t​o​r​y
+				 */
+				destLabel: string
+				/**
+				 * C​o​p​y​ ​H​e​r​e
+				 */
+				copyHere: string
+				/**
+				 * M​o​v​e​ ​H​e​r​e
+				 */
+				moveHere: string
+			}
+			batchDelete: {
+				/**
+				 * B​a​t​c​h​ ​D​e​l​e​t​e​ ​(​{​c​o​u​n​t​}​ ​i​t​e​m​s​)
+				 * @param {unknown} count
+				 */
+				title: RequiredParams<'count'>
+				/**
+				 * P​e​r​m​a​n​e​n​t​l​y​ ​d​e​l​e​t​e​ ​s​e​l​e​c​t​e​d​ ​f​i​l​e​s​ ​&​ ​d​i​r​e​c​t​o​r​i​e​s​?
+				 */
+				confirmBody: string
+				/**
+				 * T​h​i​s​ ​o​p​e​r​a​t​i​o​n​ ​c​a​n​n​o​t​ ​b​e​ ​u​n​d​o​n​e​.​ ​A​l​l​ ​s​e​l​e​c​t​e​d​ ​f​i​l​e​s​ ​a​n​d​ ​f​o​l​d​e​r​ ​c​o​n​t​e​n​t​s​ ​w​i​l​l​ ​b​e​ ​p​e​r​m​a​n​e​n​t​l​y​ ​d​e​l​e​t​e​d​ ​f​r​o​m​ ​t​h​e​ ​A​n​d​r​o​i​d​ ​f​i​l​e​s​y​s​t​e​m​.
+				 */
+				warning: string
+				/**
+				 * .​.​.​a​n​d​ ​{​c​o​u​n​t​}​ ​m​o​r​e​ ​i​t​e​m​s
+				 * @param {unknown} count
+				 */
+				moreItems: RequiredParams<'count'>
+				/**
+				 * D​e​l​e​t​i​n​g​.​.​.
+				 */
+				deleting: string
+				/**
+				 * D​e​l​e​t​e​ ​A​l​l​ ​S​e​l​e​c​t​e​d
+				 */
+				deleteAll: string
+			}
+			batchCopy: {
+				/**
+				 * B​a​t​c​h​ ​C​o​p​y​ ​(​{​c​o​u​n​t​}​ ​i​t​e​m​s​)
+				 * @param {unknown} count
+				 */
+				title: RequiredParams<'count'>
+				/**
+				 * S​e​l​e​c​t​e​d​ ​I​t​e​m​s​:
+				 */
+				selectedItems: string
+				/**
+				 * .​.​.​a​n​d​ ​{​c​o​u​n​t​}​ ​m​o​r​e
+				 * @param {unknown} count
+				 */
+				moreItems: RequiredParams<'count'>
+				/**
+				 * C​o​p​y​i​n​g​.​.​.
+				 */
+				copying: string
+				/**
+				 * C​o​p​y​ ​I​t​e​m​s
+				 */
+				copyItems: string
+			}
+			batchMove: {
+				/**
+				 * B​a​t​c​h​ ​M​o​v​e​ ​(​{​c​o​u​n​t​}​ ​i​t​e​m​s​)
+				 * @param {unknown} count
+				 */
+				title: RequiredParams<'count'>
+				/**
+				 * M​o​v​i​n​g​.​.​.
+				 */
+				moving: string
+				/**
+				 * M​o​v​e​ ​I​t​e​m​s
+				 */
+				moveItems: string
+			}
+			batchCompress: {
+				/**
+				 * B​a​t​c​h​ ​C​o​m​p​r​e​s​s​ ​(​{​c​o​u​n​t​}​ ​i​t​e​m​s​)
+				 * @param {unknown} count
+				 */
+				title: RequiredParams<'count'>
+				/**
+				 * I​t​e​m​s​ ​I​n​c​l​u​d​e​d​:
+				 */
+				itemsIncluded: string
+				/**
+				 * C​o​m​p​r​e​s​s​i​n​g​.​.​.
+				 */
+				compressing: string
+				/**
+				 * C​r​e​a​t​e​ ​Z​I​P​ ​A​r​c​h​i​v​e
+				 */
+				createZipArchive: string
+			}
+		}
+		dropzone: {
+			/**
+			 * U​p​l​o​a​d​i​n​g​ ​F​i​l​e​s​.​.​.
+			 */
+			uploading: string
+			/**
+			 * D​r​o​p​ ​f​i​l​e​s​ ​t​o​ ​u​p​l​o​a​d
+			 */
+			dropToUpload: string
+			/**
+			 * T​a​r​g​e​t​ ​d​e​s​t​i​n​a​t​i​o​n​:
+			 */
+			targetDestination: string
+			/**
+			 * R​e​l​e​a​s​e​ ​f​i​l​e​s​ ​t​o​ ​u​p​l​o​a​d​ ​d​i​r​e​c​t​l​y​ ​i​n​t​o​ ​A​n​d​r​o​i​d​ ​f​i​l​e​s​y​s​t​e​m​.
+			 */
+			releaseHint: string
+		}
+		bookmarks: {
+			/**
+			 * R​o​o​t
+			 */
+			root: string
+			/**
+			 * S​t​o​r​a​g​e
+			 */
+			storage: string
+			/**
+			 * M​a​g​i​s​k
+			 */
+			magisk: string
+			/**
+			 * M​o​d​u​l​e​s
+			 */
+			modules: string
+			/**
+			 * T​e​m​p
+			 */
+			temp: string
+			/**
+			 * G​o​ ​t​o​ ​{​p​a​t​h​}
+			 * @param {unknown} path
+			 */
+			goTo: RequiredParams<'path'>
+			/**
+			 * R​e​m​o​v​e​ ​b​o​o​k​m​a​r​k
+			 */
+			removeBookmark: string
+			/**
+			 * R​e​m​o​v​e​ ​{​n​a​m​e​}​ ​b​o​o​k​m​a​r​k
+			 * @param {unknown} name
+			 */
+			removeBookmarkAria: RequiredParams<'name'>
+			/**
+			 * B​o​o​k​m​a​r​k​ ​c​u​r​r​e​n​t​ ​l​o​c​a​t​i​o​n
+			 */
+			bookmarkCurrent: string
+			/**
+			 * P​i​n
+			 */
+			pin: string
+			/**
+			 * P​i​n​ ​D​i​r​e​c​t​o​r​y​ ​B​o​o​k​m​a​r​k
+			 */
+			pinTitle: string
+			/**
+			 * T​a​r​g​e​t​ ​P​a​t​h
+			 */
+			targetPath: string
+			/**
+			 * B​o​o​k​m​a​r​k​ ​L​a​b​e​l
+			 */
+			bookmarkLabel: string
+			/**
+			 * e​.​g​.​ ​C​o​n​f​i​g​,​ ​D​o​w​n​l​o​a​d​s​,​ ​M​a​g​i​s​k​ ​M​o​d​u​l​e​s
+			 */
+			labelPlaceholder: string
+			/**
+			 * S​a​v​e​ ​B​o​o​k​m​a​r​k
+			 */
+			saveBookmark: string
+		}
+	}
 }
 
 export type TranslationFunctions = {
@@ -8723,6 +9434,10 @@ export type TranslationFunctions = {
 		 * Select All
 		 */
 		selectAll: () => LocalizedString
+		/**
+		 * Deselect All
+		 */
+		deselectAll: () => LocalizedString
 		/**
 		 * Clear All
 		 */
@@ -14837,10 +15552,6 @@ export type TranslationFunctions = {
 			 */
 			selectPopularTitle: () => LocalizedString
 			/**
-			 * Deselect All
-			 */
-			deselectAll: () => LocalizedString
-			/**
 			 * Interrogating Samsung SecRIL baseband frequency registry...
 			 */
 			loading: () => LocalizedString
@@ -16878,6 +17589,680 @@ export type TranslationFunctions = {
 			 * QRIS image downloaded successfully!
 			 */
 			qrisDownloaded: () => LocalizedString
+		}
+	}
+	files: {
+		manager: {
+			/**
+			 * Root File Explorer
+			 */
+			title: () => LocalizedString
+			/**
+			 * Single Pane
+			 */
+			singlePane: () => LocalizedString
+			/**
+			 * Dual Pane
+			 */
+			dualPane: () => LocalizedString
+			/**
+			 * Single View
+			 */
+			singleView: () => LocalizedString
+			/**
+			 * Single Pane Mode
+			 */
+			singleViewTitle: () => LocalizedString
+			/**
+			 * Dual-Pane Split View
+			 */
+			dualPaneTitle: () => LocalizedString
+			/**
+			 * Panel A
+			 */
+			panelA: () => LocalizedString
+			/**
+			 * Panel B
+			 */
+			panelB: () => LocalizedString
+			/**
+			 * Primary
+			 */
+			primary: () => LocalizedString
+			toasts: {
+				/**
+				 * Failed to read file
+				 */
+				readFailed: () => LocalizedString
+				/**
+				 * Copied {count} item(s) to {path}
+				 */
+				crossPaneCopy: (arg: { count: unknown, path: unknown }) => LocalizedString
+				/**
+				 * Moved {count} item(s) to {path}
+				 */
+				crossPaneMove: (arg: { count: unknown, path: unknown }) => LocalizedString
+				/**
+				 * Cross-pane transfer failed
+				 */
+				crossPaneFailed: () => LocalizedString
+				/**
+				 * Upload failed with status {status}
+				 */
+				uploadStatusFailed: (arg: { status: unknown }) => LocalizedString
+				/**
+				 * Uploaded {count} file(s) successfully
+				 */
+				uploaded: (arg: { count: unknown }) => LocalizedString
+				/**
+				 * Upload failed
+				 */
+				uploadFailed: () => LocalizedString
+				/**
+				 * File saved successfully
+				 */
+				fileSaved: () => LocalizedString
+				/**
+				 * Failed to save file
+				 */
+				saveFailed: () => LocalizedString
+				/**
+				 * Created file: {name}
+				 */
+				createdFile: (arg: { name: unknown }) => LocalizedString
+				/**
+				 * Created folder: {name}
+				 */
+				createdFolder: (arg: { name: unknown }) => LocalizedString
+				/**
+				 * Failed to create item
+				 */
+				createFailed: () => LocalizedString
+				/**
+				 * Renamed successfully
+				 */
+				renamed: () => LocalizedString
+				/**
+				 * Failed to rename item
+				 */
+				renameFailed: () => LocalizedString
+				/**
+				 * Deleted successfully
+				 */
+				deleted: () => LocalizedString
+				/**
+				 * Failed to delete item
+				 */
+				deleteFailed: () => LocalizedString
+				/**
+				 * Permissions updated
+				 */
+				permissionsUpdated: () => LocalizedString
+				/**
+				 * Failed to update permissions
+				 */
+				permissionsFailed: () => LocalizedString
+				/**
+				 * Compressed successfully
+				 */
+				compressed: () => LocalizedString
+				/**
+				 * Compression failed
+				 */
+				compressFailed: () => LocalizedString
+				/**
+				 * Archive extracted successfully
+				 */
+				extracted: () => LocalizedString
+				/**
+				 * Extraction failed
+				 */
+				extractFailed: () => LocalizedString
+				/**
+				 * Copied successfully
+				 */
+				copied: () => LocalizedString
+				/**
+				 * Moved successfully
+				 */
+				moved: () => LocalizedString
+				/**
+				 * Copy failed
+				 */
+				copyFailed: () => LocalizedString
+				/**
+				 * Move failed
+				 */
+				moveFailed: () => LocalizedString
+				/**
+				 * Deleted {count} items
+				 */
+				batchDeleted: (arg: { count: unknown }) => LocalizedString
+				/**
+				 * Batch delete failed
+				 */
+				batchDeleteFailed: () => LocalizedString
+				/**
+				 * Copied {count} items
+				 */
+				batchCopied: (arg: { count: unknown }) => LocalizedString
+				/**
+				 * Moved {count} items
+				 */
+				batchMoved: (arg: { count: unknown }) => LocalizedString
+				/**
+				 * Batch copy failed
+				 */
+				batchCopyFailed: () => LocalizedString
+				/**
+				 * Batch move failed
+				 */
+				batchMoveFailed: () => LocalizedString
+				/**
+				 * Compressed {count} items into {name}
+				 */
+				batchCompressed: (arg: { count: unknown, name: unknown }) => LocalizedString
+				/**
+				 * Batch compress failed
+				 */
+				batchCompressFailed: () => LocalizedString
+			}
+		}
+		pane: {
+			/**
+			 * File
+			 */
+			file: () => LocalizedString
+			/**
+			 * Folder
+			 */
+			folder: () => LocalizedString
+			/**
+			 * Root directory (/)
+			 */
+			rootTitle: () => LocalizedString
+			/**
+			 * Edit path directly
+			 */
+			editPathTitle: () => LocalizedString
+			/**
+			 * Up
+			 */
+			up: () => LocalizedString
+			/**
+			 * Parent Directory (Up)
+			 */
+			upTitle: () => LocalizedString
+			/**
+			 * Refresh Directory
+			 */
+			refreshTitle: () => LocalizedString
+			/**
+			 * Create New File
+			 */
+			createFileTitle: () => LocalizedString
+			/**
+			 * Create New Folder
+			 */
+			createFolderTitle: () => LocalizedString
+			/**
+			 * Upload Files
+			 */
+			uploadTitle: () => LocalizedString
+			/**
+			 * {pct}% used
+			 */
+			storageUsed: (arg: { pct: unknown }) => LocalizedString
+			/**
+			 * Search directory...
+			 */
+			searchPlaceholder: () => LocalizedString
+			/**
+			 * Searching
+			 */
+			searching: () => LocalizedString
+			/**
+			 * Found {count} entries matching query "{query}"
+			 */
+			searchFound: (arg: { count: unknown, query: unknown }) => LocalizedString
+			/**
+			 * Clear Search
+			 */
+			clearSearch: () => LocalizedString
+			/**
+			 * {count} selected
+			 */
+			selectedCount: (arg: { count: unknown }) => LocalizedString
+			/**
+			 * Copy to {name}
+			 */
+			copyTo: (arg: { name: unknown }) => LocalizedString
+			/**
+			 * Move to {name}
+			 */
+			moveTo: (arg: { name: unknown }) => LocalizedString
+			/**
+			 * Copy to other pane ({path})
+			 */
+			copyToOtherTitle: (arg: { path: unknown }) => LocalizedString
+			/**
+			 * Move to other pane ({path})
+			 */
+			moveToOtherTitle: (arg: { path: unknown }) => LocalizedString
+			/**
+			 * Move
+			 */
+			move: () => LocalizedString
+			/**
+			 * Compress
+			 */
+			compress: () => LocalizedString
+			/**
+			 * Other
+			 */
+			other: () => LocalizedString
+			/**
+			 * secondary
+			 */
+			secondary: () => LocalizedString
+			toasts: {
+				/**
+				 * Failed to list directory
+				 */
+				listFailed: () => LocalizedString
+				/**
+				 * Search failed
+				 */
+				searchFailed: () => LocalizedString
+			}
+		}
+		table: {
+			/**
+			 * Loading filesystem entries...
+			 */
+			loading: () => LocalizedString
+			/**
+			 * This directory is empty.
+			 */
+			emptyDir: () => LocalizedString
+			/**
+			 * No files match your search query.
+			 */
+			noSearchMatch: () => LocalizedString
+			/**
+			 * Sort by Name
+			 */
+			sortByName: () => LocalizedString
+			/**
+			 * Sort by Size
+			 */
+			sortBySize: () => LocalizedString
+			/**
+			 * Sort by Date Modified
+			 */
+			sortByDate: () => LocalizedString
+			/**
+			 * Name
+			 */
+			name: () => LocalizedString
+			/**
+			 * Size
+			 */
+			size: () => LocalizedString
+			/**
+			 * Perms
+			 */
+			perms: () => LocalizedString
+			/**
+			 * Modified
+			 */
+			modified: () => LocalizedString
+			/**
+			 * Change permissions
+			 */
+			changePermissions: () => LocalizedString
+			/**
+			 * Copy to other pane ({path})
+			 */
+			copyToOtherTitle: (arg: { path: unknown }) => LocalizedString
+			/**
+			 * Copy to other pane
+			 */
+			copyToOtherPane: () => LocalizedString
+			/**
+			 * Extract Archive
+			 */
+			extractArchive: () => LocalizedString
+			/**
+			 * Compress into ZIP
+			 */
+			compressIntoZip: () => LocalizedString
+			/**
+			 * Edit text
+			 */
+			editText: () => LocalizedString
+			/**
+			 * Permissions (Chmod)
+			 */
+			permissionsChmod: () => LocalizedString
+			/**
+			 * Permissions
+			 */
+			permissions: () => LocalizedString
+			/**
+			 * Rename
+			 */
+			rename: () => LocalizedString
+		}
+		modals: {
+			editor: {
+				/**
+				 * Editing: {path}
+				 */
+				title: (arg: { path: unknown }) => LocalizedString
+				/**
+				 * Reading file content...
+				 */
+				reading: () => LocalizedString
+				/**
+				 * File is empty
+				 */
+				emptyPlaceholder: () => LocalizedString
+				/**
+				 * Saving...
+				 */
+				saving: () => LocalizedString
+				/**
+				 * Save File
+				 */
+				saveFile: () => LocalizedString
+			}
+			create: {
+				/**
+				 * Create New File
+				 */
+				titleFile: () => LocalizedString
+				/**
+				 * Create New Folder
+				 */
+				titleFolder: () => LocalizedString
+				/**
+				 * Folder / Directory
+				 */
+				folderDirectory: () => LocalizedString
+				/**
+				 * Name
+				 */
+				nameLabel: () => LocalizedString
+				/**
+				 * Create
+				 */
+				create: () => LocalizedString
+			}
+			rename: {
+				/**
+				 * Rename: {name}
+				 */
+				title: (arg: { name: unknown }) => LocalizedString
+				/**
+				 * New Name
+				 */
+				newName: () => LocalizedString
+			}
+			'delete': {
+				/**
+				 * Confirm Deletion
+				 */
+				title: () => LocalizedString
+				/**
+				 * Permanently delete this item?
+				 */
+				confirmBody: () => LocalizedString
+				/**
+				 * This operation cannot be undone. Target filesystem entry:
+				 */
+				warning: () => LocalizedString
+				/**
+				 * Delete Permanently
+				 */
+				deletePermanently: () => LocalizedString
+			}
+			chmod: {
+				/**
+				 * Permissions (Chmod): {name}
+				 */
+				title: (arg: { name: unknown }) => LocalizedString
+				/**
+				 * Octal Mode (e.g. 0755, 0644, 0777)
+				 */
+				octalLabel: () => LocalizedString
+				/**
+				 * Standard Linux octal permission mode applied directly to filesystem inode.
+				 */
+				hint: () => LocalizedString
+				/**
+				 * Apply Mode
+				 */
+				applyMode: () => LocalizedString
+			}
+			compress: {
+				/**
+				 * Compress: {name}
+				 */
+				title: (arg: { name: unknown }) => LocalizedString
+				/**
+				 * ZIP Archive Output Name
+				 */
+				outputLabel: () => LocalizedString
+				/**
+				 * Creates a ZIP archive at the current directory via system gzip/zip utility.
+				 */
+				hint: () => LocalizedString
+				/**
+				 * Create ZIP
+				 */
+				createZip: () => LocalizedString
+			}
+			extract: {
+				/**
+				 * Extract: {name}
+				 */
+				title: (arg: { name: unknown }) => LocalizedString
+				/**
+				 * Extract Destination Directory
+				 */
+				destLabel: () => LocalizedString
+				/**
+				 * Extracts all files from archive into target destination path.
+				 */
+				hint: () => LocalizedString
+				/**
+				 * Extract Here
+				 */
+				extractHere: () => LocalizedString
+			}
+			copyMove: {
+				/**
+				 * Copy: {name}
+				 */
+				titleCopy: (arg: { name: unknown }) => LocalizedString
+				/**
+				 * Move: {name}
+				 */
+				titleMove: (arg: { name: unknown }) => LocalizedString
+				/**
+				 * Destination Directory
+				 */
+				destLabel: () => LocalizedString
+				/**
+				 * Copy Here
+				 */
+				copyHere: () => LocalizedString
+				/**
+				 * Move Here
+				 */
+				moveHere: () => LocalizedString
+			}
+			batchDelete: {
+				/**
+				 * Batch Delete ({count} items)
+				 */
+				title: (arg: { count: unknown }) => LocalizedString
+				/**
+				 * Permanently delete selected files & directories?
+				 */
+				confirmBody: () => LocalizedString
+				/**
+				 * This operation cannot be undone. All selected files and folder contents will be permanently deleted from the Android filesystem.
+				 */
+				warning: () => LocalizedString
+				/**
+				 * ...and {count} more items
+				 */
+				moreItems: (arg: { count: unknown }) => LocalizedString
+				/**
+				 * Deleting...
+				 */
+				deleting: () => LocalizedString
+				/**
+				 * Delete All Selected
+				 */
+				deleteAll: () => LocalizedString
+			}
+			batchCopy: {
+				/**
+				 * Batch Copy ({count} items)
+				 */
+				title: (arg: { count: unknown }) => LocalizedString
+				/**
+				 * Selected Items:
+				 */
+				selectedItems: () => LocalizedString
+				/**
+				 * ...and {count} more
+				 */
+				moreItems: (arg: { count: unknown }) => LocalizedString
+				/**
+				 * Copying...
+				 */
+				copying: () => LocalizedString
+				/**
+				 * Copy Items
+				 */
+				copyItems: () => LocalizedString
+			}
+			batchMove: {
+				/**
+				 * Batch Move ({count} items)
+				 */
+				title: (arg: { count: unknown }) => LocalizedString
+				/**
+				 * Moving...
+				 */
+				moving: () => LocalizedString
+				/**
+				 * Move Items
+				 */
+				moveItems: () => LocalizedString
+			}
+			batchCompress: {
+				/**
+				 * Batch Compress ({count} items)
+				 */
+				title: (arg: { count: unknown }) => LocalizedString
+				/**
+				 * Items Included:
+				 */
+				itemsIncluded: () => LocalizedString
+				/**
+				 * Compressing...
+				 */
+				compressing: () => LocalizedString
+				/**
+				 * Create ZIP Archive
+				 */
+				createZipArchive: () => LocalizedString
+			}
+		}
+		dropzone: {
+			/**
+			 * Uploading Files...
+			 */
+			uploading: () => LocalizedString
+			/**
+			 * Drop files to upload
+			 */
+			dropToUpload: () => LocalizedString
+			/**
+			 * Target destination:
+			 */
+			targetDestination: () => LocalizedString
+			/**
+			 * Release files to upload directly into Android filesystem.
+			 */
+			releaseHint: () => LocalizedString
+		}
+		bookmarks: {
+			/**
+			 * Root
+			 */
+			root: () => LocalizedString
+			/**
+			 * Storage
+			 */
+			storage: () => LocalizedString
+			/**
+			 * Magisk
+			 */
+			magisk: () => LocalizedString
+			/**
+			 * Modules
+			 */
+			modules: () => LocalizedString
+			/**
+			 * Temp
+			 */
+			temp: () => LocalizedString
+			/**
+			 * Go to {path}
+			 */
+			goTo: (arg: { path: unknown }) => LocalizedString
+			/**
+			 * Remove bookmark
+			 */
+			removeBookmark: () => LocalizedString
+			/**
+			 * Remove {name} bookmark
+			 */
+			removeBookmarkAria: (arg: { name: unknown }) => LocalizedString
+			/**
+			 * Bookmark current location
+			 */
+			bookmarkCurrent: () => LocalizedString
+			/**
+			 * Pin
+			 */
+			pin: () => LocalizedString
+			/**
+			 * Pin Directory Bookmark
+			 */
+			pinTitle: () => LocalizedString
+			/**
+			 * Target Path
+			 */
+			targetPath: () => LocalizedString
+			/**
+			 * Bookmark Label
+			 */
+			bookmarkLabel: () => LocalizedString
+			/**
+			 * e.g. Config, Downloads, Magisk Modules
+			 */
+			labelPlaceholder: () => LocalizedString
+			/**
+			 * Save Bookmark
+			 */
+			saveBookmark: () => LocalizedString
 		}
 	}
 }
