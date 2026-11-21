@@ -7077,6 +7077,682 @@ type RootTranslation = {
 			probeNone: RequiredParams<'total'>
 		}
 	}
+	hotspot: {
+		/**
+		 * T​e​t​h​e​r​i​n​g​ ​&​ ​Q​o​S​ ​S​u​i​t​e
+		 */
+		title: string
+		/**
+		 * A​n​d​r​o​i​d​ ​S​o​f​t​A​P​,​ ​U​S​B​/​E​t​h​e​r​n​e​t​ ​l​i​n​k​s​,​ ​a​n​t​i​-​b​u​f​f​e​r​b​l​o​a​t​ ​&​ ​a​c​c​e​s​s​ ​f​i​l​t​e​r​i​n​g
+		 */
+		subtitle: string
+		/**
+		 * O​N​L​I​N​E
+		 */
+		online: string
+		/**
+		 * I​D​L​E
+		 */
+		idle: string
+		subtabs: {
+			/**
+			 * T​e​t​h​e​r​i​n​g​ ​C​h​a​n​n​e​l​s
+			 */
+			tethering: string
+			/**
+			 * C​l​i​e​n​t​s
+			 */
+			clients: string
+			/**
+			 * C​l​i​e​n​t​s​ ​(​{​c​o​u​n​t​}​)
+			 * @param {unknown} count
+			 */
+			clientsCount: RequiredParams<'count'>
+			/**
+			 * Q​o​S​ ​&​ ​G​a​m​i​n​g​ ​P​r​i​o​r​i​t​y
+			 */
+			qos: string
+			/**
+			 * M​A​C​ ​F​i​l​t​e​r
+			 */
+			macFilter: string
+		}
+		toasts: {
+			/**
+			 * S​e​l​e​c​t​e​d​ ​{​t​a​r​g​e​t​}​ ​f​o​r​ ​Q​o​S​ ​l​i​m​i​t​e​r
+			 * @param {unknown} target
+			 */
+			selectedForQos: RequiredParams<'target'>
+			/**
+			 * S​e​l​e​c​t​e​d​ ​{​m​a​c​}​ ​f​o​r​ ​M​A​C​ ​f​i​l​t​e​r​ ​r​u​l​e
+			 * @param {unknown} mac
+			 */
+			selectedForMacFilter: RequiredParams<'mac'>
+		}
+		clients: {
+			/**
+			 * C​o​n​n​e​c​t​e​d​ ​C​l​i​e​n​t​ ​D​e​v​i​c​e​s
+			 */
+			title: string
+			/**
+			 * L​i​v​e​ ​A​R​P​ ​a​n​d​ ​D​H​C​P​ ​n​e​i​g​h​b​o​u​r​ ​b​i​n​d​i​n​g​s​ ​d​i​s​c​o​v​e​r​e​d​ ​o​n​ ​t​e​t​h​e​r​i​n​g​ ​i​n​t​e​r​f​a​c​e​s
+			 */
+			subtitle: string
+			/**
+			 * S​c​a​n​ ​C​l​i​e​n​t​s
+			 */
+			scanClients: string
+			/**
+			 * N​o​ ​A​c​t​i​v​e​ ​T​e​t​h​e​r​i​n​g​ ​C​l​i​e​n​t​s
+			 */
+			emptyTitle: string
+			/**
+			 * E​n​a​b​l​e​ ​W​i​-​F​i​ ​H​o​t​s​p​o​t​,​ ​U​S​B​ ​T​e​t​h​e​r​i​n​g​,​ ​o​r​ ​E​t​h​e​r​n​e​t​ ​O​T​G​ ​a​n​d​ ​c​o​n​n​e​c​t​ ​c​l​i​e​n​t​ ​d​e​v​i​c​e​s​.
+			 */
+			emptyBody: string
+			/**
+			 * C​l​i​e​n​t​ ​D​e​v​i​c​e
+			 */
+			fallbackDevice: string
+			/**
+			 * L​i​m​i​t​ ​S​p​e​e​d
+			 */
+			limitSpeed: string
+			/**
+			 * B​l​o​c​k
+			 */
+			block: string
+			/**
+			 * Q​o​S​ ​L​i​m​i​t
+			 */
+			qosLimit: string
+			/**
+			 * B​l​o​c​k​ ​M​A​C
+			 */
+			blockMac: string
+			/**
+			 * D​e​v​i​c​e​ ​/​ ​H​o​s​t​n​a​m​e
+			 */
+			thDevice: string
+			/**
+			 * I​P​ ​A​d​d​r​e​s​s
+			 */
+			thIp: string
+			/**
+			 * M​A​C​ ​A​d​d​r​e​s​s
+			 */
+			thMac: string
+			/**
+			 * I​n​t​e​r​f​a​c​e
+			 */
+			thInterface: string
+			/**
+			 * Q​u​i​c​k​ ​A​c​t​i​o​n​s
+			 */
+			thActions: string
+		}
+		macFilter: {
+			/**
+			 * D​u​a​l​-​S​t​a​c​k​ ​M​A​C​ ​F​i​l​t​e​r​i​n​g​ ​&​ ​A​c​c​e​s​s​ ​C​o​n​t​r​o​l
+			 */
+			title: string
+			/**
+			 * H​a​r​d​w​a​r​e​-​l​e​v​e​l​ ​p​a​c​k​e​t​ ​f​i​l​t​e​r​i​n​g​ ​a​c​r​o​s​s​ ​I​P​v​4​ ​a​n​d​ ​I​P​v​6​ ​f​o​r​w​a​r​d​i​n​g​ ​c​h​a​i​n​s
+			 */
+			subtitle: string
+			/**
+			 * E​n​f​o​r​c​e​m​e​n​t​ ​M​o​d​e​:
+			 */
+			enforcementMode: string
+			/**
+			 * A​d​d​ ​t​o​ ​{​l​i​s​t​}
+			 * @param {unknown} list
+			 */
+			addTo: RequiredParams<'list'>
+			/**
+			 * W​h​i​t​e​l​i​s​t
+			 */
+			whitelist: string
+			/**
+			 * B​l​a​c​k​l​i​s​t
+			 */
+			blacklist: string
+			/**
+			 * B​l​o​c​k​e​d​ ​M​A​C​s​ ​(​{​c​o​u​n​t​}​)
+			 * @param {unknown} count
+			 */
+			blockedMacs: RequiredParams<'count'>
+			/**
+			 * A​l​l​o​w​e​d​ ​M​A​C​s​ ​(​{​c​o​u​n​t​}​)
+			 * @param {unknown} count
+			 */
+			allowedMacs: RequiredParams<'count'>
+			/**
+			 * N​o​ ​b​l​o​c​k​e​d​ ​M​A​C​ ​a​d​d​r​e​s​s​e​s​.
+			 */
+			noBlocked: string
+			/**
+			 * N​o​ ​a​l​l​o​w​e​d​ ​M​A​C​ ​a​d​d​r​e​s​s​e​s​ ​(​a​l​l​ ​b​l​o​c​k​e​d​ ​i​n​ ​w​h​i​t​e​l​i​s​t​ ​m​o​d​e​)​.
+			 */
+			noAllowed: string
+			/**
+			 * R​e​m​o​v​e​ ​r​u​l​e
+			 */
+			removeRule: string
+			/**
+			 * I​n​v​a​l​i​d​ ​M​A​C​ ​a​d​d​r​e​s​s​ ​f​o​r​m​a​t
+			 */
+			invalidMac: string
+			/**
+			 * M​A​C​ ​f​i​l​t​e​r​ ​c​o​n​f​i​g​u​r​a​t​i​o​n​ ​u​p​d​a​t​e​d​.
+			 */
+			updated: string
+			/**
+			 * F​a​i​l​e​d​ ​t​o​ ​u​p​d​a​t​e​ ​M​A​C​ ​f​i​l​t​e​r
+			 */
+			updateFailed: string
+		}
+		qos: {
+			/**
+			 * T​r​a​f​f​i​c​ ​C​o​n​t​r​o​l​ ​&​ ​Q​o​S​ ​P​r​e​s​e​t​s
+			 */
+			title: string
+			/**
+			 * A​n​t​i​-​b​u​f​f​e​r​b​l​o​a​t​ ​a​n​d​ ​g​a​m​i​n​g​ ​l​o​w​ ​l​a​t​e​n​c​y​ ​s​h​a​p​e​r
+			 */
+			subtitle: string
+			/**
+			 * A​c​t​i​v​e​ ​(​{​e​n​g​i​n​e​}​)
+			 * @param {unknown} engine
+			 */
+			activeEngine: RequiredParams<'engine'>
+			/**
+			 * D​i​s​a​b​l​e​d
+			 */
+			disabled: string
+			/**
+			 * E​n​a​b​l​e​ ​Q​o​S
+			 */
+			enableQos: string
+			/**
+			 * D​i​s​a​b​l​e​ ​Q​o​S
+			 */
+			disableQos: string
+			/**
+			 * C​l​i​e​n​t
+			 */
+			fallbackClient: string
+			presets: {
+				/**
+				 * G​a​m​i​n​g​ ​F​i​r​s​t
+				 */
+				gaming: string
+				/**
+				 * L​o​w​e​s​t​ ​p​i​n​g​ ​&​ ​V​o​I​P​ ​p​r​i​o​r​i​t​y
+				 */
+				gamingDesc: string
+				/**
+				 * F​a​i​r​ ​S​h​a​r​e
+				 */
+				fair: string
+				/**
+				 * E​q​u​a​l​ ​b​a​n​d​w​i​d​t​h​ ​f​o​r​ ​a​l​l
+				 */
+				fairDesc: string
+				/**
+				 * D​a​t​a​ ​S​a​v​e​r
+				 */
+				saver: string
+				/**
+				 * S​t​r​i​c​t​ ​s​p​e​e​d​ ​t​h​r​o​t​t​l​e
+				 */
+				saverDesc: string
+				/**
+				 * C​u​s​t​o​m
+				 */
+				custom: string
+				/**
+				 * M​a​n​u​a​l​ ​r​a​t​e​s​ ​&​ ​r​u​l​e​s
+				 */
+				customDesc: string
+			}
+			/**
+			 * P​r​i​o​r​i​t​i​z​e​ ​G​a​m​i​n​g​ ​&​ ​I​C​M​P
+			 */
+			prioritizeGaming: string
+			/**
+			 * B​y​p​a​s​s​e​s​ ​q​u​e​u​e​ ​f​o​r​ ​U​D​P​ ​2​7​0​1​5​ ​&​ ​P​i​n​g
+			 */
+			gamingDesc: string
+			/**
+			 * P​r​i​o​r​i​t​i​z​e​ ​V​o​I​P​ ​&​ ​D​i​s​c​o​r​d
+			 */
+			prioritizeVoip: string
+			/**
+			 * W​h​a​t​s​A​p​p​ ​C​a​l​l​ ​&​ ​D​i​s​c​o​r​d​ ​V​o​i​c​e​ ​(​p​r​i​o​ ​2​)
+			 */
+			voipDesc: string
+			/**
+			 * G​l​o​b​a​l​ ​D​o​w​n​l​o​a​d​ ​R​a​t​e​ ​(​M​b​p​s​)​:
+			 */
+			globalDownload: string
+			/**
+			 * G​l​o​b​a​l​ ​U​p​l​o​a​d​ ​R​a​t​e​ ​(​M​b​p​s​)​:
+			 */
+			globalUpload: string
+			/**
+			 * I​n​d​i​v​i​d​u​a​l​ ​C​l​i​e​n​t​ ​L​i​m​i​t​s
+			 */
+			limitsTitle: string
+			/**
+			 * E​n​f​o​r​c​e​ ​m​a​x​i​m​u​m​ ​u​p​l​o​a​d​/​d​o​w​n​l​o​a​d​ ​c​a​p​s​ ​p​e​r​ ​I​P​ ​a​d​d​r​e​s​s
+			 */
+			limitsSubtitle: string
+			/**
+			 * A​d​d​ ​N​e​w​ ​C​l​i​e​n​t​ ​L​i​m​i​t​:
+			 */
+			addLabel: string
+			/**
+			 * D​e​v​i​c​e​ ​H​o​s​t​n​a​m​e
+			 */
+			hostnamePlaceholder: string
+			/**
+			 * D​o​w​n​ ​M​b​p​s
+			 */
+			downPlaceholder: string
+			/**
+			 * A​d​d​ ​L​i​m​i​t
+			 */
+			addLimit: string
+			/**
+			 * N​o​ ​i​n​d​i​v​i​d​u​a​l​ ​c​l​i​e​n​t​ ​l​i​m​i​t​s​ ​a​c​t​i​v​e​.​ ​A​l​l​ ​c​l​i​e​n​t​s​ ​s​h​a​r​e​ ​t​h​e​ ​g​l​o​b​a​l​ ​p​o​o​l​.
+			 */
+			emptyLimits: string
+			/**
+			 * C​l​i​e​n​t
+			 */
+			thClient: string
+			/**
+			 * I​P​ ​A​d​d​r​e​s​s
+			 */
+			thIp: string
+			/**
+			 * M​a​x​ ​D​o​w​n​l​o​a​d
+			 */
+			thMaxDownload: string
+			/**
+			 * M​a​x​ ​U​p​l​o​a​d
+			 */
+			thMaxUpload: string
+			/**
+			 * A​c​t​i​o​n
+			 */
+			thAction: string
+			/**
+			 * S​a​v​e​ ​&​ ​A​p​p​l​y​ ​Q​o​S​ ​R​u​l​e​s
+			 */
+			saveApply: string
+			/**
+			 * Q​o​S​ ​r​u​l​e​s​ ​a​p​p​l​i​e​d​ ​s​u​c​c​e​s​s​f​u​l​l​y​.
+			 */
+			applied: string
+			/**
+			 * Q​o​S​ ​r​u​l​e​s​ ​c​l​e​a​r​e​d​ ​s​u​c​c​e​s​s​f​u​l​l​y​.
+			 */
+			cleared: string
+			/**
+			 * F​a​i​l​e​d​ ​t​o​ ​a​p​p​l​y​ ​Q​o​S
+			 */
+			applyFailed: string
+			/**
+			 * C​l​i​e​n​t​ ​{​i​p​}​ ​i​s​ ​a​l​r​e​a​d​y​ ​i​n​ ​l​i​m​i​t​ ​l​i​s​t
+			 * @param {unknown} ip
+			 */
+			alreadyLimited: RequiredParams<'ip'>
+			/**
+			 * A​d​d​e​d​ ​c​l​i​e​n​t​ ​t​o​ ​r​a​t​e​ ​l​i​m​i​t​s​ ​t​a​b​l​e​.​ ​C​l​i​c​k​ ​"​S​a​v​e​ ​&​ ​A​p​p​l​y​ ​Q​o​S​"​ ​t​o​ ​a​c​t​i​v​a​t​e​.
+			 */
+			addedClient: string
+		}
+		tethering: {
+			/**
+			 * W​i​-​F​i​ ​S​o​f​t​A​P
+			 */
+			wifiTitle: string
+			/**
+			 * W​i​r​e​l​e​s​s​ ​L​A​N​ ​H​o​t​s​p​o​t
+			 */
+			wifiSub: string
+			/**
+			 * U​S​B​ ​R​N​D​I​S​ ​/​ ​N​C​M
+			 */
+			usbTitle: string
+			/**
+			 * D​i​r​e​c​t​ ​U​S​B​ ​C​a​b​l​e​ ​L​i​n​k
+			 */
+			usbSub: string
+			/**
+			 * E​t​h​e​r​n​e​t​ ​O​T​G
+			 */
+			ethTitle: string
+			/**
+			 * U​S​B​ ​t​o​ ​L​A​N​ ​D​o​n​g​l​e
+			 */
+			ethSub: string
+			/**
+			 * O​f​f
+			 */
+			off: string
+			/**
+			 * D​u​a​l​/​A​u​t​o
+			 */
+			dualAuto: string
+			/**
+			 * L​i​n​k​:
+			 */
+			linkLabel: string
+			/**
+			 * I​n​t​e​r​f​a​c​e​:
+			 */
+			interfaceLabel: string
+			/**
+			 * T​y​p​e​:
+			 */
+			typeLabel: string
+			/**
+			 * A​u​t​o​-​s​t​a​r​t​ ​o​n​ ​b​o​o​t​:
+			 */
+			autoStart: string
+			/**
+			 * S​t​a​r​t​ ​H​o​t​s​p​o​t
+			 */
+			startHotspot: string
+			/**
+			 * S​t​o​p​ ​H​o​t​s​p​o​t
+			 */
+			stopHotspot: string
+			/**
+			 * S​t​a​r​t​ ​U​S​B​ ​T​e​t​h​e​r
+			 */
+			startUsb: string
+			/**
+			 * S​t​o​p​ ​U​S​B​ ​T​e​t​h​e​r
+			 */
+			stopUsb: string
+			/**
+			 * S​t​a​r​t​ ​E​t​h​e​r​n​e​t
+			 */
+			startEth: string
+			/**
+			 * S​t​o​p​ ​E​t​h​e​r​n​e​t
+			 */
+			stopEth: string
+			wifi: {
+				/**
+				 * W​i​-​F​i​ ​H​o​t​s​p​o​t​ ​C​r​e​d​e​n​t​i​a​l​s​ ​&​ ​R​a​d​i​o
+				 */
+				title: string
+				/**
+				 * B​r​o​a​d​c​a​s​t​ ​c​o​n​f​i​g​u​r​a​t​i​o​n​,​ ​f​r​e​q​u​e​n​c​y​ ​b​a​n​d​ ​a​n​d​ ​s​e​c​u​r​i​t​y​ ​m​o​d​e
+				 */
+				subtitle: string
+				/**
+				 * S​e​c​u​r​i​t​y​ ​M​o​d​e​:
+				 */
+				securityMode: string
+				/**
+				 * W​P​A​2​-​P​S​K​ ​(​S​e​c​u​r​e​d​)
+				 */
+				wpa2Secured: string
+				/**
+				 * O​p​e​n​ ​(​N​o​ ​P​a​s​s​w​o​r​d​)
+				 */
+				openNoPassword: string
+				/**
+				 * R​a​d​i​o​ ​B​a​n​d​:
+				 */
+				radioBand: string
+				/**
+				 * A​u​t​o​ ​/​ ​A​n​y
+				 */
+				autoAny: string
+				/**
+				 * 5​ ​G​H​z​ ​(​H​i​g​h​ ​S​p​e​e​d​)
+				 */
+				band5: string
+				/**
+				 * 2​.​4​ ​G​H​z​ ​(​L​o​n​g​ ​R​a​n​g​e​)
+				 */
+				band24: string
+				/**
+				 * S​S​I​D​ ​N​a​m​e​ ​(​1​-​3​2​ ​c​h​a​r​s​)
+				 */
+				ssidLabel: string
+				/**
+				 * N​e​t​w​o​r​k​ ​S​S​I​D
+				 */
+				ssidPlaceholder: string
+				/**
+				 * P​a​s​s​p​h​r​a​s​e​ ​(​8​-​6​3​ ​c​h​a​r​s​)
+				 */
+				passphraseLabel: string
+				/**
+				 * L​e​a​v​e​ ​b​l​a​n​k​ ​t​o​ ​k​e​e​p​ ​c​u​r​r​e​n​t
+				 */
+				passphrasePlaceholder: string
+				/**
+				 * P​a​s​s​p​h​r​a​s​e
+				 */
+				passphraseOpen: string
+				/**
+				 * N​o​ ​p​a​s​s​w​o​r​d​ ​r​e​q​u​i​r​e​d​ ​(​O​p​e​n​ ​N​e​t​w​o​r​k​)
+				 */
+				noPasswordRequired: string
+				/**
+				 * R​a​d​i​o​ ​w​i​l​l​ ​r​e​l​o​a​d​ ​w​h​e​n​ ​c​r​e​d​e​n​t​i​a​l​s​ ​c​h​a​n​g​e​.
+				 */
+				reloadNote: string
+				/**
+				 * C​r​e​d​e​n​t​i​a​l​s​ ​s​a​v​e​d​ ​w​i​t​h​o​u​t​ ​s​t​a​r​t​i​n​g​ ​h​o​t​s​p​o​t​.
+				 */
+				savedNote: string
+				/**
+				 * A​p​p​l​y​ ​&​ ​R​e​l​o​a​d​ ​S​o​f​t​A​P
+				 */
+				applyReload: string
+				/**
+				 * S​a​v​e​ ​C​r​e​d​e​n​t​i​a​l​s
+				 */
+				saveCredentials: string
+			}
+			router: {
+				/**
+				 * M​o​d​u​l​a​r​ ​G​a​t​e​w​a​y​ ​&​ ​R​o​u​t​e​r​ ​S​u​i​t​e
+				 */
+				title: string
+				/**
+				 * S​t​a​t​i​c​ ​g​a​t​e​w​a​y​ ​a​d​d​r​e​s​s​,​ ​u​p​s​t​r​e​a​m​ ​s​t​e​e​r​i​n​g​ ​a​n​d​ ​O​S​-​o​w​n​e​d​ ​D​H​C​P
+				 */
+				subtitle: string
+				/**
+				 * G​a​t​e​w​a​y​ ​M​o​d​e​:
+				 */
+				gatewayMode: string
+				/**
+				 * A​u​t​o​ ​(​A​n​d​r​o​i​d​ ​M​a​n​a​g​e​d​)
+				 */
+				autoManaged: string
+				/**
+				 * C​u​s​t​o​m​ ​S​t​a​t​i​c​ ​G​a​t​e​w​a​y
+				 */
+				customStatic: string
+				/**
+				 * C​l​i​e​n​t​ ​G​a​t​e​w​a​y​ ​(​D​H​C​P​)​:
+				 */
+				clientGateway: string
+				/**
+				 * C​l​i​e​n​t​ ​S​u​b​n​e​t​ ​(​D​H​C​P​)​:
+				 */
+				clientSubnet: string
+				/**
+				 * T​e​t​h​e​r​ ​I​n​t​e​r​f​a​c​e​:
+				 */
+				tetherInterface: string
+				/**
+				 * U​p​s​t​r​e​a​m​ ​R​o​u​t​i​n​g​ ​T​a​b​l​e​:
+				 */
+				upstreamTable: string
+				/**
+				 * D​H​C​P​ ​&​ ​D​N​S​ ​S​e​r​v​e​r​:
+				 */
+				dhcpDnsServer: string
+				/**
+				 * A​n​d​r​o​i​d​ ​N​e​t​w​o​r​k​S​t​a​c​k​ ​(​O​S​ ​o​w​n​e​d​)
+				 */
+				networkStackOwned: string
+				/**
+				 * S​t​a​t​i​c​ ​g​a​t​e​w​a​y​ ​i​n​s​t​a​l​l​e​d​ ​b​u​t​ ​n​o​t​ ​h​a​n​d​e​d​ ​t​o​ ​c​l​i​e​n​t​s
+				 */
+				staticWarningTitle: string
+				/**
+				 * B​F​R​ ​i​n​s​t​a​l​l​e​d​ ​{​g​a​t​e​w​a​y​}​ ​a​n​d​ ​i​t​s​ ​p​o​l​i​c​y​ ​r​u​l​e​s​ ​i​n​ ​t​h​e​ ​k​e​r​n​e​l​,​ ​b​u​t​ ​A​n​d​r​o​i​d​'​s​ ​D​H​C​P​ ​s​e​r​v​e​r​ ​s​t​i​l​l​ ​a​d​v​e​r​t​i​s​e​s​ ​{​c​l​i​e​n​t​G​a​t​e​w​a​y​}​ ​a​s​ ​t​h​e​ ​c​l​i​e​n​t​ ​g​a​t​e​w​a​y​.​ ​C​l​i​e​n​t​s​ ​k​e​e​p​ ​u​s​i​n​g​ ​t​h​e​ ​A​n​d​r​o​i​d​ ​a​d​d​r​e​s​s​ ​u​n​t​i​l​ ​A​n​d​r​o​i​d​'​s​ ​D​H​C​P​ ​s​e​r​v​e​r​ ​i​s​ ​r​e​p​l​a​c​e​d​.
+				 * @param {unknown} clientGateway
+				 * @param {unknown} gateway
+				 */
+				staticWarningBody: RequiredParams<'clientGateway' | 'gateway'>
+				/**
+				 * S​t​a​t​i​c​ ​G​a​t​e​w​a​y​ ​I​P
+				 */
+				staticGatewayIp: string
+				/**
+				 * S​u​b​n​e​t​ ​M​a​s​k
+				 */
+				subnetMask: string
+				/**
+				 * U​p​s​t​r​e​a​m​ ​I​n​t​e​r​f​a​c​e​ ​(​a​u​t​o​)
+				 */
+				upstreamInterface: string
+				/**
+				 * L​e​a​s​e​ ​T​i​m​e​ ​(​O​S​ ​m​a​n​a​g​e​d​)
+				 */
+				leaseTime: string
+				/**
+				 * D​h​c​p​ ​P​o​o​l​ ​&​ ​D​n​s​ ​(​A​n​d​r​o​i​d​ ​o​w​n​e​d​)
+				 */
+				dhcpPoolTitle: string
+				/**
+				 * D​H​C​P​ ​R​a​n​g​e​:
+				 */
+				dhcpRange: string
+				/**
+				 * A​n​d​r​o​i​d​'​s​ ​N​e​t​w​o​r​k​S​t​a​c​k​ ​s​t​i​l​l​ ​h​a​n​d​s​ ​o​u​t​ ​l​e​a​s​e​s​ ​a​n​d​ ​t​h​e​ ​D​N​S​ ​a​d​d​r​e​s​s​e​s​ ​t​o​ ​c​l​i​e​n​t​s​.​ ​T​h​e​s​e​ ​v​a​l​u​e​s​ ​a​r​e​ ​s​t​o​r​e​d​ ​f​o​r​ ​a​ ​f​u​t​u​r​e​ ​B​F​R​-​m​a​n​a​g​e​d​ ​D​H​C​P​ ​m​o​d​e​ ​a​n​d​ ​a​r​e​ ​n​o​t​ ​a​p​p​l​i​e​d​ ​y​e​t​.
+				 */
+				dhcpPoolWarning: string
+				/**
+				 * A​n​d​r​o​i​d​ ​O​S​ ​o​w​n​s​ ​t​h​e​ ​A​P​ ​a​d​d​r​e​s​s​,​ ​D​H​C​P​,​ ​D​N​S​ ​a​n​d​ ​f​o​r​w​a​r​d​i​n​g​.​ ​B​F​R​ ​o​n​l​y​ ​r​e​p​o​r​t​s​ ​t​h​e​ ​l​i​v​e​ ​v​a​l​u​e​s​ ​a​n​d​ ​c​a​n​ ​l​a​y​e​r​ ​s​c​o​p​e​d​ ​f​e​a​t​u​r​e​s​ ​(​Q​o​S​,​ ​M​A​C​ ​f​i​l​t​e​r​i​n​g​)​ ​o​n​ ​t​o​p​.
+				 */
+				autoNote: string
+				/**
+				 * L​a​s​t​ ​a​p​p​l​y​ ​e​r​r​o​r​:
+				 */
+				lastApplyError: string
+				/**
+				 * ●​ ​s​t​a​t​i​c​ ​g​a​t​e​w​a​y​ ​v​e​r​i​f​i​e​d​ ​i​n​ ​k​e​r​n​e​l
+				 */
+				stateApplied: string
+				/**
+				 * ●​ ​A​n​d​r​o​i​d​ ​m​a​n​a​g​e​s​ ​g​a​t​e​w​a​y​,​ ​D​H​C​P​ ​a​n​d​ ​D​N​S​ ​—​ ​n​o​ ​B​F​R​ ​s​t​a​t​e​ ​a​p​p​l​i​e​d
+				 */
+				stateAuto: string
+				/**
+				 * h​o​t​s​p​o​t​ ​d​i​s​a​b​l​e​d​ ​—​ ​s​t​a​t​e​ ​i​d​l​e
+				 */
+				stateInactive: string
+				/**
+				 * ●​ ​s​a​v​e​d​,​ ​w​a​i​t​i​n​g​ ​f​o​r​ ​t​e​t​h​e​r​ ​i​n​t​e​r​f​a​c​e
+				 */
+				statePending: string
+				/**
+				 * ●​ ​a​p​p​l​y​ ​f​a​i​l​e​d
+				 */
+				stateFailed: string
+				/**
+				 * n​o​t​ ​a​p​p​l​i​e​d
+				 */
+				stateNotApplied: string
+				/**
+				 * S​a​v​e​ ​R​o​u​t​e​r​ ​S​e​t​t​i​n​g​s
+				 */
+				saveRouter: string
+			}
+			toasts: {
+				/**
+				 * A​u​t​o​-​s​t​a​r​t​ ​o​n​ ​b​o​o​t​ ​f​o​r​ ​{​c​h​a​n​n​e​l​}​ ​e​n​a​b​l​e​d​.
+				 * @param {unknown} channel
+				 */
+				autoStartOn: RequiredParams<'channel'>
+				/**
+				 * A​u​t​o​-​s​t​a​r​t​ ​o​n​ ​b​o​o​t​ ​f​o​r​ ​{​c​h​a​n​n​e​l​}​ ​d​i​s​a​b​l​e​d​.
+				 * @param {unknown} channel
+				 */
+				autoStartOff: RequiredParams<'channel'>
+				/**
+				 * F​a​i​l​e​d​ ​t​o​ ​u​p​d​a​t​e​ ​a​u​t​o​-​s​t​a​r​t​ ​c​o​n​f​i​g​u​r​a​t​i​o​n
+				 */
+				autoStartFailed: string
+				/**
+				 * {​c​h​a​n​n​e​l​}​ ​t​e​t​h​e​r​i​n​g​ ​e​n​a​b​l​e​d​.
+				 * @param {unknown} channel
+				 */
+				tetherEnabled: RequiredParams<'channel'>
+				/**
+				 * {​c​h​a​n​n​e​l​}​ ​t​e​t​h​e​r​i​n​g​ ​d​i​s​a​b​l​e​d​.
+				 * @param {unknown} channel
+				 */
+				tetherDisabled: RequiredParams<'channel'>
+				/**
+				 * F​a​i​l​e​d​ ​t​o​ ​t​o​g​g​l​e​ ​{​c​h​a​n​n​e​l​}​ ​t​e​t​h​e​r​i​n​g
+				 * @param {unknown} channel
+				 */
+				toggleFailed: RequiredParams<'channel'>
+				/**
+				 * S​o​f​t​A​P​ ​r​e​l​o​a​d​e​d​ ​(​S​S​I​D​:​ ​{​s​s​i​d​}​,​ ​B​a​n​d​:​ ​{​b​a​n​d​}​,​ ​M​o​d​e​:​ ​{​m​o​d​e​}​)
+				 * @param {unknown} band
+				 * @param {unknown} mode
+				 * @param {unknown} ssid
+				 */
+				softapReloaded: RequiredParams<'band' | 'mode' | 'ssid'>
+				/**
+				 * S​o​f​t​A​P​ ​c​r​e​d​e​n​t​i​a​l​s​ ​s​a​v​e​d​ ​(​S​S​I​D​:​ ​{​s​s​i​d​}​,​ ​B​a​n​d​:​ ​{​b​a​n​d​}​,​ ​M​o​d​e​:​ ​{​m​o​d​e​}​)
+				 * @param {unknown} band
+				 * @param {unknown} mode
+				 * @param {unknown} ssid
+				 */
+				softapSaved: RequiredParams<'band' | 'mode' | 'ssid'>
+				/**
+				 * F​a​i​l​e​d​ ​t​o​ ​u​p​d​a​t​e​ ​h​o​t​s​p​o​t​ ​c​o​n​f​i​g
+				 */
+				hotspotConfigFailed: string
+				/**
+				 * R​o​u​t​e​r​ ​s​e​t​t​i​n​g​s​ ​s​a​v​e​d​ ​(​A​n​d​r​o​i​d​ ​m​a​n​a​g​e​s​ ​g​a​t​e​w​a​y​,​ ​D​H​C​P​ ​a​n​d​ ​D​N​S​)​.
+				 */
+				routerSavedAuto: string
+				/**
+				 * R​o​u​t​e​r​ ​s​e​t​t​i​n​g​s​ ​s​a​v​e​d​ ​a​n​d​ ​a​p​p​l​i​e​d​ ​t​o​ ​t​h​e​ ​k​e​r​n​e​l​.
+				 */
+				routerSavedApplied: string
+				/**
+				 * S​e​t​t​i​n​g​s​ ​s​a​v​e​d​ ​b​u​t​ ​n​o​t​ ​a​p​p​l​i​e​d​:​ ​{​e​r​r​o​r​}
+				 * @param {unknown} error
+				 */
+				savedNotApplied: RequiredParams<'error'>
+				/**
+				 * F​a​i​l​e​d​ ​t​o​ ​s​a​v​e​ ​r​o​u​t​e​r​ ​s​e​t​t​i​n​g​s
+				 */
+				saveRouterFailed: string
+			}
+		}
+	}
 }
 
 export type TranslationFunctions = {
@@ -13962,6 +14638,660 @@ export type TranslationFunctions = {
 			 * Probe finished. None of {total} switches cut charging current. You may define a custom sysfs node.
 			 */
 			probeNone: (arg: { total: unknown }) => LocalizedString
+		}
+	}
+	hotspot: {
+		/**
+		 * Tethering & QoS Suite
+		 */
+		title: () => LocalizedString
+		/**
+		 * Android SoftAP, USB/Ethernet links, anti-bufferbloat & access filtering
+		 */
+		subtitle: () => LocalizedString
+		/**
+		 * ONLINE
+		 */
+		online: () => LocalizedString
+		/**
+		 * IDLE
+		 */
+		idle: () => LocalizedString
+		subtabs: {
+			/**
+			 * Tethering Channels
+			 */
+			tethering: () => LocalizedString
+			/**
+			 * Clients
+			 */
+			clients: () => LocalizedString
+			/**
+			 * Clients ({count})
+			 */
+			clientsCount: (arg: { count: unknown }) => LocalizedString
+			/**
+			 * QoS & Gaming Priority
+			 */
+			qos: () => LocalizedString
+			/**
+			 * MAC Filter
+			 */
+			macFilter: () => LocalizedString
+		}
+		toasts: {
+			/**
+			 * Selected {target} for QoS limiter
+			 */
+			selectedForQos: (arg: { target: unknown }) => LocalizedString
+			/**
+			 * Selected {mac} for MAC filter rule
+			 */
+			selectedForMacFilter: (arg: { mac: unknown }) => LocalizedString
+		}
+		clients: {
+			/**
+			 * Connected Client Devices
+			 */
+			title: () => LocalizedString
+			/**
+			 * Live ARP and DHCP neighbour bindings discovered on tethering interfaces
+			 */
+			subtitle: () => LocalizedString
+			/**
+			 * Scan Clients
+			 */
+			scanClients: () => LocalizedString
+			/**
+			 * No Active Tethering Clients
+			 */
+			emptyTitle: () => LocalizedString
+			/**
+			 * Enable Wi-Fi Hotspot, USB Tethering, or Ethernet OTG and connect client devices.
+			 */
+			emptyBody: () => LocalizedString
+			/**
+			 * Client Device
+			 */
+			fallbackDevice: () => LocalizedString
+			/**
+			 * Limit Speed
+			 */
+			limitSpeed: () => LocalizedString
+			/**
+			 * Block
+			 */
+			block: () => LocalizedString
+			/**
+			 * QoS Limit
+			 */
+			qosLimit: () => LocalizedString
+			/**
+			 * Block MAC
+			 */
+			blockMac: () => LocalizedString
+			/**
+			 * Device / Hostname
+			 */
+			thDevice: () => LocalizedString
+			/**
+			 * IP Address
+			 */
+			thIp: () => LocalizedString
+			/**
+			 * MAC Address
+			 */
+			thMac: () => LocalizedString
+			/**
+			 * Interface
+			 */
+			thInterface: () => LocalizedString
+			/**
+			 * Quick Actions
+			 */
+			thActions: () => LocalizedString
+		}
+		macFilter: {
+			/**
+			 * Dual-Stack MAC Filtering & Access Control
+			 */
+			title: () => LocalizedString
+			/**
+			 * Hardware-level packet filtering across IPv4 and IPv6 forwarding chains
+			 */
+			subtitle: () => LocalizedString
+			/**
+			 * Enforcement Mode:
+			 */
+			enforcementMode: () => LocalizedString
+			/**
+			 * Add to {list}
+			 */
+			addTo: (arg: { list: unknown }) => LocalizedString
+			/**
+			 * Whitelist
+			 */
+			whitelist: () => LocalizedString
+			/**
+			 * Blacklist
+			 */
+			blacklist: () => LocalizedString
+			/**
+			 * Blocked MACs ({count})
+			 */
+			blockedMacs: (arg: { count: unknown }) => LocalizedString
+			/**
+			 * Allowed MACs ({count})
+			 */
+			allowedMacs: (arg: { count: unknown }) => LocalizedString
+			/**
+			 * No blocked MAC addresses.
+			 */
+			noBlocked: () => LocalizedString
+			/**
+			 * No allowed MAC addresses (all blocked in whitelist mode).
+			 */
+			noAllowed: () => LocalizedString
+			/**
+			 * Remove rule
+			 */
+			removeRule: () => LocalizedString
+			/**
+			 * Invalid MAC address format
+			 */
+			invalidMac: () => LocalizedString
+			/**
+			 * MAC filter configuration updated.
+			 */
+			updated: () => LocalizedString
+			/**
+			 * Failed to update MAC filter
+			 */
+			updateFailed: () => LocalizedString
+		}
+		qos: {
+			/**
+			 * Traffic Control & QoS Presets
+			 */
+			title: () => LocalizedString
+			/**
+			 * Anti-bufferbloat and gaming low latency shaper
+			 */
+			subtitle: () => LocalizedString
+			/**
+			 * Active ({engine})
+			 */
+			activeEngine: (arg: { engine: unknown }) => LocalizedString
+			/**
+			 * Disabled
+			 */
+			disabled: () => LocalizedString
+			/**
+			 * Enable QoS
+			 */
+			enableQos: () => LocalizedString
+			/**
+			 * Disable QoS
+			 */
+			disableQos: () => LocalizedString
+			/**
+			 * Client
+			 */
+			fallbackClient: () => LocalizedString
+			presets: {
+				/**
+				 * Gaming First
+				 */
+				gaming: () => LocalizedString
+				/**
+				 * Lowest ping & VoIP priority
+				 */
+				gamingDesc: () => LocalizedString
+				/**
+				 * Fair Share
+				 */
+				fair: () => LocalizedString
+				/**
+				 * Equal bandwidth for all
+				 */
+				fairDesc: () => LocalizedString
+				/**
+				 * Data Saver
+				 */
+				saver: () => LocalizedString
+				/**
+				 * Strict speed throttle
+				 */
+				saverDesc: () => LocalizedString
+				/**
+				 * Custom
+				 */
+				custom: () => LocalizedString
+				/**
+				 * Manual rates & rules
+				 */
+				customDesc: () => LocalizedString
+			}
+			/**
+			 * Prioritize Gaming & ICMP
+			 */
+			prioritizeGaming: () => LocalizedString
+			/**
+			 * Bypasses queue for UDP 27015 & Ping
+			 */
+			gamingDesc: () => LocalizedString
+			/**
+			 * Prioritize VoIP & Discord
+			 */
+			prioritizeVoip: () => LocalizedString
+			/**
+			 * WhatsApp Call & Discord Voice (prio 2)
+			 */
+			voipDesc: () => LocalizedString
+			/**
+			 * Global Download Rate (Mbps):
+			 */
+			globalDownload: () => LocalizedString
+			/**
+			 * Global Upload Rate (Mbps):
+			 */
+			globalUpload: () => LocalizedString
+			/**
+			 * Individual Client Limits
+			 */
+			limitsTitle: () => LocalizedString
+			/**
+			 * Enforce maximum upload/download caps per IP address
+			 */
+			limitsSubtitle: () => LocalizedString
+			/**
+			 * Add New Client Limit:
+			 */
+			addLabel: () => LocalizedString
+			/**
+			 * Device Hostname
+			 */
+			hostnamePlaceholder: () => LocalizedString
+			/**
+			 * Down Mbps
+			 */
+			downPlaceholder: () => LocalizedString
+			/**
+			 * Add Limit
+			 */
+			addLimit: () => LocalizedString
+			/**
+			 * No individual client limits active. All clients share the global pool.
+			 */
+			emptyLimits: () => LocalizedString
+			/**
+			 * Client
+			 */
+			thClient: () => LocalizedString
+			/**
+			 * IP Address
+			 */
+			thIp: () => LocalizedString
+			/**
+			 * Max Download
+			 */
+			thMaxDownload: () => LocalizedString
+			/**
+			 * Max Upload
+			 */
+			thMaxUpload: () => LocalizedString
+			/**
+			 * Action
+			 */
+			thAction: () => LocalizedString
+			/**
+			 * Save & Apply QoS Rules
+			 */
+			saveApply: () => LocalizedString
+			/**
+			 * QoS rules applied successfully.
+			 */
+			applied: () => LocalizedString
+			/**
+			 * QoS rules cleared successfully.
+			 */
+			cleared: () => LocalizedString
+			/**
+			 * Failed to apply QoS
+			 */
+			applyFailed: () => LocalizedString
+			/**
+			 * Client {ip} is already in limit list
+			 */
+			alreadyLimited: (arg: { ip: unknown }) => LocalizedString
+			/**
+			 * Added client to rate limits table. Click "Save & Apply QoS" to activate.
+			 */
+			addedClient: () => LocalizedString
+		}
+		tethering: {
+			/**
+			 * Wi-Fi SoftAP
+			 */
+			wifiTitle: () => LocalizedString
+			/**
+			 * Wireless LAN Hotspot
+			 */
+			wifiSub: () => LocalizedString
+			/**
+			 * USB RNDIS / NCM
+			 */
+			usbTitle: () => LocalizedString
+			/**
+			 * Direct USB Cable Link
+			 */
+			usbSub: () => LocalizedString
+			/**
+			 * Ethernet OTG
+			 */
+			ethTitle: () => LocalizedString
+			/**
+			 * USB to LAN Dongle
+			 */
+			ethSub: () => LocalizedString
+			/**
+			 * Off
+			 */
+			off: () => LocalizedString
+			/**
+			 * Dual/Auto
+			 */
+			dualAuto: () => LocalizedString
+			/**
+			 * Link:
+			 */
+			linkLabel: () => LocalizedString
+			/**
+			 * Interface:
+			 */
+			interfaceLabel: () => LocalizedString
+			/**
+			 * Type:
+			 */
+			typeLabel: () => LocalizedString
+			/**
+			 * Auto-start on boot:
+			 */
+			autoStart: () => LocalizedString
+			/**
+			 * Start Hotspot
+			 */
+			startHotspot: () => LocalizedString
+			/**
+			 * Stop Hotspot
+			 */
+			stopHotspot: () => LocalizedString
+			/**
+			 * Start USB Tether
+			 */
+			startUsb: () => LocalizedString
+			/**
+			 * Stop USB Tether
+			 */
+			stopUsb: () => LocalizedString
+			/**
+			 * Start Ethernet
+			 */
+			startEth: () => LocalizedString
+			/**
+			 * Stop Ethernet
+			 */
+			stopEth: () => LocalizedString
+			wifi: {
+				/**
+				 * Wi-Fi Hotspot Credentials & Radio
+				 */
+				title: () => LocalizedString
+				/**
+				 * Broadcast configuration, frequency band and security mode
+				 */
+				subtitle: () => LocalizedString
+				/**
+				 * Security Mode:
+				 */
+				securityMode: () => LocalizedString
+				/**
+				 * WPA2-PSK (Secured)
+				 */
+				wpa2Secured: () => LocalizedString
+				/**
+				 * Open (No Password)
+				 */
+				openNoPassword: () => LocalizedString
+				/**
+				 * Radio Band:
+				 */
+				radioBand: () => LocalizedString
+				/**
+				 * Auto / Any
+				 */
+				autoAny: () => LocalizedString
+				/**
+				 * 5 GHz (High Speed)
+				 */
+				band5: () => LocalizedString
+				/**
+				 * 2.4 GHz (Long Range)
+				 */
+				band24: () => LocalizedString
+				/**
+				 * SSID Name (1-32 chars)
+				 */
+				ssidLabel: () => LocalizedString
+				/**
+				 * Network SSID
+				 */
+				ssidPlaceholder: () => LocalizedString
+				/**
+				 * Passphrase (8-63 chars)
+				 */
+				passphraseLabel: () => LocalizedString
+				/**
+				 * Leave blank to keep current
+				 */
+				passphrasePlaceholder: () => LocalizedString
+				/**
+				 * Passphrase
+				 */
+				passphraseOpen: () => LocalizedString
+				/**
+				 * No password required (Open Network)
+				 */
+				noPasswordRequired: () => LocalizedString
+				/**
+				 * Radio will reload when credentials change.
+				 */
+				reloadNote: () => LocalizedString
+				/**
+				 * Credentials saved without starting hotspot.
+				 */
+				savedNote: () => LocalizedString
+				/**
+				 * Apply & Reload SoftAP
+				 */
+				applyReload: () => LocalizedString
+				/**
+				 * Save Credentials
+				 */
+				saveCredentials: () => LocalizedString
+			}
+			router: {
+				/**
+				 * Modular Gateway & Router Suite
+				 */
+				title: () => LocalizedString
+				/**
+				 * Static gateway address, upstream steering and OS-owned DHCP
+				 */
+				subtitle: () => LocalizedString
+				/**
+				 * Gateway Mode:
+				 */
+				gatewayMode: () => LocalizedString
+				/**
+				 * Auto (Android Managed)
+				 */
+				autoManaged: () => LocalizedString
+				/**
+				 * Custom Static Gateway
+				 */
+				customStatic: () => LocalizedString
+				/**
+				 * Client Gateway (DHCP):
+				 */
+				clientGateway: () => LocalizedString
+				/**
+				 * Client Subnet (DHCP):
+				 */
+				clientSubnet: () => LocalizedString
+				/**
+				 * Tether Interface:
+				 */
+				tetherInterface: () => LocalizedString
+				/**
+				 * Upstream Routing Table:
+				 */
+				upstreamTable: () => LocalizedString
+				/**
+				 * DHCP & DNS Server:
+				 */
+				dhcpDnsServer: () => LocalizedString
+				/**
+				 * Android NetworkStack (OS owned)
+				 */
+				networkStackOwned: () => LocalizedString
+				/**
+				 * Static gateway installed but not handed to clients
+				 */
+				staticWarningTitle: () => LocalizedString
+				/**
+				 * BFR installed {gateway} and its policy rules in the kernel, but Android's DHCP server still advertises {clientGateway} as the client gateway. Clients keep using the Android address until Android's DHCP server is replaced.
+				 */
+				staticWarningBody: (arg: { clientGateway: unknown, gateway: unknown }) => LocalizedString
+				/**
+				 * Static Gateway IP
+				 */
+				staticGatewayIp: () => LocalizedString
+				/**
+				 * Subnet Mask
+				 */
+				subnetMask: () => LocalizedString
+				/**
+				 * Upstream Interface (auto)
+				 */
+				upstreamInterface: () => LocalizedString
+				/**
+				 * Lease Time (OS managed)
+				 */
+				leaseTime: () => LocalizedString
+				/**
+				 * Dhcp Pool & Dns (Android owned)
+				 */
+				dhcpPoolTitle: () => LocalizedString
+				/**
+				 * DHCP Range:
+				 */
+				dhcpRange: () => LocalizedString
+				/**
+				 * Android's NetworkStack still hands out leases and the DNS addresses to clients. These values are stored for a future BFR-managed DHCP mode and are not applied yet.
+				 */
+				dhcpPoolWarning: () => LocalizedString
+				/**
+				 * Android OS owns the AP address, DHCP, DNS and forwarding. BFR only reports the live values and can layer scoped features (QoS, MAC filtering) on top.
+				 */
+				autoNote: () => LocalizedString
+				/**
+				 * Last apply error:
+				 */
+				lastApplyError: () => LocalizedString
+				/**
+				 * ● static gateway verified in kernel
+				 */
+				stateApplied: () => LocalizedString
+				/**
+				 * ● Android manages gateway, DHCP and DNS — no BFR state applied
+				 */
+				stateAuto: () => LocalizedString
+				/**
+				 * hotspot disabled — state idle
+				 */
+				stateInactive: () => LocalizedString
+				/**
+				 * ● saved, waiting for tether interface
+				 */
+				statePending: () => LocalizedString
+				/**
+				 * ● apply failed
+				 */
+				stateFailed: () => LocalizedString
+				/**
+				 * not applied
+				 */
+				stateNotApplied: () => LocalizedString
+				/**
+				 * Save Router Settings
+				 */
+				saveRouter: () => LocalizedString
+			}
+			toasts: {
+				/**
+				 * Auto-start on boot for {channel} enabled.
+				 */
+				autoStartOn: (arg: { channel: unknown }) => LocalizedString
+				/**
+				 * Auto-start on boot for {channel} disabled.
+				 */
+				autoStartOff: (arg: { channel: unknown }) => LocalizedString
+				/**
+				 * Failed to update auto-start configuration
+				 */
+				autoStartFailed: () => LocalizedString
+				/**
+				 * {channel} tethering enabled.
+				 */
+				tetherEnabled: (arg: { channel: unknown }) => LocalizedString
+				/**
+				 * {channel} tethering disabled.
+				 */
+				tetherDisabled: (arg: { channel: unknown }) => LocalizedString
+				/**
+				 * Failed to toggle {channel} tethering
+				 */
+				toggleFailed: (arg: { channel: unknown }) => LocalizedString
+				/**
+				 * SoftAP reloaded (SSID: {ssid}, Band: {band}, Mode: {mode})
+				 */
+				softapReloaded: (arg: { band: unknown, mode: unknown, ssid: unknown }) => LocalizedString
+				/**
+				 * SoftAP credentials saved (SSID: {ssid}, Band: {band}, Mode: {mode})
+				 */
+				softapSaved: (arg: { band: unknown, mode: unknown, ssid: unknown }) => LocalizedString
+				/**
+				 * Failed to update hotspot config
+				 */
+				hotspotConfigFailed: () => LocalizedString
+				/**
+				 * Router settings saved (Android manages gateway, DHCP and DNS).
+				 */
+				routerSavedAuto: () => LocalizedString
+				/**
+				 * Router settings saved and applied to the kernel.
+				 */
+				routerSavedApplied: () => LocalizedString
+				/**
+				 * Settings saved but not applied: {error}
+				 */
+				savedNotApplied: (arg: { error: unknown }) => LocalizedString
+				/**
+				 * Failed to save router settings
+				 */
+				saveRouterFailed: () => LocalizedString
+			}
 		}
 	}
 }

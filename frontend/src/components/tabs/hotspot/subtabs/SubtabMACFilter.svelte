@@ -10,6 +10,7 @@
   import { api } from '../../../../api/client'
   import { toastStore } from '../../../../stores/toast.svelte'
   import type { MACFilterResponse } from '../../../../types/hotspot'
+  import { LL } from '../../../../i18n/i18n-svelte'
   import Card from '../../../ui/Card.svelte'
   import Button from '../../../ui/Button.svelte'
   import Badge from '../../../ui/Badge.svelte'
@@ -65,9 +66,9 @@
       mode = newMode
       blockedList = bList
       allowedList = aList
-      toastStore.success('MAC filter configuration updated.')
+      toastStore.success($LL.hotspot.macFilter.updated())
     } catch (err: unknown) {
-      toastStore.error(err instanceof Error ? err.message : 'Failed to update MAC filter')
+      toastStore.error(err instanceof Error ? err.message : $LL.hotspot.macFilter.updateFailed())
     } finally {
       isSaving = false
     }
@@ -81,7 +82,7 @@
     if (!newMAC) return
     const clean = newMAC.trim().toUpperCase()
     if (clean.length < 11) {
-      toastStore.warning('Invalid MAC address format')
+      toastStore.warning($LL.hotspot.macFilter.invalidMac())
       return
     }
 
@@ -105,14 +106,14 @@
 </script>
 
 <Card
-  title="Dual-Stack MAC Filtering & Access Control"
-  subtitle="Hardware-level packet filtering across IPv4 and IPv6 forwarding chains"
+  title={$LL.hotspot.macFilter.title()}
+  subtitle={$LL.hotspot.macFilter.subtitle()}
   tone="mint"
 >
   <div class="space-y-4 font-mono text-xs">
     <!-- Mode Switcher -->
     <div class="flex flex-wrap items-center gap-2 pb-3 border-b border-border">
-      <span class="text-muted uppercase font-bold mr-1 text-[11px]">Enforcement Mode:</span>
+      <span class="text-muted uppercase font-bold mr-1 text-[11px]">{$LL.hotspot.macFilter.enforcementMode()}</span>
       {#each (['disabled', 'blacklist', 'whitelist'] as const) as m}
         <button
           type="button"
@@ -140,7 +141,7 @@
         onclick={addRule}
       >
         <Plus class="w-3.5 h-3.5 mr-1" />
-        <span>Add to {mode === 'whitelist' ? 'Whitelist' : 'Blacklist'}</span>
+        <span>{$LL.hotspot.macFilter.addTo({ list: mode === 'whitelist' ? $LL.hotspot.macFilter.whitelist() : $LL.hotspot.macFilter.blacklist() })}</span>
       </Button>
     </div>
 
@@ -151,7 +152,7 @@
         <div class="flex items-center justify-between pb-1.5 border-b border-border">
           <div class="flex items-center gap-1.5 text-red-400 font-bold uppercase text-[11px]">
             <ShieldAlert class="w-3.5 h-3.5" />
-            <span>Blocked MACs ({blockedList.length})</span>
+            <span>{$LL.hotspot.macFilter.blockedMacs({ count: blockedList.length })}</span>
           </div>
           {#if mode === 'blacklist'}
             <Badge variant="danger" class="text-[9px]">ENFORCING</Badge>
@@ -160,7 +161,7 @@
 
         {#if blockedList.length === 0}
           <div class="p-4 text-center text-muted text-[11px]">
-            No blocked MAC addresses.
+            {$LL.hotspot.macFilter.noBlocked()}
           </div>
         {:else}
           <div class="space-y-1.5 max-h-48 overflow-y-auto">
@@ -171,7 +172,7 @@
                   type="button"
                   class="text-red-400 hover:text-red-300 cursor-pointer p-1"
                   onclick={() => removeRule(mac, 'blocked')}
-                  title="Remove rule"
+                  title={$LL.hotspot.macFilter.removeRule()}
                 >
                   <Trash2 class="w-3.5 h-3.5" />
                 </button>
@@ -186,7 +187,7 @@
         <div class="flex items-center justify-between pb-1.5 border-b border-border">
           <div class="flex items-center gap-1.5 text-emerald-400 font-bold uppercase text-[11px]">
             <ShieldCheck class="w-3.5 h-3.5" />
-            <span>Allowed MACs ({allowedList.length})</span>
+            <span>{$LL.hotspot.macFilter.allowedMacs({ count: allowedList.length })}</span>
           </div>
           {#if mode === 'whitelist'}
             <Badge variant="success" class="text-[9px]">ENFORCING</Badge>
@@ -195,7 +196,7 @@
 
         {#if allowedList.length === 0}
           <div class="p-4 text-center text-muted text-[11px]">
-            No allowed MAC addresses (all blocked in whitelist mode).
+            {$LL.hotspot.macFilter.noAllowed()}
           </div>
         {:else}
           <div class="space-y-1.5 max-h-48 overflow-y-auto">
@@ -206,7 +207,7 @@
                   type="button"
                   class="text-red-400 hover:text-red-300 cursor-pointer p-1"
                   onclick={() => removeRule(mac, 'allowed')}
-                  title="Remove rule"
+                  title={$LL.hotspot.macFilter.removeRule()}
                 >
                   <Trash2 class="w-3.5 h-3.5" />
                 </button>

@@ -10,6 +10,7 @@
   } from '@lucide/svelte'
   import { api } from '../../../api/client'
   import { toastStore } from '../../../stores/toast.svelte'
+  import { LL } from '../../../i18n/i18n-svelte'
   import type { HotspotStatus, ConnectedClient } from '../../../types/hotspot'
   import Button from '../../ui/Button.svelte'
   import Badge from '../../ui/Badge.svelte'
@@ -52,13 +53,13 @@
   function handleLimitClient(client: ConnectedClient) {
     prefillLimitClient = client
     activeTab = 'qos'
-    toastStore.info(`Selected ${client.device || client.ip} for QoS limiter`)
+    toastStore.info($LL.hotspot.toasts.selectedForQos({ target: client.device || client.ip }))
   }
 
   function handleBlockClient(mac: string) {
     externalBlockMAC = mac
     activeTab = 'mac_filter'
-    toastStore.info(`Selected ${mac} for MAC filter rule`)
+    toastStore.info($LL.hotspot.toasts.selectedForMacFilter({ mac }))
   }
 </script>
 
@@ -71,17 +72,17 @@
       </div>
       <div>
         <h2 class="text-base sm:text-lg font-mono font-bold uppercase tracking-wider text-foreground">
-          Tethering & QoS Suite
+          {$LL.hotspot.title()}
         </h2>
         <span class="text-[11px] font-mono text-muted">
-          Android SoftAP, USB/Ethernet links, anti-bufferbloat & access filtering
+          {$LL.hotspot.subtitle()}
         </span>
       </div>
     </div>
 
     <div class="flex items-center gap-2">
       <Badge variant={status.enabled || status.usb_enabled || status.ethernet_enabled ? 'success' : 'default'}>
-        {status.enabled || status.usb_enabled || status.ethernet_enabled ? 'ONLINE' : 'IDLE'}
+        {status.enabled || status.usb_enabled || status.ethernet_enabled ? $LL.hotspot.online() : $LL.hotspot.idle()}
       </Badge>
       <Button
         variant="secondary"
@@ -90,7 +91,7 @@
         onclick={fetchAll}
       >
         <RefreshCw class="w-3.5 h-3.5 mr-1.5 {isLoading ? 'animate-spin' : ''}" />
-        <span>Refresh</span>
+        <span>{$LL.common.refresh()}</span>
       </Button>
     </div>
   </div>
@@ -103,7 +104,7 @@
       onclick={() => (activeTab = 'tethering')}
     >
       <Layers class="w-3.5 h-3.5" />
-      <span>Tethering Channels</span>
+      <span>{$LL.hotspot.subtabs.tethering()}</span>
     </button>
 
     <button
@@ -112,7 +113,7 @@
       onclick={() => (activeTab = 'clients')}
     >
       <Users class="w-3.5 h-3.5" />
-      <span>Clients ({clients.length})</span>
+      <span>{$LL.hotspot.subtabs.clientsCount({ count: clients.length })}</span>
     </button>
 
     <button
@@ -121,7 +122,7 @@
       onclick={() => (activeTab = 'qos')}
     >
       <Gauge class="w-3.5 h-3.5" />
-      <span>QoS & Gaming Priority</span>
+      <span>{$LL.hotspot.subtabs.qos()}</span>
     </button>
 
     <button
@@ -130,7 +131,7 @@
       onclick={() => (activeTab = 'mac_filter')}
     >
       <Shield class="w-3.5 h-3.5" />
-      <span>MAC Filter</span>
+      <span>{$LL.hotspot.subtabs.macFilter()}</span>
     </button>
   </div>
 

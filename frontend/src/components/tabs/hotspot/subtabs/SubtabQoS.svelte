@@ -22,6 +22,7 @@
   import Badge from '../../../ui/Badge.svelte'
   import Input from '../../../ui/Input.svelte'
   import type { QoSConfig, QoSStatus, ClientLimit } from '../../../../types/qos'
+  import { LL } from '../../../../i18n/i18n-svelte'
   import type { ConnectedClient } from '../../../../types/hotspot'
   import { themeStore } from '../../../../stores/theme.svelte'
   import SakugaCheckbox from '../../../ui/SakugaCheckbox.svelte'
@@ -97,10 +98,10 @@
       config.enabled = enabledState
       await api.post('/api/qos/apply', config)
       status.active = enabledState
-      toastStore.success(`QoS rules ${enabledState ? 'applied' : 'cleared'} successfully.`)
+      toastStore.success(enabledState ? $LL.hotspot.qos.applied() : $LL.hotspot.qos.cleared())
       await fetchQoS()
     } catch (err: unknown) {
-      toastStore.error(err instanceof Error ? err.message : 'Failed to apply QoS')
+      toastStore.error(err instanceof Error ? err.message : $LL.hotspot.qos.applyFailed())
     } finally {
       isSaving = false
     }
@@ -133,7 +134,7 @@
     if (!newClientIP) return
     const exists = config.client_limits.some((c) => c.ip === newClientIP)
     if (exists) {
-      toastStore.warning(`Client ${newClientIP} is already in limit list`)
+      toastStore.warning($LL.hotspot.qos.alreadyLimited({ ip: newClientIP }))
       return
     }
 
@@ -152,7 +153,7 @@
 
     newClientIP = ''
     newClientName = ''
-    toastStore.success('Added client to rate limits table. Click "Save & Apply QoS" to activate.')
+    toastStore.success($LL.hotspot.qos.addedClient())
   }
 
   function removeClientRule(ip: string) {
@@ -162,11 +163,11 @@
 
 <div class="space-y-4 font-mono text-xs">
   <!-- Presets & Master Toggle -->
-  <Card title="Traffic Control & QoS Presets" subtitle="Anti-bufferbloat and gaming low latency shaper" tone="lavender">
+  <Card title={$LL.hotspot.qos.title()} subtitle={$LL.hotspot.qos.subtitle()} tone="lavender">
     {#snippet action()}
       <div class="flex items-center gap-2">
         <Badge variant={status.active ? 'success' : 'default'}>
-          {status.active ? `Active (${status.engine_used})` : 'Disabled'}
+          {status.active ? $LL.hotspot.qos.activeEngine({ engine: status.engine_used }) : $LL.hotspot.qos.disabled()}
         </Badge>
         <Button
           variant={config.enabled ? 'danger' : 'primary'}
@@ -174,7 +175,7 @@
           disabled={isSaving}
           onclick={() => saveQoS(!config.enabled)}
         >
-          <span>{config.enabled ? 'Disable QoS' : 'Enable QoS'}</span>
+          <span>{config.enabled ? $LL.hotspot.qos.disableQos() : $LL.hotspot.qos.enableQos()}</span>
         </Button>
       </div>
     {/snippet}
@@ -189,9 +190,9 @@
         >
           <div class="flex items-center gap-1.5 font-bold mb-1">
             <Gamepad2 class="w-4 h-4 text-emerald-400" />
-            <span>Gaming First</span>
+            <span>{$LL.hotspot.qos.presets.gaming()}</span>
           </div>
-          <span class="text-[10px] text-muted block">Lowest ping & VoIP priority</span>
+          <span class="text-[10px] text-muted block">{$LL.hotspot.qos.presets.gamingDesc()}</span>
         </button>
 
         <button
@@ -201,9 +202,9 @@
         >
           <div class="flex items-center gap-1.5 font-bold mb-1">
             <Scale class="w-4 h-4 text-sky-400" />
-            <span>Fair Share</span>
+            <span>{$LL.hotspot.qos.presets.fair()}</span>
           </div>
-          <span class="text-[10px] text-muted block">Equal bandwidth for all</span>
+          <span class="text-[10px] text-muted block">{$LL.hotspot.qos.presets.fairDesc()}</span>
         </button>
 
         <button
@@ -213,9 +214,9 @@
         >
           <div class="flex items-center gap-1.5 font-bold mb-1">
             <Zap class="w-4 h-4 text-amber-400" />
-            <span>Data Saver</span>
+            <span>{$LL.hotspot.qos.presets.saver()}</span>
           </div>
-          <span class="text-[10px] text-muted block">Strict speed throttle</span>
+          <span class="text-[10px] text-muted block">{$LL.hotspot.qos.presets.saverDesc()}</span>
         </button>
 
         <button
@@ -225,9 +226,9 @@
         >
           <div class="flex items-center gap-1.5 font-bold mb-1">
             <Sliders class="w-4 h-4 text-lavender" />
-            <span>Custom</span>
+            <span>{$LL.hotspot.qos.presets.custom()}</span>
           </div>
-          <span class="text-[10px] text-muted block">Manual rates & rules</span>
+          <span class="text-[10px] text-muted block">{$LL.hotspot.qos.presets.customDesc()}</span>
         </button>
       </div>
 
@@ -237,8 +238,8 @@
           <div class="flex items-center gap-2">
             <Gamepad2 class="w-4 h-4 text-emerald-400" />
             <div>
-              <span class="font-bold text-foreground block">Prioritize Gaming & ICMP</span>
-              <span class="text-[10px] text-muted">Bypasses queue for UDP 27015 & Ping</span>
+              <span class="font-bold text-foreground block">{$LL.hotspot.qos.prioritizeGaming()}</span>
+              <span class="text-[10px] text-muted">{$LL.hotspot.qos.gamingDesc()}</span>
             </div>
           </div>
           {#if themeStore.useSakugaControls()}
@@ -256,8 +257,8 @@
           <div class="flex items-center gap-2">
             <PhoneCall class="w-4 h-4 text-sky-400" />
             <div>
-              <span class="font-bold text-foreground block">Prioritize VoIP & Discord</span>
-              <span class="text-[10px] text-muted">WhatsApp Call & Discord Voice (prio 2)</span>
+              <span class="font-bold text-foreground block">{$LL.hotspot.qos.prioritizeVoip()}</span>
+              <span class="text-[10px] text-muted">{$LL.hotspot.qos.voipDesc()}</span>
             </div>
           </div>
           {#if themeStore.useSakugaControls()}
@@ -275,7 +276,7 @@
       <!-- Global Bandwidth Rates -->
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2 border-t border-border">
         <div>
-          <label for="global-download-rate" class="text-muted block mb-1">Global Download Rate (Mbps):</label>
+          <label for="global-download-rate" class="text-muted block mb-1">{$LL.hotspot.qos.globalDownload()}</label>
           <input
             id="global-download-rate"
             type="number"
@@ -286,7 +287,7 @@
           />
         </div>
         <div>
-          <label for="global-upload-rate" class="text-muted block mb-1">Global Upload Rate (Mbps):</label>
+          <label for="global-upload-rate" class="text-muted block mb-1">{$LL.hotspot.qos.globalUpload()}</label>
           <input
             id="global-upload-rate"
             type="number"
@@ -301,42 +302,42 @@
   </Card>
 
   <!-- Per-Client Bandwidth Limiter Table -->
-  <Card title="Individual Client Limits" subtitle="Enforce maximum upload/download caps per IP address" tone="lavender">
+  <Card title={$LL.hotspot.qos.limitsTitle()} subtitle={$LL.hotspot.qos.limitsSubtitle()} tone="lavender">
     <div class="space-y-3">
       <!-- Add Client Limit Form -->
       <div class="p-3 bg-card-sub border-2 border-border rounded-lg space-y-2">
-        <span class="text-muted text-[10px] uppercase font-bold">Add New Client Limit:</span>
+        <span class="text-muted text-[10px] uppercase font-bold">{$LL.hotspot.qos.addLabel()}</span>
         <div class="grid grid-cols-1 sm:grid-cols-4 gap-2">
           <Input placeholder="192.168.43.100" bind:value={newClientIP} />
-          <Input placeholder="Device Hostname" bind:value={newClientName} />
-          <Input type="number" placeholder="Down Mbps" bind:value={newClientDown} />
+          <Input placeholder={$LL.hotspot.qos.hostnamePlaceholder()} bind:value={newClientName} />
+          <Input type="number" placeholder={$LL.hotspot.qos.downPlaceholder()} bind:value={newClientDown} />
           <Button variant="secondary" size="md" onclick={addClientRule}>
             <Plus class="w-3.5 h-3.5 mr-1" />
-            <span>Add Limit</span>
+            <span>{$LL.hotspot.qos.addLimit()}</span>
           </Button>
         </div>
       </div>
 
       {#if config.client_limits.length === 0}
         <div class="p-6 text-center text-muted bg-card-sub border border-border rounded text-[11px]">
-          No individual client limits active. All clients share the global pool.
+          {$LL.hotspot.qos.emptyLimits()}
         </div>
       {:else}
         <div class="overflow-x-auto">
           <table class="w-full text-left font-mono text-xs">
             <thead>
               <tr class="border-b border-border text-muted uppercase text-[10px]">
-                <th class="py-2 px-3">Client</th>
-                <th class="py-2 px-3">IP Address</th>
-                <th class="py-2 px-3">Max Download</th>
-                <th class="py-2 px-3">Max Upload</th>
-                <th class="py-2 px-3 text-right">Action</th>
+                <th class="py-2 px-3">{$LL.hotspot.qos.thClient()}</th>
+                <th class="py-2 px-3">{$LL.hotspot.qos.thIp()}</th>
+                <th class="py-2 px-3">{$LL.hotspot.qos.thMaxDownload()}</th>
+                <th class="py-2 px-3">{$LL.hotspot.qos.thMaxUpload()}</th>
+                <th class="py-2 px-3 text-right">{$LL.hotspot.qos.thAction()}</th>
               </tr>
             </thead>
             <tbody class="divide-y divide-border">
               {#each config.client_limits as client}
                 <tr class="hover:bg-card-sub transition-colors">
-                  <td class="py-2 px-3 font-bold text-foreground">{client.hostname || 'Client'}</td>
+                  <td class="py-2 px-3 font-bold text-foreground">{client.hostname || $LL.hotspot.qos.fallbackClient()}</td>
                   <td class="py-2 px-3 text-accent">{client.ip}</td>
                   <td class="py-2 px-3 text-foreground">{client.download_limit} Mbps</td>
                   <td class="py-2 px-3 text-foreground">{client.upload_limit} Mbps</td>
@@ -364,7 +365,7 @@
           onclick={() => saveQoS(true)}
         >
           <Check class="w-3.5 h-3.5 mr-1" />
-          <span>Save & Apply QoS Rules</span>
+          <span>{$LL.hotspot.qos.saveApply()}</span>
         </Button>
       </div>
     </div>

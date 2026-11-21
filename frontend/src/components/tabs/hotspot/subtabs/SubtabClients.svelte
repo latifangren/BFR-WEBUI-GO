@@ -11,6 +11,7 @@
     ShieldAlert,
   } from '@lucide/svelte'
   import type { ConnectedClient } from '../../../../types/hotspot'
+  import { LL } from '../../../../i18n/i18n-svelte'
   import Card from '../../../ui/Card.svelte'
   import Button from '../../../ui/Button.svelte'
   import Badge from '../../../ui/Badge.svelte'
@@ -35,8 +36,8 @@
 </script>
 
 <Card
-  title="Connected Client Devices"
-  subtitle="Live ARP and DHCP neighbour bindings discovered on tethering interfaces"
+  title={$LL.hotspot.clients.title()}
+  subtitle={$LL.hotspot.clients.subtitle()}
   tone="mint"
 >
   {#snippet action()}
@@ -47,16 +48,16 @@
       onclick={onRefresh}
     >
       <RefreshCw class="w-3.5 h-3.5 mr-1 {isLoading ? 'animate-spin' : ''}" />
-      <span>Scan Clients</span>
+      <span>{$LL.hotspot.clients.scanClients()}</span>
     </Button>
   {/snippet}
 
   {#if clients.length === 0}
     <div class="p-8 text-center font-mono text-xs text-muted">
       <Users class="w-8 h-8 mx-auto mb-2 opacity-40 text-muted" />
-      <p class="font-bold text-foreground">No Active Tethering Clients</p>
+      <p class="font-bold text-foreground">{$LL.hotspot.clients.emptyTitle()}</p>
       <p class="text-[11px] text-muted mt-1">
-        Enable Wi-Fi Hotspot, USB Tethering, or Ethernet OTG and connect client devices.
+        {$LL.hotspot.clients.emptyBody()}
       </p>
     </div>
   {:else}
@@ -71,7 +72,7 @@
                 <IconComp class="w-4 h-4" />
               </div>
               <div class="min-w-0">
-                <div class="font-bold text-foreground truncate">{client.device || 'Client Device'}</div>
+                <div class="font-bold text-foreground truncate">{client.device || $LL.hotspot.clients.fallbackDevice()}</div>
                 <div class="text-[10px] text-muted">{client.interface || 'wlan1'}</div>
               </div>
             </div>
@@ -91,7 +92,7 @@
               onclick={() => onLimitClient(client)}
             >
               <Gauge class="w-3 h-3 mr-1 text-lavender" />
-              <span>Limit Speed</span>
+              <span>{$LL.hotspot.clients.limitSpeed()}</span>
             </Button>
             <Button
               variant="ghost"
@@ -100,7 +101,7 @@
               onclick={() => onBlockClient(client.mac)}
             >
               <ShieldAlert class="w-3 h-3 mr-1" />
-              <span>Block</span>
+              <span>{$LL.hotspot.clients.block()}</span>
             </Button>
           </div>
         </div>
@@ -112,11 +113,11 @@
       <table class="w-full text-left font-mono text-xs">
         <thead>
           <tr class="border-b border-border text-muted uppercase text-[10px]">
-            <th class="py-2.5 px-3">Device / Hostname</th>
-            <th class="py-2.5 px-3">IP Address</th>
-            <th class="py-2.5 px-3">MAC Address</th>
-            <th class="py-2.5 px-3">Interface</th>
-            <th class="py-2.5 px-3 text-right">Quick Actions</th>
+            <th class="py-2.5 px-3">{$LL.hotspot.clients.thDevice()}</th>
+            <th class="py-2.5 px-3">{$LL.hotspot.clients.thIp()}</th>
+            <th class="py-2.5 px-3">{$LL.hotspot.clients.thMac()}</th>
+            <th class="py-2.5 px-3">{$LL.hotspot.clients.thInterface()}</th>
+            <th class="py-2.5 px-3 text-right">{$LL.hotspot.clients.thActions()}</th>
           </tr>
         </thead>
         <tbody class="divide-y divide-border">
@@ -126,7 +127,7 @@
               <td class="py-2.5 px-3">
                 <div class="flex items-center gap-2">
                   <IconComp class="w-3.5 h-3.5 text-accent" />
-                  <span class="font-bold text-foreground">{client.device || 'Client Device'}</span>
+                  <span class="font-bold text-foreground">{client.device || $LL.hotspot.clients.fallbackDevice()}</span>
                 </div>
               </td>
               <td class="py-2.5 px-3 text-accent font-bold">{client.ip}</td>
@@ -143,7 +144,7 @@
                     onclick={() => onLimitClient(client)}
                   >
                     <Gauge class="w-3 h-3 mr-1 text-lavender" />
-                    <span>QoS Limit</span>
+                    <span>{$LL.hotspot.clients.qosLimit()}</span>
                   </Button>
                   <Button
                     variant="ghost"
@@ -152,7 +153,7 @@
                     onclick={() => onBlockClient(client.mac)}
                   >
                     <ShieldAlert class="w-3 h-3 mr-1" />
-                    <span>Block MAC</span>
+                    <span>{$LL.hotspot.clients.blockMac()}</span>
                   </Button>
                 </div>
               </td>
