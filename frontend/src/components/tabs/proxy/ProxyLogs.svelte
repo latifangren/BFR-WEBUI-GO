@@ -13,6 +13,7 @@
   import Button from '../../ui/Button.svelte'
   import Input from '../../ui/Input.svelte'
   import { themeStore } from '../../../stores/theme.svelte'
+  import { LL } from '../../../i18n/i18n-svelte'
   import SakugaCheckbox from '../../ui/SakugaCheckbox.svelte'
 
   let logs = $state<string[]>([])
@@ -74,8 +75,8 @@
 </script>
 
 <Card
-  title="Real-Time Proxy Daemon Logs"
-  subtitle="Live streaming stdout/stderr console logs from Mihomo / Sing-box core process"
+  title={$LL.proxy.logs.title()}
+  subtitle={$LL.proxy.logs.subtitle()}
   tone="ice"
 >
   {#snippet action()}
@@ -84,14 +85,14 @@
         variant="outline"
         size="sm"
         onclick={toggleStreaming}
-        title={isStreaming ? 'Pause streaming' : 'Resume streaming'}
+        title={isStreaming ? $LL.proxy.logs.pauseTitle() : $LL.proxy.logs.resumeTitle()}
       >
         {#if isStreaming}
           <Pause class="w-3.5 h-3.5 mr-1" />
-          <span>Pause</span>
+          <span>{$LL.common.pause()}</span>
         {:else}
           <Play class="w-3.5 h-3.5 mr-1" />
-          <span>Resume</span>
+          <span>{$LL.common.resume()}</span>
         {/if}
       </Button>
 
@@ -99,10 +100,10 @@
         variant="outline"
         size="sm"
         onclick={clearLogs}
-        title="Bersihkan log di layar"
+        title={$LL.proxy.logs.clearTitle()}
       >
         <Trash2 class="w-3.5 h-3.5 mr-1 text-muted" />
-        <span>Clear</span>
+        <span>{$LL.common.clear()}</span>
       </Button>
 
       <Button
@@ -124,7 +125,7 @@
       <!-- Search Filter & Options -->
       <div class="flex items-center justify-between gap-2">
         <div class="max-w-xs flex-1">
-          <Input placeholder="Filter log (e.g. error, info, tcp)..." bind:value={searchFilter} />
+          <Input placeholder={$LL.proxy.logs.filterPlaceholder()} bind:value={searchFilter} />
         </div>
         <label class="flex items-center gap-1.5 text-[11px] text-muted cursor-pointer select-none">
           {#if themeStore.useSakugaControls()}
@@ -136,7 +137,7 @@
             class="w-3.5 h-3.5 accent-accent"
           />
           {/if}
-          <span>Auto-scroll</span>
+          <span>{$LL.proxy.logs.autoScroll()}</span>
         </label>
       </div>
 
@@ -147,7 +148,7 @@
       >
         {#if filteredLogs.length === 0}
           <div class="text-neutral-500 italic py-8 text-center">
-            {logs.length === 0 ? 'Waiting for core daemon log output...' : 'No logs matching current filter.'}
+            {logs.length === 0 ? $LL.proxy.logs.waiting() : $LL.proxy.logs.noMatch()}
           </div>
         {:else}
           {#each filteredLogs as logLine}

@@ -8,6 +8,7 @@
   } from '@lucide/svelte'
   import { api } from '../../../api/client'
   import { toastStore } from '../../../stores/toast.svelte'
+  import { LL } from '../../../i18n/i18n-svelte'
   import Button from '../../ui/Button.svelte'
   import Badge from '../../ui/Badge.svelte'
   import ProxyHero from './ProxyHero.svelte'
@@ -93,13 +94,13 @@
         action,
       })
       if (res && res.success) {
-        toastStore.success(`Proxy service action '${action}' dispatched successfully.`)
+        toastStore.success($LL.proxy.manager.toasts.actionDispatched({ action }))
         await fetchStatus()
       } else {
-        toastStore.error(res?.error || `Failed to execute ${action}`)
+        toastStore.error(res?.error || $LL.proxy.manager.toasts.actionFailed({ action }))
       }
     } catch (err: unknown) {
-      toastStore.error(err instanceof Error ? err.message : `Failed to execute ${action}`)
+      toastStore.error(err instanceof Error ? err.message : $LL.proxy.manager.toasts.actionFailed({ action }))
     } finally {
       isLoading = false
     }
@@ -113,14 +114,14 @@
         core,
       })
       if (res && res.success) {
-        toastStore.success(`Active core switched to ${core}. Restarting service...`)
+        toastStore.success($LL.proxy.manager.toasts.coreSwitched({ core }))
         activeCore = core
         await fetchStatus()
       } else {
-        toastStore.error(res?.error || 'Failed to switch core')
+        toastStore.error(res?.error || $LL.proxy.manager.toasts.switchCoreFailed())
       }
     } catch (err: unknown) {
-      toastStore.error(err instanceof Error ? err.message : 'Core switch error')
+      toastStore.error(err instanceof Error ? err.message : $LL.proxy.manager.toasts.switchCoreError())
     } finally {
       isLoading = false
     }
@@ -133,13 +134,13 @@
         mode,
       })
       if (res && res.success) {
-        toastStore.success(`Routing mode updated to ${mode}`)
+        toastStore.success($LL.proxy.manager.toasts.modeUpdated({ mode }))
         currentMode = mode
       } else {
-        toastStore.error(res?.error || 'Failed to change mode')
+        toastStore.error(res?.error || $LL.proxy.manager.toasts.modeFailed())
       }
     } catch (err: unknown) {
-      toastStore.error(err instanceof Error ? err.message : 'Mode update error')
+      toastStore.error(err instanceof Error ? err.message : $LL.proxy.manager.toasts.modeError())
     } finally {
       isLoading = false
     }
@@ -153,10 +154,10 @@
       })
       if (res && res.success) {
         watchdog = res.enabled
-        toastStore.info(`Watchdog supervisor: ${watchdog ? 'Enabled' : 'Disabled'}`)
+        toastStore.info($LL.proxy.manager.toasts.watchdogUpdated({ state: watchdog ? $LL.common.enable() : $LL.common.disable() }))
       }
     } catch {
-      toastStore.error('Failed to update watchdog state')
+      toastStore.error($LL.proxy.manager.toasts.watchdogFailed())
     }
   }
 </script>
@@ -167,9 +168,9 @@
     <div class="flex items-center gap-2">
       <Shield class="w-5 h-5 text-accent" />
       <h2 class="text-base sm:text-lg font-bold uppercase tracking-wider text-foreground">
-        Clash / Mihomo Core Manager
+        {$LL.proxy.manager.title()}
       </h2>
-      <Badge variant="default" class="text-[10px]">Box for Magisk Suite</Badge>
+      <Badge variant="default" class="text-[10px]">{$LL.proxy.manager.badge()}</Badge>
     </div>
 
     <div class="flex items-center gap-2">
@@ -180,7 +181,7 @@
         onclick={fetchStatus}
       >
         <RefreshCw class="w-3.5 h-3.5 mr-1.5 {isLoading ? 'animate-spin' : ''}" />
-        <span>Refresh</span>
+        <span>{$LL.common.refresh()}</span>
       </Button>
     </div>
   </div>

@@ -10447,6 +10447,510 @@ type RootTranslation = {
 			flashNow: string
 		}
 	}
+	proxy: {
+		manager: {
+			/**
+			 * C​l​a​s​h​ ​/​ ​M​i​h​o​m​o​ ​C​o​r​e​ ​M​a​n​a​g​e​r
+			 */
+			title: string
+			/**
+			 * B​o​x​ ​f​o​r​ ​M​a​g​i​s​k​ ​S​u​i​t​e
+			 */
+			badge: string
+			toasts: {
+				/**
+				 * P​r​o​x​y​ ​s​e​r​v​i​c​e​ ​a​c​t​i​o​n​ ​'​{​a​c​t​i​o​n​}​'​ ​d​i​s​p​a​t​c​h​e​d​ ​s​u​c​c​e​s​s​f​u​l​l​y​.
+				 * @param {unknown} action
+				 */
+				actionDispatched: RequiredParams<'action'>
+				/**
+				 * F​a​i​l​e​d​ ​t​o​ ​e​x​e​c​u​t​e​ ​{​a​c​t​i​o​n​}
+				 * @param {unknown} action
+				 */
+				actionFailed: RequiredParams<'action'>
+				/**
+				 * A​c​t​i​v​e​ ​c​o​r​e​ ​s​w​i​t​c​h​e​d​ ​t​o​ ​{​c​o​r​e​}​.​ ​R​e​s​t​a​r​t​i​n​g​ ​s​e​r​v​i​c​e​.​.​.
+				 * @param {unknown} core
+				 */
+				coreSwitched: RequiredParams<'core'>
+				/**
+				 * F​a​i​l​e​d​ ​t​o​ ​s​w​i​t​c​h​ ​c​o​r​e
+				 */
+				switchCoreFailed: string
+				/**
+				 * C​o​r​e​ ​s​w​i​t​c​h​ ​e​r​r​o​r
+				 */
+				switchCoreError: string
+				/**
+				 * R​o​u​t​i​n​g​ ​m​o​d​e​ ​u​p​d​a​t​e​d​ ​t​o​ ​{​m​o​d​e​}
+				 * @param {unknown} mode
+				 */
+				modeUpdated: RequiredParams<'mode'>
+				/**
+				 * F​a​i​l​e​d​ ​t​o​ ​c​h​a​n​g​e​ ​m​o​d​e
+				 */
+				modeFailed: string
+				/**
+				 * M​o​d​e​ ​u​p​d​a​t​e​ ​e​r​r​o​r
+				 */
+				modeError: string
+				/**
+				 * W​a​t​c​h​d​o​g​ ​s​u​p​e​r​v​i​s​o​r​:​ ​{​s​t​a​t​e​}
+				 * @param {unknown} state
+				 */
+				watchdogUpdated: RequiredParams<'state'>
+				/**
+				 * F​a​i​l​e​d​ ​t​o​ ​u​p​d​a​t​e​ ​w​a​t​c​h​d​o​g​ ​s​t​a​t​e
+				 */
+				watchdogFailed: string
+			}
+		}
+		hero: {
+			/**
+			 * B​o​x​ ​C​o​r​e​ ​E​n​g​i​n​e​ ​M​a​n​a​g​e​r
+			 */
+			title: string
+			/**
+			 * M​u​l​t​i​-​c​o​r​e​ ​p​r​o​x​y​ ​d​a​e​m​o​n​ ​l​i​f​e​c​y​c​l​e​,​ ​m​e​m​o​r​y​ ​t​e​l​e​m​e​t​r​y​ ​&​ ​w​a​t​c​h​d​o​g​ ​s​u​p​e​r​v​i​s​o​r
+			 */
+			subtitle: string
+			/**
+			 * A​u​t​o​m​a​t​i​c​a​l​l​y​ ​r​e​s​t​a​r​t​ ​c​o​r​e​ ​i​f​ ​i​t​ ​c​r​a​s​h​e​s​ ​o​r​ ​g​e​t​s​ ​k​i​l​l​e​d
+			 */
+			watchdogTitle: string
+			/**
+			 * W​a​t​c​h​d​o​g​:
+			 */
+			watchdogLabel: string
+			/**
+			 * C​O​R​E​ ​R​U​N​N​I​N​G
+			 */
+			coreRunning: string
+			/**
+			 * S​T​O​P​P​E​D
+			 */
+			stopped: string
+			/**
+			 * A​c​t​i​v​e​ ​C​o​r​e​ ​B​i​n​a​r​y
+			 */
+			activeCore: string
+			/**
+			 * O​f​f​i​c​i​a​l​ ​M​e​t​a​C​u​b​e​X​ ​M​i​h​o​m​o​ ​C​o​r​e​ ​R​e​l​e​a​s​e​s
+			 */
+			releasesTitle: string
+			/**
+			 * N​e​x​t​-​g​e​n
+			 */
+			coreNextGen: string
+			/**
+			 * L​e​g​a​c​y
+			 */
+			coreLegacy: string
+			/**
+			 * P​r​o​c​e​s​s​ ​P​I​D
+			 */
+			pid: string
+			/**
+			 * M​e​m​o​r​y​ ​R​S​S
+			 */
+			memoryRss: string
+			/**
+			 * V​e​r​s​i​o​n
+			 */
+			version: string
+			/**
+			 * S​e​r​v​i​c​e​ ​C​o​n​t​r​o​l​l​e​r
+			 */
+			serviceController: string
+			/**
+			 * S​t​o​p​ ​C​o​r​e
+			 */
+			stopCore: string
+			/**
+			 * R​e​s​t​a​r​t
+			 */
+			restart: string
+			/**
+			 * S​t​a​r​t​ ​C​o​r​e
+			 */
+			startCore: string
+		}
+		nodes: {
+			/**
+			 * O​u​t​b​o​u​n​d​s​ ​&​ ​R​o​u​t​i​n​g​ ​M​o​d​e
+			 */
+			title: string
+			/**
+			 * R​u​l​e​-​b​a​s​e​d​ ​r​o​u​t​i​n​g​,​ ​p​r​o​x​y​ ​g​r​o​u​p​s​ ​s​e​l​e​c​t​o​r​,​ ​a​n​d​ ​r​e​a​l​-​t​i​m​e​ ​n​o​d​e​ ​l​a​t​e​n​c​y​ ​p​i​n​g​ ​t​e​s​t​e​r
+			 */
+			subtitle: string
+			/**
+			 * R​e​f​r​e​s​h​ ​N​o​d​e​s
+			 */
+			refreshNodes: string
+			/**
+			 * C​l​a​s​h​ ​/​ ​M​i​h​o​m​o​ ​M​o​d​e
+			 */
+			modeTitle: string
+			/**
+			 * B​y​p​a​s​s​ ​d​o​m​e​s​t​i​c​ ​/​ ​P​r​o​x​y​ ​f​o​r​e​i​g​n
+			 */
+			modeRuleDesc: string
+			/**
+			 * A​l​l​ ​t​r​a​f​f​i​c​ ​r​o​u​t​e​d​ ​v​i​a​ ​p​r​o​x​y
+			 */
+			modeGlobalDesc: string
+			/**
+			 * B​y​p​a​s​s​ ​p​r​o​x​y​ ​(​d​i​r​e​c​t​ ​o​u​t​b​o​u​n​d​)
+			 */
+			modeDirectDesc: string
+			/**
+			 * P​r​o​x​y​ ​G​r​o​u​p​s​ ​(​{​c​o​u​n​t​}​)
+			 * @param {unknown} count
+			 */
+			groupsTitle: RequiredParams<'count'>
+			/**
+			 * P​i​n​g​ ​l​a​t​e​n​c​y​ ​t​e​s​t
+			 */
+			pingTitle: string
+			/**
+			 * T​i​m​e​o​u​t
+			 */
+			timeout: string
+			/**
+			 * N​o​ ​p​r​o​x​y​ ​g​r​o​u​p​s​ ​d​e​t​e​c​t​e​d​.​ ​E​n​s​u​r​e​ ​M​i​h​o​m​o​/​C​l​a​s​h​ ​c​o​r​e​ ​i​s​ ​r​u​n​n​i​n​g​ ​a​n​d​ ​R​E​S​T​ ​A​P​I​ ​p​o​r​t​ ​9​0​9​0​ ​i​s​ ​a​c​t​i​v​e​.
+			 */
+			empty: string
+			toasts: {
+				/**
+				 * S​w​i​t​c​h​e​d​ ​t​o​ ​n​o​d​e​:​ ​{​n​o​d​e​}
+				 * @param {unknown} node
+				 */
+				switched: RequiredParams<'node'>
+				/**
+				 * F​a​i​l​e​d​ ​t​o​ ​s​w​i​t​c​h​ ​n​o​d​e
+				 */
+				switchFailed: string
+			}
+		}
+		routing: {
+			/**
+			 * T​r​a​n​s​p​a​r​e​n​t​ ​P​r​o​x​y​ ​&​ ​T​e​t​h​e​r​i​n​g​ ​R​o​u​t​i​n​g
+			 */
+			title: string
+			/**
+			 * K​e​r​n​e​l​ ​i​p​t​a​b​l​e​s​ ​r​e​d​i​r​e​c​t​i​o​n​ ​m​o​d​e​s​,​ ​I​P​v​6​ ​i​n​t​e​r​c​e​p​t​i​o​n​,​ ​H​o​t​s​p​o​t​ ​t​e​t​h​e​r​i​n​g​ ​b​y​p​a​s​s​ ​&​ ​C​g​r​o​u​p​ ​R​A​M​ ​c​o​n​t​r​o​l
+			 */
+			subtitle: string
+			/**
+			 * S​a​v​e​ ​S​e​t​t​i​n​g​s
+			 */
+			saveSettings: string
+			/**
+			 * S​a​v​i​n​g​.​.​.
+			 */
+			saving: string
+			/**
+			 * B​F​M​ ​N​e​t​w​o​r​k​ ​M​o​d​e
+			 */
+			modeTitle: string
+			/**
+			 * T​C​P​ ​+​ ​U​D​P​ ​t​r​a​n​s​p​a​r​e​n​t
+			 */
+			modeTproxyDesc: string
+			/**
+			 * T​C​P​ ​r​e​d​i​r​,​ ​U​D​P​ ​d​i​r​e​c​t
+			 */
+			modeRedirectDesc: string
+			/**
+			 * V​i​r​t​u​a​l​ ​m​e​t​a​/​t​u​n​0​ ​d​e​v​i​c​e
+			 */
+			modeTunDesc: string
+			/**
+			 * T​C​P​ ​r​e​d​i​r​ ​+​ ​U​D​P​ ​t​u​n
+			 */
+			modeMixedDesc: string
+			/**
+			 * P​r​o​x​y​ ​H​o​t​s​p​o​t​ ​/​ ​T​e​t​h​e​r​i​n​g
+			 */
+			hotspotTitle: string
+			/**
+			 * R​o​u​t​e​ ​c​o​n​n​e​c​t​e​d​ ​W​i​-​F​i​ ​/​ ​U​S​B​ ​h​o​t​s​p​o​t​ ​c​l​i​e​n​t​s​ ​t​h​r​o​u​g​h​ ​p​r​o​x​y​.
+			 */
+			hotspotDesc: string
+			/**
+			 * I​P​v​6​ ​T​r​a​n​s​p​a​r​e​n​t​ ​P​r​o​x​y
+			 */
+			ipv6Title: string
+			/**
+			 * I​n​t​e​r​c​e​p​t​ ​a​n​d​ ​r​e​d​i​r​e​c​t​ ​I​P​v​6​ ​t​r​a​f​f​i​c​ ​t​o​ ​p​r​o​x​y​ ​c​o​r​e​ ​(​i​p​6​t​a​b​l​e​s​)​.
+			 */
+			ipv6Desc: string
+			/**
+			 * C​g​r​o​u​p​ ​R​A​M​ ​L​i​m​i​t​e​r
+			 */
+			cgroupTitle: string
+			/**
+			 * C​o​n​s​t​r​a​i​n​ ​c​o​r​e​ ​m​e​m​o​r​y​ ​c​o​n​s​u​m​p​t​i​o​n​ ​t​o​ ​p​r​e​v​e​n​t​ ​k​e​r​n​e​l​ ​O​O​M​ ​f​r​e​e​z​e​s​.
+			 */
+			cgroupDesc: string
+			/**
+			 * M​a​x​ ​C​o​r​e​ ​R​A​M
+			 */
+			maxRam: string
+			/**
+			 * B​l​o​c​k​ ​Q​U​I​C​ ​(​U​D​P​ ​4​4​3​)
+			 */
+			quicTitle: string
+			/**
+			 * F​o​r​c​e​ ​b​r​o​w​s​e​r​s​ ​t​o​ ​f​a​l​l​b​a​c​k​ ​t​o​ ​T​C​P​ ​f​o​r​ ​r​o​b​u​s​t​ ​p​r​o​x​y​ ​t​u​n​n​e​l​i​n​g​.
+			 */
+			quicDesc: string
+			toasts: {
+				/**
+				 * B​o​x​ ​f​o​r​ ​M​a​g​i​s​k​ ​r​o​u​t​i​n​g​ ​c​o​n​f​i​g​u​r​a​t​i​o​n​ ​s​a​v​e​d​ ​s​u​c​c​e​s​s​f​u​l​l​y​!
+				 */
+				saved: string
+				/**
+				 * F​a​i​l​e​d​ ​t​o​ ​s​a​v​e​ ​c​o​n​f​i​g​u​r​a​t​i​o​n
+				 */
+				saveFailed: string
+			}
+		}
+		apps: {
+			/**
+			 * P​e​r​-​A​p​p​ ​P​r​o​x​y​ ​R​o​u​t​i​n​g​ ​(​p​a​c​k​a​g​e​.​l​i​s​t​.​c​f​g​)
+			 */
+			title: string
+			/**
+			 * F​i​l​t​e​r​ ​w​h​i​c​h​ ​A​n​d​r​o​i​d​ ​a​p​p​s​ ​a​r​e​ ​r​o​u​t​e​d​ ​t​h​r​o​u​g​h​ ​p​r​o​x​y​ ​o​r​ ​b​y​p​a​s​s​e​d​ ​d​i​r​e​c​t​l​y​ ​(​B​l​a​c​k​l​i​s​t​ ​/​ ​W​h​i​t​e​l​i​s​t​)
+			 */
+			subtitle: string
+			/**
+			 * A​p​p​l​y​ ​P​o​l​i​c​y
+			 */
+			applyPolicy: string
+			/**
+			 * S​a​v​i​n​g​.​.​.
+			 */
+			saving: string
+			/**
+			 * A​p​p​ ​R​o​u​t​i​n​g​ ​P​o​l​i​c​y
+			 */
+			policyTitle: string
+			/**
+			 * B​l​a​c​k​l​i​s​t​ ​M​o​d​e
+			 */
+			blacklistTitle: string
+			/**
+			 * P​r​o​x​y​ ​A​L​L​ ​a​p​p​s​ ​E​X​C​E​P​T​ ​c​h​e​c​k​e​d​ ​p​a​c​k​a​g​e​s
+			 */
+			blacklistDesc: string
+			/**
+			 * W​h​i​t​e​l​i​s​t​ ​M​o​d​e
+			 */
+			whitelistTitle: string
+			/**
+			 * P​r​o​x​y​ ​O​N​L​Y​ ​c​h​e​c​k​e​d​ ​p​a​c​k​a​g​e​s​ ​d​i​r​e​c​t​l​y
+			 */
+			whitelistDesc: string
+			/**
+			 * S​e​a​r​c​h​ ​a​p​p​s​ ​o​r​ ​p​a​c​k​a​g​e​ ​n​a​m​e​.​.​.
+			 */
+			searchPlaceholder: string
+			/**
+			 * U​s​e​r​ ​A​p​p​s
+			 */
+			userApps: string
+			/**
+			 * A​l​l​ ​A​p​p​s
+			 */
+			allApps: string
+			/**
+			 * {​c​o​u​n​t​}​ ​s​e​l​e​c​t​e​d
+			 * @param {unknown} count
+			 */
+			selectedCount: RequiredParams<'count'>
+			/**
+			 * S​e​l​e​c​t​ ​A​l​l​ ​U​s​e​r​ ​A​p​p​s
+			 */
+			selectAllUser: string
+			/**
+			 * C​l​e​a​r​ ​S​e​l​e​c​t​i​o​n
+			 */
+			clearSelection: string
+			/**
+			 * S​c​a​n​n​i​n​g​ ​A​n​d​r​o​i​d​ ​i​n​s​t​a​l​l​e​d​ ​a​p​p​l​i​c​a​t​i​o​n​ ​p​a​c​k​a​g​e​s​.​.​.
+			 */
+			scanning: string
+			/**
+			 * N​o​ ​a​p​p​s​ ​m​a​t​c​h​e​d​ ​y​o​u​r​ ​f​i​l​t​e​r​ ​q​u​e​r​y​.
+			 */
+			empty: string
+			/**
+			 * S​y​s​t​e​m
+			 */
+			system: string
+			toasts: {
+				/**
+				 * A​p​p​ ​p​r​o​x​y​ ​p​o​l​i​c​y​ ​s​a​v​e​d​ ​(​{​m​o​d​e​}​:​ ​{​c​o​u​n​t​}​ ​a​p​p​s​)
+				 * @param {unknown} count
+				 * @param {unknown} mode
+				 */
+				saved: RequiredParams<'count' | 'mode'>
+				/**
+				 * F​a​i​l​e​d​ ​t​o​ ​s​a​v​e​ ​a​p​p​ ​p​r​o​x​y​ ​p​o​l​i​c​y
+				 */
+				saveFailed: string
+			}
+		}
+		subscription: {
+			/**
+			 * S​u​b​s​c​r​i​p​t​i​o​n​ ​&​ ​C​o​n​f​i​g​ ​A​s​s​e​t​s
+			 */
+			title: string
+			/**
+			 * R​e​m​o​t​e​ ​s​u​b​s​c​r​i​p​t​i​o​n​ ​u​p​d​a​t​e​r​,​ ​G​e​o​I​P​/​G​e​o​S​i​t​e​ ​d​a​t​a​b​a​s​e​ ​s​y​n​c​h​r​o​n​i​z​e​r​ ​&​ ​F​i​l​e​ ​M​a​n​a​g​e​r​ ​s​h​o​r​t​c​u​t
+			 */
+			subtitle: string
+			/**
+			 * O​p​e​n​ ​t​h​e​ ​/​d​a​t​a​/​a​d​b​/​b​o​x​ ​c​o​n​f​i​g​ ​f​o​l​d​e​r​ ​i​n​ ​F​i​l​e​ ​M​a​n​a​g​e​r
+			 */
+			openFolderTitle: string
+			/**
+			 * O​p​e​n​ ​i​n​ ​F​i​l​e​ ​M​a​n​a​g​e​r
+			 */
+			openInFiles: string
+			/**
+			 * R​e​m​o​t​e​ ​S​u​b​s​c​r​i​p​t​i​o​n​ ​P​r​o​v​i​d​e​r​ ​U​R​L
+			 */
+			providerUrl: string
+			/**
+			 * U​p​d​a​t​e​ ​S​u​b​s
+			 */
+			updateSubs: string
+			/**
+			 * D​o​w​n​l​o​a​d​i​n​g​.​.​.
+			 */
+			downloading: string
+			/**
+			 * G​e​o​X​ ​A​s​s​e​t​ ​D​a​t​a​b​a​s​e
+			 */
+			geoXTitle: string
+			/**
+			 * O​f​f​i​c​i​a​l​ ​M​e​t​a​C​u​b​e​X​ ​m​e​t​a​-​r​u​l​e​s​-​d​a​t​ ​r​e​l​e​a​s​e​s
+			 */
+			sourceTitle: string
+			/**
+			 * S​o​u​r​c​e
+			 */
+			source: string
+			/**
+			 * S​y​n​c​h​r​o​n​i​z​e​ ​C​o​u​n​t​r​y​.​m​m​d​b​ ​&​ ​G​e​o​S​i​t​e​ ​d​a​t​a​b​a​s​e​s​ ​f​r​o​m​ ​M​e​t​a​C​u​b​e​X​ ​r​e​l​e​a​s​e​s​.
+			 */
+			geoXDesc: string
+			/**
+			 * U​p​d​a​t​e​ ​G​e​o​X​ ​D​a​t​a​b​a​s​e
+			 */
+			updateGeoX: string
+			/**
+			 * U​p​d​a​t​i​n​g​ ​G​e​o​X​.​.​.
+			 */
+			updatingGeoX: string
+			/**
+			 * F​u​l​l​ ​C​o​n​f​i​g​ ​F​i​l​e​s
+			 */
+			configFilesTitle: string
+			/**
+			 * I​n​s​p​e​c​t​ ​a​n​d​ ​e​d​i​t​ ​c​o​n​f​i​g​.​y​a​m​l​,​ ​p​r​o​x​y​-​p​r​o​v​i​d​e​r​s​,​ ​o​r​ ​r​u​l​e​s​e​t​s​ ​d​i​r​e​c​t​l​y​ ​u​s​i​n​g​ ​B​F​R​ ​F​i​l​e​ ​M​a​n​a​g​e​r​.
+			 */
+			configFilesDesc: string
+			/**
+			 * O​p​e​n​ ​/​d​a​t​a​/​a​d​b​/​b​o​x​ ​i​n​ ​F​i​l​e​s
+			 */
+			openBoxFolder: string
+			/**
+			 * U​p​d​a​t​e​d​ ​s​u​c​c​e​s​s​f​u​l​l​y
+			 */
+			updatedSuccessfully: string
+			toasts: {
+				/**
+				 * P​l​e​a​s​e​ ​e​n​t​e​r​ ​a​ ​r​e​m​o​t​e​ ​S​u​b​s​c​r​i​p​t​i​o​n​ ​U​R​L​ ​f​i​r​s​t
+				 */
+				enterUrl: string
+				/**
+				 * S​u​b​s​c​r​i​p​t​i​o​n​ ​d​o​w​n​l​o​a​d​e​d​ ​a​n​d​ ​u​p​d​a​t​e​d​ ​s​u​c​c​e​s​s​f​u​l​l​y​!
+				 */
+				subUpdated: string
+				/**
+				 * F​a​i​l​e​d​ ​t​o​ ​u​p​d​a​t​e​ ​s​u​b​s​c​r​i​p​t​i​o​n
+				 */
+				subFailed: string
+				/**
+				 * U​p​d​a​t​e​ ​f​a​i​l​e​d
+				 */
+				updateFailed: string
+				/**
+				 * S​u​b​s​c​r​i​p​t​i​o​n​ ​d​o​w​n​l​o​a​d​ ​e​r​r​o​r
+				 */
+				downloadError: string
+				/**
+				 * G​e​o​X​ ​d​a​t​a​b​a​s​e​ ​(​C​o​u​n​t​r​y​.​m​m​d​b​)​ ​u​p​d​a​t​e​d​ ​s​u​c​c​e​s​s​f​u​l​l​y​!
+				 */
+				geoXUpdated: string
+				/**
+				 * F​a​i​l​e​d​ ​t​o​ ​u​p​d​a​t​e​ ​G​e​o​X
+				 */
+				geoXFailed: string
+				/**
+				 * G​e​o​X​ ​u​p​d​a​t​e​ ​f​a​i​l​e​d
+				 */
+				geoXError: string
+				/**
+				 * O​p​e​n​i​n​g​ ​F​i​l​e​ ​M​a​n​a​g​e​r​.​ ​N​a​v​i​g​a​t​e​ ​t​o​ ​/​d​a​t​a​/​a​d​b​/​b​o​x​ ​t​o​ ​v​i​e​w​ ​c​o​n​f​i​g​ ​f​i​l​e​s​.
+				 */
+				openingFiles: string
+			}
+		}
+		logs: {
+			/**
+			 * R​e​a​l​-​T​i​m​e​ ​P​r​o​x​y​ ​D​a​e​m​o​n​ ​L​o​g​s
+			 */
+			title: string
+			/**
+			 * L​i​v​e​ ​s​t​r​e​a​m​i​n​g​ ​s​t​d​o​u​t​/​s​t​d​e​r​r​ ​c​o​n​s​o​l​e​ ​l​o​g​s​ ​f​r​o​m​ ​M​i​h​o​m​o​ ​/​ ​S​i​n​g​-​b​o​x​ ​c​o​r​e​ ​p​r​o​c​e​s​s
+			 */
+			subtitle: string
+			/**
+			 * P​a​u​s​e​ ​s​t​r​e​a​m​i​n​g
+			 */
+			pauseTitle: string
+			/**
+			 * R​e​s​u​m​e​ ​s​t​r​e​a​m​i​n​g
+			 */
+			resumeTitle: string
+			/**
+			 * C​l​e​a​r​ ​l​o​g​s​ ​o​n​ ​s​c​r​e​e​n
+			 */
+			clearTitle: string
+			/**
+			 * F​i​l​t​e​r​ ​l​o​g​ ​(​e​.​g​.​ ​e​r​r​o​r​,​ ​i​n​f​o​,​ ​t​c​p​)​.​.​.
+			 */
+			filterPlaceholder: string
+			/**
+			 * A​u​t​o​-​s​c​r​o​l​l
+			 */
+			autoScroll: string
+			/**
+			 * W​a​i​t​i​n​g​ ​f​o​r​ ​c​o​r​e​ ​d​a​e​m​o​n​ ​l​o​g​ ​o​u​t​p​u​t​.​.​.
+			 */
+			waiting: string
+			/**
+			 * N​o​ ​l​o​g​s​ ​m​a​t​c​h​i​n​g​ ​c​u​r​r​e​n​t​ ​f​i​l​t​e​r​.
+			 */
+			noMatch: string
+		}
+	}
 }
 
 export type TranslationFunctions = {
@@ -20588,6 +21092,500 @@ export type TranslationFunctions = {
 			 * Flash Image Now
 			 */
 			flashNow: () => LocalizedString
+		}
+	}
+	proxy: {
+		manager: {
+			/**
+			 * Clash / Mihomo Core Manager
+			 */
+			title: () => LocalizedString
+			/**
+			 * Box for Magisk Suite
+			 */
+			badge: () => LocalizedString
+			toasts: {
+				/**
+				 * Proxy service action '{action}' dispatched successfully.
+				 */
+				actionDispatched: (arg: { action: unknown }) => LocalizedString
+				/**
+				 * Failed to execute {action}
+				 */
+				actionFailed: (arg: { action: unknown }) => LocalizedString
+				/**
+				 * Active core switched to {core}. Restarting service...
+				 */
+				coreSwitched: (arg: { core: unknown }) => LocalizedString
+				/**
+				 * Failed to switch core
+				 */
+				switchCoreFailed: () => LocalizedString
+				/**
+				 * Core switch error
+				 */
+				switchCoreError: () => LocalizedString
+				/**
+				 * Routing mode updated to {mode}
+				 */
+				modeUpdated: (arg: { mode: unknown }) => LocalizedString
+				/**
+				 * Failed to change mode
+				 */
+				modeFailed: () => LocalizedString
+				/**
+				 * Mode update error
+				 */
+				modeError: () => LocalizedString
+				/**
+				 * Watchdog supervisor: {state}
+				 */
+				watchdogUpdated: (arg: { state: unknown }) => LocalizedString
+				/**
+				 * Failed to update watchdog state
+				 */
+				watchdogFailed: () => LocalizedString
+			}
+		}
+		hero: {
+			/**
+			 * Box Core Engine Manager
+			 */
+			title: () => LocalizedString
+			/**
+			 * Multi-core proxy daemon lifecycle, memory telemetry & watchdog supervisor
+			 */
+			subtitle: () => LocalizedString
+			/**
+			 * Automatically restart core if it crashes or gets killed
+			 */
+			watchdogTitle: () => LocalizedString
+			/**
+			 * Watchdog:
+			 */
+			watchdogLabel: () => LocalizedString
+			/**
+			 * CORE RUNNING
+			 */
+			coreRunning: () => LocalizedString
+			/**
+			 * STOPPED
+			 */
+			stopped: () => LocalizedString
+			/**
+			 * Active Core Binary
+			 */
+			activeCore: () => LocalizedString
+			/**
+			 * Official MetaCubeX Mihomo Core Releases
+			 */
+			releasesTitle: () => LocalizedString
+			/**
+			 * Next-gen
+			 */
+			coreNextGen: () => LocalizedString
+			/**
+			 * Legacy
+			 */
+			coreLegacy: () => LocalizedString
+			/**
+			 * Process PID
+			 */
+			pid: () => LocalizedString
+			/**
+			 * Memory RSS
+			 */
+			memoryRss: () => LocalizedString
+			/**
+			 * Version
+			 */
+			version: () => LocalizedString
+			/**
+			 * Service Controller
+			 */
+			serviceController: () => LocalizedString
+			/**
+			 * Stop Core
+			 */
+			stopCore: () => LocalizedString
+			/**
+			 * Restart
+			 */
+			restart: () => LocalizedString
+			/**
+			 * Start Core
+			 */
+			startCore: () => LocalizedString
+		}
+		nodes: {
+			/**
+			 * Outbounds & Routing Mode
+			 */
+			title: () => LocalizedString
+			/**
+			 * Rule-based routing, proxy groups selector, and real-time node latency ping tester
+			 */
+			subtitle: () => LocalizedString
+			/**
+			 * Refresh Nodes
+			 */
+			refreshNodes: () => LocalizedString
+			/**
+			 * Clash / Mihomo Mode
+			 */
+			modeTitle: () => LocalizedString
+			/**
+			 * Bypass domestic / Proxy foreign
+			 */
+			modeRuleDesc: () => LocalizedString
+			/**
+			 * All traffic routed via proxy
+			 */
+			modeGlobalDesc: () => LocalizedString
+			/**
+			 * Bypass proxy (direct outbound)
+			 */
+			modeDirectDesc: () => LocalizedString
+			/**
+			 * Proxy Groups ({count})
+			 */
+			groupsTitle: (arg: { count: unknown }) => LocalizedString
+			/**
+			 * Ping latency test
+			 */
+			pingTitle: () => LocalizedString
+			/**
+			 * Timeout
+			 */
+			timeout: () => LocalizedString
+			/**
+			 * No proxy groups detected. Ensure Mihomo/Clash core is running and REST API port 9090 is active.
+			 */
+			empty: () => LocalizedString
+			toasts: {
+				/**
+				 * Switched to node: {node}
+				 */
+				switched: (arg: { node: unknown }) => LocalizedString
+				/**
+				 * Failed to switch node
+				 */
+				switchFailed: () => LocalizedString
+			}
+		}
+		routing: {
+			/**
+			 * Transparent Proxy & Tethering Routing
+			 */
+			title: () => LocalizedString
+			/**
+			 * Kernel iptables redirection modes, IPv6 interception, Hotspot tethering bypass & Cgroup RAM control
+			 */
+			subtitle: () => LocalizedString
+			/**
+			 * Save Settings
+			 */
+			saveSettings: () => LocalizedString
+			/**
+			 * Saving...
+			 */
+			saving: () => LocalizedString
+			/**
+			 * BFM Network Mode
+			 */
+			modeTitle: () => LocalizedString
+			/**
+			 * TCP + UDP transparent
+			 */
+			modeTproxyDesc: () => LocalizedString
+			/**
+			 * TCP redir, UDP direct
+			 */
+			modeRedirectDesc: () => LocalizedString
+			/**
+			 * Virtual meta/tun0 device
+			 */
+			modeTunDesc: () => LocalizedString
+			/**
+			 * TCP redir + UDP tun
+			 */
+			modeMixedDesc: () => LocalizedString
+			/**
+			 * Proxy Hotspot / Tethering
+			 */
+			hotspotTitle: () => LocalizedString
+			/**
+			 * Route connected Wi-Fi / USB hotspot clients through proxy.
+			 */
+			hotspotDesc: () => LocalizedString
+			/**
+			 * IPv6 Transparent Proxy
+			 */
+			ipv6Title: () => LocalizedString
+			/**
+			 * Intercept and redirect IPv6 traffic to proxy core (ip6tables).
+			 */
+			ipv6Desc: () => LocalizedString
+			/**
+			 * Cgroup RAM Limiter
+			 */
+			cgroupTitle: () => LocalizedString
+			/**
+			 * Constrain core memory consumption to prevent kernel OOM freezes.
+			 */
+			cgroupDesc: () => LocalizedString
+			/**
+			 * Max Core RAM
+			 */
+			maxRam: () => LocalizedString
+			/**
+			 * Block QUIC (UDP 443)
+			 */
+			quicTitle: () => LocalizedString
+			/**
+			 * Force browsers to fallback to TCP for robust proxy tunneling.
+			 */
+			quicDesc: () => LocalizedString
+			toasts: {
+				/**
+				 * Box for Magisk routing configuration saved successfully!
+				 */
+				saved: () => LocalizedString
+				/**
+				 * Failed to save configuration
+				 */
+				saveFailed: () => LocalizedString
+			}
+		}
+		apps: {
+			/**
+			 * Per-App Proxy Routing (package.list.cfg)
+			 */
+			title: () => LocalizedString
+			/**
+			 * Filter which Android apps are routed through proxy or bypassed directly (Blacklist / Whitelist)
+			 */
+			subtitle: () => LocalizedString
+			/**
+			 * Apply Policy
+			 */
+			applyPolicy: () => LocalizedString
+			/**
+			 * Saving...
+			 */
+			saving: () => LocalizedString
+			/**
+			 * App Routing Policy
+			 */
+			policyTitle: () => LocalizedString
+			/**
+			 * Blacklist Mode
+			 */
+			blacklistTitle: () => LocalizedString
+			/**
+			 * Proxy ALL apps EXCEPT checked packages
+			 */
+			blacklistDesc: () => LocalizedString
+			/**
+			 * Whitelist Mode
+			 */
+			whitelistTitle: () => LocalizedString
+			/**
+			 * Proxy ONLY checked packages directly
+			 */
+			whitelistDesc: () => LocalizedString
+			/**
+			 * Search apps or package name...
+			 */
+			searchPlaceholder: () => LocalizedString
+			/**
+			 * User Apps
+			 */
+			userApps: () => LocalizedString
+			/**
+			 * All Apps
+			 */
+			allApps: () => LocalizedString
+			/**
+			 * {count} selected
+			 */
+			selectedCount: (arg: { count: unknown }) => LocalizedString
+			/**
+			 * Select All User Apps
+			 */
+			selectAllUser: () => LocalizedString
+			/**
+			 * Clear Selection
+			 */
+			clearSelection: () => LocalizedString
+			/**
+			 * Scanning Android installed application packages...
+			 */
+			scanning: () => LocalizedString
+			/**
+			 * No apps matched your filter query.
+			 */
+			empty: () => LocalizedString
+			/**
+			 * System
+			 */
+			system: () => LocalizedString
+			toasts: {
+				/**
+				 * App proxy policy saved ({mode}: {count} apps)
+				 */
+				saved: (arg: { count: unknown, mode: unknown }) => LocalizedString
+				/**
+				 * Failed to save app proxy policy
+				 */
+				saveFailed: () => LocalizedString
+			}
+		}
+		subscription: {
+			/**
+			 * Subscription & Config Assets
+			 */
+			title: () => LocalizedString
+			/**
+			 * Remote subscription updater, GeoIP/GeoSite database synchronizer & File Manager shortcut
+			 */
+			subtitle: () => LocalizedString
+			/**
+			 * Open the /data/adb/box config folder in File Manager
+			 */
+			openFolderTitle: () => LocalizedString
+			/**
+			 * Open in File Manager
+			 */
+			openInFiles: () => LocalizedString
+			/**
+			 * Remote Subscription Provider URL
+			 */
+			providerUrl: () => LocalizedString
+			/**
+			 * Update Subs
+			 */
+			updateSubs: () => LocalizedString
+			/**
+			 * Downloading...
+			 */
+			downloading: () => LocalizedString
+			/**
+			 * GeoX Asset Database
+			 */
+			geoXTitle: () => LocalizedString
+			/**
+			 * Official MetaCubeX meta-rules-dat releases
+			 */
+			sourceTitle: () => LocalizedString
+			/**
+			 * Source
+			 */
+			source: () => LocalizedString
+			/**
+			 * Synchronize Country.mmdb & GeoSite databases from MetaCubeX releases.
+			 */
+			geoXDesc: () => LocalizedString
+			/**
+			 * Update GeoX Database
+			 */
+			updateGeoX: () => LocalizedString
+			/**
+			 * Updating GeoX...
+			 */
+			updatingGeoX: () => LocalizedString
+			/**
+			 * Full Config Files
+			 */
+			configFilesTitle: () => LocalizedString
+			/**
+			 * Inspect and edit config.yaml, proxy-providers, or rulesets directly using BFR File Manager.
+			 */
+			configFilesDesc: () => LocalizedString
+			/**
+			 * Open /data/adb/box in Files
+			 */
+			openBoxFolder: () => LocalizedString
+			/**
+			 * Updated successfully
+			 */
+			updatedSuccessfully: () => LocalizedString
+			toasts: {
+				/**
+				 * Please enter a remote Subscription URL first
+				 */
+				enterUrl: () => LocalizedString
+				/**
+				 * Subscription downloaded and updated successfully!
+				 */
+				subUpdated: () => LocalizedString
+				/**
+				 * Failed to update subscription
+				 */
+				subFailed: () => LocalizedString
+				/**
+				 * Update failed
+				 */
+				updateFailed: () => LocalizedString
+				/**
+				 * Subscription download error
+				 */
+				downloadError: () => LocalizedString
+				/**
+				 * GeoX database (Country.mmdb) updated successfully!
+				 */
+				geoXUpdated: () => LocalizedString
+				/**
+				 * Failed to update GeoX
+				 */
+				geoXFailed: () => LocalizedString
+				/**
+				 * GeoX update failed
+				 */
+				geoXError: () => LocalizedString
+				/**
+				 * Opening File Manager. Navigate to /data/adb/box to view config files.
+				 */
+				openingFiles: () => LocalizedString
+			}
+		}
+		logs: {
+			/**
+			 * Real-Time Proxy Daemon Logs
+			 */
+			title: () => LocalizedString
+			/**
+			 * Live streaming stdout/stderr console logs from Mihomo / Sing-box core process
+			 */
+			subtitle: () => LocalizedString
+			/**
+			 * Pause streaming
+			 */
+			pauseTitle: () => LocalizedString
+			/**
+			 * Resume streaming
+			 */
+			resumeTitle: () => LocalizedString
+			/**
+			 * Clear logs on screen
+			 */
+			clearTitle: () => LocalizedString
+			/**
+			 * Filter log (e.g. error, info, tcp)...
+			 */
+			filterPlaceholder: () => LocalizedString
+			/**
+			 * Auto-scroll
+			 */
+			autoScroll: () => LocalizedString
+			/**
+			 * Waiting for core daemon log output...
+			 */
+			waiting: () => LocalizedString
+			/**
+			 * No logs matching current filter.
+			 */
+			noMatch: () => LocalizedString
 		}
 	}
 }

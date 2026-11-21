@@ -14,6 +14,7 @@
   import Badge from '../../ui/Badge.svelte'
   import { api } from '../../../api/client'
   import { toastStore } from '../../../stores/toast.svelte'
+  import { LL } from '../../../i18n/i18n-svelte'
 
   interface ProxyGroup {
     name: string
@@ -35,11 +36,11 @@
   let nodeDelays = $state<Record<string, number>>({})
   let expandedGroups = $state<Record<string, boolean>>({})
 
-  const modeOptions = [
-    { id: 'rule', label: 'Rule', desc: 'Bypass domestic / Proxy foreign' },
-    { id: 'global', label: 'Global', desc: 'All traffic routed via proxy' },
-    { id: 'direct', label: 'Direct', desc: 'Bypass proxy (direct outbound)' },
-  ]
+  const modeOptions = $derived([
+    { id: 'rule', label: 'Rule', desc: $LL.proxy.nodes.modeRuleDesc() },
+    { id: 'global', label: 'Global', desc: $LL.proxy.nodes.modeGlobalDesc() },
+    { id: 'direct', label: 'Direct', desc: $LL.proxy.nodes.modeDirectDesc() },
+  ])
 
   $effect(() => {
     fetchNodes()
@@ -70,11 +71,11 @@
         node: nodeName,
       })
       if (res?.success) {
-        toastStore.success(`Switched to node: ${nodeName}`)
+        toastStore.success($LL.proxy.nodes.toasts.switched({ node: nodeName }))
         await fetchNodes()
       }
     } catch (err: unknown) {
-      toastStore.error(err instanceof Error ? err.message : 'Failed to switch node')
+      toastStore.error(err instanceof Error ? err.message : $LL.proxy.nodes.toasts.switchFailed())
     }
   }
 
@@ -102,8 +103,8 @@
 </script>
 
 <Card
-  title="Outbounds & Routing Mode"
-  subtitle="Rule-based routing, proxy groups selector, and real-time node latency ping tester"
+  title={$LL.proxy.nodes.title()}
+  subtitle={$LL.proxy.nodes.subtitle()}
   tone="mint"
 >
   {#snippet action()}
@@ -114,14 +115,14 @@
       onclick={fetchNodes}
     >
       <RefreshCw class="w-3.5 h-3.5 mr-1.5 {isLoadingNodes ? 'animate-spin' : ''}" />
-      <span>Refresh Nodes</span>
+      <span>{$LL.proxy.nodes.refreshNodes()}</span>
     </Button>
   {/snippet}
 
   <div class="space-y-4 font-mono text-xs">
     <!-- Routing Mode (Rule, Global, Direct) -->
     <div>
-      <span class="text-[10px] text-muted uppercase font-bold block mb-2">Clash / Mihomo Mode</span>
+      <span class="text-[10px] text-muted uppercase font-bold block mb-2">{$LL.proxy.nodes.modeTitle()}</span>
       <div class="grid grid-cols-3 gap-2">
         {#each modeOptions as m}
           <button
@@ -139,7 +140,7 @@
     <!-- Proxy Groups Accordion -->
     {#if groups.length > 0}
       <div class="space-y-3 pt-2 border-t border-border">
-        <span class="text-[10px] text-muted uppercase font-bold block">Proxy Groups ({groups.length})</span>
+        <span class="text-[10px] text-muted uppercase font-bold block">{$LL.proxy.nodes.groupsTitle({ count: groups.length })}</span>
 
         {#each groups as g}
           <div class="p-3 bg-card-sub border border-border rounded-lg space-y-2">
@@ -181,7 +182,7 @@
                     <div class="flex items-center gap-1 shrink-0">
                       {#if nodeDelays[node] !== undefined}
                         <span class="text-[10px] {nodeDelays[node] > 0 ? 'text-emerald-400' : 'text-red-400'}">
-                          {nodeDelays[node] > 0 ? `${nodeDelays[node]}ms` : 'Timeout'}
+                          {nodeDelays[node] > 0 ? `${nodeDelays[node]}ms` : $LL.proxy.nodes.timeout()}
                         </span>
                       {/if}
 
@@ -190,7 +191,7 @@
                         onclick={() => testDelay(node)}
                         disabled={testingDelays[node]}
                         class="p-1 rounded hover:bg-card-sub text-muted hover:text-accent cursor-pointer"
-                        title="Ping latency test"
+                        title={$LL.proxy.nodes.pingTitle()}
                       >
                         <Zap class="w-3 h-3 {testingDelays[node] ? 'animate-spin text-amber-400' : ''}" />
                       </button>
@@ -204,7 +205,7 @@
       </div>
     {:else if !isLoadingNodes}
       <div class="p-4 bg-card-sub border border-border rounded text-center text-muted">
-        No proxy groups detected. Ensure Mihomo/Clash core is running and REST API port 9090 is active.
+        {$LL.proxy.nodes.empty()}
       </div>
     {/if}
   </div>
