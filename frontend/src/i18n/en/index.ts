@@ -3036,6 +3036,45 @@ const en = {
 			symbolTitle: "Symbol '{sym}'",
 		},
 	},
+	ssh: {
+		title: 'Dropbear SSH Daemon',
+		status: {
+			running: 'Running (Port {port})',
+			stopped: 'Stopped',
+			offline: 'Offline',
+		},
+		config: {
+			title: 'SSH Server Settings',
+			subtitle: 'Configure port, authentication, and keys',
+			saveConfig: 'Save Config',
+			portLabel: 'SSH Listening Port',
+			pidLabel: 'Process PID',
+			inactive: 'Inactive',
+			bindLabel: 'Bind Address',
+			bindHint: 'SSH listens only on this address. Keep 127.0.0.1 for local access; use 0.0.0.0 only when LAN access is needed.',
+			keyAuthOnly: 'Public Key Authentication Only',
+			keyAuthOnlyDesc: 'Disable password login. Configure authorized keys in the SSH daemon environment.',
+		},
+		lifecycle: {
+			title: 'Daemon Lifecycle',
+			subtitle: 'Direct process control',
+			serviceState: 'Service State',
+			desc: 'Dropbear provides lightweight secure shell access with minimal memory footprint on Android.',
+			startDaemon: 'Start SSH Daemon',
+			stopDaemon: 'Stop SSH Daemon',
+			restartDaemon: 'Restart Daemon',
+		},
+		toasts: {
+			configSaved: 'SSH configuration saved successfully.',
+			configSaveFailed: 'Failed to save SSH configuration',
+			started: 'SSH service started successfully.',
+			stopped: 'SSH service stopped successfully.',
+			restarted: 'SSH service restarted successfully.',
+			startFailed: 'Failed to start SSH service',
+			stopFailed: 'Failed to stop SSH service',
+			restartFailed: 'Failed to restart SSH service',
+		},
+	},
 } satisfies BaseTranslation
 
 export default en

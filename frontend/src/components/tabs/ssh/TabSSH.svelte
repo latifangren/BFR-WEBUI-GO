@@ -9,6 +9,7 @@
     Check,
   } from '@lucide/svelte'
   import { api } from '../../../api/client'
+  import { LL } from '../../../i18n/i18n-svelte'
   import { toastStore } from '../../../stores/toast.svelte'
   import type { SSHStatus, SSHConfig } from '../../../types/ssh'
   import Card from '../../ui/Card.svelte'
@@ -61,9 +62,9 @@
       config.port = parseInt(portInput, 10) || 2222
       const res = await api.post<SSHStatus>('/api/ssh/config', config)
       if (res) status = res
-      toastStore.success('SSH configuration saved successfully.')
+      toastStore.success($LL.ssh.toasts.configSaved())
     } catch (err: unknown) {
-      toastStore.error(err instanceof Error ? err.message : 'Failed to save SSH configuration')
+      toastStore.error(err instanceof Error ? err.message : $LL.ssh.toasts.configSaveFailed())
     } finally {
       isSaving = false
     }
@@ -74,10 +75,24 @@
       isControlling = true
       const res = await api.post<SSHStatus>('/api/ssh/control', { action })
       if (res) status = res
-      toastStore.success(`SSH service ${action}ed successfully.`)
+      toastStore.success(
+        action === 'start'
+          ? $LL.ssh.toasts.started()
+          : action === 'stop'
+            ? $LL.ssh.toasts.stopped()
+            : $LL.ssh.toasts.restarted()
+      )
       await fetchSSHStatus()
     } catch (err: unknown) {
-      toastStore.error(err instanceof Error ? err.message : `Failed to ${action} SSH service`)
+      toastStore.error(
+        err instanceof Error
+          ? err.message
+          : action === 'start'
+            ? $LL.ssh.toasts.startFailed()
+            : action === 'stop'
+              ? $LL.ssh.toasts.stopFailed()
+              : $LL.ssh.toasts.restartFailed()
+      )
     } finally {
       isControlling = false
     }
@@ -90,10 +105,10 @@
     <div class="flex items-center gap-2">
       <Terminal class="w-5 h-5 text-accent" />
       <h2 class="text-base sm:text-lg font-mono font-bold uppercase tracking-wider text-foreground">
-        Dropbear SSH Daemon
+        {$LL.ssh.title()}
       </h2>
       <Badge variant={status.running ? 'success' : 'default'}>
-        {status.running ? `Running (Port ${status.port})` : 'Stopped'}
+        {status.running ? $LL.ssh.status.running({ port: status.port }) : $LL.ssh.status.stopped()}
       </Badge>
     </div>
 
@@ -105,7 +120,7 @@
         onclick={fetchSSHStatus}
       >
         <RefreshCw class="w-3.5 h-3.5 mr-1.5 {isLoading ? 'animate-spin' : ''}" />
-        <span>Refresh</span>
+        <span>{$LL.common.refresh()}</span>
       </Button>
     </div>
   </div>
@@ -113,8 +128,8 @@
   <div class="grid grid-cols-1 lg:grid-cols-3 gap-3 sm:gap-6">
     <!-- Configuration Card -->
     <Card
-      title="SSH Server Settings"
-      subtitle="Configure port, authentication, and keys"
+      title={$LL.ssh.config.title()}
+      subtitle={$LL.ssh.config.subtitle()}
       tone="lavender"
       class="lg:col-span-2"
     >
@@ -126,7 +141,7 @@
           onclick={saveConfig}
         >
           <Check class="w-3.5 h-3.5 mr-1.5" />
-          <span>Save Config</span>
+          <span>{$LL.ssh.config.saveConfig()}</span>
         </Button>
       {/snippet}
 
@@ -134,33 +149,33 @@
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <Input
             type="number"
-            label="SSH Listening Port"
+            label={$LL.ssh.config.portLabel()}
             placeholder="2222"
             bind:value={portInput}
             disabled={isSaving}
           />
           <div class="p-3 bg-card-sub border border-border rounded flex flex-col justify-center">
-            <span class="text-[10px] text-muted uppercase font-bold">Process PID</span>
+            <span class="text-[10px] text-muted uppercase font-bold">{$LL.ssh.config.pidLabel()}</span>
             <span class="text-sm font-bold text-foreground">
-              {status.pid ? status.pid : 'Inactive'}
+              {status.pid ? status.pid : $LL.ssh.config.inactive()}
             </span>
           </div>
         </div>
 
         <div class="space-y-3 pt-2 border-t border-border">
           <Input
-            label="Bind Address"
+            label={$LL.ssh.config.bindLabel()}
             placeholder="127.0.0.1"
             bind:value={config.bind}
             disabled={isSaving}
           />
           <p class="text-[10px] text-muted">
-            SSH listens only on this address. Keep 127.0.0.1 for local access; use 0.0.0.0 only when LAN access is needed.
+            {$LL.ssh.config.bindHint()}
           </p>
           <label class="flex items-center justify-between p-3 bg-card-sub border border-border rounded cursor-pointer hover:border-accent transition-colors">
             <div>
-              <span class="font-bold text-foreground block">Public Key Authentication Only</span>
-              <span class="text-[10px] text-muted">Disable password login. Configure authorized keys in the SSH daemon environment.</span>
+              <span class="font-bold text-foreground block">{$LL.ssh.config.keyAuthOnly()}</span>
+              <span class="text-[10px] text-muted">{$LL.ssh.config.keyAuthOnlyDesc()}</span>
             </div>
             {#if themeStore.useSakugaControls()}
               <SakugaCheckbox bind:checked={config.key_auth_only} />
@@ -177,17 +192,17 @@
     </Card>
 
     <!-- Service Controls Card -->
-    <Card title="Daemon Lifecycle" subtitle="Direct process control" tone="lavender">
+    <Card title={$LL.ssh.lifecycle.title()} subtitle={$LL.ssh.lifecycle.subtitle()} tone="lavender">
       <div class="space-y-4 font-mono text-xs">
         <div class="p-4 bg-card-sub border border-border rounded space-y-2">
           <div class="flex items-center justify-between">
-            <span class="text-muted uppercase font-bold text-[10px]">Service State</span>
+            <span class="text-muted uppercase font-bold text-[10px]">{$LL.ssh.lifecycle.serviceState()}</span>
             <Badge variant={status.running ? 'success' : 'default'}>
-              {status.running ? 'Active' : 'Offline'}
+              {status.running ? $LL.common.active() : $LL.ssh.status.offline()}
             </Badge>
           </div>
           <p class="text-[11px] text-muted">
-            Dropbear provides lightweight secure shell access with minimal memory footprint on Android.
+            {$LL.ssh.lifecycle.desc()}
           </p>
         </div>
 
@@ -201,7 +216,7 @@
               onclick={() => controlSSH('start')}
             >
               <Play class="w-3.5 h-3.5 mr-1.5" />
-              <span>Start SSH Daemon</span>
+              <span>{$LL.ssh.lifecycle.startDaemon()}</span>
             </Button>
           {:else}
             <Button
@@ -212,7 +227,7 @@
               onclick={() => controlSSH('stop')}
             >
               <Square class="w-3.5 h-3.5 mr-1.5" />
-              <span>Stop SSH Daemon</span>
+              <span>{$LL.ssh.lifecycle.stopDaemon()}</span>
             </Button>
             <Button
               variant="secondary"
@@ -222,7 +237,7 @@
               onclick={() => controlSSH('restart')}
             >
               <RotateCcw class="w-3.5 h-3.5 mr-1.5" />
-              <span>Restart Daemon</span>
+              <span>{$LL.ssh.lifecycle.restartDaemon()}</span>
             </Button>
           {/if}
         </div>

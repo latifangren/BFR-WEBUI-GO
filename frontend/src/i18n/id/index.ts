@@ -3036,6 +3036,45 @@ const id = {
 			symbolTitle: "Simbol '{sym}'",
 		},
 	},
+	ssh: {
+		title: 'Dropbear SSH Daemon',
+		status: {
+			running: 'Berjalan (Port {port})',
+			stopped: 'Berhenti',
+			offline: 'Offline',
+		},
+		config: {
+			title: 'Pengaturan Server SSH',
+			subtitle: 'Konfigurasikan port, autentikasi, dan kunci',
+			saveConfig: 'Simpan Konfigurasi',
+			portLabel: 'Port Listening SSH',
+			pidLabel: 'PID Proses',
+			inactive: 'Tidak Aktif',
+			bindLabel: 'Alamat Bind',
+			bindHint: 'SSH hanya mendengarkan di alamat ini. Pertahankan 127.0.0.1 untuk akses lokal; gunakan 0.0.0.0 hanya saat akses LAN diperlukan.',
+			keyAuthOnly: 'Hanya Autentikasi Kunci Publik',
+			keyAuthOnlyDesc: 'Nonaktifkan login kata sandi. Konfigurasikan kunci yang diizinkan di lingkungan daemon SSH.',
+		},
+		lifecycle: {
+			title: 'Siklus Hidup Daemon',
+			subtitle: 'Kontrol proses langsung',
+			serviceState: 'Status Layanan',
+			desc: 'Dropbear menyediakan akses secure shell yang ringan dengan jejak memori minimal di Android.',
+			startDaemon: 'Jalankan Daemon SSH',
+			stopDaemon: 'Hentikan Daemon SSH',
+			restartDaemon: 'Restart Daemon',
+		},
+		toasts: {
+			configSaved: 'Konfigurasi SSH berhasil disimpan.',
+			configSaveFailed: 'Gagal menyimpan konfigurasi SSH',
+			started: 'Layanan SSH berhasil dijalankan.',
+			stopped: 'Layanan SSH berhasil dihentikan.',
+			restarted: 'Layanan SSH berhasil direstart.',
+			startFailed: 'Gagal menjalankan layanan SSH',
+			stopFailed: 'Gagal menghentikan layanan SSH',
+			restartFailed: 'Gagal merestart layanan SSH',
+		},
+	},
 } satisfies Translation
 
 export default id

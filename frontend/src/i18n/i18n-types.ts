@@ -11227,6 +11227,133 @@ type RootTranslation = {
 			symbolTitle: RequiredParams<'sym'>
 		}
 	}
+	ssh: {
+		/**
+		 * D​r​o​p​b​e​a​r​ ​S​S​H​ ​D​a​e​m​o​n
+		 */
+		title: string
+		status: {
+			/**
+			 * R​u​n​n​i​n​g​ ​(​P​o​r​t​ ​{​p​o​r​t​}​)
+			 * @param {unknown} port
+			 */
+			running: RequiredParams<'port'>
+			/**
+			 * S​t​o​p​p​e​d
+			 */
+			stopped: string
+			/**
+			 * O​f​f​l​i​n​e
+			 */
+			offline: string
+		}
+		config: {
+			/**
+			 * S​S​H​ ​S​e​r​v​e​r​ ​S​e​t​t​i​n​g​s
+			 */
+			title: string
+			/**
+			 * C​o​n​f​i​g​u​r​e​ ​p​o​r​t​,​ ​a​u​t​h​e​n​t​i​c​a​t​i​o​n​,​ ​a​n​d​ ​k​e​y​s
+			 */
+			subtitle: string
+			/**
+			 * S​a​v​e​ ​C​o​n​f​i​g
+			 */
+			saveConfig: string
+			/**
+			 * S​S​H​ ​L​i​s​t​e​n​i​n​g​ ​P​o​r​t
+			 */
+			portLabel: string
+			/**
+			 * P​r​o​c​e​s​s​ ​P​I​D
+			 */
+			pidLabel: string
+			/**
+			 * I​n​a​c​t​i​v​e
+			 */
+			inactive: string
+			/**
+			 * B​i​n​d​ ​A​d​d​r​e​s​s
+			 */
+			bindLabel: string
+			/**
+			 * S​S​H​ ​l​i​s​t​e​n​s​ ​o​n​l​y​ ​o​n​ ​t​h​i​s​ ​a​d​d​r​e​s​s​.​ ​K​e​e​p​ ​1​2​7​.​0​.​0​.​1​ ​f​o​r​ ​l​o​c​a​l​ ​a​c​c​e​s​s​;​ ​u​s​e​ ​0​.​0​.​0​.​0​ ​o​n​l​y​ ​w​h​e​n​ ​L​A​N​ ​a​c​c​e​s​s​ ​i​s​ ​n​e​e​d​e​d​.
+			 */
+			bindHint: string
+			/**
+			 * P​u​b​l​i​c​ ​K​e​y​ ​A​u​t​h​e​n​t​i​c​a​t​i​o​n​ ​O​n​l​y
+			 */
+			keyAuthOnly: string
+			/**
+			 * D​i​s​a​b​l​e​ ​p​a​s​s​w​o​r​d​ ​l​o​g​i​n​.​ ​C​o​n​f​i​g​u​r​e​ ​a​u​t​h​o​r​i​z​e​d​ ​k​e​y​s​ ​i​n​ ​t​h​e​ ​S​S​H​ ​d​a​e​m​o​n​ ​e​n​v​i​r​o​n​m​e​n​t​.
+			 */
+			keyAuthOnlyDesc: string
+		}
+		lifecycle: {
+			/**
+			 * D​a​e​m​o​n​ ​L​i​f​e​c​y​c​l​e
+			 */
+			title: string
+			/**
+			 * D​i​r​e​c​t​ ​p​r​o​c​e​s​s​ ​c​o​n​t​r​o​l
+			 */
+			subtitle: string
+			/**
+			 * S​e​r​v​i​c​e​ ​S​t​a​t​e
+			 */
+			serviceState: string
+			/**
+			 * D​r​o​p​b​e​a​r​ ​p​r​o​v​i​d​e​s​ ​l​i​g​h​t​w​e​i​g​h​t​ ​s​e​c​u​r​e​ ​s​h​e​l​l​ ​a​c​c​e​s​s​ ​w​i​t​h​ ​m​i​n​i​m​a​l​ ​m​e​m​o​r​y​ ​f​o​o​t​p​r​i​n​t​ ​o​n​ ​A​n​d​r​o​i​d​.
+			 */
+			desc: string
+			/**
+			 * S​t​a​r​t​ ​S​S​H​ ​D​a​e​m​o​n
+			 */
+			startDaemon: string
+			/**
+			 * S​t​o​p​ ​S​S​H​ ​D​a​e​m​o​n
+			 */
+			stopDaemon: string
+			/**
+			 * R​e​s​t​a​r​t​ ​D​a​e​m​o​n
+			 */
+			restartDaemon: string
+		}
+		toasts: {
+			/**
+			 * S​S​H​ ​c​o​n​f​i​g​u​r​a​t​i​o​n​ ​s​a​v​e​d​ ​s​u​c​c​e​s​s​f​u​l​l​y​.
+			 */
+			configSaved: string
+			/**
+			 * F​a​i​l​e​d​ ​t​o​ ​s​a​v​e​ ​S​S​H​ ​c​o​n​f​i​g​u​r​a​t​i​o​n
+			 */
+			configSaveFailed: string
+			/**
+			 * S​S​H​ ​s​e​r​v​i​c​e​ ​s​t​a​r​t​e​d​ ​s​u​c​c​e​s​s​f​u​l​l​y​.
+			 */
+			started: string
+			/**
+			 * S​S​H​ ​s​e​r​v​i​c​e​ ​s​t​o​p​p​e​d​ ​s​u​c​c​e​s​s​f​u​l​l​y​.
+			 */
+			stopped: string
+			/**
+			 * S​S​H​ ​s​e​r​v​i​c​e​ ​r​e​s​t​a​r​t​e​d​ ​s​u​c​c​e​s​s​f​u​l​l​y​.
+			 */
+			restarted: string
+			/**
+			 * F​a​i​l​e​d​ ​t​o​ ​s​t​a​r​t​ ​S​S​H​ ​s​e​r​v​i​c​e
+			 */
+			startFailed: string
+			/**
+			 * F​a​i​l​e​d​ ​t​o​ ​s​t​o​p​ ​S​S​H​ ​s​e​r​v​i​c​e
+			 */
+			stopFailed: string
+			/**
+			 * F​a​i​l​e​d​ ​t​o​ ​r​e​s​t​a​r​t​ ​S​S​H​ ​s​e​r​v​i​c​e
+			 */
+			restartFailed: string
+		}
+	}
 }
 
 export type TranslationFunctions = {
@@ -22132,6 +22259,132 @@ export type TranslationFunctions = {
 			 * Symbol '{sym}'
 			 */
 			symbolTitle: (arg: { sym: unknown }) => LocalizedString
+		}
+	}
+	ssh: {
+		/**
+		 * Dropbear SSH Daemon
+		 */
+		title: () => LocalizedString
+		status: {
+			/**
+			 * Running (Port {port})
+			 */
+			running: (arg: { port: unknown }) => LocalizedString
+			/**
+			 * Stopped
+			 */
+			stopped: () => LocalizedString
+			/**
+			 * Offline
+			 */
+			offline: () => LocalizedString
+		}
+		config: {
+			/**
+			 * SSH Server Settings
+			 */
+			title: () => LocalizedString
+			/**
+			 * Configure port, authentication, and keys
+			 */
+			subtitle: () => LocalizedString
+			/**
+			 * Save Config
+			 */
+			saveConfig: () => LocalizedString
+			/**
+			 * SSH Listening Port
+			 */
+			portLabel: () => LocalizedString
+			/**
+			 * Process PID
+			 */
+			pidLabel: () => LocalizedString
+			/**
+			 * Inactive
+			 */
+			inactive: () => LocalizedString
+			/**
+			 * Bind Address
+			 */
+			bindLabel: () => LocalizedString
+			/**
+			 * SSH listens only on this address. Keep 127.0.0.1 for local access; use 0.0.0.0 only when LAN access is needed.
+			 */
+			bindHint: () => LocalizedString
+			/**
+			 * Public Key Authentication Only
+			 */
+			keyAuthOnly: () => LocalizedString
+			/**
+			 * Disable password login. Configure authorized keys in the SSH daemon environment.
+			 */
+			keyAuthOnlyDesc: () => LocalizedString
+		}
+		lifecycle: {
+			/**
+			 * Daemon Lifecycle
+			 */
+			title: () => LocalizedString
+			/**
+			 * Direct process control
+			 */
+			subtitle: () => LocalizedString
+			/**
+			 * Service State
+			 */
+			serviceState: () => LocalizedString
+			/**
+			 * Dropbear provides lightweight secure shell access with minimal memory footprint on Android.
+			 */
+			desc: () => LocalizedString
+			/**
+			 * Start SSH Daemon
+			 */
+			startDaemon: () => LocalizedString
+			/**
+			 * Stop SSH Daemon
+			 */
+			stopDaemon: () => LocalizedString
+			/**
+			 * Restart Daemon
+			 */
+			restartDaemon: () => LocalizedString
+		}
+		toasts: {
+			/**
+			 * SSH configuration saved successfully.
+			 */
+			configSaved: () => LocalizedString
+			/**
+			 * Failed to save SSH configuration
+			 */
+			configSaveFailed: () => LocalizedString
+			/**
+			 * SSH service started successfully.
+			 */
+			started: () => LocalizedString
+			/**
+			 * SSH service stopped successfully.
+			 */
+			stopped: () => LocalizedString
+			/**
+			 * SSH service restarted successfully.
+			 */
+			restarted: () => LocalizedString
+			/**
+			 * Failed to start SSH service
+			 */
+			startFailed: () => LocalizedString
+			/**
+			 * Failed to stop SSH service
+			 */
+			stopFailed: () => LocalizedString
+			/**
+			 * Failed to restart SSH service
+			 */
+			restartFailed: () => LocalizedString
 		}
 	}
 }
