@@ -12093,6 +12093,158 @@ type RootTranslation = {
 			invalidJson: string
 		}
 	}
+	telegram: {
+		/**
+		 * T​e​l​e​g​r​a​m​ ​B​o​t​ ​N​o​t​i​f​i​c​a​t​i​o​n​s
+		 */
+		title: string
+		/**
+		 * B​o​t​ ​A​c​t​i​v​e
+		 */
+		badgeActive: string
+		/**
+		 * D​i​s​a​b​l​e​d
+		 */
+		badgeDisabled: string
+		/**
+		 * T​e​s​t​ ​A​l​e​r​t
+		 */
+		testAlert: string
+		/**
+		 * S​a​v​e​ ​C​o​n​f​i​g
+		 */
+		saveConfig: string
+		/**
+		 * S​t​a​r​t​ ​B​o​t
+		 */
+		startBot: string
+		/**
+		 * S​t​o​p​ ​B​o​t
+		 */
+		stopBot: string
+		config: {
+			/**
+			 * B​o​t​ ​C​r​e​d​e​n​t​i​a​l​s​ ​&​ ​E​v​e​n​t​s
+			 */
+			title: string
+			/**
+			 * R​e​c​e​i​v​e​ ​r​e​a​l​-​t​i​m​e​ ​a​l​e​r​t​s​ ​w​h​e​n​ ​A​n​d​r​o​i​d​ ​s​y​s​t​e​m​ ​e​v​e​n​t​s​ ​o​c​c​u​r
+			 */
+			subtitle: string
+			/**
+			 * E​n​a​b​l​e​ ​T​e​l​e​g​r​a​m​ ​B​o​t​ ​S​e​r​v​i​c​e
+			 */
+			enableTitle: string
+			/**
+			 * A​c​t​i​v​a​t​e​ ​b​a​c​k​g​r​o​u​n​d​ ​a​l​e​r​t​ ​d​i​s​p​a​t​c​h​e​r
+			 */
+			enableDesc: string
+			/**
+			 * T​e​l​e​g​r​a​m​ ​B​o​t​ ​A​P​I​ ​T​o​k​e​n​ ​(​f​r​o​m​ ​@​B​o​t​F​a​t​h​e​r​)
+			 */
+			tokenLabel: string
+			/**
+			 * T​a​r​g​e​t​ ​C​h​a​t​ ​I​D​ ​/​ ​C​h​a​n​n​e​l​ ​I​D
+			 */
+			chatIdLabel: string
+			/**
+			 * A​u​t​o​m​a​t​e​d​ ​A​l​e​r​t​ ​E​v​e​n​t​ ​T​r​i​g​g​e​r​s
+			 */
+			triggersTitle: string
+			/**
+			 * N​o​t​i​f​y​ ​O​n​ ​S​y​s​t​e​m​ ​B​o​o​t
+			 */
+			notifyBoot: string
+			/**
+			 * N​o​t​i​f​y​ ​O​n​ ​A​d​m​i​n​ ​L​o​g​i​n
+			 */
+			notifyLogin: string
+		}
+		guide: {
+			/**
+			 * Q​u​i​c​k​ ​S​e​t​u​p​ ​G​u​i​d​e
+			 */
+			title: string
+			/**
+			 * H​o​w​ ​t​o​ ​c​r​e​a​t​e​ ​a​ ​T​e​l​e​g​r​a​m​ ​b​o​t
+			 */
+			subtitle: string
+			/**
+			 * O​p​e​n​ ​T​e​l​e​g​r​a​m​ ​a​n​d​ ​m​e​s​s​a​g​e​ 
+			 */
+			step1A: string
+			/**
+			 * .
+			 */
+			step1B: string
+			/**
+			 * S​e​n​d​ ​c​o​m​m​a​n​d​ 
+			 */
+			step2A: string
+			/**
+			 *  ​a​n​d​ ​c​o​p​y​ ​t​h​e​ ​H​T​T​P​ ​A​P​I​ ​t​o​k​e​n​.
+			 */
+			step2B: string
+			/**
+			 * M​e​s​s​a​g​e​ 
+			 */
+			step3A: string
+			/**
+			 *  ​t​o​ ​o​b​t​a​i​n​ ​y​o​u​r​ ​p​e​r​s​o​n​a​l​ ​n​u​m​e​r​i​c​ ​C​h​a​t​ ​I​D​.
+			 */
+			step3B: string
+			/**
+			 * P​a​s​t​e​ ​t​h​e​ ​t​o​k​e​n​ ​a​n​d​ ​C​h​a​t​ ​I​D​,​ ​t​h​e​n​ ​c​l​i​c​k​ 
+			 */
+			step4A: string
+			/**
+			 * .
+			 */
+			step4B: string
+		}
+		toasts: {
+			/**
+			 * T​e​l​e​g​r​a​m​ ​b​o​t​ ​c​o​n​f​i​g​u​r​a​t​i​o​n​ ​s​a​v​e​d​.
+			 */
+			configSaved: string
+			/**
+			 * F​a​i​l​e​d​ ​t​o​ ​s​a​v​e​ ​c​o​n​f​i​g
+			 */
+			saveFailed: string
+			/**
+			 * T​e​l​e​g​r​a​m​ ​b​o​t​ ​s​t​a​r​t​e​d​ ​s​u​c​c​e​s​s​f​u​l​l​y​.
+			 */
+			botStarted: string
+			/**
+			 * T​e​l​e​g​r​a​m​ ​b​o​t​ ​s​t​o​p​p​e​d​ ​s​u​c​c​e​s​s​f​u​l​l​y​.
+			 */
+			botStopped: string
+			/**
+			 * T​e​l​e​g​r​a​m​ ​b​o​t​ ​r​e​s​t​a​r​t​e​d​ ​s​u​c​c​e​s​s​f​u​l​l​y​.
+			 */
+			botRestarted: string
+			/**
+			 * F​a​i​l​e​d​ ​t​o​ ​s​t​a​r​t​ ​b​o​t
+			 */
+			botStartFailed: string
+			/**
+			 * F​a​i​l​e​d​ ​t​o​ ​s​t​o​p​ ​b​o​t
+			 */
+			botStopFailed: string
+			/**
+			 * F​a​i​l​e​d​ ​t​o​ ​r​e​s​t​a​r​t​ ​b​o​t
+			 */
+			botRestartFailed: string
+			/**
+			 * T​e​l​e​g​r​a​m​ ​b​o​t​ ​u​p​d​a​t​e​d​ ​a​n​d​ ​t​e​s​t​ ​a​l​e​r​t​ ​d​i​s​p​a​t​c​h​e​d​.
+			 */
+			testDispatched: string
+			/**
+			 * F​a​i​l​e​d​ ​t​o​ ​s​e​n​d​ ​t​e​s​t​ ​m​e​s​s​a​g​e
+			 */
+			testFailed: string
+		}
+	}
 }
 
 export type TranslationFunctions = {
@@ -23854,6 +24006,158 @@ export type TranslationFunctions = {
 			 * Invalid JSON backup format
 			 */
 			invalidJson: () => LocalizedString
+		}
+	}
+	telegram: {
+		/**
+		 * Telegram Bot Notifications
+		 */
+		title: () => LocalizedString
+		/**
+		 * Bot Active
+		 */
+		badgeActive: () => LocalizedString
+		/**
+		 * Disabled
+		 */
+		badgeDisabled: () => LocalizedString
+		/**
+		 * Test Alert
+		 */
+		testAlert: () => LocalizedString
+		/**
+		 * Save Config
+		 */
+		saveConfig: () => LocalizedString
+		/**
+		 * Start Bot
+		 */
+		startBot: () => LocalizedString
+		/**
+		 * Stop Bot
+		 */
+		stopBot: () => LocalizedString
+		config: {
+			/**
+			 * Bot Credentials & Events
+			 */
+			title: () => LocalizedString
+			/**
+			 * Receive real-time alerts when Android system events occur
+			 */
+			subtitle: () => LocalizedString
+			/**
+			 * Enable Telegram Bot Service
+			 */
+			enableTitle: () => LocalizedString
+			/**
+			 * Activate background alert dispatcher
+			 */
+			enableDesc: () => LocalizedString
+			/**
+			 * Telegram Bot API Token (from @BotFather)
+			 */
+			tokenLabel: () => LocalizedString
+			/**
+			 * Target Chat ID / Channel ID
+			 */
+			chatIdLabel: () => LocalizedString
+			/**
+			 * Automated Alert Event Triggers
+			 */
+			triggersTitle: () => LocalizedString
+			/**
+			 * Notify On System Boot
+			 */
+			notifyBoot: () => LocalizedString
+			/**
+			 * Notify On Admin Login
+			 */
+			notifyLogin: () => LocalizedString
+		}
+		guide: {
+			/**
+			 * Quick Setup Guide
+			 */
+			title: () => LocalizedString
+			/**
+			 * How to create a Telegram bot
+			 */
+			subtitle: () => LocalizedString
+			/**
+			 * Open Telegram and message 
+			 */
+			step1A: () => LocalizedString
+			/**
+			 * .
+			 */
+			step1B: () => LocalizedString
+			/**
+			 * Send command 
+			 */
+			step2A: () => LocalizedString
+			/**
+			 *  and copy the HTTP API token.
+			 */
+			step2B: () => LocalizedString
+			/**
+			 * Message 
+			 */
+			step3A: () => LocalizedString
+			/**
+			 *  to obtain your personal numeric Chat ID.
+			 */
+			step3B: () => LocalizedString
+			/**
+			 * Paste the token and Chat ID, then click 
+			 */
+			step4A: () => LocalizedString
+			/**
+			 * .
+			 */
+			step4B: () => LocalizedString
+		}
+		toasts: {
+			/**
+			 * Telegram bot configuration saved.
+			 */
+			configSaved: () => LocalizedString
+			/**
+			 * Failed to save config
+			 */
+			saveFailed: () => LocalizedString
+			/**
+			 * Telegram bot started successfully.
+			 */
+			botStarted: () => LocalizedString
+			/**
+			 * Telegram bot stopped successfully.
+			 */
+			botStopped: () => LocalizedString
+			/**
+			 * Telegram bot restarted successfully.
+			 */
+			botRestarted: () => LocalizedString
+			/**
+			 * Failed to start bot
+			 */
+			botStartFailed: () => LocalizedString
+			/**
+			 * Failed to stop bot
+			 */
+			botStopFailed: () => LocalizedString
+			/**
+			 * Failed to restart bot
+			 */
+			botRestartFailed: () => LocalizedString
+			/**
+			 * Telegram bot updated and test alert dispatched.
+			 */
+			testDispatched: () => LocalizedString
+			/**
+			 * Failed to send test message
+			 */
+			testFailed: () => LocalizedString
 		}
 	}
 }

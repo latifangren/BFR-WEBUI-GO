@@ -10,6 +10,7 @@
     MessageCircle,
   } from '@lucide/svelte'
   import { api } from '../../../api/client'
+  import { LL } from '../../../i18n/i18n-svelte'
   import { toastStore } from '../../../stores/toast.svelte'
   import Card from '../../ui/Card.svelte'
   import Button from '../../ui/Button.svelte'
@@ -87,10 +88,10 @@
     try {
       isSaving = true
       await api.post('/api/telegram/config', config)
-      toastStore.success('Telegram bot configuration saved.')
+      toastStore.success($LL.telegram.toasts.configSaved())
       await fetchTelegram()
     } catch (err: unknown) {
-      toastStore.error(err instanceof Error ? err.message : 'Failed to save config')
+      toastStore.error(err instanceof Error ? err.message : $LL.telegram.toasts.saveFailed())
     } finally {
       isSaving = false
     }
@@ -100,10 +101,20 @@
     try {
       isLoading = true
       await api.post('/api/telegram/control', { action })
-      toastStore.success(`Telegram bot ${action}ed successfully.`)
+      const successToasts = {
+        start: $LL.telegram.toasts.botStarted(),
+        stop: $LL.telegram.toasts.botStopped(),
+        restart: $LL.telegram.toasts.botRestarted(),
+      }
+      toastStore.success(successToasts[action])
       await fetchTelegram()
     } catch (err: unknown) {
-      toastStore.error(err instanceof Error ? err.message : `Failed to ${action} bot`)
+      const failToasts = {
+        start: $LL.telegram.toasts.botStartFailed(),
+        stop: $LL.telegram.toasts.botStopFailed(),
+        restart: $LL.telegram.toasts.botRestartFailed(),
+      }
+      toastStore.error(err instanceof Error ? err.message : failToasts[action])
     } finally {
       isLoading = false
     }
@@ -115,11 +126,11 @@
       isTesting = true
       await api.post('/api/telegram/config', config)
       await api.post('/api/telegram/control', { action: 'restart' })
-      toastStore.success('Telegram bot updated and test alert dispatched.')
+      toastStore.success($LL.telegram.toasts.testDispatched())
       await fetchTelegram()
     } catch (err: unknown) {
       const errMsg = err instanceof Error ? err.message : String(err)
-      toastStore.error(errMsg || 'Failed to send test message')
+      toastStore.error(errMsg || $LL.telegram.toasts.testFailed())
     } finally {
       isTesting = false
     }
@@ -132,10 +143,10 @@
     <div class="flex items-center gap-2">
       <Send class="w-5 h-5 text-accent" />
       <h2 class="text-base sm:text-lg font-mono font-bold uppercase tracking-wider text-foreground">
-        Telegram Bot Notifications
+        {$LL.telegram.title()}
       </h2>
       <Badge variant={status.running ? 'success' : 'default'}>
-        {status.running ? 'Bot Active' : 'Disabled'}
+        {status.running ? $LL.telegram.badgeActive() : $LL.telegram.badgeDisabled()}
       </Badge>
     </div>
 
@@ -147,7 +158,7 @@
         onclick={fetchTelegram}
       >
         <RefreshCw class="w-3.5 h-3.5 mr-1.5 {isLoading ? 'animate-spin' : ''}" />
-        <span>Refresh</span>
+        <span>{$LL.common.refresh()}</span>
       </Button>
 
       <Button
@@ -157,7 +168,7 @@
         onclick={sendTestMessage}
       >
         <MessageCircle class="w-3.5 h-3.5 mr-1 text-accent" />
-        <span>Test Alert</span>
+        <span>{$LL.telegram.testAlert()}</span>
       </Button>
     </div>
   </div>
@@ -165,8 +176,8 @@
   <div class="grid grid-cols-1 lg:grid-cols-3 gap-3 sm:gap-6">
     <!-- Configuration Card -->
     <Card
-      title="Bot Credentials & Events"
-      subtitle="Receive real-time alerts when Android system events occur"
+      title={$LL.telegram.config.title()}
+      subtitle={$LL.telegram.config.subtitle()}
       tone="lavender"
       class="lg:col-span-2"
     >
@@ -178,7 +189,7 @@
             disabled={isLoading || !config.bot_token}
             onclick={() => controlBot(status.running ? 'stop' : 'start')}
           >
-            <span>{status.running ? 'Stop Bot' : 'Start Bot'}</span>
+            <span>{status.running ? $LL.telegram.stopBot() : $LL.telegram.startBot()}</span>
           </Button>
           <Button
             variant="primary"
@@ -187,7 +198,7 @@
             onclick={saveConfig}
           >
             <Check class="w-3.5 h-3.5 mr-1" />
-            <span>Save Config</span>
+            <span>{$LL.telegram.saveConfig()}</span>
           </Button>
         </div>
       {/snippet}
@@ -195,8 +206,8 @@
       <div class="space-y-4 font-mono text-xs">
         <label class="flex items-center justify-between p-3 bg-card-sub border border-border rounded cursor-pointer hover:border-accent transition-colors">
           <div>
-            <span class="font-bold text-foreground block">Enable Telegram Bot Service</span>
-            <span class="text-[10px] text-muted">Activate background alert dispatcher</span>
+            <span class="font-bold text-foreground block">{$LL.telegram.config.enableTitle()}</span>
+            <span class="text-[10px] text-muted">{$LL.telegram.config.enableDesc()}</span>
           </div>
           {#if themeStore.useSakugaControls()}
             <SakugaCheckbox bind:checked={config.enabled} />
@@ -212,13 +223,13 @@
         <div class="space-y-3 pt-2">
           <Input
             type="password"
-            label="Telegram Bot API Token (from @BotFather)"
+            label={$LL.telegram.config.tokenLabel()}
             placeholder="123456789:ABCdefGhIJKlmNoPQRstuVWXyz..."
             bind:value={config.bot_token}
           />
 
           <Input
-            label="Target Chat ID / Channel ID"
+            label={$LL.telegram.config.chatIdLabel()}
             placeholder="987654321 or -100123456789"
             bind:value={config.chat_id}
           />
@@ -226,13 +237,13 @@
 
         <div class="space-y-2 pt-2 border-t border-border">
           <span class="text-[10px] text-muted uppercase font-bold block">
-            Automated Alert Event Triggers
+            {$LL.telegram.config.triggersTitle()}
           </span>
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
             <label class="flex items-center justify-between p-2.5 bg-card-sub border border-border rounded cursor-pointer hover:border-accent transition-colors">
               <div class="flex items-center gap-2">
                 <Bell class="w-4 h-4 text-emerald-400" />
-                <span>Notify On System Boot</span>
+                <span>{$LL.telegram.config.notifyBoot()}</span>
               </div>
               {#if themeStore.useSakugaControls()}
                 <SakugaCheckbox bind:checked={config.notify_on_boot} />
@@ -248,7 +259,7 @@
             <label class="flex items-center justify-between p-2.5 bg-card-sub border border-border rounded cursor-pointer hover:border-accent transition-colors">
               <div class="flex items-center gap-2">
                 <Bell class="w-4 h-4 text-amber-400" />
-                <span>Notify On Admin Login</span>
+                <span>{$LL.telegram.config.notifyLogin()}</span>
               </div>
               {#if themeStore.useSakugaControls()}
                 <SakugaCheckbox bind:checked={config.notify_on_login} />
@@ -266,13 +277,13 @@
     </Card>
 
     <!-- Help Card -->
-    <Card title="Quick Setup Guide" subtitle="How to create a Telegram bot" tone="lavender">
+    <Card title={$LL.telegram.guide.title()} subtitle={$LL.telegram.guide.subtitle()} tone="lavender">
       <div class="space-y-3 font-mono text-xs text-muted leading-relaxed">
         <ol class="list-decimal list-inside space-y-2">
-          <li>Open Telegram and message <strong class="text-foreground">@BotFather</strong>.</li>
-          <li>Send command <code class="text-accent font-bold">/newbot</code> and copy the HTTP API token.</li>
-          <li>Message <strong class="text-foreground">@userinfobot</strong> to obtain your personal numeric Chat ID.</li>
-          <li>Paste the token and Chat ID, then click <strong class="text-foreground">Test Alert</strong>.</li>
+          <li>{$LL.telegram.guide.step1A()}<strong class="text-foreground">@BotFather</strong>{$LL.telegram.guide.step1B()}</li>
+          <li>{$LL.telegram.guide.step2A()}<code class="text-accent font-bold">/newbot</code>{$LL.telegram.guide.step2B()}</li>
+          <li>{$LL.telegram.guide.step3A()}<strong class="text-foreground">@userinfobot</strong>{$LL.telegram.guide.step3B()}</li>
+          <li>{$LL.telegram.guide.step4A()}<strong class="text-foreground">{$LL.telegram.testAlert()}</strong>{$LL.telegram.guide.step4B()}</li>
         </ol>
       </div>
     </Card>
