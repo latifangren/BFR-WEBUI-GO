@@ -11,6 +11,7 @@
     Terminal,
   } from '@lucide/svelte'
   import { api } from '../../../api/client'
+  import { LL } from '../../../i18n/i18n-svelte'
   import { toastStore } from '../../../stores/toast.svelte'
   import type { ModuleInfo, ModulesResponse } from '../../../types/modules'
   import Card from '../../ui/Card.svelte'
@@ -42,7 +43,7 @@
         modules = res.modules
       }
     } catch (err: unknown) {
-      toastStore.error(err instanceof Error ? err.message : 'Failed to load modules')
+      toastStore.error(err instanceof Error ? err.message : $LL.modules.toasts.fetchFailed())
     } finally {
       isLoading = false
     }
@@ -58,9 +59,13 @@
         enabled: nextState,
       })
       mod.enabled = nextState
-      toastStore.success(`Module "${mod.name}" ${nextState ? 'enabled' : 'disabled'}. Reboot required to apply.`)
+      toastStore.success(
+        nextState
+          ? $LL.modules.toasts.toggleEnabled({ name: mod.name })
+          : $LL.modules.toasts.toggleDisabled({ name: mod.name })
+      )
     } catch (err: unknown) {
-      toastStore.error(err instanceof Error ? err.message : 'Failed to toggle module')
+      toastStore.error(err instanceof Error ? err.message : $LL.modules.toasts.toggleFailed())
     } finally {
       togglingId = null
     }
@@ -98,15 +103,15 @@
       } else if (res.message) {
         installOutput = res.message
       } else {
-        installOutput = 'Installation complete.'
+        installOutput = $LL.modules.installer.complete()
       }
 
-      toastStore.success(`Module "${selectedFile.name}" installed successfully. Reboot recommended.`)
+      toastStore.success($LL.modules.toasts.installed({ name: selectedFile.name }))
       selectedFile = null
       if (fileInputEl) fileInputEl.value = ''
       await fetchModules()
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : 'Failed to install module'
+      const msg = err instanceof Error ? err.message : $LL.modules.toasts.installFailed()
       installOutput = `Error: ${msg}`
       toastStore.error(msg)
     } finally {
@@ -121,10 +126,10 @@
     <div class="flex items-center gap-2">
       <Box class="w-5 h-5 text-accent" />
       <h2 class="text-base sm:text-lg font-mono font-bold uppercase tracking-wider text-foreground">
-        Magisk & KernelSU Modules
+        {$LL.modules.title()}
       </h2>
       <Badge variant="default">
-        {modules.length} Installed
+        {$LL.modules.installedCount({ count: modules.length })}
       </Badge>
     </div>
 
@@ -136,7 +141,7 @@
         onclick={fetchModules}
       >
         <RefreshCw class="w-3.5 h-3.5 mr-1.5 {isLoading ? 'animate-spin' : ''}" />
-        <span>Refresh</span>
+        <span>{$LL.common.refresh()}</span>
       </Button>
     </div>
   </div>
@@ -145,8 +150,8 @@
     <!-- Module Installer Card -->
     <!-- Module Installer Card (order-2 on mobile, order-1 on desktop) -->
     <Card
-      title="Flash Module Archive"
-      subtitle="Install Magisk / KernelSU / APatch ZIP"
+      title={$LL.modules.installer.title()}
+      subtitle={$LL.modules.installer.subtitle()}
       tone="lavender"
       class="order-2 lg:order-1 lg:col-span-1"
     >
@@ -179,8 +184,8 @@
               {(selectedFile.size / (1024 * 1024)).toFixed(2)} MB
             </span>
           {:else}
-            <span class="font-bold text-foreground block">Select or drop ZIP file</span>
-            <span class="text-[10px] text-muted">Supports root flashable packages</span>
+            <span class="font-bold text-foreground block">{$LL.modules.installer.selectOrDrop()}</span>
+            <span class="text-[10px] text-muted">{$LL.modules.installer.supports()}</span>
           {/if}
         </div>
 
@@ -192,14 +197,14 @@
           onclick={installModule}
         >
           <FileArchive class="w-3.5 h-3.5 mr-1.5 {isUploading ? 'animate-spin' : ''}" />
-          <span>{isUploading ? 'Flashing Module...' : 'Install Module'}</span>
+          <span>{isUploading ? $LL.modules.installer.flashing() : $LL.modules.installer.install()}</span>
         </Button>
 
         {#if installOutput}
           <div class="space-y-1 pt-2 border-t border-border">
             <span class="text-[10px] text-muted uppercase font-bold flex items-center gap-1">
               <Terminal class="w-3 h-3 text-accent" />
-              Flash Log Output
+              {$LL.modules.installer.flashLog()}
             </span>
             <pre class="bg-black/80 border border-border rounded p-2 text-[11px] text-emerald-400 font-mono whitespace-pre-wrap max-h-48 overflow-y-auto">{installOutput}</pre>
           </div>
@@ -209,20 +214,20 @@
 
     <!-- Installed Modules List Card (order-1 on mobile, order-2 on desktop) -->
     <Card
-      title="Installed System Modules"
-      subtitle="Active root overlays in /data/adb/modules"
+      title={$LL.modules.list.title()}
+      subtitle={$LL.modules.list.subtitle()}
       tone="lavender"
       class="order-1 lg:order-2 lg:col-span-2"
     >
       {#if isLoading && modules.length === 0}
         <div class="p-8 text-center text-muted font-mono text-xs">
           <RefreshCw class="w-6 h-6 animate-spin mx-auto mb-2 text-accent" />
-          Scanning modules directory...
+          {$LL.modules.list.scanning()}
         </div>
       {:else if modules.length === 0}
         <div class="p-8 text-center text-muted font-mono text-xs">
           <Box class="w-6 h-6 mx-auto mb-2 opacity-50" />
-          No modules detected in system root partition.
+          {$LL.modules.list.empty()}
         </div>
       {:else}
         <div class="space-y-3 font-mono text-xs">
@@ -233,12 +238,12 @@
                   <div class="flex items-center gap-2">
                     <span class="font-bold text-foreground text-sm truncate">{mod.name}</span>
                     <Badge variant={mod.enabled ? 'success' : 'default'}>
-                      {mod.enabled ? 'Enabled' : 'Disabled'}
+                      {mod.enabled ? $LL.modules.list.enabled() : $LL.modules.list.disabled()}
                     </Badge>
                   </div>
                   <div class="flex items-center gap-3 text-[11px] text-muted mt-0.5">
                     <span>v{mod.version}</span>
-                    <span>by {mod.author || 'Unknown'}</span>
+                    <span>by {mod.author || $LL.common.unknown()}</span>
                     <span class="text-accent">({mod.id})</span>
                   </div>
                 </div>

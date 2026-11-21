@@ -9541,6 +9541,106 @@ type RootTranslation = {
 			clearFailed: string
 		}
 	}
+	modules: {
+		/**
+		 * M​a​g​i​s​k​ ​&​ ​K​e​r​n​e​l​S​U​ ​M​o​d​u​l​e​s
+		 */
+		title: string
+		/**
+		 * {​c​o​u​n​t​}​ ​I​n​s​t​a​l​l​e​d
+		 * @param {unknown} count
+		 */
+		installedCount: RequiredParams<'count'>
+		installer: {
+			/**
+			 * F​l​a​s​h​ ​M​o​d​u​l​e​ ​A​r​c​h​i​v​e
+			 */
+			title: string
+			/**
+			 * I​n​s​t​a​l​l​ ​M​a​g​i​s​k​ ​/​ ​K​e​r​n​e​l​S​U​ ​/​ ​A​P​a​t​c​h​ ​Z​I​P
+			 */
+			subtitle: string
+			/**
+			 * S​e​l​e​c​t​ ​o​r​ ​d​r​o​p​ ​Z​I​P​ ​f​i​l​e
+			 */
+			selectOrDrop: string
+			/**
+			 * S​u​p​p​o​r​t​s​ ​r​o​o​t​ ​f​l​a​s​h​a​b​l​e​ ​p​a​c​k​a​g​e​s
+			 */
+			supports: string
+			/**
+			 * I​n​s​t​a​l​l​ ​M​o​d​u​l​e
+			 */
+			install: string
+			/**
+			 * F​l​a​s​h​i​n​g​ ​M​o​d​u​l​e​.​.​.
+			 */
+			flashing: string
+			/**
+			 * F​l​a​s​h​ ​L​o​g​ ​O​u​t​p​u​t
+			 */
+			flashLog: string
+			/**
+			 * I​n​s​t​a​l​l​a​t​i​o​n​ ​c​o​m​p​l​e​t​e​.
+			 */
+			complete: string
+		}
+		list: {
+			/**
+			 * I​n​s​t​a​l​l​e​d​ ​S​y​s​t​e​m​ ​M​o​d​u​l​e​s
+			 */
+			title: string
+			/**
+			 * A​c​t​i​v​e​ ​r​o​o​t​ ​o​v​e​r​l​a​y​s​ ​i​n​ ​/​d​a​t​a​/​a​d​b​/​m​o​d​u​l​e​s
+			 */
+			subtitle: string
+			/**
+			 * S​c​a​n​n​i​n​g​ ​m​o​d​u​l​e​s​ ​d​i​r​e​c​t​o​r​y​.​.​.
+			 */
+			scanning: string
+			/**
+			 * N​o​ ​m​o​d​u​l​e​s​ ​d​e​t​e​c​t​e​d​ ​i​n​ ​s​y​s​t​e​m​ ​r​o​o​t​ ​p​a​r​t​i​t​i​o​n​.
+			 */
+			empty: string
+			/**
+			 * E​n​a​b​l​e​d
+			 */
+			enabled: string
+			/**
+			 * D​i​s​a​b​l​e​d
+			 */
+			disabled: string
+		}
+		toasts: {
+			/**
+			 * F​a​i​l​e​d​ ​t​o​ ​l​o​a​d​ ​m​o​d​u​l​e​s
+			 */
+			fetchFailed: string
+			/**
+			 * M​o​d​u​l​e​ ​"​{​n​a​m​e​}​"​ ​e​n​a​b​l​e​d​.​ ​R​e​b​o​o​t​ ​r​e​q​u​i​r​e​d​ ​t​o​ ​a​p​p​l​y​.
+			 * @param {unknown} name
+			 */
+			toggleEnabled: RequiredParams<'name'>
+			/**
+			 * M​o​d​u​l​e​ ​"​{​n​a​m​e​}​"​ ​d​i​s​a​b​l​e​d​.​ ​R​e​b​o​o​t​ ​r​e​q​u​i​r​e​d​ ​t​o​ ​a​p​p​l​y​.
+			 * @param {unknown} name
+			 */
+			toggleDisabled: RequiredParams<'name'>
+			/**
+			 * F​a​i​l​e​d​ ​t​o​ ​t​o​g​g​l​e​ ​m​o​d​u​l​e
+			 */
+			toggleFailed: string
+			/**
+			 * M​o​d​u​l​e​ ​"​{​n​a​m​e​}​"​ ​i​n​s​t​a​l​l​e​d​ ​s​u​c​c​e​s​s​f​u​l​l​y​.​ ​R​e​b​o​o​t​ ​r​e​c​o​m​m​e​n​d​e​d​.
+			 * @param {unknown} name
+			 */
+			installed: RequiredParams<'name'>
+			/**
+			 * F​a​i​l​e​d​ ​t​o​ ​i​n​s​t​a​l​l​ ​m​o​d​u​l​e
+			 */
+			installFailed: string
+		}
+	}
 }
 
 export type TranslationFunctions = {
@@ -18808,6 +18908,102 @@ export type TranslationFunctions = {
 			 * Failed to clear logs
 			 */
 			clearFailed: () => LocalizedString
+		}
+	}
+	modules: {
+		/**
+		 * Magisk & KernelSU Modules
+		 */
+		title: () => LocalizedString
+		/**
+		 * {count} Installed
+		 */
+		installedCount: (arg: { count: unknown }) => LocalizedString
+		installer: {
+			/**
+			 * Flash Module Archive
+			 */
+			title: () => LocalizedString
+			/**
+			 * Install Magisk / KernelSU / APatch ZIP
+			 */
+			subtitle: () => LocalizedString
+			/**
+			 * Select or drop ZIP file
+			 */
+			selectOrDrop: () => LocalizedString
+			/**
+			 * Supports root flashable packages
+			 */
+			supports: () => LocalizedString
+			/**
+			 * Install Module
+			 */
+			install: () => LocalizedString
+			/**
+			 * Flashing Module...
+			 */
+			flashing: () => LocalizedString
+			/**
+			 * Flash Log Output
+			 */
+			flashLog: () => LocalizedString
+			/**
+			 * Installation complete.
+			 */
+			complete: () => LocalizedString
+		}
+		list: {
+			/**
+			 * Installed System Modules
+			 */
+			title: () => LocalizedString
+			/**
+			 * Active root overlays in /data/adb/modules
+			 */
+			subtitle: () => LocalizedString
+			/**
+			 * Scanning modules directory...
+			 */
+			scanning: () => LocalizedString
+			/**
+			 * No modules detected in system root partition.
+			 */
+			empty: () => LocalizedString
+			/**
+			 * Enabled
+			 */
+			enabled: () => LocalizedString
+			/**
+			 * Disabled
+			 */
+			disabled: () => LocalizedString
+		}
+		toasts: {
+			/**
+			 * Failed to load modules
+			 */
+			fetchFailed: () => LocalizedString
+			/**
+			 * Module "{name}" enabled. Reboot required to apply.
+			 */
+			toggleEnabled: (arg: { name: unknown }) => LocalizedString
+			/**
+			 * Module "{name}" disabled. Reboot required to apply.
+			 */
+			toggleDisabled: (arg: { name: unknown }) => LocalizedString
+			/**
+			 * Failed to toggle module
+			 */
+			toggleFailed: () => LocalizedString
+			/**
+			 * Module "{name}" installed successfully. Reboot recommended.
+			 */
+			installed: (arg: { name: unknown }) => LocalizedString
+			/**
+			 * Failed to install module
+			 */
+			installFailed: () => LocalizedString
 		}
 	}
 }

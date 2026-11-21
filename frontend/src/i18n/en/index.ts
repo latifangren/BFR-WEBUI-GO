@@ -2562,6 +2562,36 @@ const en = {
 			clearFailed: 'Failed to clear logs',
 		},
 	},
+	modules: {
+		title: 'Magisk & KernelSU Modules',
+		installedCount: '{count} Installed',
+		installer: {
+			title: 'Flash Module Archive',
+			subtitle: 'Install Magisk / KernelSU / APatch ZIP',
+			selectOrDrop: 'Select or drop ZIP file',
+			supports: 'Supports root flashable packages',
+			install: 'Install Module',
+			flashing: 'Flashing Module...',
+			flashLog: 'Flash Log Output',
+			complete: 'Installation complete.',
+		},
+		list: {
+			title: 'Installed System Modules',
+			subtitle: 'Active root overlays in /data/adb/modules',
+			scanning: 'Scanning modules directory...',
+			empty: 'No modules detected in system root partition.',
+			enabled: 'Enabled',
+			disabled: 'Disabled',
+		},
+		toasts: {
+			fetchFailed: 'Failed to load modules',
+			toggleEnabled: 'Module "{name}" enabled. Reboot required to apply.',
+			toggleDisabled: 'Module "{name}" disabled. Reboot required to apply.',
+			toggleFailed: 'Failed to toggle module',
+			installed: 'Module "{name}" installed successfully. Reboot recommended.',
+			installFailed: 'Failed to install module',
+		},
+	},
 } satisfies BaseTranslation
 
 export default en

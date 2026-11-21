@@ -2562,6 +2562,36 @@ const id = {
 			clearFailed: 'Gagal membersihkan log',
 		},
 	},
+	modules: {
+		title: 'Modul Magisk & KernelSU',
+		installedCount: '{count} Terpasang',
+		installer: {
+			title: 'Flash Arsip Modul',
+			subtitle: 'Instal Magisk / KernelSU / APatch ZIP',
+			selectOrDrop: 'Pilih atau jatuhkan file ZIP',
+			supports: 'Mendukung paket flashable root',
+			install: 'Instal Modul',
+			flashing: 'Mem-flash modul...',
+			flashLog: 'Output Log Flash',
+			complete: 'Instalasi selesai.',
+		},
+		list: {
+			title: 'Modul Sistem Terpasang',
+			subtitle: 'Overlay root aktif di /data/adb/modules',
+			scanning: 'Memindai direktori modul...',
+			empty: 'Tidak ada modul terdeteksi di partisi root sistem.',
+			enabled: 'Diaktifkan',
+			disabled: 'Dinonaktifkan',
+		},
+		toasts: {
+			fetchFailed: 'Gagal memuat modul',
+			toggleEnabled: 'Modul "{name}" diaktifkan. Reboot diperlukan untuk menerapkan.',
+			toggleDisabled: 'Modul "{name}" dinonaktifkan. Reboot diperlukan untuk menerapkan.',
+			toggleFailed: 'Gagal mengubah status modul',
+			installed: 'Modul "{name}" berhasil diinstal. Reboot disarankan.',
+			installFailed: 'Gagal menginstal modul',
+		},
+	},
 } satisfies Translation
 
 export default id
