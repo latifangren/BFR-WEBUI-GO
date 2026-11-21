@@ -9266,6 +9266,206 @@ type RootTranslation = {
 			saveBookmark: string
 		}
 	}
+	kernel: {
+		/**
+		 * K​e​r​n​e​l​ ​M​a​n​a​g​e​r​ ​&​ ​S​o​C​ ​T​u​n​e​r
+		 */
+		title: string
+		/**
+		 * P​r​o​f​i​l​e​:​ ​{​p​r​o​f​i​l​e​}
+		 * @param {unknown} profile
+		 */
+		activeProfile: RequiredParams<'profile'>
+		/**
+		 * R​e​a​d​i​n​g​ ​C​P​U​ ​c​l​u​s​t​e​r​s​,​ ​c​p​u​f​r​e​q​ ​p​o​l​i​c​i​e​s​,​ ​a​n​d​ ​v​i​r​t​u​a​l​ ​m​e​m​o​r​y​ ​p​a​r​a​m​e​t​e​r​s​.​.​.
+		 */
+		loading: string
+		profiles: {
+			powersave: {
+				/**
+				 * B​a​t​t​e​r​y​ ​S​a​v​e​r
+				 */
+				name: string
+				/**
+				 * C​a​p​s​ ​f​r​e​q​u​e​n​c​y​ ​c​e​i​l​i​n​g​ ​&​ ​l​i​m​i​t​s​ ​s​c​h​e​d​u​l​e​r​ ​b​u​r​s​t​s​.​ ​S​w​a​p​p​i​n​e​s​s​ ​3​0​.
+				 */
+				desc: string
+			}
+			balanced: {
+				/**
+				 * B​a​l​a​n​c​e​d
+				 */
+				name: string
+				/**
+				 * E​n​e​r​g​y​-​A​w​a​r​e​ ​E​A​S​ ​(​s​c​h​e​d​u​t​i​l​)​.​ ​D​y​n​a​m​i​c​ ​c​l​o​c​k​ ​s​c​a​l​i​n​g​.​ ​S​w​a​p​p​i​n​e​s​s​ ​6​0​.
+				 */
+				desc: string
+			}
+			performance: {
+				/**
+				 * P​e​r​f​o​r​m​a​n​c​e
+				 */
+				name: string
+				/**
+				 * P​e​a​k​ ​C​P​U​ ​c​l​o​c​k​ ​l​o​c​k​,​ ​z​e​r​o​ ​t​h​r​o​t​t​l​e​ ​l​a​t​e​n​c​y​.​ ​S​w​a​p​p​i​n​e​s​s​ ​1​0​0​.
+				 */
+				desc: string
+			}
+			/**
+			 * A​p​p​l​y​i​n​g​.​.​.
+			 */
+			applying: string
+			/**
+			 * ✓​ ​A​c​t​i​v​e​ ​P​r​o​f​i​l​e
+			 */
+			activeProfileLabel: string
+			/**
+			 * C​l​i​c​k​ ​t​o​ ​A​c​t​i​v​a​t​e
+			 */
+			clickToActivate: string
+		}
+		clusters: {
+			/**
+			 * C​P​U​ ​F​r​e​q​u​e​n​c​y​ ​S​c​a​l​i​n​g​ ​&​ ​C​l​u​s​t​e​r​s​ ​(​{​c​o​u​n​t​}​ ​P​o​l​i​c​i​e​s​)
+			 * @param {unknown} count
+			 */
+			title: RequiredParams<'count'>
+			/**
+			 * P​e​r​s​i​s​t​e​n​t​ ​i​n​ ​/​d​a​t​a​/​a​d​b​/​b​f​r​_​w​e​b​u​i​_​g​o​/​d​a​t​a​/​k​e​r​n​e​l​_​c​o​n​f​i​g​.​j​s​o​n
+			 */
+			persistentIn: string
+			/**
+			 * N​o​ ​c​p​u​f​r​e​q​ ​p​o​l​i​c​i​e​s​ ​f​o​u​n​d​ ​o​n​ ​t​h​i​s​ ​d​e​v​i​c​e​.
+			 */
+			noPolicies: string
+			/**
+			 * C​u​r​r​e​n​t​ ​C​l​o​c​k
+			 */
+			currentClock: string
+			/**
+			 * S​c​a​l​i​n​g​ ​G​o​v​e​r​n​o​r
+			 */
+			governor: string
+			/**
+			 * (​A​c​t​i​v​e​)
+			 */
+			activeSuffix: string
+			/**
+			 * M​i​n​ ​C​l​o​c​k
+			 */
+			minClock: string
+			/**
+			 * M​a​x​ ​C​l​o​c​k
+			 */
+			maxClock: string
+			/**
+			 * S​a​v​i​n​g​.​.​.
+			 */
+			saving: string
+			/**
+			 * A​p​p​l​y​ ​C​l​u​s​t​e​r
+			 */
+			applyCluster: string
+		}
+		vm: {
+			/**
+			 * V​i​r​t​u​a​l​ ​M​e​m​o​r​y​ ​&​ ​N​e​t​w​o​r​k​ ​S​u​b​s​y​s​t​e​m​ ​T​u​n​i​n​g
+			 */
+			title: string
+			/**
+			 * V​M​ ​S​w​a​p​p​i​n​e​s​s
+			 */
+			swappiness: string
+			/**
+			 * A​g​g​r​e​s​s​i​v​e​n​e​s​s​ ​o​f​ ​k​e​r​n​e​l​ ​s​w​a​p​p​i​n​g​ ​m​e​m​o​r​y​ ​i​n​t​o​ ​Z​R​A​M​ ​(​0​=​m​i​n​,​ ​1​0​0​=​s​t​d​,​ ​2​0​0​=​m​a​x​)​.
+			 */
+			swappinessDesc: string
+			/**
+			 * V​F​S​ ​C​a​c​h​e​ ​P​r​e​s​s​u​r​e
+			 */
+			vfsPressure: string
+			/**
+			 * T​e​n​d​e​n​c​y​ ​o​f​ ​t​h​e​ ​k​e​r​n​e​l​ ​t​o​ ​r​e​c​l​a​i​m​ ​m​e​m​o​r​y​ ​u​s​e​d​ ​f​o​r​ ​d​i​r​e​c​t​o​r​y​ ​&​ ​i​n​o​d​e​ ​c​a​c​h​e​s​.
+			 */
+			vfsPressureDesc: string
+			/**
+			 * D​i​r​t​y​ ​R​a​t​i​o
+			 */
+			dirtyRatio: string
+			/**
+			 * M​a​x​ ​p​e​r​c​e​n​t​a​g​e​ ​o​f​ ​s​y​s​t​e​m​ ​m​e​m​o​r​y​ ​f​i​l​l​e​d​ ​w​i​t​h​ ​d​i​r​t​y​ ​p​a​g​e​s​ ​b​e​f​o​r​e​ ​w​r​i​t​e​b​a​c​k​.
+			 */
+			dirtyRatioDesc: string
+			/**
+			 * D​i​r​t​y​ ​B​a​c​k​g​r​o​u​n​d​ ​R​a​t​i​o
+			 */
+			dirtyBgRatio: string
+			/**
+			 * P​e​r​c​e​n​t​a​g​e​ ​t​h​r​e​s​h​o​l​d​ ​w​h​e​r​e​ ​p​d​f​l​u​s​h​/​k​s​w​a​p​d​ ​b​e​g​i​n​s​ ​b​a​c​k​g​r​o​u​n​d​ ​d​i​s​k​ ​f​l​u​s​h​i​n​g​.
+			 */
+			dirtyBgRatioDesc: string
+			/**
+			 * T​C​P​ ​C​o​n​g​e​s​t​i​o​n​ ​C​o​n​t​r​o​l
+			 */
+			tcp: string
+			/**
+			 * N​e​t​w​o​r​k​ ​t​h​r​o​u​g​h​p​u​t​ ​a​l​g​o​r​i​t​h​m​ ​(​B​B​R​ ​r​e​d​u​c​e​s​ ​b​u​f​f​e​r​b​l​o​a​t​;​ ​C​u​b​i​c​ ​i​s​ ​d​e​f​a​u​l​t​ ​T​C​P​ ​s​t​a​n​d​a​r​d​)​.
+			 */
+			tcpDesc: string
+			/**
+			 * A​p​p​l​y​i​n​g​ ​C​h​a​n​g​e​s​.​.​.
+			 */
+			applyingChanges: string
+			/**
+			 * S​a​v​e​ ​&​ ​A​p​p​l​y​ ​V​M​ ​P​a​r​a​m​e​t​e​r​s
+			 */
+			saveApply: string
+		}
+		toasts: {
+			/**
+			 * F​a​i​l​e​d​ ​t​o​ ​f​e​t​c​h​ ​k​e​r​n​e​l​ ​s​t​a​t​u​s
+			 */
+			fetchFailed: string
+			/**
+			 * A​p​p​l​i​e​d​ ​{​p​r​o​f​i​l​e​}​ ​p​r​o​f​i​l​e​ ​s​u​c​c​e​s​s​f​u​l​l​y
+			 * @param {unknown} profile
+			 */
+			profileApplied: RequiredParams<'profile'>
+			/**
+			 * F​a​i​l​e​d​ ​t​o​ ​a​p​p​l​y​ ​p​r​o​f​i​l​e
+			 */
+			applyProfileFailed: string
+			/**
+			 * E​r​r​o​r​ ​a​p​p​l​y​i​n​g​ ​p​r​o​f​i​l​e
+			 */
+			applyProfileError: string
+			/**
+			 * U​p​d​a​t​e​d​ ​C​P​U​ ​c​l​u​s​t​e​r​ ​{​c​l​u​s​t​e​r​}​ ​s​u​c​c​e​s​s​f​u​l​l​y
+			 * @param {unknown} cluster
+			 */
+			clusterUpdated: RequiredParams<'cluster'>
+			/**
+			 * F​a​i​l​e​d​ ​t​o​ ​u​p​d​a​t​e​ ​c​l​u​s​t​e​r
+			 */
+			updateClusterFailed: string
+			/**
+			 * E​r​r​o​r​ ​u​p​d​a​t​i​n​g​ ​c​l​u​s​t​e​r
+			 */
+			updateClusterError: string
+			/**
+			 * K​e​r​n​e​l​ ​V​M​ ​p​a​r​a​m​e​t​e​r​s​ ​u​p​d​a​t​e​d​ ​s​u​c​c​e​s​s​f​u​l​l​y
+			 */
+			vmUpdated: string
+			/**
+			 * F​a​i​l​e​d​ ​t​o​ ​u​p​d​a​t​e​ ​V​M​ ​s​e​t​t​i​n​g​s
+			 */
+			updateVMFailed: string
+			/**
+			 * E​r​r​o​r​ ​u​p​d​a​t​i​n​g​ ​V​M​ ​s​e​t​t​i​n​g​s
+			 */
+			updateVMError: string
+		}
+	}
 }
 
 export type TranslationFunctions = {
@@ -18263,6 +18463,202 @@ export type TranslationFunctions = {
 			 * Save Bookmark
 			 */
 			saveBookmark: () => LocalizedString
+		}
+	}
+	kernel: {
+		/**
+		 * Kernel Manager & SoC Tuner
+		 */
+		title: () => LocalizedString
+		/**
+		 * Profile: {profile}
+		 */
+		activeProfile: (arg: { profile: unknown }) => LocalizedString
+		/**
+		 * Reading CPU clusters, cpufreq policies, and virtual memory parameters...
+		 */
+		loading: () => LocalizedString
+		profiles: {
+			powersave: {
+				/**
+				 * Battery Saver
+				 */
+				name: () => LocalizedString
+				/**
+				 * Caps frequency ceiling & limits scheduler bursts. Swappiness 30.
+				 */
+				desc: () => LocalizedString
+			}
+			balanced: {
+				/**
+				 * Balanced
+				 */
+				name: () => LocalizedString
+				/**
+				 * Energy-Aware EAS (schedutil). Dynamic clock scaling. Swappiness 60.
+				 */
+				desc: () => LocalizedString
+			}
+			performance: {
+				/**
+				 * Performance
+				 */
+				name: () => LocalizedString
+				/**
+				 * Peak CPU clock lock, zero throttle latency. Swappiness 100.
+				 */
+				desc: () => LocalizedString
+			}
+			/**
+			 * Applying...
+			 */
+			applying: () => LocalizedString
+			/**
+			 * ✓ Active Profile
+			 */
+			activeProfileLabel: () => LocalizedString
+			/**
+			 * Click to Activate
+			 */
+			clickToActivate: () => LocalizedString
+		}
+		clusters: {
+			/**
+			 * CPU Frequency Scaling & Clusters ({count} Policies)
+			 */
+			title: (arg: { count: unknown }) => LocalizedString
+			/**
+			 * Persistent in /data/adb/bfr_webui_go/data/kernel_config.json
+			 */
+			persistentIn: () => LocalizedString
+			/**
+			 * No cpufreq policies found on this device.
+			 */
+			noPolicies: () => LocalizedString
+			/**
+			 * Current Clock
+			 */
+			currentClock: () => LocalizedString
+			/**
+			 * Scaling Governor
+			 */
+			governor: () => LocalizedString
+			/**
+			 * (Active)
+			 */
+			activeSuffix: () => LocalizedString
+			/**
+			 * Min Clock
+			 */
+			minClock: () => LocalizedString
+			/**
+			 * Max Clock
+			 */
+			maxClock: () => LocalizedString
+			/**
+			 * Saving...
+			 */
+			saving: () => LocalizedString
+			/**
+			 * Apply Cluster
+			 */
+			applyCluster: () => LocalizedString
+		}
+		vm: {
+			/**
+			 * Virtual Memory & Network Subsystem Tuning
+			 */
+			title: () => LocalizedString
+			/**
+			 * VM Swappiness
+			 */
+			swappiness: () => LocalizedString
+			/**
+			 * Aggressiveness of kernel swapping memory into ZRAM (0=min, 100=std, 200=max).
+			 */
+			swappinessDesc: () => LocalizedString
+			/**
+			 * VFS Cache Pressure
+			 */
+			vfsPressure: () => LocalizedString
+			/**
+			 * Tendency of the kernel to reclaim memory used for directory & inode caches.
+			 */
+			vfsPressureDesc: () => LocalizedString
+			/**
+			 * Dirty Ratio
+			 */
+			dirtyRatio: () => LocalizedString
+			/**
+			 * Max percentage of system memory filled with dirty pages before writeback.
+			 */
+			dirtyRatioDesc: () => LocalizedString
+			/**
+			 * Dirty Background Ratio
+			 */
+			dirtyBgRatio: () => LocalizedString
+			/**
+			 * Percentage threshold where pdflush/kswapd begins background disk flushing.
+			 */
+			dirtyBgRatioDesc: () => LocalizedString
+			/**
+			 * TCP Congestion Control
+			 */
+			tcp: () => LocalizedString
+			/**
+			 * Network throughput algorithm (BBR reduces bufferbloat; Cubic is default TCP standard).
+			 */
+			tcpDesc: () => LocalizedString
+			/**
+			 * Applying Changes...
+			 */
+			applyingChanges: () => LocalizedString
+			/**
+			 * Save & Apply VM Parameters
+			 */
+			saveApply: () => LocalizedString
+		}
+		toasts: {
+			/**
+			 * Failed to fetch kernel status
+			 */
+			fetchFailed: () => LocalizedString
+			/**
+			 * Applied {profile} profile successfully
+			 */
+			profileApplied: (arg: { profile: unknown }) => LocalizedString
+			/**
+			 * Failed to apply profile
+			 */
+			applyProfileFailed: () => LocalizedString
+			/**
+			 * Error applying profile
+			 */
+			applyProfileError: () => LocalizedString
+			/**
+			 * Updated CPU cluster {cluster} successfully
+			 */
+			clusterUpdated: (arg: { cluster: unknown }) => LocalizedString
+			/**
+			 * Failed to update cluster
+			 */
+			updateClusterFailed: () => LocalizedString
+			/**
+			 * Error updating cluster
+			 */
+			updateClusterError: () => LocalizedString
+			/**
+			 * Kernel VM parameters updated successfully
+			 */
+			vmUpdated: () => LocalizedString
+			/**
+			 * Failed to update VM settings
+			 */
+			updateVMFailed: () => LocalizedString
+			/**
+			 * Error updating VM settings
+			 */
+			updateVMError: () => LocalizedString
 		}
 	}
 }
