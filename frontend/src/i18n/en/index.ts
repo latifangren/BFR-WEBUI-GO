@@ -2968,6 +2968,43 @@ const en = {
 			copyFailed: 'Failed to copy to clipboard',
 		},
 	},
+	speedtest: {
+		title: 'Network Speedtest',
+		ready: 'Ready',
+		startTest: 'Start Test',
+		stopTest: 'Stop Test',
+		progress: {
+			testingPhase: 'Testing Phase: {phase}',
+			label: 'Speed test progress',
+		},
+		gauges: {
+			download: 'Download',
+			upload: 'Upload',
+			pingLatency: 'Ping / Latency',
+			jitter: 'Jitter: {jitter} ms',
+		},
+		server: {
+			title: 'Speedtest Server',
+			nearestEdgeNode: 'Nearest Edge Node',
+		},
+		history: {
+			title: 'Speedtest History & Diagnostics',
+			loading: 'Loading historical speedtest records...',
+			empty: 'No speedtest history records found. Run your first speedtest above!',
+			thTimestamp: 'Timestamp',
+			thServer: 'Server / Node',
+			thPing: 'Ping',
+			thDownload: 'Download',
+			thUpload: 'Upload',
+			automatic: 'Automatic',
+			serverFallback: 'Speedtest',
+		},
+		toasts: {
+			started: 'Speedtest started...',
+			startFailed: 'Failed to start speedtest',
+			aborted: 'Speedtest aborted.',
+		},
+	},
 } satisfies BaseTranslation
 
 export default en

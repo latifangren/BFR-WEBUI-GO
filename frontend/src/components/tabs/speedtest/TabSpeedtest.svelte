@@ -12,6 +12,7 @@
   } from '@lucide/svelte'
   import { api } from '../../../api/client'
   import { toastStore } from '../../../stores/toast.svelte'
+  import { LL } from '../../../i18n/i18n-svelte'
   import Card from '../../ui/Card.svelte'
   import Button from '../../ui/Button.svelte'
   import Badge from '../../ui/Badge.svelte'
@@ -127,10 +128,10 @@
       result.progress_pct = 5
       await api.post('/api/speedtest/start')
       startPolling()
-      toastStore.info('Speedtest started...')
+      toastStore.info($LL.speedtest.toasts.started())
     } catch (err: unknown) {
       result.running = false
-      toastStore.error(err instanceof Error ? err.message : 'Failed to start speedtest')
+      toastStore.error(err instanceof Error ? err.message : $LL.speedtest.toasts.startFailed())
     }
   }
 
@@ -140,7 +141,7 @@
       result.running = false
       result.phase = 'idle'
       stopPolling()
-      toastStore.info('Speedtest aborted.')
+      toastStore.info($LL.speedtest.toasts.aborted())
     } catch {
       // Ignored
     }
@@ -153,10 +154,10 @@
     <div class="flex items-center gap-2">
       <Zap class="w-5 h-5 text-accent" />
       <h2 class="text-base sm:text-lg font-mono font-bold uppercase tracking-wider text-foreground">
-        Network Speedtest
+        {$LL.speedtest.title()}
       </h2>
       <Badge variant={result.running ? 'warning' : 'default'}>
-        {result.running ? result.phase.toUpperCase() : 'Ready'}
+        {result.running ? result.phase.toUpperCase() : $LL.speedtest.ready()}
       </Badge>
     </div>
 
@@ -164,12 +165,12 @@
       {#if result.running}
         <Button variant="danger" size="sm" onclick={stopTest}>
           <Square class="w-3.5 h-3.5 mr-1" />
-          <span>Stop Test</span>
+          <span>{$LL.speedtest.stopTest()}</span>
         </Button>
       {:else}
         <Button variant="primary" size="sm" onclick={startTest}>
           <Play class="w-3.5 h-3.5 mr-1" />
-          <span>Start Test</span>
+          <span>{$LL.speedtest.startTest()}</span>
         </Button>
       {/if}
     </div>
@@ -179,11 +180,11 @@
   {#if result.running}
     <div class="space-y-1.5 font-mono text-xs">
       <div class="flex items-center justify-between text-muted">
-        <span class="uppercase font-bold text-[10px]">Testing Phase: {result.phase}</span>
+        <span class="uppercase font-bold text-[10px]">{$LL.speedtest.progress.testingPhase({ phase: result.phase })}</span>
         <span>{result.progress_pct}%</span>
       </div>
 {#if themeStore.useSakugaControls()}
-        <SakugaProgress value={result.progress_pct / 100} label="Speed test progress" />
+        <SakugaProgress value={result.progress_pct / 100} label={$LL.speedtest.progress.label()} />
       {:else}
       <div class="w-full bg-card-sub border border-border h-2 rounded overflow-hidden">
         <div
@@ -202,7 +203,7 @@
       <div class="p-2 sm:p-3 rounded-full bg-accent/10 border border-accent text-accent">
         <ArrowDown class="w-4 h-4 sm:w-6 sm:h-6" />
       </div>
-      <span class="text-[10px] sm:text-xs text-muted uppercase font-bold tracking-wider">Download</span>
+      <span class="text-[10px] sm:text-xs text-muted uppercase font-bold tracking-wider">{$LL.speedtest.gauges.download()}</span>
       <div class="text-2xl sm:text-4xl font-black text-foreground">
         {result.download_mbps.toFixed(1)}
       </div>
@@ -214,7 +215,7 @@
       <div class="p-2 sm:p-3 rounded-full bg-purple-500/10 border border-purple-500 text-purple-400">
         <ArrowUp class="w-4 h-4 sm:w-6 sm:h-6" />
       </div>
-      <span class="text-[10px] sm:text-xs text-muted uppercase font-bold tracking-wider">Upload</span>
+      <span class="text-[10px] sm:text-xs text-muted uppercase font-bold tracking-wider">{$LL.speedtest.gauges.upload()}</span>
       <div class="text-2xl sm:text-4xl font-black text-foreground">
         {result.upload_mbps.toFixed(1)}
       </div>
@@ -228,26 +229,26 @@
           <Activity class="w-4 h-4 sm:w-6 sm:h-6" />
         </div>
         <div>
-          <span class="text-[10px] sm:text-xs text-muted uppercase font-bold tracking-wider block">Ping / Latency</span>
-          <span class="text-[10px] text-muted sm:hidden">Jitter: {result.jitter_ms.toFixed(0)} ms</span>
+          <span class="text-[10px] sm:text-xs text-muted uppercase font-bold tracking-wider block">{$LL.speedtest.gauges.pingLatency()}</span>
+          <span class="text-[10px] text-muted sm:hidden">{$LL.speedtest.gauges.jitter({ jitter: result.jitter_ms.toFixed(0) })}</span>
         </div>
       </div>
       <div class="text-right sm:text-center">
         <div class="text-xl sm:text-4xl font-black text-foreground">
           {result.ping_ms.toFixed(0)} <span class="text-xs font-normal text-muted">ms</span>
         </div>
-        <span class="text-xs text-muted hidden sm:inline">Jitter: {result.jitter_ms.toFixed(0)} ms</span>
+        <span class="text-xs text-muted hidden sm:inline">{$LL.speedtest.gauges.jitter({ jitter: result.jitter_ms.toFixed(0) })}</span>
       </div>
     </div>
   </div>
 
   <!-- Server Info Card -->
   {#if result.server_name || result.server_host}
-    <Card title="Speedtest Server" tone="mint">
+    <Card title={$LL.speedtest.server.title()} tone="mint">
       <div class="flex items-center gap-3 font-mono text-xs">
         <Server class="w-5 h-5 text-accent shrink-0" />
         <div>
-          <span class="font-bold text-foreground">{result.server_name || 'Nearest Edge Node'}</span>
+          <span class="font-bold text-foreground">{result.server_name || $LL.speedtest.server.nearestEdgeNode()}</span>
           <p class="text-muted text-[11px]">{result.server_host}</p>
         </div>
       </div>
@@ -255,7 +256,7 @@
   {/if}
 
   <!-- Speedtest History Section -->
-  <Card title="Speedtest History & Diagnostics" tone="mint">
+  <Card title={$LL.speedtest.history.title()} tone="mint">
     {#snippet action()}
       <Button
         variant="secondary"
@@ -264,19 +265,19 @@
         onclick={fetchHistory}
       >
         <RefreshCw class="w-3.5 h-3.5 mr-1 {isLoadingHistory ? 'animate-spin' : ''}" />
-        <span>Refresh</span>
+        <span>{$LL.common.refresh()}</span>
       </Button>
     {/snippet}
 
     {#if isLoadingHistory && history.length === 0}
       <div class="p-8 text-center font-mono text-xs text-muted">
         <Activity class="w-5 h-5 animate-spin mx-auto mb-2 text-accent" />
-        Loading historical speedtest records...
+        {$LL.speedtest.history.loading()}
       </div>
     {:else if history.length === 0}
       <div class="p-8 text-center font-mono text-xs text-muted border-2 border-dashed border-border rounded-lg">
         <Zap class="w-6 h-6 mx-auto mb-2 text-accent opacity-50" />
-        No speedtest history records found. Run your first speedtest above!
+        {$LL.speedtest.history.empty()}
       </div>
     {:else}
       <!-- Responsive Table for sm+ -->
@@ -284,11 +285,11 @@
         <table class="w-full text-left font-mono text-xs border-collapse">
           <thead>
             <tr class="border-b border-border text-muted uppercase text-[10px]">
-              <th class="pb-2.5 font-bold">Timestamp</th>
-              <th class="pb-2.5 font-bold">Server / Node</th>
-              <th class="pb-2.5 font-bold text-right">Ping</th>
-              <th class="pb-2.5 font-bold text-right">Download</th>
-              <th class="pb-2.5 font-bold text-right">Upload</th>
+              <th class="pb-2.5 font-bold">{$LL.speedtest.history.thTimestamp()}</th>
+              <th class="pb-2.5 font-bold">{$LL.speedtest.history.thServer()}</th>
+              <th class="pb-2.5 font-bold text-right">{$LL.speedtest.history.thPing()}</th>
+              <th class="pb-2.5 font-bold text-right">{$LL.speedtest.history.thDownload()}</th>
+              <th class="pb-2.5 font-bold text-right">{$LL.speedtest.history.thUpload()}</th>
             </tr>
           </thead>
           <tbody class="divide-y divide-border/60">
@@ -296,7 +297,7 @@
               <tr class="hover:bg-card-sub transition-colors">
                 <td class="py-2.5 text-foreground">{item.timestamp}</td>
                 <td class="py-2.5 text-muted">
-                  <span class="text-foreground font-bold">{item.server_name || 'Automatic'}</span>
+                  <span class="text-foreground font-bold">{item.server_name || $LL.speedtest.history.automatic()}</span>
                   {#if item.isp}
                     <span class="text-[10px] block opacity-75">{item.isp}</span>
                   {/if}
@@ -322,19 +323,19 @@
           <div class="p-3 rounded bg-card-sub border border-border space-y-2">
             <div class="flex items-center justify-between">
               <span class="text-[10px] text-muted">{item.timestamp}</span>
-              <span class="text-[10px] font-bold text-foreground">{item.server_name || 'Speedtest'}</span>
+              <span class="text-[10px] font-bold text-foreground">{item.server_name || $LL.speedtest.history.serverFallback()}</span>
             </div>
             <div class="grid grid-cols-3 gap-1 pt-1 border-t border-border/60 text-center">
               <div>
-                <span class="text-[9px] text-muted block uppercase font-bold">Ping</span>
+                <span class="text-[9px] text-muted block uppercase font-bold">{$LL.speedtest.history.thPing()}</span>
                 <span class="font-bold text-foreground">{item.ping ? item.ping.toFixed(0) : '0'} ms</span>
               </div>
               <div>
-                <span class="text-[9px] text-muted block uppercase font-bold">Down</span>
+                <span class="text-[9px] text-muted block uppercase font-bold">{$LL.speedtest.history.thDownload()}</span>
                 <span class="font-black text-accent">{item.download ? item.download.toFixed(1) : '0'} M</span>
               </div>
               <div>
-                <span class="text-[9px] text-muted block uppercase font-bold">Up</span>
+                <span class="text-[9px] text-muted block uppercase font-bold">{$LL.speedtest.history.thUpload()}</span>
                 <span class="font-black text-purple-400">{item.upload ? item.upload.toFixed(1) : '0'} M</span>
               </div>
             </div>

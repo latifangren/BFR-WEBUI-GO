@@ -2968,6 +2968,43 @@ const id = {
 			copyFailed: 'Gagal menyalin ke clipboard',
 		},
 	},
+	speedtest: {
+		title: 'Uji Kecepatan Jaringan',
+		ready: 'Siap',
+		startTest: 'Mulai Tes',
+		stopTest: 'Hentikan Tes',
+		progress: {
+			testingPhase: 'Fase Pengujian: {phase}',
+			label: 'Progres uji kecepatan',
+		},
+		gauges: {
+			download: 'Unduh',
+			upload: 'Unggah',
+			pingLatency: 'Ping / Latensi',
+			jitter: 'Jitter: {jitter} ms',
+		},
+		server: {
+			title: 'Server Speedtest',
+			nearestEdgeNode: 'Node Edge Terdekat',
+		},
+		history: {
+			title: 'Riwayat Speedtest & Diagnostik',
+			loading: 'Memuat riwayat speedtest...',
+			empty: 'Tidak ada riwayat speedtest. Jalankan speedtest pertama Anda di atas!',
+			thTimestamp: 'Waktu',
+			thServer: 'Server / Node',
+			thPing: 'Ping',
+			thDownload: 'Unduh',
+			thUpload: 'Unggah',
+			automatic: 'Otomatis',
+			serverFallback: 'Speedtest',
+		},
+		toasts: {
+			started: 'Speedtest dimulai...',
+			startFailed: 'Gagal memulai speedtest',
+			aborted: 'Speedtest dibatalkan.',
+		},
+	},
 } satisfies Translation
 
 export default id

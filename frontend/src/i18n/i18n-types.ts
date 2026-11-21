@@ -11006,6 +11006,120 @@ type RootTranslation = {
 			copyFailed: string
 		}
 	}
+	speedtest: {
+		/**
+		 * N​e​t​w​o​r​k​ ​S​p​e​e​d​t​e​s​t
+		 */
+		title: string
+		/**
+		 * R​e​a​d​y
+		 */
+		ready: string
+		/**
+		 * S​t​a​r​t​ ​T​e​s​t
+		 */
+		startTest: string
+		/**
+		 * S​t​o​p​ ​T​e​s​t
+		 */
+		stopTest: string
+		progress: {
+			/**
+			 * T​e​s​t​i​n​g​ ​P​h​a​s​e​:​ ​{​p​h​a​s​e​}
+			 * @param {unknown} phase
+			 */
+			testingPhase: RequiredParams<'phase'>
+			/**
+			 * S​p​e​e​d​ ​t​e​s​t​ ​p​r​o​g​r​e​s​s
+			 */
+			label: string
+		}
+		gauges: {
+			/**
+			 * D​o​w​n​l​o​a​d
+			 */
+			download: string
+			/**
+			 * U​p​l​o​a​d
+			 */
+			upload: string
+			/**
+			 * P​i​n​g​ ​/​ ​L​a​t​e​n​c​y
+			 */
+			pingLatency: string
+			/**
+			 * J​i​t​t​e​r​:​ ​{​j​i​t​t​e​r​}​ ​m​s
+			 * @param {unknown} jitter
+			 */
+			jitter: RequiredParams<'jitter'>
+		}
+		server: {
+			/**
+			 * S​p​e​e​d​t​e​s​t​ ​S​e​r​v​e​r
+			 */
+			title: string
+			/**
+			 * N​e​a​r​e​s​t​ ​E​d​g​e​ ​N​o​d​e
+			 */
+			nearestEdgeNode: string
+		}
+		history: {
+			/**
+			 * S​p​e​e​d​t​e​s​t​ ​H​i​s​t​o​r​y​ ​&​ ​D​i​a​g​n​o​s​t​i​c​s
+			 */
+			title: string
+			/**
+			 * L​o​a​d​i​n​g​ ​h​i​s​t​o​r​i​c​a​l​ ​s​p​e​e​d​t​e​s​t​ ​r​e​c​o​r​d​s​.​.​.
+			 */
+			loading: string
+			/**
+			 * N​o​ ​s​p​e​e​d​t​e​s​t​ ​h​i​s​t​o​r​y​ ​r​e​c​o​r​d​s​ ​f​o​u​n​d​.​ ​R​u​n​ ​y​o​u​r​ ​f​i​r​s​t​ ​s​p​e​e​d​t​e​s​t​ ​a​b​o​v​e​!
+			 */
+			empty: string
+			/**
+			 * T​i​m​e​s​t​a​m​p
+			 */
+			thTimestamp: string
+			/**
+			 * S​e​r​v​e​r​ ​/​ ​N​o​d​e
+			 */
+			thServer: string
+			/**
+			 * P​i​n​g
+			 */
+			thPing: string
+			/**
+			 * D​o​w​n​l​o​a​d
+			 */
+			thDownload: string
+			/**
+			 * U​p​l​o​a​d
+			 */
+			thUpload: string
+			/**
+			 * A​u​t​o​m​a​t​i​c
+			 */
+			automatic: string
+			/**
+			 * S​p​e​e​d​t​e​s​t
+			 */
+			serverFallback: string
+		}
+		toasts: {
+			/**
+			 * S​p​e​e​d​t​e​s​t​ ​s​t​a​r​t​e​d​.​.​.
+			 */
+			started: string
+			/**
+			 * F​a​i​l​e​d​ ​t​o​ ​s​t​a​r​t​ ​s​p​e​e​d​t​e​s​t
+			 */
+			startFailed: string
+			/**
+			 * S​p​e​e​d​t​e​s​t​ ​a​b​o​r​t​e​d​.
+			 */
+			aborted: string
+		}
+	}
 }
 
 export type TranslationFunctions = {
@@ -21693,6 +21807,118 @@ export type TranslationFunctions = {
 			 * Failed to copy to clipboard
 			 */
 			copyFailed: () => LocalizedString
+		}
+	}
+	speedtest: {
+		/**
+		 * Network Speedtest
+		 */
+		title: () => LocalizedString
+		/**
+		 * Ready
+		 */
+		ready: () => LocalizedString
+		/**
+		 * Start Test
+		 */
+		startTest: () => LocalizedString
+		/**
+		 * Stop Test
+		 */
+		stopTest: () => LocalizedString
+		progress: {
+			/**
+			 * Testing Phase: {phase}
+			 */
+			testingPhase: (arg: { phase: unknown }) => LocalizedString
+			/**
+			 * Speed test progress
+			 */
+			label: () => LocalizedString
+		}
+		gauges: {
+			/**
+			 * Download
+			 */
+			download: () => LocalizedString
+			/**
+			 * Upload
+			 */
+			upload: () => LocalizedString
+			/**
+			 * Ping / Latency
+			 */
+			pingLatency: () => LocalizedString
+			/**
+			 * Jitter: {jitter} ms
+			 */
+			jitter: (arg: { jitter: unknown }) => LocalizedString
+		}
+		server: {
+			/**
+			 * Speedtest Server
+			 */
+			title: () => LocalizedString
+			/**
+			 * Nearest Edge Node
+			 */
+			nearestEdgeNode: () => LocalizedString
+		}
+		history: {
+			/**
+			 * Speedtest History & Diagnostics
+			 */
+			title: () => LocalizedString
+			/**
+			 * Loading historical speedtest records...
+			 */
+			loading: () => LocalizedString
+			/**
+			 * No speedtest history records found. Run your first speedtest above!
+			 */
+			empty: () => LocalizedString
+			/**
+			 * Timestamp
+			 */
+			thTimestamp: () => LocalizedString
+			/**
+			 * Server / Node
+			 */
+			thServer: () => LocalizedString
+			/**
+			 * Ping
+			 */
+			thPing: () => LocalizedString
+			/**
+			 * Download
+			 */
+			thDownload: () => LocalizedString
+			/**
+			 * Upload
+			 */
+			thUpload: () => LocalizedString
+			/**
+			 * Automatic
+			 */
+			automatic: () => LocalizedString
+			/**
+			 * Speedtest
+			 */
+			serverFallback: () => LocalizedString
+		}
+		toasts: {
+			/**
+			 * Speedtest started...
+			 */
+			started: () => LocalizedString
+			/**
+			 * Failed to start speedtest
+			 */
+			startFailed: () => LocalizedString
+			/**
+			 * Speedtest aborted.
+			 */
+			aborted: () => LocalizedString
 		}
 	}
 }
