@@ -22,6 +22,7 @@
   import Button from '../../ui/Button.svelte'
   import Input from '../../ui/Input.svelte'
   import { toastStore } from '../../../stores/toast.svelte'
+  import { LL } from '../../../i18n/i18n-svelte'
   import { fireSakugaFx } from '../../../lib/sakuga-fx'
   import qrisImg from '../../../assets/qris.jpg'
 
@@ -40,7 +41,7 @@
       if (typeof navigator !== 'undefined' && navigator.clipboard) {
         await navigator.clipboard.writeText(text)
       }
-      toastStore.success('Donation details copied to clipboard! Opening Telegram...')
+      toastStore.success($LL.about.toasts.copiedTelegram())
       window.open(`https://t.me/skrprojects`, '_blank')
     } catch {
       window.open(`https://t.me/skrprojects`, '_blank')
@@ -53,7 +54,7 @@
       if (typeof navigator !== 'undefined' && navigator.clipboard) {
         await navigator.clipboard.writeText(text)
       }
-      toastStore.success('Donation details copied to clipboard! Opening Facebook...')
+      toastStore.success($LL.about.toasts.copiedFacebook())
       window.open('https://www.facebook.com/latifan.latifan.latifan.latif', '_blank')
     } catch {
       window.open('https://www.facebook.com/latifan.latifan.latifan.latif', '_blank')
@@ -83,7 +84,7 @@
     document.body.appendChild(link)
     link.click()
     document.body.removeChild(link)
-    toastStore.success('QRIS image downloaded successfully!')
+    toastStore.success($LL.about.toasts.qrisDownloaded())
     fireSakugaFx(e, 'sparkle')
   }
 </script>
@@ -99,7 +100,7 @@
       </div>
       <div class="flex items-center gap-2 flex-wrap">
         <h2 class="text-base sm:text-lg font-bold uppercase tracking-wider text-foreground">
-          About BFR-WEBUI-GO
+          {$LL.about.title()}
         </h2>
         <span class="px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-wider bg-amber-400 text-black shadow-neobrutal-sm">
           PRO
@@ -118,7 +119,7 @@
         class="neo-button inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-mono font-bold rounded bg-card-sub border border-border text-foreground hover:border-accent hover:text-accent cursor-pointer transition-colors"
       >
         <Code2 class="w-4 h-4 text-accent" />
-        <span>GitHub Release</span>
+        <span>{$LL.about.githubRelease()}</span>
         <ExternalLink class="w-3 h-3 text-muted" />
       </a>
       <a
@@ -128,7 +129,7 @@
         class="neo-button inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-mono font-bold rounded bg-card-sub border border-border text-foreground hover:border-sky-400 hover:text-sky-400 cursor-pointer transition-colors"
       >
         <Send class="w-4 h-4 text-sky-400" />
-        <span>Telegram Channel</span>
+        <span>{$LL.about.telegramChannel()}</span>
         <ExternalLink class="w-3 h-3 text-muted" />
       </a>
     </div>
@@ -140,8 +141,8 @@
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-6 items-start">
       <!-- 2. Card 1: Project Overview & Specs (tone="ice") -->
       <Card
-        title="Project Overview & Specs"
-        subtitle="Android Root System Control Panel & WebUI"
+        title={$LL.about.overview.title()}
+        subtitle={$LL.about.overview.subtitle()}
         tone="ice"
       >
         <div class="space-y-4 font-mono text-xs">
@@ -155,7 +156,7 @@
                 BFR WEBUI PRO
               </h3>
               <p class="text-[11px] text-muted mt-0.5">
-                High-Performance Android System WebUI & Control Panel
+                {$LL.about.overview.tagline()}
               </p>
             </div>
           </div>
@@ -163,36 +164,36 @@
           <!-- 4 Specifications Grid -->
           <div class="grid grid-cols-2 sm:grid-cols-2 gap-2 sm:gap-2.5">
             <div class="p-2.5 sm:p-3 bg-card-sub border border-border rounded space-y-0.5 sm:space-y-1">
-              <span class="text-[10px] uppercase font-bold text-muted">App Version</span>
+              <span class="text-[10px] uppercase font-bold text-muted">{$LL.about.overview.appVersion()}</span>
               <p class="font-bold text-accent">GO v1.2.8 (128)</p>
             </div>
             <div class="p-2.5 sm:p-3 bg-card-sub border border-border rounded space-y-0.5 sm:space-y-1">
-              <span class="text-[10px] uppercase font-bold text-muted">Environment</span>
-              <p class="font-bold text-foreground truncate">Root Overlay</p>
+              <span class="text-[10px] uppercase font-bold text-muted">{$LL.about.overview.environment()}</span>
+              <p class="font-bold text-foreground truncate">{$LL.about.overview.environmentValue()}</p>
             </div>
 
             <div class="p-2.5 sm:p-3 bg-card-sub border border-border rounded space-y-0.5 sm:space-y-1">
-              <span class="text-[10px] uppercase font-bold text-muted">Maintainer</span>
+              <span class="text-[10px] uppercase font-bold text-muted">{$LL.about.overview.maintainer()}</span>
               <p class="font-bold text-foreground">latifangren</p>
             </div>
 
             <div class="p-2.5 sm:p-3 bg-card-sub border border-border rounded space-y-0.5 sm:space-y-1">
-              <span class="text-[10px] uppercase font-bold text-muted">License</span>
+              <span class="text-[10px] uppercase font-bold text-muted">{$LL.about.overview.license()}</span>
               <p class="font-bold text-emerald-400">GNU GPL v3.0</p>
             </div>
           </div>
 
           <!-- Architecture Paragraph -->
           <p class="leading-relaxed text-muted p-3 bg-card-sub border border-border rounded text-[11px]">
-            Re-architected with native Go backend, <strong class="text-foreground">Svelte 5</strong>, and <strong class="text-foreground">Tailwind CSS</strong>, embedded directly into a single self-contained Go binary (~10-12MB) with near-zero idle CPU and tiny RAM consumption on Android devices.
+            {$LL.about.overview.archBodyA()}<strong class="text-foreground">Svelte 5</strong>{$LL.about.overview.archBodyB()}<strong class="text-foreground">Tailwind CSS</strong>{$LL.about.overview.archBodyC()}
           </p>
         </div>
       </Card>
 
       <!-- 3. Card 2: Magisk Module Key Features (tone="mint") -->
       <Card
-        title="Magisk Module Key Features"
-        subtitle="Kernel-level tuning & automated background engine"
+        title={$LL.about.features.title()}
+        subtitle={$LL.about.features.subtitle()}
         tone="mint"
       >
         <div class="space-y-2.5 font-mono text-xs">
@@ -200,10 +201,10 @@
           <div class="p-3 bg-card-sub border border-border rounded space-y-1 hover:border-accent/40 transition-colors">
             <div class="flex items-center gap-2 text-foreground font-bold">
               <Zap class="w-4 h-4 text-amber-400 shrink-0" />
-              <span>BBR2 TCP Congestion Control</span>
+              <span>{$LL.about.features.bbrTitle()}</span>
             </div>
             <p class="text-[11px] text-muted leading-relaxed pl-6">
-              Active congestion prevention algorithms tailored for low latency and high bandwidth wireless networks.
+              {$LL.about.features.bbrBody()}
             </p>
           </div>
 
@@ -211,10 +212,10 @@
           <div class="p-3 bg-card-sub border border-border rounded space-y-1 hover:border-accent/40 transition-colors">
             <div class="flex items-center gap-2 text-foreground font-bold">
               <Sliders class="w-4 h-4 text-blue-400 shrink-0" />
-              <span>System Optimizer Tweaks</span>
+              <span>{$LL.about.features.optimizerTitle()}</span>
             </div>
             <p class="text-[11px] text-muted leading-relaxed pl-6">
-              Kernel sysctl variables configurations, TCP FastOpen, Queue limits allocations, and dynamic SDK-aware TTL configurations.
+              {$LL.about.features.optimizerBody()}
             </p>
           </div>
 
@@ -222,10 +223,10 @@
           <div class="p-3 bg-card-sub border border-border rounded space-y-1 hover:border-accent/40 transition-colors">
             <div class="flex items-center gap-2 text-foreground font-bold">
               <BatteryCharging class="w-4 h-4 text-emerald-400 shrink-0" />
-              <span>Dynamic Charge Limiter</span>
+              <span>{$LL.about.features.chargeTitle()}</span>
             </div>
             <p class="text-[11px] text-muted leading-relaxed pl-6">
-              Automated battery lifespan charging limits scanning based on device sysfs properties to prevent battery degradation.
+              {$LL.about.features.chargeBody()}
             </p>
           </div>
 
@@ -233,10 +234,10 @@
           <div class="p-3 bg-card-sub border border-border rounded space-y-1 hover:border-accent/40 transition-colors">
             <div class="flex items-center gap-2 text-foreground font-bold">
               <MessageSquare class="w-4 h-4 text-cyan-400 shrink-0" />
-              <span>Telephony SQLite OTP Scanner</span>
+              <span>{$LL.about.features.telephonyTitle()}</span>
             </div>
             <p class="text-[11px] text-muted leading-relaxed pl-6">
-              Direct system inbox database query controller retrieving recent incoming verifications, OTP tokens & bank notification codes.
+              {$LL.about.features.telephonyBody()}
             </p>
           </div>
 
@@ -244,10 +245,10 @@
           <div class="p-3 bg-card-sub border border-border rounded space-y-1 hover:border-accent/40 transition-colors">
             <div class="flex items-center gap-2 text-foreground font-bold">
               <Tv class="w-4 h-4 text-purple-400 shrink-0" />
-              <span>Websocket Terminal & Screen Mirroring</span>
+              <span>{$LL.about.features.terminalTitle()}</span>
             </div>
             <p class="text-[11px] text-muted leading-relaxed pl-6">
-              Interactive low-latency root shells, canvas screen rendering and inputs/swipes injection overlay controls.
+              {$LL.about.features.terminalBody()}
             </p>
           </div>
         </div>
@@ -256,8 +257,8 @@
 
     <!-- 4. Card 3: Support & Donation Hub (tone="peach") -->
     <Card
-      title="Support & Donation Hub"
-      subtitle="Help support active maintenance, new features & continuous updates"
+      title={$LL.about.donation.title()}
+      subtitle={$LL.about.donation.subtitle()}
       tone="peach"
     >
       <div class="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-6 font-mono text-xs">
@@ -266,10 +267,10 @@
           <div class="space-y-1">
             <div class="flex items-center justify-center gap-2 text-foreground font-bold text-sm">
               <QrCode class="w-4 h-4 text-accent" />
-              <span>Scan QRIS to Donate</span>
+              <span>{$LL.about.donation.scanTitle()}</span>
             </div>
             <p class="text-[11px] text-muted">
-              Fast, automated payment code valid for all Indonesian bank accounts & e-wallets.
+              {$LL.about.donation.scanBody()}
             </p>
           </div>
 
@@ -279,7 +280,7 @@
               type="button"
               onclick={openZoom}
               class="pokemon-idle-card group relative p-3 rounded-2xl bg-card border-2 border-amber-400/70 shadow-neobrutal-md hover:shadow-neobrutal-lg hover:border-amber-400 cursor-pointer transition-all duration-300 text-left focus:outline-none focus:ring-2 focus:ring-amber-400/50"
-              title="Click to zoom and download QRIS (Pokemon card inspection style)"
+              title={$LL.about.donation.zoomTitle()}
             >
               <!-- Foil Shimmer Layer -->
               <div class="holo-shimmer absolute inset-0 rounded-2xl pointer-events-none opacity-60 group-hover:opacity-100 transition-opacity"></div>
@@ -292,7 +293,7 @@
                 </span>
                 <span class="inline-flex items-center gap-1 text-muted group-hover:text-foreground transition-colors font-mono">
                   <Maximize2 class="w-3 h-3 text-accent" />
-                  <span>TAP TO ZOOM</span>
+                  <span>{$LL.about.donation.tapToZoom()}</span>
                 </span>
               </div>
 
@@ -300,7 +301,7 @@
               <div class="relative bg-white p-2 rounded-xl border border-border/60 shadow-sm flex items-center justify-center">
                 <img
                   src={qrisImg}
-                  alt="QRIS Donation"
+                  alt={$LL.about.donation.qrisAlt()}
                   loading="eager"
                   class="w-full max-w-[170px] sm:max-w-[200px] aspect-square object-contain mx-auto rounded"
                 />
@@ -309,7 +310,7 @@
               <!-- Card Footer Hint -->
               <div class="mt-2 text-center">
                 <p class="text-[10px] font-mono text-muted group-hover:text-accent font-bold transition-colors">
-                  🔍 Click to zoom & scan
+                  🔍 {$LL.about.donation.zoomHint()}
                 </p>
               </div>
             </button>
@@ -319,15 +320,15 @@
               type="button"
               onclick={downloadQR}
               class="mt-3 inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-mono font-bold rounded-lg bg-card border border-border text-foreground hover:border-emerald-400 hover:text-emerald-400 hover:bg-emerald-500/10 cursor-pointer transition-colors shadow-neobrutal-sm"
-              title="Download QRIS image directly"
+              title={$LL.about.donation.downloadQrisTitle()}
             >
               <Download class="w-3.5 h-3.5 text-emerald-400" />
-              <span>Download QRIS</span>
+              <span>{$LL.about.donation.downloadQris()}</span>
             </button>
           </div>
 
           <p class="text-[10px] text-muted leading-relaxed max-w-xs">
-            Supported by all Indonesian E-Wallets (GoPay, OVO, DANA, ShopeePay) & Mobile Banking (BCA, Mandiri, BRI, BNI, etc.).
+            {$LL.about.donation.supported()}
           </p>
         </div>
         <!-- Right Column: Donation Confirmation Form -->
@@ -335,33 +336,33 @@
           <div class="space-y-3">
             <div class="flex items-center gap-2 text-foreground font-bold text-sm">
               <Heart class="w-4 h-4 text-red-500 fill-red-500/20" />
-              <span>Donation Confirmation</span>
+              <span>{$LL.about.donation.confirmTitle()}</span>
             </div>
             <p class="text-[11px] text-muted leading-relaxed">
-              Confirm your contribution to developer via direct chat. Details will be automatically formatted and copied to your clipboard.
+              {$LL.about.donation.confirmBody()}
             </p>
 
             <Input
-              label="Donor Name"
-              placeholder="Your name or 'Anonymous'"
+              label={$LL.about.donation.donorName()}
+              placeholder={$LL.about.donation.donorNamePlaceholder()}
               bind:value={donorName}
             />
 
             <Input
-              label="Donation Amount (Rp)"
-              placeholder="e.g. 50000"
+              label={$LL.about.donation.amount()}
+              placeholder={$LL.about.donation.amountPlaceholder()}
               bind:value={donationAmount}
             />
 
             <div class="space-y-1">
               <label for="donor-message" class="block text-xs font-mono font-bold uppercase text-muted tracking-wider">
-                Message / Note
+                {$LL.about.donation.messageLabel()}
               </label>
               <textarea
                 id="donor-message"
                 rows="3"
                 bind:value={donorMessage}
-                placeholder="Write your message or note for developer..."
+                placeholder={$LL.about.donation.messagePlaceholder()}
                 class="neo-input w-full bg-card border border-border rounded px-3 py-2 text-xs font-mono text-foreground placeholder:text-muted focus:outline-none focus:border-accent resize-none"
               ></textarea>
             </div>
@@ -374,10 +375,10 @@
               size="md"
               fullWidth={true}
               onclick={confirmTelegram}
-              title="Send confirmation via Telegram chat"
+              title={$LL.about.donation.confirmTelegramTitle()}
             >
               <Send class="w-4 h-4 mr-2" />
-              <span>Confirm via Telegram</span>
+              <span>{$LL.about.donation.confirmTelegram()}</span>
             </Button>
 
             <Button
@@ -385,10 +386,10 @@
               size="md"
               fullWidth={true}
               onclick={confirmFacebook}
-              title="Send confirmation via Facebook message"
+              title={$LL.about.donation.confirmFacebookTitle()}
             >
               <Share2 class="w-4 h-4 mr-2 text-blue-400" />
-              <span>Confirm via Facebook</span>
+              <span>{$LL.about.donation.confirmFacebook()}</span>
             </Button>
           </div>
         </div>
@@ -398,7 +399,7 @@
       <div class="mt-4 pt-4 border-t border-border">
         <div class="flex items-center justify-between gap-3 flex-wrap">
           <div class="text-[11px] font-mono text-muted">
-            <span class="font-bold text-foreground">Official Community Hub:</span> Join discussions, submit issues, or chat on Telegram.
+            <span class="font-bold text-foreground">{$LL.about.donation.communityTitle()}</span>{$LL.about.donation.communityBody()}
           </div>
           <div class="flex items-center gap-2 flex-wrap">
             <a
@@ -408,7 +409,7 @@
               class="neo-button inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-mono font-bold rounded bg-card border border-border text-foreground hover:border-accent hover:text-accent cursor-pointer transition-colors"
             >
               <Code2 class="w-3.5 h-3.5 text-accent" />
-              <span>GitHub Repo</span>
+              <span>{$LL.about.donation.githubRepo()}</span>
               <ExternalLink class="w-3 h-3 text-muted" />
             </a>
             <a
@@ -418,7 +419,7 @@
               class="neo-button inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-mono font-bold rounded bg-card border border-border text-foreground hover:border-sky-400 hover:text-sky-400 cursor-pointer transition-colors"
             >
               <Send class="w-3.5 h-3.5 text-sky-400" />
-              <span>Telegram @skrprojects</span>
+              <span>{$LL.about.donation.telegramHandle()}</span>
               <ExternalLink class="w-3 h-3 text-muted" />
             </a>
           </div>
@@ -460,10 +461,10 @@
             </div>
             <div>
               <h3 class="font-bold text-sm text-foreground uppercase tracking-wider flex items-center gap-1.5">
-                <span>QRIS DONATION CARD</span>
+                <span>{$LL.about.modal.title()}</span>
                 <span class="text-[10px] px-1.5 py-0.2 rounded bg-amber-400 text-black font-black">PRO</span>
               </h3>
-              <p class="text-[10px] text-muted">Collectible Supporter Card</p>
+              <p class="text-[10px] text-muted">{$LL.about.modal.subtitle()}</p>
             </div>
           </div>
 
@@ -471,7 +472,7 @@
             type="button"
             onclick={closeZoom}
             class="p-1.5 rounded-lg bg-card-sub border border-border text-muted hover:text-foreground hover:border-red-400 hover:bg-red-500/10 transition cursor-pointer"
-            title="Close (ESC)"
+            title={$LL.about.modal.closeTitle()}
           >
             <X class="w-4 h-4" />
           </button>
@@ -481,19 +482,19 @@
         <div class="relative bg-white p-4 sm:p-5 rounded-2xl border-2 border-border/80 shadow-inner flex flex-col items-center justify-center">
           <img
             src={qrisImg}
-            alt="QRIS Donation Large"
+            alt={$LL.about.donation.qrisAltLarge()}
             class="w-full max-w-[260px] sm:max-w-[300px] aspect-square object-contain mx-auto"
           />
           <div class="mt-2 text-center">
             <span class="text-[10px] font-bold text-neutral-800 tracking-wider uppercase font-mono">
-              • Scan via Indonesian QRIS E-Wallets & Mobile Banking •
+              {$LL.about.modal.scanHint()}
             </span>
           </div>
         </div>
 
         <!-- Scan Instructions Note -->
         <p class="relative text-[11px] text-center text-muted mt-3 leading-relaxed">
-          Open GoPay, OVO, DANA, BCA, Mandiri, or any banking app and point your phone camera at the QR code above.
+          {$LL.about.modal.instructions()}
         </p>
 
         <!-- Modal Actions: Download & Close -->
@@ -504,7 +505,7 @@
             class="neo-button flex items-center justify-center gap-2 py-2 px-3 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-black font-black cursor-pointer transition shadow-neobrutal-sm"
           >
             <Download class="w-4 h-4" />
-            <span>Download QR</span>
+            <span>{$LL.about.modal.downloadQr()}</span>
           </button>
 
           <button
@@ -513,7 +514,7 @@
             class="neo-button flex items-center justify-center gap-2 py-2 px-3 rounded-xl bg-card-sub hover:bg-card border border-border text-foreground font-bold cursor-pointer transition shadow-neobrutal-sm"
           >
             <X class="w-4 h-4 text-muted" />
-            <span>Close</span>
+            <span>{$LL.common.close()}</span>
           </button>
         </div>
       </div>

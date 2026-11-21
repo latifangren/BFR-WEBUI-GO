@@ -8291,6 +8291,270 @@ type RootTranslation = {
 			empty: string
 		}
 	}
+	about: {
+		/**
+		 * A​b​o​u​t​ ​B​F​R​-​W​E​B​U​I​-​G​O
+		 */
+		title: string
+		/**
+		 * G​i​t​H​u​b​ ​R​e​l​e​a​s​e
+		 */
+		githubRelease: string
+		/**
+		 * T​e​l​e​g​r​a​m​ ​C​h​a​n​n​e​l
+		 */
+		telegramChannel: string
+		overview: {
+			/**
+			 * P​r​o​j​e​c​t​ ​O​v​e​r​v​i​e​w​ ​&​ ​S​p​e​c​s
+			 */
+			title: string
+			/**
+			 * A​n​d​r​o​i​d​ ​R​o​o​t​ ​S​y​s​t​e​m​ ​C​o​n​t​r​o​l​ ​P​a​n​e​l​ ​&​ ​W​e​b​U​I
+			 */
+			subtitle: string
+			/**
+			 * H​i​g​h​-​P​e​r​f​o​r​m​a​n​c​e​ ​A​n​d​r​o​i​d​ ​S​y​s​t​e​m​ ​W​e​b​U​I​ ​&​ ​C​o​n​t​r​o​l​ ​P​a​n​e​l
+			 */
+			tagline: string
+			/**
+			 * A​p​p​ ​V​e​r​s​i​o​n
+			 */
+			appVersion: string
+			/**
+			 * E​n​v​i​r​o​n​m​e​n​t
+			 */
+			environment: string
+			/**
+			 * R​o​o​t​ ​O​v​e​r​l​a​y
+			 */
+			environmentValue: string
+			/**
+			 * M​a​i​n​t​a​i​n​e​r
+			 */
+			maintainer: string
+			/**
+			 * L​i​c​e​n​s​e
+			 */
+			license: string
+			/**
+			 * R​e​-​a​r​c​h​i​t​e​c​t​e​d​ ​w​i​t​h​ ​n​a​t​i​v​e​ ​G​o​ ​b​a​c​k​e​n​d​,​ 
+			 */
+			archBodyA: string
+			/**
+			 * ,​ ​a​n​d​ 
+			 */
+			archBodyB: string
+			/**
+			 * ,​ ​e​m​b​e​d​d​e​d​ ​d​i​r​e​c​t​l​y​ ​i​n​t​o​ ​a​ ​s​i​n​g​l​e​ ​s​e​l​f​-​c​o​n​t​a​i​n​e​d​ ​G​o​ ​b​i​n​a​r​y​ ​(​~​1​0​-​1​2​M​B​)​ ​w​i​t​h​ ​n​e​a​r​-​z​e​r​o​ ​i​d​l​e​ ​C​P​U​ ​a​n​d​ ​t​i​n​y​ ​R​A​M​ ​c​o​n​s​u​m​p​t​i​o​n​ ​o​n​ ​A​n​d​r​o​i​d​ ​d​e​v​i​c​e​s​.
+			 */
+			archBodyC: string
+		}
+		features: {
+			/**
+			 * M​a​g​i​s​k​ ​M​o​d​u​l​e​ ​K​e​y​ ​F​e​a​t​u​r​e​s
+			 */
+			title: string
+			/**
+			 * K​e​r​n​e​l​-​l​e​v​e​l​ ​t​u​n​i​n​g​ ​&​ ​a​u​t​o​m​a​t​e​d​ ​b​a​c​k​g​r​o​u​n​d​ ​e​n​g​i​n​e
+			 */
+			subtitle: string
+			/**
+			 * B​B​R​2​ ​T​C​P​ ​C​o​n​g​e​s​t​i​o​n​ ​C​o​n​t​r​o​l
+			 */
+			bbrTitle: string
+			/**
+			 * A​c​t​i​v​e​ ​c​o​n​g​e​s​t​i​o​n​ ​p​r​e​v​e​n​t​i​o​n​ ​a​l​g​o​r​i​t​h​m​s​ ​t​a​i​l​o​r​e​d​ ​f​o​r​ ​l​o​w​ ​l​a​t​e​n​c​y​ ​a​n​d​ ​h​i​g​h​ ​b​a​n​d​w​i​d​t​h​ ​w​i​r​e​l​e​s​s​ ​n​e​t​w​o​r​k​s​.
+			 */
+			bbrBody: string
+			/**
+			 * S​y​s​t​e​m​ ​O​p​t​i​m​i​z​e​r​ ​T​w​e​a​k​s
+			 */
+			optimizerTitle: string
+			/**
+			 * K​e​r​n​e​l​ ​s​y​s​c​t​l​ ​v​a​r​i​a​b​l​e​s​ ​c​o​n​f​i​g​u​r​a​t​i​o​n​s​,​ ​T​C​P​ ​F​a​s​t​O​p​e​n​,​ ​Q​u​e​u​e​ ​l​i​m​i​t​s​ ​a​l​l​o​c​a​t​i​o​n​s​,​ ​a​n​d​ ​d​y​n​a​m​i​c​ ​S​D​K​-​a​w​a​r​e​ ​T​T​L​ ​c​o​n​f​i​g​u​r​a​t​i​o​n​s​.
+			 */
+			optimizerBody: string
+			/**
+			 * D​y​n​a​m​i​c​ ​C​h​a​r​g​e​ ​L​i​m​i​t​e​r
+			 */
+			chargeTitle: string
+			/**
+			 * A​u​t​o​m​a​t​e​d​ ​b​a​t​t​e​r​y​ ​l​i​f​e​s​p​a​n​ ​c​h​a​r​g​i​n​g​ ​l​i​m​i​t​s​ ​s​c​a​n​n​i​n​g​ ​b​a​s​e​d​ ​o​n​ ​d​e​v​i​c​e​ ​s​y​s​f​s​ ​p​r​o​p​e​r​t​i​e​s​ ​t​o​ ​p​r​e​v​e​n​t​ ​b​a​t​t​e​r​y​ ​d​e​g​r​a​d​a​t​i​o​n​.
+			 */
+			chargeBody: string
+			/**
+			 * T​e​l​e​p​h​o​n​y​ ​S​Q​L​i​t​e​ ​O​T​P​ ​S​c​a​n​n​e​r
+			 */
+			telephonyTitle: string
+			/**
+			 * D​i​r​e​c​t​ ​s​y​s​t​e​m​ ​i​n​b​o​x​ ​d​a​t​a​b​a​s​e​ ​q​u​e​r​y​ ​c​o​n​t​r​o​l​l​e​r​ ​r​e​t​r​i​e​v​i​n​g​ ​r​e​c​e​n​t​ ​i​n​c​o​m​i​n​g​ ​v​e​r​i​f​i​c​a​t​i​o​n​s​,​ ​O​T​P​ ​t​o​k​e​n​s​ ​&​ ​b​a​n​k​ ​n​o​t​i​f​i​c​a​t​i​o​n​ ​c​o​d​e​s​.
+			 */
+			telephonyBody: string
+			/**
+			 * W​e​b​s​o​c​k​e​t​ ​T​e​r​m​i​n​a​l​ ​&​ ​S​c​r​e​e​n​ ​M​i​r​r​o​r​i​n​g
+			 */
+			terminalTitle: string
+			/**
+			 * I​n​t​e​r​a​c​t​i​v​e​ ​l​o​w​-​l​a​t​e​n​c​y​ ​r​o​o​t​ ​s​h​e​l​l​s​,​ ​c​a​n​v​a​s​ ​s​c​r​e​e​n​ ​r​e​n​d​e​r​i​n​g​ ​a​n​d​ ​i​n​p​u​t​s​/​s​w​i​p​e​s​ ​i​n​j​e​c​t​i​o​n​ ​o​v​e​r​l​a​y​ ​c​o​n​t​r​o​l​s​.
+			 */
+			terminalBody: string
+		}
+		donation: {
+			/**
+			 * S​u​p​p​o​r​t​ ​&​ ​D​o​n​a​t​i​o​n​ ​H​u​b
+			 */
+			title: string
+			/**
+			 * H​e​l​p​ ​s​u​p​p​o​r​t​ ​a​c​t​i​v​e​ ​m​a​i​n​t​e​n​a​n​c​e​,​ ​n​e​w​ ​f​e​a​t​u​r​e​s​ ​&​ ​c​o​n​t​i​n​u​o​u​s​ ​u​p​d​a​t​e​s
+			 */
+			subtitle: string
+			/**
+			 * S​c​a​n​ ​Q​R​I​S​ ​t​o​ ​D​o​n​a​t​e
+			 */
+			scanTitle: string
+			/**
+			 * F​a​s​t​,​ ​a​u​t​o​m​a​t​e​d​ ​p​a​y​m​e​n​t​ ​c​o​d​e​ ​v​a​l​i​d​ ​f​o​r​ ​a​l​l​ ​I​n​d​o​n​e​s​i​a​n​ ​b​a​n​k​ ​a​c​c​o​u​n​t​s​ ​&​ ​e​-​w​a​l​l​e​t​s​.
+			 */
+			scanBody: string
+			/**
+			 * C​l​i​c​k​ ​t​o​ ​z​o​o​m​ ​a​n​d​ ​d​o​w​n​l​o​a​d​ ​Q​R​I​S​ ​(​P​o​k​e​m​o​n​ ​c​a​r​d​ ​i​n​s​p​e​c​t​i​o​n​ ​s​t​y​l​e​)
+			 */
+			zoomTitle: string
+			/**
+			 * T​A​P​ ​T​O​ ​Z​O​O​M
+			 */
+			tapToZoom: string
+			/**
+			 * C​l​i​c​k​ ​t​o​ ​z​o​o​m​ ​&​ ​s​c​a​n
+			 */
+			zoomHint: string
+			/**
+			 * D​o​w​n​l​o​a​d​ ​Q​R​I​S
+			 */
+			downloadQris: string
+			/**
+			 * D​o​w​n​l​o​a​d​ ​Q​R​I​S​ ​i​m​a​g​e​ ​d​i​r​e​c​t​l​y
+			 */
+			downloadQrisTitle: string
+			/**
+			 * S​u​p​p​o​r​t​e​d​ ​b​y​ ​a​l​l​ ​I​n​d​o​n​e​s​i​a​n​ ​E​-​W​a​l​l​e​t​s​ ​(​G​o​P​a​y​,​ ​O​V​O​,​ ​D​A​N​A​,​ ​S​h​o​p​e​e​P​a​y​)​ ​&​ ​M​o​b​i​l​e​ ​B​a​n​k​i​n​g​ ​(​B​C​A​,​ ​M​a​n​d​i​r​i​,​ ​B​R​I​,​ ​B​N​I​,​ ​e​t​c​.​)​.
+			 */
+			supported: string
+			/**
+			 * D​o​n​a​t​i​o​n​ ​C​o​n​f​i​r​m​a​t​i​o​n
+			 */
+			confirmTitle: string
+			/**
+			 * C​o​n​f​i​r​m​ ​y​o​u​r​ ​c​o​n​t​r​i​b​u​t​i​o​n​ ​t​o​ ​d​e​v​e​l​o​p​e​r​ ​v​i​a​ ​d​i​r​e​c​t​ ​c​h​a​t​.​ ​D​e​t​a​i​l​s​ ​w​i​l​l​ ​b​e​ ​a​u​t​o​m​a​t​i​c​a​l​l​y​ ​f​o​r​m​a​t​t​e​d​ ​a​n​d​ ​c​o​p​i​e​d​ ​t​o​ ​y​o​u​r​ ​c​l​i​p​b​o​a​r​d​.
+			 */
+			confirmBody: string
+			/**
+			 * D​o​n​o​r​ ​N​a​m​e
+			 */
+			donorName: string
+			/**
+			 * Y​o​u​r​ ​n​a​m​e​ ​o​r​ ​'​A​n​o​n​y​m​o​u​s​'
+			 */
+			donorNamePlaceholder: string
+			/**
+			 * D​o​n​a​t​i​o​n​ ​A​m​o​u​n​t​ ​(​R​p​)
+			 */
+			amount: string
+			/**
+			 * e​.​g​.​ ​5​0​0​0​0
+			 */
+			amountPlaceholder: string
+			/**
+			 * M​e​s​s​a​g​e​ ​/​ ​N​o​t​e
+			 */
+			messageLabel: string
+			/**
+			 * W​r​i​t​e​ ​y​o​u​r​ ​m​e​s​s​a​g​e​ ​o​r​ ​n​o​t​e​ ​f​o​r​ ​d​e​v​e​l​o​p​e​r​.​.​.
+			 */
+			messagePlaceholder: string
+			/**
+			 * C​o​n​f​i​r​m​ ​v​i​a​ ​T​e​l​e​g​r​a​m
+			 */
+			confirmTelegram: string
+			/**
+			 * S​e​n​d​ ​c​o​n​f​i​r​m​a​t​i​o​n​ ​v​i​a​ ​T​e​l​e​g​r​a​m​ ​c​h​a​t
+			 */
+			confirmTelegramTitle: string
+			/**
+			 * C​o​n​f​i​r​m​ ​v​i​a​ ​F​a​c​e​b​o​o​k
+			 */
+			confirmFacebook: string
+			/**
+			 * S​e​n​d​ ​c​o​n​f​i​r​m​a​t​i​o​n​ ​v​i​a​ ​F​a​c​e​b​o​o​k​ ​m​e​s​s​a​g​e
+			 */
+			confirmFacebookTitle: string
+			/**
+			 * O​f​f​i​c​i​a​l​ ​C​o​m​m​u​n​i​t​y​ ​H​u​b​:
+			 */
+			communityTitle: string
+			/**
+			 *  ​J​o​i​n​ ​d​i​s​c​u​s​s​i​o​n​s​,​ ​s​u​b​m​i​t​ ​i​s​s​u​e​s​,​ ​o​r​ ​c​h​a​t​ ​o​n​ ​T​e​l​e​g​r​a​m​.
+			 */
+			communityBody: string
+			/**
+			 * G​i​t​H​u​b​ ​R​e​p​o
+			 */
+			githubRepo: string
+			/**
+			 * T​e​l​e​g​r​a​m​ ​@​s​k​r​p​r​o​j​e​c​t​s
+			 */
+			telegramHandle: string
+			/**
+			 * Q​R​I​S​ ​D​o​n​a​t​i​o​n
+			 */
+			qrisAlt: string
+			/**
+			 * Q​R​I​S​ ​D​o​n​a​t​i​o​n​ ​L​a​r​g​e
+			 */
+			qrisAltLarge: string
+		}
+		modal: {
+			/**
+			 * Q​R​I​S​ ​D​O​N​A​T​I​O​N​ ​C​A​R​D
+			 */
+			title: string
+			/**
+			 * C​o​l​l​e​c​t​i​b​l​e​ ​S​u​p​p​o​r​t​e​r​ ​C​a​r​d
+			 */
+			subtitle: string
+			/**
+			 * C​l​o​s​e​ ​(​E​S​C​)
+			 */
+			closeTitle: string
+			/**
+			 * •​ ​S​c​a​n​ ​v​i​a​ ​I​n​d​o​n​e​s​i​a​n​ ​Q​R​I​S​ ​E​-​W​a​l​l​e​t​s​ ​&​ ​M​o​b​i​l​e​ ​B​a​n​k​i​n​g​ ​•
+			 */
+			scanHint: string
+			/**
+			 * O​p​e​n​ ​G​o​P​a​y​,​ ​O​V​O​,​ ​D​A​N​A​,​ ​B​C​A​,​ ​M​a​n​d​i​r​i​,​ ​o​r​ ​a​n​y​ ​b​a​n​k​i​n​g​ ​a​p​p​ ​a​n​d​ ​p​o​i​n​t​ ​y​o​u​r​ ​p​h​o​n​e​ ​c​a​m​e​r​a​ ​a​t​ ​t​h​e​ ​Q​R​ ​c​o​d​e​ ​a​b​o​v​e​.
+			 */
+			instructions: string
+			/**
+			 * D​o​w​n​l​o​a​d​ ​Q​R
+			 */
+			downloadQr: string
+		}
+		toasts: {
+			/**
+			 * D​o​n​a​t​i​o​n​ ​d​e​t​a​i​l​s​ ​c​o​p​i​e​d​ ​t​o​ ​c​l​i​p​b​o​a​r​d​!​ ​O​p​e​n​i​n​g​ ​T​e​l​e​g​r​a​m​.​.​.
+			 */
+			copiedTelegram: string
+			/**
+			 * D​o​n​a​t​i​o​n​ ​d​e​t​a​i​l​s​ ​c​o​p​i​e​d​ ​t​o​ ​c​l​i​p​b​o​a​r​d​!​ ​O​p​e​n​i​n​g​ ​F​a​c​e​b​o​o​k​.​.​.
+			 */
+			copiedFacebook: string
+			/**
+			 * Q​R​I​S​ ​i​m​a​g​e​ ​d​o​w​n​l​o​a​d​e​d​ ​s​u​c​c​e​s​s​f​u​l​l​y​!
+			 */
+			qrisDownloaded: string
+		}
+	}
 }
 
 export type TranslationFunctions = {
@@ -16350,6 +16614,270 @@ export type TranslationFunctions = {
 			 * No service hooks detected.
 			 */
 			empty: () => LocalizedString
+		}
+	}
+	about: {
+		/**
+		 * About BFR-WEBUI-GO
+		 */
+		title: () => LocalizedString
+		/**
+		 * GitHub Release
+		 */
+		githubRelease: () => LocalizedString
+		/**
+		 * Telegram Channel
+		 */
+		telegramChannel: () => LocalizedString
+		overview: {
+			/**
+			 * Project Overview & Specs
+			 */
+			title: () => LocalizedString
+			/**
+			 * Android Root System Control Panel & WebUI
+			 */
+			subtitle: () => LocalizedString
+			/**
+			 * High-Performance Android System WebUI & Control Panel
+			 */
+			tagline: () => LocalizedString
+			/**
+			 * App Version
+			 */
+			appVersion: () => LocalizedString
+			/**
+			 * Environment
+			 */
+			environment: () => LocalizedString
+			/**
+			 * Root Overlay
+			 */
+			environmentValue: () => LocalizedString
+			/**
+			 * Maintainer
+			 */
+			maintainer: () => LocalizedString
+			/**
+			 * License
+			 */
+			license: () => LocalizedString
+			/**
+			 * Re-architected with native Go backend, 
+			 */
+			archBodyA: () => LocalizedString
+			/**
+			 * , and 
+			 */
+			archBodyB: () => LocalizedString
+			/**
+			 * , embedded directly into a single self-contained Go binary (~10-12MB) with near-zero idle CPU and tiny RAM consumption on Android devices.
+			 */
+			archBodyC: () => LocalizedString
+		}
+		features: {
+			/**
+			 * Magisk Module Key Features
+			 */
+			title: () => LocalizedString
+			/**
+			 * Kernel-level tuning & automated background engine
+			 */
+			subtitle: () => LocalizedString
+			/**
+			 * BBR2 TCP Congestion Control
+			 */
+			bbrTitle: () => LocalizedString
+			/**
+			 * Active congestion prevention algorithms tailored for low latency and high bandwidth wireless networks.
+			 */
+			bbrBody: () => LocalizedString
+			/**
+			 * System Optimizer Tweaks
+			 */
+			optimizerTitle: () => LocalizedString
+			/**
+			 * Kernel sysctl variables configurations, TCP FastOpen, Queue limits allocations, and dynamic SDK-aware TTL configurations.
+			 */
+			optimizerBody: () => LocalizedString
+			/**
+			 * Dynamic Charge Limiter
+			 */
+			chargeTitle: () => LocalizedString
+			/**
+			 * Automated battery lifespan charging limits scanning based on device sysfs properties to prevent battery degradation.
+			 */
+			chargeBody: () => LocalizedString
+			/**
+			 * Telephony SQLite OTP Scanner
+			 */
+			telephonyTitle: () => LocalizedString
+			/**
+			 * Direct system inbox database query controller retrieving recent incoming verifications, OTP tokens & bank notification codes.
+			 */
+			telephonyBody: () => LocalizedString
+			/**
+			 * Websocket Terminal & Screen Mirroring
+			 */
+			terminalTitle: () => LocalizedString
+			/**
+			 * Interactive low-latency root shells, canvas screen rendering and inputs/swipes injection overlay controls.
+			 */
+			terminalBody: () => LocalizedString
+		}
+		donation: {
+			/**
+			 * Support & Donation Hub
+			 */
+			title: () => LocalizedString
+			/**
+			 * Help support active maintenance, new features & continuous updates
+			 */
+			subtitle: () => LocalizedString
+			/**
+			 * Scan QRIS to Donate
+			 */
+			scanTitle: () => LocalizedString
+			/**
+			 * Fast, automated payment code valid for all Indonesian bank accounts & e-wallets.
+			 */
+			scanBody: () => LocalizedString
+			/**
+			 * Click to zoom and download QRIS (Pokemon card inspection style)
+			 */
+			zoomTitle: () => LocalizedString
+			/**
+			 * TAP TO ZOOM
+			 */
+			tapToZoom: () => LocalizedString
+			/**
+			 * Click to zoom & scan
+			 */
+			zoomHint: () => LocalizedString
+			/**
+			 * Download QRIS
+			 */
+			downloadQris: () => LocalizedString
+			/**
+			 * Download QRIS image directly
+			 */
+			downloadQrisTitle: () => LocalizedString
+			/**
+			 * Supported by all Indonesian E-Wallets (GoPay, OVO, DANA, ShopeePay) & Mobile Banking (BCA, Mandiri, BRI, BNI, etc.).
+			 */
+			supported: () => LocalizedString
+			/**
+			 * Donation Confirmation
+			 */
+			confirmTitle: () => LocalizedString
+			/**
+			 * Confirm your contribution to developer via direct chat. Details will be automatically formatted and copied to your clipboard.
+			 */
+			confirmBody: () => LocalizedString
+			/**
+			 * Donor Name
+			 */
+			donorName: () => LocalizedString
+			/**
+			 * Your name or 'Anonymous'
+			 */
+			donorNamePlaceholder: () => LocalizedString
+			/**
+			 * Donation Amount (Rp)
+			 */
+			amount: () => LocalizedString
+			/**
+			 * e.g. 50000
+			 */
+			amountPlaceholder: () => LocalizedString
+			/**
+			 * Message / Note
+			 */
+			messageLabel: () => LocalizedString
+			/**
+			 * Write your message or note for developer...
+			 */
+			messagePlaceholder: () => LocalizedString
+			/**
+			 * Confirm via Telegram
+			 */
+			confirmTelegram: () => LocalizedString
+			/**
+			 * Send confirmation via Telegram chat
+			 */
+			confirmTelegramTitle: () => LocalizedString
+			/**
+			 * Confirm via Facebook
+			 */
+			confirmFacebook: () => LocalizedString
+			/**
+			 * Send confirmation via Facebook message
+			 */
+			confirmFacebookTitle: () => LocalizedString
+			/**
+			 * Official Community Hub:
+			 */
+			communityTitle: () => LocalizedString
+			/**
+			 *  Join discussions, submit issues, or chat on Telegram.
+			 */
+			communityBody: () => LocalizedString
+			/**
+			 * GitHub Repo
+			 */
+			githubRepo: () => LocalizedString
+			/**
+			 * Telegram @skrprojects
+			 */
+			telegramHandle: () => LocalizedString
+			/**
+			 * QRIS Donation
+			 */
+			qrisAlt: () => LocalizedString
+			/**
+			 * QRIS Donation Large
+			 */
+			qrisAltLarge: () => LocalizedString
+		}
+		modal: {
+			/**
+			 * QRIS DONATION CARD
+			 */
+			title: () => LocalizedString
+			/**
+			 * Collectible Supporter Card
+			 */
+			subtitle: () => LocalizedString
+			/**
+			 * Close (ESC)
+			 */
+			closeTitle: () => LocalizedString
+			/**
+			 * • Scan via Indonesian QRIS E-Wallets & Mobile Banking •
+			 */
+			scanHint: () => LocalizedString
+			/**
+			 * Open GoPay, OVO, DANA, BCA, Mandiri, or any banking app and point your phone camera at the QR code above.
+			 */
+			instructions: () => LocalizedString
+			/**
+			 * Download QR
+			 */
+			downloadQr: () => LocalizedString
+		}
+		toasts: {
+			/**
+			 * Donation details copied to clipboard! Opening Telegram...
+			 */
+			copiedTelegram: () => LocalizedString
+			/**
+			 * Donation details copied to clipboard! Opening Facebook...
+			 */
+			copiedFacebook: () => LocalizedString
+			/**
+			 * QRIS image downloaded successfully!
+			 */
+			qrisDownloaded: () => LocalizedString
 		}
 	}
 }
