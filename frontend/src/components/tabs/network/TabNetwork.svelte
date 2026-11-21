@@ -10,6 +10,7 @@
     CheckCircle2,
   } from '@lucide/svelte'
   import { api } from '../../../api/client'
+  import { LL } from '../../../i18n/i18n-svelte'
   import { toastStore } from '../../../stores/toast.svelte'
   import Card from '../../ui/Card.svelte'
   import Button from '../../ui/Button.svelte'
@@ -82,9 +83,9 @@
       selectedTTL = ttl
       await api.post('/api/network/ttl', { enable: true, ttl: parseInt(ttl, 10) })
       currentTTL = ttl
-      toastStore.success(`TTL set to ${ttl}. Persistently saved across reboots.`)
+      toastStore.success($LL.network.ttl.toasts.set({ ttl }))
     } catch (err: unknown) {
-      toastStore.error(err instanceof Error ? err.message : 'Failed to apply TTL')
+      toastStore.error(err instanceof Error ? err.message : $LL.network.ttl.toasts.applyFailed())
     } finally {
       isApplyingTTL = false
     }
@@ -96,9 +97,9 @@
       await api.post('/api/network/dns', { primary, secondary })
       activeDNS1 = primary
       activeDNS2 = secondary
-      toastStore.success(`DNS updated to ${primary} / ${secondary}. Persistently saved!`)
+      toastStore.success($LL.network.dns.toasts.updated({ primary, secondary }))
     } catch (err: unknown) {
-      toastStore.error(err instanceof Error ? err.message : 'Failed to set DNS')
+      toastStore.error(err instanceof Error ? err.message : $LL.network.dns.toasts.setFailed())
     } finally {
       isApplyingDNS = false
     }
@@ -109,16 +110,16 @@
       isResettingDNS = true
       const res = await api.post<{ success: boolean; primary?: string; secondary?: string }>('/api/network/dns/reset')
       if (res && res.success) {
-        activeDNS1 = res.primary || 'Default/DHCP'
-        activeDNS2 = res.secondary || 'None'
+        activeDNS1 = res.primary || $LL.network.dns.defaultDhcp()
+        activeDNS2 = res.secondary || $LL.common.none()
         customDNS1 = ''
         customDNS2 = ''
-        toastStore.success('DNS reset to default operator DHCP!')
+        toastStore.success($LL.network.dns.toasts.resetDone())
       } else {
-        toastStore.error('Failed to reset DNS')
+        toastStore.error($LL.network.dns.toasts.resetFailed())
       }
     } catch (err: unknown) {
-      toastStore.error(err instanceof Error ? err.message : 'Reset DNS error')
+      toastStore.error(err instanceof Error ? err.message : $LL.network.dns.toasts.resetError())
     } finally {
       isResettingDNS = false
     }
@@ -130,9 +131,9 @@
       isPinging = true
       pingResult = null
       const res = await api.post<{ output: string; success?: boolean }>('/api/network/ping', { host: pingHost.trim() })
-      pingResult = res.output || 'No ping response received.'
+      pingResult = res.output || $LL.network.ping.noResponse()
     } catch (err: unknown) {
-      pingResult = `Ping error: ${err instanceof Error ? err.message : 'Failed to reach target host'}`
+      pingResult = $LL.network.ping.error({ message: err instanceof Error ? err.message : $LL.network.ping.failedToReach() })
     } finally {
       isPinging = false
     }
@@ -145,7 +146,7 @@
     <div class="flex items-center gap-2">
       <Network class="w-5 h-5 text-accent" />
       <h2 class="text-base sm:text-lg font-mono font-bold uppercase tracking-wider text-foreground">
-        Network Tuning & Diagnostics
+        {$LL.network.title()}
       </h2>
     </div>
     <div class="flex items-center gap-2">
@@ -156,32 +157,32 @@
         onclick={fetchNetworkData}
       >
         <RefreshCw class="w-3.5 h-3.5 mr-1.5 {isRefreshing ? 'animate-spin' : ''}" />
-        <span>Refresh</span>
+        <span>{$LL.common.refresh()}</span>
       </Button>
     </div>
   </div>
 
   <div class="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-6">
     <!-- TTL Modifier Card -->
-    <Card title="Dynamic TTL Modifier" subtitle="Bypass operator hotspot quota restriction" tone="mint">
+    <Card title={$LL.network.ttl.title()} subtitle={$LL.network.ttl.subtitle()} tone="mint">
       {#snippet action()}
         <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-emerald-500/15 text-emerald-500 border border-emerald-500/30">
           <CheckCircle2 class="w-3 h-3" />
-          <span>Persistent</span>
+          <span>{$LL.network.ttl.persistent()}</span>
         </span>
       {/snippet}
 
       <div class="space-y-4 font-mono text-xs">
         <div class="flex items-center justify-between p-3 bg-card-sub border border-border rounded">
           <div>
-            <span class="text-muted uppercase font-bold block">Active System TTL:</span>
-            <span class="text-[10px] text-muted">Automatically restored on device boot & updates</span>
+            <span class="text-muted uppercase font-bold block">{$LL.network.ttl.activeLabel()}</span>
+            <span class="text-[10px] text-muted">{$LL.network.ttl.activeHint()}</span>
           </div>
           <span class="text-base font-black text-accent">{currentTTL}</span>
         </div>
 
         <div>
-          <span class="text-[10px] text-muted uppercase font-bold block mb-2">Preset Profiles</span>
+          <span class="text-[10px] text-muted uppercase font-bold block mb-2">{$LL.network.ttl.presets()}</span>
           <div class="grid grid-cols-3 gap-2">
             <button
               type="button"
@@ -189,7 +190,7 @@
               onclick={() => applyTTL('64')}
             >
               <div class="text-sm font-black">64</div>
-              <div class="text-[10px] text-muted">Default Android</div>
+              <div class="text-[10px] text-muted">{$LL.network.ttl.presetDefault()}</div>
             </button>
 
             <button
@@ -198,7 +199,7 @@
               onclick={() => applyTTL('65')}
             >
               <div class="text-sm font-black">65</div>
-              <div class="text-[10px] text-muted">Hotspot Bypass</div>
+              <div class="text-[10px] text-muted">{$LL.network.ttl.presetHotspot()}</div>
             </button>
 
             <button
@@ -207,13 +208,13 @@
               onclick={() => applyTTL('128')}
             >
               <div class="text-sm font-black">128</div>
-              <div class="text-[10px] text-muted">Windows PC</div>
+              <div class="text-[10px] text-muted">{$LL.network.ttl.presetWindows()}</div>
             </button>
           </div>
         </div>
 
         <div class="pt-2 border-t border-border flex items-center gap-2">
-          <Input placeholder="Custom TTL (e.g. 65)" bind:value={selectedTTL} />
+          <Input placeholder={$LL.network.ttl.customPlaceholder()} bind:value={selectedTTL} />
           <Button
             variant="secondary"
             size="md"
@@ -221,38 +222,38 @@
             onclick={() => applyTTL(selectedTTL)}
           >
             <Zap class="w-3.5 h-3.5 mr-1" />
-            <span>Apply</span>
+            <span>{$LL.network.ttl.apply()}</span>
           </Button>
         </div>
       </div>
     </Card>
 
     <!-- DNS Changer Card -->
-    <Card title="Custom DNS Resolver" subtitle="Encrypted & Custom DNS providers" tone="ice">
+    <Card title={$LL.network.dns.title()} subtitle={$LL.network.dns.subtitle()} tone="ice">
       {#snippet action()}
         <Button
           variant="outline"
           size="sm"
           disabled={isResettingDNS || isApplyingDNS}
           onclick={resetDNS}
-          title="Restore DNS resolution to default DHCP / Mobile carrier"
+          title={$LL.network.dns.resetTitle()}
         >
           <RotateCcw class="w-3 h-3 mr-1.5 {isResettingDNS ? 'animate-spin' : ''}" />
-          <span>Reset Default</span>
+          <span>{$LL.network.dns.resetDefault()}</span>
         </Button>
       {/snippet}
 
       <div class="space-y-4 font-mono text-xs">
         <div class="flex items-center justify-between p-3 bg-card-sub border border-border rounded">
           <div>
-            <span class="text-muted uppercase font-bold block">Active DNS Servers:</span>
-            <span class="text-[10px] text-muted">System iptables port 53 & netd override</span>
+            <span class="text-muted uppercase font-bold block">{$LL.network.dns.activeLabel()}</span>
+            <span class="text-[10px] text-muted">{$LL.network.dns.activeHint()}</span>
           </div>
           <span class="text-xs font-bold text-accent">{activeDNS1} / {activeDNS2}</span>
         </div>
 
         <div>
-          <span class="text-[10px] text-muted uppercase font-bold block mb-2">Popular Secure Presets</span>
+          <span class="text-[10px] text-muted uppercase font-bold block mb-2">{$LL.network.dns.presets()}</span>
           <div class="grid grid-cols-2 gap-2">
             {#each dnsPresets as preset}
               <button
@@ -272,10 +273,10 @@
         </div>
 
         <div class="pt-2 border-t border-border space-y-2">
-          <span class="text-[10px] text-muted uppercase font-bold block">Manual DNS Configuration</span>
+          <span class="text-[10px] text-muted uppercase font-bold block">{$LL.network.dns.manualTitle()}</span>
           <div class="grid grid-cols-2 gap-2">
-            <Input placeholder="Primary DNS (e.g. 1.1.1.1)" bind:value={customDNS1} />
-            <Input placeholder="Secondary DNS (e.g. 1.0.0.1)" bind:value={customDNS2} />
+            <Input placeholder={$LL.network.dns.primaryPlaceholder()} bind:value={customDNS1} />
+            <Input placeholder={$LL.network.dns.secondaryPlaceholder()} bind:value={customDNS2} />
           </div>
           <Button
             variant="secondary"
@@ -284,7 +285,7 @@
             disabled={isApplyingDNS || isResettingDNS || !customDNS1}
             onclick={() => setDNS(customDNS1, customDNS2)}
           >
-            Apply Custom DNS
+            {$LL.network.dns.applyCustom()}
           </Button>
         </div>
       </div>
@@ -292,11 +293,11 @@
   </div>
 
   <!-- Network Ping Diagnostic -->
-  <Card title="Ping Diagnostics" subtitle="Test network latency and reachability" tone="mint">
+  <Card title={$LL.network.ping.title()} subtitle={$LL.network.ping.subtitle()} tone="mint">
     <div class="space-y-4 font-mono text-xs">
       <div class="flex items-center gap-2">
         <Input
-          placeholder="Target host (e.g. 1.1.1.1, google.com)"
+          placeholder={$LL.network.ping.placeholder()}
           bind:value={pingHost}
         />
         <Button
@@ -306,13 +307,13 @@
           onclick={runPing}
         >
           <Search class="w-3.5 h-3.5 mr-1.5 {isPinging ? 'animate-spin' : ''}" />
-          <span>{isPinging ? 'Pinging...' : 'Ping'}</span>
+          <span>{isPinging ? $LL.network.ping.pinging() : $LL.network.ping.ping()}</span>
         </Button>
       </div>
 
       <!-- Quick Host Chips -->
       <div class="flex items-center gap-1.5 flex-wrap">
-        <span class="text-[10px] text-muted uppercase font-bold mr-1">Quick Target:</span>
+        <span class="text-[10px] text-muted uppercase font-bold mr-1">{$LL.network.ping.quickTarget()}</span>
         {#each ['1.1.1.1', '8.8.8.8', 'google.com', 'cloudflare.com'] as target}
           <button
             type="button"

@@ -9641,6 +9641,182 @@ type RootTranslation = {
 			installFailed: string
 		}
 	}
+	network: {
+		/**
+		 * N​e​t​w​o​r​k​ ​T​u​n​i​n​g​ ​&​ ​D​i​a​g​n​o​s​t​i​c​s
+		 */
+		title: string
+		ttl: {
+			/**
+			 * D​y​n​a​m​i​c​ ​T​T​L​ ​M​o​d​i​f​i​e​r
+			 */
+			title: string
+			/**
+			 * B​y​p​a​s​s​ ​o​p​e​r​a​t​o​r​ ​h​o​t​s​p​o​t​ ​q​u​o​t​a​ ​r​e​s​t​r​i​c​t​i​o​n
+			 */
+			subtitle: string
+			/**
+			 * P​e​r​s​i​s​t​e​n​t
+			 */
+			persistent: string
+			/**
+			 * A​c​t​i​v​e​ ​S​y​s​t​e​m​ ​T​T​L​:
+			 */
+			activeLabel: string
+			/**
+			 * A​u​t​o​m​a​t​i​c​a​l​l​y​ ​r​e​s​t​o​r​e​d​ ​o​n​ ​d​e​v​i​c​e​ ​b​o​o​t​ ​&​ ​u​p​d​a​t​e​s
+			 */
+			activeHint: string
+			/**
+			 * P​r​e​s​e​t​ ​P​r​o​f​i​l​e​s
+			 */
+			presets: string
+			/**
+			 * D​e​f​a​u​l​t​ ​A​n​d​r​o​i​d
+			 */
+			presetDefault: string
+			/**
+			 * H​o​t​s​p​o​t​ ​B​y​p​a​s​s
+			 */
+			presetHotspot: string
+			/**
+			 * W​i​n​d​o​w​s​ ​P​C
+			 */
+			presetWindows: string
+			/**
+			 * C​u​s​t​o​m​ ​T​T​L​ ​(​e​.​g​.​ ​6​5​)
+			 */
+			customPlaceholder: string
+			/**
+			 * A​p​p​l​y
+			 */
+			apply: string
+			toasts: {
+				/**
+				 * T​T​L​ ​s​e​t​ ​t​o​ ​{​t​t​l​}​.​ ​P​e​r​s​i​s​t​e​n​t​l​y​ ​s​a​v​e​d​ ​a​c​r​o​s​s​ ​r​e​b​o​o​t​s​.
+				 * @param {unknown} ttl
+				 */
+				set: RequiredParams<'ttl'>
+				/**
+				 * F​a​i​l​e​d​ ​t​o​ ​a​p​p​l​y​ ​T​T​L
+				 */
+				applyFailed: string
+			}
+		}
+		dns: {
+			/**
+			 * C​u​s​t​o​m​ ​D​N​S​ ​R​e​s​o​l​v​e​r
+			 */
+			title: string
+			/**
+			 * E​n​c​r​y​p​t​e​d​ ​&​ ​C​u​s​t​o​m​ ​D​N​S​ ​p​r​o​v​i​d​e​r​s
+			 */
+			subtitle: string
+			/**
+			 * R​e​s​t​o​r​e​ ​D​N​S​ ​r​e​s​o​l​u​t​i​o​n​ ​t​o​ ​d​e​f​a​u​l​t​ ​D​H​C​P​ ​/​ ​M​o​b​i​l​e​ ​c​a​r​r​i​e​r
+			 */
+			resetTitle: string
+			/**
+			 * R​e​s​e​t​ ​D​e​f​a​u​l​t
+			 */
+			resetDefault: string
+			/**
+			 * A​c​t​i​v​e​ ​D​N​S​ ​S​e​r​v​e​r​s​:
+			 */
+			activeLabel: string
+			/**
+			 * S​y​s​t​e​m​ ​i​p​t​a​b​l​e​s​ ​p​o​r​t​ ​5​3​ ​&​ ​n​e​t​d​ ​o​v​e​r​r​i​d​e
+			 */
+			activeHint: string
+			/**
+			 * P​o​p​u​l​a​r​ ​S​e​c​u​r​e​ ​P​r​e​s​e​t​s
+			 */
+			presets: string
+			/**
+			 * M​a​n​u​a​l​ ​D​N​S​ ​C​o​n​f​i​g​u​r​a​t​i​o​n
+			 */
+			manualTitle: string
+			/**
+			 * P​r​i​m​a​r​y​ ​D​N​S​ ​(​e​.​g​.​ ​1​.​1​.​1​.​1​)
+			 */
+			primaryPlaceholder: string
+			/**
+			 * S​e​c​o​n​d​a​r​y​ ​D​N​S​ ​(​e​.​g​.​ ​1​.​0​.​0​.​1​)
+			 */
+			secondaryPlaceholder: string
+			/**
+			 * A​p​p​l​y​ ​C​u​s​t​o​m​ ​D​N​S
+			 */
+			applyCustom: string
+			/**
+			 * D​e​f​a​u​l​t​/​D​H​C​P
+			 */
+			defaultDhcp: string
+			toasts: {
+				/**
+				 * D​N​S​ ​u​p​d​a​t​e​d​ ​t​o​ ​{​p​r​i​m​a​r​y​}​ ​/​ ​{​s​e​c​o​n​d​a​r​y​}​.​ ​P​e​r​s​i​s​t​e​n​t​l​y​ ​s​a​v​e​d​!
+				 * @param {unknown} primary
+				 * @param {unknown} secondary
+				 */
+				updated: RequiredParams<'primary' | 'secondary'>
+				/**
+				 * F​a​i​l​e​d​ ​t​o​ ​s​e​t​ ​D​N​S
+				 */
+				setFailed: string
+				/**
+				 * D​N​S​ ​r​e​s​e​t​ ​t​o​ ​d​e​f​a​u​l​t​ ​o​p​e​r​a​t​o​r​ ​D​H​C​P​!
+				 */
+				resetDone: string
+				/**
+				 * F​a​i​l​e​d​ ​t​o​ ​r​e​s​e​t​ ​D​N​S
+				 */
+				resetFailed: string
+				/**
+				 * R​e​s​e​t​ ​D​N​S​ ​e​r​r​o​r
+				 */
+				resetError: string
+			}
+		}
+		ping: {
+			/**
+			 * P​i​n​g​ ​D​i​a​g​n​o​s​t​i​c​s
+			 */
+			title: string
+			/**
+			 * T​e​s​t​ ​n​e​t​w​o​r​k​ ​l​a​t​e​n​c​y​ ​a​n​d​ ​r​e​a​c​h​a​b​i​l​i​t​y
+			 */
+			subtitle: string
+			/**
+			 * T​a​r​g​e​t​ ​h​o​s​t​ ​(​e​.​g​.​ ​1​.​1​.​1​.​1​,​ ​g​o​o​g​l​e​.​c​o​m​)
+			 */
+			placeholder: string
+			/**
+			 * P​i​n​g
+			 */
+			ping: string
+			/**
+			 * P​i​n​g​i​n​g​.​.​.
+			 */
+			pinging: string
+			/**
+			 * Q​u​i​c​k​ ​T​a​r​g​e​t​:
+			 */
+			quickTarget: string
+			/**
+			 * N​o​ ​p​i​n​g​ ​r​e​s​p​o​n​s​e​ ​r​e​c​e​i​v​e​d​.
+			 */
+			noResponse: string
+			/**
+			 * P​i​n​g​ ​e​r​r​o​r​:​ ​{​m​e​s​s​a​g​e​}
+			 * @param {unknown} message
+			 */
+			error: RequiredParams<'message'>
+			/**
+			 * F​a​i​l​e​d​ ​t​o​ ​r​e​a​c​h​ ​t​a​r​g​e​t​ ​h​o​s​t
+			 */
+			failedToReach: string
+		}
+	}
 }
 
 export type TranslationFunctions = {
@@ -19004,6 +19180,178 @@ export type TranslationFunctions = {
 			 * Failed to install module
 			 */
 			installFailed: () => LocalizedString
+		}
+	}
+	network: {
+		/**
+		 * Network Tuning & Diagnostics
+		 */
+		title: () => LocalizedString
+		ttl: {
+			/**
+			 * Dynamic TTL Modifier
+			 */
+			title: () => LocalizedString
+			/**
+			 * Bypass operator hotspot quota restriction
+			 */
+			subtitle: () => LocalizedString
+			/**
+			 * Persistent
+			 */
+			persistent: () => LocalizedString
+			/**
+			 * Active System TTL:
+			 */
+			activeLabel: () => LocalizedString
+			/**
+			 * Automatically restored on device boot & updates
+			 */
+			activeHint: () => LocalizedString
+			/**
+			 * Preset Profiles
+			 */
+			presets: () => LocalizedString
+			/**
+			 * Default Android
+			 */
+			presetDefault: () => LocalizedString
+			/**
+			 * Hotspot Bypass
+			 */
+			presetHotspot: () => LocalizedString
+			/**
+			 * Windows PC
+			 */
+			presetWindows: () => LocalizedString
+			/**
+			 * Custom TTL (e.g. 65)
+			 */
+			customPlaceholder: () => LocalizedString
+			/**
+			 * Apply
+			 */
+			apply: () => LocalizedString
+			toasts: {
+				/**
+				 * TTL set to {ttl}. Persistently saved across reboots.
+				 */
+				set: (arg: { ttl: unknown }) => LocalizedString
+				/**
+				 * Failed to apply TTL
+				 */
+				applyFailed: () => LocalizedString
+			}
+		}
+		dns: {
+			/**
+			 * Custom DNS Resolver
+			 */
+			title: () => LocalizedString
+			/**
+			 * Encrypted & Custom DNS providers
+			 */
+			subtitle: () => LocalizedString
+			/**
+			 * Restore DNS resolution to default DHCP / Mobile carrier
+			 */
+			resetTitle: () => LocalizedString
+			/**
+			 * Reset Default
+			 */
+			resetDefault: () => LocalizedString
+			/**
+			 * Active DNS Servers:
+			 */
+			activeLabel: () => LocalizedString
+			/**
+			 * System iptables port 53 & netd override
+			 */
+			activeHint: () => LocalizedString
+			/**
+			 * Popular Secure Presets
+			 */
+			presets: () => LocalizedString
+			/**
+			 * Manual DNS Configuration
+			 */
+			manualTitle: () => LocalizedString
+			/**
+			 * Primary DNS (e.g. 1.1.1.1)
+			 */
+			primaryPlaceholder: () => LocalizedString
+			/**
+			 * Secondary DNS (e.g. 1.0.0.1)
+			 */
+			secondaryPlaceholder: () => LocalizedString
+			/**
+			 * Apply Custom DNS
+			 */
+			applyCustom: () => LocalizedString
+			/**
+			 * Default/DHCP
+			 */
+			defaultDhcp: () => LocalizedString
+			toasts: {
+				/**
+				 * DNS updated to {primary} / {secondary}. Persistently saved!
+				 */
+				updated: (arg: { primary: unknown, secondary: unknown }) => LocalizedString
+				/**
+				 * Failed to set DNS
+				 */
+				setFailed: () => LocalizedString
+				/**
+				 * DNS reset to default operator DHCP!
+				 */
+				resetDone: () => LocalizedString
+				/**
+				 * Failed to reset DNS
+				 */
+				resetFailed: () => LocalizedString
+				/**
+				 * Reset DNS error
+				 */
+				resetError: () => LocalizedString
+			}
+		}
+		ping: {
+			/**
+			 * Ping Diagnostics
+			 */
+			title: () => LocalizedString
+			/**
+			 * Test network latency and reachability
+			 */
+			subtitle: () => LocalizedString
+			/**
+			 * Target host (e.g. 1.1.1.1, google.com)
+			 */
+			placeholder: () => LocalizedString
+			/**
+			 * Ping
+			 */
+			ping: () => LocalizedString
+			/**
+			 * Pinging...
+			 */
+			pinging: () => LocalizedString
+			/**
+			 * Quick Target:
+			 */
+			quickTarget: () => LocalizedString
+			/**
+			 * No ping response received.
+			 */
+			noResponse: () => LocalizedString
+			/**
+			 * Ping error: {message}
+			 */
+			error: (arg: { message: unknown }) => LocalizedString
+			/**
+			 * Failed to reach target host
+			 */
+			failedToReach: () => LocalizedString
 		}
 	}
 }
