@@ -2031,6 +2031,103 @@ const en = {
 			},
 		},
 	},
+	power: {
+		title: 'Power & System Actions',
+		warning: {
+			title: 'Root Execution Warning',
+			body: 'Power actions execute system-level commands with superuser privileges (`su -c`). The WebUI daemon and active services will disconnect immediately upon reboot.',
+		},
+		schedule: {
+			title: 'Scheduled Auto-Reboot',
+			subtitle: 'Periodic or time-based automated reboot cycle',
+			activeBadge: 'SCHEDULE ACTIVE',
+			inactiveBadge: 'SCHEDULE DISABLED',
+			autoReboot: 'Automated Reboot',
+			enabled: 'ENABLED',
+			disabled: 'DISABLED',
+			autoRebootDesc: 'Automates kernel reboot cycles to clear memory and refresh cellular modem stack.',
+			enableTitle: 'Enable Auto-Reboot',
+			disableTitle: 'Disable Auto-Reboot',
+			triggerMode: 'Reboot Trigger Mode',
+			intervalMode: 'Uptime Interval',
+			clockMode: 'Specific Time (Daily)',
+			presets: 'Quick Interval Presets',
+			presetHours: '{hours}h',
+			customInterval: 'Custom Interval:',
+			hoursUnit: 'hours',
+			cycleNote: 'Cycle: every {hours} hours from boot time',
+			uptime: 'Current Uptime',
+			nextCountdown: 'Next Reboot Countdown',
+			countdownDisabled: 'Disabled',
+			countdownDueNow: 'Due now',
+			rebootTime: 'Reboot Time (24 Hours)',
+			quickTimePresets: 'Quick Time Presets',
+			nextReboot: 'Estimated Next Reboot',
+			countdown: 'Countdown',
+			scheduleInactive: 'Schedule Inactive',
+			dailyAt: 'Daily at {time}',
+			everyHours: 'Every {hours} hours',
+			configureHint: 'Configure your preferred auto-reboot interval or time.',
+			refreshTitle: 'Refresh Schedule Status',
+			saveSchedule: 'Save Schedule',
+			saving: 'Saving...',
+			toasts: {
+				fetchFailed: 'Failed to fetch reboot schedule',
+				saveFailed: 'Failed to save reboot schedule',
+				saved: 'Reboot schedule saved successfully.',
+			},
+		},
+		actions: {
+			reboot: {
+				title: 'Reboot',
+				desc: 'Restart Android OS and reload root daemons.',
+				button: 'Reboot System',
+			},
+			recovery: {
+				title: 'Recovery',
+				desc: 'Enter custom recovery (TWRP/OrangeFox).',
+				button: 'Recovery Mode',
+			},
+			fastboot: {
+				title: 'Fastboot',
+				desc: 'Enter bootloader partition for PC USB flashing.',
+				button: 'Fastboot Mode',
+			},
+			poweroff: {
+				title: 'Power Off',
+				desc: 'Halt kernel and turn off device completely.',
+				button: 'Shut Down',
+			},
+		},
+		confirm: {
+			title: 'Confirm Power Action',
+			body: 'Are you sure you want to proceed? Any unsaved changes in running processes may be lost.',
+			executing: 'Executing...',
+			proceed: 'Yes, Proceed',
+		},
+		actionLabels: {
+			reboot: {
+				title: 'Reboot Device',
+				desc: 'Performs standard Android OS system reboot via root execution.',
+			},
+			recovery: {
+				title: 'Reboot to Recovery',
+				desc: 'Reboots into TWRP / OrangeFox / Custom Recovery environment.',
+			},
+			bootloader: {
+				title: 'Reboot to Bootloader',
+				desc: 'Reboots into Fastboot / Download mode for flashing.',
+			},
+			poweroff: {
+				title: 'System Power Off',
+				desc: 'Completely shuts down the Android device hardware.',
+			},
+		},
+		toasts: {
+			dispatched: "Power command '{action}' dispatched to Android kernel.",
+			executeFailed: 'Failed to execute power action',
+		},
+	},
 } satisfies BaseTranslation
 
 export default en

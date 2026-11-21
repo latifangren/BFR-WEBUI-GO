@@ -16,6 +16,7 @@
   } from '@lucide/svelte'
   import { api } from '../../../api/client'
   import { toastStore } from '../../../stores/toast.svelte'
+  import { LL } from '../../../i18n/i18n-svelte'
   import type { PowerAction, ScheduleStatus, ScheduleConfig } from '../../../types/network'
   import Card from '../../ui/Card.svelte'
   import Button from '../../ui/Button.svelte'
@@ -47,19 +48,19 @@
 
   let formattedCountdown = $derived(
     !enabled || countdownSec < 0
-      ? 'Disabled'
+      ? $LL.power.schedule.countdownDisabled()
       : countdownSec === 0
-        ? 'Due now'
+        ? $LL.power.schedule.countdownDueNow()
         : formatDuration(countdownSec)
   )
 
   let formattedNextReboot = $derived(
     !enabled
-      ? 'Schedule Inactive'
+      ? $LL.power.schedule.scheduleInactive()
       : scheduleStatus?.next_reboot_time ||
           (selectedMode === 'clock'
-            ? `Daily at ${clockTime}`
-            : `Every ${intervalHours} hours`)
+            ? $LL.power.schedule.dailyAt({ time: clockTime })
+            : $LL.power.schedule.everyHours({ hours: intervalHours }))
   )
 
   // Svelte 5 Effect to keep countdownSec synced when scheduleStatus updates
@@ -112,7 +113,7 @@
       }
       countdownSec = res.next_reboot_in_sec
     } catch (err: unknown) {
-      toastStore.error(err instanceof Error ? err.message : 'Failed to fetch reboot schedule')
+      toastStore.error(err instanceof Error ? err.message : $LL.power.schedule.toasts.fetchFailed())
     } finally {
       isLoadingSchedule = false
     }
@@ -130,36 +131,36 @@
       const res = await api.post<ScheduleStatus>('/api/power/schedule', payload)
       scheduleStatus = res
       countdownSec = res.next_reboot_in_sec
-      toastStore.success('Reboot schedule saved successfully.')
+      toastStore.success($LL.power.schedule.toasts.saved())
     } catch (err: unknown) {
-      toastStore.error(err instanceof Error ? err.message : 'Failed to save reboot schedule')
+      toastStore.error(err instanceof Error ? err.message : $LL.power.schedule.toasts.saveFailed())
     } finally {
       isSavingSchedule = false
     }
   }
 
-  const actionLabels: Record<PowerAction, { title: string; desc: string; danger: boolean }> = {
+  let actionLabels = $derived<Record<PowerAction, { title: string; desc: string; danger: boolean }>>({
     reboot: {
-      title: 'Reboot Device',
-      desc: 'Performs standard Android OS system reboot via root execution.',
+      title: $LL.power.actionLabels.reboot.title(),
+      desc: $LL.power.actionLabels.reboot.desc(),
       danger: false,
     },
     recovery: {
-      title: 'Reboot to Recovery',
-      desc: 'Reboots into TWRP / OrangeFox / Custom Recovery environment.',
+      title: $LL.power.actionLabels.recovery.title(),
+      desc: $LL.power.actionLabels.recovery.desc(),
       danger: true,
     },
     bootloader: {
-      title: 'Reboot to Bootloader',
-      desc: 'Reboots into Fastboot / Download mode for flashing.',
+      title: $LL.power.actionLabels.bootloader.title(),
+      desc: $LL.power.actionLabels.bootloader.desc(),
       danger: true,
     },
     poweroff: {
-      title: 'System Power Off',
-      desc: 'Completely shuts down the Android device hardware.',
+      title: $LL.power.actionLabels.poweroff.title(),
+      desc: $LL.power.actionLabels.poweroff.desc(),
       danger: true,
     },
-  }
+  })
 
   async function executePowerAction() {
     if (!confirmAction) return
@@ -167,9 +168,9 @@
     try {
       isExecuting = true
       await api.post('/api/power', { action: confirmAction })
-      toastStore.success(`Power command '${confirmAction}' dispatched to Android kernel.`)
+      toastStore.success($LL.power.toasts.dispatched({ action: confirmAction }))
     } catch (err: unknown) {
-      toastStore.error(err instanceof Error ? err.message : 'Failed to execute power action')
+      toastStore.error(err instanceof Error ? err.message : $LL.power.toasts.executeFailed())
     } finally {
       isExecuting = false
       confirmAction = null
@@ -183,7 +184,7 @@
     <div class="flex items-center gap-2">
       <Power class="w-5 h-5 text-red-500" />
       <h2 class="text-base sm:text-lg font-mono font-bold uppercase tracking-wider text-foreground">
-        Power & System Actions
+        {$LL.power.title()}
       </h2>
     </div>
   </div>
@@ -192,18 +193,17 @@
   <div class="bg-amber-950/50 border-2 border-amber-800 text-amber-300 p-4 rounded font-mono text-xs flex items-center gap-3">
     <AlertTriangle class="w-5 h-5 text-amber-400 shrink-0" />
     <div>
-      <p class="font-bold uppercase">Root Execution Warning</p>
+      <p class="font-bold uppercase">{$LL.power.warning.title()}</p>
       <p>
-        Power actions execute system-level commands with superuser privileges (`su -c`).
-        The WebUI daemon and active services will disconnect immediately upon reboot.
+        {$LL.power.warning.body()}
       </p>
     </div>
   </div>
 
   <!-- Scheduled Auto-Reboot Card -->
   <Card
-    title="Scheduled Auto-Reboot"
-    subtitle="Periodic or time-based automated reboot cycle"
+    title={$LL.power.schedule.title()}
+    subtitle={$LL.power.schedule.subtitle()}
     tone="lavender"
   >
     {#snippet action()}
@@ -214,7 +214,7 @@
         <span
           class="inline-block w-2 h-2 rounded-full mr-1.5 {enabled ? 'bg-emerald-400 animate-pulse' : 'bg-muted'}"
         ></span>
-        {enabled ? 'SCHEDULE ACTIVE' : 'SCHEDULE DISABLED'}
+        {enabled ? $LL.power.schedule.activeBadge() : $LL.power.schedule.inactiveBadge()}
       </Badge>
     {/snippet}
 
@@ -233,31 +233,31 @@
           </div>
           <div>
             <div class="flex items-center gap-2">
-              <span class="font-bold text-foreground text-sm">Automated Reboot</span>
+              <span class="font-bold text-foreground text-sm">{$LL.power.schedule.autoReboot()}</span>
               <span
                 class="text-[10px] font-mono px-1.5 py-0.5 rounded border border-border bg-card {enabled
                   ? 'text-emerald-400 font-bold'
                   : 'text-muted'}"
               >
-                {enabled ? 'ENABLED' : 'DISABLED'}
+                {enabled ? $LL.power.schedule.enabled() : $LL.power.schedule.disabled()}
               </span>
             </div>
             <p class="text-[11px] text-muted mt-0.5">
-              Automates kernel reboot cycles to clear memory and refresh cellular modem stack.
+              {$LL.power.schedule.autoRebootDesc()}
             </p>
           </div>
         </div>
 
         <div class="flex items-center self-end sm:self-center">
           {#if themeStore.useSakugaControls()}
-            <SakugaToggle bind:checked={enabled} label="Automated Reboot" />
+            <SakugaToggle bind:checked={enabled} label={$LL.power.schedule.autoReboot()} />
           {:else}
           <button
             type="button"
             role="switch"
             aria-checked={enabled}
             onclick={() => (enabled = !enabled)}
-            title={enabled ? 'Disable Auto-Reboot' : 'Enable Auto-Reboot'}
+            title={enabled ? $LL.power.schedule.disableTitle() : $LL.power.schedule.enableTitle()}
             class="relative inline-flex h-7 w-14 shrink-0 cursor-pointer rounded-full border-2 border-border transition-colors duration-200 ease-in-out focus:outline-none {enabled
               ? 'bg-accent shadow-neobrutal-sm'
               : 'bg-card'}"
@@ -275,7 +275,7 @@
       <!-- Mode Selector -->
       <div class="space-y-1.5">
         <span class="block text-[11px] font-bold uppercase text-muted tracking-wider">
-          Reboot Trigger Mode
+          {$LL.power.schedule.triggerMode()}
         </span>
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
           <button
@@ -286,7 +286,7 @@
               : 'border-border bg-card-sub text-muted hover:text-foreground'}"
           >
             <Timer class="w-4 h-4 {selectedMode === 'interval' ? 'text-accent' : 'text-muted'}" />
-            <span>Uptime Interval</span>
+            <span>{$LL.power.schedule.intervalMode()}</span>
           </button>
           <button
             type="button"
@@ -296,7 +296,7 @@
               : 'border-border bg-card-sub text-muted hover:text-foreground'}"
           >
             <Clock class="w-4 h-4 {selectedMode === 'clock' ? 'text-accent' : 'text-muted'}" />
-            <span>Specific Time (Daily)</span>
+            <span>{$LL.power.schedule.clockMode()}</span>
           </button>
         </div>
       </div>
@@ -304,7 +304,7 @@
         <div class="space-y-4 p-4 bg-card-sub/60 border-2 border-border rounded-md">
           <div class="space-y-1.5">
             <span class="block text-[11px] font-bold uppercase text-muted tracking-wider">
-              Quick Interval Presets
+              {$LL.power.schedule.presets()}
             </span>
             <div class="grid grid-cols-3 sm:grid-cols-6 gap-2">
               {#each [2, 4, 6, 8, 12, 24] as h}
@@ -315,7 +315,7 @@
                     ? 'border-accent bg-accent text-accent-text shadow-neobrutal-sm'
                     : 'border-border bg-card text-foreground hover:border-accent/60'}"
                 >
-                  {h} Jam
+                  {$LL.power.schedule.presetHours({ hours: h })}
                 </button>
               {/each}
             </div>
@@ -324,7 +324,7 @@
           <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2 border-t border-border/60">
             <div class="flex items-center gap-2.5">
               <label for="custom-interval" class="text-xs text-muted whitespace-nowrap font-bold">
-                Custom Interval:
+                {$LL.power.schedule.customInterval()}
               </label>
               <input
                 id="custom-interval"
@@ -334,10 +334,10 @@
                 bind:value={intervalHours}
                 class="neo-input w-24 bg-card border-2 border-border rounded px-3 py-1.5 text-sm font-mono font-bold text-foreground focus:outline-none focus:border-accent"
               />
-              <span class="text-xs text-muted">Jam Sekali</span>
+              <span class="text-xs text-muted">{$LL.power.schedule.hoursUnit()}</span>
             </div>
             <span class="text-[11px] text-muted">
-              Cycle: setiap {intervalHours} jam dari waktu boot
+              {$LL.power.schedule.cycleNote({ hours: intervalHours })}
             </span>
           </div>
 
@@ -346,14 +346,14 @@
             <div class="flex items-center gap-3 p-3 bg-card border-2 border-border rounded">
               <Activity class="w-4 h-4 text-cyan-400 shrink-0" />
               <div>
-                <span class="text-muted block text-[10px] uppercase font-bold tracking-wider">Current Uptime</span>
+                <span class="text-muted block text-[10px] uppercase font-bold tracking-wider">{$LL.power.schedule.uptime()}</span>
                 <span class="font-bold text-foreground text-sm">{formattedUptime}</span>
               </div>
             </div>
             <div class="flex items-center gap-3 p-3 bg-card border-2 border-border rounded">
               <Timer class="w-4 h-4 text-amber-400 shrink-0" />
               <div>
-                <span class="text-muted block text-[10px] uppercase font-bold tracking-wider">Next Reboot Countdown</span>
+                <span class="text-muted block text-[10px] uppercase font-bold tracking-wider">{$LL.power.schedule.nextCountdown()}</span>
                 <span class="font-bold text-sm {enabled && countdownSec > 0 ? 'text-amber-400' : 'text-muted'}">
                   {formattedCountdown}
                 </span>
@@ -366,7 +366,7 @@
           <div class="flex flex-col sm:flex-row sm:items-end gap-4">
             <div class="space-y-1.5">
               <label for="clock-time-input" class="block text-[11px] font-bold uppercase text-muted tracking-wider">
-                Reboot Time (24 Hours)
+                {$LL.power.schedule.rebootTime()}
               </label>
               <input
                 type="time"
@@ -377,7 +377,7 @@
 
             <div class="space-y-1.5 flex-1">
               <span class="block text-[11px] font-bold uppercase text-muted tracking-wider">
-                Quick Time Presets
+                {$LL.power.schedule.quickTimePresets()}
               </span>
               <div class="flex flex-wrap gap-2">
                 {#each [
@@ -404,7 +404,7 @@
             <div class="flex items-center gap-3 p-3 bg-card border-2 border-border rounded">
               <Clock class="w-4 h-4 text-cyan-400 shrink-0" />
               <div>
-                <span class="text-muted block text-[10px] uppercase font-bold tracking-wider">Estimated Next Reboot</span>
+                <span class="text-muted block text-[10px] uppercase font-bold tracking-wider">{$LL.power.schedule.nextReboot()}</span>
                 <span class="font-bold text-sm {enabled ? 'text-accent' : 'text-muted'}">
                   {formattedNextReboot}
                 </span>
@@ -413,7 +413,7 @@
             <div class="flex items-center gap-3 p-3 bg-card border-2 border-border rounded">
               <Timer class="w-4 h-4 text-amber-400 shrink-0" />
               <div>
-                <span class="text-muted block text-[10px] uppercase font-bold tracking-wider">Countdown</span>
+                <span class="text-muted block text-[10px] uppercase font-bold tracking-wider">{$LL.power.schedule.countdown()}</span>
                 <span class="font-bold text-sm {enabled && countdownSec > 0 ? 'text-amber-400' : 'text-muted'}">
                   {formattedCountdown}
                 </span>
@@ -432,7 +432,7 @@
               <span>{scheduleStatus.description}</span>
             </span>
           {:else}
-            <span class="text-xs text-muted">Configure your preferred auto-reboot interval or time.</span>
+            <span class="text-xs text-muted">{$LL.power.schedule.configureHint()}</span>
           {/if}
         </div>
 
@@ -442,10 +442,10 @@
             size="md"
             disabled={isLoadingSchedule || isSavingSchedule}
             onclick={fetchSchedule}
-            title="Refresh Schedule Status"
+            title={$LL.power.schedule.refreshTitle()}
           >
             <RefreshCw class="w-4 h-4 mr-2 {isLoadingSchedule ? 'animate-spin' : ''}" />
-            <span>Refresh</span>
+            <span>{$LL.common.refresh()}</span>
           </Button>
 
           <Button
@@ -456,10 +456,10 @@
           >
             {#if isSavingSchedule}
               <RefreshCw class="w-4 h-4 mr-2 animate-spin" />
-              <span>Saving...</span>
+              <span>{$LL.power.schedule.saving()}</span>
             {:else}
               <Sliders class="w-4 h-4 mr-2" />
-              <span>Save Schedule</span>
+              <span>{$LL.power.schedule.saveSchedule()}</span>
             {/if}
           </Button>
         </div>
@@ -474,10 +474,10 @@
       <div>
         <div class="flex items-center gap-2 mb-1">
           <RotateCcw class="w-4 h-4 text-accent shrink-0" />
-          <h3 class="font-bold text-xs sm:text-sm text-foreground uppercase truncate">Reboot</h3>
+          <h3 class="font-bold text-xs sm:text-sm text-foreground uppercase truncate">{$LL.power.actions.reboot.title()}</h3>
         </div>
         <p class="text-[10px] sm:text-[11px] text-muted line-clamp-2">
-          Restart Android OS and reload root daemons.
+          {$LL.power.actions.reboot.desc()}
         </p>
       </div>
       <Button
@@ -486,7 +486,7 @@
         fullWidth={true}
         onclick={() => (confirmAction = 'reboot')}
       >
-        <span>Reboot System</span>
+        <span>{$LL.power.actions.reboot.button()}</span>
       </Button>
     </div>
 
@@ -495,10 +495,10 @@
       <div>
         <div class="flex items-center gap-2 mb-1">
           <Smartphone class="w-4 h-4 text-amber-400 shrink-0" />
-          <h3 class="font-bold text-xs sm:text-sm text-foreground uppercase truncate">Recovery</h3>
+          <h3 class="font-bold text-xs sm:text-sm text-foreground uppercase truncate">{$LL.power.actions.recovery.title()}</h3>
         </div>
         <p class="text-[10px] sm:text-[11px] text-muted line-clamp-2">
-          Enter custom recovery (TWRP/OrangeFox).
+          {$LL.power.actions.recovery.desc()}
         </p>
       </div>
       <Button
@@ -507,7 +507,7 @@
         fullWidth={true}
         onclick={() => (confirmAction = 'recovery')}
       >
-        <span>Recovery Mode</span>
+        <span>{$LL.power.actions.recovery.button()}</span>
       </Button>
     </div>
 
@@ -516,10 +516,10 @@
       <div>
         <div class="flex items-center gap-2 mb-1">
           <ShieldAlert class="w-4 h-4 text-purple-400 shrink-0" />
-          <h3 class="font-bold text-xs sm:text-sm text-foreground uppercase truncate">Fastboot</h3>
+          <h3 class="font-bold text-xs sm:text-sm text-foreground uppercase truncate">{$LL.power.actions.fastboot.title()}</h3>
         </div>
         <p class="text-[10px] sm:text-[11px] text-muted line-clamp-2">
-          Enter bootloader partition for PC USB flashing.
+          {$LL.power.actions.fastboot.desc()}
         </p>
       </div>
       <Button
@@ -528,7 +528,7 @@
         fullWidth={true}
         onclick={() => (confirmAction = 'bootloader')}
       >
-        <span>Fastboot Mode</span>
+        <span>{$LL.power.actions.fastboot.button()}</span>
       </Button>
     </div>
 
@@ -537,10 +537,10 @@
       <div>
         <div class="flex items-center gap-2 mb-1">
           <Power class="w-4 h-4 text-red-500 shrink-0" />
-          <h3 class="font-bold text-xs sm:text-sm text-foreground uppercase truncate">Power Off</h3>
+          <h3 class="font-bold text-xs sm:text-sm text-foreground uppercase truncate">{$LL.power.actions.poweroff.title()}</h3>
         </div>
         <p class="text-[10px] sm:text-[11px] text-muted line-clamp-2">
-          Halt kernel and turn off device completely.
+          {$LL.power.actions.poweroff.desc()}
         </p>
       </div>
       <Button
@@ -549,7 +549,7 @@
         fullWidth={true}
         onclick={() => (confirmAction = 'poweroff')}
       >
-        <span>Shut Down</span>
+        <span>{$LL.power.actions.poweroff.button()}</span>
       </Button>
     </div>
   </div>
@@ -558,7 +558,7 @@
   {#if confirmAction}
     <Modal
       open={true}
-      title="Confirm Power Action"
+      title={$LL.power.confirm.title()}
       onclose={() => (confirmAction = null)}
     >
       <div class="space-y-4 font-mono text-xs">
@@ -570,7 +570,7 @@
         </div>
 
         <p class="text-muted">
-          Are you sure you want to proceed? Any unsaved changes in running processes may be lost.
+          {$LL.power.confirm.body()}
         </p>
 
         <div class="flex items-center justify-end gap-2 pt-2 border-t border-border">
@@ -580,7 +580,7 @@
             disabled={isExecuting}
             onclick={() => (confirmAction = null)}
           >
-            Cancel
+            {$LL.common.cancel()}
           </Button>
           <Button
             variant="danger"
@@ -588,7 +588,7 @@
             disabled={isExecuting}
             onclick={executePowerAction}
           >
-            {isExecuting ? 'Executing...' : 'Yes, Proceed'}
+            {isExecuting ? $LL.power.confirm.executing() : $LL.power.confirm.proceed()}
           </Button>
         </div>
       </div>

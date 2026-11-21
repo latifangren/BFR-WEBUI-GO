@@ -7753,6 +7753,303 @@ type RootTranslation = {
 			}
 		}
 	}
+	power: {
+		/**
+		 * P​o​w​e​r​ ​&​ ​S​y​s​t​e​m​ ​A​c​t​i​o​n​s
+		 */
+		title: string
+		warning: {
+			/**
+			 * R​o​o​t​ ​E​x​e​c​u​t​i​o​n​ ​W​a​r​n​i​n​g
+			 */
+			title: string
+			/**
+			 * P​o​w​e​r​ ​a​c​t​i​o​n​s​ ​e​x​e​c​u​t​e​ ​s​y​s​t​e​m​-​l​e​v​e​l​ ​c​o​m​m​a​n​d​s​ ​w​i​t​h​ ​s​u​p​e​r​u​s​e​r​ ​p​r​i​v​i​l​e​g​e​s​ ​(​`​s​u​ ​-​c​`​)​.​ ​T​h​e​ ​W​e​b​U​I​ ​d​a​e​m​o​n​ ​a​n​d​ ​a​c​t​i​v​e​ ​s​e​r​v​i​c​e​s​ ​w​i​l​l​ ​d​i​s​c​o​n​n​e​c​t​ ​i​m​m​e​d​i​a​t​e​l​y​ ​u​p​o​n​ ​r​e​b​o​o​t​.
+			 */
+			body: string
+		}
+		schedule: {
+			/**
+			 * S​c​h​e​d​u​l​e​d​ ​A​u​t​o​-​R​e​b​o​o​t
+			 */
+			title: string
+			/**
+			 * P​e​r​i​o​d​i​c​ ​o​r​ ​t​i​m​e​-​b​a​s​e​d​ ​a​u​t​o​m​a​t​e​d​ ​r​e​b​o​o​t​ ​c​y​c​l​e
+			 */
+			subtitle: string
+			/**
+			 * S​C​H​E​D​U​L​E​ ​A​C​T​I​V​E
+			 */
+			activeBadge: string
+			/**
+			 * S​C​H​E​D​U​L​E​ ​D​I​S​A​B​L​E​D
+			 */
+			inactiveBadge: string
+			/**
+			 * A​u​t​o​m​a​t​e​d​ ​R​e​b​o​o​t
+			 */
+			autoReboot: string
+			/**
+			 * E​N​A​B​L​E​D
+			 */
+			enabled: string
+			/**
+			 * D​I​S​A​B​L​E​D
+			 */
+			disabled: string
+			/**
+			 * A​u​t​o​m​a​t​e​s​ ​k​e​r​n​e​l​ ​r​e​b​o​o​t​ ​c​y​c​l​e​s​ ​t​o​ ​c​l​e​a​r​ ​m​e​m​o​r​y​ ​a​n​d​ ​r​e​f​r​e​s​h​ ​c​e​l​l​u​l​a​r​ ​m​o​d​e​m​ ​s​t​a​c​k​.
+			 */
+			autoRebootDesc: string
+			/**
+			 * E​n​a​b​l​e​ ​A​u​t​o​-​R​e​b​o​o​t
+			 */
+			enableTitle: string
+			/**
+			 * D​i​s​a​b​l​e​ ​A​u​t​o​-​R​e​b​o​o​t
+			 */
+			disableTitle: string
+			/**
+			 * R​e​b​o​o​t​ ​T​r​i​g​g​e​r​ ​M​o​d​e
+			 */
+			triggerMode: string
+			/**
+			 * U​p​t​i​m​e​ ​I​n​t​e​r​v​a​l
+			 */
+			intervalMode: string
+			/**
+			 * S​p​e​c​i​f​i​c​ ​T​i​m​e​ ​(​D​a​i​l​y​)
+			 */
+			clockMode: string
+			/**
+			 * Q​u​i​c​k​ ​I​n​t​e​r​v​a​l​ ​P​r​e​s​e​t​s
+			 */
+			presets: string
+			/**
+			 * {​h​o​u​r​s​}​h
+			 * @param {unknown} hours
+			 */
+			presetHours: RequiredParams<'hours'>
+			/**
+			 * C​u​s​t​o​m​ ​I​n​t​e​r​v​a​l​:
+			 */
+			customInterval: string
+			/**
+			 * h​o​u​r​s
+			 */
+			hoursUnit: string
+			/**
+			 * C​y​c​l​e​:​ ​e​v​e​r​y​ ​{​h​o​u​r​s​}​ ​h​o​u​r​s​ ​f​r​o​m​ ​b​o​o​t​ ​t​i​m​e
+			 * @param {unknown} hours
+			 */
+			cycleNote: RequiredParams<'hours'>
+			/**
+			 * C​u​r​r​e​n​t​ ​U​p​t​i​m​e
+			 */
+			uptime: string
+			/**
+			 * N​e​x​t​ ​R​e​b​o​o​t​ ​C​o​u​n​t​d​o​w​n
+			 */
+			nextCountdown: string
+			/**
+			 * D​i​s​a​b​l​e​d
+			 */
+			countdownDisabled: string
+			/**
+			 * D​u​e​ ​n​o​w
+			 */
+			countdownDueNow: string
+			/**
+			 * R​e​b​o​o​t​ ​T​i​m​e​ ​(​2​4​ ​H​o​u​r​s​)
+			 */
+			rebootTime: string
+			/**
+			 * Q​u​i​c​k​ ​T​i​m​e​ ​P​r​e​s​e​t​s
+			 */
+			quickTimePresets: string
+			/**
+			 * E​s​t​i​m​a​t​e​d​ ​N​e​x​t​ ​R​e​b​o​o​t
+			 */
+			nextReboot: string
+			/**
+			 * C​o​u​n​t​d​o​w​n
+			 */
+			countdown: string
+			/**
+			 * S​c​h​e​d​u​l​e​ ​I​n​a​c​t​i​v​e
+			 */
+			scheduleInactive: string
+			/**
+			 * D​a​i​l​y​ ​a​t​ ​{​t​i​m​e​}
+			 * @param {unknown} time
+			 */
+			dailyAt: RequiredParams<'time'>
+			/**
+			 * E​v​e​r​y​ ​{​h​o​u​r​s​}​ ​h​o​u​r​s
+			 * @param {unknown} hours
+			 */
+			everyHours: RequiredParams<'hours'>
+			/**
+			 * C​o​n​f​i​g​u​r​e​ ​y​o​u​r​ ​p​r​e​f​e​r​r​e​d​ ​a​u​t​o​-​r​e​b​o​o​t​ ​i​n​t​e​r​v​a​l​ ​o​r​ ​t​i​m​e​.
+			 */
+			configureHint: string
+			/**
+			 * R​e​f​r​e​s​h​ ​S​c​h​e​d​u​l​e​ ​S​t​a​t​u​s
+			 */
+			refreshTitle: string
+			/**
+			 * S​a​v​e​ ​S​c​h​e​d​u​l​e
+			 */
+			saveSchedule: string
+			/**
+			 * S​a​v​i​n​g​.​.​.
+			 */
+			saving: string
+			toasts: {
+				/**
+				 * F​a​i​l​e​d​ ​t​o​ ​f​e​t​c​h​ ​r​e​b​o​o​t​ ​s​c​h​e​d​u​l​e
+				 */
+				fetchFailed: string
+				/**
+				 * F​a​i​l​e​d​ ​t​o​ ​s​a​v​e​ ​r​e​b​o​o​t​ ​s​c​h​e​d​u​l​e
+				 */
+				saveFailed: string
+				/**
+				 * R​e​b​o​o​t​ ​s​c​h​e​d​u​l​e​ ​s​a​v​e​d​ ​s​u​c​c​e​s​s​f​u​l​l​y​.
+				 */
+				saved: string
+			}
+		}
+		actions: {
+			reboot: {
+				/**
+				 * R​e​b​o​o​t
+				 */
+				title: string
+				/**
+				 * R​e​s​t​a​r​t​ ​A​n​d​r​o​i​d​ ​O​S​ ​a​n​d​ ​r​e​l​o​a​d​ ​r​o​o​t​ ​d​a​e​m​o​n​s​.
+				 */
+				desc: string
+				/**
+				 * R​e​b​o​o​t​ ​S​y​s​t​e​m
+				 */
+				button: string
+			}
+			recovery: {
+				/**
+				 * R​e​c​o​v​e​r​y
+				 */
+				title: string
+				/**
+				 * E​n​t​e​r​ ​c​u​s​t​o​m​ ​r​e​c​o​v​e​r​y​ ​(​T​W​R​P​/​O​r​a​n​g​e​F​o​x​)​.
+				 */
+				desc: string
+				/**
+				 * R​e​c​o​v​e​r​y​ ​M​o​d​e
+				 */
+				button: string
+			}
+			fastboot: {
+				/**
+				 * F​a​s​t​b​o​o​t
+				 */
+				title: string
+				/**
+				 * E​n​t​e​r​ ​b​o​o​t​l​o​a​d​e​r​ ​p​a​r​t​i​t​i​o​n​ ​f​o​r​ ​P​C​ ​U​S​B​ ​f​l​a​s​h​i​n​g​.
+				 */
+				desc: string
+				/**
+				 * F​a​s​t​b​o​o​t​ ​M​o​d​e
+				 */
+				button: string
+			}
+			poweroff: {
+				/**
+				 * P​o​w​e​r​ ​O​f​f
+				 */
+				title: string
+				/**
+				 * H​a​l​t​ ​k​e​r​n​e​l​ ​a​n​d​ ​t​u​r​n​ ​o​f​f​ ​d​e​v​i​c​e​ ​c​o​m​p​l​e​t​e​l​y​.
+				 */
+				desc: string
+				/**
+				 * S​h​u​t​ ​D​o​w​n
+				 */
+				button: string
+			}
+		}
+		confirm: {
+			/**
+			 * C​o​n​f​i​r​m​ ​P​o​w​e​r​ ​A​c​t​i​o​n
+			 */
+			title: string
+			/**
+			 * A​r​e​ ​y​o​u​ ​s​u​r​e​ ​y​o​u​ ​w​a​n​t​ ​t​o​ ​p​r​o​c​e​e​d​?​ ​A​n​y​ ​u​n​s​a​v​e​d​ ​c​h​a​n​g​e​s​ ​i​n​ ​r​u​n​n​i​n​g​ ​p​r​o​c​e​s​s​e​s​ ​m​a​y​ ​b​e​ ​l​o​s​t​.
+			 */
+			body: string
+			/**
+			 * E​x​e​c​u​t​i​n​g​.​.​.
+			 */
+			executing: string
+			/**
+			 * Y​e​s​,​ ​P​r​o​c​e​e​d
+			 */
+			proceed: string
+		}
+		actionLabels: {
+			reboot: {
+				/**
+				 * R​e​b​o​o​t​ ​D​e​v​i​c​e
+				 */
+				title: string
+				/**
+				 * P​e​r​f​o​r​m​s​ ​s​t​a​n​d​a​r​d​ ​A​n​d​r​o​i​d​ ​O​S​ ​s​y​s​t​e​m​ ​r​e​b​o​o​t​ ​v​i​a​ ​r​o​o​t​ ​e​x​e​c​u​t​i​o​n​.
+				 */
+				desc: string
+			}
+			recovery: {
+				/**
+				 * R​e​b​o​o​t​ ​t​o​ ​R​e​c​o​v​e​r​y
+				 */
+				title: string
+				/**
+				 * R​e​b​o​o​t​s​ ​i​n​t​o​ ​T​W​R​P​ ​/​ ​O​r​a​n​g​e​F​o​x​ ​/​ ​C​u​s​t​o​m​ ​R​e​c​o​v​e​r​y​ ​e​n​v​i​r​o​n​m​e​n​t​.
+				 */
+				desc: string
+			}
+			bootloader: {
+				/**
+				 * R​e​b​o​o​t​ ​t​o​ ​B​o​o​t​l​o​a​d​e​r
+				 */
+				title: string
+				/**
+				 * R​e​b​o​o​t​s​ ​i​n​t​o​ ​F​a​s​t​b​o​o​t​ ​/​ ​D​o​w​n​l​o​a​d​ ​m​o​d​e​ ​f​o​r​ ​f​l​a​s​h​i​n​g​.
+				 */
+				desc: string
+			}
+			poweroff: {
+				/**
+				 * S​y​s​t​e​m​ ​P​o​w​e​r​ ​O​f​f
+				 */
+				title: string
+				/**
+				 * C​o​m​p​l​e​t​e​l​y​ ​s​h​u​t​s​ ​d​o​w​n​ ​t​h​e​ ​A​n​d​r​o​i​d​ ​d​e​v​i​c​e​ ​h​a​r​d​w​a​r​e​.
+				 */
+				desc: string
+			}
+		}
+		toasts: {
+			/**
+			 * P​o​w​e​r​ ​c​o​m​m​a​n​d​ ​'​{​a​c​t​i​o​n​}​'​ ​d​i​s​p​a​t​c​h​e​d​ ​t​o​ ​A​n​d​r​o​i​d​ ​k​e​r​n​e​l​.
+			 * @param {unknown} action
+			 */
+			dispatched: RequiredParams<'action'>
+			/**
+			 * F​a​i​l​e​d​ ​t​o​ ​e​x​e​c​u​t​e​ ​p​o​w​e​r​ ​a​c​t​i​o​n
+			 */
+			executeFailed: string
+		}
+	}
 }
 
 export type TranslationFunctions = {
@@ -15292,6 +15589,298 @@ export type TranslationFunctions = {
 				 */
 				saveRouterFailed: () => LocalizedString
 			}
+		}
+	}
+	power: {
+		/**
+		 * Power & System Actions
+		 */
+		title: () => LocalizedString
+		warning: {
+			/**
+			 * Root Execution Warning
+			 */
+			title: () => LocalizedString
+			/**
+			 * Power actions execute system-level commands with superuser privileges (`su -c`). The WebUI daemon and active services will disconnect immediately upon reboot.
+			 */
+			body: () => LocalizedString
+		}
+		schedule: {
+			/**
+			 * Scheduled Auto-Reboot
+			 */
+			title: () => LocalizedString
+			/**
+			 * Periodic or time-based automated reboot cycle
+			 */
+			subtitle: () => LocalizedString
+			/**
+			 * SCHEDULE ACTIVE
+			 */
+			activeBadge: () => LocalizedString
+			/**
+			 * SCHEDULE DISABLED
+			 */
+			inactiveBadge: () => LocalizedString
+			/**
+			 * Automated Reboot
+			 */
+			autoReboot: () => LocalizedString
+			/**
+			 * ENABLED
+			 */
+			enabled: () => LocalizedString
+			/**
+			 * DISABLED
+			 */
+			disabled: () => LocalizedString
+			/**
+			 * Automates kernel reboot cycles to clear memory and refresh cellular modem stack.
+			 */
+			autoRebootDesc: () => LocalizedString
+			/**
+			 * Enable Auto-Reboot
+			 */
+			enableTitle: () => LocalizedString
+			/**
+			 * Disable Auto-Reboot
+			 */
+			disableTitle: () => LocalizedString
+			/**
+			 * Reboot Trigger Mode
+			 */
+			triggerMode: () => LocalizedString
+			/**
+			 * Uptime Interval
+			 */
+			intervalMode: () => LocalizedString
+			/**
+			 * Specific Time (Daily)
+			 */
+			clockMode: () => LocalizedString
+			/**
+			 * Quick Interval Presets
+			 */
+			presets: () => LocalizedString
+			/**
+			 * {hours}h
+			 */
+			presetHours: (arg: { hours: unknown }) => LocalizedString
+			/**
+			 * Custom Interval:
+			 */
+			customInterval: () => LocalizedString
+			/**
+			 * hours
+			 */
+			hoursUnit: () => LocalizedString
+			/**
+			 * Cycle: every {hours} hours from boot time
+			 */
+			cycleNote: (arg: { hours: unknown }) => LocalizedString
+			/**
+			 * Current Uptime
+			 */
+			uptime: () => LocalizedString
+			/**
+			 * Next Reboot Countdown
+			 */
+			nextCountdown: () => LocalizedString
+			/**
+			 * Disabled
+			 */
+			countdownDisabled: () => LocalizedString
+			/**
+			 * Due now
+			 */
+			countdownDueNow: () => LocalizedString
+			/**
+			 * Reboot Time (24 Hours)
+			 */
+			rebootTime: () => LocalizedString
+			/**
+			 * Quick Time Presets
+			 */
+			quickTimePresets: () => LocalizedString
+			/**
+			 * Estimated Next Reboot
+			 */
+			nextReboot: () => LocalizedString
+			/**
+			 * Countdown
+			 */
+			countdown: () => LocalizedString
+			/**
+			 * Schedule Inactive
+			 */
+			scheduleInactive: () => LocalizedString
+			/**
+			 * Daily at {time}
+			 */
+			dailyAt: (arg: { time: unknown }) => LocalizedString
+			/**
+			 * Every {hours} hours
+			 */
+			everyHours: (arg: { hours: unknown }) => LocalizedString
+			/**
+			 * Configure your preferred auto-reboot interval or time.
+			 */
+			configureHint: () => LocalizedString
+			/**
+			 * Refresh Schedule Status
+			 */
+			refreshTitle: () => LocalizedString
+			/**
+			 * Save Schedule
+			 */
+			saveSchedule: () => LocalizedString
+			/**
+			 * Saving...
+			 */
+			saving: () => LocalizedString
+			toasts: {
+				/**
+				 * Failed to fetch reboot schedule
+				 */
+				fetchFailed: () => LocalizedString
+				/**
+				 * Failed to save reboot schedule
+				 */
+				saveFailed: () => LocalizedString
+				/**
+				 * Reboot schedule saved successfully.
+				 */
+				saved: () => LocalizedString
+			}
+		}
+		actions: {
+			reboot: {
+				/**
+				 * Reboot
+				 */
+				title: () => LocalizedString
+				/**
+				 * Restart Android OS and reload root daemons.
+				 */
+				desc: () => LocalizedString
+				/**
+				 * Reboot System
+				 */
+				button: () => LocalizedString
+			}
+			recovery: {
+				/**
+				 * Recovery
+				 */
+				title: () => LocalizedString
+				/**
+				 * Enter custom recovery (TWRP/OrangeFox).
+				 */
+				desc: () => LocalizedString
+				/**
+				 * Recovery Mode
+				 */
+				button: () => LocalizedString
+			}
+			fastboot: {
+				/**
+				 * Fastboot
+				 */
+				title: () => LocalizedString
+				/**
+				 * Enter bootloader partition for PC USB flashing.
+				 */
+				desc: () => LocalizedString
+				/**
+				 * Fastboot Mode
+				 */
+				button: () => LocalizedString
+			}
+			poweroff: {
+				/**
+				 * Power Off
+				 */
+				title: () => LocalizedString
+				/**
+				 * Halt kernel and turn off device completely.
+				 */
+				desc: () => LocalizedString
+				/**
+				 * Shut Down
+				 */
+				button: () => LocalizedString
+			}
+		}
+		confirm: {
+			/**
+			 * Confirm Power Action
+			 */
+			title: () => LocalizedString
+			/**
+			 * Are you sure you want to proceed? Any unsaved changes in running processes may be lost.
+			 */
+			body: () => LocalizedString
+			/**
+			 * Executing...
+			 */
+			executing: () => LocalizedString
+			/**
+			 * Yes, Proceed
+			 */
+			proceed: () => LocalizedString
+		}
+		actionLabels: {
+			reboot: {
+				/**
+				 * Reboot Device
+				 */
+				title: () => LocalizedString
+				/**
+				 * Performs standard Android OS system reboot via root execution.
+				 */
+				desc: () => LocalizedString
+			}
+			recovery: {
+				/**
+				 * Reboot to Recovery
+				 */
+				title: () => LocalizedString
+				/**
+				 * Reboots into TWRP / OrangeFox / Custom Recovery environment.
+				 */
+				desc: () => LocalizedString
+			}
+			bootloader: {
+				/**
+				 * Reboot to Bootloader
+				 */
+				title: () => LocalizedString
+				/**
+				 * Reboots into Fastboot / Download mode for flashing.
+				 */
+				desc: () => LocalizedString
+			}
+			poweroff: {
+				/**
+				 * System Power Off
+				 */
+				title: () => LocalizedString
+				/**
+				 * Completely shuts down the Android device hardware.
+				 */
+				desc: () => LocalizedString
+			}
+		}
+		toasts: {
+			/**
+			 * Power command '{action}' dispatched to Android kernel.
+			 */
+			dispatched: (arg: { action: unknown }) => LocalizedString
+			/**
+			 * Failed to execute power action
+			 */
+			executeFailed: () => LocalizedString
 		}
 	}
 }

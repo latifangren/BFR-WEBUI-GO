@@ -2031,6 +2031,103 @@ const id = {
 			},
 		},
 	},
+	power: {
+		title: 'Aksi Daya & Sistem',
+		warning: {
+			title: 'Peringatan Eksekusi Root',
+			body: 'Aksi daya menjalankan perintah level sistem dengan hak superuser (`su -c`). Daemon WebUI dan layanan aktif akan terputus segera setelah reboot.',
+		},
+		schedule: {
+			title: 'Reboot Otomatis Terjadwal',
+			subtitle: 'Siklus reboot otomatis berkala atau berdasarkan waktu',
+			activeBadge: 'JADWAL AKTIF',
+			inactiveBadge: 'JADWAL NONAKTIF',
+			autoReboot: 'Reboot Otomatis',
+			enabled: 'AKTIF',
+			disabled: 'NONAKTIF',
+			autoRebootDesc: 'Mengotomatiskan siklus reboot kernel untuk membersihkan memori dan menyegarkan tumpukan modem seluler.',
+			enableTitle: 'Aktifkan Reboot Otomatis',
+			disableTitle: 'Nonaktifkan Reboot Otomatis',
+			triggerMode: 'Mode Pemicu Reboot',
+			intervalMode: 'Interval Uptime',
+			clockMode: 'Waktu Tertentu (Harian)',
+			presets: 'Preset Interval Cepat',
+			presetHours: '{hours} Jam',
+			customInterval: 'Interval Kustom:',
+			hoursUnit: 'Jam Sekali',
+			cycleNote: 'Siklus: setiap {hours} jam dari waktu boot',
+			uptime: 'Uptime Saat Ini',
+			nextCountdown: 'Hitung Mundur Reboot Berikutnya',
+			countdownDisabled: 'Nonaktif',
+			countdownDueNow: 'Jatuh tempo sekarang',
+			rebootTime: 'Waktu Reboot (24 Jam)',
+			quickTimePresets: 'Preset Waktu Cepat',
+			nextReboot: 'Perkiraan Reboot Berikutnya',
+			countdown: 'Hitung Mundur',
+			scheduleInactive: 'Jadwal Nonaktif',
+			dailyAt: 'Harian pukul {time}',
+			everyHours: 'Setiap {hours} jam',
+			configureHint: 'Atur interval atau waktu reboot otomatis yang Anda inginkan.',
+			refreshTitle: 'Segarkan Status Jadwal',
+			saveSchedule: 'Simpan Jadwal',
+			saving: 'Menyimpan...',
+			toasts: {
+				fetchFailed: 'Gagal mengambil jadwal reboot',
+				saveFailed: 'Gagal menyimpan jadwal reboot',
+				saved: 'Jadwal reboot berhasil disimpan.',
+			},
+		},
+		actions: {
+			reboot: {
+				title: 'Reboot',
+				desc: 'Restart OS Android dan muat ulang daemon root.',
+				button: 'Reboot Sistem',
+			},
+			recovery: {
+				title: 'Recovery',
+				desc: 'Masuk ke recovery kustom (TWRP/OrangeFox).',
+				button: 'Mode Recovery',
+			},
+			fastboot: {
+				title: 'Fastboot',
+				desc: 'Masuk ke partisi bootloader untuk flashing via USB PC.',
+				button: 'Mode Fastboot',
+			},
+			poweroff: {
+				title: 'Matikan Daya',
+				desc: 'Hentikan kernel dan matikan perangkat sepenuhnya.',
+				button: 'Matikan',
+			},
+		},
+		confirm: {
+			title: 'Konfirmasi Aksi Daya',
+			body: 'Anda yakin ingin melanjutkan? Perubahan yang belum disimpan pada proses yang sedang berjalan mungkin hilang.',
+			executing: 'Menjalankan...',
+			proceed: 'Ya, Lanjutkan',
+		},
+		actionLabels: {
+			reboot: {
+				title: 'Reboot Perangkat',
+				desc: 'Melakukan reboot sistem OS Android standar via eksekusi root.',
+			},
+			recovery: {
+				title: 'Reboot ke Recovery',
+				desc: 'Reboot ke lingkungan TWRP / OrangeFox / Custom Recovery.',
+			},
+			bootloader: {
+				title: 'Reboot ke Bootloader',
+				desc: 'Reboot ke mode Fastboot / Download untuk flashing.',
+			},
+			poweroff: {
+				title: 'Matikan Sistem',
+				desc: 'Mematikan perangkat keras Android sepenuhnya.',
+			},
+		},
+		toasts: {
+			dispatched: "Perintah daya '{action}' dikirim ke kernel Android.",
+			executeFailed: 'Gagal menjalankan aksi daya',
+		},
+	},
 } satisfies Translation
 
 export default id
