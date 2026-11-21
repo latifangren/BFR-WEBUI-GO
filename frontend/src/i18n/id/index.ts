@@ -2952,6 +2952,22 @@ const id = {
 			noMatch: 'Tidak ada log yang cocok dengan filter saat ini.',
 		},
 	},
+	sms: {
+		title: 'Pesan SMS & Kotak Masuk Verifikasi',
+		loaded: '{loaded} / {total} Dimuat',
+		searchPlaceholder: 'Filter berdasarkan nomor pengirim atau kata kunci...',
+		loading: 'Membaca pesan SMS dari penyedia Android Telephony...',
+		empty: 'Tidak ada pesan SMS yang cocok dengan kriteria Anda.',
+		detectedOtp: 'Kode OTP Terdeteksi:',
+		copied: 'Tersalin!',
+		copyOtp: 'Salin OTP',
+		loadMore: 'Muat pesan lainnya',
+		toasts: {
+			loadFailed: 'Gagal memuat kotak masuk SMS',
+			otpCopied: 'OTP {otp} disalin ke clipboard!',
+			copyFailed: 'Gagal menyalin ke clipboard',
+		},
+	},
 } satisfies Translation
 
 export default id

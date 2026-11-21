@@ -10951,6 +10951,61 @@ type RootTranslation = {
 			noMatch: string
 		}
 	}
+	sms: {
+		/**
+		 * S​M​S​ ​M​e​s​s​a​g​e​s​ ​&​ ​V​e​r​i​f​i​c​a​t​i​o​n​ ​I​n​b​o​x
+		 */
+		title: string
+		/**
+		 * {​l​o​a​d​e​d​}​ ​/​ ​{​t​o​t​a​l​}​ ​L​o​a​d​e​d
+		 * @param {unknown} loaded
+		 * @param {unknown} total
+		 */
+		loaded: RequiredParams<'loaded' | 'total'>
+		/**
+		 * F​i​l​t​e​r​ ​b​y​ ​s​e​n​d​e​r​ ​n​u​m​b​e​r​ ​o​r​ ​k​e​y​w​o​r​d​.​.​.
+		 */
+		searchPlaceholder: string
+		/**
+		 * R​e​a​d​i​n​g​ ​S​M​S​ ​m​e​s​s​a​g​e​s​ ​f​r​o​m​ ​A​n​d​r​o​i​d​ ​T​e​l​e​p​h​o​n​y​ ​p​r​o​v​i​d​e​r​.​.​.
+		 */
+		loading: string
+		/**
+		 * N​o​ ​S​M​S​ ​m​e​s​s​a​g​e​s​ ​f​o​u​n​d​ ​m​a​t​c​h​i​n​g​ ​y​o​u​r​ ​c​r​i​t​e​r​i​a​.
+		 */
+		empty: string
+		/**
+		 * D​e​t​e​c​t​e​d​ ​O​T​P​ ​C​o​d​e​:
+		 */
+		detectedOtp: string
+		/**
+		 * C​o​p​i​e​d​!
+		 */
+		copied: string
+		/**
+		 * C​o​p​y​ ​O​T​P
+		 */
+		copyOtp: string
+		/**
+		 * L​o​a​d​ ​m​o​r​e​ ​m​e​s​s​a​g​e​s
+		 */
+		loadMore: string
+		toasts: {
+			/**
+			 * F​a​i​l​e​d​ ​t​o​ ​l​o​a​d​ ​S​M​S​ ​i​n​b​o​x
+			 */
+			loadFailed: string
+			/**
+			 * O​T​P​ ​{​o​t​p​}​ ​c​o​p​i​e​d​ ​t​o​ ​c​l​i​p​b​o​a​r​d​!
+			 * @param {unknown} otp
+			 */
+			otpCopied: RequiredParams<'otp'>
+			/**
+			 * F​a​i​l​e​d​ ​t​o​ ​c​o​p​y​ ​t​o​ ​c​l​i​p​b​o​a​r​d
+			 */
+			copyFailed: string
+		}
+	}
 }
 
 export type TranslationFunctions = {
@@ -21586,6 +21641,58 @@ export type TranslationFunctions = {
 			 * No logs matching current filter.
 			 */
 			noMatch: () => LocalizedString
+		}
+	}
+	sms: {
+		/**
+		 * SMS Messages & Verification Inbox
+		 */
+		title: () => LocalizedString
+		/**
+		 * {loaded} / {total} Loaded
+		 */
+		loaded: (arg: { loaded: unknown, total: unknown }) => LocalizedString
+		/**
+		 * Filter by sender number or keyword...
+		 */
+		searchPlaceholder: () => LocalizedString
+		/**
+		 * Reading SMS messages from Android Telephony provider...
+		 */
+		loading: () => LocalizedString
+		/**
+		 * No SMS messages found matching your criteria.
+		 */
+		empty: () => LocalizedString
+		/**
+		 * Detected OTP Code:
+		 */
+		detectedOtp: () => LocalizedString
+		/**
+		 * Copied!
+		 */
+		copied: () => LocalizedString
+		/**
+		 * Copy OTP
+		 */
+		copyOtp: () => LocalizedString
+		/**
+		 * Load more messages
+		 */
+		loadMore: () => LocalizedString
+		toasts: {
+			/**
+			 * Failed to load SMS inbox
+			 */
+			loadFailed: () => LocalizedString
+			/**
+			 * OTP {otp} copied to clipboard!
+			 */
+			otpCopied: (arg: { otp: unknown }) => LocalizedString
+			/**
+			 * Failed to copy to clipboard
+			 */
+			copyFailed: () => LocalizedString
 		}
 	}
 }

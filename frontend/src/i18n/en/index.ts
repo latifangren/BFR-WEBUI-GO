@@ -2952,6 +2952,22 @@ const en = {
 			noMatch: 'No logs matching current filter.',
 		},
 	},
+	sms: {
+		title: 'SMS Messages & Verification Inbox',
+		loaded: '{loaded} / {total} Loaded',
+		searchPlaceholder: 'Filter by sender number or keyword...',
+		loading: 'Reading SMS messages from Android Telephony provider...',
+		empty: 'No SMS messages found matching your criteria.',
+		detectedOtp: 'Detected OTP Code:',
+		copied: 'Copied!',
+		copyOtp: 'Copy OTP',
+		loadMore: 'Load more messages',
+		toasts: {
+			loadFailed: 'Failed to load SMS inbox',
+			otpCopied: 'OTP {otp} copied to clipboard!',
+			copyFailed: 'Failed to copy to clipboard',
+		},
+	},
 } satisfies BaseTranslation
 
 export default en
