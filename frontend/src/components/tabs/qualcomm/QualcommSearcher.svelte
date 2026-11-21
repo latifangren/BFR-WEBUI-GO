@@ -21,6 +21,7 @@
   import Badge from '../../ui/Badge.svelte'
   import { themeStore } from '../../../stores/theme.svelte'
   import SakugaCheckbox from '../../ui/SakugaCheckbox.svelte'
+  import { LL } from '../../../i18n/i18n-svelte'
 
   interface SearcherItem {
     raw_value: number
@@ -108,9 +109,9 @@
         extraLocks = resLocks.locks
         geranArfcnInput = (resLocks.locks.geran_arfcn_list || []).join(', ')
       }
-      toastStore.success('Searcher preferences & locks loaded.')
+      toastStore.success($LL.qualcomm.searcher.loaded())
     } catch (err: unknown) {
-      toastStore.error(err instanceof Error ? err.message : 'Failed to load searcher data')
+      toastStore.error(err instanceof Error ? err.message : $LL.qualcomm.searcher.loadFailed())
     } finally {
       isLoading = false
     }
@@ -120,13 +121,13 @@
     const pci = parseInt(newCellPci.trim(), 10)
     const cid = parseInt(newCellCid.trim(), 10)
     if (isNaN(pci) || isNaN(cid)) {
-      toastStore.error('PCI and CID must be valid numbers')
+      toastStore.error($LL.qualcomm.searcher.invalidPciCid())
       return
     }
 
     const current = searcherPrefs[selectedRat].cell_blacklist
     if (current.length >= 6) {
-      toastStore.error('Maximum 6 blacklist entries per RAT')
+      toastStore.error($LL.qualcomm.searcher.maxCell())
       return
     }
 
@@ -149,12 +150,12 @@
   function addChannelBlacklist() {
     const ch = parseInt(newChannel.trim(), 10)
     if (isNaN(ch)) {
-      toastStore.error('Channel number must be valid')
+      toastStore.error($LL.qualcomm.searcher.invalidChannel())
       return
     }
     const current = searcherPrefs[selectedRat].channel_blacklist
     if (current.length >= 6) {
-      toastStore.error('Maximum 6 channel blacklist entries')
+      toastStore.error($LL.qualcomm.searcher.maxChannel())
       return
     }
     current.push({
@@ -172,13 +173,13 @@
   function addPriorityChannel() {
     const ch = parseInt(newPriorityChannel.trim(), 10)
     if (isNaN(ch)) {
-      toastStore.error('Priority channel must be valid')
+      toastStore.error($LL.qualcomm.searcher.invalidPriority())
       return
     }
     const current = searcherPrefs[selectedRat].priority_channels
     const maxEntries = selectedRat === 'umts' ? 1 : 6
     if (current.length >= maxEntries) {
-      toastStore.error(`Maximum ${maxEntries} priority entries for ${selectedRat.toUpperCase()}`)
+      toastStore.error($LL.qualcomm.searcher.maxPriority({ count: maxEntries, rat: selectedRat.toUpperCase() }))
       return
     }
     current.push({
@@ -204,12 +205,12 @@
       })
 
       if (res && res.ok) {
-        toastStore.success(`Searcher preferences applied${res.ssr_triggered ? ' (SSR restart triggered)' : ''}`)
+        toastStore.success(res.ssr_triggered ? $LL.qualcomm.searcher.appliedSsr() : $LL.qualcomm.searcher.applied())
       } else {
-        toastStore.error(res?.error || 'Failed to apply searcher preferences')
+        toastStore.error(res?.error || $LL.qualcomm.searcher.applyFailed())
       }
     } catch (err: unknown) {
-      toastStore.error(err instanceof Error ? err.message : 'Save failed')
+      toastStore.error(err instanceof Error ? err.message : $LL.qualcomm.searcher.saveFailed())
     } finally {
       isSaving = false
     }
@@ -234,12 +235,12 @@
       })
 
       if (res && res.ok) {
-        toastStore.success(`Extra locks saved to EFS${res.ssr_triggered ? ' (SSR restart triggered)' : ''}`)
+        toastStore.success(res.ssr_triggered ? $LL.qualcomm.searcher.locksSavedSsr() : $LL.qualcomm.searcher.locksSaved())
       } else {
-        toastStore.error(res?.error || 'Failed to save extra locks')
+        toastStore.error(res?.error || $LL.qualcomm.searcher.locksSaveFailed())
       }
     } catch (err: unknown) {
-      toastStore.error(err instanceof Error ? err.message : 'Save failed')
+      toastStore.error(err instanceof Error ? err.message : $LL.qualcomm.searcher.saveFailed())
     } finally {
       isSaving = false
     }
@@ -253,13 +254,13 @@
       <div class="flex items-center gap-2">
         <Filter class="w-5 h-5 text-accent" />
         <h3 class="text-sm font-black uppercase tracking-wider text-foreground">
-          Qualcomm Searcher Preferences & Extra Locks
+          {$LL.qualcomm.searcher.title()}
         </h3>
       </div>
       <div class="flex items-center gap-2">
         <Button variant="outline" size="sm" onclick={loadAll} disabled={isLoading} class="gap-1.5">
           <RefreshCw class="w-3.5 h-3.5 {isLoading ? 'animate-spin' : ''}" />
-          <span>Reload</span>
+          <span>{$LL.common.reload()}</span>
         </Button>
       </div>
     </div>
@@ -268,10 +269,9 @@
     <div class="p-3 bg-amber-500/10 border-2 border-amber-500/30 rounded text-xs text-amber-900 dark:text-amber-200 flex items-start gap-2.5">
       <ShieldAlert class="w-4 h-4 text-amber-700 dark:text-amber-400 shrink-0 mt-0.5" />
       <div class="space-y-1">
-        <span class="font-bold uppercase tracking-wider block text-amber-800 dark:text-amber-400">Side Effect Warning:</span>
+        <span class="font-bold uppercase tracking-wider block text-amber-800 dark:text-amber-400">{$LL.qualcomm.searcher.warningTitle()}</span>
         <p>
-          Modifying Searcher Preferences or Cell Locks triggers a <strong>modem power cycle / subsystem restart (SSR)</strong>.
-          Filling the UMTS (3G) priority list shifts the modem preference to <strong>UMTS-only</strong> mode.
+          {$LL.qualcomm.searcher.warningA()} <strong>modem power cycle / subsystem restart (SSR)</strong>{$LL.qualcomm.searcher.warningB()} <strong>UMTS-only</strong> {$LL.qualcomm.searcher.warningC()}
         </p>
       </div>
     </div>
@@ -281,10 +281,10 @@
   <div class="space-y-4">
     <div class="flex items-center gap-2 border-b-2 border-border pb-1 overflow-x-auto text-xs">
       {#each [
-        { id: 'lte', label: 'LTE (4G)', badge: `${searcherPrefs.lte.cell_blacklist.length + searcherPrefs.lte.channel_blacklist.length} rules` },
-        { id: 'nr', label: 'NR (5G SA/NSA)', badge: `${searcherPrefs.nr.cell_blacklist.length + searcherPrefs.nr.channel_blacklist.length} rules` },
-        { id: 'gsm', label: 'GERAN (GSM)', badge: `${searcherPrefs.gsm.cell_blacklist.length} rules` },
-        { id: 'umts', label: 'WCDMA (UMTS/3G)', badge: `${searcherPrefs.umts.priority_channels.length} rules` },
+        { id: 'lte', label: 'LTE (4G)', badge: $LL.qualcomm.searcher.rules({ count: searcherPrefs.lte.cell_blacklist.length + searcherPrefs.lte.channel_blacklist.length }) },
+        { id: 'nr', label: 'NR (5G SA/NSA)', badge: $LL.qualcomm.searcher.rules({ count: searcherPrefs.nr.cell_blacklist.length + searcherPrefs.nr.channel_blacklist.length }) },
+        { id: 'gsm', label: 'GERAN (GSM)', badge: $LL.qualcomm.searcher.rules({ count: searcherPrefs.gsm.cell_blacklist.length }) },
+        { id: 'umts', label: 'WCDMA (UMTS/3G)', badge: $LL.qualcomm.searcher.rules({ count: searcherPrefs.umts.priority_channels.length }) },
       ] as tab}
         <button
           type="button"
@@ -303,23 +303,23 @@
     <Card class="p-4 border-2 border-border shadow-neobrutal-sm bg-card space-y-5">
       <div class="flex items-center justify-between border-b-2 border-border/60 pb-2">
         <span class="text-xs font-black uppercase tracking-wider text-foreground">
-          {selectedRat.toUpperCase()} Cell & Channel Blacklist / Priority
+          {$LL.qualcomm.searcher.ratTitle({ rat: selectedRat.toUpperCase() })}
         </span>
-        <span class="text-[11px] text-muted">Max 6 entries per list (UMTS Priority: 1)</span>
+        <span class="text-[11px] text-muted">{$LL.qualcomm.searcher.maxNote()}</span>
       </div>
 
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
         <!-- 1. CELL BLACKLIST -->
         <div class="p-3 bg-card-sub border-2 border-border rounded space-y-3">
           <div class="flex items-center justify-between">
-            <span class="text-xs font-bold text-foreground">Cell Blacklist</span>
+            <span class="text-xs font-bold text-foreground">{$LL.qualcomm.searcher.cellBlacklist()}</span>
             <Badge variant="default">{searcherPrefs[selectedRat].cell_blacklist.length}/6</Badge>
           </div>
 
           <div class="space-y-1.5 max-h-48 overflow-y-auto">
             {#if searcherPrefs[selectedRat].cell_blacklist.length === 0}
               <div class="p-3 text-center text-xs text-muted font-mono border border-dashed border-border rounded">
-                No cells blacklisted
+                {$LL.qualcomm.searcher.noCells()}
               </div>
             {:else}
               {#each searcherPrefs[selectedRat].cell_blacklist as cell, i}
@@ -329,7 +329,7 @@
                     type="button"
                     class="text-red-400 hover:text-red-300 p-1"
                     onclick={() => removeCellBlacklist(i)}
-                    aria-label="Remove cell"
+                    aria-label={$LL.qualcomm.searcher.removeCell()}
                   >
                     <Trash2 class="w-3.5 h-3.5" />
                   </button>
@@ -341,13 +341,13 @@
           <div class="flex items-center gap-1.5 pt-2 border-t border-border/60">
             <input
               type="text"
-              placeholder="PCI"
+              placeholder={$LL.qualcomm.searcher.phPci()}
               bind:value={newCellPci}
               class="w-20 px-2 py-1 text-xs bg-card border-2 border-border rounded text-foreground font-mono"
             />
             <input
               type="text"
-              placeholder="Cell ID (CID)"
+              placeholder={$LL.qualcomm.searcher.phCid()}
               bind:value={newCellCid}
               class="flex-1 px-2 py-1 text-xs bg-card border-2 border-border rounded text-foreground font-mono"
             />
@@ -360,14 +360,14 @@
         <!-- 2. CHANNEL BLACKLIST -->
         <div class="p-3 bg-card-sub border-2 border-border rounded space-y-3">
           <div class="flex items-center justify-between">
-            <span class="text-xs font-bold text-foreground">Channel Blacklist</span>
+            <span class="text-xs font-bold text-foreground">{$LL.qualcomm.searcher.channelBlacklist()}</span>
             <Badge variant="default">{searcherPrefs[selectedRat].channel_blacklist.length}/6</Badge>
           </div>
 
           <div class="space-y-1.5 max-h-48 overflow-y-auto">
             {#if searcherPrefs[selectedRat].channel_blacklist.length === 0}
               <div class="p-3 text-center text-xs text-muted font-mono border border-dashed border-border rounded">
-                No channels blacklisted
+                {$LL.qualcomm.searcher.noChannels()}
               </div>
             {:else}
               {#each searcherPrefs[selectedRat].channel_blacklist as ch, i}
@@ -377,7 +377,7 @@
                     type="button"
                     class="text-red-400 hover:text-red-300 p-1"
                     onclick={() => removeChannelBlacklist(i)}
-                    aria-label="Remove channel"
+                    aria-label={$LL.qualcomm.searcher.removeChannel()}
                   >
                     <Trash2 class="w-3.5 h-3.5" />
                   </button>
@@ -389,7 +389,7 @@
           <div class="flex items-center gap-1.5 pt-2 border-t border-border/60">
             <input
               type="text"
-              placeholder="EARFCN / ARFCN"
+              placeholder={$LL.qualcomm.searcher.phChannel()}
               bind:value={newChannel}
               class="flex-1 px-2 py-1 text-xs bg-card border-2 border-border rounded text-foreground font-mono"
             />
@@ -402,14 +402,14 @@
         <!-- 3. PRIORITY CHANNELS -->
         <div class="p-3 bg-card-sub border-2 border-border rounded space-y-3">
           <div class="flex items-center justify-between">
-            <span class="text-xs font-bold text-foreground">Priority Channels</span>
+            <span class="text-xs font-bold text-foreground">{$LL.qualcomm.searcher.priorityChannels()}</span>
             <Badge variant="default">{searcherPrefs[selectedRat].priority_channels.length}/{selectedRat === 'umts' ? 1 : 6}</Badge>
           </div>
 
           <div class="space-y-1.5 max-h-48 overflow-y-auto">
             {#if searcherPrefs[selectedRat].priority_channels.length === 0}
               <div class="p-3 text-center text-xs text-muted font-mono border border-dashed border-border rounded">
-                No priority channels set
+                {$LL.qualcomm.searcher.noPriority()}
               </div>
             {:else}
               {#each searcherPrefs[selectedRat].priority_channels as ch, i}
@@ -419,7 +419,7 @@
                     type="button"
                     class="text-red-400 hover:text-red-300 p-1"
                     onclick={() => removePriorityChannel(i)}
-                    aria-label="Remove priority"
+                    aria-label={$LL.qualcomm.searcher.removePriority()}
                   >
                     <Trash2 class="w-3.5 h-3.5" />
                   </button>
@@ -431,7 +431,7 @@
           <div class="flex items-center gap-1.5 pt-2 border-t border-border/60">
             <input
               type="text"
-              placeholder="Priority EARFCN"
+              placeholder={$LL.qualcomm.searcher.phPriority()}
               bind:value={newPriorityChannel}
               class="flex-1 px-2 py-1 text-xs bg-card border-2 border-border rounded text-foreground font-mono"
             />
@@ -449,11 +449,11 @@
           {:else}
           <input type="checkbox" bind:checked={restartSSR} class="w-4 h-4 accent-accent" />
           {/if}
-          <span>Restart modem (SSR) after write</span>
+          <span>{$LL.qualcomm.searcher.restartAfterWrite()}</span>
         </label>
         <Button variant="primary" onclick={saveSearcherPreferences} disabled={isSaving} class="gap-2">
           <Save class="w-4 h-4" />
-          <span>{isSaving ? 'Writing to EFS...' : 'Apply Searcher Preferences'}</span>
+          <span>{isSaving ? $LL.qualcomm.searcher.writing() : $LL.qualcomm.searcher.apply()}</span>
         </Button>
       </div>
     </Card>
@@ -464,14 +464,14 @@
     <div class="flex items-center gap-2 border-b-2 border-border/60 pb-3">
       <Lock class="w-4 h-4 text-accent" />
       <span class="text-xs font-black uppercase tracking-wider text-foreground">
-        Extra Locks (GERAN, WCDMA & CSP)
+        {$LL.qualcomm.searcher.extraLocksTitle()}
       </span>
     </div>
 
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
       <!-- GERAN LOCKS -->
       <div class="p-3 bg-card-sub border-2 border-border rounded space-y-3">
-        <span class="font-bold text-foreground block uppercase text-[11px] tracking-wider">GERAN (GSM) Locks</span>
+        <span class="font-bold text-foreground block uppercase text-[11px] tracking-wider">{$LL.qualcomm.searcher.geranTitle()}</span>
 
         <label class="flex items-center gap-2 cursor-pointer">
           {#if themeStore.useSakugaControls()}
@@ -479,15 +479,15 @@
           {:else}
           <input type="checkbox" bind:checked={extraLocks.geran_lock_arfcn_enabled} class="w-4 h-4 accent-accent" />
           {/if}
-          <span class="font-bold text-foreground">Enable GERAN ARFCN Locking</span>
+          <span class="font-bold text-foreground">{$LL.qualcomm.searcher.enableGeran()}</span>
         </label>
 
         <div class="space-y-1">
-          <label for="geran-arfcn-input" class="text-[10px] text-muted uppercase font-bold block">GERAN ARFCN List (comma separated):</label>
+          <label for="geran-arfcn-input" class="text-[10px] text-muted uppercase font-bold block">{$LL.qualcomm.searcher.geranListLabel()}</label>
           <input
             id="geran-arfcn-input"
             type="text"
-            placeholder="e.g. 512, 513, 514"
+            placeholder={$LL.qualcomm.searcher.geranPlaceholder()}
             bind:value={geranArfcnInput}
             class="w-full px-2.5 py-1.5 bg-card border-2 border-border rounded text-foreground font-mono"
           />
@@ -499,16 +499,16 @@
           {:else}
           <input type="checkbox" bind:checked={extraLocks.fake_bts_cell_barring_enabled} class="w-4 h-4 accent-accent" />
           {/if}
-          <span class="font-bold text-foreground">Fake BTS Cell Barring</span>
+          <span class="font-bold text-foreground">{$LL.qualcomm.searcher.fakeBts()}</span>
         </label>
       </div>
 
       <!-- WCDMA & CSP LOCKS -->
       <div class="p-3 bg-card-sub border-2 border-border rounded space-y-3">
-        <span class="font-bold text-foreground block uppercase text-[11px] tracking-wider">WCDMA & CSP Direct Locks</span>
+        <span class="font-bold text-foreground block uppercase text-[11px] tracking-wider">{$LL.qualcomm.searcher.wcdmaTitle()}</span>
 
         <div class="space-y-1">
-          <label for="wcdma-freq-input" class="text-[10px] text-muted uppercase font-bold block">WCDMA Frequency Lock (UARFCN, 0 = disabled):</label>
+          <label for="wcdma-freq-input" class="text-[10px] text-muted uppercase font-bold block">{$LL.qualcomm.searcher.wcdmaLabel()}</label>
           <input
             id="wcdma-freq-input"
             type="number"
@@ -519,7 +519,7 @@
 
         <div class="grid grid-cols-2 gap-2">
           <div class="space-y-1">
-            <label for="lte-csp-pci" class="text-[10px] text-muted uppercase font-bold block">LTE CSP PCI:</label>
+            <label for="lte-csp-pci" class="text-[10px] text-muted uppercase font-bold block">{$LL.qualcomm.searcher.lteCspPci()}</label>
             <input
               id="lte-csp-pci"
               type="number"
@@ -528,7 +528,7 @@
             />
           </div>
           <div class="space-y-1">
-            <label for="lte-csp-earfcn" class="text-[10px] text-muted uppercase font-bold block">LTE CSP EARFCN:</label>
+            <label for="lte-csp-earfcn" class="text-[10px] text-muted uppercase font-bold block">{$LL.qualcomm.searcher.lteCspEarfcn()}</label>
             <input
               id="lte-csp-earfcn"
               type="number"
@@ -540,7 +540,7 @@
 
         <div class="grid grid-cols-2 gap-2">
           <div class="space-y-1">
-            <label for="nr-csp-pci" class="text-[10px] text-muted uppercase font-bold block">NR5G CSP PCI:</label>
+            <label for="nr-csp-pci" class="text-[10px] text-muted uppercase font-bold block">{$LL.qualcomm.searcher.nrCspPci()}</label>
             <input
               id="nr-csp-pci"
               type="number"
@@ -549,7 +549,7 @@
             />
           </div>
           <div class="space-y-1">
-            <label for="nr-csp-earfcn" class="text-[10px] text-muted uppercase font-bold block">NR5G CSP EARFCN:</label>
+            <label for="nr-csp-earfcn" class="text-[10px] text-muted uppercase font-bold block">{$LL.qualcomm.searcher.nrCspEarfcn()}</label>
             <input
               id="nr-csp-earfcn"
               type="number"
@@ -564,7 +564,7 @@
     <div class="flex items-center justify-end pt-3 border-t-2 border-border/60">
       <Button variant="primary" onclick={saveExtraLocks} disabled={isSaving} class="gap-2">
         <Lock class="w-4 h-4" />
-        <span>{isSaving ? 'Saving Locks...' : 'Apply Extra Locks'}</span>
+        <span>{isSaving ? $LL.qualcomm.searcher.savingLocks() : $LL.qualcomm.searcher.applyLocks()}</span>
       </Button>
     </div>
   </Card>

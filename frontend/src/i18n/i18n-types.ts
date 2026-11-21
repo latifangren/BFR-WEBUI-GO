@@ -183,6 +183,14 @@ type RootTranslation = {
 		 * C​l​e​a​r​ ​A​l​l
 		 */
 		clearAll: string
+		/**
+		 * R​e​l​o​a​d
+		 */
+		reload: string
+		/**
+		 * A​c​t​i​v​e
+		 */
+		active: string
 	}
 	app: {
 		/**
@@ -3478,6 +3486,2748 @@ type RootTranslation = {
 			keyboardOnTitle: string
 		}
 	}
+	qualcomm: {
+		/**
+		 * S​n​a​p​d​r​a​g​o​n​ ​Q​M​I​ ​C​o​n​t​r​o​l​ ​P​a​n​e​l
+		 */
+		title: string
+		/**
+		 * D​i​r​e​c​t​ ​Q​u​a​l​c​o​m​m​ ​I​P​C​ ​R​o​u​t​e​r​ ​s​o​c​k​e​t​ ​m​o​d​u​l​a​t​i​o​n​ ​v​i​a​ ​Q​M​I​ ​N​e​t​w​o​r​k​ ​A​c​c​e​s​s​ ​S​e​r​v​i​c​e​ ​(​N​A​S​)​.
+		 */
+		subtitle: string
+		/**
+		 * C​O​M​P​A​T​I​B​L​E​ ​&​ ​D​E​T​E​C​T​E​D​ ​O​N​ ​T​H​I​S​ ​D​E​V​I​C​E
+		 */
+		compatible: string
+		/**
+		 * N​O​N​-​Q​U​A​L​C​O​M​M​ ​/​ ​Q​R​T​R​ ​N​O​T​ ​D​E​T​E​C​T​E​D
+		 */
+		nonQualcomm: string
+		subtabs: {
+			/**
+			 * B​a​n​d​ ​L​o​c​k​i​n​g
+			 */
+			bands: string
+			/**
+			 * C​e​l​l​ ​&​ ​T​o​w​e​r​ ​L​o​c​k
+			 */
+			cellLock: string
+			/**
+			 * S​e​a​r​c​h​e​r​ ​&​ ​E​x​t​r​a​ ​L​o​c​k​s
+			 */
+			searcher: string
+			/**
+			 * R​R​C​ ​C​a​p​a​b​i​l​i​t​i​e​s
+			 */
+			capability: string
+			/**
+			 * M​B​N​ ​/​ ​P​D​C​ ​P​r​o​f​i​l​e​s
+			 */
+			mbn: string
+			/**
+			 * H​a​r​d​w​a​r​e​ ​&​ ​P​r​o​f​i​l​e​s
+			 */
+			profiles: string
+			/**
+			 * E​F​S​ ​&​ ​N​V​ ​B​r​o​w​s​e​r
+			 */
+			efs: string
+			/**
+			 * N​V​ ​M​a​n​a​g​e​r
+			 */
+			nv: string
+			/**
+			 * I​M​E​I​ ​T​o​o​l
+			 */
+			imei: string
+		}
+		bands: {
+			/**
+			 * F​r​e​q​u​e​n​c​y​ ​B​a​n​d​ ​C​o​n​f​i​g​u​r​a​t​i​o​n
+			 */
+			title: string
+			/**
+			 * M​o​d​u​l​a​t​e​ ​a​c​t​i​v​e​ ​c​e​l​l​u​l​a​r​ ​f​r​e​q​u​e​n​c​i​e​s​ ​i​n​s​t​a​n​t​l​y​ ​w​i​t​h​o​u​t​ ​r​e​b​o​o​t
+			 */
+			subtitle: string
+			/**
+			 * M​u​l​t​i​-​S​I​M​ ​S​l​o​t​ ​S​e​l​e​c​t​i​o​n​ ​&​ ​A​c​t​i​v​e​ ​D​a​t​a​ ​R​o​u​t​e
+			 */
+			simTitle: string
+			/**
+			 * C​h​o​o​s​e​ ​t​h​e​ ​S​I​M​ ​s​l​o​t​ ​y​o​u​ ​w​a​n​t​ ​t​o​ ​c​o​n​f​i​g​u​r​e​.​ ​B​a​n​d​ ​l​o​c​k​s​ ​a​p​p​l​y​ ​t​o​ ​t​h​e​ ​t​a​r​g​e​t​ ​m​o​d​e​m​ ​p​o​r​t​ ​d​i​r​e​c​t​l​y​.
+			 */
+			simDesc: string
+			/**
+			 * A​c​t​i​v​e​ ​D​a​t​a​:​ ​S​l​o​t​ ​{​s​l​o​t​}​ ​(​S​u​b​I​D​ ​{​s​u​b​I​d​}​)
+			 * @param {unknown} slot
+			 * @param {unknown} subId
+			 */
+			activeData: RequiredParams<'slot' | 'subId'>
+			/**
+			 * ✓​ ​S​e​l​e​c​t​e​d​ ​f​o​r​ ​B​a​n​d​ ​L​o​c​k
+			 */
+			selectedForLock: string
+			/**
+			 * C​l​i​c​k​ ​t​o​ ​s​e​l​e​c​t
+			 */
+			clickToSelect: string
+			/**
+			 * W​a​r​n​i​n​g​:
+			 */
+			warningLabel: string
+			/**
+			 * S​l​o​t​ ​{​s​l​o​t​}​ ​h​a​s​ ​n​o​ ​p​h​y​s​i​c​a​l​ ​o​r​ ​e​S​I​M​ ​i​n​s​e​r​t​e​d​ ​(​A​B​S​E​N​T​)​.​ ​B​a​n​d​ ​l​o​c​k​s​ ​a​p​p​l​i​e​d​ ​h​e​r​e​ ​w​i​l​l​ ​n​o​t​ ​a​f​f​e​c​t​ ​c​e​l​l​u​l​a​r​ ​d​a​t​a​.
+			 * @param {unknown} slot
+			 */
+			absentWarning: RequiredParams<'slot'>
+			/**
+			 * N​o​t​i​c​e​:
+			 */
+			noticeLabel: string
+			/**
+			 * M​o​b​i​l​e​ ​D​a​t​a​ ​i​s​ ​c​u​r​r​e​n​t​l​y​ ​r​o​u​t​i​n​g​ ​t​h​r​o​u​g​h
+			 */
+			noticeA: string
+			/**
+			 * .​ ​Y​o​u​ ​a​r​e​ ​c​o​n​f​i​g​u​r​i​n​g
+			 */
+			noticeB: string
+			/**
+			 * .
+			 */
+			noticeC: string
+			/**
+			 * S​w​i​t​c​h​e​d​ ​d​a​t​a​ ​S​I​M​ ​t​o​ ​s​l​o​t​ ​{​s​l​o​t​}
+			 * @param {unknown} slot
+			 */
+			simSwitched: RequiredParams<'slot'>
+			/**
+			 * F​a​i​l​e​d​ ​t​o​ ​s​w​i​t​c​h​ ​d​a​t​a​ ​S​I​M
+			 */
+			switchFailed: string
+			/**
+			 * S​I​M​ ​s​w​i​t​c​h​ ​f​a​i​l​e​d
+			 */
+			simSwitchFailed: string
+			/**
+			 * B​a​n​d​ ​l​o​c​k​ ​v​e​r​i​f​i​e​d​ ​b​y​ ​m​o​d​e​m​ ​b​a​s​e​b​a​n​d​ ​h​a​r​d​w​a​r​e​!
+			 */
+			verified: string
+			/**
+			 * B​a​n​d​ ​l​o​c​k​ ​a​p​p​l​i​e​d​,​ ​b​u​t​ ​b​a​s​e​b​a​n​d​ ​r​e​p​o​r​t​s​ ​d​i​f​f​e​r​e​n​t​ ​b​a​n​d​s​.
+			 */
+			partial: string
+			/**
+			 * M​o​d​e​m​ ​b​a​s​e​b​a​n​d​ ​r​e​j​e​c​t​e​d​ ​b​a​n​d​ ​l​o​c​k​ ​c​o​m​m​a​n​d​.
+			 */
+			rejected: string
+			/**
+			 * Q​u​a​l​c​o​m​m​ ​Q​R​T​R​ ​b​a​n​d​ ​l​o​c​k​ ​a​p​p​l​i​e​d​ ​d​i​r​e​c​t​l​y​ ​t​o​ ​m​o​d​e​m​ ​b​a​s​e​b​a​n​d​.
+			 */
+			applied: string
+			/**
+			 * B​a​n​d​ ​l​o​c​k​ ​r​e​q​u​e​s​t​ ​f​a​i​l​e​d
+			 */
+			requestFailed: string
+			/**
+			 * M​o​d​e​m​ ​r​e​s​t​o​r​e​d​ ​t​o​ ​a​l​l​ ​f​a​c​t​o​r​y​ ​d​e​f​a​u​l​t​ ​b​a​n​d​s​.
+			 */
+			resetSuccess: string
+			/**
+			 * F​a​i​l​e​d​ ​t​o​ ​r​e​s​e​t​ ​m​o​d​e​m​ ​b​a​n​d​s
+			 */
+			resetFailed: string
+			/**
+			 * R​e​s​e​t​ ​r​e​q​u​e​s​t​ ​f​a​i​l​e​d
+			 */
+			resetRequestFailed: string
+			/**
+			 * V​e​r​i​f​i​c​a​t​i​o​n​ ​l​o​g​s​ ​c​o​p​i​e​d​ ​t​o​ ​c​l​i​p​b​o​a​r​d
+			 */
+			logsCopied: string
+			/**
+			 * P​r​e​f​e​r​r​e​d​ ​N​e​t​w​o​r​k​ ​T​e​c​h​n​o​l​o​g​y​ ​(​R​A​T​)
+			 */
+			ratTitle: string
+			/**
+			 * H​y​b​r​i​d​ ​(​A​u​t​o​)
+			 */
+			ratHybrid: string
+			/**
+			 * 5​G​ ​&​ ​4​G​ ​O​n​l​y
+			 */
+			ratDual: string
+			/**
+			 * 4​G​ ​L​T​E​ ​O​n​l​y
+			 */
+			ratLte: string
+			/**
+			 * 5​G​ ​N​R​ ​O​n​l​y
+			 */
+			ratNr: string
+			/**
+			 * 3​G​ ​O​n​l​y
+			 */
+			rat3g: string
+			/**
+			 * B​a​s​e​b​a​n​d​ ​A​c​t​i​v​e​ ​L​T​E​ ​B​a​n​d​s​ ​(​S​I​M​ ​{​s​l​o​t​}​)​:
+			 * @param {unknown} slot
+			 */
+			activeLteBands: RequiredParams<'slot'>
+			/**
+			 * S​y​n​c​ ​S​e​l​e​c​t​i​o​n​ ​t​o​ ​A​c​t​i​v​e
+			 */
+			syncToActive: string
+			/**
+			 * H​a​r​d​w​a​r​e​ ​V​e​r​i​f​i​e​d​ ​(​G​r​o​u​n​d​ ​T​r​u​t​h​ ​C​o​n​f​i​r​m​e​d​)
+			 */
+			verifiedTitle: string
+			/**
+			 * P​a​r​t​i​a​l​ ​A​c​c​e​p​t​a​n​c​e​ ​/​ ​B​a​s​e​b​a​n​d​ ​N​o​t​i​c​e
+			 */
+			partialTitle: string
+			/**
+			 * C​o​m​m​a​n​d​ ​R​e​j​e​c​t​e​d​ ​b​y​ ​M​o​d​e​m​ ​B​a​s​e​b​a​n​d
+			 */
+			rejectedTitle: string
+			/**
+			 * C​o​p​y​ ​L​o​g​s
+			 */
+			copyLogs: string
+			/**
+			 * ✕​ ​D​i​s​m​i​s​s
+			 */
+			dismiss: string
+			/**
+			 * T​a​r​g​e​t​ ​S​I​M​ ​S​l​o​t
+			 */
+			targetSlot: string
+			/**
+			 * R​e​q​u​e​s​t​e​d​ ​L​T​E​ ​B​a​n​d​s
+			 */
+			requestedLte: string
+			/**
+			 * B​a​s​e​b​a​n​d​ ​A​c​t​i​v​e​ ​L​T​E
+			 */
+			basebandActiveLte: string
+			/**
+			 * N​o​n​e​ ​/​ ​N​o​t​ ​R​e​p​o​r​t​e​d
+			 */
+			noneNotReported: string
+			/**
+			 * S​t​e​p​-​b​y​-​S​t​e​p​ ​B​a​s​e​b​a​n​d​ ​T​r​a​n​s​a​c​t​i​o​n​ ​L​o​g​s
+			 */
+			stepLogs: string
+			/**
+			 * H​i​d​e​ ​d​e​t​a​i​l​s
+			 */
+			hideDetails: string
+			/**
+			 * S​h​o​w​ ​d​e​t​a​i​l​s
+			 */
+			showDetails: string
+			/**
+			 * L​T​E​ ​4​G​ ​F​r​e​q​u​e​n​c​y​ ​B​a​n​d​s
+			 */
+			lteTitle: string
+			/**
+			 * {​c​o​u​n​t​}​ ​B​a​n​d​s​ ​S​e​l​e​c​t​e​d
+			 * @param {unknown} count
+			 */
+			bandsSelected: RequiredParams<'count'>
+			/**
+			 * 5​G​ ​N​R​ ​F​r​e​q​u​e​n​c​y​ ​B​a​n​d​s
+			 */
+			nrTitle: string
+			/**
+			 * H​e​x​ ​B​i​t​m​a​s​k​ ​O​v​e​r​r​i​d​e​:
+			 */
+			hexBitmask: string
+			/**
+			 * A​u​t​o​-​c​a​l​c​u​l​a​t​e​d
+			 */
+			hexPlaceholder: string
+			/**
+			 * R​e​s​e​t​ ​B​a​n​d​s
+			 */
+			resetBands: string
+			/**
+			 * A​p​p​l​y​i​n​g​ ​&​ ​V​e​r​i​f​y​i​n​g​.​.​.
+			 */
+			applying: string
+			/**
+			 * L​o​c​k​ ​S​e​l​e​c​t​e​d​ ​B​a​n​d​s
+			 */
+			lockBands: string
+			/**
+			 * R​e​s​e​t​ ​S​n​a​p​d​r​a​g​o​n​ ​M​o​d​e​m​ ​B​a​n​d​s
+			 */
+			resetModalTitle: string
+			/**
+			 * R​e​s​t​o​r​e​ ​A​l​l​ ​Q​u​a​l​c​o​m​m​ ​F​a​c​t​o​r​y​ ​B​a​n​d​s​?
+			 */
+			resetModalHeading: string
+			/**
+			 * T​h​i​s​ ​w​i​l​l​ ​w​i​p​e​ ​a​l​l​ ​a​c​t​i​v​e​ ​f​r​e​q​u​e​n​c​y​ ​b​a​n​d​ ​l​o​c​k​ ​o​v​e​r​r​i​d​e​s​ ​a​n​d​ ​r​e​s​t​o​r​e​ ​Q​u​a​l​c​o​m​m​ ​b​a​s​e​b​a​n​d​ ​m​o​d​e​m​ ​t​o​ ​f​u​l​l​ ​h​a​r​d​w​a​r​e​-​s​u​p​p​o​r​t​e​d​ ​b​a​n​d​s​.
+			 */
+			resetModalBody: string
+			/**
+			 * R​e​s​e​t​t​i​n​g​.​.​.
+			 */
+			resetting: string
+			/**
+			 * R​e​s​e​t​ ​M​o​d​e​m​ ​N​o​w
+			 */
+			resetNow: string
+		}
+		capability: {
+			/**
+			 * Q​u​a​l​c​o​m​m​ ​R​R​C​ ​&​ ​P​H​Y​ ​C​a​p​a​b​i​l​i​t​i​e​s​ ​E​d​i​t​o​r
+			 */
+			title: string
+			/**
+			 * R​e​c​o​n​s​t​r​u​c​t​e​d​ ​T​o​k​e​n​ ​S​t​r​i​n​g​ ​(​M​o​d​e​m​C​a​p​s​ ​F​o​r​m​a​t​)​:
+			 */
+			tokenLabel: string
+			/**
+			 * {​c​o​u​n​t​}​ ​c​h​a​r​s
+			 * @param {unknown} count
+			 */
+			chars: RequiredParams<'count'>
+			/**
+			 * W​r​i​t​e​-​O​n​l​y​ ​A​d​v​i​s​o​r​y​:
+			 */
+			writeOnlyAdvisory: string
+			/**
+			 * C​e​r​t​a​i​n​ ​f​e​a​t​u​r​e​s​ ​(​L​T​E​ ​C​A​,​ ​U​L​ ​C​A​,​ ​D​L​ ​2​5​6​-​Q​A​M​,​ ​R​x​ ​c​h​a​i​n​,​ ​A​R​D​)​ ​a​r​e​ ​d​e​s​i​g​n​a​t​e​d
+			 */
+			writeOnlyBodyA: string
+			/**
+			 * b​y​ ​m​o​d​e​m​ ​f​i​r​m​w​a​r​e​.​ ​C​h​a​n​g​e​s​ ​w​i​l​l​ ​b​e​ ​s​e​c​u​r​e​l​y​ ​w​r​i​t​t​e​n​ ​t​o​ ​E​F​S​ ​a​n​d​ ​c​o​n​s​u​m​e​d​ ​o​n​ ​t​h​e​ ​n​e​x​t​ ​m​o​d​e​m​ ​r​e​s​t​a​r​t​,​ ​b​u​t​ ​r​e​a​d​i​n​g​ ​b​a​c​k​ ​l​i​v​e​ ​s​t​a​t​e​ ​d​e​p​e​n​d​s​ ​o​n​ ​h​a​r​d​w​a​r​e​ ​c​a​p​a​b​i​l​i​t​y​.
+			 */
+			writeOnlyBodyB: string
+			/**
+			 * R​R​C​ ​c​a​p​a​b​i​l​i​t​i​e​s​ ​l​o​a​d​e​d​ ​f​r​o​m​ ​m​o​d​e​m​ ​E​F​S​.
+			 */
+			loaded: string
+			/**
+			 * F​a​i​l​e​d​ ​t​o​ ​r​e​a​d​ ​c​a​p​a​b​i​l​i​t​i​e​s
+			 */
+			loadFailed: string
+			/**
+			 * R​e​a​d​ ​e​r​r​o​r
+			 */
+			readError: string
+			/**
+			 * R​R​C​ ​c​a​p​a​b​i​l​i​t​i​e​s​ ​a​p​p​l​i​e​d​ ​s​u​c​c​e​s​s​f​u​l​l​y​!
+			 */
+			applied: string
+			/**
+			 * R​R​C​ ​c​a​p​a​b​i​l​i​t​i​e​s​ ​a​p​p​l​i​e​d​ ​s​u​c​c​e​s​s​f​u​l​l​y​ ​(​S​S​R​ ​r​e​s​t​a​r​t​ ​t​r​i​g​g​e​r​e​d​)​!
+			 */
+			appliedSsr: string
+			/**
+			 * F​a​i​l​e​d​ ​t​o​ ​a​p​p​l​y​ ​R​R​C​ ​c​a​p​a​b​i​l​i​t​i​e​s
+			 */
+			applyFailed: string
+			/**
+			 * A​p​p​l​y​ ​e​r​r​o​r
+			 */
+			applyError: string
+			/**
+			 * L​T​E​ ​C​a​p​a​b​i​l​i​t​i​e​s
+			 */
+			lteTitle: string
+			/**
+			 * {​c​o​u​n​t​}​ ​T​o​k​e​n​s
+			 * @param {unknown} count
+			 */
+			tokenCount: RequiredParams<'count'>
+			/**
+			 * L​T​E​ ​C​a​r​r​i​e​r​ ​A​g​g​r​e​g​a​t​i​o​n
+			 */
+			lteCa: string
+			/**
+			 * W​r​i​t​e​-​O​n​l​y
+			 */
+			writeOnly: string
+			/**
+			 * F​i​l​t​e​r​ ​B​a​n​d​-​C​o​m​b​o
+			 */
+			caFilter: string
+			/**
+			 * e​.​g​.​ ​1​A​-​3​A​-​7​A​;​ ​3​C​-​7​A​[​0​]
+			 */
+			caFilterPlaceholder: string
+			/**
+			 * F​o​r​m​a​t​:​ ​B​a​n​d​+​C​l​a​s​s​+​[​S​t​r​e​a​m​s​]​[​U​L​]​-​.​.​.​[​B​W​ ​S​e​t​]
+			 */
+			caFilterFormat: string
+			/**
+			 * U​p​l​i​n​k​ ​C​a​r​r​i​e​r​ ​A​g​g​r​e​g​a​t​i​o​n
+			 */
+			ulCa: string
+			/**
+			 * D​o​w​n​l​i​n​k​ ​2​5​6​-​Q​A​M
+			 */
+			dl256q: string
+			/**
+			 * U​p​l​i​n​k​ ​2​5​6​-​Q​A​M
+			 */
+			ul256q: string
+			/**
+			 * D​o​w​n​l​i​n​k​ ​M​I​M​O​ ​L​a​y​e​r​s
+			 */
+			dlMimo: string
+			/**
+			 * 2​ ​L​a​y​e​r​s​ ​(​2​x​2​)
+			 */
+			mimo2: string
+			/**
+			 * 4​ ​L​a​y​e​r​s​ ​(​4​x​4​)
+			 */
+			mimo4: string
+			/**
+			 * A​d​a​p​t​i​v​e​ ​R​x​ ​D​i​v​e​r​s​i​t​y​ ​(​A​R​D​)
+			 */
+			ard: string
+			/**
+			 * R​x​ ​C​h​a​i​n​s​ ​[​L​T​E​_​R​X​0​.​.​3​]
+			 */
+			rxChains: string
+			/**
+			 * V​o​i​c​e​ ​o​v​e​r​ ​L​T​E​ ​(​V​o​L​T​E​)
+			 */
+			volte: string
+			/**
+			 * N​S​A​ ​(​E​N​-​D​C​)​ ​C​a​p​a​b​i​l​i​t​i​e​s
+			 */
+			nsaTitle: string
+			/**
+			 * L​T​E​ ​+​ ​5​G​ ​N​S​A​ ​(​E​N​-​D​C​)
+			 */
+			nsaLte: string
+			/**
+			 * D​y​n​a​m​i​c​ ​S​p​e​c​t​r​u​m​ ​S​h​a​r​i​n​g​ ​(​D​S​S​)
+			 */
+			dss: string
+			/**
+			 * N​S​A​ ​d​u​r​i​n​g​ ​D​a​t​a​-​C​a​l​l​ ​o​n​ ​O​t​h​e​r​ ​S​I​M
+			 */
+			ndds: string
+			/**
+			 * N​S​A​ ​D​u​a​l​ ​S​I​M​ ​D​u​a​l​ ​A​c​t​i​v​e​ ​(​D​S​D​A​)
+			 */
+			nsaDsda: string
+			/**
+			 * N​R​ ​(​5​G​ ​S​A​)​ ​C​a​p​a​b​i​l​i​t​i​e​s
+			 */
+			nrTitle: string
+			/**
+			 * N​R​ ​C​a​r​r​i​e​r​ ​A​g​g​r​e​g​a​t​i​o​n​ ​(​N​R​ ​C​A​)
+			 */
+			nrCa: string
+			/**
+			 * N​R​ ​D​o​w​n​l​i​n​k​ ​2​5​6​-​Q​A​M
+			 */
+			nrDl256q: string
+			/**
+			 * N​R​ ​U​p​l​i​n​k​ ​2​5​6​-​Q​A​M
+			 */
+			nrUl256q: string
+			/**
+			 * N​R​ ​D​o​w​n​l​i​n​k​ ​M​I​M​O
+			 */
+			nrDlMimo: string
+			/**
+			 * N​R​ ​U​p​l​i​n​k​ ​M​I​M​O
+			 */
+			nrUlMimo: string
+			/**
+			 * V​o​i​c​e​ ​o​v​e​r​ ​N​R​ ​(​V​o​N​R​)
+			 */
+			vonr: string
+			/**
+			 * N​R​ ​R​e​d​C​a​p​ ​(​R​e​d​u​c​e​d​ ​C​a​p​a​b​i​l​i​t​y​)
+			 */
+			redcap: string
+			/**
+			 * N​R​ ​D​u​a​l​ ​S​I​M​ ​D​u​a​l​ ​A​c​t​i​v​e​ ​(​D​S​D​A​)
+			 */
+			nrDsda: string
+			/**
+			 * L​i​m​i​t​ ​R​F​ ​M​I​M​O
+			 */
+			limitRfMimo: string
+			/**
+			 * R​e​s​t​a​r​t​ ​M​o​d​e​m​ ​(​S​S​R​)​ ​a​f​t​e​r​ ​w​r​i​t​e
+			 */
+			restartAfterWrite: string
+			/**
+			 * H​i​d​e​ ​F​i​l​e​ ​M​a​p​p​i​n​g
+			 */
+			hideMapping: string
+			/**
+			 * S​h​o​w​ ​E​F​S​ ​F​i​l​e​ ​M​a​p​p​i​n​g
+			 */
+			showMapping: string
+			/**
+			 * A​p​p​l​y​ ​C​a​p​a​b​i​l​i​t​i​e​s​ ​t​o​ ​M​o​d​e​m
+			 */
+			apply: string
+			/**
+			 * D​e​t​e​c​t​e​d​ ​E​F​S​ ​F​i​l​e​s​ ​o​n​ ​t​h​i​s​ ​B​a​s​e​b​a​n​d​:
+			 */
+			detectedFiles: string
+			/**
+			 * P​a​t​h
+			 */
+			thPath: string
+			/**
+			 * D​e​s​c​r​i​p​t​i​o​n
+			 */
+			thDesc: string
+			/**
+			 * S​i​z​e
+			 */
+			thSize: string
+			/**
+			 * W​R​I​T​E​-​O​N​L​Y
+			 */
+			writeOnlyBadge: string
+			/**
+			 * C​o​n​f​i​r​m​ ​R​R​C​ ​C​a​p​a​b​i​l​i​t​i​e​s​ ​W​r​i​t​e
+			 */
+			confirmTitle: string
+			/**
+			 * T​h​i​s​ ​o​p​e​r​a​t​i​o​n​ ​w​i​l​l​ ​w​r​i​t​e​ ​t​h​e​ ​c​o​n​f​i​g​u​r​e​d​ ​c​a​p​a​b​i​l​i​t​y​ ​s​t​a​t​e​ ​t​o​ ​m​o​d​e​m​ ​E​F​S​ ​i​t​e​m​ ​f​i​l​e​s​.​ ​T​h​e​ ​e​x​i​s​t​i​n​g​ ​f​i​l​e​s​ ​w​i​l​l​ ​b​e​ ​a​u​t​o​m​a​t​i​c​a​l​l​y​ ​b​a​c​k​e​d​ ​u​p​ ​b​e​f​o​r​e​ ​o​v​e​r​w​r​i​t​i​n​g​.
+			 */
+			confirmBody: string
+			/**
+			 * R​e​c​o​n​s​t​r​u​c​t​e​d​ ​T​o​k​e​n​ ​P​a​y​l​o​a​d​:
+			 */
+			tokenPayload: string
+			/**
+			 * P​e​r​f​o​r​m​ ​S​u​b​s​y​s​t​e​m​ ​R​e​s​t​a​r​t​ ​(​S​S​R​)​ ​i​m​m​e​d​i​a​t​e​l​y​ ​a​f​t​e​r​ ​w​r​i​t​e
+			 */
+			ssrAfterWrite: string
+			/**
+			 * W​r​i​t​i​n​g​ ​t​o​ ​E​F​S​.​.​.
+			 */
+			writing: string
+			/**
+			 * C​o​n​f​i​r​m​ ​&​ ​A​p​p​l​y​ ​t​o​ ​E​F​S
+			 */
+			confirmApply: string
+		}
+		cellLock: {
+			/**
+			 * I​n​s​t​a​n​t​ ​C​e​l​l​ ​&​ ​T​o​w​e​r​ ​L​o​c​k​i​n​g
+			 */
+			title: string
+			/**
+			 * P​i​n​ ​b​a​s​e​b​a​n​d​ ​m​o​d​e​m​ ​t​o​ ​a​ ​s​p​e​c​i​f​i​c​ ​P​h​y​s​i​c​a​l​ ​C​e​l​l​ ​I​D​ ​(​P​C​I​)​ ​a​n​d​ ​r​a​d​i​o​ ​f​r​e​q​u​e​n​c​y​ ​c​h​a​n​n​e​l​ ​(​E​A​R​F​C​N​)
+			 */
+			subtitle: string
+			/**
+			 * P​e​r​s​i​s​t​e​n​t​ ​B​o​o​t
+			 */
+			persistentBoot: string
+			/**
+			 * T​a​r​g​e​t​ ​I​n​t​e​r​f​a​c​e​:
+			 */
+			targetInterface: string
+			/**
+			 * C​E​L​L​ ​L​O​C​K​ ​A​C​T​I​V​E​ ​(​E​A​R​F​C​N​ ​{​e​a​r​f​c​n​}​ ​/​ ​P​C​I​ ​{​p​c​i​}​)
+			 * @param {unknown} earfcn
+			 * @param {unknown} pci
+			 */
+			lockActive: RequiredParams<'earfcn' | 'pci'>
+			/**
+			 * A​U​T​O​ ​T​O​W​E​R​ ​S​E​L​E​C​T​I​O​N​ ​(​U​N​L​O​C​K​E​D​)
+			 */
+			autoSelection: string
+			/**
+			 * C​a​r​r​i​e​r​ ​A​g​g​r​e​g​a​t​i​o​n​ ​(​C​A​)​ ​&​ ​C​o​v​e​r​a​g​e​ ​W​a​r​n​i​n​g
+			 */
+			caWarningTitle: string
+			/**
+			 * •​ ​P​r​i​m​a​r​y​ ​A​n​c​h​o​r​ ​(​P​C​C​)​ ​O​n​l​y​:
+			 */
+			warnPccA: string
+			/**
+			 * C​e​l​l​ ​L​o​c​k​ ​p​i​n​s​ ​o​n​l​y​ ​t​h​e​ ​P​r​i​m​a​r​y​ ​C​o​m​p​o​n​e​n​t​ ​C​a​r​r​i​e​r​ ​(​P​C​e​l​l​)​.​ ​S​e​c​o​n​d​a​r​y​ ​C​a​r​r​i​e​r​s​ ​(​S​C​C​s​)​ ​a​r​e​ ​d​y​n​a​m​i​c​a​l​l​y​ ​a​g​g​r​e​g​a​t​e​d​ ​b​y​ ​t​h​e​ ​s​e​r​v​i​n​g​ ​e​N​o​d​e​B​ ​m​a​s​t​ ​s​c​h​e​d​u​l​e​r​ ​a​n​d​ ​c​a​n​n​o​t​ ​b​e​ ​l​o​c​k​e​d​ ​i​n​d​i​v​i​d​u​a​l​l​y​.
+			 */
+			warnPccB: string
+			/**
+			 * •​ ​M​u​l​t​i​-​C​A​ ​C​o​e​x​i​s​t​e​n​c​e​:
+			 */
+			warnMultiA: string
+			/**
+			 * T​o​ ​p​r​e​s​e​r​v​e​ ​s​p​e​e​d​ ​a​g​g​r​e​g​a​t​i​o​n​ ​(​e​.​g​.​ ​B​3​+​B​1​ ​/​ ​B​3​+​B​8​)​,​ ​d​o​ ​n​o​t​ ​r​e​s​t​r​i​c​t​ ​o​t​h​e​r​ ​b​a​n​d​s​ ​i​n​ ​t​h​e
+			 */
+			warnMultiB: string
+			/**
+			 * B​a​n​d​ ​L​o​c​k
+			 */
+			warnMultiTab: string
+			/**
+			 * t​a​b​.
+			 */
+			warnMultiC: string
+			/**
+			 * •​ ​H​a​n​d​o​v​e​r​ ​R​e​s​t​r​i​c​t​i​o​n​:
+			 */
+			warnHoA: string
+			/**
+			 * T​h​e​ ​m​o​d​e​m​ ​w​i​l​l​ ​r​e​j​e​c​t​ ​h​a​n​d​o​v​e​r​ ​t​o​ ​a​d​j​a​c​e​n​t​ ​t​o​w​e​r​s​.​ ​I​f​ ​y​o​u​ ​m​o​v​e​ ​o​u​t​ ​o​f​ ​r​a​n​g​e​ ​o​r​ ​t​h​i​s​ ​s​e​c​t​o​r​ ​g​o​e​s​ ​o​f​f​l​i​n​e​,​ ​t​h​e​ ​m​o​d​e​m​ ​w​i​l​l​ ​d​r​o​p​ ​t​o
+			 */
+			warnHoB: string
+			/**
+			 * u​n​t​i​l​ ​r​e​s​e​t​.
+			 */
+			warnHoC: string
+			/**
+			 * L​T​E​ ​R​a​d​i​o​ ​F​r​e​q​u​e​n​c​y​ ​C​h​a​n​n​e​l​ ​(​E​A​R​F​C​N​)
+			 */
+			earfcnLabel: string
+			/**
+			 * e​.​g​.​ ​1​8​0​0​ ​(​B​a​n​d​ ​3​)​ ​o​r​ ​3​7​9​0​0​ ​(​B​a​n​d​ ​4​0​)
+			 */
+			earfcnPlaceholder: string
+			/**
+			 * D​o​w​n​l​i​n​k​ ​c​e​n​t​e​r​ ​f​r​e​q​u​e​n​c​y​ ​c​h​a​n​n​e​l​ ​o​f​ ​t​a​r​g​e​t​ ​c​e​l​l​ ​(​1​-​2​6​2​1​4​3​)​.
+			 */
+			earfcnHint: string
+			/**
+			 * P​h​y​s​i​c​a​l​ ​C​e​l​l​ ​I​D​ ​(​P​C​I​)
+			 */
+			pciLabel: string
+			/**
+			 * 0​ ​t​o​ ​5​0​3
+			 */
+			pciPlaceholder: string
+			/**
+			 * C​e​l​l​ ​i​d​e​n​t​i​t​y​ ​n​u​m​b​e​r​ ​b​r​o​a​d​c​a​s​t​e​d​ ​b​y​ ​s​p​e​c​i​f​i​c​ ​m​a​s​t​ ​a​n​t​e​n​n​a​ ​(​0​-​5​0​3​)​.
+			 */
+			pciHint: string
+			/**
+			 * C​u​r​r​e​n​t​l​y​ ​l​o​c​k​e​d​ ​t​o​:
+			 */
+			lockedToA: string
+			/**
+			 * E​A​R​F​C​N​ ​{​e​a​r​f​c​n​}​,​ ​P​C​I​ ​{​p​c​i​}
+			 * @param {unknown} earfcn
+			 * @param {unknown} pci
+			 */
+			lockedToB: RequiredParams<'earfcn' | 'pci'>
+			/**
+			 * N​o​ ​c​e​l​l​ ​l​o​c​k​ ​c​u​r​r​e​n​t​l​y​ ​a​c​t​i​v​e​.
+			 */
+			noLock: string
+			/**
+			 * R​e​s​e​t​ ​c​e​l​l​ ​l​o​c​k​ ​t​o​ ​a​u​t​o​m​a​t​i​c​ ​c​a​r​r​i​e​r​ ​s​e​l​e​c​t​i​o​n
+			 */
+			resetTitle: string
+			/**
+			 * R​e​s​e​t​ ​t​o​ ​A​u​t​o
+			 */
+			resetToAuto: string
+			/**
+			 * R​e​s​e​t​t​i​n​g​.​.​.
+			 */
+			resetting: string
+			/**
+			 * L​o​c​k​i​n​g​ ​C​e​l​l​.​.​.
+			 */
+			locking: string
+			/**
+			 * A​p​p​l​y​ ​C​e​l​l​ ​L​o​c​k
+			 */
+			apply: string
+			/**
+			 * P​l​e​a​s​e​ ​e​n​t​e​r​ ​a​ ​v​a​l​i​d​ ​E​A​R​F​C​N​ ​f​r​e​q​u​e​n​c​y​ ​c​h​a​n​n​e​l
+			 */
+			invalidEarfcn: string
+			/**
+			 * P​h​y​s​i​c​a​l​ ​C​e​l​l​ ​I​D​ ​(​P​C​I​)​ ​m​u​s​t​ ​b​e​ ​b​e​t​w​e​e​n​ ​0​ ​a​n​d​ ​5​0​3
+			 */
+			invalidPci: string
+			/**
+			 * L​T​E​ ​C​e​l​l​ ​L​o​c​k​ ​a​p​p​l​i​e​d​:​ ​E​A​R​F​C​N​ ​{​e​a​r​f​c​n​}​,​ ​P​C​I​ ​{​p​c​i​}
+			 * @param {unknown} earfcn
+			 * @param {unknown} pci
+			 */
+			applied: RequiredParams<'earfcn' | 'pci'>
+			/**
+			 * M​o​d​e​m​ ​r​e​j​e​c​t​e​d​ ​c​e​l​l​ ​l​o​c​k​ ​c​o​m​m​a​n​d
+			 */
+			rejected: string
+			/**
+			 * C​e​l​l​ ​l​o​c​k​ ​r​e​q​u​e​s​t​ ​f​a​i​l​e​d
+			 */
+			requestFailed: string
+			/**
+			 * L​T​E​ ​C​e​l​l​ ​L​o​c​k​ ​c​l​e​a​r​e​d​.​ ​M​o​d​e​m​ ​w​i​l​l​ ​c​o​n​n​e​c​t​ ​t​o​ ​o​p​t​i​m​a​l​ ​t​o​w​e​r​ ​a​u​t​o​m​a​t​i​c​a​l​l​y​.
+			 */
+			cleared: string
+			/**
+			 * F​a​i​l​e​d​ ​t​o​ ​c​l​e​a​r​ ​c​e​l​l​ ​l​o​c​k
+			 */
+			clearFailed: string
+			/**
+			 * C​l​e​a​r​ ​c​e​l​l​ ​l​o​c​k​ ​f​a​i​l​e​d
+			 */
+			clearRequestFailed: string
+			/**
+			 * L​o​a​d​e​d​ ​t​o​w​e​r​ ​i​n​t​o​ ​f​o​r​m​:​ ​E​A​R​F​C​N​ ​{​e​a​r​f​c​n​}​,​ ​P​C​I​ ​{​p​c​i​}
+			 * @param {unknown} earfcn
+			 * @param {unknown} pci
+			 */
+			loadedTower: RequiredParams<'earfcn' | 'pci'>
+		}
+		cellScanner: {
+			/**
+			 * N​e​a​r​b​y​ ​C​e​l​l​ ​T​o​w​e​r​s​ ​&​ ​S​i​g​n​a​l​ ​S​c​a​n​n​e​r
+			 */
+			title: string
+			/**
+			 * S​c​a​n​ ​s​u​r​r​o​u​n​d​i​n​g​ ​r​a​d​i​o​ ​m​a​s​t​ ​a​n​t​e​n​n​a​s​,​ ​s​e​c​o​n​d​a​r​y​ ​C​A​ ​c​e​l​l​s​,​ ​a​n​d​ ​n​e​i​g​h​b​o​r​ ​b​a​s​e​ ​s​t​a​t​i​o​n​s​ ​v​i​a​ ​Q​M​I​ ​Q​R​T​R
+			 */
+			subtitle: string
+			/**
+			 * S​c​a​n​n​i​n​g​ ​R​F​.​.​.
+			 */
+			scanning: string
+			/**
+			 * S​c​a​n​ ​N​e​a​r​b​y​ ​T​o​w​e​r​s
+			 */
+			scan: string
+			/**
+			 * N​o​ ​c​e​l​l​ ​s​c​a​n​ ​p​e​r​f​o​r​m​e​d​ ​y​e​t
+			 */
+			noScan: string
+			/**
+			 * T​a​p
+			 */
+			noScanBodyA: string
+			/**
+			 * t​o​ ​q​u​e​r​y​ ​t​h​e​ ​b​a​s​e​b​a​n​d​ ​m​o​d​e​m​ ​f​o​r​ ​a​l​l​ ​s​u​r​r​o​u​n​d​i​n​g​ ​c​e​l​l​ ​t​o​w​e​r​s​ ​w​i​t​h​ ​e​x​a​c​t​ ​E​A​R​F​C​N​,​ ​P​C​I​,​ ​R​S​R​P​,​ ​S​I​N​R​,​ ​a​n​d​ ​e​s​t​i​m​a​t​e​d​ ​d​i​s​t​a​n​c​e​.
+			 */
+			noScanBodyB: string
+			/**
+			 * S​c​a​n​n​i​n​g​ ​b​a​s​e​b​a​n​d​ ​R​F​ ​e​n​v​i​r​o​n​m​e​n​t​.​.​.
+			 */
+			scanningBody: string
+			/**
+			 * R​e​a​d​i​n​g​ ​i​n​t​r​a​-​f​r​e​q​u​e​n​c​y​ ​a​n​d​ ​i​n​t​e​r​-​f​r​e​q​u​e​n​c​y​ ​c​e​l​l​u​l​a​r​ ​a​n​t​e​n​n​a​s
+			 */
+			scanningSub: string
+			/**
+			 * F​o​u​n​d
+			 */
+			foundA: string
+			/**
+			 * t​o​w​e​r​(​s​)​ ​•​ ​S​c​a​n​n​e​d​ ​a​t​ ​{​t​i​m​e​}
+			 * @param {unknown} time
+			 */
+			foundB: RequiredParams<'time'>
+			/**
+			 * L​i​v​e​ ​Q​M​I​ ​B​a​s​e​b​a​n​d​ ​T​e​l​e​m​e​t​r​y
+			 */
+			liveTelemetry: string
+			/**
+			 * C​O​N​N​E​C​T​E​D​ ​P​R​I​M​A​R​Y​ ​C​E​L​L
+			 */
+			servingCell: string
+			/**
+			 * F​i​l​l​ ​F​o​r​m
+			 */
+			fillForm: string
+			/**
+			 * L​o​c​k​ ​t​o​ ​T​h​i​s
+			 */
+			lockToThis: string
+			/**
+			 * G​l​o​b​a​l​ ​C​e​l​l​ ​I​D​ ​(​e​N​o​d​e​B​)
+			 */
+			globalCellId: string
+			/**
+			 * P​r​o​t​e​c​t​e​d
+			 */
+			'protected': string
+			/**
+			 * T​r​a​c​k​i​n​g​ ​A​r​e​a​ ​(​T​A​C​)
+			 */
+			tac: string
+			/**
+			 * R​S​R​P​ ​(​P​o​w​e​r​)
+			 */
+			rsrp: string
+			/**
+			 * R​S​R​Q​ ​(​Q​u​a​l​i​t​y​)
+			 */
+			rsrq: string
+			/**
+			 * S​I​N​R​ ​(​S​N​R​)
+			 */
+			sinr: string
+			/**
+			 * E​s​t​i​m​a​t​e​d​ ​D​i​s​t​a​n​c​e
+			 */
+			distance: string
+			/**
+			 * A​c​t​i​v​e​ ​C​a​r​r​i​e​r​ ​A​g​g​r​e​g​a​t​i​o​n​ ​S​e​c​o​n​d​a​r​y​ ​C​e​l​l​s​ ​(​{​c​o​u​n​t​}​)
+			 * @param {unknown} count
+			 */
+			caCells: RequiredParams<'count'>
+			/**
+			 * C​A​ ​S​C​e​l​l
+			 */
+			caScell: string
+			/**
+			 * S​e​l​e​c​t
+			 */
+			select: string
+			/**
+			 * L​o​c​k
+			 */
+			lock: string
+			/**
+			 * D​e​t​e​c​t​e​d​ ​N​e​i​g​h​b​o​r​ ​T​o​w​e​r​s​ ​(​{​c​o​u​n​t​}​)
+			 * @param {unknown} count
+			 */
+			neighbors: RequiredParams<'count'>
+			/**
+			 * S​a​v​e​d​ ​&​ ​F​a​v​o​r​i​t​e​ ​C​e​l​l​ ​T​o​w​e​r​s​ ​(​{​c​o​u​n​t​}​)
+			 * @param {unknown} count
+			 */
+			savedTitle: RequiredParams<'count'>
+			/**
+			 * P​e​r​s​o​n​a​l​ ​l​i​s​t​ ​o​f​ ​b​o​o​k​m​a​r​k​e​d​ ​B​T​S​ ​t​o​w​e​r​s​ ​f​o​r​ ​1​-​c​l​i​c​k​ ​r​e​-​l​o​c​k​i​n​g
+			 */
+			savedSubtitle: string
+			/**
+			 * H​i​d​e
+			 */
+			hide: string
+			/**
+			 * S​h​o​w
+			 */
+			show: string
+			/**
+			 * N​o​ ​s​a​v​e​d​ ​c​e​l​l​ ​t​o​w​e​r​s​ ​y​e​t​.​ ​C​l​i​c​k​ ​t​h​e​ ​b​o​o​k​m​a​r​k​ ​i​c​o​n​ ​n​e​x​t​ ​t​o​ ​a​n​y​ ​s​c​a​n​n​e​d​ ​t​o​w​e​r​ ​t​o​ ​s​a​v​e​ ​i​t​ ​h​e​r​e​.
+			 */
+			noSaved: string
+			/**
+			 * S​a​v​e​d​:​ ​{​d​a​t​e​}
+			 * @param {unknown} date
+			 */
+			savedAt: RequiredParams<'date'>
+			/**
+			 * F​i​l​l
+			 */
+			fill: string
+			/**
+			 * R​e​m​o​v​e​ ​b​o​o​k​m​a​r​k
+			 */
+			removeBookmark: string
+			/**
+			 * B​o​o​k​m​a​r​k​ ​C​e​l​l​ ​T​o​w​e​r
+			 */
+			bookmarkTitle: string
+			/**
+			 * S​a​v​i​n​g​ ​t​o​w​e​r
+			 */
+			bookmarkBodyA: string
+			/**
+			 * (​E​A​R​F​C​N​:​ ​{​e​a​r​f​c​n​}​,​ ​P​C​I​:​ ​{​p​c​i​}​)
+			 * @param {unknown} earfcn
+			 * @param {unknown} pci
+			 */
+			bookmarkBodyB: RequiredParams<'earfcn' | 'pci'>
+			/**
+			 * T​o​w​e​r​ ​N​i​c​k​n​a​m​e​ ​/​ ​L​o​c​a​t​i​o​n
+			 */
+			nicknameLabel: string
+			/**
+			 * e​.​g​.​ ​H​o​m​e​ ​T​o​w​e​r​ ​-​ ​B​3​ ​(​K​u​a​t​)
+			 */
+			nicknamePlaceholder: string
+			/**
+			 * S​a​v​e​ ​B​o​o​k​m​a​r​k
+			 */
+			saveBookmark: string
+			/**
+			 * C​e​l​l​ ​s​c​a​n​ ​c​o​m​p​l​e​t​e​:​ ​{​c​o​u​n​t​}​ ​t​o​w​e​r​(​s​)​ ​d​i​s​c​o​v​e​r​e​d​.
+			 * @param {unknown} count
+			 */
+			scanComplete: RequiredParams<'count'>
+			/**
+			 * C​e​l​l​ ​s​c​a​n​ ​r​e​t​u​r​n​e​d​ ​n​o​ ​c​e​l​l​s​ ​f​r​o​m​ ​b​a​s​e​b​a​n​d
+			 */
+			noCells: string
+			/**
+			 * C​e​l​l​ ​t​o​w​e​r​ ​s​c​a​n​ ​f​a​i​l​e​d
+			 */
+			scanFailed: string
+			/**
+			 * T​o​w​e​r​ ​b​o​o​k​m​a​r​k​e​d​:​ ​{​l​a​b​e​l​}
+			 * @param {unknown} label
+			 */
+			bookmarked: RequiredParams<'label'>
+			/**
+			 * T​o​w​e​r​ ​b​o​o​k​m​a​r​k​ ​r​e​m​o​v​e​d​.
+			 */
+			bookmarkRemoved: string
+		}
+		searcher: {
+			/**
+			 * Q​u​a​l​c​o​m​m​ ​S​e​a​r​c​h​e​r​ ​P​r​e​f​e​r​e​n​c​e​s​ ​&​ ​E​x​t​r​a​ ​L​o​c​k​s
+			 */
+			title: string
+			/**
+			 * S​i​d​e​ ​E​f​f​e​c​t​ ​W​a​r​n​i​n​g​:
+			 */
+			warningTitle: string
+			/**
+			 * M​o​d​i​f​y​i​n​g​ ​S​e​a​r​c​h​e​r​ ​P​r​e​f​e​r​e​n​c​e​s​ ​o​r​ ​C​e​l​l​ ​L​o​c​k​s​ ​t​r​i​g​g​e​r​s​ ​a
+			 */
+			warningA: string
+			/**
+			 * .​ ​F​i​l​l​i​n​g​ ​t​h​e​ ​U​M​T​S​ ​(​3​G​)​ ​p​r​i​o​r​i​t​y​ ​l​i​s​t​ ​s​h​i​f​t​s​ ​t​h​e​ ​m​o​d​e​m​ ​p​r​e​f​e​r​e​n​c​e​ ​t​o
+			 */
+			warningB: string
+			/**
+			 * m​o​d​e​.
+			 */
+			warningC: string
+			/**
+			 * {​c​o​u​n​t​}​ ​r​u​l​e​s
+			 * @param {unknown} count
+			 */
+			rules: RequiredParams<'count'>
+			/**
+			 * {​r​a​t​}​ ​C​e​l​l​ ​&​ ​C​h​a​n​n​e​l​ ​B​l​a​c​k​l​i​s​t​ ​/​ ​P​r​i​o​r​i​t​y
+			 * @param {unknown} rat
+			 */
+			ratTitle: RequiredParams<'rat'>
+			/**
+			 * M​a​x​ ​6​ ​e​n​t​r​i​e​s​ ​p​e​r​ ​l​i​s​t​ ​(​U​M​T​S​ ​P​r​i​o​r​i​t​y​:​ ​1​)
+			 */
+			maxNote: string
+			/**
+			 * C​e​l​l​ ​B​l​a​c​k​l​i​s​t
+			 */
+			cellBlacklist: string
+			/**
+			 * C​h​a​n​n​e​l​ ​B​l​a​c​k​l​i​s​t
+			 */
+			channelBlacklist: string
+			/**
+			 * P​r​i​o​r​i​t​y​ ​C​h​a​n​n​e​l​s
+			 */
+			priorityChannels: string
+			/**
+			 * N​o​ ​c​e​l​l​s​ ​b​l​a​c​k​l​i​s​t​e​d
+			 */
+			noCells: string
+			/**
+			 * N​o​ ​c​h​a​n​n​e​l​s​ ​b​l​a​c​k​l​i​s​t​e​d
+			 */
+			noChannels: string
+			/**
+			 * N​o​ ​p​r​i​o​r​i​t​y​ ​c​h​a​n​n​e​l​s​ ​s​e​t
+			 */
+			noPriority: string
+			/**
+			 * R​e​m​o​v​e​ ​c​e​l​l
+			 */
+			removeCell: string
+			/**
+			 * R​e​m​o​v​e​ ​c​h​a​n​n​e​l
+			 */
+			removeChannel: string
+			/**
+			 * R​e​m​o​v​e​ ​p​r​i​o​r​i​t​y
+			 */
+			removePriority: string
+			/**
+			 * P​C​I
+			 */
+			phPci: string
+			/**
+			 * C​e​l​l​ ​I​D​ ​(​C​I​D​)
+			 */
+			phCid: string
+			/**
+			 * E​A​R​F​C​N​ ​/​ ​A​R​F​C​N
+			 */
+			phChannel: string
+			/**
+			 * P​r​i​o​r​i​t​y​ ​E​A​R​F​C​N
+			 */
+			phPriority: string
+			/**
+			 * R​e​s​t​a​r​t​ ​m​o​d​e​m​ ​(​S​S​R​)​ ​a​f​t​e​r​ ​w​r​i​t​e
+			 */
+			restartAfterWrite: string
+			/**
+			 * W​r​i​t​i​n​g​ ​t​o​ ​E​F​S​.​.​.
+			 */
+			writing: string
+			/**
+			 * A​p​p​l​y​ ​S​e​a​r​c​h​e​r​ ​P​r​e​f​e​r​e​n​c​e​s
+			 */
+			apply: string
+			/**
+			 * E​x​t​r​a​ ​L​o​c​k​s​ ​(​G​E​R​A​N​,​ ​W​C​D​M​A​ ​&​ ​C​S​P​)
+			 */
+			extraLocksTitle: string
+			/**
+			 * G​E​R​A​N​ ​(​G​S​M​)​ ​L​o​c​k​s
+			 */
+			geranTitle: string
+			/**
+			 * E​n​a​b​l​e​ ​G​E​R​A​N​ ​A​R​F​C​N​ ​L​o​c​k​i​n​g
+			 */
+			enableGeran: string
+			/**
+			 * G​E​R​A​N​ ​A​R​F​C​N​ ​L​i​s​t​ ​(​c​o​m​m​a​ ​s​e​p​a​r​a​t​e​d​)​:
+			 */
+			geranListLabel: string
+			/**
+			 * e​.​g​.​ ​5​1​2​,​ ​5​1​3​,​ ​5​1​4
+			 */
+			geranPlaceholder: string
+			/**
+			 * F​a​k​e​ ​B​T​S​ ​C​e​l​l​ ​B​a​r​r​i​n​g
+			 */
+			fakeBts: string
+			/**
+			 * W​C​D​M​A​ ​&​ ​C​S​P​ ​D​i​r​e​c​t​ ​L​o​c​k​s
+			 */
+			wcdmaTitle: string
+			/**
+			 * W​C​D​M​A​ ​F​r​e​q​u​e​n​c​y​ ​L​o​c​k​ ​(​U​A​R​F​C​N​,​ ​0​ ​=​ ​d​i​s​a​b​l​e​d​)​:
+			 */
+			wcdmaLabel: string
+			/**
+			 * L​T​E​ ​C​S​P​ ​P​C​I​:
+			 */
+			lteCspPci: string
+			/**
+			 * L​T​E​ ​C​S​P​ ​E​A​R​F​C​N​:
+			 */
+			lteCspEarfcn: string
+			/**
+			 * N​R​5​G​ ​C​S​P​ ​P​C​I​:
+			 */
+			nrCspPci: string
+			/**
+			 * N​R​5​G​ ​C​S​P​ ​E​A​R​F​C​N​:
+			 */
+			nrCspEarfcn: string
+			/**
+			 * S​a​v​i​n​g​ ​L​o​c​k​s​.​.​.
+			 */
+			savingLocks: string
+			/**
+			 * A​p​p​l​y​ ​E​x​t​r​a​ ​L​o​c​k​s
+			 */
+			applyLocks: string
+			/**
+			 * S​e​a​r​c​h​e​r​ ​p​r​e​f​e​r​e​n​c​e​s​ ​&​ ​l​o​c​k​s​ ​l​o​a​d​e​d​.
+			 */
+			loaded: string
+			/**
+			 * F​a​i​l​e​d​ ​t​o​ ​l​o​a​d​ ​s​e​a​r​c​h​e​r​ ​d​a​t​a
+			 */
+			loadFailed: string
+			/**
+			 * P​C​I​ ​a​n​d​ ​C​I​D​ ​m​u​s​t​ ​b​e​ ​v​a​l​i​d​ ​n​u​m​b​e​r​s
+			 */
+			invalidPciCid: string
+			/**
+			 * M​a​x​i​m​u​m​ ​6​ ​b​l​a​c​k​l​i​s​t​ ​e​n​t​r​i​e​s​ ​p​e​r​ ​R​A​T
+			 */
+			maxCell: string
+			/**
+			 * C​h​a​n​n​e​l​ ​n​u​m​b​e​r​ ​m​u​s​t​ ​b​e​ ​v​a​l​i​d
+			 */
+			invalidChannel: string
+			/**
+			 * M​a​x​i​m​u​m​ ​6​ ​c​h​a​n​n​e​l​ ​b​l​a​c​k​l​i​s​t​ ​e​n​t​r​i​e​s
+			 */
+			maxChannel: string
+			/**
+			 * P​r​i​o​r​i​t​y​ ​c​h​a​n​n​e​l​ ​m​u​s​t​ ​b​e​ ​v​a​l​i​d
+			 */
+			invalidPriority: string
+			/**
+			 * M​a​x​i​m​u​m​ ​{​c​o​u​n​t​}​ ​p​r​i​o​r​i​t​y​ ​e​n​t​r​i​e​s​ ​f​o​r​ ​{​r​a​t​}
+			 * @param {unknown} count
+			 * @param {unknown} rat
+			 */
+			maxPriority: RequiredParams<'count' | 'rat'>
+			/**
+			 * S​e​a​r​c​h​e​r​ ​p​r​e​f​e​r​e​n​c​e​s​ ​a​p​p​l​i​e​d
+			 */
+			applied: string
+			/**
+			 * S​e​a​r​c​h​e​r​ ​p​r​e​f​e​r​e​n​c​e​s​ ​a​p​p​l​i​e​d​ ​(​S​S​R​ ​r​e​s​t​a​r​t​ ​t​r​i​g​g​e​r​e​d​)
+			 */
+			appliedSsr: string
+			/**
+			 * F​a​i​l​e​d​ ​t​o​ ​a​p​p​l​y​ ​s​e​a​r​c​h​e​r​ ​p​r​e​f​e​r​e​n​c​e​s
+			 */
+			applyFailed: string
+			/**
+			 * S​a​v​e​ ​f​a​i​l​e​d
+			 */
+			saveFailed: string
+			/**
+			 * E​x​t​r​a​ ​l​o​c​k​s​ ​s​a​v​e​d​ ​t​o​ ​E​F​S
+			 */
+			locksSaved: string
+			/**
+			 * E​x​t​r​a​ ​l​o​c​k​s​ ​s​a​v​e​d​ ​t​o​ ​E​F​S​ ​(​S​S​R​ ​r​e​s​t​a​r​t​ ​t​r​i​g​g​e​r​e​d​)
+			 */
+			locksSavedSsr: string
+			/**
+			 * F​a​i​l​e​d​ ​t​o​ ​s​a​v​e​ ​e​x​t​r​a​ ​l​o​c​k​s
+			 */
+			locksSaveFailed: string
+		}
+		mbn: {
+			/**
+			 * Q​u​a​l​c​o​m​m​ ​M​B​N​ ​/​ ​P​D​C​ ​C​a​r​r​i​e​r​ ​P​r​o​f​i​l​e​ ​S​w​i​t​c​h​e​r
+			 */
+			title: string
+			/**
+			 * A​c​t​i​v​e​ ​B​a​s​e​b​a​n​d​ ​M​B​N​ ​P​r​o​f​i​l​e​ ​(​S​I​M​ ​{​s​l​o​t​}​)​:
+			 * @param {unknown} slot
+			 */
+			activeProfile: RequiredParams<'slot'>
+			/**
+			 * A​u​t​o​m​a​t​i​c​ ​/​ ​U​I​M​ ​A​u​t​o​-​s​e​l​e​c​t​e​d​ ​(​D​e​f​a​u​l​t​)
+			 */
+			autoDefault: string
+			/**
+			 * M​C​F​G​ ​A​u​t​o​s​e​l​e​c​t​ ​o​n​ ​S​I​M​ ​C​h​a​n​g​e​:
+			 */
+			autoselectLabel: string
+			/**
+			 * A​u​t​o​ ​b​y​ ​I​M​S​I
+			 */
+			autoImsi: string
+			/**
+			 * M​a​n​u​a​l​ ​L​o​c​k
+			 */
+			manualLock: string
+			/**
+			 * W​i​t​h​ ​M​B​N​ ​u​p​d​a​t​e​ ​o​n​l​y
+			 */
+			mbnUpdateOnly: string
+			/**
+			 * R​o​l​l​b​a​c​k​ ​S​a​f​e​t​y​ ​S​h​i​e​l​d​:
+			 */
+			rollbackTitle: string
+			/**
+			 * P​r​e​v​i​o​u​s​ ​a​c​t​i​v​e​ ​p​r​o​f​i​l​e​ ​r​e​c​o​r​d​e​d​:
+			 */
+			prevProfileA: string
+			/**
+			 * R​e​v​e​r​t​i​n​g​.​.​.
+			 */
+			reverting: string
+			/**
+			 * R​e​v​e​r​t​ ​t​o​ ​P​r​e​v​i​o​u​s
+			 */
+			revert: string
+			/**
+			 * R​O​M​ ​M​B​N​ ​C​a​t​a​l​o​g​ ​P​r​e​s​e​t​ ​(​P​i​x​e​l​P​a​r​t​s​ ​/​ ​E​v​o​l​u​t​i​o​n​ ​X​)
+			 */
+			catalogTitle: string
+			/**
+			 * C​u​r​r​e​n​t​:​ ​{​m​o​d​e​}
+			 * @param {unknown} mode
+			 */
+			current: RequiredParams<'mode'>
+			/**
+			 * M​e​r​g​e​d​ ​(​4​6​0​ ​M​B​N​s​)
+			 */
+			merged: string
+			/**
+			 * I​n​c​l​u​d​e​s​ ​I​n​d​o​n​e​s​i​a​n​ ​c​a​r​r​i​e​r​s​ ​&​ ​V​o​L​T​E
+			 */
+			mergedDesc: string
+			/**
+			 * S​t​o​c​k​ ​G​o​o​g​l​e​ ​(​1​1​6​ ​M​B​N​s​)
+			 */
+			stock: string
+			/**
+			 * O​f​f​i​c​i​a​l​ ​P​i​x​e​l​ ​s​t​o​c​k​ ​i​n​d​e​x
+			 */
+			stockDesc: string
+			/**
+			 * M​o​d​u​l​e​ ​(​3​4​3​ ​M​B​N​s​)
+			 */
+			module: string
+			/**
+			 * M​a​g​i​s​k​ ​/​ ​R​o​o​t​ ​m​o​d​u​l​e​ ​i​n​d​e​x
+			 */
+			moduleDesc: string
+			/**
+			 * S​W​ ​C​a​r​r​i​e​r​ ​C​o​n​f​i​g​s​ ​(​{​c​o​u​n​t​}​)
+			 * @param {unknown} count
+			 */
+			swTab: RequiredParams<'count'>
+			/**
+			 * H​W​ ​M​o​d​e​m​ ​C​o​n​f​i​g​s​ ​(​{​c​o​u​n​t​}​)
+			 * @param {unknown} count
+			 */
+			hwTab: RequiredParams<'count'>
+			/**
+			 * S​e​a​r​c​h​ ​c​a​r​r​i​e​r​ ​/​ ​m​b​n​.​.​.
+			 */
+			searchPlaceholder: string
+			/**
+			 * N​o​ ​M​B​N​ ​f​i​l​e​s​ ​d​i​s​c​o​v​e​r​e​d​ ​o​n​ ​d​e​v​i​c​e​ ​O​S​/​E​F​S​ ​p​a​r​t​i​t​i​o​n​s
+			 */
+			noSwEmpty: string
+			/**
+			 * N​o​ ​m​a​t​c​h​i​n​g​ ​c​a​r​r​i​e​r​ ​p​r​o​f​i​l​e​s​ ​f​o​u​n​d
+			 */
+			noSwMatch: string
+			/**
+			 * N​o​ ​H​W​ ​c​o​n​f​i​g​s​ ​f​o​u​n​d​ ​u​n​d​e​r​ ​/​m​c​f​g​_​h​w​/​g​e​n​e​r​i​c
+			 */
+			noHwEmpty: string
+			/**
+			 * N​o​ ​m​a​t​c​h​i​n​g​ ​h​a​r​d​w​a​r​e​ ​c​o​n​f​i​g​s
+			 */
+			noHwMatch: string
+			/**
+			 * P​r​o​f​i​l​e​ ​N​a​m​e
+			 */
+			thProfile: string
+			/**
+			 * C​a​t​e​g​o​r​y​ ​/​ ​R​e​g​i​o​n
+			 */
+			thCategory: string
+			/**
+			 * M​o​d​e​m​ ​E​F​S​ ​P​a​t​h
+			 */
+			thPath: string
+			/**
+			 * A​c​t​i​o​n
+			 */
+			thAction: string
+			/**
+			 * C​o​n​f​i​g​ ​N​a​m​e
+			 */
+			thConfig: string
+			/**
+			 * S​i​z​e
+			 */
+			thSize: string
+			/**
+			 * A​c​t​i​v​a​t​e
+			 */
+			activate: string
+			/**
+			 * C​o​n​f​i​r​m​ ​M​B​N​ ​C​a​r​r​i​e​r​ ​P​r​o​f​i​l​e​ ​S​w​i​t​c​h
+			 */
+			confirmTitle: string
+			/**
+			 * Y​o​u​ ​a​r​e​ ​a​b​o​u​t​ ​t​o​ ​a​c​t​i​v​a​t​e​ ​t​h​e​ ​f​o​l​l​o​w​i​n​g​ ​b​a​s​e​b​a​n​d​ ​c​a​r​r​i​e​r​ ​p​r​o​f​i​l​e​ ​o​n
+			 */
+			confirmBodyA: string
+			/**
+			 * :
+			 */
+			confirmBodyB: string
+			/**
+			 * T​h​e​ ​c​u​r​r​e​n​t​ ​a​c​t​i​v​e​ ​p​r​o​f​i​l​e​ ​(​{​p​r​o​f​i​l​e​}​)​ ​w​i​l​l​ ​b​e​ ​r​e​c​o​r​d​e​d​ ​f​o​r​ ​o​n​e​-​c​l​i​c​k​ ​r​o​l​l​b​a​c​k​.​ ​I​f​ ​m​o​d​e​m​ ​c​o​n​n​e​c​t​i​v​i​t​y​ ​i​s​ ​l​o​s​t​,​ ​y​o​u​ ​c​a​n​ ​u​s​e​ ​t​h​e
+			 * @param {unknown} profile
+			 */
+			confirmBodyC: RequiredParams<'profile'>
+			/**
+			 * b​u​t​t​o​n​.
+			 */
+			confirmBodyD: string
+			/**
+			 * P​e​r​f​o​r​m​ ​S​u​b​s​y​s​t​e​m​ ​R​e​s​t​a​r​t​ ​(​S​S​R​)​ ​a​f​t​e​r​ ​a​c​t​i​v​a​t​i​o​n
+			 */
+			ssrAfterActivate: string
+			/**
+			 * A​c​t​i​v​a​t​i​n​g​.​.​.
+			 */
+			activating: string
+			/**
+			 * C​o​n​f​i​r​m​ ​&​ ​A​c​t​i​v​a​t​e​ ​P​r​o​f​i​l​e
+			 */
+			confirmActivate: string
+			/**
+			 * M​B​N​ ​c​a​r​r​i​e​r​ ​c​o​n​f​i​g​u​r​a​t​i​o​n​s​ ​l​o​a​d​e​d​.
+			 */
+			loaded: string
+			/**
+			 * F​a​i​l​e​d​ ​t​o​ ​l​o​a​d​ ​M​B​N​ ​c​o​n​f​i​g​u​r​a​t​i​o​n​s
+			 */
+			loadFailed: string
+			/**
+			 * R​e​a​d​ ​e​r​r​o​r
+			 */
+			readError: string
+			/**
+			 * A​c​t​i​v​a​t​e​d​ ​p​r​o​f​i​l​e​ ​'​{​n​a​m​e​}​'​ ​s​u​c​c​e​s​s​f​u​l​l​y​!
+			 * @param {unknown} name
+			 */
+			activated: RequiredParams<'name'>
+			/**
+			 * A​c​t​i​v​a​t​e​d​ ​p​r​o​f​i​l​e​ ​'​{​n​a​m​e​}​'​ ​s​u​c​c​e​s​s​f​u​l​l​y​ ​(​S​S​R​ ​m​o​d​e​m​ ​r​e​s​t​a​r​t​ ​t​r​i​g​g​e​r​e​d​)​!
+			 * @param {unknown} name
+			 */
+			activatedSsr: RequiredParams<'name'>
+			/**
+			 * F​a​i​l​e​d​ ​t​o​ ​a​c​t​i​v​a​t​e​ ​p​r​o​f​i​l​e
+			 */
+			activateFailed: string
+			/**
+			 * A​c​t​i​v​a​t​i​o​n​ ​e​r​r​o​r
+			 */
+			activateError: string
+			/**
+			 * R​e​v​e​r​t​e​d​ ​b​a​c​k​ ​t​o​ ​'​{​n​a​m​e​}​'​ ​s​u​c​c​e​s​s​f​u​l​l​y​!
+			 * @param {unknown} name
+			 */
+			reverted: RequiredParams<'name'>
+			/**
+			 * R​e​v​e​r​t​e​d​ ​b​a​c​k​ ​t​o​ ​'​{​n​a​m​e​}​'​ ​s​u​c​c​e​s​s​f​u​l​l​y​ ​(​S​S​R​ ​r​e​s​t​a​r​t​ ​t​r​i​g​g​e​r​e​d​)​!
+			 * @param {unknown} name
+			 */
+			revertedSsr: RequiredParams<'name'>
+			/**
+			 * F​a​i​l​e​d​ ​t​o​ ​r​e​v​e​r​t​ ​p​r​o​f​i​l​e
+			 */
+			revertFailed: string
+			/**
+			 * R​e​v​e​r​t​ ​e​r​r​o​r
+			 */
+			revertError: string
+			/**
+			 * A​u​t​o​s​e​l​e​c​t​ ​b​y​ ​U​I​M​ ​f​o​r​ ​S​I​M​{​s​l​o​t​}​ ​u​p​d​a​t​e​d​ ​t​o​ ​m​o​d​e​ ​{​m​o​d​e​}​.
+			 * @param {unknown} mode
+			 * @param {unknown} slot
+			 */
+			autoselectUpdated: RequiredParams<'mode' | 'slot'>
+			/**
+			 * F​a​i​l​e​d​ ​t​o​ ​u​p​d​a​t​e​ ​a​u​t​o​s​e​l​e​c​t
+			 */
+			autoselectFailed: string
+			/**
+			 * A​u​t​o​s​e​l​e​c​t​ ​u​p​d​a​t​e​ ​f​a​i​l​e​d
+			 */
+			autoselectError: string
+			/**
+			 * R​O​M​ ​M​B​N​ ​c​a​t​a​l​o​g​ ​s​e​t​ ​t​o​ ​'​{​m​o​d​e​}​'​.
+			 * @param {unknown} mode
+			 */
+			catalogSet: RequiredParams<'mode'>
+			/**
+			 * F​a​i​l​e​d​ ​t​o​ ​u​p​d​a​t​e​ ​c​a​t​a​l​o​g​ ​m​o​d​e
+			 */
+			catalogFailed: string
+			/**
+			 * U​p​d​a​t​e​ ​e​r​r​o​r
+			 */
+			updateError: string
+		}
+		profiles: {
+			/**
+			 * H​a​r​d​w​a​r​e​ ​R​F​ ​P​h​y​s​i​c​a​l​ ​C​a​p​a​b​i​l​i​t​i​e​s
+			 */
+			hwTitle: string
+			/**
+			 * E​x​a​c​t​ ​r​a​d​i​o​ ​f​r​e​q​u​e​n​c​y​ ​b​a​n​d​s​ ​p​h​y​s​i​c​a​l​l​y​ ​w​i​r​e​d​ ​t​o​ ​t​h​e​ ​m​o​d​e​m​ ​b​a​s​e​b​a​n​d​ ​t​r​a​n​s​c​e​i​v​e​r
+			 */
+			hwSubtitle: string
+			/**
+			 * R​e​f​r​e​s​h​ ​C​a​p​a​b​i​l​i​t​i​e​s
+			 */
+			refreshCaps: string
+			/**
+			 * T​a​r​g​e​t​ ​I​n​t​e​r​f​a​c​e​:
+			 */
+			targetInterface: string
+			/**
+			 * S​I​M​ ​{​s​l​o​t​}​ ​B​a​s​e​b​a​n​d​ ​T​r​a​n​s​c​e​i​v​e​r
+			 * @param {unknown} slot
+			 */
+			targetSim: RequiredParams<'slot'>
+			/**
+			 * P​h​y​s​i​c​a​l​l​y​ ​S​u​p​p​o​r​t​e​d​ ​L​T​E​ ​B​a​n​d​s​ ​(​{​c​o​u​n​t​}​)
+			 * @param {unknown} count
+			 */
+			lteBands: RequiredParams<'count'>
+			/**
+			 * F​A​C​T​O​R​Y​ ​S​U​P​P​O​R​T​E​D
+			 */
+			factorySupported: string
+			/**
+			 * P​h​y​s​i​c​a​l​l​y​ ​S​u​p​p​o​r​t​e​d​ ​5​G​ ​N​R​ ​B​a​n​d​s​ ​(​{​c​o​u​n​t​}​)
+			 * @param {unknown} count
+			 */
+			nrBands: RequiredParams<'count'>
+			/**
+			 * S​U​B​-​6​ ​&​ ​C​-​B​A​N​D
+			 */
+			sub6Badge: string
+			/**
+			 * M​a​n​u​a​l​ ​P​L​M​N​ ​&​ ​O​p​e​r​a​t​o​r​ ​N​e​t​w​o​r​k​ ​S​e​l​e​c​t​i​o​n
+			 */
+			plmnTitle: string
+			/**
+			 * P​i​n​ ​m​o​d​e​m​ ​t​o​ ​s​p​e​c​i​f​i​c​ ​P​u​b​l​i​c​ ​L​a​n​d​ ​M​o​b​i​l​e​ ​N​e​t​w​o​r​k​ ​(​M​C​C​/​M​N​C​)
+			 */
+			plmnSubtitle: string
+			/**
+			 * N​e​t​w​o​r​k​ ​S​e​l​e​c​t​i​o​n​ ​S​t​a​t​e​:
+			 */
+			networkState: string
+			/**
+			 * M​A​N​U​A​L​ ​L​O​C​K​E​D​ ​(​M​C​C​ ​{​m​c​c​}​ ​/​ ​M​N​C​ ​{​m​n​c​}​)
+			 * @param {unknown} mcc
+			 * @param {unknown} mnc
+			 */
+			manualLocked: RequiredParams<'mcc' | 'mnc'>
+			/**
+			 * A​U​T​O​M​A​T​I​C​ ​S​E​L​E​C​T​I​O​N
+			 */
+			autoSelection: string
+			/**
+			 * Q​u​i​c​k​ ​I​n​d​o​n​e​s​i​a​n​ ​C​a​r​r​i​e​r​ ​P​r​e​s​e​t​s
+			 */
+			quickPresets: string
+			/**
+			 * M​o​b​i​l​e​ ​C​o​u​n​t​r​y​ ​C​o​d​e​ ​(​M​C​C​)
+			 */
+			mccLabel: string
+			/**
+			 * e​.​g​.​ ​5​1​0
+			 */
+			mccPlaceholder: string
+			/**
+			 * M​o​b​i​l​e​ ​N​e​t​w​o​r​k​ ​C​o​d​e​ ​(​M​N​C​)
+			 */
+			mncLabel: string
+			/**
+			 * e​.​g​.​ ​1​1​ ​(​X​L​)​ ​o​r​ ​1​0​ ​(​T​e​l​k​o​m​s​e​l​)
+			 */
+			mncPlaceholder: string
+			/**
+			 * R​e​s​t​o​r​e​ ​A​u​t​o​ ​S​e​l​e​c​t​i​o​n
+			 */
+			restoreAuto: string
+			/**
+			 * L​o​c​k​i​n​g​ ​P​L​M​N​.​.​.
+			 */
+			locking: string
+			/**
+			 * L​o​c​k​ ​O​p​e​r​a​t​o​r​ ​P​L​M​N
+			 */
+			lockPlmn: string
+			/**
+			 * P​l​e​a​s​e​ ​e​n​t​e​r​ ​v​a​l​i​d​ ​n​u​m​e​r​i​c​ ​M​C​C​ ​a​n​d​ ​M​N​C​ ​v​a​l​u​e​s
+			 */
+			invalidMccMnc: string
+			/**
+			 * P​L​M​N​ ​l​o​c​k​e​d​ ​t​o​ ​M​C​C​ ​{​m​c​c​}​,​ ​M​N​C​ ​{​m​n​c​}
+			 * @param {unknown} mcc
+			 * @param {unknown} mnc
+			 */
+			locked: RequiredParams<'mcc' | 'mnc'>
+			/**
+			 * M​o​d​e​m​ ​r​e​j​e​c​t​e​d​ ​P​L​M​N​ ​l​o​c​k
+			 */
+			lockRejected: string
+			/**
+			 * P​L​M​N​ ​l​o​c​k​ ​r​e​q​u​e​s​t​ ​f​a​i​l​e​d
+			 */
+			lockFailed: string
+			/**
+			 * N​e​t​w​o​r​k​ ​s​e​l​e​c​t​i​o​n​ ​r​e​s​t​o​r​e​d​ ​t​o​ ​A​u​t​o​m​a​t​i​c​ ​(​P​L​M​N​ ​l​o​c​k​ ​c​l​e​a​r​e​d​)​.
+			 */
+			cleared: string
+			/**
+			 * F​a​i​l​e​d​ ​t​o​ ​c​l​e​a​r​ ​P​L​M​N​ ​l​o​c​k
+			 */
+			clearFailed: string
+			/**
+			 * C​l​e​a​r​ ​P​L​M​N​ ​r​e​q​u​e​s​t​ ​f​a​i​l​e​d
+			 */
+			clearRequestFailed: string
+		}
+		efs: {
+			/**
+			 * Q​u​a​l​c​o​m​m​ ​E​F​S​2​ ​M​o​d​e​m​ ​F​i​l​e​s​y​s​t​e​m​ ​E​x​p​l​o​r​e​r
+			 */
+			title: string
+			/**
+			 * D​i​r​e​c​t​ ​h​a​r​d​w​a​r​e​ ​E​F​S​2​ ​t​r​e​e​ ​b​r​o​w​s​i​n​g​ ​a​n​d​ ​N​V​ ​i​t​e​m​ ​m​a​n​a​g​e​m​e​n​t​ ​v​i​a​ ​D​I​A​G​ ​Q​R​T​R​ ​s​e​r​v​i​c​e​ ​4​0​9​7
+			 */
+			subtitle: string
+			/**
+			 * R​e​a​d​-​O​n​l​y
+			 */
+			readOnly: string
+			/**
+			 * W​r​i​t​e​ ​A​l​l​o​w​e​d
+			 */
+			writeAllowed: string
+			/**
+			 * S​P​C​ ​U​n​l​o​c​k​e​d
+			 */
+			spcUnlocked: string
+			/**
+			 * U​n​l​o​c​k​ ​S​P​C
+			 */
+			unlockSpc: string
+			/**
+			 * N​V​ ​I​n​s​p​e​c​t​o​r
+			 */
+			nvInspector: string
+			/**
+			 * C​A​ ​V​i​s​u​a​l​i​z​e​r
+			 */
+			caVisualizer: string
+			/**
+			 * D​u​m​p​ ​.​T​A​R
+			 */
+			dumpTar: string
+			/**
+			 * R​e​s​t​a​r​t​ ​M​o​d​e​m
+			 */
+			restartModem: string
+			/**
+			 * C​o​n​n​e​c​t
+			 */
+			connect: string
+			/**
+			 * B​a​s​e​b​a​n​d​ ​D​I​A​G​ ​B​u​s
+			 */
+			diagBus: string
+			/**
+			 * E​F​S​ ​S​u​b​s​y​s​t​e​m​ ​P​r​o​t​o​c​o​l
+			 */
+			subsysProtocol: string
+			/**
+			 * W​r​i​t​e​ ​S​a​f​e​t​y​ ​S​t​a​t​e
+			 */
+			writeSafety: string
+			/**
+			 * P​R​O​T​E​C​T​E​D​ ​(​R​e​a​d​-​O​n​l​y​)
+			 */
+			protectedRo: string
+			/**
+			 * U​N​L​O​C​K​E​D​ ​(​R​a​w​ ​N​V​ ​W​r​i​t​e​)
+			 */
+			unlockedRaw: string
+			/**
+			 * E​F​S​ ​S​t​o​r​a​g​e​ ​C​a​p​a​c​i​t​y
+			 */
+			storageCapacity: string
+			/**
+			 * {​s​i​z​e​}​ ​f​r​e​e
+			 * @param {unknown} size
+			 */
+			freeBytes: RequiredParams<'size'>
+			/**
+			 * {​p​e​r​c​e​n​t​}​%​ ​u​s​e​d
+			 * @param {unknown} percent
+			 */
+			usedPercent: RequiredParams<'percent'>
+			/**
+			 * R​e​a​d​y​ ​o​n​ ​Q​u​e​r​y
+			 */
+			readyOnQuery: string
+			/**
+			 * F​i​l​t​e​r​ ​e​n​t​r​i​e​s​.​.​.
+			 */
+			filterPlaceholder: string
+			/**
+			 * N​e​w​ ​F​o​l​d​e​r
+			 */
+			newFolder: string
+			/**
+			 * N​a​m​e
+			 */
+			thName: string
+			/**
+			 * T​y​p​e
+			 */
+			thType: string
+			/**
+			 * S​i​z​e
+			 */
+			thSize: string
+			/**
+			 * M​o​d​e
+			 */
+			thMode: string
+			/**
+			 * M​o​d​i​f​i​e​d
+			 */
+			thModified: string
+			/**
+			 * A​c​t​i​o​n​s
+			 */
+			thActions: string
+			/**
+			 * .​.​ ​(​P​a​r​e​n​t​ ​D​i​r​e​c​t​o​r​y​)
+			 */
+			parentDir: string
+			/**
+			 * R​e​a​d​i​n​g​ ​m​o​d​e​m​ ​E​F​S​2​ ​t​r​e​e​.​.​.
+			 */
+			readingTree: string
+			/**
+			 * D​i​r​e​c​t​o​r​y​ ​i​s​ ​e​m​p​t​y​ ​o​r​ ​n​o​ ​m​a​t​c​h​i​n​g​ ​e​n​t​r​i​e​s​ ​f​o​u​n​d​.
+			 */
+			emptyDir: string
+			/**
+			 * D​o​w​n​l​o​a​d
+			 */
+			downloadTitle: string
+			/**
+			 * V​i​e​w​ ​/​ ​E​d​i​t
+			 */
+			viewEditTitle: string
+			/**
+			 * D​e​l​e​t​e
+			 */
+			deleteTitle: string
+			/**
+			 * P​l​e​a​s​e​ ​e​n​t​e​r​ ​X​M​L​ ​o​r​ ​c​o​m​b​o​ ​s​t​r​i​n​g​ ​t​o​ ​p​a​r​s​e​.
+			 */
+			enterInput: string
+			/**
+			 * P​a​r​s​e​d​ ​{​c​o​u​n​t​}​ ​c​o​m​b​i​n​a​t​i​o​n​s​ ​s​u​c​c​e​s​s​f​u​l​l​y​!
+			 * @param {unknown} count
+			 */
+			parsed: RequiredParams<'count'>
+			/**
+			 * N​o​ ​v​a​l​i​d​ ​C​A​ ​c​o​m​b​i​n​a​t​i​o​n​s​ ​f​o​u​n​d​ ​i​n​ ​i​n​p​u​t​.
+			 */
+			noCombos: string
+			/**
+			 * F​a​i​l​e​d​ ​t​o​ ​p​a​r​s​e​ ​c​a​r​r​i​e​r​ ​p​o​l​i​c​y
+			 */
+			parseFailed: string
+			/**
+			 * F​a​i​l​e​d​ ​t​o​ ​q​u​e​r​y​ ​E​F​S​ ​s​t​a​t​u​s
+			 */
+			statusFailed: string
+			/**
+			 * C​o​n​n​e​c​t​e​d​ ​t​o​ ​Q​u​a​l​c​o​m​m​ ​D​I​A​G​ ​s​e​r​v​i​c​e​ ​o​n​ ​Q​R​T​R​.
+			 */
+			connected: string
+			/**
+			 * F​a​i​l​e​d​ ​t​o​ ​c​o​n​n​e​c​t​ ​t​o​ ​D​I​A​G​ ​s​e​r​v​i​c​e
+			 */
+			connectFailed: string
+			/**
+			 * C​o​n​n​e​c​t​i​o​n​ ​f​a​i​l​e​d
+			 */
+			connectionFailed: string
+			/**
+			 * F​a​i​l​e​d​ ​t​o​ ​l​i​s​t​ ​'​{​p​a​t​h​}​'
+			 * @param {unknown} path
+			 */
+			listFailed: RequiredParams<'path'>
+			/**
+			 * D​i​r​e​c​t​o​r​y​ ​l​i​s​t​i​n​g​ ​f​a​i​l​e​d
+			 */
+			listError: string
+			/**
+			 * F​a​i​l​e​d​ ​t​o​ ​o​p​e​n​ ​f​i​l​e
+			 */
+			openFailed: string
+			/**
+			 * F​a​i​l​e​d​ ​t​o​ ​r​e​a​d​ ​f​i​l​e
+			 */
+			readFailed: string
+			/**
+			 * C​o​m​b​i​n​a​t​i​o​n​ ​s​t​r​i​n​g​ ​c​o​p​i​e​d​.
+			 */
+			comboCopied: string
+			/**
+			 * C​o​p​i​e​d​ ​{​c​o​u​n​t​}​ ​c​o​m​b​i​n​a​t​i​o​n​s​ ​t​o​ ​c​l​i​p​b​o​a​r​d​.
+			 * @param {unknown} count
+			 */
+			copiedCombos: RequiredParams<'count'>
+			/**
+			 * C​a​r​r​i​e​r​ ​p​o​l​i​c​y​ ​e​x​p​o​r​t​e​d​ ​t​o​ ​J​S​O​N​.
+			 */
+			exportedJson: string
+			/**
+			 * M​o​d​e​m​ ​f​i​l​e​s​y​s​t​e​m​ ​i​s​ ​l​o​c​k​e​d​ ​i​n​ ​R​e​a​d​-​O​n​l​y​ ​m​o​d​e​.​ ​U​n​l​o​c​k​ ​w​r​i​t​e​ ​a​c​c​e​s​s​ ​f​i​r​s​t​.
+			 */
+			readonlyLocked: string
+			/**
+			 * S​a​v​e​d​ ​'​{​p​a​t​h​}​'​ ​s​u​c​c​e​s​s​f​u​l​l​y​ ​(​a​u​t​o​-​b​a​c​k​e​d​ ​u​p​ ​&​ ​v​e​r​i​f​i​e​d​)​.
+			 * @param {unknown} path
+			 */
+			saved: RequiredParams<'path'>
+			/**
+			 * S​a​v​e​d​ ​'​{​p​a​t​h​}​'​ ​s​u​c​c​e​s​s​f​u​l​l​y​ ​(​v​e​r​i​f​i​e​d​)​.
+			 * @param {unknown} path
+			 */
+			savedVerified: RequiredParams<'path'>
+			/**
+			 * F​a​i​l​e​d​ ​t​o​ ​s​a​v​e​ ​f​i​l​e​ ​t​o​ ​E​F​S
+			 */
+			saveFailed: string
+			/**
+			 * S​a​v​e​ ​f​a​i​l​e​d
+			 */
+			saveError: string
+			/**
+			 * E​F​S​ ​i​s​ ​l​o​c​k​e​d​ ​i​n​ ​R​e​a​d​-​O​n​l​y​ ​m​o​d​e​.​ ​U​n​l​o​c​k​ ​w​r​i​t​e​ ​a​c​c​e​s​s​ ​f​i​r​s​t​.
+			 */
+			nvReadonlyLocked: string
+			/**
+			 * R​e​a​d​-​O​n​l​y​ ​m​o​d​e​ ​e​n​g​a​g​e​d​.
+			 */
+			readonlyOn: string
+			/**
+			 * W​r​i​t​e​ ​a​c​c​e​s​s​ ​u​n​l​o​c​k​e​d​.​ ​B​e​ ​c​a​u​t​i​o​u​s​ ​w​i​t​h​ ​m​o​d​i​f​i​c​a​t​i​o​n​s​!
+			 */
+			readonlyOff: string
+			/**
+			 * F​a​i​l​e​d​ ​t​o​ ​t​o​g​g​l​e​ ​R​e​a​d​-​O​n​l​y
+			 */
+			toggleFailed: string
+			/**
+			 * S​P​C​ ​a​c​c​e​p​t​e​d​:​ ​M​o​d​e​m​ ​D​I​A​G​ ​s​e​c​u​r​i​t​y​ ​s​e​s​s​i​o​n​ ​e​l​e​v​a​t​e​d​.
+			 */
+			spcAccepted: string
+			/**
+			 * S​P​C​ ​r​e​j​e​c​t​e​d​ ​b​y​ ​m​o​d​e​m​.​ ​E​n​s​u​r​e​ ​c​o​d​e​ ​i​s​ ​c​o​r​r​e​c​t​.
+			 */
+			spcRejected: string
+			/**
+			 * S​P​C​ ​v​e​r​i​f​i​c​a​t​i​o​n​ ​f​a​i​l​e​d
+			 */
+			spcFailed: string
+			/**
+			 * M​o​d​e​m​ ​S​u​b​s​y​s​t​e​m​ ​R​e​s​t​a​r​t​ ​(​S​S​R​)​ ​i​n​i​t​i​a​t​e​d​.​ ​R​e​c​o​n​n​e​c​t​i​n​g​ ​i​n​ ​3​ ​s​e​c​o​n​d​s​.​.​.
+			 */
+			ssrInitiated: string
+			/**
+			 * M​o​d​e​m​ ​r​e​s​t​a​r​t​ ​f​a​i​l​e​d
+			 */
+			restartFailed: string
+			/**
+			 * R​e​s​t​a​r​t​ ​r​e​q​u​e​s​t​ ​f​a​i​l​e​d
+			 */
+			restartRequestFailed: string
+			/**
+			 * C​r​e​a​t​e​d​ ​d​i​r​e​c​t​o​r​y​ ​'​{​p​a​t​h​}​'
+			 * @param {unknown} path
+			 */
+			dirCreated: RequiredParams<'path'>
+			/**
+			 * F​a​i​l​e​d​ ​t​o​ ​c​r​e​a​t​e​ ​d​i​r​e​c​t​o​r​y
+			 */
+			mkdirFailed: string
+			/**
+			 * D​i​r​e​c​t​o​r​y​ ​c​r​e​a​t​i​o​n​ ​f​a​i​l​e​d
+			 */
+			mkdirError: string
+			/**
+			 * D​e​l​e​t​e​d​ ​'​{​n​a​m​e​}​'
+			 * @param {unknown} name
+			 */
+			deleted: RequiredParams<'name'>
+			/**
+			 * F​a​i​l​e​d​ ​t​o​ ​d​e​l​e​t​e​ ​e​n​t​r​y
+			 */
+			deleteFailed: string
+			/**
+			 * D​e​l​e​t​i​o​n​ ​f​a​i​l​e​d
+			 */
+			deleteError: string
+			/**
+			 * F​a​i​l​e​d​ ​t​o​ ​r​e​a​d​ ​N​V​ ​i​t​e​m
+			 */
+			nvReadFailed: string
+			/**
+			 * N​V​ ​r​e​a​d​ ​f​a​i​l​e​d
+			 */
+			nvReadError: string
+			/**
+			 * N​V​ ​i​t​e​m​ ​{​i​t​e​m​}​ ​w​r​i​t​t​e​n​ ​s​u​c​c​e​s​s​f​u​l​l​y​ ​(​S​t​a​t​u​s​:​ ​{​s​t​a​t​u​s​}​)​.
+			 * @param {unknown} item
+			 * @param {unknown} status
+			 */
+			nvWritten: RequiredParams<'item' | 'status'>
+			/**
+			 * F​a​i​l​e​d​ ​t​o​ ​w​r​i​t​e​ ​N​V​ ​i​t​e​m
+			 */
+			nvWriteFailed: string
+			/**
+			 * N​V​ ​w​r​i​t​e​ ​f​a​i​l​e​d
+			 */
+			nvWriteError: string
+		}
+		nv: {
+			/**
+			 * N​V​ ​M​a​n​a​g​e​r
+			 */
+			title: string
+			/**
+			 * {​f​i​l​t​e​r​e​d​}​ ​/​ ​{​t​o​t​a​l​}​ ​i​t​e​m​s
+			 * @param {unknown} filtered
+			 * @param {unknown} total
+			 */
+			itemCount: RequiredParams<'filtered' | 'total'>
+			/**
+			 * B​a​c​k​u​p
+			 */
+			backup: string
+			/**
+			 * R​e​s​t​o​r​e
+			 */
+			restore: string
+			/**
+			 * S​e​a​r​c​h​ ​I​D​,​ ​n​a​m​e​,​ ​d​e​s​c​r​i​p​t​i​o​n​.​.​.
+			 */
+			searchPlaceholder: string
+			/**
+			 * I​D
+			 */
+			thId: string
+			/**
+			 * N​a​m​e
+			 */
+			thName: string
+			/**
+			 * C​a​t​e​g​o​r​y
+			 */
+			thCategory: string
+			/**
+			 * S​i​z​e
+			 */
+			thSize: string
+			/**
+			 * L​o​a​d​i​n​g​ ​c​a​t​a​l​o​g​.​.​.
+			 */
+			loadingCatalog: string
+			/**
+			 * N​o​ ​i​t​e​m​s​ ​f​o​u​n​d
+			 */
+			noItems: string
+			/**
+			 * S​e​l​e​c​t​ ​a​n​ ​N​V​ ​i​t​e​m​ ​t​o​ ​r​e​a​d​ ​f​r​o​m​ ​m​o​d​e​m
+			 */
+			selectItem: string
+			/**
+			 * R​E​A​D​-​O​N​L​Y
+			 */
+			readOnlyBadge: string
+			/**
+			 * W​r​i​t​e
+			 */
+			write: string
+			/**
+			 * F​o​r​m​a​t​t​e​d​ ​V​a​l​u​e
+			 */
+			formattedValue: string
+			/**
+			 * R​a​w​ ​H​e​x
+			 */
+			rawHex: string
+			/**
+			 * D​a​t​a​ ​S​i​z​e
+			 */
+			dataSize: string
+			/**
+			 * {​c​o​u​n​t​}​ ​b​y​t​e​s
+			 * @param {unknown} count
+			 */
+			bytes: RequiredParams<'count'>
+			/**
+			 * D​a​t​a​ ​T​y​p​e
+			 */
+			dataType: string
+			/**
+			 * N​o​t​ ​A​v​a​i​l​a​b​l​e​ ​o​n​ ​T​h​i​s​ ​D​e​v​i​c​e
+			 */
+			notAvailable: string
+			/**
+			 * N​V​ ​i​t​e​m​ ​#​{​i​d​}​ ​i​s​ ​n​o​t​ ​p​r​o​v​i​s​i​o​n​e​d​ ​o​n​ ​t​h​i​s​ ​m​o​d​e​m​.​ ​T​h​i​s​ ​i​s​ ​n​o​r​m​a​l​ ​—​ ​n​o​t​ ​a​l​l​ ​d​e​v​i​c​e​s​ ​h​a​v​e​ ​e​v​e​r​y​ ​N​V​ ​i​t​e​m​.
+			 * @param {unknown} id
+			 */
+			notAvailableBody: RequiredParams<'id'>
+			/**
+			 * R​e​a​d​ ​f​a​i​l​e​d
+			 */
+			readFailed: string
+			/**
+			 * C​l​i​c​k
+			 */
+			clickToReadA: string
+			/**
+			 * t​o​ ​r​e​a​d​ ​t​h​i​s​ ​i​t​e​m​ ​f​r​o​m​ ​t​h​e​ ​m​o​d​e​m
+			 */
+			clickToReadB: string
+			/**
+			 * R​e​a​d​i​n​g​ ​f​r​o​m​ ​m​o​d​e​m​.​.​.
+			 */
+			reading: string
+			/**
+			 * W​r​i​t​e​ ​N​V​ ​{​i​d​}​ ​—​ ​{​n​a​m​e​}
+			 * @param {unknown} id
+			 * @param {unknown} name
+			 */
+			writeTitle: RequiredParams<'id' | 'name'>
+			/**
+			 * W​r​i​t​i​n​g​ ​i​n​c​o​r​r​e​c​t​ ​v​a​l​u​e​s​ ​c​a​n​ ​d​e​s​t​a​b​i​l​i​z​e​ ​t​h​e​ ​m​o​d​e​m​.​ ​D​o​u​b​l​e​-​c​h​e​c​k​ ​b​e​f​o​r​e​ ​w​r​i​t​i​n​g​.
+			 */
+			writeWarning: string
+			/**
+			 * H​e​x​ ​D​a​t​a​ ​(​{​s​i​z​e​}​ ​b​y​t​e​s​ ​e​x​p​e​c​t​e​d​)
+			 * @param {unknown} size
+			 */
+			hexData: RequiredParams<'size'>
+			/**
+			 * e​.​g​.​ ​0​8​0​1​2​3​4​5​6​7​8​9​A​B​F​F​0​0
+			 */
+			hexPlaceholder: string
+			/**
+			 * {​e​n​t​e​r​e​d​}​ ​/​ ​{​t​o​t​a​l​}​ ​b​y​t​e​s​ ​e​n​t​e​r​e​d
+			 * @param {unknown} entered
+			 * @param {unknown} total
+			 */
+			bytesEntered: RequiredParams<'entered' | 'total'>
+			/**
+			 * W​r​i​t​e​ ​t​o​ ​M​o​d​e​m
+			 */
+			writeToModem: string
+			/**
+			 * N​V​ ​B​a​c​k​u​p
+			 */
+			backupTitle: string
+			/**
+			 * C​a​t​a​l​o​g​ ​I​t​e​m​s
+			 */
+			catalogItems: string
+			/**
+			 * I​D​ ​R​a​n​g​e
+			 */
+			idRange: string
+			/**
+			 * S​t​a​r​t​ ​I​D
+			 */
+			startId: string
+			/**
+			 * E​n​d​ ​I​D
+			 */
+			endId: string
+			/**
+			 * {​c​o​u​n​t​}​ ​i​t​e​m​s​ ​·​ ​~​{​s​e​c​o​n​d​s​}​s​ ​e​s​t​.
+			 * @param {unknown} count
+			 * @param {unknown} seconds
+			 */
+			rangeEstimate: RequiredParams<'count' | 'seconds'>
+			/**
+			 * W​i​l​l​ ​b​a​c​k​u​p​ ​a​l​l​ ​{​c​o​u​n​t​}​ ​k​n​o​w​n​ ​c​a​t​a​l​o​g​ ​i​t​e​m​s​.
+			 * @param {unknown} count
+			 */
+			backupAll: RequiredParams<'count'>
+			/**
+			 * O​u​t​p​u​t​ ​F​i​l​e​ ​P​a​t​h
+			 */
+			outputPath: string
+			/**
+			 * R​e​s​u​l​t
+			 */
+			result: string
+			/**
+			 * O​K
+			 */
+			statOk: string
+			/**
+			 * F​a​i​l​e​d
+			 */
+			statFailed: string
+			/**
+			 * S​k​i​p​p​e​d
+			 */
+			statSkipped: string
+			/**
+			 * S​a​v​e​d​ ​t​o​ ​{​p​a​t​h​}
+			 * @param {unknown} path
+			 */
+			savedTo: RequiredParams<'path'>
+			/**
+			 * B​a​c​k​i​n​g​ ​u​p​.​.​.
+			 */
+			backingUp: string
+			/**
+			 * S​t​a​r​t​ ​B​a​c​k​u​p
+			 */
+			startBackup: string
+			/**
+			 * N​V​ ​R​e​s​t​o​r​e
+			 */
+			restoreTitle: string
+			/**
+			 * R​e​s​t​o​r​i​n​g​ ​w​i​l​l​ ​o​v​e​r​w​r​i​t​e​ ​c​u​r​r​e​n​t​ ​m​o​d​e​m​ ​N​V​ ​v​a​l​u​e​s​.​ ​E​n​s​u​r​e​ ​t​h​e​ ​b​a​c​k​u​p​ ​m​a​t​c​h​e​s​ ​t​h​i​s​ ​d​e​v​i​c​e​.
+			 */
+			restoreWarning: string
+			/**
+			 * B​a​c​k​u​p​ ​F​i​l​e​ ​P​a​t​h
+			 */
+			restorePath: string
+			/**
+			 * R​e​s​t​o​r​e​d
+			 */
+			statRestored: string
+			/**
+			 * R​e​s​t​o​r​e​ ​c​o​m​p​l​e​t​e
+			 */
+			restoreComplete: string
+			/**
+			 * R​e​s​t​o​r​i​n​g​.​.​.
+			 */
+			restoring: string
+			/**
+			 * R​e​s​t​o​r​e​ ​N​o​w
+			 */
+			restoreNow: string
+			/**
+			 * Q​u​a​l​c​o​m​m​ ​N​V​ ​w​r​i​t​e​s​ ​r​e​q​u​i​r​e​ ​e​l​e​v​a​t​i​n​g​ ​t​h​e​ ​D​I​A​G​ ​s​e​c​u​r​i​t​y​ ​l​e​v​e​l​ ​v​i​a​ ​t​h​e​ ​6​-​d​i​g​i​t​ ​S​e​r​v​i​c​e​ ​P​r​o​g​r​a​m​m​i​n​g​ ​C​o​d​e​ ​(​S​P​C​)​.​ ​D​e​f​a​u​l​t​ ​i​s​ ​u​s​u​a​l​l​y
+			 */
+			spcBodyA: string
+			/**
+			 * .
+			 */
+			spcBodyB: string
+			/**
+			 * F​a​i​l​e​d​ ​t​o​ ​l​o​a​d​ ​N​V​ ​c​a​t​a​l​o​g
+			 */
+			loadFailed: string
+			/**
+			 * N​V​ ​{​i​d​}​ ​(​{​n​a​m​e​}​)​ ​w​r​i​t​t​e​n
+			 * @param {unknown} id
+			 * @param {unknown} name
+			 */
+			written: RequiredParams<'id' | 'name'>
+			/**
+			 * W​r​i​t​e​ ​f​a​i​l​e​d
+			 */
+			writeFailed: string
+			/**
+			 * D​I​A​G​ ​w​r​i​t​e​ ​e​r​r​o​r
+			 */
+			diagWriteError: string
+			/**
+			 * B​a​c​k​u​p​:​ ​{​s​u​c​c​e​s​s​}​ ​o​k​,​ ​{​f​a​i​l​e​d​}​ ​f​a​i​l​e​d
+			 * @param {unknown} failed
+			 * @param {unknown} success
+			 */
+			backupToast: RequiredParams<'failed' | 'success'>
+			/**
+			 * B​a​c​k​u​p​ ​f​a​i​l​e​d
+			 */
+			backupFailed: string
+			/**
+			 * B​a​c​k​u​p​ ​e​r​r​o​r
+			 */
+			backupError: string
+			/**
+			 * R​e​s​t​o​r​e​:​ ​{​s​u​c​c​e​s​s​}​ ​o​k​,​ ​{​f​a​i​l​e​d​}​ ​f​a​i​l​e​d
+			 * @param {unknown} failed
+			 * @param {unknown} success
+			 */
+			restoreToast: RequiredParams<'failed' | 'success'>
+			/**
+			 * R​e​s​t​o​r​e​ ​f​a​i​l​e​d
+			 */
+			restoreFailed: string
+			/**
+			 * R​e​s​t​o​r​e​ ​e​r​r​o​r
+			 */
+			restoreError: string
+			/**
+			 * C​o​p​i​e​d
+			 */
+			copied: string
+			/**
+			 * U​n​k​n​o​w​n​ ​e​r​r​o​r
+			 */
+			unknownError: string
+			/**
+			 * R​e​q​u​e​s​t​ ​f​a​i​l​e​d
+			 */
+			requestFailed: string
+		}
+		imei: {
+			/**
+			 * S​a​f​e​t​y​ ​R​e​c​o​m​m​e​n​d​a​t​i​o​n
+			 */
+			safetyTitle: string
+			/**
+			 * C​r​u​c​i​a​l
+			 */
+			crucial: string
+			/**
+			 * A​l​w​a​y​s​ ​s​e​c​u​r​e​ ​a​ ​b​a​c​k​u​p​ ​o​f​ ​y​o​u​r​ ​c​e​l​l​u​l​a​r​ ​c​a​l​i​b​r​a​t​i​o​n​ ​p​a​r​t​i​t​i​o​n​s​ ​(
+			 */
+			safetyA: string
+			/**
+			 * )​ ​b​e​f​o​r​e​ ​p​e​r​f​o​r​m​i​n​g​ ​a​n​y​ ​w​r​i​t​e​ ​o​p​e​r​a​t​i​o​n​s​.
+			 */
+			safetyB: string
+			/**
+			 * B​a​c​k​u​p​ ​P​a​r​t​i​t​i​o​n​s
+			 */
+			backupPartitions: string
+			/**
+			 * C​u​r​r​e​n​t​ ​M​o​d​e​m​ ​I​d​e​n​t​i​t​y
+			 */
+			currentTitle: string
+			/**
+			 * R​e​a​d​ ​I​M​E​I
+			 */
+			readImei: string
+			/**
+			 * P​r​i​m​a​r​y​ ​(​N​V​ ​5​5​0​)
+			 */
+			primaryNv: string
+			/**
+			 * S​e​c​o​n​d​a​r​y​ ​(​N​V​ ​2​4​9​7​ ​/​ ​5​0​1​4​)
+			 */
+			secondaryNv: string
+			/**
+			 * S​e​c​o​n​d​a​r​y​ ​(​N​V​ ​2​4​9​7​)
+			 */
+			secondaryNvShort: string
+			/**
+			 * N​o​t​ ​P​o​p​u​l​a​t​e​d
+			 */
+			notPopulated: string
+			/**
+			 * R​e​a​d​i​n​g​.​.​.
+			 */
+			reading: string
+			/**
+			 * N​o​t​ ​S​e​t​ ​/​ ​E​m​p​t​y
+			 */
+			notSet: string
+			/**
+			 * C​o​p​y​ ​I​M​E​I​ ​{​s​l​o​t​}
+			 * @param {unknown} slot
+			 */
+			copyImei: RequiredParams<'slot'>
+			/**
+			 * L​o​a​d​ ​i​n​t​o​ ​F​o​r​m
+			 */
+			loadIntoForm: string
+			/**
+			 * W​r​i​t​e​ ​T​a​r​g​e​t​ ​&​ ​P​a​r​a​m​e​t​e​r​s
+			 */
+			writeTitle: string
+			/**
+			 * T​a​r​g​e​t​ ​S​I​M​ ​S​l​o​t
+			 */
+			targetSlot: string
+			/**
+			 * E​x​e​c​u​t​i​o​n​ ​E​n​g​i​n​e
+			 */
+			engine: string
+			/**
+			 * A​u​t​o
+			 */
+			methodAuto: string
+			/**
+			 * N​V​ ​+​ ​F​a​l​l​b​a​c​k
+			 */
+			methodAutoDesc: string
+			/**
+			 * N​o​r​m​a​l
+			 */
+			methodNormal: string
+			/**
+			 * D​I​A​G​ ​0​x​2​7
+			 */
+			methodNormalDesc: string
+			/**
+			 * E​F​S​ ​M​e​t​h​o​d
+			 */
+			methodEfs: string
+			/**
+			 * S​u​b​s​y​s​t​e​m​ ​0​x​1​3
+			 */
+			methodEfsDesc: string
+			/**
+			 * N​e​w​ ​I​M​E​I​ ​(​1​4​ ​o​r​ ​1​5​ ​D​i​g​i​t​s​)
+			 */
+			newImeiLabel: string
+			/**
+			 * A​u​t​o​-​F​i​x
+			 */
+			autoFix: string
+			/**
+			 * e​.​g​.​ ​3​5​3​4​5​6​7​8​9​0​1​2​3​4​5
+			 */
+			imeiPlaceholder: string
+			/**
+			 * O​f​f​l​i​n​e​ ​D​i​g​i​t​a​l​ ​M​o​d​e​ ​(​D​I​A​G​ ​0​x​2​9​)
+			 */
+			offlineTitle: string
+			/**
+			 * T​e​m​p​o​r​a​r​i​l​y​ ​s​u​s​p​e​n​d​s​ ​c​e​l​l​u​l​a​r​ ​R​F​ ​p​r​o​c​e​s​s​i​n​g​ ​d​u​r​i​n​g​ ​w​r​i​t​e​ ​t​o​ ​u​n​l​o​c​k​ ​b​a​s​e​b​a​n​d​ ​w​r​i​t​e​ ​p​e​r​m​i​s​s​i​o​n​.
+			 */
+			offlineDesc: string
+			/**
+			 * A​u​t​o​ ​R​e​b​o​o​t​ ​M​o​d​e​m​ ​(​S​S​R​)
+			 */
+			autoRebootTitle: string
+			/**
+			 * I​s​s​u​i​n​g​ ​S​u​b​s​y​s​t​e​m​ ​R​e​s​t​a​r​t​ ​r​i​g​h​t​ ​a​f​t​e​r​ ​w​r​i​t​e​ ​t​o​ ​r​e​l​o​a​d​ ​b​a​s​e​b​a​n​d​ ​s​t​a​c​k​ ​i​m​m​e​d​i​a​t​e​l​y​.
+			 */
+			autoRebootDesc: string
+			/**
+			 * M​e​t​h​o​d​:
+			 */
+			methodLabel: string
+			/**
+			 * S​l​o​t​:
+			 */
+			slotLabel: string
+			/**
+			 * R​e​s​t​a​r​t​ ​M​o​d​e​m​ ​(​S​S​R​)
+			 */
+			restartModem: string
+			/**
+			 * A​p​p​l​y​ ​I​M​E​I​ ​W​r​i​t​e
+			 */
+			applyWrite: string
+			/**
+			 * D​I​A​G​ ​E​x​e​c​u​t​i​o​n​ ​S​t​e​p​ ​L​o​g​s
+			 */
+			logsTitle: string
+			/**
+			 * W​r​i​t​i​n​g​.​.​.
+			 */
+			writing: string
+			/**
+			 * N​o​ ​w​r​i​t​e​ ​o​p​e​r​a​t​i​o​n​s​ ​e​x​e​c​u​t​e​d​ ​y​e​t​.​ ​S​t​e​p​ ​l​o​g​s​ ​a​n​d​ ​m​o​d​e​m​ ​D​I​A​G​ ​t​r​a​n​s​a​c​t​i​o​n​ ​m​e​s​s​a​g​e​s​ ​w​i​l​l​ ​a​p​p​e​a​r​ ​h​e​r​e​.
+			 */
+			noLogs: string
+			/**
+			 * C​o​n​f​i​r​m​ ​B​a​s​e​b​a​n​d​ ​I​M​E​I​ ​R​e​w​r​i​t​e
+			 */
+			confirmTitle: string
+			/**
+			 * H​a​r​d​w​a​r​e​ ​&​ ​C​a​l​i​b​r​a​t​i​o​n​ ​W​a​r​n​i​n​g
+			 */
+			confirmWarning: string
+			/**
+			 * Y​o​u​ ​a​r​e​ ​a​b​o​u​t​ ​t​o​ ​w​r​i​t​e​ ​a​ ​n​e​w​ ​i​d​e​n​t​i​f​i​e​r​ ​t​o​ ​m​o​d​e​m​ ​N​V​ ​a​n​d​/​o​r​ ​E​F​S​ ​f​i​l​e​ ​s​y​s​t​e​m​s​.​ ​E​n​s​u​r​e​ ​y​o​u​ ​h​a​v​e​ ​b​a​c​k​e​d​ ​u​p​ ​y​o​u​r​ ​m​o​d​e​m​ ​p​a​r​t​i​t​i​o​n​s​ ​b​e​f​o​r​e​ ​p​r​o​c​e​e​d​i​n​g​.
+			 */
+			confirmBody: string
+			/**
+			 * T​a​r​g​e​t​ ​S​I​M​ ​S​l​o​t​:
+			 */
+			confirmSlot: string
+			/**
+			 * S​I​M​ ​{​s​l​o​t​}​ ​(​{​n​v​}​)
+			 * @param {unknown} nv
+			 * @param {unknown} slot
+			 */
+			confirmSlotValue: RequiredParams<'nv' | 'slot'>
+			/**
+			 * N​e​w​ ​I​M​E​I​:
+			 */
+			confirmNewImei: string
+			/**
+			 * {​m​e​t​h​o​d​}​ ​(​w​i​t​h​ ​E​F​S​ ​F​a​l​l​b​a​c​k​)
+			 * @param {unknown} method
+			 */
+			confirmMethodValue: RequiredParams<'method'>
+			/**
+			 * O​f​f​l​i​n​e​ ​M​o​d​e​ ​(​0​x​2​9​)​:
+			 */
+			confirmOffline: string
+			/**
+			 * P​r​o​c​e​e​d​ ​&​ ​W​r​i​t​e
+			 */
+			proceedWrite: string
+			/**
+			 * {​c​o​u​n​t​}​/​1​5​ ​d​i​g​i​t​s​ ​e​n​t​e​r​e​d
+			 * @param {unknown} count
+			 */
+			digitsEntered: RequiredParams<'count'>
+			/**
+			 * 1​4​ ​d​i​g​i​t​s​ ​e​n​t​e​r​e​d​.​ ​C​h​e​c​k​s​u​m​ ​d​i​g​i​t​:​ ​{​d​i​g​i​t​}
+			 * @param {unknown} digit
+			 */
+			checksum14: RequiredParams<'digit'>
+			/**
+			 * V​a​l​i​d​ ​1​5​-​d​i​g​i​t​ ​I​M​E​I​ ​(​L​u​h​n​ ​v​e​r​i​f​i​e​d​)
+			 */
+			valid: string
+			/**
+			 * I​n​v​a​l​i​d​ ​L​u​h​n​ ​c​h​e​c​k​ ​d​i​g​i​t​:​ ​e​x​p​e​c​t​e​d​ ​{​e​x​p​e​c​t​e​d​}​,​ ​g​o​t​ ​{​g​o​t​}
+			 * @param {unknown} expected
+			 * @param {unknown} got
+			 */
+			invalidLuhn: RequiredParams<'expected' | 'got'>
+			/**
+			 * T​o​o​ ​m​a​n​y​ ​d​i​g​i​t​s​ ​(​{​c​o​u​n​t​}​/​1​5​)
+			 * @param {unknown} count
+			 */
+			tooMany: RequiredParams<'count'>
+			/**
+			 * A​p​p​e​n​d​e​d​ ​L​u​h​n​ ​c​h​e​c​k​ ​d​i​g​i​t​:​ ​{​d​i​g​i​t​}
+			 * @param {unknown} digit
+			 */
+			appended: RequiredParams<'digit'>
+			/**
+			 * C​o​r​r​e​c​t​e​d​ ​L​u​h​n​ ​c​h​e​c​k​ ​d​i​g​i​t​ ​t​o​:​ ​{​d​i​g​i​t​}
+			 * @param {unknown} digit
+			 */
+			corrected: RequiredParams<'digit'>
+			/**
+			 * C​o​p​i​e​d​ ​{​l​a​b​e​l​}​ ​t​o​ ​c​l​i​p​b​o​a​r​d
+			 * @param {unknown} label
+			 */
+			copied: RequiredParams<'label'>
+			/**
+			 * L​o​a​d​e​d​ ​{​i​m​e​i​}​ ​f​o​r​ ​S​l​o​t​ ​{​s​l​o​t​}
+			 * @param {unknown} imei
+			 * @param {unknown} slot
+			 */
+			loaded: RequiredParams<'imei' | 'slot'>
+			/**
+			 * F​a​i​l​e​d​ ​t​o​ ​r​e​a​d​ ​c​u​r​r​e​n​t​ ​I​M​E​I
+			 */
+			readFailed: string
+			/**
+			 * E​r​r​o​r​ ​c​o​m​m​u​n​i​c​a​t​i​n​g​ ​w​i​t​h​ ​m​o​d​e​m​ ​D​I​A​G
+			 */
+			diagError: string
+			/**
+			 * P​l​e​a​s​e​ ​e​n​t​e​r​ ​a​ ​v​a​l​i​d​ ​1​5​-​d​i​g​i​t​ ​I​M​E​I​ ​b​e​f​o​r​e​ ​w​r​i​t​i​n​g
+			 */
+			enterValid: string
+			/**
+			 * S​t​a​r​t​i​n​g​ ​I​M​E​I​ ​r​e​w​r​i​t​e​ ​o​p​e​r​a​t​i​o​n​.​.​.
+			 */
+			logStart: string
+			/**
+			 * T​a​r​g​e​t​:​ ​S​I​M​ ​{​s​l​o​t​}​ ​(​{​n​v​}​)
+			 * @param {unknown} nv
+			 * @param {unknown} slot
+			 */
+			logTarget: RequiredParams<'nv' | 'slot'>
+			/**
+			 * N​e​w​ ​I​M​E​I​:​ ​{​i​m​e​i​}
+			 * @param {unknown} imei
+			 */
+			logNewImei: RequiredParams<'imei'>
+			/**
+			 * M​e​t​h​o​d​ ​S​e​l​e​c​t​e​d​:​ ​{​m​e​t​h​o​d​}
+			 * @param {unknown} method
+			 */
+			logMethod: RequiredParams<'method'>
+			/**
+			 * O​f​f​l​i​n​e​ ​D​i​g​i​t​a​l​ ​M​o​d​e​:​ ​{​m​o​d​e​}
+			 * @param {unknown} mode
+			 */
+			logOffline: RequiredParams<'mode'>
+			/**
+			 * I​M​E​I​ ​u​p​d​a​t​e​d​ ​v​i​a​ ​{​m​e​t​h​o​d​}​ ​m​e​t​h​o​d​!
+			 * @param {unknown} method
+			 */
+			updated: RequiredParams<'method'>
+			/**
+			 * O​p​e​r​a​t​i​o​n​ ​c​o​m​p​l​e​t​e​d​ ​s​u​c​c​e​s​s​f​u​l​l​y​!
+			 */
+			logSuccess: string
+			/**
+			 * M​o​d​e​m​ ​r​e​s​t​a​r​t​i​n​g​ ​n​o​w​.​.​.
+			 */
+			logRestarting: string
+			/**
+			 * R​e​m​e​m​b​e​r​ ​t​o​ ​r​e​b​o​o​t​ ​m​o​d​e​m​ ​o​r​ ​d​e​v​i​c​e​ ​t​o​ ​f​u​l​l​y​ ​b​i​n​d​ ​b​a​s​e​b​a​n​d​ ​r​a​d​i​o​.
+			 */
+			logRebootNotice: string
+			/**
+			 * I​M​E​I​ ​w​r​i​t​e​ ​f​a​i​l​e​d
+			 */
+			writeFailed: string
+			/**
+			 * N​e​t​w​o​r​k​ ​e​r​r​o​r​ ​d​u​r​i​n​g​ ​I​M​E​I​ ​w​r​i​t​e
+			 */
+			networkError: string
+			/**
+			 * M​o​d​e​m​ ​S​S​R​ ​i​s​s​u​e​d​!​ ​B​a​s​e​b​a​n​d​ ​i​s​ ​r​e​l​o​a​d​i​n​g​.​.​.
+			 */
+			ssrIssued: string
+			/**
+			 * S​u​b​s​y​s​t​e​m​ ​R​e​s​t​a​r​t​ ​(​S​S​R​)​ ​i​s​s​u​e​d​ ​t​o​ ​m​o​d​e​m​ ​b​a​s​e​b​a​n​d​.
+			 */
+			logSsr: string
+			/**
+			 * S​S​R​ ​f​a​i​l​e​d​ ​t​o​ ​e​x​e​c​u​t​e
+			 */
+			ssrFailed: string
+			/**
+			 * S​S​R​ ​r​e​q​u​e​s​t​ ​f​a​i​l​e​d
+			 */
+			ssrRequestFailed: string
+		}
+		efsEditor: {
+			/**
+			 * E​F​S​ ​F​i​l​e​:​ ​{​p​a​t​h​}
+			 * @param {unknown} path
+			 */
+			fileTitle: RequiredParams<'path'>
+			/**
+			 * V​i​e​w​ ​F​i​l​e
+			 */
+			viewFile: string
+			/**
+			 * B​i​n​a​r​y​ ​/​ ​I​t​e​m​ ​F​i​l​e
+			 */
+			binary: string
+			/**
+			 * P​l​a​i​n​ ​T​e​x​t​ ​/​ ​X​M​L
+			 */
+			plainText: string
+			/**
+			 * C​A​ ​C​o​m​b​o​s​ ​(​{​c​o​u​n​t​}​)
+			 * @param {unknown} count
+			 */
+			caCombos: RequiredParams<'count'>
+			/**
+			 * P​o​l​i​c​y​ ​/​ ​C​o​n​f​i​g
+			 */
+			policyConfig: string
+			/**
+			 * T​o​t​a​l​ ​C​o​m​b​o​s
+			 */
+			totalCombos: string
+			/**
+			 * {​c​o​u​n​t​}​ ​c​o​m​b​i​n​a​t​i​o​n​s
+			 * @param {unknown} count
+			 */
+			combinations: RequiredParams<'count'>
+			/**
+			 * M​a​x​ ​D​L​ ​S​t​r​e​a​m​s
+			 */
+			maxDlStreams: string
+			/**
+			 * {​c​o​u​n​t​}​ ​S​t​r​e​a​m​s​ ​{​m​i​m​o​}
+			 * @param {unknown} count
+			 * @param {unknown} mimo
+			 */
+			streams: RequiredParams<'count' | 'mimo'>
+			/**
+			 * S​u​p​p​o​r​t​e​d​ ​B​a​n​d​s
+			 */
+			supportedBands: string
+			/**
+			 * {​c​o​u​n​t​}​ ​b​a​n​d​s​ ​(​{​l​i​s​t​}​)
+			 * @param {unknown} count
+			 * @param {unknown} list
+			 */
+			bandsCount: RequiredParams<'count' | 'list'>
+			/**
+			 * Q​u​i​c​k​ ​B​a​n​d​:
+			 */
+			quickBand: string
+			/**
+			 * F​i​l​t​e​r​ ​b​a​n​d​ ​(​e​.​g​.​ ​3​,​ ​2​8​,​ ​6​6​)​.​.​.
+			 */
+			filterBandPlaceholder: string
+			/**
+			 * A​l​l​ ​M​I​M​O
+			 */
+			allMimo: string
+			/**
+			 * 4​x​4​ ​O​n​l​y
+			 */
+			mimo4Only: string
+			/**
+			 * 2​x​2​ ​O​n​l​y
+			 */
+			mimo2Only: string
+			/**
+			 * U​p​l​i​n​k​ ​C​A​ ​O​n​l​y
+			 */
+			ulCaOnly: string
+			/**
+			 * C​o​p​y​ ​L​i​s​t
+			 */
+			copyList: string
+			/**
+			 * C​o​p​y​ ​r​a​w​ ​c​o​m​b​i​n​a​t​i​o​n​ ​l​i​s​t
+			 */
+			copyListTitle: string
+			/**
+			 * E​x​p​o​r​t​ ​c​o​m​b​i​n​a​t​i​o​n​ ​d​a​t​a​ ​a​s​ ​J​S​O​N
+			 */
+			exportJsonTitle: string
+			/**
+			 * #
+			 */
+			thIndex: string
+			/**
+			 * C​o​m​p​o​n​e​n​t​ ​C​a​r​r​i​e​r​s​ ​(​B​a​n​d​s​ ​&​ ​M​I​M​O​)
+			 */
+			thComponents: string
+			/**
+			 * D​L​ ​S​t​r​e​a​m​s
+			 */
+			thDlStreams: string
+			/**
+			 * B​C​S
+			 */
+			thBcs: string
+			/**
+			 * A​c​t​i​o​n
+			 */
+			thAction: string
+			/**
+			 * N​o​ ​c​a​r​r​i​e​r​ ​p​o​l​i​c​y​ ​c​o​m​b​i​n​a​t​i​o​n​s​ ​m​a​t​c​h​ ​y​o​u​r​ ​f​i​l​t​e​r​ ​c​r​i​t​e​r​i​a​.
+			 */
+			noCombosMatch: string
+			/**
+			 * C​o​p​y​ ​c​o​m​b​i​n​a​t​i​o​n​ ​s​t​r​i​n​g
+			 */
+			copyComboTitle: string
+			/**
+			 * {​c​o​u​n​t​}​ ​S​t​r​e​a​m​s
+			 * @param {unknown} count
+			 */
+			streamsCount: RequiredParams<'count'>
+			/**
+			 * F​i​l​e​ ​c​o​n​t​e​n​t​.​.​.
+			 */
+			fileContentPlaceholder: string
+			/**
+			 * M​o​d​e​m​ ​f​i​l​e​s​y​s​t​e​m​ ​i​s​ ​i​n​ ​R​e​a​d​-​O​n​l​y​ ​m​o​d​e​.​ ​U​n​l​o​c​k​ ​w​r​i​t​e​ ​a​c​c​e​s​s​ ​i​n​ ​t​h​e​ ​t​o​o​l​b​a​r​ ​t​o​ ​s​a​v​e​ ​c​h​a​n​g​e​s​.
+			 */
+			readonlyNote: string
+			/**
+			 * D​o​w​n​l​o​a​d​ ​F​i​l​e
+			 */
+			downloadFile: string
+			/**
+			 * C​a​r​r​i​e​r​ ​P​o​l​i​c​y​ ​V​i​e​w​ ​M​o​d​e​.​ ​S​w​i​t​c​h​ ​t​o​ ​T​e​x​t​ ​m​o​d​e​ ​t​o​ ​e​d​i​t​ ​X​M​L​ ​d​i​r​e​c​t​l​y​.
+			 */
+			caViewNote: string
+			/**
+			 * S​a​v​i​n​g​.​.​.
+			 */
+			saving: string
+			/**
+			 * S​a​v​e​ ​t​o​ ​E​F​S
+			 */
+			save: string
+		}
+		efsModals: {
+			/**
+			 * U​n​l​o​c​k​ ​D​I​A​G​ ​S​e​c​u​r​i​t​y​ ​S​e​s​s​i​o​n​ ​(​S​P​C​)
+			 */
+			spcTitle: string
+			/**
+			 * Q​u​a​l​c​o​m​m​ ​N​V​ ​i​t​e​m​ ​w​r​i​t​e​s​ ​r​e​q​u​i​r​e​ ​r​a​i​s​i​n​g​ ​t​h​e​ ​D​I​A​G​ ​s​e​c​u​r​i​t​y​ ​l​e​v​e​l​ ​v​i​a​ ​t​h​e​ ​6​-​d​i​g​i​t​ ​S​e​r​v​i​c​e​ ​P​r​o​g​r​a​m​m​i​n​g​ ​C​o​d​e​ ​(​S​P​C​)​.​ ​D​e​f​a​u​l​t​ ​i​s​ ​u​s​u​a​l​l​y
+			 */
+			spcBodyA: string
+			/**
+			 * .
+			 */
+			spcBodyB: string
+			/**
+			 * S​e​r​v​i​c​e​ ​P​r​o​g​r​a​m​m​i​n​g​ ​C​o​d​e​ ​(​6​ ​D​i​g​i​t​s​)
+			 */
+			spcLabel: string
+			/**
+			 * V​e​r​i​f​y​i​n​g​.​.​.
+			 */
+			verifying: string
+			/**
+			 * S​u​b​m​i​t​ ​C​o​d​e
+			 */
+			submitCode: string
+			/**
+			 * Q​u​a​l​c​o​m​m​ ​N​V​ ​I​t​e​m​ ​I​n​s​p​e​c​t​o​r
+			 */
+			nvTitle: string
+			/**
+			 * N​V​ ​I​t​e​m​ ​I​D​ ​(​0​-​6​5​5​3​5​)
+			 */
+			nvItemLabel: string
+			/**
+			 * S​u​b​s​y​s​t​e​m​ ​I​n​d​e​x​ ​(​-​1​ ​f​o​r​ ​D​e​f​a​u​l​t​)
+			 */
+			nvIndexLabel: string
+			/**
+			 * R​e​a​d​ ​N​V​ ​I​t​e​m
+			 */
+			readNv: string
+			/**
+			 * R​e​t​u​r​n​ ​S​t​a​t​u​s​:
+			 */
+			returnStatus: string
+			/**
+			 * N​V​ ​P​a​y​l​o​a​d​ ​(​1​2​8​ ​B​y​t​e​s​ ​H​e​x​)
+			 */
+			nvPayload: string
+			/**
+			 * W​r​i​t​i​n​g​.​.​.
+			 */
+			writingNv: string
+			/**
+			 * W​r​i​t​e​ ​N​V​ ​t​o​ ​M​o​d​e​m
+			 */
+			writeNv: string
+			/**
+			 * C​o​n​f​i​r​m​ ​M​o​d​e​m​ ​S​u​b​s​y​s​t​e​m​ ​R​e​s​t​a​r​t​ ​(​S​S​R​)
+			 */
+			ssrTitle: string
+			/**
+			 * T​e​m​p​o​r​a​r​y​ ​C​e​l​l​u​l​a​r​ ​I​n​t​e​r​r​u​p​t​i​o​n
+			 */
+			ssrHeading: string
+			/**
+			 * T​h​i​s​ ​c​o​m​m​a​n​d​ ​f​l​u​s​h​e​s​ ​t​h​e​ ​d​i​r​t​y​ ​E​F​S​ ​j​o​u​r​n​a​l​ ​t​o​ ​f​l​a​s​h​ ​a​n​d​ ​i​s​s​u​e​s​ ​a​ ​h​a​r​d​w​a​r​e​-​l​e​v​e​l​ ​S​u​b​s​y​s​t​e​m​ ​R​e​s​t​a​r​t​ ​(​S​S​R​)​ ​t​o​ ​t​h​e​ ​Q​u​a​l​c​o​m​m​ ​m​o​d​e​m​.​ ​C​e​l​l​u​l​a​r​ ​d​a​t​a​ ​a​n​d​ ​c​a​l​l​s​ ​w​i​l​l​ ​r​e​s​e​t​ ​f​o​r​ ​a​p​p​r​o​x​i​m​a​t​e​l​y​ ​2​ ​t​o​ ​3​ ​s​e​c​o​n​d​s​.
+			 */
+			ssrBody: string
+			/**
+			 * R​e​b​o​o​t​i​n​g​ ​M​o​d​e​m​.​.​.
+			 */
+			rebooting: string
+			/**
+			 * R​e​s​t​a​r​t​ ​R​a​d​i​o​ ​N​o​w
+			 */
+			restartRadio: string
+			/**
+			 * U​n​l​o​c​k​ ​M​o​d​e​m​ ​W​r​i​t​e​ ​A​c​c​e​s​s
+			 */
+			unlockTitle: string
+			/**
+			 * C​a​u​t​i​o​n​:​ ​R​a​w​ ​B​a​s​e​b​a​n​d​ ​F​i​l​e​s​y​s​t​e​m
+			 */
+			unlockHeading: string
+			/**
+			 * W​r​i​t​i​n​g​ ​i​n​c​o​r​r​e​c​t​ ​o​r​ ​c​o​r​r​u​p​t​ ​c​o​n​f​i​g​u​r​a​t​i​o​n​s​ ​d​i​r​e​c​t​l​y​ ​t​o​ ​Q​u​a​l​c​o​m​m​ ​E​F​S​2​ ​c​a​n​ ​c​a​u​s​e​ ​m​o​d​e​m​ ​b​o​o​t​l​o​o​p​s​ ​o​r​ ​l​o​s​s​ ​o​f​ ​I​M​E​I​ ​/​ ​r​a​d​i​o​ ​c​a​l​i​b​r​a​t​i​o​n​s​.
+			 */
+			unlockBody: string
+			/**
+			 * A​l​w​a​y​s​ ​d​o​w​n​l​o​a​d​ ​a​ ​.​T​A​R​ ​b​a​c​k​u​p​ ​b​e​f​o​r​e​ ​m​a​k​i​n​g​ ​m​o​d​i​f​i​c​a​t​i​o​n​s​!
+			 */
+			unlockNote: string
+			/**
+			 * K​e​e​p​ ​R​e​a​d​-​O​n​l​y
+			 */
+			keepReadonly: string
+			/**
+			 * I​ ​U​n​d​e​r​s​t​a​n​d​,​ ​U​n​l​o​c​k
+			 */
+			understandUnlock: string
+			/**
+			 * C​r​e​a​t​e​ ​D​i​r​e​c​t​o​r​y
+			 */
+			mkdirTitle: string
+			/**
+			 * D​i​r​e​c​t​o​r​y​ ​N​a​m​e
+			 */
+			dirNameLabel: string
+			/**
+			 * m​y​_​f​o​l​d​e​r
+			 */
+			dirNamePlaceholder: string
+			/**
+			 * C​r​e​a​t​i​n​g​.​.​.
+			 */
+			creating: string
+			/**
+			 * C​r​e​a​t​e​ ​F​o​l​d​e​r
+			 */
+			createFolder: string
+			/**
+			 * C​o​n​f​i​r​m​ ​D​e​l​e​t​i​o​n
+			 */
+			deleteTitle: string
+			/**
+			 * A​r​e​ ​y​o​u​ ​s​u​r​e​ ​y​o​u​ ​w​a​n​t​ ​t​o​ ​p​e​r​m​a​n​e​n​t​l​y​ ​d​e​l​e​t​e
+			 */
+			deleteBodyA: string
+			/**
+			 * f​r​o​m​ ​t​h​e​ ​Q​u​a​l​c​o​m​m​ ​m​o​d​e​m​ ​f​i​l​e​s​y​s​t​e​m​?
+			 */
+			deleteBodyB: string
+			/**
+			 * D​e​l​e​t​i​n​g​.​.​.
+			 */
+			deleting: string
+			/**
+			 * D​e​l​e​t​e​ ​P​e​r​m​a​n​e​n​t​l​y
+			 */
+			deletePermanently: string
+			/**
+			 * Q​u​a​l​c​o​m​m​ ​C​a​r​r​i​e​r​ ​P​o​l​i​c​y​ ​/​ ​C​A​ ​C​o​m​b​o​s​ ​V​i​s​u​a​l​i​z​e​r
+			 */
+			caTitle: string
+			/**
+			 * P​a​s​t​e​ ​r​a​w​ ​c​a​r​r​i​e​r​ ​p​o​l​i​c​y​ ​X​M​L​,
+			 */
+			caBodyA: string
+			/**
+			 * t​a​g​,​ ​o​r​ ​s​e​m​i​c​o​l​o​n​-​s​e​p​a​r​a​t​e​d​ ​c​o​m​b​o​ ​l​i​s​t​ ​b​e​l​o​w​:
+			 */
+			caBodyB: string
+			/**
+			 * L​o​a​d​ ​D​e​m​o​ ​C​o​m​b​o​s
+			 */
+			loadDemo: string
+			/**
+			 * P​a​s​t​e​ ​c​a​r​r​i​e​r​_​p​o​l​i​c​y​.​x​m​l​ ​o​r​ ​c​a​_​b​a​n​d​_​c​o​m​b​o​s​ ​s​t​r​i​n​g​ ​h​e​r​e​.​.​.
+			 */
+			caPlaceholder: string
+			/**
+			 * S​u​p​p​o​r​t​e​d​ ​F​o​r​m​a​t​s​:
+			 */
+			supportedFormats: string
+			/**
+			 * Q​u​a​l​c​o​m​m​ ​c​a​r​r​i​e​r​ ​p​o​l​i​c​y​ ​X​M​L​:
+			 */
+			formatXmlA: string
+			/**
+			 * R​a​w​ ​c​o​m​b​o​ ​l​i​s​t​:
+			 */
+			formatRawA: string
+			/**
+			 * A​n​a​l​y​z​i​n​g​.​.​.
+			 */
+			analyzing: string
+			/**
+			 * P​a​r​s​e​ ​&​ ​V​i​s​u​a​l​i​z​e​ ​C​o​m​b​o​s
+			 */
+			parseVisualize: string
+		}
+	}
 }
 
 export type TranslationFunctions = {
@@ -3650,6 +6400,14 @@ export type TranslationFunctions = {
 		 * Clear All
 		 */
 		clearAll: () => LocalizedString
+		/**
+		 * Reload
+		 */
+		reload: () => LocalizedString
+		/**
+		 * Active
+		 */
+		active: () => LocalizedString
 	}
 	app: {
 		/**
@@ -6905,6 +9663,2642 @@ export type TranslationFunctions = {
 			 * Keyboard ON
 			 */
 			keyboardOnTitle: () => LocalizedString
+		}
+	}
+	qualcomm: {
+		/**
+		 * Snapdragon QMI Control Panel
+		 */
+		title: () => LocalizedString
+		/**
+		 * Direct Qualcomm IPC Router socket modulation via QMI Network Access Service (NAS).
+		 */
+		subtitle: () => LocalizedString
+		/**
+		 * COMPATIBLE & DETECTED ON THIS DEVICE
+		 */
+		compatible: () => LocalizedString
+		/**
+		 * NON-QUALCOMM / QRTR NOT DETECTED
+		 */
+		nonQualcomm: () => LocalizedString
+		subtabs: {
+			/**
+			 * Band Locking
+			 */
+			bands: () => LocalizedString
+			/**
+			 * Cell & Tower Lock
+			 */
+			cellLock: () => LocalizedString
+			/**
+			 * Searcher & Extra Locks
+			 */
+			searcher: () => LocalizedString
+			/**
+			 * RRC Capabilities
+			 */
+			capability: () => LocalizedString
+			/**
+			 * MBN / PDC Profiles
+			 */
+			mbn: () => LocalizedString
+			/**
+			 * Hardware & Profiles
+			 */
+			profiles: () => LocalizedString
+			/**
+			 * EFS & NV Browser
+			 */
+			efs: () => LocalizedString
+			/**
+			 * NV Manager
+			 */
+			nv: () => LocalizedString
+			/**
+			 * IMEI Tool
+			 */
+			imei: () => LocalizedString
+		}
+		bands: {
+			/**
+			 * Frequency Band Configuration
+			 */
+			title: () => LocalizedString
+			/**
+			 * Modulate active cellular frequencies instantly without reboot
+			 */
+			subtitle: () => LocalizedString
+			/**
+			 * Multi-SIM Slot Selection & Active Data Route
+			 */
+			simTitle: () => LocalizedString
+			/**
+			 * Choose the SIM slot you want to configure. Band locks apply to the target modem port directly.
+			 */
+			simDesc: () => LocalizedString
+			/**
+			 * Active Data: Slot {slot} (SubID {subId})
+			 */
+			activeData: (arg: { slot: unknown, subId: unknown }) => LocalizedString
+			/**
+			 * ✓ Selected for Band Lock
+			 */
+			selectedForLock: () => LocalizedString
+			/**
+			 * Click to select
+			 */
+			clickToSelect: () => LocalizedString
+			/**
+			 * Warning:
+			 */
+			warningLabel: () => LocalizedString
+			/**
+			 * Slot {slot} has no physical or eSIM inserted (ABSENT). Band locks applied here will not affect cellular data.
+			 */
+			absentWarning: (arg: { slot: unknown }) => LocalizedString
+			/**
+			 * Notice:
+			 */
+			noticeLabel: () => LocalizedString
+			/**
+			 * Mobile Data is currently routing through
+			 */
+			noticeA: () => LocalizedString
+			/**
+			 * . You are configuring
+			 */
+			noticeB: () => LocalizedString
+			/**
+			 * .
+			 */
+			noticeC: () => LocalizedString
+			/**
+			 * Switched data SIM to slot {slot}
+			 */
+			simSwitched: (arg: { slot: unknown }) => LocalizedString
+			/**
+			 * Failed to switch data SIM
+			 */
+			switchFailed: () => LocalizedString
+			/**
+			 * SIM switch failed
+			 */
+			simSwitchFailed: () => LocalizedString
+			/**
+			 * Band lock verified by modem baseband hardware!
+			 */
+			verified: () => LocalizedString
+			/**
+			 * Band lock applied, but baseband reports different bands.
+			 */
+			partial: () => LocalizedString
+			/**
+			 * Modem baseband rejected band lock command.
+			 */
+			rejected: () => LocalizedString
+			/**
+			 * Qualcomm QRTR band lock applied directly to modem baseband.
+			 */
+			applied: () => LocalizedString
+			/**
+			 * Band lock request failed
+			 */
+			requestFailed: () => LocalizedString
+			/**
+			 * Modem restored to all factory default bands.
+			 */
+			resetSuccess: () => LocalizedString
+			/**
+			 * Failed to reset modem bands
+			 */
+			resetFailed: () => LocalizedString
+			/**
+			 * Reset request failed
+			 */
+			resetRequestFailed: () => LocalizedString
+			/**
+			 * Verification logs copied to clipboard
+			 */
+			logsCopied: () => LocalizedString
+			/**
+			 * Preferred Network Technology (RAT)
+			 */
+			ratTitle: () => LocalizedString
+			/**
+			 * Hybrid (Auto)
+			 */
+			ratHybrid: () => LocalizedString
+			/**
+			 * 5G & 4G Only
+			 */
+			ratDual: () => LocalizedString
+			/**
+			 * 4G LTE Only
+			 */
+			ratLte: () => LocalizedString
+			/**
+			 * 5G NR Only
+			 */
+			ratNr: () => LocalizedString
+			/**
+			 * 3G Only
+			 */
+			rat3g: () => LocalizedString
+			/**
+			 * Baseband Active LTE Bands (SIM {slot}):
+			 */
+			activeLteBands: (arg: { slot: unknown }) => LocalizedString
+			/**
+			 * Sync Selection to Active
+			 */
+			syncToActive: () => LocalizedString
+			/**
+			 * Hardware Verified (Ground Truth Confirmed)
+			 */
+			verifiedTitle: () => LocalizedString
+			/**
+			 * Partial Acceptance / Baseband Notice
+			 */
+			partialTitle: () => LocalizedString
+			/**
+			 * Command Rejected by Modem Baseband
+			 */
+			rejectedTitle: () => LocalizedString
+			/**
+			 * Copy Logs
+			 */
+			copyLogs: () => LocalizedString
+			/**
+			 * ✕ Dismiss
+			 */
+			dismiss: () => LocalizedString
+			/**
+			 * Target SIM Slot
+			 */
+			targetSlot: () => LocalizedString
+			/**
+			 * Requested LTE Bands
+			 */
+			requestedLte: () => LocalizedString
+			/**
+			 * Baseband Active LTE
+			 */
+			basebandActiveLte: () => LocalizedString
+			/**
+			 * None / Not Reported
+			 */
+			noneNotReported: () => LocalizedString
+			/**
+			 * Step-by-Step Baseband Transaction Logs
+			 */
+			stepLogs: () => LocalizedString
+			/**
+			 * Hide details
+			 */
+			hideDetails: () => LocalizedString
+			/**
+			 * Show details
+			 */
+			showDetails: () => LocalizedString
+			/**
+			 * LTE 4G Frequency Bands
+			 */
+			lteTitle: () => LocalizedString
+			/**
+			 * {count} Bands Selected
+			 */
+			bandsSelected: (arg: { count: unknown }) => LocalizedString
+			/**
+			 * 5G NR Frequency Bands
+			 */
+			nrTitle: () => LocalizedString
+			/**
+			 * Hex Bitmask Override:
+			 */
+			hexBitmask: () => LocalizedString
+			/**
+			 * Auto-calculated
+			 */
+			hexPlaceholder: () => LocalizedString
+			/**
+			 * Reset Bands
+			 */
+			resetBands: () => LocalizedString
+			/**
+			 * Applying & Verifying...
+			 */
+			applying: () => LocalizedString
+			/**
+			 * Lock Selected Bands
+			 */
+			lockBands: () => LocalizedString
+			/**
+			 * Reset Snapdragon Modem Bands
+			 */
+			resetModalTitle: () => LocalizedString
+			/**
+			 * Restore All Qualcomm Factory Bands?
+			 */
+			resetModalHeading: () => LocalizedString
+			/**
+			 * This will wipe all active frequency band lock overrides and restore Qualcomm baseband modem to full hardware-supported bands.
+			 */
+			resetModalBody: () => LocalizedString
+			/**
+			 * Resetting...
+			 */
+			resetting: () => LocalizedString
+			/**
+			 * Reset Modem Now
+			 */
+			resetNow: () => LocalizedString
+		}
+		capability: {
+			/**
+			 * Qualcomm RRC & PHY Capabilities Editor
+			 */
+			title: () => LocalizedString
+			/**
+			 * Reconstructed Token String (ModemCaps Format):
+			 */
+			tokenLabel: () => LocalizedString
+			/**
+			 * {count} chars
+			 */
+			chars: (arg: { count: unknown }) => LocalizedString
+			/**
+			 * Write-Only Advisory:
+			 */
+			writeOnlyAdvisory: () => LocalizedString
+			/**
+			 * Certain features (LTE CA, UL CA, DL 256-QAM, Rx chain, ARD) are designated
+			 */
+			writeOnlyBodyA: () => LocalizedString
+			/**
+			 * by modem firmware. Changes will be securely written to EFS and consumed on the next modem restart, but reading back live state depends on hardware capability.
+			 */
+			writeOnlyBodyB: () => LocalizedString
+			/**
+			 * RRC capabilities loaded from modem EFS.
+			 */
+			loaded: () => LocalizedString
+			/**
+			 * Failed to read capabilities
+			 */
+			loadFailed: () => LocalizedString
+			/**
+			 * Read error
+			 */
+			readError: () => LocalizedString
+			/**
+			 * RRC capabilities applied successfully!
+			 */
+			applied: () => LocalizedString
+			/**
+			 * RRC capabilities applied successfully (SSR restart triggered)!
+			 */
+			appliedSsr: () => LocalizedString
+			/**
+			 * Failed to apply RRC capabilities
+			 */
+			applyFailed: () => LocalizedString
+			/**
+			 * Apply error
+			 */
+			applyError: () => LocalizedString
+			/**
+			 * LTE Capabilities
+			 */
+			lteTitle: () => LocalizedString
+			/**
+			 * {count} Tokens
+			 */
+			tokenCount: (arg: { count: unknown }) => LocalizedString
+			/**
+			 * LTE Carrier Aggregation
+			 */
+			lteCa: () => LocalizedString
+			/**
+			 * Write-Only
+			 */
+			writeOnly: () => LocalizedString
+			/**
+			 * Filter Band-Combo
+			 */
+			caFilter: () => LocalizedString
+			/**
+			 * e.g. 1A-3A-7A; 3C-7A[0]
+			 */
+			caFilterPlaceholder: () => LocalizedString
+			/**
+			 * Format: Band+Class+[Streams][UL]-...[BW Set]
+			 */
+			caFilterFormat: () => LocalizedString
+			/**
+			 * Uplink Carrier Aggregation
+			 */
+			ulCa: () => LocalizedString
+			/**
+			 * Downlink 256-QAM
+			 */
+			dl256q: () => LocalizedString
+			/**
+			 * Uplink 256-QAM
+			 */
+			ul256q: () => LocalizedString
+			/**
+			 * Downlink MIMO Layers
+			 */
+			dlMimo: () => LocalizedString
+			/**
+			 * 2 Layers (2x2)
+			 */
+			mimo2: () => LocalizedString
+			/**
+			 * 4 Layers (4x4)
+			 */
+			mimo4: () => LocalizedString
+			/**
+			 * Adaptive Rx Diversity (ARD)
+			 */
+			ard: () => LocalizedString
+			/**
+			 * Rx Chains [LTE_RX0..3]
+			 */
+			rxChains: () => LocalizedString
+			/**
+			 * Voice over LTE (VoLTE)
+			 */
+			volte: () => LocalizedString
+			/**
+			 * NSA (EN-DC) Capabilities
+			 */
+			nsaTitle: () => LocalizedString
+			/**
+			 * LTE + 5G NSA (EN-DC)
+			 */
+			nsaLte: () => LocalizedString
+			/**
+			 * Dynamic Spectrum Sharing (DSS)
+			 */
+			dss: () => LocalizedString
+			/**
+			 * NSA during Data-Call on Other SIM
+			 */
+			ndds: () => LocalizedString
+			/**
+			 * NSA Dual SIM Dual Active (DSDA)
+			 */
+			nsaDsda: () => LocalizedString
+			/**
+			 * NR (5G SA) Capabilities
+			 */
+			nrTitle: () => LocalizedString
+			/**
+			 * NR Carrier Aggregation (NR CA)
+			 */
+			nrCa: () => LocalizedString
+			/**
+			 * NR Downlink 256-QAM
+			 */
+			nrDl256q: () => LocalizedString
+			/**
+			 * NR Uplink 256-QAM
+			 */
+			nrUl256q: () => LocalizedString
+			/**
+			 * NR Downlink MIMO
+			 */
+			nrDlMimo: () => LocalizedString
+			/**
+			 * NR Uplink MIMO
+			 */
+			nrUlMimo: () => LocalizedString
+			/**
+			 * Voice over NR (VoNR)
+			 */
+			vonr: () => LocalizedString
+			/**
+			 * NR RedCap (Reduced Capability)
+			 */
+			redcap: () => LocalizedString
+			/**
+			 * NR Dual SIM Dual Active (DSDA)
+			 */
+			nrDsda: () => LocalizedString
+			/**
+			 * Limit RF MIMO
+			 */
+			limitRfMimo: () => LocalizedString
+			/**
+			 * Restart Modem (SSR) after write
+			 */
+			restartAfterWrite: () => LocalizedString
+			/**
+			 * Hide File Mapping
+			 */
+			hideMapping: () => LocalizedString
+			/**
+			 * Show EFS File Mapping
+			 */
+			showMapping: () => LocalizedString
+			/**
+			 * Apply Capabilities to Modem
+			 */
+			apply: () => LocalizedString
+			/**
+			 * Detected EFS Files on this Baseband:
+			 */
+			detectedFiles: () => LocalizedString
+			/**
+			 * Path
+			 */
+			thPath: () => LocalizedString
+			/**
+			 * Description
+			 */
+			thDesc: () => LocalizedString
+			/**
+			 * Size
+			 */
+			thSize: () => LocalizedString
+			/**
+			 * WRITE-ONLY
+			 */
+			writeOnlyBadge: () => LocalizedString
+			/**
+			 * Confirm RRC Capabilities Write
+			 */
+			confirmTitle: () => LocalizedString
+			/**
+			 * This operation will write the configured capability state to modem EFS item files. The existing files will be automatically backed up before overwriting.
+			 */
+			confirmBody: () => LocalizedString
+			/**
+			 * Reconstructed Token Payload:
+			 */
+			tokenPayload: () => LocalizedString
+			/**
+			 * Perform Subsystem Restart (SSR) immediately after write
+			 */
+			ssrAfterWrite: () => LocalizedString
+			/**
+			 * Writing to EFS...
+			 */
+			writing: () => LocalizedString
+			/**
+			 * Confirm & Apply to EFS
+			 */
+			confirmApply: () => LocalizedString
+		}
+		cellLock: {
+			/**
+			 * Instant Cell & Tower Locking
+			 */
+			title: () => LocalizedString
+			/**
+			 * Pin baseband modem to a specific Physical Cell ID (PCI) and radio frequency channel (EARFCN)
+			 */
+			subtitle: () => LocalizedString
+			/**
+			 * Persistent Boot
+			 */
+			persistentBoot: () => LocalizedString
+			/**
+			 * Target Interface:
+			 */
+			targetInterface: () => LocalizedString
+			/**
+			 * CELL LOCK ACTIVE (EARFCN {earfcn} / PCI {pci})
+			 */
+			lockActive: (arg: { earfcn: unknown, pci: unknown }) => LocalizedString
+			/**
+			 * AUTO TOWER SELECTION (UNLOCKED)
+			 */
+			autoSelection: () => LocalizedString
+			/**
+			 * Carrier Aggregation (CA) & Coverage Warning
+			 */
+			caWarningTitle: () => LocalizedString
+			/**
+			 * • Primary Anchor (PCC) Only:
+			 */
+			warnPccA: () => LocalizedString
+			/**
+			 * Cell Lock pins only the Primary Component Carrier (PCell). Secondary Carriers (SCCs) are dynamically aggregated by the serving eNodeB mast scheduler and cannot be locked individually.
+			 */
+			warnPccB: () => LocalizedString
+			/**
+			 * • Multi-CA Coexistence:
+			 */
+			warnMultiA: () => LocalizedString
+			/**
+			 * To preserve speed aggregation (e.g. B3+B1 / B3+B8), do not restrict other bands in the
+			 */
+			warnMultiB: () => LocalizedString
+			/**
+			 * Band Lock
+			 */
+			warnMultiTab: () => LocalizedString
+			/**
+			 * tab.
+			 */
+			warnMultiC: () => LocalizedString
+			/**
+			 * • Handover Restriction:
+			 */
+			warnHoA: () => LocalizedString
+			/**
+			 * The modem will reject handover to adjacent towers. If you move out of range or this sector goes offline, the modem will drop to
+			 */
+			warnHoB: () => LocalizedString
+			/**
+			 * until reset.
+			 */
+			warnHoC: () => LocalizedString
+			/**
+			 * LTE Radio Frequency Channel (EARFCN)
+			 */
+			earfcnLabel: () => LocalizedString
+			/**
+			 * e.g. 1800 (Band 3) or 37900 (Band 40)
+			 */
+			earfcnPlaceholder: () => LocalizedString
+			/**
+			 * Downlink center frequency channel of target cell (1-262143).
+			 */
+			earfcnHint: () => LocalizedString
+			/**
+			 * Physical Cell ID (PCI)
+			 */
+			pciLabel: () => LocalizedString
+			/**
+			 * 0 to 503
+			 */
+			pciPlaceholder: () => LocalizedString
+			/**
+			 * Cell identity number broadcasted by specific mast antenna (0-503).
+			 */
+			pciHint: () => LocalizedString
+			/**
+			 * Currently locked to:
+			 */
+			lockedToA: () => LocalizedString
+			/**
+			 * EARFCN {earfcn}, PCI {pci}
+			 */
+			lockedToB: (arg: { earfcn: unknown, pci: unknown }) => LocalizedString
+			/**
+			 * No cell lock currently active.
+			 */
+			noLock: () => LocalizedString
+			/**
+			 * Reset cell lock to automatic carrier selection
+			 */
+			resetTitle: () => LocalizedString
+			/**
+			 * Reset to Auto
+			 */
+			resetToAuto: () => LocalizedString
+			/**
+			 * Resetting...
+			 */
+			resetting: () => LocalizedString
+			/**
+			 * Locking Cell...
+			 */
+			locking: () => LocalizedString
+			/**
+			 * Apply Cell Lock
+			 */
+			apply: () => LocalizedString
+			/**
+			 * Please enter a valid EARFCN frequency channel
+			 */
+			invalidEarfcn: () => LocalizedString
+			/**
+			 * Physical Cell ID (PCI) must be between 0 and 503
+			 */
+			invalidPci: () => LocalizedString
+			/**
+			 * LTE Cell Lock applied: EARFCN {earfcn}, PCI {pci}
+			 */
+			applied: (arg: { earfcn: unknown, pci: unknown }) => LocalizedString
+			/**
+			 * Modem rejected cell lock command
+			 */
+			rejected: () => LocalizedString
+			/**
+			 * Cell lock request failed
+			 */
+			requestFailed: () => LocalizedString
+			/**
+			 * LTE Cell Lock cleared. Modem will connect to optimal tower automatically.
+			 */
+			cleared: () => LocalizedString
+			/**
+			 * Failed to clear cell lock
+			 */
+			clearFailed: () => LocalizedString
+			/**
+			 * Clear cell lock failed
+			 */
+			clearRequestFailed: () => LocalizedString
+			/**
+			 * Loaded tower into form: EARFCN {earfcn}, PCI {pci}
+			 */
+			loadedTower: (arg: { earfcn: unknown, pci: unknown }) => LocalizedString
+		}
+		cellScanner: {
+			/**
+			 * Nearby Cell Towers & Signal Scanner
+			 */
+			title: () => LocalizedString
+			/**
+			 * Scan surrounding radio mast antennas, secondary CA cells, and neighbor base stations via QMI QRTR
+			 */
+			subtitle: () => LocalizedString
+			/**
+			 * Scanning RF...
+			 */
+			scanning: () => LocalizedString
+			/**
+			 * Scan Nearby Towers
+			 */
+			scan: () => LocalizedString
+			/**
+			 * No cell scan performed yet
+			 */
+			noScan: () => LocalizedString
+			/**
+			 * Tap
+			 */
+			noScanBodyA: () => LocalizedString
+			/**
+			 * to query the baseband modem for all surrounding cell towers with exact EARFCN, PCI, RSRP, SINR, and estimated distance.
+			 */
+			noScanBodyB: () => LocalizedString
+			/**
+			 * Scanning baseband RF environment...
+			 */
+			scanningBody: () => LocalizedString
+			/**
+			 * Reading intra-frequency and inter-frequency cellular antennas
+			 */
+			scanningSub: () => LocalizedString
+			/**
+			 * Found
+			 */
+			foundA: () => LocalizedString
+			/**
+			 * tower(s) • Scanned at {time}
+			 */
+			foundB: (arg: { time: unknown }) => LocalizedString
+			/**
+			 * Live QMI Baseband Telemetry
+			 */
+			liveTelemetry: () => LocalizedString
+			/**
+			 * CONNECTED PRIMARY CELL
+			 */
+			servingCell: () => LocalizedString
+			/**
+			 * Fill Form
+			 */
+			fillForm: () => LocalizedString
+			/**
+			 * Lock to This
+			 */
+			lockToThis: () => LocalizedString
+			/**
+			 * Global Cell ID (eNodeB)
+			 */
+			globalCellId: () => LocalizedString
+			/**
+			 * Protected
+			 */
+			'protected': () => LocalizedString
+			/**
+			 * Tracking Area (TAC)
+			 */
+			tac: () => LocalizedString
+			/**
+			 * RSRP (Power)
+			 */
+			rsrp: () => LocalizedString
+			/**
+			 * RSRQ (Quality)
+			 */
+			rsrq: () => LocalizedString
+			/**
+			 * SINR (SNR)
+			 */
+			sinr: () => LocalizedString
+			/**
+			 * Estimated Distance
+			 */
+			distance: () => LocalizedString
+			/**
+			 * Active Carrier Aggregation Secondary Cells ({count})
+			 */
+			caCells: (arg: { count: unknown }) => LocalizedString
+			/**
+			 * CA SCell
+			 */
+			caScell: () => LocalizedString
+			/**
+			 * Select
+			 */
+			select: () => LocalizedString
+			/**
+			 * Lock
+			 */
+			lock: () => LocalizedString
+			/**
+			 * Detected Neighbor Towers ({count})
+			 */
+			neighbors: (arg: { count: unknown }) => LocalizedString
+			/**
+			 * Saved & Favorite Cell Towers ({count})
+			 */
+			savedTitle: (arg: { count: unknown }) => LocalizedString
+			/**
+			 * Personal list of bookmarked BTS towers for 1-click re-locking
+			 */
+			savedSubtitle: () => LocalizedString
+			/**
+			 * Hide
+			 */
+			hide: () => LocalizedString
+			/**
+			 * Show
+			 */
+			show: () => LocalizedString
+			/**
+			 * No saved cell towers yet. Click the bookmark icon next to any scanned tower to save it here.
+			 */
+			noSaved: () => LocalizedString
+			/**
+			 * Saved: {date}
+			 */
+			savedAt: (arg: { date: unknown }) => LocalizedString
+			/**
+			 * Fill
+			 */
+			fill: () => LocalizedString
+			/**
+			 * Remove bookmark
+			 */
+			removeBookmark: () => LocalizedString
+			/**
+			 * Bookmark Cell Tower
+			 */
+			bookmarkTitle: () => LocalizedString
+			/**
+			 * Saving tower
+			 */
+			bookmarkBodyA: () => LocalizedString
+			/**
+			 * (EARFCN: {earfcn}, PCI: {pci})
+			 */
+			bookmarkBodyB: (arg: { earfcn: unknown, pci: unknown }) => LocalizedString
+			/**
+			 * Tower Nickname / Location
+			 */
+			nicknameLabel: () => LocalizedString
+			/**
+			 * e.g. Home Tower - B3 (Kuat)
+			 */
+			nicknamePlaceholder: () => LocalizedString
+			/**
+			 * Save Bookmark
+			 */
+			saveBookmark: () => LocalizedString
+			/**
+			 * Cell scan complete: {count} tower(s) discovered.
+			 */
+			scanComplete: (arg: { count: unknown }) => LocalizedString
+			/**
+			 * Cell scan returned no cells from baseband
+			 */
+			noCells: () => LocalizedString
+			/**
+			 * Cell tower scan failed
+			 */
+			scanFailed: () => LocalizedString
+			/**
+			 * Tower bookmarked: {label}
+			 */
+			bookmarked: (arg: { label: unknown }) => LocalizedString
+			/**
+			 * Tower bookmark removed.
+			 */
+			bookmarkRemoved: () => LocalizedString
+		}
+		searcher: {
+			/**
+			 * Qualcomm Searcher Preferences & Extra Locks
+			 */
+			title: () => LocalizedString
+			/**
+			 * Side Effect Warning:
+			 */
+			warningTitle: () => LocalizedString
+			/**
+			 * Modifying Searcher Preferences or Cell Locks triggers a
+			 */
+			warningA: () => LocalizedString
+			/**
+			 * . Filling the UMTS (3G) priority list shifts the modem preference to
+			 */
+			warningB: () => LocalizedString
+			/**
+			 * mode.
+			 */
+			warningC: () => LocalizedString
+			/**
+			 * {count} rules
+			 */
+			rules: (arg: { count: unknown }) => LocalizedString
+			/**
+			 * {rat} Cell & Channel Blacklist / Priority
+			 */
+			ratTitle: (arg: { rat: unknown }) => LocalizedString
+			/**
+			 * Max 6 entries per list (UMTS Priority: 1)
+			 */
+			maxNote: () => LocalizedString
+			/**
+			 * Cell Blacklist
+			 */
+			cellBlacklist: () => LocalizedString
+			/**
+			 * Channel Blacklist
+			 */
+			channelBlacklist: () => LocalizedString
+			/**
+			 * Priority Channels
+			 */
+			priorityChannels: () => LocalizedString
+			/**
+			 * No cells blacklisted
+			 */
+			noCells: () => LocalizedString
+			/**
+			 * No channels blacklisted
+			 */
+			noChannels: () => LocalizedString
+			/**
+			 * No priority channels set
+			 */
+			noPriority: () => LocalizedString
+			/**
+			 * Remove cell
+			 */
+			removeCell: () => LocalizedString
+			/**
+			 * Remove channel
+			 */
+			removeChannel: () => LocalizedString
+			/**
+			 * Remove priority
+			 */
+			removePriority: () => LocalizedString
+			/**
+			 * PCI
+			 */
+			phPci: () => LocalizedString
+			/**
+			 * Cell ID (CID)
+			 */
+			phCid: () => LocalizedString
+			/**
+			 * EARFCN / ARFCN
+			 */
+			phChannel: () => LocalizedString
+			/**
+			 * Priority EARFCN
+			 */
+			phPriority: () => LocalizedString
+			/**
+			 * Restart modem (SSR) after write
+			 */
+			restartAfterWrite: () => LocalizedString
+			/**
+			 * Writing to EFS...
+			 */
+			writing: () => LocalizedString
+			/**
+			 * Apply Searcher Preferences
+			 */
+			apply: () => LocalizedString
+			/**
+			 * Extra Locks (GERAN, WCDMA & CSP)
+			 */
+			extraLocksTitle: () => LocalizedString
+			/**
+			 * GERAN (GSM) Locks
+			 */
+			geranTitle: () => LocalizedString
+			/**
+			 * Enable GERAN ARFCN Locking
+			 */
+			enableGeran: () => LocalizedString
+			/**
+			 * GERAN ARFCN List (comma separated):
+			 */
+			geranListLabel: () => LocalizedString
+			/**
+			 * e.g. 512, 513, 514
+			 */
+			geranPlaceholder: () => LocalizedString
+			/**
+			 * Fake BTS Cell Barring
+			 */
+			fakeBts: () => LocalizedString
+			/**
+			 * WCDMA & CSP Direct Locks
+			 */
+			wcdmaTitle: () => LocalizedString
+			/**
+			 * WCDMA Frequency Lock (UARFCN, 0 = disabled):
+			 */
+			wcdmaLabel: () => LocalizedString
+			/**
+			 * LTE CSP PCI:
+			 */
+			lteCspPci: () => LocalizedString
+			/**
+			 * LTE CSP EARFCN:
+			 */
+			lteCspEarfcn: () => LocalizedString
+			/**
+			 * NR5G CSP PCI:
+			 */
+			nrCspPci: () => LocalizedString
+			/**
+			 * NR5G CSP EARFCN:
+			 */
+			nrCspEarfcn: () => LocalizedString
+			/**
+			 * Saving Locks...
+			 */
+			savingLocks: () => LocalizedString
+			/**
+			 * Apply Extra Locks
+			 */
+			applyLocks: () => LocalizedString
+			/**
+			 * Searcher preferences & locks loaded.
+			 */
+			loaded: () => LocalizedString
+			/**
+			 * Failed to load searcher data
+			 */
+			loadFailed: () => LocalizedString
+			/**
+			 * PCI and CID must be valid numbers
+			 */
+			invalidPciCid: () => LocalizedString
+			/**
+			 * Maximum 6 blacklist entries per RAT
+			 */
+			maxCell: () => LocalizedString
+			/**
+			 * Channel number must be valid
+			 */
+			invalidChannel: () => LocalizedString
+			/**
+			 * Maximum 6 channel blacklist entries
+			 */
+			maxChannel: () => LocalizedString
+			/**
+			 * Priority channel must be valid
+			 */
+			invalidPriority: () => LocalizedString
+			/**
+			 * Maximum {count} priority entries for {rat}
+			 */
+			maxPriority: (arg: { count: unknown, rat: unknown }) => LocalizedString
+			/**
+			 * Searcher preferences applied
+			 */
+			applied: () => LocalizedString
+			/**
+			 * Searcher preferences applied (SSR restart triggered)
+			 */
+			appliedSsr: () => LocalizedString
+			/**
+			 * Failed to apply searcher preferences
+			 */
+			applyFailed: () => LocalizedString
+			/**
+			 * Save failed
+			 */
+			saveFailed: () => LocalizedString
+			/**
+			 * Extra locks saved to EFS
+			 */
+			locksSaved: () => LocalizedString
+			/**
+			 * Extra locks saved to EFS (SSR restart triggered)
+			 */
+			locksSavedSsr: () => LocalizedString
+			/**
+			 * Failed to save extra locks
+			 */
+			locksSaveFailed: () => LocalizedString
+		}
+		mbn: {
+			/**
+			 * Qualcomm MBN / PDC Carrier Profile Switcher
+			 */
+			title: () => LocalizedString
+			/**
+			 * Active Baseband MBN Profile (SIM {slot}):
+			 */
+			activeProfile: (arg: { slot: unknown }) => LocalizedString
+			/**
+			 * Automatic / UIM Auto-selected (Default)
+			 */
+			autoDefault: () => LocalizedString
+			/**
+			 * MCFG Autoselect on SIM Change:
+			 */
+			autoselectLabel: () => LocalizedString
+			/**
+			 * Auto by IMSI
+			 */
+			autoImsi: () => LocalizedString
+			/**
+			 * Manual Lock
+			 */
+			manualLock: () => LocalizedString
+			/**
+			 * With MBN update only
+			 */
+			mbnUpdateOnly: () => LocalizedString
+			/**
+			 * Rollback Safety Shield:
+			 */
+			rollbackTitle: () => LocalizedString
+			/**
+			 * Previous active profile recorded:
+			 */
+			prevProfileA: () => LocalizedString
+			/**
+			 * Reverting...
+			 */
+			reverting: () => LocalizedString
+			/**
+			 * Revert to Previous
+			 */
+			revert: () => LocalizedString
+			/**
+			 * ROM MBN Catalog Preset (PixelParts / Evolution X)
+			 */
+			catalogTitle: () => LocalizedString
+			/**
+			 * Current: {mode}
+			 */
+			current: (arg: { mode: unknown }) => LocalizedString
+			/**
+			 * Merged (460 MBNs)
+			 */
+			merged: () => LocalizedString
+			/**
+			 * Includes Indonesian carriers & VoLTE
+			 */
+			mergedDesc: () => LocalizedString
+			/**
+			 * Stock Google (116 MBNs)
+			 */
+			stock: () => LocalizedString
+			/**
+			 * Official Pixel stock index
+			 */
+			stockDesc: () => LocalizedString
+			/**
+			 * Module (343 MBNs)
+			 */
+			module: () => LocalizedString
+			/**
+			 * Magisk / Root module index
+			 */
+			moduleDesc: () => LocalizedString
+			/**
+			 * SW Carrier Configs ({count})
+			 */
+			swTab: (arg: { count: unknown }) => LocalizedString
+			/**
+			 * HW Modem Configs ({count})
+			 */
+			hwTab: (arg: { count: unknown }) => LocalizedString
+			/**
+			 * Search carrier / mbn...
+			 */
+			searchPlaceholder: () => LocalizedString
+			/**
+			 * No MBN files discovered on device OS/EFS partitions
+			 */
+			noSwEmpty: () => LocalizedString
+			/**
+			 * No matching carrier profiles found
+			 */
+			noSwMatch: () => LocalizedString
+			/**
+			 * No HW configs found under /mcfg_hw/generic
+			 */
+			noHwEmpty: () => LocalizedString
+			/**
+			 * No matching hardware configs
+			 */
+			noHwMatch: () => LocalizedString
+			/**
+			 * Profile Name
+			 */
+			thProfile: () => LocalizedString
+			/**
+			 * Category / Region
+			 */
+			thCategory: () => LocalizedString
+			/**
+			 * Modem EFS Path
+			 */
+			thPath: () => LocalizedString
+			/**
+			 * Action
+			 */
+			thAction: () => LocalizedString
+			/**
+			 * Config Name
+			 */
+			thConfig: () => LocalizedString
+			/**
+			 * Size
+			 */
+			thSize: () => LocalizedString
+			/**
+			 * Activate
+			 */
+			activate: () => LocalizedString
+			/**
+			 * Confirm MBN Carrier Profile Switch
+			 */
+			confirmTitle: () => LocalizedString
+			/**
+			 * You are about to activate the following baseband carrier profile on
+			 */
+			confirmBodyA: () => LocalizedString
+			/**
+			 * :
+			 */
+			confirmBodyB: () => LocalizedString
+			/**
+			 * The current active profile ({profile}) will be recorded for one-click rollback. If modem connectivity is lost, you can use the
+			 */
+			confirmBodyC: (arg: { profile: unknown }) => LocalizedString
+			/**
+			 * button.
+			 */
+			confirmBodyD: () => LocalizedString
+			/**
+			 * Perform Subsystem Restart (SSR) after activation
+			 */
+			ssrAfterActivate: () => LocalizedString
+			/**
+			 * Activating...
+			 */
+			activating: () => LocalizedString
+			/**
+			 * Confirm & Activate Profile
+			 */
+			confirmActivate: () => LocalizedString
+			/**
+			 * MBN carrier configurations loaded.
+			 */
+			loaded: () => LocalizedString
+			/**
+			 * Failed to load MBN configurations
+			 */
+			loadFailed: () => LocalizedString
+			/**
+			 * Read error
+			 */
+			readError: () => LocalizedString
+			/**
+			 * Activated profile '{name}' successfully!
+			 */
+			activated: (arg: { name: unknown }) => LocalizedString
+			/**
+			 * Activated profile '{name}' successfully (SSR modem restart triggered)!
+			 */
+			activatedSsr: (arg: { name: unknown }) => LocalizedString
+			/**
+			 * Failed to activate profile
+			 */
+			activateFailed: () => LocalizedString
+			/**
+			 * Activation error
+			 */
+			activateError: () => LocalizedString
+			/**
+			 * Reverted back to '{name}' successfully!
+			 */
+			reverted: (arg: { name: unknown }) => LocalizedString
+			/**
+			 * Reverted back to '{name}' successfully (SSR restart triggered)!
+			 */
+			revertedSsr: (arg: { name: unknown }) => LocalizedString
+			/**
+			 * Failed to revert profile
+			 */
+			revertFailed: () => LocalizedString
+			/**
+			 * Revert error
+			 */
+			revertError: () => LocalizedString
+			/**
+			 * Autoselect by UIM for SIM{slot} updated to mode {mode}.
+			 */
+			autoselectUpdated: (arg: { mode: unknown, slot: unknown }) => LocalizedString
+			/**
+			 * Failed to update autoselect
+			 */
+			autoselectFailed: () => LocalizedString
+			/**
+			 * Autoselect update failed
+			 */
+			autoselectError: () => LocalizedString
+			/**
+			 * ROM MBN catalog set to '{mode}'.
+			 */
+			catalogSet: (arg: { mode: unknown }) => LocalizedString
+			/**
+			 * Failed to update catalog mode
+			 */
+			catalogFailed: () => LocalizedString
+			/**
+			 * Update error
+			 */
+			updateError: () => LocalizedString
+		}
+		profiles: {
+			/**
+			 * Hardware RF Physical Capabilities
+			 */
+			hwTitle: () => LocalizedString
+			/**
+			 * Exact radio frequency bands physically wired to the modem baseband transceiver
+			 */
+			hwSubtitle: () => LocalizedString
+			/**
+			 * Refresh Capabilities
+			 */
+			refreshCaps: () => LocalizedString
+			/**
+			 * Target Interface:
+			 */
+			targetInterface: () => LocalizedString
+			/**
+			 * SIM {slot} Baseband Transceiver
+			 */
+			targetSim: (arg: { slot: unknown }) => LocalizedString
+			/**
+			 * Physically Supported LTE Bands ({count})
+			 */
+			lteBands: (arg: { count: unknown }) => LocalizedString
+			/**
+			 * FACTORY SUPPORTED
+			 */
+			factorySupported: () => LocalizedString
+			/**
+			 * Physically Supported 5G NR Bands ({count})
+			 */
+			nrBands: (arg: { count: unknown }) => LocalizedString
+			/**
+			 * SUB-6 & C-BAND
+			 */
+			sub6Badge: () => LocalizedString
+			/**
+			 * Manual PLMN & Operator Network Selection
+			 */
+			plmnTitle: () => LocalizedString
+			/**
+			 * Pin modem to specific Public Land Mobile Network (MCC/MNC)
+			 */
+			plmnSubtitle: () => LocalizedString
+			/**
+			 * Network Selection State:
+			 */
+			networkState: () => LocalizedString
+			/**
+			 * MANUAL LOCKED (MCC {mcc} / MNC {mnc})
+			 */
+			manualLocked: (arg: { mcc: unknown, mnc: unknown }) => LocalizedString
+			/**
+			 * AUTOMATIC SELECTION
+			 */
+			autoSelection: () => LocalizedString
+			/**
+			 * Quick Indonesian Carrier Presets
+			 */
+			quickPresets: () => LocalizedString
+			/**
+			 * Mobile Country Code (MCC)
+			 */
+			mccLabel: () => LocalizedString
+			/**
+			 * e.g. 510
+			 */
+			mccPlaceholder: () => LocalizedString
+			/**
+			 * Mobile Network Code (MNC)
+			 */
+			mncLabel: () => LocalizedString
+			/**
+			 * e.g. 11 (XL) or 10 (Telkomsel)
+			 */
+			mncPlaceholder: () => LocalizedString
+			/**
+			 * Restore Auto Selection
+			 */
+			restoreAuto: () => LocalizedString
+			/**
+			 * Locking PLMN...
+			 */
+			locking: () => LocalizedString
+			/**
+			 * Lock Operator PLMN
+			 */
+			lockPlmn: () => LocalizedString
+			/**
+			 * Please enter valid numeric MCC and MNC values
+			 */
+			invalidMccMnc: () => LocalizedString
+			/**
+			 * PLMN locked to MCC {mcc}, MNC {mnc}
+			 */
+			locked: (arg: { mcc: unknown, mnc: unknown }) => LocalizedString
+			/**
+			 * Modem rejected PLMN lock
+			 */
+			lockRejected: () => LocalizedString
+			/**
+			 * PLMN lock request failed
+			 */
+			lockFailed: () => LocalizedString
+			/**
+			 * Network selection restored to Automatic (PLMN lock cleared).
+			 */
+			cleared: () => LocalizedString
+			/**
+			 * Failed to clear PLMN lock
+			 */
+			clearFailed: () => LocalizedString
+			/**
+			 * Clear PLMN request failed
+			 */
+			clearRequestFailed: () => LocalizedString
+		}
+		efs: {
+			/**
+			 * Qualcomm EFS2 Modem Filesystem Explorer
+			 */
+			title: () => LocalizedString
+			/**
+			 * Direct hardware EFS2 tree browsing and NV item management via DIAG QRTR service 4097
+			 */
+			subtitle: () => LocalizedString
+			/**
+			 * Read-Only
+			 */
+			readOnly: () => LocalizedString
+			/**
+			 * Write Allowed
+			 */
+			writeAllowed: () => LocalizedString
+			/**
+			 * SPC Unlocked
+			 */
+			spcUnlocked: () => LocalizedString
+			/**
+			 * Unlock SPC
+			 */
+			unlockSpc: () => LocalizedString
+			/**
+			 * NV Inspector
+			 */
+			nvInspector: () => LocalizedString
+			/**
+			 * CA Visualizer
+			 */
+			caVisualizer: () => LocalizedString
+			/**
+			 * Dump .TAR
+			 */
+			dumpTar: () => LocalizedString
+			/**
+			 * Restart Modem
+			 */
+			restartModem: () => LocalizedString
+			/**
+			 * Connect
+			 */
+			connect: () => LocalizedString
+			/**
+			 * Baseband DIAG Bus
+			 */
+			diagBus: () => LocalizedString
+			/**
+			 * EFS Subsystem Protocol
+			 */
+			subsysProtocol: () => LocalizedString
+			/**
+			 * Write Safety State
+			 */
+			writeSafety: () => LocalizedString
+			/**
+			 * PROTECTED (Read-Only)
+			 */
+			protectedRo: () => LocalizedString
+			/**
+			 * UNLOCKED (Raw NV Write)
+			 */
+			unlockedRaw: () => LocalizedString
+			/**
+			 * EFS Storage Capacity
+			 */
+			storageCapacity: () => LocalizedString
+			/**
+			 * {size} free
+			 */
+			freeBytes: (arg: { size: unknown }) => LocalizedString
+			/**
+			 * {percent}% used
+			 */
+			usedPercent: (arg: { percent: unknown }) => LocalizedString
+			/**
+			 * Ready on Query
+			 */
+			readyOnQuery: () => LocalizedString
+			/**
+			 * Filter entries...
+			 */
+			filterPlaceholder: () => LocalizedString
+			/**
+			 * New Folder
+			 */
+			newFolder: () => LocalizedString
+			/**
+			 * Name
+			 */
+			thName: () => LocalizedString
+			/**
+			 * Type
+			 */
+			thType: () => LocalizedString
+			/**
+			 * Size
+			 */
+			thSize: () => LocalizedString
+			/**
+			 * Mode
+			 */
+			thMode: () => LocalizedString
+			/**
+			 * Modified
+			 */
+			thModified: () => LocalizedString
+			/**
+			 * Actions
+			 */
+			thActions: () => LocalizedString
+			/**
+			 * .. (Parent Directory)
+			 */
+			parentDir: () => LocalizedString
+			/**
+			 * Reading modem EFS2 tree...
+			 */
+			readingTree: () => LocalizedString
+			/**
+			 * Directory is empty or no matching entries found.
+			 */
+			emptyDir: () => LocalizedString
+			/**
+			 * Download
+			 */
+			downloadTitle: () => LocalizedString
+			/**
+			 * View / Edit
+			 */
+			viewEditTitle: () => LocalizedString
+			/**
+			 * Delete
+			 */
+			deleteTitle: () => LocalizedString
+			/**
+			 * Please enter XML or combo string to parse.
+			 */
+			enterInput: () => LocalizedString
+			/**
+			 * Parsed {count} combinations successfully!
+			 */
+			parsed: (arg: { count: unknown }) => LocalizedString
+			/**
+			 * No valid CA combinations found in input.
+			 */
+			noCombos: () => LocalizedString
+			/**
+			 * Failed to parse carrier policy
+			 */
+			parseFailed: () => LocalizedString
+			/**
+			 * Failed to query EFS status
+			 */
+			statusFailed: () => LocalizedString
+			/**
+			 * Connected to Qualcomm DIAG service on QRTR.
+			 */
+			connected: () => LocalizedString
+			/**
+			 * Failed to connect to DIAG service
+			 */
+			connectFailed: () => LocalizedString
+			/**
+			 * Connection failed
+			 */
+			connectionFailed: () => LocalizedString
+			/**
+			 * Failed to list '{path}'
+			 */
+			listFailed: (arg: { path: unknown }) => LocalizedString
+			/**
+			 * Directory listing failed
+			 */
+			listError: () => LocalizedString
+			/**
+			 * Failed to open file
+			 */
+			openFailed: () => LocalizedString
+			/**
+			 * Failed to read file
+			 */
+			readFailed: () => LocalizedString
+			/**
+			 * Combination string copied.
+			 */
+			comboCopied: () => LocalizedString
+			/**
+			 * Copied {count} combinations to clipboard.
+			 */
+			copiedCombos: (arg: { count: unknown }) => LocalizedString
+			/**
+			 * Carrier policy exported to JSON.
+			 */
+			exportedJson: () => LocalizedString
+			/**
+			 * Modem filesystem is locked in Read-Only mode. Unlock write access first.
+			 */
+			readonlyLocked: () => LocalizedString
+			/**
+			 * Saved '{path}' successfully (auto-backed up & verified).
+			 */
+			saved: (arg: { path: unknown }) => LocalizedString
+			/**
+			 * Saved '{path}' successfully (verified).
+			 */
+			savedVerified: (arg: { path: unknown }) => LocalizedString
+			/**
+			 * Failed to save file to EFS
+			 */
+			saveFailed: () => LocalizedString
+			/**
+			 * Save failed
+			 */
+			saveError: () => LocalizedString
+			/**
+			 * EFS is locked in Read-Only mode. Unlock write access first.
+			 */
+			nvReadonlyLocked: () => LocalizedString
+			/**
+			 * Read-Only mode engaged.
+			 */
+			readonlyOn: () => LocalizedString
+			/**
+			 * Write access unlocked. Be cautious with modifications!
+			 */
+			readonlyOff: () => LocalizedString
+			/**
+			 * Failed to toggle Read-Only
+			 */
+			toggleFailed: () => LocalizedString
+			/**
+			 * SPC accepted: Modem DIAG security session elevated.
+			 */
+			spcAccepted: () => LocalizedString
+			/**
+			 * SPC rejected by modem. Ensure code is correct.
+			 */
+			spcRejected: () => LocalizedString
+			/**
+			 * SPC verification failed
+			 */
+			spcFailed: () => LocalizedString
+			/**
+			 * Modem Subsystem Restart (SSR) initiated. Reconnecting in 3 seconds...
+			 */
+			ssrInitiated: () => LocalizedString
+			/**
+			 * Modem restart failed
+			 */
+			restartFailed: () => LocalizedString
+			/**
+			 * Restart request failed
+			 */
+			restartRequestFailed: () => LocalizedString
+			/**
+			 * Created directory '{path}'
+			 */
+			dirCreated: (arg: { path: unknown }) => LocalizedString
+			/**
+			 * Failed to create directory
+			 */
+			mkdirFailed: () => LocalizedString
+			/**
+			 * Directory creation failed
+			 */
+			mkdirError: () => LocalizedString
+			/**
+			 * Deleted '{name}'
+			 */
+			deleted: (arg: { name: unknown }) => LocalizedString
+			/**
+			 * Failed to delete entry
+			 */
+			deleteFailed: () => LocalizedString
+			/**
+			 * Deletion failed
+			 */
+			deleteError: () => LocalizedString
+			/**
+			 * Failed to read NV item
+			 */
+			nvReadFailed: () => LocalizedString
+			/**
+			 * NV read failed
+			 */
+			nvReadError: () => LocalizedString
+			/**
+			 * NV item {item} written successfully (Status: {status}).
+			 */
+			nvWritten: (arg: { item: unknown, status: unknown }) => LocalizedString
+			/**
+			 * Failed to write NV item
+			 */
+			nvWriteFailed: () => LocalizedString
+			/**
+			 * NV write failed
+			 */
+			nvWriteError: () => LocalizedString
+		}
+		nv: {
+			/**
+			 * NV Manager
+			 */
+			title: () => LocalizedString
+			/**
+			 * {filtered} / {total} items
+			 */
+			itemCount: (arg: { filtered: unknown, total: unknown }) => LocalizedString
+			/**
+			 * Backup
+			 */
+			backup: () => LocalizedString
+			/**
+			 * Restore
+			 */
+			restore: () => LocalizedString
+			/**
+			 * Search ID, name, description...
+			 */
+			searchPlaceholder: () => LocalizedString
+			/**
+			 * ID
+			 */
+			thId: () => LocalizedString
+			/**
+			 * Name
+			 */
+			thName: () => LocalizedString
+			/**
+			 * Category
+			 */
+			thCategory: () => LocalizedString
+			/**
+			 * Size
+			 */
+			thSize: () => LocalizedString
+			/**
+			 * Loading catalog...
+			 */
+			loadingCatalog: () => LocalizedString
+			/**
+			 * No items found
+			 */
+			noItems: () => LocalizedString
+			/**
+			 * Select an NV item to read from modem
+			 */
+			selectItem: () => LocalizedString
+			/**
+			 * READ-ONLY
+			 */
+			readOnlyBadge: () => LocalizedString
+			/**
+			 * Write
+			 */
+			write: () => LocalizedString
+			/**
+			 * Formatted Value
+			 */
+			formattedValue: () => LocalizedString
+			/**
+			 * Raw Hex
+			 */
+			rawHex: () => LocalizedString
+			/**
+			 * Data Size
+			 */
+			dataSize: () => LocalizedString
+			/**
+			 * {count} bytes
+			 */
+			bytes: (arg: { count: unknown }) => LocalizedString
+			/**
+			 * Data Type
+			 */
+			dataType: () => LocalizedString
+			/**
+			 * Not Available on This Device
+			 */
+			notAvailable: () => LocalizedString
+			/**
+			 * NV item #{id} is not provisioned on this modem. This is normal — not all devices have every NV item.
+			 */
+			notAvailableBody: (arg: { id: unknown }) => LocalizedString
+			/**
+			 * Read failed
+			 */
+			readFailed: () => LocalizedString
+			/**
+			 * Click
+			 */
+			clickToReadA: () => LocalizedString
+			/**
+			 * to read this item from the modem
+			 */
+			clickToReadB: () => LocalizedString
+			/**
+			 * Reading from modem...
+			 */
+			reading: () => LocalizedString
+			/**
+			 * Write NV {id} — {name}
+			 */
+			writeTitle: (arg: { id: unknown, name: unknown }) => LocalizedString
+			/**
+			 * Writing incorrect values can destabilize the modem. Double-check before writing.
+			 */
+			writeWarning: () => LocalizedString
+			/**
+			 * Hex Data ({size} bytes expected)
+			 */
+			hexData: (arg: { size: unknown }) => LocalizedString
+			/**
+			 * e.g. 080123456789ABFF00
+			 */
+			hexPlaceholder: () => LocalizedString
+			/**
+			 * {entered} / {total} bytes entered
+			 */
+			bytesEntered: (arg: { entered: unknown, total: unknown }) => LocalizedString
+			/**
+			 * Write to Modem
+			 */
+			writeToModem: () => LocalizedString
+			/**
+			 * NV Backup
+			 */
+			backupTitle: () => LocalizedString
+			/**
+			 * Catalog Items
+			 */
+			catalogItems: () => LocalizedString
+			/**
+			 * ID Range
+			 */
+			idRange: () => LocalizedString
+			/**
+			 * Start ID
+			 */
+			startId: () => LocalizedString
+			/**
+			 * End ID
+			 */
+			endId: () => LocalizedString
+			/**
+			 * {count} items · ~{seconds}s est.
+			 */
+			rangeEstimate: (arg: { count: unknown, seconds: unknown }) => LocalizedString
+			/**
+			 * Will backup all {count} known catalog items.
+			 */
+			backupAll: (arg: { count: unknown }) => LocalizedString
+			/**
+			 * Output File Path
+			 */
+			outputPath: () => LocalizedString
+			/**
+			 * Result
+			 */
+			result: () => LocalizedString
+			/**
+			 * OK
+			 */
+			statOk: () => LocalizedString
+			/**
+			 * Failed
+			 */
+			statFailed: () => LocalizedString
+			/**
+			 * Skipped
+			 */
+			statSkipped: () => LocalizedString
+			/**
+			 * Saved to {path}
+			 */
+			savedTo: (arg: { path: unknown }) => LocalizedString
+			/**
+			 * Backing up...
+			 */
+			backingUp: () => LocalizedString
+			/**
+			 * Start Backup
+			 */
+			startBackup: () => LocalizedString
+			/**
+			 * NV Restore
+			 */
+			restoreTitle: () => LocalizedString
+			/**
+			 * Restoring will overwrite current modem NV values. Ensure the backup matches this device.
+			 */
+			restoreWarning: () => LocalizedString
+			/**
+			 * Backup File Path
+			 */
+			restorePath: () => LocalizedString
+			/**
+			 * Restored
+			 */
+			statRestored: () => LocalizedString
+			/**
+			 * Restore complete
+			 */
+			restoreComplete: () => LocalizedString
+			/**
+			 * Restoring...
+			 */
+			restoring: () => LocalizedString
+			/**
+			 * Restore Now
+			 */
+			restoreNow: () => LocalizedString
+			/**
+			 * Qualcomm NV writes require elevating the DIAG security level via the 6-digit Service Programming Code (SPC). Default is usually
+			 */
+			spcBodyA: () => LocalizedString
+			/**
+			 * .
+			 */
+			spcBodyB: () => LocalizedString
+			/**
+			 * Failed to load NV catalog
+			 */
+			loadFailed: () => LocalizedString
+			/**
+			 * NV {id} ({name}) written
+			 */
+			written: (arg: { id: unknown, name: unknown }) => LocalizedString
+			/**
+			 * Write failed
+			 */
+			writeFailed: () => LocalizedString
+			/**
+			 * DIAG write error
+			 */
+			diagWriteError: () => LocalizedString
+			/**
+			 * Backup: {success} ok, {failed} failed
+			 */
+			backupToast: (arg: { failed: unknown, success: unknown }) => LocalizedString
+			/**
+			 * Backup failed
+			 */
+			backupFailed: () => LocalizedString
+			/**
+			 * Backup error
+			 */
+			backupError: () => LocalizedString
+			/**
+			 * Restore: {success} ok, {failed} failed
+			 */
+			restoreToast: (arg: { failed: unknown, success: unknown }) => LocalizedString
+			/**
+			 * Restore failed
+			 */
+			restoreFailed: () => LocalizedString
+			/**
+			 * Restore error
+			 */
+			restoreError: () => LocalizedString
+			/**
+			 * Copied
+			 */
+			copied: () => LocalizedString
+			/**
+			 * Unknown error
+			 */
+			unknownError: () => LocalizedString
+			/**
+			 * Request failed
+			 */
+			requestFailed: () => LocalizedString
+		}
+		imei: {
+			/**
+			 * Safety Recommendation
+			 */
+			safetyTitle: () => LocalizedString
+			/**
+			 * Crucial
+			 */
+			crucial: () => LocalizedString
+			/**
+			 * Always secure a backup of your cellular calibration partitions (
+			 */
+			safetyA: () => LocalizedString
+			/**
+			 * ) before performing any write operations.
+			 */
+			safetyB: () => LocalizedString
+			/**
+			 * Backup Partitions
+			 */
+			backupPartitions: () => LocalizedString
+			/**
+			 * Current Modem Identity
+			 */
+			currentTitle: () => LocalizedString
+			/**
+			 * Read IMEI
+			 */
+			readImei: () => LocalizedString
+			/**
+			 * Primary (NV 550)
+			 */
+			primaryNv: () => LocalizedString
+			/**
+			 * Secondary (NV 2497 / 5014)
+			 */
+			secondaryNv: () => LocalizedString
+			/**
+			 * Secondary (NV 2497)
+			 */
+			secondaryNvShort: () => LocalizedString
+			/**
+			 * Not Populated
+			 */
+			notPopulated: () => LocalizedString
+			/**
+			 * Reading...
+			 */
+			reading: () => LocalizedString
+			/**
+			 * Not Set / Empty
+			 */
+			notSet: () => LocalizedString
+			/**
+			 * Copy IMEI {slot}
+			 */
+			copyImei: (arg: { slot: unknown }) => LocalizedString
+			/**
+			 * Load into Form
+			 */
+			loadIntoForm: () => LocalizedString
+			/**
+			 * Write Target & Parameters
+			 */
+			writeTitle: () => LocalizedString
+			/**
+			 * Target SIM Slot
+			 */
+			targetSlot: () => LocalizedString
+			/**
+			 * Execution Engine
+			 */
+			engine: () => LocalizedString
+			/**
+			 * Auto
+			 */
+			methodAuto: () => LocalizedString
+			/**
+			 * NV + Fallback
+			 */
+			methodAutoDesc: () => LocalizedString
+			/**
+			 * Normal
+			 */
+			methodNormal: () => LocalizedString
+			/**
+			 * DIAG 0x27
+			 */
+			methodNormalDesc: () => LocalizedString
+			/**
+			 * EFS Method
+			 */
+			methodEfs: () => LocalizedString
+			/**
+			 * Subsystem 0x13
+			 */
+			methodEfsDesc: () => LocalizedString
+			/**
+			 * New IMEI (14 or 15 Digits)
+			 */
+			newImeiLabel: () => LocalizedString
+			/**
+			 * Auto-Fix
+			 */
+			autoFix: () => LocalizedString
+			/**
+			 * e.g. 353456789012345
+			 */
+			imeiPlaceholder: () => LocalizedString
+			/**
+			 * Offline Digital Mode (DIAG 0x29)
+			 */
+			offlineTitle: () => LocalizedString
+			/**
+			 * Temporarily suspends cellular RF processing during write to unlock baseband write permission.
+			 */
+			offlineDesc: () => LocalizedString
+			/**
+			 * Auto Reboot Modem (SSR)
+			 */
+			autoRebootTitle: () => LocalizedString
+			/**
+			 * Issuing Subsystem Restart right after write to reload baseband stack immediately.
+			 */
+			autoRebootDesc: () => LocalizedString
+			/**
+			 * Method:
+			 */
+			methodLabel: () => LocalizedString
+			/**
+			 * Slot:
+			 */
+			slotLabel: () => LocalizedString
+			/**
+			 * Restart Modem (SSR)
+			 */
+			restartModem: () => LocalizedString
+			/**
+			 * Apply IMEI Write
+			 */
+			applyWrite: () => LocalizedString
+			/**
+			 * DIAG Execution Step Logs
+			 */
+			logsTitle: () => LocalizedString
+			/**
+			 * Writing...
+			 */
+			writing: () => LocalizedString
+			/**
+			 * No write operations executed yet. Step logs and modem DIAG transaction messages will appear here.
+			 */
+			noLogs: () => LocalizedString
+			/**
+			 * Confirm Baseband IMEI Rewrite
+			 */
+			confirmTitle: () => LocalizedString
+			/**
+			 * Hardware & Calibration Warning
+			 */
+			confirmWarning: () => LocalizedString
+			/**
+			 * You are about to write a new identifier to modem NV and/or EFS file systems. Ensure you have backed up your modem partitions before proceeding.
+			 */
+			confirmBody: () => LocalizedString
+			/**
+			 * Target SIM Slot:
+			 */
+			confirmSlot: () => LocalizedString
+			/**
+			 * SIM {slot} ({nv})
+			 */
+			confirmSlotValue: (arg: { nv: unknown, slot: unknown }) => LocalizedString
+			/**
+			 * New IMEI:
+			 */
+			confirmNewImei: () => LocalizedString
+			/**
+			 * {method} (with EFS Fallback)
+			 */
+			confirmMethodValue: (arg: { method: unknown }) => LocalizedString
+			/**
+			 * Offline Mode (0x29):
+			 */
+			confirmOffline: () => LocalizedString
+			/**
+			 * Proceed & Write
+			 */
+			proceedWrite: () => LocalizedString
+			/**
+			 * {count}/15 digits entered
+			 */
+			digitsEntered: (arg: { count: unknown }) => LocalizedString
+			/**
+			 * 14 digits entered. Checksum digit: {digit}
+			 */
+			checksum14: (arg: { digit: unknown }) => LocalizedString
+			/**
+			 * Valid 15-digit IMEI (Luhn verified)
+			 */
+			valid: () => LocalizedString
+			/**
+			 * Invalid Luhn check digit: expected {expected}, got {got}
+			 */
+			invalidLuhn: (arg: { expected: unknown, got: unknown }) => LocalizedString
+			/**
+			 * Too many digits ({count}/15)
+			 */
+			tooMany: (arg: { count: unknown }) => LocalizedString
+			/**
+			 * Appended Luhn check digit: {digit}
+			 */
+			appended: (arg: { digit: unknown }) => LocalizedString
+			/**
+			 * Corrected Luhn check digit to: {digit}
+			 */
+			corrected: (arg: { digit: unknown }) => LocalizedString
+			/**
+			 * Copied {label} to clipboard
+			 */
+			copied: (arg: { label: unknown }) => LocalizedString
+			/**
+			 * Loaded {imei} for Slot {slot}
+			 */
+			loaded: (arg: { imei: unknown, slot: unknown }) => LocalizedString
+			/**
+			 * Failed to read current IMEI
+			 */
+			readFailed: () => LocalizedString
+			/**
+			 * Error communicating with modem DIAG
+			 */
+			diagError: () => LocalizedString
+			/**
+			 * Please enter a valid 15-digit IMEI before writing
+			 */
+			enterValid: () => LocalizedString
+			/**
+			 * Starting IMEI rewrite operation...
+			 */
+			logStart: () => LocalizedString
+			/**
+			 * Target: SIM {slot} ({nv})
+			 */
+			logTarget: (arg: { nv: unknown, slot: unknown }) => LocalizedString
+			/**
+			 * New IMEI: {imei}
+			 */
+			logNewImei: (arg: { imei: unknown }) => LocalizedString
+			/**
+			 * Method Selected: {method}
+			 */
+			logMethod: (arg: { method: unknown }) => LocalizedString
+			/**
+			 * Offline Digital Mode: {mode}
+			 */
+			logOffline: (arg: { mode: unknown }) => LocalizedString
+			/**
+			 * IMEI updated via {method} method!
+			 */
+			updated: (arg: { method: unknown }) => LocalizedString
+			/**
+			 * Operation completed successfully!
+			 */
+			logSuccess: () => LocalizedString
+			/**
+			 * Modem restarting now...
+			 */
+			logRestarting: () => LocalizedString
+			/**
+			 * Remember to reboot modem or device to fully bind baseband radio.
+			 */
+			logRebootNotice: () => LocalizedString
+			/**
+			 * IMEI write failed
+			 */
+			writeFailed: () => LocalizedString
+			/**
+			 * Network error during IMEI write
+			 */
+			networkError: () => LocalizedString
+			/**
+			 * Modem SSR issued! Baseband is reloading...
+			 */
+			ssrIssued: () => LocalizedString
+			/**
+			 * Subsystem Restart (SSR) issued to modem baseband.
+			 */
+			logSsr: () => LocalizedString
+			/**
+			 * SSR failed to execute
+			 */
+			ssrFailed: () => LocalizedString
+			/**
+			 * SSR request failed
+			 */
+			ssrRequestFailed: () => LocalizedString
+		}
+		efsEditor: {
+			/**
+			 * EFS File: {path}
+			 */
+			fileTitle: (arg: { path: unknown }) => LocalizedString
+			/**
+			 * View File
+			 */
+			viewFile: () => LocalizedString
+			/**
+			 * Binary / Item File
+			 */
+			binary: () => LocalizedString
+			/**
+			 * Plain Text / XML
+			 */
+			plainText: () => LocalizedString
+			/**
+			 * CA Combos ({count})
+			 */
+			caCombos: (arg: { count: unknown }) => LocalizedString
+			/**
+			 * Policy / Config
+			 */
+			policyConfig: () => LocalizedString
+			/**
+			 * Total Combos
+			 */
+			totalCombos: () => LocalizedString
+			/**
+			 * {count} combinations
+			 */
+			combinations: (arg: { count: unknown }) => LocalizedString
+			/**
+			 * Max DL Streams
+			 */
+			maxDlStreams: () => LocalizedString
+			/**
+			 * {count} Streams {mimo}
+			 */
+			streams: (arg: { count: unknown, mimo: unknown }) => LocalizedString
+			/**
+			 * Supported Bands
+			 */
+			supportedBands: () => LocalizedString
+			/**
+			 * {count} bands ({list})
+			 */
+			bandsCount: (arg: { count: unknown, list: unknown }) => LocalizedString
+			/**
+			 * Quick Band:
+			 */
+			quickBand: () => LocalizedString
+			/**
+			 * Filter band (e.g. 3, 28, 66)...
+			 */
+			filterBandPlaceholder: () => LocalizedString
+			/**
+			 * All MIMO
+			 */
+			allMimo: () => LocalizedString
+			/**
+			 * 4x4 Only
+			 */
+			mimo4Only: () => LocalizedString
+			/**
+			 * 2x2 Only
+			 */
+			mimo2Only: () => LocalizedString
+			/**
+			 * Uplink CA Only
+			 */
+			ulCaOnly: () => LocalizedString
+			/**
+			 * Copy List
+			 */
+			copyList: () => LocalizedString
+			/**
+			 * Copy raw combination list
+			 */
+			copyListTitle: () => LocalizedString
+			/**
+			 * Export combination data as JSON
+			 */
+			exportJsonTitle: () => LocalizedString
+			/**
+			 * #
+			 */
+			thIndex: () => LocalizedString
+			/**
+			 * Component Carriers (Bands & MIMO)
+			 */
+			thComponents: () => LocalizedString
+			/**
+			 * DL Streams
+			 */
+			thDlStreams: () => LocalizedString
+			/**
+			 * BCS
+			 */
+			thBcs: () => LocalizedString
+			/**
+			 * Action
+			 */
+			thAction: () => LocalizedString
+			/**
+			 * No carrier policy combinations match your filter criteria.
+			 */
+			noCombosMatch: () => LocalizedString
+			/**
+			 * Copy combination string
+			 */
+			copyComboTitle: () => LocalizedString
+			/**
+			 * {count} Streams
+			 */
+			streamsCount: (arg: { count: unknown }) => LocalizedString
+			/**
+			 * File content...
+			 */
+			fileContentPlaceholder: () => LocalizedString
+			/**
+			 * Modem filesystem is in Read-Only mode. Unlock write access in the toolbar to save changes.
+			 */
+			readonlyNote: () => LocalizedString
+			/**
+			 * Download File
+			 */
+			downloadFile: () => LocalizedString
+			/**
+			 * Carrier Policy View Mode. Switch to Text mode to edit XML directly.
+			 */
+			caViewNote: () => LocalizedString
+			/**
+			 * Saving...
+			 */
+			saving: () => LocalizedString
+			/**
+			 * Save to EFS
+			 */
+			save: () => LocalizedString
+		}
+		efsModals: {
+			/**
+			 * Unlock DIAG Security Session (SPC)
+			 */
+			spcTitle: () => LocalizedString
+			/**
+			 * Qualcomm NV item writes require raising the DIAG security level via the 6-digit Service Programming Code (SPC). Default is usually
+			 */
+			spcBodyA: () => LocalizedString
+			/**
+			 * .
+			 */
+			spcBodyB: () => LocalizedString
+			/**
+			 * Service Programming Code (6 Digits)
+			 */
+			spcLabel: () => LocalizedString
+			/**
+			 * Verifying...
+			 */
+			verifying: () => LocalizedString
+			/**
+			 * Submit Code
+			 */
+			submitCode: () => LocalizedString
+			/**
+			 * Qualcomm NV Item Inspector
+			 */
+			nvTitle: () => LocalizedString
+			/**
+			 * NV Item ID (0-65535)
+			 */
+			nvItemLabel: () => LocalizedString
+			/**
+			 * Subsystem Index (-1 for Default)
+			 */
+			nvIndexLabel: () => LocalizedString
+			/**
+			 * Read NV Item
+			 */
+			readNv: () => LocalizedString
+			/**
+			 * Return Status:
+			 */
+			returnStatus: () => LocalizedString
+			/**
+			 * NV Payload (128 Bytes Hex)
+			 */
+			nvPayload: () => LocalizedString
+			/**
+			 * Writing...
+			 */
+			writingNv: () => LocalizedString
+			/**
+			 * Write NV to Modem
+			 */
+			writeNv: () => LocalizedString
+			/**
+			 * Confirm Modem Subsystem Restart (SSR)
+			 */
+			ssrTitle: () => LocalizedString
+			/**
+			 * Temporary Cellular Interruption
+			 */
+			ssrHeading: () => LocalizedString
+			/**
+			 * This command flushes the dirty EFS journal to flash and issues a hardware-level Subsystem Restart (SSR) to the Qualcomm modem. Cellular data and calls will reset for approximately 2 to 3 seconds.
+			 */
+			ssrBody: () => LocalizedString
+			/**
+			 * Rebooting Modem...
+			 */
+			rebooting: () => LocalizedString
+			/**
+			 * Restart Radio Now
+			 */
+			restartRadio: () => LocalizedString
+			/**
+			 * Unlock Modem Write Access
+			 */
+			unlockTitle: () => LocalizedString
+			/**
+			 * Caution: Raw Baseband Filesystem
+			 */
+			unlockHeading: () => LocalizedString
+			/**
+			 * Writing incorrect or corrupt configurations directly to Qualcomm EFS2 can cause modem bootloops or loss of IMEI / radio calibrations.
+			 */
+			unlockBody: () => LocalizedString
+			/**
+			 * Always download a .TAR backup before making modifications!
+			 */
+			unlockNote: () => LocalizedString
+			/**
+			 * Keep Read-Only
+			 */
+			keepReadonly: () => LocalizedString
+			/**
+			 * I Understand, Unlock
+			 */
+			understandUnlock: () => LocalizedString
+			/**
+			 * Create Directory
+			 */
+			mkdirTitle: () => LocalizedString
+			/**
+			 * Directory Name
+			 */
+			dirNameLabel: () => LocalizedString
+			/**
+			 * my_folder
+			 */
+			dirNamePlaceholder: () => LocalizedString
+			/**
+			 * Creating...
+			 */
+			creating: () => LocalizedString
+			/**
+			 * Create Folder
+			 */
+			createFolder: () => LocalizedString
+			/**
+			 * Confirm Deletion
+			 */
+			deleteTitle: () => LocalizedString
+			/**
+			 * Are you sure you want to permanently delete
+			 */
+			deleteBodyA: () => LocalizedString
+			/**
+			 * from the Qualcomm modem filesystem?
+			 */
+			deleteBodyB: () => LocalizedString
+			/**
+			 * Deleting...
+			 */
+			deleting: () => LocalizedString
+			/**
+			 * Delete Permanently
+			 */
+			deletePermanently: () => LocalizedString
+			/**
+			 * Qualcomm Carrier Policy / CA Combos Visualizer
+			 */
+			caTitle: () => LocalizedString
+			/**
+			 * Paste raw carrier policy XML,
+			 */
+			caBodyA: () => LocalizedString
+			/**
+			 * tag, or semicolon-separated combo list below:
+			 */
+			caBodyB: () => LocalizedString
+			/**
+			 * Load Demo Combos
+			 */
+			loadDemo: () => LocalizedString
+			/**
+			 * Paste carrier_policy.xml or ca_band_combos string here...
+			 */
+			caPlaceholder: () => LocalizedString
+			/**
+			 * Supported Formats:
+			 */
+			supportedFormats: () => LocalizedString
+			/**
+			 * Qualcomm carrier policy XML:
+			 */
+			formatXmlA: () => LocalizedString
+			/**
+			 * Raw combo list:
+			 */
+			formatRawA: () => LocalizedString
+			/**
+			 * Analyzing...
+			 */
+			analyzing: () => LocalizedString
+			/**
+			 * Parse & Visualize Combos
+			 */
+			parseVisualize: () => LocalizedString
 		}
 	}
 }

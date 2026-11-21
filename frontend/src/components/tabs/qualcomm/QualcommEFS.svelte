@@ -32,6 +32,7 @@
   import Modal from '../../ui/Modal.svelte'
   import EfsEditorModal from './EfsEditorModal.svelte'
   import EfsModals from './EfsModals.svelte'
+  import { LL } from '../../../i18n/i18n-svelte'
 
   interface EfsEntry {
     name: string
@@ -166,7 +167,7 @@
 
   async function parseCustomCarrierPolicy() {
     if (!caInputContent.trim()) {
-      toastStore.warning('Please enter XML or combo string to parse.')
+      toastStore.warning($LL.qualcomm.efs.enterInput())
       return
     }
     try {
@@ -188,12 +189,12 @@
         caUlFilter = false
         showCaModal = false
         showEditorModal = true
-        toastStore.success(`Parsed ${res.result.total_combos} combinations successfully!`)
+        toastStore.success($LL.qualcomm.efs.parsed({ count: res.result.total_combos }))
       } else {
-        toastStore.error(res?.error || 'No valid CA combinations found in input.')
+        toastStore.error(res?.error || $LL.qualcomm.efs.noCombos())
       }
     } catch (err: unknown) {
-      toastStore.error(err instanceof Error ? err.message : 'Failed to parse carrier policy')
+      toastStore.error(err instanceof Error ? err.message : $LL.qualcomm.efs.parseFailed())
     } finally {
       isParsingCa = false
     }
@@ -249,7 +250,7 @@
         status = res
       }
     } catch (err: unknown) {
-      toastStore.error(err instanceof Error ? err.message : 'Failed to query EFS status')
+      toastStore.error(err instanceof Error ? err.message : $LL.qualcomm.efs.statusFailed())
     } finally {
       isLoading = false
     }
@@ -261,13 +262,13 @@
       const res = await api.post<{ ok: boolean; status: EfsStatus; error?: string }>('/api/efs/connect', {})
       if (res && res.ok) {
         status = res.status
-        toastStore.success('Connected to Qualcomm DIAG service on QRTR.')
+        toastStore.success($LL.qualcomm.efs.connected())
         await loadDirectory(currentPath)
       } else {
-        toastStore.error(res?.error || 'Failed to connect to DIAG service')
+        toastStore.error(res?.error || $LL.qualcomm.efs.connectFailed())
       }
     } catch (err: unknown) {
-      toastStore.error(err instanceof Error ? err.message : 'Connection failed')
+      toastStore.error(err instanceof Error ? err.message : $LL.qualcomm.efs.connectionFailed())
     } finally {
       isConnecting = false
     }
@@ -284,10 +285,10 @@
         entries = res.entries || []
         searchQuery = ''
       } else {
-        toastStore.error(res?.error || `Failed to list '${dirPath}'`)
+        toastStore.error(res?.error || $LL.qualcomm.efs.listFailed({ path: dirPath }))
       }
     } catch (err: unknown) {
-      toastStore.error(err instanceof Error ? err.message : 'Directory listing failed')
+      toastStore.error(err instanceof Error ? err.message : $LL.qualcomm.efs.listError())
     } finally {
       isLoading = false
     }
@@ -329,10 +330,10 @@
         }
         showEditorModal = true
       } else {
-        toastStore.error(res?.error || 'Failed to open file')
+        toastStore.error(res?.error || $LL.qualcomm.efs.openFailed())
       }
     } catch (err: unknown) {
-      toastStore.error(err instanceof Error ? err.message : 'File read failed')
+      toastStore.error(err instanceof Error ? err.message : $LL.qualcomm.efs.readFailed())
     } finally {
       isLoading = false
     }
@@ -341,14 +342,14 @@
   function copySingleCombo(str: string) {
     if (!str) return
     navigator.clipboard.writeText(str)
-    toastStore.success('Combination string copied.')
+    toastStore.success($LL.qualcomm.efs.comboCopied())
   }
 
   function copyAllCombos() {
     if (!activeFile?.carrier_policy?.combos) return
     const rawList = filteredCaCombos.map((c) => c.raw_combo_string).join(';\n')
     navigator.clipboard.writeText(rawList)
-    toastStore.success(`Copied ${filteredCaCombos.length} combinations to clipboard.`)
+    toastStore.success($LL.qualcomm.efs.copiedCombos({ count: filteredCaCombos.length }))
   }
 
   function exportCombosJson() {
@@ -362,14 +363,14 @@
     a.download = `carrier_policy_combos_${Date.now()}.json`
     a.click()
     URL.revokeObjectURL(url)
-    toastStore.success('Carrier policy exported to JSON.')
+    toastStore.success($LL.qualcomm.efs.exportedJson())
   }
 
 
   async function saveFile() {
     if (!activeFile) return
     if (status.readonly) {
-      toastStore.warning('Modem filesystem is locked in Read-Only mode. Unlock write access first.')
+      toastStore.warning($LL.qualcomm.efs.readonlyLocked())
       return
     }
 
@@ -386,15 +387,18 @@
       }
       const res = await api.post<{ ok: boolean; backed_up?: boolean; verified?: boolean; error?: string }>('/api/efs/write', payload)
       if (res && res.ok) {
-        const backupNote = res.backed_up ? ' (auto-backed up & verified)' : ' (verified)'
-        toastStore.success(`Saved '${activeFile.path}' successfully${backupNote}.`)
+        toastStore.success(
+          res.backed_up
+            ? $LL.qualcomm.efs.saved({ path: activeFile.path })
+            : $LL.qualcomm.efs.savedVerified({ path: activeFile.path })
+        )
         showEditorModal = false
         await loadDirectory(currentPath)
       } else {
-        toastStore.error(res?.error || 'Failed to save file to EFS')
+        toastStore.error(res?.error || $LL.qualcomm.efs.saveFailed())
       }
     } catch (err: unknown) {
-      toastStore.error(err instanceof Error ? err.message : 'Save failed')
+      toastStore.error(err instanceof Error ? err.message : $LL.qualcomm.efs.saveError())
     } finally {
       isSavingFile = false
     }
@@ -414,10 +418,10 @@
       if (res && res.ok) {
         status.readonly = res.readonly
         showUnlockWarningModal = false
-        toastStore.info(ro ? 'Read-Only mode engaged.' : 'Write access unlocked. Be cautious with modifications!')
+        toastStore.info(ro ? $LL.qualcomm.efs.readonlyOn() : $LL.qualcomm.efs.readonlyOff())
       }
     } catch (err: unknown) {
-      toastStore.error(err instanceof Error ? err.message : 'Failed to toggle Read-Only')
+      toastStore.error(err instanceof Error ? err.message : $LL.qualcomm.efs.toggleFailed())
     }
   }
 
@@ -429,13 +433,13 @@
       })
       if (res && res.ok && res.unlocked) {
         status.unlocked_spc = true
-        toastStore.success('SPC accepted: Modem DIAG security session elevated.')
+        toastStore.success($LL.qualcomm.efs.spcAccepted())
         showSpcModal = false
       } else {
-        toastStore.error(res?.error || 'SPC rejected by modem. Ensure code is correct.')
+        toastStore.error(res?.error || $LL.qualcomm.efs.spcRejected())
       }
     } catch (err: unknown) {
-      toastStore.error(err instanceof Error ? err.message : 'SPC verification failed')
+      toastStore.error(err instanceof Error ? err.message : $LL.qualcomm.efs.spcFailed())
     } finally {
       isUnlockingSpc = false
     }
@@ -446,16 +450,16 @@
       isRestartingModem = true
       const res = await api.post<{ ok: boolean; message?: string; error?: string }>('/api/efs/ssr', {})
       if (res && res.ok) {
-        toastStore.success('Modem Subsystem Restart (SSR) initiated. Reconnecting in 3 seconds...')
+        toastStore.success($LL.qualcomm.efs.ssrInitiated())
         showSsrModal = false
         setTimeout(async () => {
           await connectEfs()
         }, 3000)
       } else {
-        toastStore.error(res?.error || 'Modem restart failed')
+        toastStore.error(res?.error || $LL.qualcomm.efs.restartFailed())
       }
     } catch (err: unknown) {
-      toastStore.error(err instanceof Error ? err.message : 'Restart request failed')
+      toastStore.error(err instanceof Error ? err.message : $LL.qualcomm.efs.restartRequestFailed())
     } finally {
       isRestartingModem = false
     }
@@ -468,15 +472,15 @@
       isCreatingDir = true
       const res = await api.post<{ ok: boolean; error?: string }>('/api/efs/mkdir', { path: target, mode: 0o755 })
       if (res && res.ok) {
-        toastStore.success(`Created directory '${target}'`)
+        toastStore.success($LL.qualcomm.efs.dirCreated({ path: target }))
         showMkdirModal = false
         newDirName = ''
         await loadDirectory(currentPath)
       } else {
-        toastStore.error(res?.error || 'Failed to create directory')
+        toastStore.error(res?.error || $LL.qualcomm.efs.mkdirFailed())
       }
     } catch (err: unknown) {
-      toastStore.error(err instanceof Error ? err.message : 'Directory creation failed')
+      toastStore.error(err instanceof Error ? err.message : $LL.qualcomm.efs.mkdirError())
     } finally {
       isCreatingDir = false
     }
@@ -488,15 +492,15 @@
       isDeleting = true
       const res = await api.post<{ ok: boolean; error?: string }>('/api/efs/unlink', { path: entryToDelete.path })
       if (res && res.ok) {
-        toastStore.success(`Deleted '${entryToDelete.name}'`)
+        toastStore.success($LL.qualcomm.efs.deleted({ name: entryToDelete.name }))
         showDeleteModal = false
         entryToDelete = null
         await loadDirectory(currentPath)
       } else {
-        toastStore.error(res?.error || 'Failed to delete entry')
+        toastStore.error(res?.error || $LL.qualcomm.efs.deleteFailed())
       }
     } catch (err: unknown) {
-      toastStore.error(err instanceof Error ? err.message : 'Deletion failed')
+      toastStore.error(err instanceof Error ? err.message : $LL.qualcomm.efs.deleteError())
     } finally {
       isDeleting = false
     }
@@ -512,10 +516,10 @@
         nvResult = res.data
         nvHexInput = res.data.data_hex
       } else {
-        toastStore.error(res?.error || 'Failed to read NV item')
+        toastStore.error(res?.error || $LL.qualcomm.efs.nvReadFailed())
       }
     } catch (err: unknown) {
-      toastStore.error(err instanceof Error ? err.message : 'NV read failed')
+      toastStore.error(err instanceof Error ? err.message : $LL.qualcomm.efs.nvReadError())
     } finally {
       isLoadingNv = false
     }
@@ -523,7 +527,7 @@
 
   async function writeNvItem() {
     if (status.readonly) {
-      toastStore.warning('EFS is locked in Read-Only mode. Unlock write access first.')
+      toastStore.warning($LL.qualcomm.efs.nvReadonlyLocked())
       return
     }
     try {
@@ -535,13 +539,13 @@
       }
       const res = await api.post<{ ok: boolean; data: NVItemResult; error?: string }>('/api/efs/nv/write', payload)
       if (res && res.ok) {
-        toastStore.success(`NV item ${nvItemInput} written successfully (Status: ${res.data.status_str}).`)
+        toastStore.success($LL.qualcomm.efs.nvWritten({ item: nvItemInput, status: res.data.status_str }))
         nvResult = res.data
       } else {
-        toastStore.error(res?.error || 'Failed to write NV item')
+        toastStore.error(res?.error || $LL.qualcomm.efs.nvWriteFailed())
       }
     } catch (err: unknown) {
-      toastStore.error(err instanceof Error ? err.message : 'NV write failed')
+      toastStore.error(err instanceof Error ? err.message : $LL.qualcomm.efs.nvWriteError())
     } finally {
       isWritingNv = false
     }
@@ -584,7 +588,7 @@
 
 <div class="space-y-4 text-xs font-mono">
   <!-- STATUS & TOOLBAR HEADER -->
-  <Card tone="ice" title="Qualcomm EFS2 Modem Filesystem Explorer" subtitle="Direct hardware EFS2 tree browsing and NV item management via DIAG QRTR service 4097">
+  <Card tone="ice" title={$LL.qualcomm.efs.title()} subtitle={$LL.qualcomm.efs.subtitle()}>
     {#snippet action()}
       <div class="flex items-center gap-1.5 flex-wrap">
         <Button
@@ -594,10 +598,10 @@
         >
           {#if status.readonly}
             <Lock class="w-3.5 h-3.5 mr-1 text-amber-400" />
-            <span>Read-Only</span>
+            <span>{$LL.qualcomm.efs.readOnly()}</span>
           {:else}
             <Unlock class="w-3.5 h-3.5 mr-1 text-red-400 animate-pulse" />
-            <span>Write Allowed</span>
+            <span>{$LL.qualcomm.efs.writeAllowed()}</span>
           {/if}
         </Button>
 
@@ -607,7 +611,7 @@
           onclick={() => (showSpcModal = true)}
         >
           <Key class="w-3.5 h-3.5 mr-1 {status.unlocked_spc ? 'text-emerald-400' : 'text-muted'}" />
-          <span>{status.unlocked_spc ? 'SPC Unlocked' : 'Unlock SPC'}</span>
+          <span>{status.unlocked_spc ? $LL.qualcomm.efs.spcUnlocked() : $LL.qualcomm.efs.unlockSpc()}</span>
         </Button>
 
         <Button
@@ -616,7 +620,7 @@
           onclick={() => (showNvModal = true)}
         >
           <Database class="w-3.5 h-3.5 mr-1 text-cyan-400" />
-          <span>NV Inspector</span>
+          <span>{$LL.qualcomm.efs.nvInspector()}</span>
         </Button>
 
         <Button
@@ -625,7 +629,7 @@
           onclick={() => (showCaModal = true)}
         >
           <Radio class="w-3.5 h-3.5 mr-1 text-emerald-400" />
-          <span>CA Visualizer</span>
+          <span>{$LL.qualcomm.efs.caVisualizer()}</span>
         </Button>
 
         <Button
@@ -635,7 +639,7 @@
           onclick={downloadBackup}
         >
           <Download class="w-3.5 h-3.5 mr-1 text-accent" />
-          <span>Dump .TAR</span>
+          <span>{$LL.qualcomm.efs.dumpTar()}</span>
         </Button>
 
         <Button
@@ -645,7 +649,7 @@
           onclick={() => (showSsrModal = true)}
         >
           <RotateCcw class="w-3.5 h-3.5 mr-1 text-amber-400" />
-          <span>Restart Modem</span>
+          <span>{$LL.qualcomm.efs.restartModem()}</span>
         </Button>
 
         <Button
@@ -655,7 +659,7 @@
           onclick={connectEfs}
         >
           <RefreshCw class="w-3.5 h-3.5 mr-1 text-accent-text {isLoading || isConnecting ? 'animate-spin' : ''}" />
-          <span>{status.connected ? 'Refresh' : 'Connect'}</span>
+          <span>{status.connected ? $LL.common.refresh() : $LL.qualcomm.efs.connect()}</span>
         </Button>
       </div>
     {/snippet}
@@ -663,7 +667,7 @@
     <!-- METRICS STRIP -->
     <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 pt-1 text-xs">
       <div class="p-2 bg-card-sub border border-border rounded flex flex-col justify-between">
-        <span class="text-[10px] text-muted uppercase font-bold">Baseband DIAG Bus</span>
+        <span class="text-[10px] text-muted uppercase font-bold">{$LL.qualcomm.efs.diagBus()}</span>
         <div class="flex items-center gap-1.5 mt-1">
           <span class="w-2 h-2 rounded-full {status.connected ? 'bg-emerald-400 animate-pulse' : 'bg-red-400'}"></span>
           <span class="font-bold text-foreground truncate">{status.transport || 'QRTR Svc 4097'}</span>
@@ -671,32 +675,32 @@
       </div>
 
       <div class="p-2 bg-card-sub border border-border rounded flex flex-col justify-between">
-        <span class="text-[10px] text-muted uppercase font-bold">EFS Subsystem Protocol</span>
+        <span class="text-[10px] text-muted uppercase font-bold">{$LL.qualcomm.efs.subsysProtocol()}</span>
         <span class="font-bold text-cyan-400 mt-1">
           {status.subsys === 0x13 ? '0x13 (Standard)' : status.subsys === 0x3E ? '0x3E (Alternate)' : 'Auto-Detected'}
         </span>
       </div>
 
       <div class="p-2 bg-card-sub border border-border rounded flex flex-col justify-between">
-        <span class="text-[10px] text-muted uppercase font-bold">Write Safety State</span>
+        <span class="text-[10px] text-muted uppercase font-bold">{$LL.qualcomm.efs.writeSafety()}</span>
         <span class="font-bold {status.readonly ? 'text-amber-400' : 'text-red-400'} mt-1">
-          {status.readonly ? 'PROTECTED (Read-Only)' : 'UNLOCKED (Raw NV Write)'}
+          {status.readonly ? $LL.qualcomm.efs.protectedRo() : $LL.qualcomm.efs.unlockedRaw()}
         </span>
       </div>
 
       <div class="p-2 bg-card-sub border border-border rounded flex flex-col justify-between">
-        <span class="text-[10px] text-muted uppercase font-bold">EFS Storage Capacity</span>
+        <span class="text-[10px] text-muted uppercase font-bold">{$LL.qualcomm.efs.storageCapacity()}</span>
         {#if status.statfs}
           <div class="flex items-center justify-between gap-1 mt-1">
             <span class="font-bold text-foreground">
-              {formatBytes(status.statfs.free_bytes)} free
+              {$LL.qualcomm.efs.freeBytes({ size: formatBytes(status.statfs.free_bytes) })}
             </span>
             <span class="text-[10px] text-muted">
-              {status.statfs.used_percent}% used
+              {$LL.qualcomm.efs.usedPercent({ percent: status.statfs.used_percent })}
             </span>
           </div>
         {:else}
-          <span class="font-bold text-muted mt-1">Ready on Query</span>
+          <span class="font-bold text-muted mt-1">{$LL.qualcomm.efs.readyOnQuery()}</span>
         {/if}
       </div>
     </div>
@@ -732,7 +736,7 @@
         <input
           type="text"
           bind:value={searchQuery}
-          placeholder="Filter entries..."
+          placeholder={$LL.qualcomm.efs.filterPlaceholder()}
           class="neo-input w-full bg-card-sub border border-border rounded pl-7 pr-2 py-1 text-[11px] text-foreground focus:outline-none focus:border-accent"
         />
       </div>
@@ -744,7 +748,7 @@
         onclick={() => (showMkdirModal = true)}
       >
         <Plus class="w-3.5 h-3.5 mr-1 text-emerald-400" />
-        <span>New Folder</span>
+        <span>{$LL.qualcomm.efs.newFolder()}</span>
       </Button>
     </div>
   </div>
@@ -755,12 +759,12 @@
       <table class="w-full text-left border-collapse text-[11px]">
         <thead class="bg-card-sub border-b-2 border-border sticky top-0 uppercase text-[10px] text-muted font-bold">
           <tr>
-            <th class="p-2.5">Name</th>
-            <th class="p-2.5 w-24">Type</th>
-            <th class="p-2.5 w-24 text-right">Size</th>
-            <th class="p-2.5 w-20 text-center">Mode</th>
-            <th class="p-2.5 w-36">Modified</th>
-            <th class="p-2.5 w-24 text-right">Actions</th>
+            <th class="p-2.5">{$LL.qualcomm.efs.thName()}</th>
+            <th class="p-2.5 w-24">{$LL.qualcomm.efs.thType()}</th>
+            <th class="p-2.5 w-24 text-right">{$LL.qualcomm.efs.thSize()}</th>
+            <th class="p-2.5 w-20 text-center">{$LL.qualcomm.efs.thMode()}</th>
+            <th class="p-2.5 w-36">{$LL.qualcomm.efs.thModified()}</th>
+            <th class="p-2.5 w-24 text-right">{$LL.qualcomm.efs.thActions()}</th>
           </tr>
         </thead>
         <tbody class="divide-y divide-border/60">
@@ -774,7 +778,7 @@
             >
               <td colspan="6" class="p-2 text-accent font-bold flex items-center gap-2">
                 <ChevronRight class="w-3.5 h-3.5 rotate-180" />
-                <span>.. (Parent Directory)</span>
+                <span>{$LL.qualcomm.efs.parentDir()}</span>
               </td>
             </tr>
           {/if}
@@ -785,10 +789,10 @@
                 {#if isLoading}
                   <div class="flex items-center justify-center gap-2">
                     <RefreshCw class="w-4 h-4 animate-spin text-accent" />
-                    <span>Reading modem EFS2 tree...</span>
+                    <span>{$LL.qualcomm.efs.readingTree()}</span>
                   </div>
                 {:else}
-                  <span>Directory is empty or no matching entries found.</span>
+                  <span>{$LL.qualcomm.efs.emptyDir()}</span>
                 {/if}
               </td>
             </tr>
@@ -847,7 +851,7 @@
                       <button
                         type="button"
                         class="p-1 hover:text-accent rounded cursor-pointer"
-                        title="Download"
+                        title={$LL.qualcomm.efs.downloadTitle()}
                         onclick={() => downloadFile(item.path)}
                       >
                         <Download class="w-3.5 h-3.5" />
@@ -855,7 +859,7 @@
                       <button
                         type="button"
                         class="p-1 hover:text-cyan-400 rounded cursor-pointer"
-                        title="View / Edit"
+                        title={$LL.qualcomm.efs.viewEditTitle()}
                         onclick={() => openFile(item.path)}
                       >
                         <Edit3 class="w-3.5 h-3.5" />
@@ -865,7 +869,7 @@
                     <button
                       type="button"
                       class="p-1 hover:text-red-400 rounded cursor-pointer {status.readonly ? 'opacity-30 pointer-events-none' : ''}"
-                      title="Delete"
+                      title={$LL.qualcomm.efs.deleteTitle()}
                       disabled={status.readonly}
                       onclick={() => {
                         entryToDelete = item

@@ -20,6 +20,7 @@
   import Card from '../../ui/Card.svelte'
   import Button from '../../ui/Button.svelte'
   import Badge from '../../ui/Badge.svelte'
+  import { LL } from '../../../i18n/i18n-svelte'
 
   export interface NearbyCell {
     type: string
@@ -109,12 +110,12 @@
       const res = await api.get<CellScanResponse>(`/api/modem/cell_scan?slot=${simSlot}`)
       if (res && res.success) {
         scanResult = res
-        toastStore.success(`Cell scan complete: ${res.total_cells} tower(s) discovered.`)
+        toastStore.success($LL.qualcomm.cellScanner.scanComplete({ count: res.total_cells }))
       } else {
-        toastStore.error(res?.error_message || 'Cell scan returned no cells from baseband')
+        toastStore.error(res?.error_message || $LL.qualcomm.cellScanner.noCells())
       }
     } catch (err: unknown) {
-      toastStore.error(err instanceof Error ? err.message : 'Cell tower scan failed')
+      toastStore.error(err instanceof Error ? err.message : $LL.qualcomm.cellScanner.scanFailed())
     } finally {
       isScanning = false
     }
@@ -141,21 +142,21 @@
     const updated = [newEntry, ...savedTowers.filter((t) => !(t.earfcn === newEntry.earfcn && t.pci === newEntry.pci))]
     saveBookmarksToStorage(updated)
     selectedForBookmark = null
-    toastStore.success(`Tower bookmarked: ${newEntry.label}`)
+    toastStore.success($LL.qualcomm.cellScanner.bookmarked({ label: newEntry.label }))
   }
 
   function deleteBookmark(id: string) {
     const updated = savedTowers.filter((t) => t.id !== id)
     saveBookmarksToStorage(updated)
-    toastStore.info('Tower bookmark removed.')
+    toastStore.info($LL.qualcomm.cellScanner.bookmarkRemoved())
   }
 </script>
 
 <div class="space-y-3 sm:space-y-6 font-mono">
   <!-- SCANNER CARD -->
   <Card
-    title="Nearby Cell Towers & Signal Scanner"
-    subtitle="Scan surrounding radio mast antennas, secondary CA cells, and neighbor base stations via QMI QRTR"
+    title={$LL.qualcomm.cellScanner.title()}
+    subtitle={$LL.qualcomm.cellScanner.subtitle()}
     tone="mint"
   >
     {#snippet action()}
@@ -167,7 +168,7 @@
           onclick={performScan}
         >
           <Search class="w-3.5 h-3.5 mr-1.5 {isScanning ? 'animate-spin' : ''}" />
-          <span>{isScanning ? 'Scanning RF...' : 'Scan Nearby Towers'}</span>
+          <span>{isScanning ? $LL.qualcomm.cellScanner.scanning() : $LL.qualcomm.cellScanner.scan()}</span>
         </Button>
       </div>
     {/snippet}
@@ -175,22 +176,22 @@
     {#if !scanResult && !isScanning}
       <div class="p-6 text-center border-2 border-dashed border-border rounded-lg space-y-3">
         <Radio class="w-8 h-8 text-accent mx-auto opacity-70 animate-pulse" />
-        <p class="text-xs text-foreground font-bold">No cell scan performed yet</p>
+        <p class="text-xs text-foreground font-bold">{$LL.qualcomm.cellScanner.noScan()}</p>
         <p class="text-[11px] text-muted max-w-md mx-auto">
-          Tap <strong>Scan Nearby Towers</strong> to query the baseband modem for all surrounding cell towers with exact EARFCN, PCI, RSRP, SINR, and estimated distance.
+          {$LL.qualcomm.cellScanner.noScanBodyA()} <strong>{$LL.qualcomm.cellScanner.scan()}</strong> {$LL.qualcomm.cellScanner.noScanBodyB()}
         </p>
       </div>
     {:else if isScanning}
       <div class="p-8 text-center border-2 border-border rounded-lg space-y-3 bg-card-sub">
         <RefreshCw class="w-8 h-8 text-accent mx-auto animate-spin" />
-        <p class="text-xs text-foreground font-bold">Scanning baseband RF environment...</p>
-        <p class="text-[11px] text-muted">Reading intra-frequency and inter-frequency cellular antennas</p>
+        <p class="text-xs text-foreground font-bold">{$LL.qualcomm.cellScanner.scanningBody()}</p>
+        <p class="text-[11px] text-muted">{$LL.qualcomm.cellScanner.scanningSub()}</p>
       </div>
     {:else if scanResult}
       <div class="space-y-4 text-xs">
         <div class="flex items-center justify-between text-[11px] text-muted border-b border-border pb-2">
-          <span>Found <strong>{scanResult.total_cells}</strong> tower(s) • Scanned at {scanResult.scan_time}</span>
-          <span class="text-emerald-400 font-bold">Live QMI Baseband Telemetry</span>
+          <span>{$LL.qualcomm.cellScanner.foundA()} <strong>{scanResult.total_cells}</strong> {$LL.qualcomm.cellScanner.foundB({ time: scanResult.scan_time })}</span>
+          <span class="text-emerald-400 font-bold">{$LL.qualcomm.cellScanner.liveTelemetry()}</span>
         </div>
 
         <!-- 1. SERVING CELL (CONNECTED) -->
@@ -199,16 +200,16 @@
           <div class="p-3.5 rounded-lg border-2 border-emerald-500 bg-emerald-950/20 shadow-neobrutal-sm space-y-2">
             <div class="flex items-center justify-between flex-wrap gap-2">
               <div class="flex items-center gap-2">
-                <Badge variant="success" class="text-[10px] font-bold">CONNECTED PRIMARY CELL</Badge>
+                <Badge variant="success" class="text-[10px] font-bold">{$LL.qualcomm.cellScanner.servingCell()}</Badge>
                 <span class="font-bold text-foreground text-sm">{sc.band_name}</span>
               </div>
               <div class="flex items-center gap-2">
                 <Button variant="outline" size="sm" onclick={() => onSelectTower(sc.earfcn, sc.pci)}>
-                  <span>Fill Form</span>
+                  <span>{$LL.qualcomm.cellScanner.fillForm()}</span>
                 </Button>
                 <Button variant="secondary" size="sm" onclick={() => onLockTower(sc.earfcn, sc.pci)}>
                   <Lock class="w-3 h-3 mr-1" />
-                  <span>Lock to This</span>
+                  <span>{$LL.qualcomm.cellScanner.lockToThis()}</span>
                 </Button>
                 <Button variant="ghost" size="sm" onclick={() => bookmarkTower(sc)}>
                   <Bookmark class="w-3.5 h-3.5 text-accent" />
@@ -218,42 +219,42 @@
 
             <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-1 text-[11px]">
               <div class="p-2 bg-card rounded border border-border/80">
-                <span class="text-muted block text-[10px]">EARFCN (Channel)</span>
+                <span class="text-muted block text-[10px]">{$LL.modem.signal.earfcn()}</span>
                 <strong class="text-accent">{sc.earfcn}</strong>
               </div>
               <div class="p-2 bg-card rounded border border-border/80">
-                <span class="text-muted block text-[10px]">Physical Cell ID (PCI)</span>
+                <span class="text-muted block text-[10px]">{$LL.modem.signal.pci()}</span>
                 <strong class="text-foreground">{sc.pci}</strong>
               </div>
               <div class="p-2 bg-card rounded border border-border/80">
-                <span class="text-muted block text-[10px]">Global Cell ID (eNodeB)</span>
-                <strong class="text-foreground">{sc.cell_id > 0 ? sc.cell_id : 'Protected'}</strong>
+                <span class="text-muted block text-[10px]">{$LL.qualcomm.cellScanner.globalCellId()}</span>
+                <strong class="text-foreground">{sc.cell_id > 0 ? sc.cell_id : $LL.qualcomm.cellScanner.protected()}</strong>
               </div>
               <div class="p-2 bg-card rounded border border-border/80">
-                <span class="text-muted block text-[10px]">Tracking Area (TAC)</span>
-                <strong class="text-foreground">{sc.tac > 0 ? sc.tac : 'Protected'}</strong>
+                <span class="text-muted block text-[10px]">{$LL.qualcomm.cellScanner.tac()}</span>
+                <strong class="text-foreground">{sc.tac > 0 ? sc.tac : $LL.qualcomm.cellScanner.protected()}</strong>
               </div>
             </div>
 
             <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-[11px]">
               <div class="p-2 bg-card rounded border border-border/80">
-                <span class="text-muted block text-[10px]">RSRP (Power)</span>
+                <span class="text-muted block text-[10px]">{$LL.qualcomm.cellScanner.rsrp()}</span>
                 <strong class="{sc.rsrp >= -95 ? 'text-emerald-400' : sc.rsrp >= -110 ? 'text-amber-400' : 'text-red-400'}">
                   {sc.rsrp !== 0 && sc.rsrp !== -999 ? `${sc.rsrp.toFixed(1)} dBm` : 'N/A'}
                 </strong>
               </div>
               <div class="p-2 bg-card rounded border border-border/80">
-                <span class="text-muted block text-[10px]">RSRQ (Quality)</span>
+                <span class="text-muted block text-[10px]">{$LL.qualcomm.cellScanner.rsrq()}</span>
                 <strong class="text-foreground">{sc.rsrq !== 0 && sc.rsrq !== -999 ? `${sc.rsrq.toFixed(1)} dB` : 'N/A'}</strong>
               </div>
               <div class="p-2 bg-card rounded border border-border/80">
-                <span class="text-muted block text-[10px]">SINR (SNR)</span>
+                <span class="text-muted block text-[10px]">{$LL.qualcomm.cellScanner.sinr()}</span>
                 <strong class="{sc.sinr >= 10 ? 'text-emerald-400' : 'text-foreground'}">
                   {sc.sinr !== 0 && sc.sinr !== -999 ? `${sc.sinr.toFixed(1)} dB` : 'N/A'}
                 </strong>
               </div>
               <div class="p-2 bg-card rounded border border-border/80">
-                <span class="text-muted block text-[10px]">Estimated Distance</span>
+                <span class="text-muted block text-[10px]">{$LL.qualcomm.cellScanner.distance()}</span>
                 <strong class="text-cyan-300">{sc.distance_str}</strong>
               </div>
             </div>
@@ -265,13 +266,13 @@
           <div class="space-y-2">
             <span class="text-[11px] font-bold text-cyan-400 flex items-center gap-1.5 uppercase">
               <Layers class="w-3.5 h-3.5" />
-              <span>Active Carrier Aggregation Secondary Cells ({scanResult.carrier_aggr.length})</span>
+              <span>{$LL.qualcomm.cellScanner.caCells({ count: scanResult.carrier_aggr.length })}</span>
             </span>
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
               {#each scanResult.carrier_aggr as scell}
                 <div class="p-3 bg-cyan-950/20 border-2 border-cyan-800 rounded-lg flex flex-col justify-between gap-2">
                   <div class="flex items-center justify-between">
-                    <Badge variant="info" class="text-[9px]">CA SCell</Badge>
+                    <Badge variant="info" class="text-[9px]">{$LL.qualcomm.cellScanner.caScell()}</Badge>
                     <span class="font-bold text-foreground">{scell.band_name}</span>
                   </div>
                   <div class="grid grid-cols-3 gap-1 text-[10px]">
@@ -281,11 +282,11 @@
                   </div>
                   <div class="flex items-center justify-end gap-1.5 pt-1">
                     <Button variant="outline" size="sm" onclick={() => onSelectTower(scell.earfcn, scell.pci)}>
-                      <span>Select</span>
+                      <span>{$LL.qualcomm.cellScanner.select()}</span>
                     </Button>
                     <Button variant="secondary" size="sm" onclick={() => onLockTower(scell.earfcn, scell.pci)}>
                       <Lock class="w-3 h-3 mr-1" />
-                      <span>Lock</span>
+                      <span>{$LL.qualcomm.cellScanner.lock()}</span>
                     </Button>
                   </div>
                 </div>
@@ -299,7 +300,7 @@
           <div class="space-y-2">
             <span class="text-[11px] font-bold text-foreground flex items-center gap-1.5 uppercase">
               <Radio class="w-3.5 h-3.5 text-accent" />
-              <span>Detected Neighbor Towers ({scanResult.neighbors.length})</span>
+              <span>{$LL.qualcomm.cellScanner.neighbors({ count: scanResult.neighbors.length })}</span>
             </span>
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 max-h-80 overflow-y-auto pr-1">
               {#each scanResult.neighbors as n}
@@ -316,11 +317,11 @@
                   </div>
                   <div class="flex items-center gap-1.5 shrink-0">
                     <Button variant="outline" size="sm" onclick={() => onSelectTower(n.earfcn, n.pci)}>
-                      <span>Select</span>
+                      <span>{$LL.qualcomm.cellScanner.select()}</span>
                     </Button>
                     <Button variant="secondary" size="sm" onclick={() => onLockTower(n.earfcn, n.pci)}>
                       <Lock class="w-3 h-3 mr-1" />
-                      <span>Lock</span>
+                      <span>{$LL.qualcomm.cellScanner.lock()}</span>
                     </Button>
                     <Button variant="ghost" size="sm" onclick={() => bookmarkTower(n)}>
                       <Bookmark class="w-3 h-3 text-muted hover:text-accent" />
@@ -337,8 +338,8 @@
 
   <!-- SAVED / BOOKMARKED TOWERS -->
   <Card
-    title="Saved & Favorite Cell Towers ({savedTowers.length})"
-    subtitle="Personal list of bookmarked BTS towers for 1-click re-locking"
+    title={$LL.qualcomm.cellScanner.savedTitle({ count: savedTowers.length })}
+    subtitle={$LL.qualcomm.cellScanner.savedSubtitle()}
     tone="peach"
   >
     {#snippet action()}
@@ -349,10 +350,10 @@
       >
         {#if showSavedTowers}
           <ChevronUp class="w-3.5 h-3.5 mr-1" />
-          <span>Hide</span>
+          <span>{$LL.qualcomm.cellScanner.hide()}</span>
         {:else}
           <ChevronDown class="w-3.5 h-3.5 mr-1" />
-          <span>Show</span>
+          <span>{$LL.qualcomm.cellScanner.show()}</span>
         {/if}
       </Button>
     {/snippet}
@@ -360,7 +361,7 @@
     {#if showSavedTowers}
       {#if savedTowers.length === 0}
         <div class="p-4 text-center border-2 border-dashed border-border rounded text-[11px] text-muted">
-          No saved cell towers yet. Click the bookmark icon next to any scanned tower to save it here.
+          {$LL.qualcomm.cellScanner.noSaved()}
         </div>
       {:else}
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
@@ -371,21 +372,21 @@
                 <span class="text-[10px] text-muted block">
                   {t.band_name} • EARFCN <strong class="text-accent">{t.earfcn}</strong> • PCI <strong class="text-foreground">{t.pci}</strong>
                 </span>
-                <span class="text-[9px] text-muted">Saved: {t.saved_at}</span>
+                <span class="text-[9px] text-muted">{$LL.qualcomm.cellScanner.savedAt({ date: t.saved_at })}</span>
               </div>
               <div class="flex items-center gap-1.5 shrink-0">
                 <Button variant="outline" size="sm" onclick={() => onSelectTower(t.earfcn, t.pci)}>
-                  <span>Fill</span>
+                  <span>{$LL.qualcomm.cellScanner.fill()}</span>
                 </Button>
                 <Button variant="secondary" size="sm" onclick={() => onLockTower(t.earfcn, t.pci)}>
                   <Lock class="w-3 h-3 mr-1" />
-                  <span>Lock</span>
+                  <span>{$LL.qualcomm.cellScanner.lock()}</span>
                 </Button>
                 <button
                   type="button"
                   class="p-1.5 text-muted hover:text-red-400 transition-colors cursor-pointer"
                   onclick={() => deleteBookmark(t.id)}
-                  title="Remove bookmark"
+                  title={$LL.qualcomm.cellScanner.removeBookmark()}
                 >
                   <Trash2 class="w-3.5 h-3.5" />
                 </button>
@@ -403,28 +404,28 @@
       <div class="bg-card border-2 border-accent rounded-lg max-w-md w-full p-4 space-y-4 shadow-neobrutal font-mono text-xs">
         <div class="flex items-center gap-2 text-foreground font-bold">
           <Bookmark class="w-4 h-4 text-accent" />
-          <span>Bookmark Cell Tower</span>
+          <span>{$LL.qualcomm.cellScanner.bookmarkTitle()}</span>
         </div>
         <p class="text-[11px] text-muted">
-          Saving tower <strong>{selectedForBookmark.band_name}</strong> (EARFCN: {selectedForBookmark.earfcn}, PCI: {selectedForBookmark.pci})
+          {$LL.qualcomm.cellScanner.bookmarkBodyA()} <strong>{selectedForBookmark.band_name}</strong> {$LL.qualcomm.cellScanner.bookmarkBodyB({ earfcn: selectedForBookmark.earfcn, pci: selectedForBookmark.pci })}
         </p>
         <div class="space-y-1.5">
-          <label for="tower-label-input" class="text-[10px] text-muted font-bold uppercase">Tower Nickname / Location</label>
+          <label for="tower-label-input" class="text-[10px] text-muted font-bold uppercase">{$LL.qualcomm.cellScanner.nicknameLabel()}</label>
           <input
             id="tower-label-input"
             type="text"
             bind:value={newTowerLabel}
-            placeholder="e.g. Home Tower - B3 (Kuat)"
+            placeholder={$LL.qualcomm.cellScanner.nicknamePlaceholder()}
             class="neo-input w-full bg-card-sub border-2 border-border rounded px-3 py-2 text-xs font-mono text-foreground focus:outline-none focus:border-accent"
           />
         </div>
         <div class="flex items-center justify-end gap-2 pt-2">
           <Button variant="outline" size="sm" onclick={() => (selectedForBookmark = null)}>
-            <span>Cancel</span>
+            <span>{$LL.common.cancel()}</span>
           </Button>
           <Button variant="primary" size="sm" onclick={confirmBookmark}>
             <BookmarkCheck class="w-3.5 h-3.5 mr-1" />
-            <span>Save Bookmark</span>
+            <span>{$LL.qualcomm.cellScanner.saveBookmark()}</span>
           </Button>
         </div>
       </div>

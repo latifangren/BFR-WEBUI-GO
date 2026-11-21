@@ -22,6 +22,7 @@
   import { themeStore } from '../../../stores/theme.svelte'
   import SakugaCheckbox from '../../ui/SakugaCheckbox.svelte'
   import SakugaRadio from '../../ui/SakugaRadio.svelte'
+  import { LL } from '../../../i18n/i18n-svelte'
 
   interface MbnConfigItem {
     name: string
@@ -114,12 +115,12 @@
       )
       if (res && res.ok && res.overview) {
         overview = res.overview
-        toastStore.success('MBN carrier configurations loaded.')
+        toastStore.success($LL.qualcomm.mbn.loaded())
       } else {
-        toastStore.error(res?.error || 'Failed to load MBN configurations')
+        toastStore.error(res?.error || $LL.qualcomm.mbn.loadFailed())
       }
     } catch (err: unknown) {
-      toastStore.error(err instanceof Error ? err.message : 'Read error')
+      toastStore.error(err instanceof Error ? err.message : $LL.qualcomm.mbn.readError())
     } finally {
       isLoading = false
     }
@@ -147,14 +148,16 @@
 
       if (res && res.ok) {
         toastStore.success(
-          `Activated profile '${pendingConfig.name}' successfully${res.ssr_triggered ? ' (SSR modem restart triggered)' : ''}!`
+          res.ssr_triggered
+            ? $LL.qualcomm.mbn.activatedSsr({ name: pendingConfig.name })
+            : $LL.qualcomm.mbn.activated({ name: pendingConfig.name })
         )
         await loadOverview()
       } else {
-        toastStore.error(res?.error || 'Failed to activate profile')
+        toastStore.error(res?.error || $LL.qualcomm.mbn.activateFailed())
       }
     } catch (err: unknown) {
-      toastStore.error(err instanceof Error ? err.message : 'Activation error')
+      toastStore.error(err instanceof Error ? err.message : $LL.qualcomm.mbn.activateError())
     } finally {
       isActivating = false
       pendingConfig = null
@@ -175,14 +178,16 @@
 
       if (res && res.ok) {
         toastStore.success(
-          `Reverted back to '${overview.previous_profile}' successfully${res.ssr_triggered ? ' (SSR restart triggered)' : ''}!`
+          res.ssr_triggered
+            ? $LL.qualcomm.mbn.revertedSsr({ name: overview.previous_profile })
+            : $LL.qualcomm.mbn.reverted({ name: overview.previous_profile })
         )
         await loadOverview()
       } else {
-        toastStore.error(res?.error || 'Failed to revert profile')
+        toastStore.error(res?.error || $LL.qualcomm.mbn.revertFailed())
       }
     } catch (err: unknown) {
-      toastStore.error(err instanceof Error ? err.message : 'Revert error')
+      toastStore.error(err instanceof Error ? err.message : $LL.qualcomm.mbn.revertError())
     } finally {
       isReverting = false
     }
@@ -200,13 +205,13 @@
       )
 
       if (res && res.ok) {
-        toastStore.success(`Autoselect by UIM for SIM${slot + 1} updated to mode ${mode}.`)
+        toastStore.success($LL.qualcomm.mbn.autoselectUpdated({ slot: slot + 1, mode }))
         await loadOverview()
       } else {
-        toastStore.error(res?.error || 'Failed to update autoselect')
+        toastStore.error(res?.error || $LL.qualcomm.mbn.autoselectFailed())
       }
     } catch (err: unknown) {
-      toastStore.error(err instanceof Error ? err.message : 'Autoselect update failed')
+      toastStore.error(err instanceof Error ? err.message : $LL.qualcomm.mbn.autoselectError())
     }
   }
 
@@ -220,13 +225,13 @@
         }
       )
       if (res && res.ok) {
-        toastStore.success(`ROM MBN catalog set to '${mode}'.`)
+        toastStore.success($LL.qualcomm.mbn.catalogSet({ mode }))
         await loadOverview()
       } else {
-        toastStore.error(res?.error || 'Failed to update catalog mode')
+        toastStore.error(res?.error || $LL.qualcomm.mbn.catalogFailed())
       }
     } catch (err: unknown) {
-      toastStore.error(err instanceof Error ? err.message : 'Update error')
+      toastStore.error(err instanceof Error ? err.message : $LL.qualcomm.mbn.updateError())
     }
   }
 
@@ -250,7 +255,7 @@
       <div class="flex items-center gap-2">
         <HardDrive class="w-5 h-5 text-accent" />
         <h3 class="text-sm font-black uppercase tracking-wider text-foreground">
-          Qualcomm MBN / PDC Carrier Profile Switcher
+          {$LL.qualcomm.mbn.title()}
         </h3>
       </div>
       <div class="flex items-center gap-2">
@@ -273,7 +278,7 @@
         </div>
         <Button variant="outline" size="sm" onclick={loadOverview} disabled={isLoading} class="gap-1.5">
           <RefreshCw class="w-3.5 h-3.5 {isLoading ? 'animate-spin' : ''}" />
-          <span>Reload</span>
+          <span>{$LL.common.reload()}</span>
         </Button>
       </div>
     </div>
@@ -281,7 +286,7 @@
     <!-- ACTIVE PROFILE BADGE -->
     <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
       <div class="p-3 bg-card-sub border-2 border-border rounded space-y-1">
-        <span class="text-[10px] text-muted uppercase font-bold tracking-wider block">Active Baseband MBN Profile (SIM {selectedSlot + 1}):</span>
+        <span class="text-[10px] text-muted uppercase font-bold tracking-wider block">{$LL.qualcomm.mbn.activeProfile({ slot: selectedSlot + 1 })}:</span>
         <div class="flex items-center gap-2">
           {#if overview.active_profile}
             <Badge variant="success" class="font-mono text-xs font-bold flex items-center gap-1.5 py-1 px-2.5">
@@ -289,17 +294,17 @@
               <span>{overview.active_profile}</span>
             </Badge>
           {:else}
-            <span class="text-muted font-mono italic">Automatic / UIM Auto-selected (Default)</span>
+            <span class="text-muted font-mono italic">{$LL.qualcomm.mbn.autoDefault()}</span>
           {/if}
         </div>
       </div>
 
       <!-- AUTOSELECT TOGGLE BY UIM -->
       <div class="p-3 bg-card-sub border-2 border-border rounded space-y-2">
-        <span class="text-[10px] text-muted uppercase font-bold tracking-wider block">MCFG Autoselect on SIM Change:</span>
+        <span class="text-[10px] text-muted uppercase font-bold tracking-wider block">{$LL.qualcomm.mbn.autoselectLabel()}</span>
 {#if themeStore.useSakugaControls()}
           <SakugaRadio value={String(selectedSlot === 0 ? overview.autoselect.sim1_mode : overview.autoselect.sim2_mode)} label="MCFG Autoselect on SIM Change"
-            options={[{ value: '1', label: 'Auto by IMSI' }, { value: '0', label: 'Manual Lock' }, { value: '2', label: 'With MBN update only' }]}
+            options={[{ value: '1', label: $LL.qualcomm.mbn.autoImsi() }, { value: '0', label: $LL.qualcomm.mbn.manualLock() }, { value: '2', label: $LL.qualcomm.mbn.mbnUpdateOnly() }]}
             onchange={(e) => updateAutoselect(selectedSlot, Number((e.target as any).value))} />
         {:else}
         <div class="flex items-center gap-3">
@@ -312,7 +317,7 @@
               onchange={() => updateAutoselect(selectedSlot, 1)}
               class="accent-accent"
             />
-            <span class="font-bold text-foreground">Auto by IMSI</span>
+            <span class="font-bold text-foreground">{$LL.qualcomm.mbn.autoImsi()}</span>
           </label>
           <label class="flex items-center gap-1.5 cursor-pointer">
             <input
@@ -323,7 +328,7 @@
               onchange={() => updateAutoselect(selectedSlot, 0)}
               class="accent-accent"
             />
-            <span class="font-bold text-foreground">Manual Lock</span>
+            <span class="font-bold text-foreground">{$LL.qualcomm.mbn.manualLock()}</span>
           </label>
           <label class="flex items-center gap-1.5 cursor-pointer">
             <input
@@ -334,7 +339,7 @@
               onchange={() => updateAutoselect(selectedSlot, 2)}
               class="accent-accent"
             />
-            <span class="font-bold text-foreground">With MBN update only</span>
+            <span class="font-bold text-foreground">{$LL.qualcomm.mbn.mbnUpdateOnly()}</span>
           </label>
         </div>
         {/if}
@@ -347,8 +352,8 @@
         <div class="flex items-start gap-2">
           <ShieldAlert class="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
           <div>
-            <span class="font-bold text-amber-800 dark:text-amber-300 block">Rollback Safety Shield:</span>
-            <span class="text-muted">Previous active profile recorded: <strong class="text-foreground font-mono">{overview.previous_profile}</strong></span>
+            <span class="font-bold text-amber-800 dark:text-amber-300 block">{$LL.qualcomm.mbn.rollbackTitle()}</span>
+            <span class="text-muted">{$LL.qualcomm.mbn.prevProfileA()} <strong class="text-foreground font-mono">{overview.previous_profile}</strong></span>
           </div>
         </div>
         <Button
@@ -359,7 +364,7 @@
           class="border-amber-500/50 text-amber-700 dark:text-amber-300 hover:bg-amber-500/20 gap-1.5 shrink-0"
         >
           <RotateCcw class="w-3.5 h-3.5" />
-          <span>{isReverting ? 'Reverting...' : 'Revert to Previous'}</span>
+          <span>{isReverting ? $LL.qualcomm.mbn.reverting() : $LL.qualcomm.mbn.revert()}</span>
         </Button>
       </div>
     {/if}
@@ -370,13 +375,13 @@
         <div class="flex items-center justify-between">
           <span class="font-bold uppercase tracking-wider text-[11px] text-foreground flex items-center gap-1.5">
             <Cpu class="w-3.5 h-3.5 text-accent" />
-            ROM MBN Catalog Preset (PixelParts / Evolution X)
+            {$LL.qualcomm.mbn.catalogTitle()}
           </span>
-          <Badge variant="default" class="text-[9px] font-mono">Current: {overview.pixelparts.current.toUpperCase()}</Badge>
+          <Badge variant="default" class="text-[9px] font-mono">{$LL.qualcomm.mbn.current({ mode: overview.pixelparts.current.toUpperCase() })}</Badge>
         </div>
 {#if themeStore.useSakugaControls()}
           <SakugaRadio value={overview.pixelparts.current || 'stock'} label="ROM MBN Catalog Preset"
-            options={[{ value: 'merged', label: 'Merged (460 MBNs)' }, { value: 'stock', label: 'Stock Google (116 MBNs)' }, { value: 'module', label: 'Module (343 MBNs)' }]}
+            options={[{ value: 'merged', label: $LL.qualcomm.mbn.merged() }, { value: 'stock', label: $LL.qualcomm.mbn.stock() }, { value: 'module', label: $LL.qualcomm.mbn.module() }]}
             onchange={(e) => updatePixelPartsMode((e.target as any).value)} />
         {:else}
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
@@ -390,8 +395,8 @@
               class="accent-accent"
             />
             <div>
-              <span class="font-bold text-foreground block">Merged (460 MBNs)</span>
-              <span class="text-[10px] text-muted">Includes Indonesian carriers & VoLTE</span>
+              <span class="font-bold text-foreground block">{$LL.qualcomm.mbn.merged()}</span>
+              <span class="text-[10px] text-muted">{$LL.qualcomm.mbn.mergedDesc()}</span>
             </div>
           </label>
           <label class="flex items-center gap-2 p-2 bg-card border border-border rounded cursor-pointer hover:border-accent transition-colors">
@@ -404,8 +409,8 @@
               class="accent-accent"
             />
             <div>
-              <span class="font-bold text-foreground block">Stock Google (116 MBNs)</span>
-              <span class="text-[10px] text-muted">Official Pixel stock index</span>
+              <span class="font-bold text-foreground block">{$LL.qualcomm.mbn.stock()}</span>
+              <span class="text-[10px] text-muted">{$LL.qualcomm.mbn.stockDesc()}</span>
             </div>
           </label>
           <label class="flex items-center gap-2 p-2 bg-card border border-border rounded cursor-pointer hover:border-accent transition-colors">
@@ -418,8 +423,8 @@
               class="accent-accent"
             />
             <div>
-              <span class="font-bold text-foreground block">Module (343 MBNs)</span>
-              <span class="text-[10px] text-muted">Magisk / Root module index</span>
+              <span class="font-bold text-foreground block">{$LL.qualcomm.mbn.module()}</span>
+              <span class="text-[10px] text-muted">{$LL.qualcomm.mbn.moduleDesc()}</span>
             </div>
           </label>
         </div>
@@ -437,14 +442,14 @@
           class="px-3 py-1.5 text-xs font-black uppercase tracking-wider rounded border-2 cursor-pointer transition-all {activeTab === 'sw' ? 'border-accent bg-accent/15 text-accent' : 'border-transparent text-muted hover:text-foreground'}"
           onclick={() => (activeTab = 'sw')}
         >
-          SW Carrier Configs ({overview.sw_configs.length})
+          {$LL.qualcomm.mbn.swTab({ count: overview.sw_configs.length })}
         </button>
         <button
           type="button"
           class="px-3 py-1.5 text-xs font-black uppercase tracking-wider rounded border-2 cursor-pointer transition-all {activeTab === 'hw' ? 'border-accent bg-accent/15 text-accent' : 'border-transparent text-muted hover:text-foreground'}"
           onclick={() => (activeTab = 'hw')}
         >
-          HW Modem Configs ({overview.hw_configs.length})
+          {$LL.qualcomm.mbn.hwTab({ count: overview.hw_configs.length })}
         </button>
       </div>
 
@@ -453,7 +458,7 @@
         <Search class="w-3.5 h-3.5 absolute left-2.5 top-1/2 -translate-y-1/2 text-muted" />
         <input
           type="text"
-          placeholder="Search carrier / mbn..."
+          placeholder={$LL.qualcomm.mbn.searchPlaceholder()}
           bind:value={searchQuery}
           class="w-full pl-8 pr-2.5 py-1 text-xs bg-card border-2 border-border rounded text-foreground font-mono"
         />
@@ -465,16 +470,16 @@
       {#if activeTab === 'sw'}
         {#if filteredSwConfigs.length === 0}
           <div class="p-6 text-center text-xs text-muted font-mono border-2 border-dashed border-border rounded">
-            {overview.sw_configs.length === 0 ? 'No MBN files discovered on device OS/EFS partitions' : 'No matching carrier profiles found'}
+            {overview.sw_configs.length === 0 ? $LL.qualcomm.mbn.noSwEmpty() : $LL.qualcomm.mbn.noSwMatch()}
           </div>
         {:else}
           <table class="w-full text-left text-xs font-mono">
             <thead class="sticky top-0 bg-card z-10 border-b-2 border-border">
               <tr class="text-muted">
-                <th class="py-2 px-3">Profile Name</th>
-                <th class="py-2 px-3">Category / Region</th>
-                <th class="py-2 px-3">Modem EFS Path</th>
-                <th class="py-2 px-3 text-right">Action</th>
+                <th class="py-2 px-3">{$LL.qualcomm.mbn.thProfile()}</th>
+                <th class="py-2 px-3">{$LL.qualcomm.mbn.thCategory()}</th>
+                <th class="py-2 px-3">{$LL.qualcomm.mbn.thPath()}</th>
+                <th class="py-2 px-3 text-right">{$LL.qualcomm.mbn.thAction()}</th>
               </tr>
             </thead>
             <tbody>
@@ -494,7 +499,7 @@
                   <td class="py-2 px-3 text-muted text-[11px] truncate max-w-xs">{cfg.path}</td>
                   <td class="py-2 px-3 text-right">
                     {#if cfg.active}
-                      <Badge variant="success">Active</Badge>
+                      <Badge variant="success">{$LL.common.active()}</Badge>
                     {:else}
                       <Button
                         size="sm"
@@ -503,7 +508,7 @@
                         disabled={isActivating}
                         class="px-2 py-0.5 text-[11px]"
                       >
-                        Activate
+                        {$LL.qualcomm.mbn.activate()}
                       </Button>
                     {/if}
                   </td>
@@ -515,15 +520,15 @@
       {:else}
         {#if filteredHwConfigs.length === 0}
           <div class="p-6 text-center text-xs text-muted font-mono border-2 border-dashed border-border rounded">
-            {overview.hw_configs.length === 0 ? 'No HW configs found under /mcfg_hw/generic' : 'No matching hardware configs'}
+            {overview.hw_configs.length === 0 ? $LL.qualcomm.mbn.noHwEmpty() : $LL.qualcomm.mbn.noHwMatch()}
           </div>
         {:else}
           <table class="w-full text-left text-xs font-mono">
             <thead class="sticky top-0 bg-card z-10 border-b-2 border-border">
               <tr class="text-muted">
-                <th class="py-2 px-3">Config Name</th>
-                <th class="py-2 px-3">Modem EFS Path</th>
-                <th class="py-2 px-3 text-right">Size</th>
+                <th class="py-2 px-3">{$LL.qualcomm.mbn.thConfig()}</th>
+                <th class="py-2 px-3">{$LL.qualcomm.mbn.thPath()}</th>
+                <th class="py-2 px-3 text-right">{$LL.qualcomm.mbn.thSize()}</th>
               </tr>
             </thead>
             <tbody>
@@ -544,15 +549,15 @@
 
 <!-- CONFIRMATION MODAL -->
 {#if pendingConfig}
-  <Modal bind:open={showConfirmModal} title="Confirm MBN Carrier Profile Switch" size="md">
+  <Modal bind:open={showConfirmModal} title={$LL.qualcomm.mbn.confirmTitle()} size="md">
     {#snippet children()}
       <div class="space-y-3 text-xs text-foreground">
-        <p>You are about to activate the following baseband carrier profile on <strong>SIM {selectedSlot + 1}</strong>:</p>
+        <p>{$LL.qualcomm.mbn.confirmBodyA()} <strong>SIM {selectedSlot + 1}</strong>{$LL.qualcomm.mbn.confirmBodyB()}</p>
         <div class="p-2.5 bg-card-sub border-2 border-border rounded font-mono break-all font-bold">
           {pendingConfig?.name || ''}
         </div>
         <p class="text-muted">
-          The current active profile ({overview.active_profile || 'Default'}) will be recorded for one-click rollback. If modem connectivity is lost, you can use the <strong>Revert to Previous</strong> button.
+          {$LL.qualcomm.mbn.confirmBodyC({ profile: overview.active_profile || 'Default' })} <strong>{$LL.qualcomm.mbn.revert()}</strong> {$LL.qualcomm.mbn.confirmBodyD()}
         </p>
 
         <label class="flex items-center gap-2 text-xs font-bold text-foreground cursor-pointer pt-2 border-t border-border/60">
@@ -561,7 +566,7 @@
           {:else}
           <input type="checkbox" bind:checked={restartSSR} class="w-4 h-4 accent-accent" />
           {/if}
-          <span>Perform Subsystem Restart (SSR) after activation</span>
+          <span>{$LL.qualcomm.mbn.ssrAfterActivate()}</span>
         </label>
       </div>
     {/snippet}
@@ -569,10 +574,10 @@
     {#snippet footer()}
       <div class="flex items-center justify-end gap-2">
         <Button variant="outline" size="sm" onclick={() => (showConfirmModal = false)}>
-          Cancel
+          {$LL.common.cancel()}
         </Button>
         <Button variant="primary" size="sm" onclick={confirmActivate} disabled={isActivating}>
-          {isActivating ? 'Activating...' : 'Confirm & Activate Profile'}
+          {isActivating ? $LL.qualcomm.mbn.activating() : $LL.qualcomm.mbn.confirmActivate()}
         </Button>
       </div>
     {/snippet}

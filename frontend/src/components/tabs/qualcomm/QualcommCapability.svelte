@@ -16,6 +16,7 @@
   import Button from '../../ui/Button.svelte'
   import Badge from '../../ui/Badge.svelte'
   import Modal from '../../ui/Modal.svelte'
+  import { LL } from '../../../i18n/i18n-svelte'
   import { themeStore } from '../../../stores/theme.svelte'
   import SakugaCheckbox from '../../ui/SakugaCheckbox.svelte'
   import SakugaRadio from '../../ui/SakugaRadio.svelte'
@@ -162,12 +163,12 @@
         if (res.files) {
           capState.files = res.files
         }
-        toastStore.success('RRC capabilities loaded from modem EFS.')
+        toastStore.success($LL.qualcomm.capability.loaded())
       } else {
-        toastStore.error(res?.error || 'Failed to read capabilities')
+        toastStore.error(res?.error || $LL.qualcomm.capability.loadFailed())
       }
     } catch (err: unknown) {
-      toastStore.error(err instanceof Error ? err.message : 'Read error')
+      toastStore.error(err instanceof Error ? err.message : $LL.qualcomm.capability.readError())
     } finally {
       isLoading = false
     }
@@ -189,13 +190,13 @@
       })
 
       if (res && res.ok) {
-        toastStore.success(`RRC capabilities applied successfully${res.ssr_triggered ? ' (SSR restart triggered)' : ''}!`)
+        toastStore.success(res.ssr_triggered ? $LL.qualcomm.capability.appliedSsr() : $LL.qualcomm.capability.applied())
         await loadCapability()
       } else {
-        toastStore.error(res?.error || 'Failed to apply RRC capabilities')
+        toastStore.error(res?.error || $LL.qualcomm.capability.applyFailed())
       }
     } catch (err: unknown) {
-      toastStore.error(err instanceof Error ? err.message : 'Apply error')
+      toastStore.error(err instanceof Error ? err.message : $LL.qualcomm.capability.applyError())
     } finally {
       isSaving = false
     }
@@ -209,13 +210,13 @@
       <div class="flex items-center gap-2">
         <Zap class="w-5 h-5 text-accent" />
         <h3 class="text-sm font-black uppercase tracking-wider text-foreground">
-          Qualcomm RRC & PHY Capabilities Editor
+          {$LL.qualcomm.capability.title()}
         </h3>
       </div>
       <div class="flex items-center gap-2">
         <Button variant="outline" size="sm" onclick={loadCapability} disabled={isLoading} class="gap-1.5">
           <RefreshCw class="w-3.5 h-3.5 {isLoading ? 'animate-spin' : ''}" />
-          <span>Reload</span>
+          <span>{$LL.common.reload()}</span>
         </Button>
       </div>
     </div>
@@ -223,8 +224,8 @@
     <!-- LIVE TOKEN STRING RECONSTRUCTION -->
     <div class="space-y-1">
       <div class="flex items-center justify-between">
-        <span class="text-[10px] text-muted uppercase font-bold tracking-wider">Reconstructed Token String (ModemCaps Format):</span>
-        <span class="text-[10px] font-mono text-muted">{liveTokens.length} chars</span>
+        <span class="text-[10px] text-muted uppercase font-bold tracking-wider">{$LL.qualcomm.capability.tokenLabel()}</span>
+        <span class="text-[10px] font-mono text-muted">{$LL.qualcomm.capability.chars({ count: liveTokens.length })}</span>
       </div>
       <div class="p-2.5 bg-card-sub border-2 border-border rounded font-mono text-xs text-foreground break-all select-all">
         {liveTokens || '[NO_ACTIVE_CAPABILITY_TOKENS]'}
@@ -235,7 +236,7 @@
     <div class="p-2.5 bg-blue-500/10 border border-blue-500/30 rounded text-xs text-blue-900 dark:text-blue-200 flex items-start gap-2">
       <Info class="w-4 h-4 text-blue-700 dark:text-blue-400 shrink-0 mt-0.5" />
       <p class="leading-relaxed">
-        <strong>Write-Only Advisory:</strong> Certain features (LTE CA, UL CA, DL 256-QAM, Rx chain, ARD) are designated <em>write-only</em> by modem firmware. Changes will be securely written to EFS and consumed on the next modem restart, but reading back live state depends on hardware capability.
+        <strong>{$LL.qualcomm.capability.writeOnlyAdvisory()}</strong> {$LL.qualcomm.capability.writeOnlyBodyA()} <em>write-only</em> {$LL.qualcomm.capability.writeOnlyBodyB()}
       </p>
     </div>
   </Card>
@@ -246,19 +247,19 @@
       <div class="flex items-center justify-between border-b-2 border-border/60 pb-2">
         <div class="flex items-center gap-2">
           <Radio class="w-4 h-4 text-accent" />
-          <span class="text-xs font-black uppercase tracking-wider text-foreground">LTE Capabilities</span>
+          <span class="text-xs font-black uppercase tracking-wider text-foreground">{$LL.qualcomm.capability.lteTitle()}</span>
         </div>
-        <Badge variant="default">12 Tokens</Badge>
+        <Badge variant="default">{$LL.qualcomm.capability.tokenCount({ count: 12 })}</Badge>
       </div>
 
       <div class="space-y-3 text-xs">
         <label class="flex items-center justify-between p-2 bg-card-sub border border-border rounded cursor-pointer">
           <div class="space-y-0.5">
-            <span class="font-bold text-foreground block">LTE Carrier Aggregation</span>
+            <span class="font-bold text-foreground block">{$LL.qualcomm.capability.lteCa()}</span>
             <span class="text-[10px] text-muted font-mono">[LTE_CA]</span>
           </div>
           <div class="flex items-center gap-2">
-            <span class="text-[10px] px-1 py-0.5 bg-amber-500/20 text-amber-700 dark:text-amber-300 rounded font-mono">Write-Only</span>
+            <span class="text-[10px] px-1 py-0.5 bg-amber-500/20 text-amber-700 dark:text-amber-300 rounded font-mono">{$LL.qualcomm.capability.writeOnly()}</span>
             {#if themeStore.useSakugaControls()}
               <SakugaCheckbox bind:checked={capState.lte.lte_ca} />
             {:else}
@@ -270,21 +271,21 @@
         <!-- CA FILTER -->
         <div class="p-2 bg-card-sub border border-border rounded space-y-1.5">
           <div class="flex items-center justify-between">
-            <span class="font-bold text-foreground">Filter Band-Combo</span>
+            <span class="font-bold text-foreground">{$LL.qualcomm.capability.caFilter()}</span>
             <span class="text-[10px] text-muted font-mono">[LTE_CA_FILTER]</span>
           </div>
           <input
             type="text"
-            placeholder="e.g. 1A-3A-7A; 3C-7A[0]"
+            placeholder={$LL.qualcomm.capability.caFilterPlaceholder()}
             bind:value={capState.lte.ca_filter}
             class="w-full px-2 py-1 bg-card border-2 border-border rounded text-foreground font-mono text-xs"
           />
-          <span class="text-[10px] text-muted block">Format: Band+Class+[Streams][UL]-...[BW Set]</span>
+          <span class="text-[10px] text-muted block">{$LL.qualcomm.capability.caFilterFormat()}</span>
         </div>
 
         <label class="flex items-center justify-between p-2 bg-card-sub border border-border rounded cursor-pointer">
           <div class="space-y-0.5">
-            <span class="font-bold text-foreground block">Uplink Carrier Aggregation</span>
+            <span class="font-bold text-foreground block">{$LL.qualcomm.capability.ulCa()}</span>
             <span class="text-[10px] text-muted font-mono">[LTE_UL_CA]</span>
           </div>
           {#if themeStore.useSakugaControls()}
@@ -296,7 +297,7 @@
 
         <label class="flex items-center justify-between p-2 bg-card-sub border border-border rounded cursor-pointer">
           <div class="space-y-0.5">
-            <span class="font-bold text-foreground block">Downlink 256-QAM</span>
+            <span class="font-bold text-foreground block">{$LL.qualcomm.capability.dl256q()}</span>
             <span class="text-[10px] text-muted font-mono">[LTE_DL_256Q]</span>
           </div>
           {#if themeStore.useSakugaControls()}
@@ -308,7 +309,7 @@
 
         <label class="flex items-center justify-between p-2 bg-card-sub border border-border rounded cursor-pointer">
           <div class="space-y-0.5">
-            <span class="font-bold text-foreground block">Uplink 256-QAM</span>
+            <span class="font-bold text-foreground block">{$LL.qualcomm.capability.ul256q()}</span>
             <span class="text-[10px] text-muted font-mono">[LTE_UL_256Q]</span>
           </div>
           {#if themeStore.useSakugaControls()}
@@ -320,22 +321,22 @@
 
         <div class="p-2 bg-card-sub border border-border rounded space-y-2">
           <div class="flex items-center justify-between">
-            <span class="font-bold text-foreground">Downlink MIMO Layers</span>
+            <span class="font-bold text-foreground">{$LL.qualcomm.capability.dlMimo()}</span>
             <span class="text-[10px] text-muted font-mono">[LTE_DL_MIMO]</span>
           </div>
 {#if themeStore.useSakugaControls()}
             <SakugaRadio value={String(capState.lte.max_mimo_layer)} label="Downlink MIMO Layers"
-              options={[{ value: '2', label: '2 Layers (2x2)' }, { value: '4', label: '4 Layers (4x4)' }]}
+              options={[{ value: '2', label: $LL.qualcomm.capability.mimo2() }, { value: '4', label: $LL.qualcomm.capability.mimo4() }]}
               onchange={(e) => { capState.lte.max_mimo_layer = Number((e.target as any).value) }} />
           {:else}
           <div class="flex items-center gap-4">
             <label class="flex items-center gap-1.5 cursor-pointer">
               <input type="radio" name="mimo" value={2} bind:group={capState.lte.max_mimo_layer} class="accent-accent" />
-              <span>2 Layers (2x2)</span>
+              <span>{$LL.qualcomm.capability.mimo2()}</span>
             </label>
             <label class="flex items-center gap-1.5 cursor-pointer">
               <input type="radio" name="mimo" value={4} bind:group={capState.lte.max_mimo_layer} class="accent-accent" />
-              <span>4 Layers (4x4)</span>
+              <span>{$LL.qualcomm.capability.mimo4()}</span>
             </label>
           </div>
           {/if}
@@ -343,7 +344,7 @@
 
         <label class="flex items-center justify-between p-2 bg-card-sub border border-border rounded cursor-pointer">
           <div class="space-y-0.5">
-            <span class="font-bold text-foreground block">Adaptive Rx Diversity (ARD)</span>
+            <span class="font-bold text-foreground block">{$LL.qualcomm.capability.ard()}</span>
             <span class="text-[10px] text-muted font-mono">[LTE_HORXD]</span>
           </div>
           {#if themeStore.useSakugaControls()}
@@ -354,7 +355,7 @@
         </label>
 
         <div class="p-2 bg-card-sub border border-border rounded space-y-1.5">
-          <span class="font-bold text-foreground block">Rx Chains [LTE_RX0..3]</span>
+          <span class="font-bold text-foreground block">{$LL.qualcomm.capability.rxChains()}</span>
           <div class="grid grid-cols-4 gap-2">
             <label class="flex items-center gap-1 cursor-pointer">
               {#if themeStore.useSakugaControls()}
@@ -393,7 +394,7 @@
 
         <label class="flex items-center justify-between p-2 bg-card-sub border border-border rounded cursor-pointer">
           <div class="space-y-0.5">
-            <span class="font-bold text-foreground block">Voice over LTE (VoLTE)</span>
+            <span class="font-bold text-foreground block">{$LL.qualcomm.capability.volte()}</span>
             <span class="text-[10px] text-muted font-mono">[LTE_VOICE]</span>
           </div>
           {#if themeStore.useSakugaControls()}
@@ -410,15 +411,15 @@
       <div class="flex items-center justify-between border-b-2 border-border/60 pb-2">
         <div class="flex items-center gap-2">
           <Layers class="w-4 h-4 text-accent" />
-          <span class="text-xs font-black uppercase tracking-wider text-foreground">NSA (EN-DC) Capabilities</span>
+          <span class="text-xs font-black uppercase tracking-wider text-foreground">{$LL.qualcomm.capability.nsaTitle()}</span>
         </div>
-        <Badge variant="default">4 Tokens</Badge>
+        <Badge variant="default">{$LL.qualcomm.capability.tokenCount({ count: 4 })}</Badge>
       </div>
 
       <div class="space-y-3 text-xs">
         <label class="flex items-center justify-between p-2 bg-card-sub border border-border rounded cursor-pointer">
           <div class="space-y-0.5">
-            <span class="font-bold text-foreground block">LTE + 5G NSA (EN-DC)</span>
+            <span class="font-bold text-foreground block">{$LL.qualcomm.capability.nsaLte()}</span>
             <span class="text-[10px] text-muted font-mono">[NSA_LTE]</span>
           </div>
           {#if themeStore.useSakugaControls()}
@@ -430,7 +431,7 @@
 
         <label class="flex items-center justify-between p-2 bg-card-sub border border-border rounded cursor-pointer">
           <div class="space-y-0.5">
-            <span class="font-bold text-foreground block">Dynamic Spectrum Sharing (DSS)</span>
+            <span class="font-bold text-foreground block">{$LL.qualcomm.capability.dss()}</span>
             <span class="text-[10px] text-muted font-mono">[NSA_LTE_DSS]</span>
           </div>
           {#if themeStore.useSakugaControls()}
@@ -442,7 +443,7 @@
 
         <label class="flex items-center justify-between p-2 bg-card-sub border border-border rounded cursor-pointer">
           <div class="space-y-0.5">
-            <span class="font-bold text-foreground block">NSA during Data-Call on Other SIM</span>
+            <span class="font-bold text-foreground block">{$LL.qualcomm.capability.ndds()}</span>
             <span class="text-[10px] text-muted font-mono">[NSA_NDDS]</span>
           </div>
           {#if themeStore.useSakugaControls()}
@@ -454,7 +455,7 @@
 
         <label class="flex items-center justify-between p-2 bg-card-sub border border-border rounded cursor-pointer">
           <div class="space-y-0.5">
-            <span class="font-bold text-foreground block">NSA Dual SIM Dual Active (DSDA)</span>
+            <span class="font-bold text-foreground block">{$LL.qualcomm.capability.nsaDsda()}</span>
             <span class="text-[10px] text-muted font-mono">[NSA_LTE_DSDA]</span>
           </div>
           {#if themeStore.useSakugaControls()}
@@ -471,15 +472,15 @@
       <div class="flex items-center justify-between border-b-2 border-border/60 pb-2">
         <div class="flex items-center gap-2">
           <Cpu class="w-4 h-4 text-accent" />
-          <span class="text-xs font-black uppercase tracking-wider text-foreground">NR (5G SA) Capabilities</span>
+          <span class="text-xs font-black uppercase tracking-wider text-foreground">{$LL.qualcomm.capability.nrTitle()}</span>
         </div>
-        <Badge variant="default">9 Tokens</Badge>
+        <Badge variant="default">{$LL.qualcomm.capability.tokenCount({ count: 9 })}</Badge>
       </div>
 
       <div class="space-y-3 text-xs">
         <label class="flex items-center justify-between p-2 bg-card-sub border border-border rounded cursor-pointer">
           <div class="space-y-0.5">
-            <span class="font-bold text-foreground block">NR Carrier Aggregation (NR CA)</span>
+            <span class="font-bold text-foreground block">{$LL.qualcomm.capability.nrCa()}</span>
             <span class="text-[10px] text-muted font-mono">[NR_CA]</span>
           </div>
           {#if themeStore.useSakugaControls()}
@@ -491,7 +492,7 @@
 
         <label class="flex items-center justify-between p-2 bg-card-sub border border-border rounded cursor-pointer">
           <div class="space-y-0.5">
-            <span class="font-bold text-foreground block">NR Downlink 256-QAM</span>
+            <span class="font-bold text-foreground block">{$LL.qualcomm.capability.nrDl256q()}</span>
             <span class="text-[10px] text-muted font-mono">[NR_DL_256Q]</span>
           </div>
           {#if themeStore.useSakugaControls()}
@@ -503,7 +504,7 @@
 
         <label class="flex items-center justify-between p-2 bg-card-sub border border-border rounded cursor-pointer">
           <div class="space-y-0.5">
-            <span class="font-bold text-foreground block">NR Uplink 256-QAM</span>
+            <span class="font-bold text-foreground block">{$LL.qualcomm.capability.nrUl256q()}</span>
             <span class="text-[10px] text-muted font-mono">[NR_UL_256Q]</span>
           </div>
           {#if themeStore.useSakugaControls()}
@@ -515,7 +516,7 @@
 
         <label class="flex items-center justify-between p-2 bg-card-sub border border-border rounded cursor-pointer">
           <div class="space-y-0.5">
-            <span class="font-bold text-foreground block">NR Downlink MIMO</span>
+            <span class="font-bold text-foreground block">{$LL.qualcomm.capability.nrDlMimo()}</span>
             <span class="text-[10px] text-muted font-mono">[NR_DL_MIMO]</span>
           </div>
           {#if themeStore.useSakugaControls()}
@@ -527,7 +528,7 @@
 
         <label class="flex items-center justify-between p-2 bg-card-sub border border-border rounded cursor-pointer">
           <div class="space-y-0.5">
-            <span class="font-bold text-foreground block">NR Uplink MIMO</span>
+            <span class="font-bold text-foreground block">{$LL.qualcomm.capability.nrUlMimo()}</span>
             <span class="text-[10px] text-muted font-mono">[NR_UL_MIMO]</span>
           </div>
           {#if themeStore.useSakugaControls()}
@@ -539,7 +540,7 @@
 
         <label class="flex items-center justify-between p-2 bg-card-sub border border-border rounded cursor-pointer">
           <div class="space-y-0.5">
-            <span class="font-bold text-foreground block">Voice over NR (VoNR)</span>
+            <span class="font-bold text-foreground block">{$LL.qualcomm.capability.vonr()}</span>
             <span class="text-[10px] text-muted font-mono">[NR_VOICE]</span>
           </div>
           {#if themeStore.useSakugaControls()}
@@ -551,7 +552,7 @@
 
         <label class="flex items-center justify-between p-2 bg-card-sub border border-border rounded cursor-pointer">
           <div class="space-y-0.5">
-            <span class="font-bold text-foreground block">NR RedCap (Reduced Capability)</span>
+            <span class="font-bold text-foreground block">{$LL.qualcomm.capability.redcap()}</span>
             <span class="text-[10px] text-muted font-mono">[NR_REDCAP]</span>
           </div>
           {#if themeStore.useSakugaControls()}
@@ -563,7 +564,7 @@
 
         <label class="flex items-center justify-between p-2 bg-card-sub border border-border rounded cursor-pointer">
           <div class="space-y-0.5">
-            <span class="font-bold text-foreground block">NR Dual SIM Dual Active (DSDA)</span>
+            <span class="font-bold text-foreground block">{$LL.qualcomm.capability.nrDsda()}</span>
             <span class="text-[10px] text-muted font-mono">[NR_NR_DSDA]</span>
           </div>
           {#if themeStore.useSakugaControls()}
@@ -575,7 +576,7 @@
 
         <label class="flex items-center justify-between p-2 bg-card-sub border border-border rounded cursor-pointer">
           <div class="space-y-0.5">
-            <span class="font-bold text-foreground block">Limit RF MIMO</span>
+            <span class="font-bold text-foreground block">{$LL.qualcomm.capability.limitRfMimo()}</span>
             <span class="text-[10px] text-muted font-mono">[NR_LIMIT_RF_MIMO]</span>
           </div>
           {#if themeStore.useSakugaControls()}
@@ -598,35 +599,35 @@
           {:else}
           <input type="checkbox" bind:checked={restartSSR} class="w-4 h-4 accent-accent" />
           {/if}
-          <span>Restart Modem (SSR) after write</span>
+          <span>{$LL.qualcomm.capability.restartAfterWrite()}</span>
         </label>
         <button
           type="button"
           class="text-xs text-accent hover:underline font-bold cursor-pointer"
           onclick={() => (showFilesTable = !showFilesTable)}
         >
-          {showFilesTable ? 'Hide File Mapping' : 'Show EFS File Mapping'}
+          {showFilesTable ? $LL.qualcomm.capability.hideMapping() : $LL.qualcomm.capability.showMapping()}
         </button>
       </div>
 
       <Button variant="primary" onclick={promptApply} disabled={isSaving} class="gap-2">
         <Save class="w-4 h-4" />
-        <span>Apply Capabilities to Modem</span>
+        <span>{$LL.qualcomm.capability.apply()}</span>
       </Button>
     </div>
 
     <!-- EFS FILES STATUS TABLE -->
     {#if showFilesTable && capState.files && capState.files.length > 0}
       <div class="pt-3 border-t-2 border-border/60 space-y-2">
-        <span class="text-[10px] text-muted uppercase font-bold tracking-wider block">Detected EFS Files on this Baseband:</span>
+        <span class="text-[10px] text-muted uppercase font-bold tracking-wider block">{$LL.qualcomm.capability.detectedFiles()}</span>
         <div class="overflow-x-auto">
           <table class="w-full text-left text-xs font-mono">
             <thead>
               <tr class="border-b border-border/60 text-muted">
-                <th class="py-1.5 px-2">Path</th>
-                <th class="py-1.5 px-2">Description</th>
-                <th class="py-1.5 px-2">Status</th>
-                <th class="py-1.5 px-2">Size</th>
+                <th class="py-1.5 px-2">{$LL.qualcomm.capability.thPath()}</th>
+                <th class="py-1.5 px-2">{$LL.qualcomm.capability.thDesc()}</th>
+                <th class="py-1.5 px-2">{$LL.common.status()}</th>
+                <th class="py-1.5 px-2">{$LL.qualcomm.capability.thSize()}</th>
               </tr>
             </thead>
             <tbody>
@@ -641,7 +642,7 @@
                       <span class="text-red-400">ABSENT</span>
                     {/if}
                     {#if f.write_only}
-                      <span class="ml-1 text-[9px] px-1 bg-amber-500/20 text-amber-700 dark:text-amber-300 rounded">WRITE-ONLY</span>
+                      <span class="ml-1 text-[9px] px-1 bg-amber-500/20 text-amber-700 dark:text-amber-300 rounded">{$LL.qualcomm.capability.writeOnlyBadge()}</span>
                     {/if}
                   </td>
                   <td class="py-1.5 px-2 text-muted">{f.size !== undefined ? `${f.size} B` : '-'}</td>
@@ -656,18 +657,18 @@
 </div>
 
 <!-- CONFIRMATION MODAL -->
-<Modal bind:open={showConfirmModal} title="Confirm RRC Capabilities Write" size="md">
+<Modal bind:open={showConfirmModal} title={$LL.qualcomm.capability.confirmTitle()} size="md">
   {#snippet children()}
     <div class="space-y-3 text-xs text-foreground">
       <div class="p-3 bg-amber-500/10 border border-amber-500/30 rounded flex items-start gap-2">
         <AlertTriangle class="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
         <p class="leading-relaxed text-amber-900 dark:text-amber-200">
-          This operation will write the configured capability state to modem EFS item files. The existing files will be automatically backed up before overwriting.
+          {$LL.qualcomm.capability.confirmBody()}
         </p>
       </div>
 
       <div class="space-y-1">
-        <span class="text-[10px] uppercase font-bold text-muted block">Reconstructed Token Payload:</span>
+        <span class="text-[10px] uppercase font-bold text-muted block">{$LL.qualcomm.capability.tokenPayload()}</span>
         <div class="p-2.5 bg-card-sub border-2 border-border rounded font-mono break-all text-xs">
           {liveTokens || '[NO_TOKENS]'}
         </div>
@@ -679,7 +680,7 @@
         {:else}
         <input type="checkbox" bind:checked={restartSSR} class="w-4 h-4 accent-accent" />
         {/if}
-        <span>Perform Subsystem Restart (SSR) immediately after write</span>
+        <span>{$LL.qualcomm.capability.ssrAfterWrite()}</span>
       </label>
     </div>
   {/snippet}
@@ -687,10 +688,10 @@
   {#snippet footer()}
     <div class="flex items-center justify-end gap-2">
       <Button variant="outline" size="sm" onclick={() => (showConfirmModal = false)}>
-        Cancel
+        {$LL.common.cancel()}
       </Button>
       <Button variant="primary" size="sm" onclick={confirmApply} disabled={isSaving}>
-        {isSaving ? 'Writing to EFS...' : 'Confirm & Apply to EFS'}
+        {isSaving ? $LL.qualcomm.capability.writing() : $LL.qualcomm.capability.confirmApply()}
       </Button>
     </div>
   {/snippet}

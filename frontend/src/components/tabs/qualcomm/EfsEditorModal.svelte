@@ -11,6 +11,7 @@
   import Badge from '../../ui/Badge.svelte'
   import { themeStore } from '../../../stores/theme.svelte'
   import SakugaCheckbox from '../../ui/SakugaCheckbox.svelte'
+  import { LL } from '../../../i18n/i18n-svelte'
 
   interface Props {
     open: boolean
@@ -53,7 +54,7 @@
 
 <Modal
   bind:open={open}
-  title={activeFile ? `EFS File: ${activeFile.path}` : 'View File'}
+  title={activeFile ? $LL.qualcomm.efsEditor.fileTitle({ path: activeFile.path }) : $LL.qualcomm.efsEditor.viewFile()}
   size="xl"
 >
   {#if activeFile}
@@ -62,7 +63,7 @@
         <div class="flex items-center gap-2">
           <Badge variant="info">{formatBytes(activeFile.size)}</Badge>
           <Badge variant={activeFile.is_binary ? 'warning' : 'default'}>
-            {activeFile.is_binary ? 'Binary / Item File' : 'Plain Text / XML'}
+            {activeFile.is_binary ? $LL.qualcomm.efsEditor.binary() : $LL.qualcomm.efsEditor.plainText()}
           </Badge>
         </div>
 
@@ -88,7 +89,7 @@
               onclick={() => (editorMode = 'ca')}
             >
               <Radio class="w-3.5 h-3.5" />
-              <span>CA Combos ({activeFile.carrier_policy.total_combos})</span>
+              <span>{$LL.qualcomm.efsEditor.caCombos({ count: activeFile.carrier_policy.total_combos })}</span>
             </button>
           {/if}
         </div>
@@ -100,28 +101,28 @@
           <!-- Policy Summary Cards -->
           <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
             <div class="bg-zinc-950 p-2 rounded border border-border">
-              <span class="text-[10px] text-muted uppercase font-bold block">Policy / Config</span>
+              <span class="text-[10px] text-muted uppercase font-bold block">{$LL.qualcomm.efsEditor.policyConfig()}</span>
               <span class="text-xs font-bold text-foreground truncate block">
                 {policy.policy_name || 'Carrier Policy'} {policy.policy_ver ? `(v${policy.policy_ver})` : ''}
               </span>
             </div>
 
             <div class="bg-zinc-950 p-2 rounded border border-border">
-              <span class="text-[10px] text-muted uppercase font-bold block">Total Combos</span>
-              <span class="text-xs font-bold text-cyan-400 block">{policy.total_combos} combinations</span>
+              <span class="text-[10px] text-muted uppercase font-bold block">{$LL.qualcomm.efsEditor.totalCombos()}</span>
+              <span class="text-xs font-bold text-cyan-400 block">{$LL.qualcomm.efsEditor.combinations({ count: policy.total_combos })}</span>
             </div>
 
             <div class="bg-zinc-950 p-2 rounded border border-border">
-              <span class="text-[10px] text-muted uppercase font-bold block">Max DL Streams</span>
+              <span class="text-[10px] text-muted uppercase font-bold block">{$LL.qualcomm.efsEditor.maxDlStreams()}</span>
               <span class="text-xs font-bold text-amber-400 block">
-                {policy.max_streams} Streams {policy.max_streams >= 4 ? '(4x4 MIMO)' : '(2x2 MIMO)'}
+                {$LL.qualcomm.efsEditor.streams({ count: policy.max_streams, mimo: policy.max_streams >= 4 ? '(4x4 MIMO)' : '(2x2 MIMO)' })}
               </span>
             </div>
 
             <div class="bg-zinc-950 p-2 rounded border border-border">
-              <span class="text-[10px] text-muted uppercase font-bold block">Supported Bands</span>
+              <span class="text-[10px] text-muted uppercase font-bold block">{$LL.qualcomm.efsEditor.supportedBands()}</span>
               <span class="text-xs font-bold text-emerald-400 block truncate">
-                {policy.bands_supported.length} bands (B{policy.bands_supported.slice(0, 5).join(', B')}{policy.bands_supported.length > 5 ? '...' : ''})
+                {$LL.qualcomm.efsEditor.bandsCount({ count: policy.bands_supported.length, list: 'B' + policy.bands_supported.slice(0, 5).join(', B') + (policy.bands_supported.length > 5 ? '...' : '') })}
               </span>
             </div>
           </div>
@@ -129,13 +130,13 @@
           <!-- Quick Band Filter Chips -->
           {#if policy.bands_supported.length > 0}
             <div class="flex items-center gap-1.5 flex-wrap bg-zinc-950/70 p-2 rounded border border-border/60">
-              <span class="text-[10px] font-bold text-muted uppercase mr-1">Quick Band:</span>
+              <span class="text-[10px] font-bold text-muted uppercase mr-1">{$LL.qualcomm.efsEditor.quickBand()}</span>
               <button
                 type="button"
                 class="px-2 py-0.5 rounded text-[10px] font-bold cursor-pointer transition-colors {caSearchBand === '' ? 'bg-cyan-500 text-black' : 'bg-card-sub text-muted hover:text-foreground'}"
                 onclick={() => (caSearchBand = '')}
               >
-                All
+                {$LL.common.all()}
               </button>
               {#each policy.bands_supported as b}
                 <button
@@ -158,7 +159,7 @@
                 <input
                   type="text"
                   bind:value={caSearchBand}
-                  placeholder="Filter band (e.g. 3, 28, 66)..."
+                  placeholder={$LL.qualcomm.efsEditor.filterBandPlaceholder()}
                   class="w-full bg-zinc-950 border border-border rounded pl-8 pr-3 py-1.5 text-xs text-foreground placeholder:text-muted focus:outline-none focus:border-cyan-500"
                 />
               </div>
@@ -170,21 +171,21 @@
                   class="px-2 py-1 cursor-pointer {caMimoFilter === 'all' ? 'bg-cyan-500 text-black' : 'bg-zinc-950 text-muted'}"
                   onclick={() => (caMimoFilter = 'all')}
                 >
-                  All MIMO
+                  {$LL.qualcomm.efsEditor.allMimo()}
                 </button>
                 <button
                   type="button"
                   class="px-2 py-1 cursor-pointer {caMimoFilter === '4x4' ? 'bg-cyan-500 text-black' : 'bg-zinc-950 text-muted'}"
                   onclick={() => (caMimoFilter = '4x4')}
                 >
-                  4x4 Only
+                  {$LL.qualcomm.efsEditor.mimo4Only()}
                 </button>
                 <button
                   type="button"
                   class="px-2 py-1 cursor-pointer {caMimoFilter === '2x2' ? 'bg-cyan-500 text-black' : 'bg-zinc-950 text-muted'}"
                   onclick={() => (caMimoFilter = '2x2')}
                 >
-                  2x2 Only
+                  {$LL.qualcomm.efsEditor.mimo2Only()}
                 </button>
               </div>
 
@@ -195,7 +196,7 @@
                 {:else}
                 <input type="checkbox" bind:checked={caUlFilter} class="rounded border-border accent-cyan-500" />
                 {/if}
-                <span>Uplink CA Only</span>
+                <span>{$LL.qualcomm.efsEditor.ulCaOnly()}</span>
               </label>
             </div>
 
@@ -205,16 +206,16 @@
                 type="button"
                 class="px-2.5 py-1 bg-zinc-900 hover:bg-zinc-800 text-foreground border border-border rounded text-[11px] font-bold flex items-center gap-1 cursor-pointer"
                 onclick={copyAllCombos}
-                title="Copy raw combination list"
+                title={$LL.qualcomm.efsEditor.copyListTitle()}
               >
                 <Copy class="w-3.5 h-3.5 text-cyan-400" />
-                <span>Copy List</span>
+                <span>{$LL.qualcomm.efsEditor.copyList()}</span>
               </button>
               <button
                 type="button"
                 class="px-2.5 py-1 bg-zinc-900 hover:bg-zinc-800 text-foreground border border-border rounded text-[11px] font-bold flex items-center gap-1 cursor-pointer"
                 onclick={exportCombosJson}
-                title="Export combination data as JSON"
+                title={$LL.qualcomm.efsEditor.exportJsonTitle()}
               >
                 <Download class="w-3.5 h-3.5 text-emerald-400" />
                 <span>JSON</span>
@@ -227,18 +228,18 @@
             <table class="w-full text-left text-xs border-collapse">
               <thead class="bg-card-sub sticky top-0 border-b-2 border-border z-10 text-[10px] uppercase font-bold text-muted">
                 <tr>
-                  <th class="p-2 w-12 text-center">#</th>
-                  <th class="p-2">Component Carriers (Bands & MIMO)</th>
-                  <th class="p-2 w-28 text-center">DL Streams</th>
-                  <th class="p-2 w-32 text-center">BCS</th>
-                  <th class="p-2 w-16 text-right">Action</th>
+                  <th class="p-2 w-12 text-center">{$LL.qualcomm.efsEditor.thIndex()}</th>
+                  <th class="p-2">{$LL.qualcomm.efsEditor.thComponents()}</th>
+                  <th class="p-2 w-28 text-center">{$LL.qualcomm.efsEditor.thDlStreams()}</th>
+                  <th class="p-2 w-32 text-center">{$LL.qualcomm.efsEditor.thBcs()}</th>
+                  <th class="p-2 w-16 text-right">{$LL.qualcomm.efsEditor.thAction()}</th>
                 </tr>
               </thead>
               <tbody class="divide-y divide-border bg-zinc-950 font-mono">
                 {#if filteredCaCombos.length === 0}
                   <tr>
                     <td colspan="5" class="p-8 text-center text-muted">
-                      <span>No carrier policy combinations match your filter criteria.</span>
+                      <span>{$LL.qualcomm.efsEditor.noCombosMatch()}</span>
                     </td>
                   </tr>
                 {:else}
@@ -287,7 +288,7 @@
                       <!-- DL Streams -->
                       <td class="p-2 text-center">
                         <span class="px-2 py-0.5 rounded text-[10px] font-bold {combo.total_streams >= 8 ? 'bg-cyan-950 text-cyan-300 border border-cyan-600/40' : combo.total_streams >= 4 ? 'bg-emerald-950 text-emerald-300 border border-emerald-600/40' : 'bg-zinc-800 text-zinc-300'}">
-                          {combo.total_streams} Streams
+                          {$LL.qualcomm.efsEditor.streamsCount({ count: combo.total_streams })}
                         </span>
                       </td>
 
@@ -303,7 +304,7 @@
                         <button
                           type="button"
                           class="p-1 hover:text-cyan-400 rounded cursor-pointer text-muted transition-colors"
-                          title="Copy combination string"
+                          title={$LL.qualcomm.efsEditor.copyComboTitle()}
                           onclick={() => copySingleCombo(combo.raw_combo_string)}
                         >
                           <Copy class="w-3.5 h-3.5" />
@@ -321,7 +322,7 @@
           bind:value={editorTextContent}
           rows="18"
           class="neo-input w-full bg-zinc-950 border-2 border-border rounded p-3 font-mono text-xs text-foreground focus:outline-none focus:border-accent"
-          placeholder="File content..."
+          placeholder={$LL.qualcomm.efsEditor.fileContentPlaceholder()}
         ></textarea>
       {:else}
         <div class="bg-zinc-950 p-3 rounded border-2 border-border max-h-[350px] overflow-y-auto break-all font-mono text-[11px] leading-relaxed text-cyan-300">
@@ -332,7 +333,7 @@
       {#if status.readonly}
         <div class="p-2 bg-amber-950/30 border border-amber-600/40 rounded text-amber-300 text-[11px] flex items-center gap-2">
           <AlertTriangle class="w-4 h-4 shrink-0 text-amber-400" />
-          <span>Modem filesystem is in Read-Only mode. Unlock write access in the toolbar to save changes.</span>
+          <span>{$LL.qualcomm.efsEditor.readonlyNote()}</span>
         </div>
       {/if}
     </div>
@@ -346,17 +347,17 @@
         onclick={() => downloadFile(activeFile?.path || '')}
       >
         <Download class="w-3.5 h-3.5 mr-1" />
-        <span>Download File</span>
+        <span>{$LL.qualcomm.efsEditor.downloadFile()}</span>
       </Button>
 
       <div class="flex items-center gap-2">
         {#if editorMode === 'ca'}
           <span class="text-[11px] text-muted hidden sm:inline">
-            Carrier Policy View Mode. Switch to Text mode to edit XML directly.
+            {$LL.qualcomm.efsEditor.caViewNote()}
           </span>
         {/if}
         <Button variant="secondary" size="sm" onclick={() => (open = false)}>
-          Cancel
+          {$LL.common.cancel()}
         </Button>
         <Button
           variant="primary"
@@ -364,7 +365,7 @@
           disabled={status.readonly || isSavingFile || editorMode === 'ca'}
           onclick={saveFile}
         >
-          <span>{isSavingFile ? 'Saving...' : 'Save to EFS'}</span>
+          <span>{isSavingFile ? $LL.qualcomm.efsEditor.saving() : $LL.qualcomm.efsEditor.save()}</span>
         </Button>
       </div>
     </div>
