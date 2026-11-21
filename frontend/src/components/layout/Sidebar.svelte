@@ -31,6 +31,8 @@
   } from '@lucide/svelte'
   import { navigationStore, AVAILABLE_TABS, type TabItem } from '../../stores/navigation.svelte'
   import { themeStore } from '../../stores/theme.svelte'
+  import { LL } from '../../i18n/i18n-svelte'
+  import { tNav } from '../../lib/nav-labels'
 
   // Explicit mapping of tab id to icon component
   // svelte-ignore non_reactive_update
@@ -163,14 +165,14 @@
         <div class="font-mono font-bold text-sm tracking-wider uppercase text-foreground leading-tight">
           BFR WEBUI
         </div>
-        <span class="text-[9px] font-mono text-accent font-bold uppercase">System Panel</span>
+        <span class="text-[9px] font-mono text-accent font-bold uppercase">{$LL.nav.systemPanel()}</span>
       </div>
     </div>
     <button
       type="button"
       class="p-1.5 rounded border border-border text-foreground hover:bg-card-sub cursor-pointer transition-colors"
       onclick={() => navigationStore.toggleSidebar()}
-      aria-label="Close navigation"
+      aria-label={$LL.common.closeNav()}
     >
       <X class="w-5 h-5" />
     </button>
@@ -194,12 +196,12 @@
           <div class="flex items-center gap-2 min-w-0">
             <CategoryIcon class="w-3.5 h-3.5 text-accent shrink-0" />
             <span class="text-[10px] font-mono font-bold uppercase tracking-wider text-muted group-hover:text-foreground transition-colors truncate">
-              {cat.label}
+              {tNav($LL, 'categoryTitles', cat.key, cat.label)}
             </span>
             {#if !accordions[cat.key] && hasActiveTab}
               <span
                 class="w-2 h-2 rounded-full bg-accent animate-pulse shrink-0"
-                title="Active tab inside collapsed category"
+                title={$LL.nav.activeTabInside()}
               ></span>
             {/if}
           </div>
@@ -228,7 +230,7 @@
                 {#if IconComponent}
                   <IconComponent class="w-4 h-4 shrink-0 {isActive ? '' : 'text-muted'}" />
                 {/if}
-                <span class="truncate">{tab.label}</span>
+                <span class="truncate">{tNav($LL, 'tabs', tab.id, tab.label)}</span>
                 {#if tab.badge}
                   {#if themeStore.currentStyle === 'neobrutal'}
                     <span class="border border-black shadow-[1px_1px_0px_#000] px-1.5 py-0.2 rounded text-[9px] font-mono font-black uppercase tracking-wider ml-auto shrink-0 select-none {BADGE_COLOR_MAP[tab.badgeColor || 'mint'] || 'bg-[#c8f5d0] text-black'}">

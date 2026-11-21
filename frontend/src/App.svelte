@@ -13,6 +13,7 @@
   import { navigationStore, AVAILABLE_TABS } from './stores/navigation.svelte'
   import { sysinfoStore } from './stores/sysinfo.svelte'
   import { themeStore } from './stores/theme.svelte'
+  import { LL } from './i18n/i18n-svelte'
 
   onMount(() => {
     authStore.checkStatus()
@@ -89,7 +90,7 @@
     {#key navigationStore.activeTab}
       {#await activeTabPromise}
         <div class="w-full flex items-center justify-center py-16 text-muted">
-          <span class="animate-pulse text-sm">Loading…</span>
+          <span class="animate-pulse text-sm">{$LL.common.loading()}</span>
         </div>
       {:then module}
         <div in:fly={{ y: 8, duration: 160, easing: cubicOut }} class="w-full">
@@ -97,7 +98,7 @@
         </div>
       {:catch}
         <div class="w-full text-center py-16 text-red-400 text-sm">
-          Failed to load this tab. Please try again.
+          {$LL.app.tabLoadFailed()}
         </div>
       {/await}
     {/key}
@@ -109,7 +110,7 @@
   <div class="min-h-screen flex items-center justify-center bg-background text-foreground">
     <div class="flex flex-col items-center gap-3">
       <div class="w-8 h-8 rounded-full border-2 border-accent border-t-transparent animate-spin"></div>
-      <span class="text-sm text-muted">Connecting…</span>
+      <span class="text-sm text-muted">{$LL.app.connecting()}</span>
     </div>
   </div>
 {:else if authStore.authenticated === false}

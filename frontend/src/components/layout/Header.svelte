@@ -12,6 +12,7 @@
     KeyRound,
   } from '@lucide/svelte'
   import { themeStore } from '../../stores/theme.svelte'
+  import { LL } from '../../i18n/i18n-svelte'
   import { authStore } from '../../stores/auth.svelte'
   import { sysinfoStore } from '../../stores/sysinfo.svelte'
   import { navigationStore } from '../../stores/navigation.svelte'
@@ -26,16 +27,18 @@
     const stats = sysinfoStore.stats
     if (!stats) return ''
     const freeBytes = stats.mem_available || stats.mem_free
+    let value = ''
     if (!freeBytes) {
       if (stats.mem_used_pct !== undefined) {
-        return `RAM: ${(100 - stats.mem_used_pct).toFixed(0)}% Free`
+        value = `${(100 - stats.mem_used_pct).toFixed(0)}%`
+      } else {
+        return ''
       }
-      return ''
+    } else {
+      const gb = freeBytes / (1024 * 1024 * 1024)
+      value = gb >= 1 ? `${gb.toFixed(1)} GB` : `${(freeBytes / (1024 * 1024)).toFixed(0)} MB`
     }
-    const gb = freeBytes / (1024 * 1024 * 1024)
-    if (gb >= 1) return `RAM: ${gb.toFixed(1)} GB Free`
-    const mb = freeBytes / (1024 * 1024)
-    return `RAM: ${mb.toFixed(0)} MB Free`
+    return $LL.header.ramFree({ value })
   })
 
   const uptimeText = $derived.by(() => {
@@ -48,7 +51,7 @@
     if (d > 0) parts.push(`${d}d`)
     if (h > 0) parts.push(`${h}h`)
     if (parts.length === 0 || (d === 0 && m > 0)) parts.push(`${m}m`)
-    return parts.join(' ')
+    return $LL.header.uptime({ time: parts.join(' ') })
   })
 </script>
 
@@ -61,7 +64,7 @@
           type="button"
           class="md:hidden p-1.5 rounded border border-border text-foreground hover:bg-card-sub cursor-pointer"
           onclick={() => navigationStore.toggleSidebar()}
-          aria-label="Toggle navigation"
+          aria-label={$LL.header.toggleNav()}
         >
           {#if navigationStore.sidebarOpen}
             <X class="w-5 h-5" />
@@ -97,7 +100,7 @@
       {#if sysinfoStore.stats && sysinfoStore.stats.battery_level !== undefined}
         <div
           class="flex items-center gap-1.5 px-2 py-1 rounded bg-card-sub border border-border text-foreground select-none"
-          title="Battery: {sysinfoStore.stats.battery_level}% ({sysinfoStore.stats.battery_status || 'Discharging'})"
+          title={$LL.header.battery({ level: sysinfoStore.stats.battery_level, status: sysinfoStore.stats.battery_status || $LL.header.discharging() })}
         >
           {#if sysinfoStore.stats.battery_status === 'Charging'}
             <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 beacon-pulse inline-block mr-0.5"></span>
@@ -113,7 +116,7 @@
       {#if sysinfoStore.stats?.cpu_temp}
         <div
           class="flex items-center gap-1.5 px-2 py-1 rounded bg-card-sub border border-border text-foreground select-none"
-          title="CPU Temperature"
+          title={$LL.header.cpuTemp()}
         >
           <Thermometer class="w-3.5 h-3.5 text-amber-400" />
           <span>{sysinfoStore.stats.cpu_temp.toFixed(1)}°C</span>
@@ -124,7 +127,7 @@
       {#if freeRamText}
         <div
           class="hidden md:flex items-center gap-1.5 px-2 py-1 rounded bg-card-sub border border-border text-foreground select-none"
-          title="Available Physical RAM"
+          title={$LL.header.ramAvailable()}
         >
           <Cpu class="w-3.5 h-3.5 text-accent" />
           <span>{freeRamText}</span>
@@ -135,7 +138,7 @@
       {#if uptimeText}
         <div
           class="hidden lg:flex items-center gap-1.5 px-2 py-1 rounded bg-card-sub border border-border text-foreground select-none"
-          title="System Uptime"
+          title={$LL.header.uptimeTitle()}
         >
           <Clock class="w-3.5 h-3.5 text-blue-400" />
           <span>Up: {uptimeText}</span>
@@ -150,10 +153,10 @@
         type="button"
         class="flex items-center gap-1.5 px-2.5 py-1 text-xs font-mono font-bold rounded bg-card-sub border border-border text-foreground hover:border-accent cursor-pointer transition-colors"
         onclick={() => (showAppearanceModal = true)}
-        title="Appearance Studio (Theme & Style)"
+        title={$LL.header.appearance()}
       >
         <Palette class="w-3.5 h-3.5 text-accent" />
-        <span class="hidden sm:inline uppercase text-[11px]">Theme</span>
+        <span class="hidden sm:inline uppercase text-[11px]">{$LL.header.theme()}</span>
       </button>
 
       <!-- Change Password Button -->
@@ -162,8 +165,8 @@
           type="button"
           class="p-1.5 rounded bg-card-sub border border-border text-muted hover:text-accent hover:border-accent cursor-pointer transition-colors"
           onclick={() => (showChangePasswordModal = true)}
-          title="Change Admin Password"
-          aria-label="Change Admin Password"
+          title={$LL.header.changePassword()}
+          aria-label={$LL.header.changePassword()}
         >
           <KeyRound class="w-4 h-4" />
         </button>
@@ -175,8 +178,8 @@
           type="button"
           class="p-1.5 rounded bg-card-sub border border-border text-muted hover:text-red-400 hover:border-red-500 cursor-pointer transition-colors"
           onclick={() => authStore.logout()}
-          title="Logout"
-          aria-label="Logout"
+          title={$LL.header.logout()}
+          aria-label={$LL.header.logout()}
         >
           <LogOut class="w-4 h-4" />
         </button>

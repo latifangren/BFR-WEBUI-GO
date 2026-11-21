@@ -11,6 +11,7 @@
   } from '@lucide/svelte'
   import { authStore } from '../../stores/auth.svelte'
   import { themeStore } from '../../stores/theme.svelte'
+  import { LL } from '../../i18n/i18n-svelte'
   import { sysinfoStore } from '../../stores/sysinfo.svelte'
   import { fireSakugaFx } from '../../lib/sakuga-fx'
   import AppearanceModal from './AppearanceModal.svelte'
@@ -87,11 +88,11 @@
       type="button"
       class="flex items-center gap-1.5 px-3 py-1.5 font-mono text-xs font-bold uppercase transition-all cursor-pointer {themeStore.currentStyle === 'neobrutal' ? 'bg-card border-2 border-border shadow-neobrutal-sm text-foreground hover:bg-card-sub rounded active:translate-x-0.5 active:translate-y-0.5' : 'bg-card/90 backdrop-blur-md border border-border text-foreground hover:bg-card-sub rounded-xl shadow-sm hover:shadow active:scale-95'}"
       onclick={() => (showAppearance = true)}
-      title="Appearance & Theme Customization"
+      title={$LL.login.appearanceTitle()}
     >
       <Palette class="w-3.5 h-3.5 text-accent" />
-      <span class="hidden sm:inline">Appearance</span>
-      <span class="sm:hidden">Theme</span>
+      <span class="hidden sm:inline">{$LL.login.appearance()}</span>
+      <span class="sm:hidden">{$LL.login.theme()}</span>
     </button>
   </header>
 
@@ -115,7 +116,7 @@
           <p class="text-xs text-muted font-mono mt-1 truncate max-w-[280px] sm:max-w-none mx-auto">
             {sysinfoStore.stats?.model
               ? `${sysinfoStore.stats.model} • Android ${sysinfoStore.stats.android_ver || 'OS'}`
-              : 'Android Root Control Panel'}
+              : $LL.login.subtitleFallback()}
           </p>
         </div>
       </div>
@@ -124,14 +125,14 @@
       <form onsubmit={handleSubmit} class="space-y-4 font-mono">
         <div class="space-y-1.5">
           <label for="pwd" class="block text-xs font-bold uppercase tracking-wider text-muted">
-            Access Password
+            {$LL.login.accessPassword()}
           </label>
           <div class="relative">
             <input
               id="pwd"
               type={showPassword ? 'text' : 'password'}
               bind:value={password}
-              placeholder="Enter access password"
+              placeholder={$LL.login.passwordPlaceholder()}
               required
               class="w-full bg-card-sub border-2 border-border pl-4 pr-11 py-3 text-sm text-foreground focus:outline-none focus:border-accent rounded font-mono transition placeholder:text-muted"
             />
@@ -139,8 +140,8 @@
               type="button"
               onclick={() => (showPassword = !showPassword)}
               class="absolute right-3 top-1/2 -translate-y-1/2 text-muted hover:text-foreground transition p-1 cursor-pointer select-none"
-              title="Toggle password visibility"
-              aria-label="Toggle password visibility"
+              title={$LL.login.togglePassword()}
+              aria-label={$LL.login.togglePassword()}
             >
               {#if showPassword}
                 <EyeOff class="w-4 h-4" />
@@ -153,20 +154,20 @@
 
         <!-- Quick Access Auto-Fill Row -->
         <div class="flex items-center justify-between text-xs pt-0.5">
-          <span class="text-muted">Quick Access:</span>
+          <span class="text-muted">{$LL.login.quickAccess()}</span>
           {#if authStore.isDefaultPass}
             <button
               type="button"
               onclick={autofillDefault}
               class="px-2.5 py-1 rounded-lg text-[10px] font-bold bg-accent/10 text-accent hover:bg-accent/20 border border-accent/30 transition active:scale-95 cursor-pointer select-none flex items-center gap-1"
             >
-              <span>Default: <strong>bfr</strong></span>
-              <span class="opacity-75">(Tap to fill)</span>
+              <span>{$LL.login.defaultLabel()} <strong>bfr</strong></span>
+              <span class="opacity-75">{$LL.login.tapToFill()}</span>
             </button>
           {:else}
             <span class="px-2.5 py-1 rounded-lg text-[10px] font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 flex items-center gap-1 select-none">
               <ShieldCheck class="w-3 h-3" />
-              <span>Custom Password Active</span>
+              <span>{$LL.login.customPasswordActive()}</span>
             </span>
           {/if}
         </div>
@@ -189,9 +190,9 @@
         >
           {#if authStore.isLoading}
             <span class="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin"></span>
-            <span>Authenticating...</span>
+            <span>{$LL.login.authenticating()}</span>
           {:else}
-            <span>Sign In</span>
+            <span>{$LL.login.signIn()}</span>
             <ArrowRight class="w-4 h-4" />
           {/if}
         </button>
@@ -204,7 +205,7 @@
             <div class="w-full border-t border-border/60"></div>
           </div>
           <div class="relative flex justify-center text-[10px] uppercase tracking-wider">
-            <span class="bg-card px-3 text-muted font-bold">Connect & Community</span>
+            <span class="bg-card px-3 text-muted font-bold">{$LL.login.connectCommunity()}</span>
           </div>
         </div>
 
