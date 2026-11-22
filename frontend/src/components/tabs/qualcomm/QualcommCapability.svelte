@@ -325,7 +325,7 @@
             <span class="text-[10px] text-muted font-mono">[LTE_DL_MIMO]</span>
           </div>
 {#if themeStore.useSakugaControls()}
-            <SakugaRadio value={String(capState.lte.max_mimo_layer)} label="Downlink MIMO Layers"
+            <SakugaRadio value={String(capState.lte.max_mimo_layer)} label={$LL.qualcomm.capability.dlMimo()}
               options={[{ value: '2', label: $LL.qualcomm.capability.mimo2() }, { value: '4', label: $LL.qualcomm.capability.mimo4() }]}
               onchange={(e) => { capState.lte.max_mimo_layer = Number((e.target as any).value) }} />
           {:else}

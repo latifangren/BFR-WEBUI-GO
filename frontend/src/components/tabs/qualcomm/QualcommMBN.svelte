@@ -303,7 +303,7 @@
       <div class="p-3 bg-card-sub border-2 border-border rounded space-y-2">
         <span class="text-[10px] text-muted uppercase font-bold tracking-wider block">{$LL.qualcomm.mbn.autoselectLabel()}</span>
 {#if themeStore.useSakugaControls()}
-          <SakugaRadio value={String(selectedSlot === 0 ? overview.autoselect.sim1_mode : overview.autoselect.sim2_mode)} label="MCFG Autoselect on SIM Change"
+          <SakugaRadio value={String(selectedSlot === 0 ? overview.autoselect.sim1_mode : overview.autoselect.sim2_mode)} label={$LL.qualcomm.mbn.autoselectLabel()}
             options={[{ value: '1', label: $LL.qualcomm.mbn.autoImsi() }, { value: '0', label: $LL.qualcomm.mbn.manualLock() }, { value: '2', label: $LL.qualcomm.mbn.mbnUpdateOnly() }]}
             onchange={(e) => updateAutoselect(selectedSlot, Number((e.target as any).value))} />
         {:else}
@@ -380,7 +380,7 @@
           <Badge variant="default" class="text-[9px] font-mono">{$LL.qualcomm.mbn.current({ mode: overview.pixelparts.current.toUpperCase() })}</Badge>
         </div>
 {#if themeStore.useSakugaControls()}
-          <SakugaRadio value={overview.pixelparts.current || 'stock'} label="ROM MBN Catalog Preset"
+          <SakugaRadio value={overview.pixelparts.current || 'stock'} label={$LL.qualcomm.mbn.catalogTitle()}
             options={[{ value: 'merged', label: $LL.qualcomm.mbn.merged() }, { value: 'stock', label: $LL.qualcomm.mbn.stock() }, { value: 'module', label: $LL.qualcomm.mbn.module() }]}
             onchange={(e) => updatePixelPartsMode((e.target as any).value)} />
         {:else}

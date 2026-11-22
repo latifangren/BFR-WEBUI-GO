@@ -68,17 +68,17 @@
   function applyStateLabel(state: string | undefined, mode: string): string {
     switch (state) {
       case 'applied':
-        return 'APPLIED'
+        return $LL.hotspot.tethering.state.applied()
       case 'auto':
-        return 'ANDROID MANAGED'
+        return $LL.hotspot.tethering.state.androidManaged()
       case 'pending':
-        return 'SAVED — PENDING'
+        return $LL.hotspot.tethering.state.savedPending()
       case 'failed':
-        return 'FAILED'
+        return $LL.hotspot.tethering.state.failed()
       case 'inactive':
-        return mode === 'static' ? 'HOTSPOT OFF' : 'ANDROID MANAGED'
+        return mode === 'static' ? $LL.hotspot.tethering.state.hotspotOff() : $LL.hotspot.tethering.state.androidManaged()
       default:
-        return 'UNKNOWN'
+        return $LL.hotspot.tethering.state.unknown()
     }
   }
 
@@ -265,7 +265,7 @@
       } else if (res && res.saved && res.applied) {
         toastStore.success($LL.hotspot.tethering.toasts.routerSavedApplied())
       } else if (res && res.saved) {
-        toastStore.warning($LL.hotspot.tethering.toasts.savedNotApplied({ error: res.error || 'runtime state unchanged' }))
+        toastStore.warning($LL.hotspot.tethering.toasts.savedNotApplied({ error: res.error || $LL.hotspot.tethering.toasts.runtimeUnchanged() }))
       } else {
         toastStore.error(res?.error || $LL.hotspot.tethering.toasts.saveRouterFailed())
       }
@@ -574,7 +574,7 @@
           <div class="p-2.5 bg-card border border-warning/40 rounded-lg text-[10px] text-warning space-y-1">
             <p class="font-bold uppercase">{$LL.hotspot.tethering.router.staticWarningTitle()}</p>
             <p>
-              {$LL.hotspot.tethering.router.staticWarningBody({ gateway: routerStatus.observed_gateway || 'the static address', clientGateway: routerStatus.client_gateway || 'its own address' })}
+              {$LL.hotspot.tethering.router.staticWarningBody({ gateway: routerStatus.observed_gateway || $LL.hotspot.tethering.router.staticAddress(), clientGateway: routerStatus.client_gateway || $LL.hotspot.tethering.router.ownAddress() })}
             </p>
           </div>
         {/if}

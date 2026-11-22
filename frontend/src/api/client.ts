@@ -1,3 +1,6 @@
+import { get } from 'svelte/store'
+import { LL } from '../i18n/i18n-svelte'
+
 export class ApiError extends Error {
   status: number
   data?: unknown
@@ -64,7 +67,7 @@ export async function request<T>(endpoint: string, options: RequestInit = {}): P
       const errMsg = String(
         (data as { error?: unknown }).error ||
           (data as { message?: unknown }).message ||
-          'Operation failed'
+          get(LL).common.operationFailed()
       )
       throw new ApiError(errMsg, response.status, data)
     }

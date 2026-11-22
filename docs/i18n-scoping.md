@@ -363,9 +363,10 @@ null guard (`a785501`); the `common.deselectAll` promotion (Samsung →
 **DONE 2026-11-22:**
 - Final tree verified: `bun run check` 0 errors (2 pre-existing `svelte:component`
   warnings), `bun run build` OK, Go android/arm64 + nomodem + vet OK.
-  **35 top-level namespaces, 2,826 leaf keys (en). Dist 1,999,730 B**
-  (+335,661 B / +20.2% vs the 1,664,069 B no-i18n baseline; +303,807 B vs
-  Phase 1's 1,695,923 B).
+  **35 top-level namespaces, 2,856 leaf keys (en). Dist 2,000,811 B**
+  (+336,742 B / +20.2% vs the 1,664,069 B no-i18n baseline; +304,888 B vs
+  Phase 1's 1,695,923 B) — after the post-audit follow-up below (12 leftover
+  strings keyed, 10 unused keys removed; 2,852 → 2,856 leaves, +1,081 B).
 - Full E2E sweep: **all 29 scripts re-run once against the final tree —
   354 checks, all passing, 0 page errors** (Phase 1 24/24, Phase 2 20/20,
   Shannon/NAS/Overview/Modem/Scrcpy/Qualcomm/Samsung/Charger/Hotspot/Power
@@ -431,10 +432,11 @@ totals are the signal). Still negligible against the ~29 MB Go binary.
 
 1. ~~Switch the recommendation to typesafe-i18n (C), or stay on svelte-i18n (B)?~~
    **DECIDED 2026-11-21 ~20:40 WIB: typesafe-i18n (C).**
-2. Commit this doc to `docs/` on `feat/i18n`? (Push needs a separate approval.)
+2. ~~Commit this doc to `docs/` on `feat/i18n`?~~ **DONE 2026-11-21 ~21:41 WIB:**
+   commit `a244b7a`, pushed to origin `feat/i18n` 2026-11-21 ~22:05 WIB (with the Phase 2 batch 1 push), verified via ls-remote.
 3. ~~Start Phase 1 now (install + setup + shell translation)?~~ **DONE
-   2026-11-21 ~21:30 WIB** — all verification green (see §4 step 5). Awaiting
-   commit + push approval for `feat/i18n` (11 files changed, 9 new).
+   2026-11-21 ~21:30 WIB** — all verification green (see §4 step 5); committed
+   + pushed as `33cfcac` 2026-11-21 ~21:38 WIB (see decision 4).
 4. ~~Commit + push Phase 1 to `feat/i18n`?~~ **DONE 2026-11-21 ~21:38 WIB:**
    commit `33cfcac` (20 files, +2187/−160), pushed to origin `feat/i18n`,
    verified via ls-remote.

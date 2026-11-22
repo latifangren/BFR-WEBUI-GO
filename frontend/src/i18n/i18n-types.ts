@@ -32,10 +32,6 @@ type RootTranslation = {
 		 */
 		reset: string
 		/**
-		 * S​a​v​e
-		 */
-		save: string
-		/**
 		 * C​a​n​c​e​l
 		 */
 		cancel: string
@@ -84,14 +80,6 @@ type RootTranslation = {
 		 */
 		'delete': string
 		/**
-		 * R​e​t​r​y
-		 */
-		retry: string
-		/**
-		 * C​o​n​f​i​r​m
-		 */
-		confirm: string
-		/**
 		 * B​a​c​k
 		 */
 		back: string
@@ -116,14 +104,6 @@ type RootTranslation = {
 		 */
 		disable: string
 		/**
-		 * S​t​a​r​t
-		 */
-		start: string
-		/**
-		 * S​t​o​p
-		 */
-		stop: string
-		/**
 		 * S​e​t​t​i​n​g​s
 		 */
 		settings: string
@@ -147,10 +127,6 @@ type RootTranslation = {
 		 * S​t​a​t​u​s
 		 */
 		status: string
-		/**
-		 * D​o​n​e
-		 */
-		done: string
 		/**
 		 * P​a​u​s​e
 		 */
@@ -195,6 +171,10 @@ type RootTranslation = {
 		 * A​c​t​i​v​e
 		 */
 		active: string
+		/**
+		 * O​p​e​r​a​t​i​o​n​ ​f​a​i​l​e​d
+		 */
+		operationFailed: string
 	}
 	app: {
 		/**
@@ -313,6 +293,14 @@ type RootTranslation = {
 		 * C​o​n​n​e​c​t​ ​&​ ​C​o​m​m​u​n​i​t​y
 		 */
 		connectCommunity: string
+		/**
+		 * L​o​g​i​n​ ​f​a​i​l​e​d
+		 */
+		failed: string
+		/**
+		 * I​n​v​a​l​i​d​ ​c​r​e​d​e​n​t​i​a​l​s
+		 */
+		invalidCredentials: string
 	}
 	changePassword: {
 		/**
@@ -3634,6 +3622,11 @@ type RootTranslation = {
 			 * B​a​n​d​ ​l​o​c​k​ ​r​e​q​u​e​s​t​ ​f​a​i​l​e​d
 			 */
 			requestFailed: string
+			/**
+			 * E​x​e​c​u​t​i​o​n​ ​f​a​i​l​e​d​:​ ​{​d​e​t​a​i​l​}
+			 * @param {unknown} detail
+			 */
+			executionFailed: RequiredParams<'detail'>
 			/**
 			 * M​o​d​e​m​ ​r​e​s​t​o​r​e​d​ ​t​o​ ​a​l​l​ ​f​a​c​t​o​r​y​ ​d​e​f​a​u​l​t​ ​b​a​n​d​s​.
 			 */
@@ -7621,6 +7614,14 @@ type RootTranslation = {
 				 */
 				staticWarningBody: RequiredParams<'clientGateway' | 'gateway'>
 				/**
+				 * t​h​e​ ​s​t​a​t​i​c​ ​a​d​d​r​e​s​s
+				 */
+				staticAddress: string
+				/**
+				 * i​t​s​ ​o​w​n​ ​a​d​d​r​e​s​s
+				 */
+				ownAddress: string
+				/**
 				 * S​t​a​t​i​c​ ​G​a​t​e​w​a​y​ ​I​P
 				 */
 				staticGatewayIp: string
@@ -7685,6 +7686,32 @@ type RootTranslation = {
 				 */
 				saveRouter: string
 			}
+			state: {
+				/**
+				 * A​P​P​L​I​E​D
+				 */
+				applied: string
+				/**
+				 * A​N​D​R​O​I​D​ ​M​A​N​A​G​E​D
+				 */
+				androidManaged: string
+				/**
+				 * S​A​V​E​D​ ​—​ ​P​E​N​D​I​N​G
+				 */
+				savedPending: string
+				/**
+				 * F​A​I​L​E​D
+				 */
+				failed: string
+				/**
+				 * H​O​T​S​P​O​T​ ​O​F​F
+				 */
+				hotspotOff: string
+				/**
+				 * U​N​K​N​O​W​N
+				 */
+				unknown: string
+			}
 			toasts: {
 				/**
 				 * A​u​t​o​-​s​t​a​r​t​ ​o​n​ ​b​o​o​t​ ​f​o​r​ ​{​c​h​a​n​n​e​l​}​ ​e​n​a​b​l​e​d​.
@@ -7746,6 +7773,10 @@ type RootTranslation = {
 				 * @param {unknown} error
 				 */
 				savedNotApplied: RequiredParams<'error'>
+				/**
+				 * r​u​n​t​i​m​e​ ​s​t​a​t​e​ ​u​n​c​h​a​n​g​e​d
+				 */
+				runtimeUnchanged: string
 				/**
 				 * F​a​i​l​e​d​ ​t​o​ ​s​a​v​e​ ​r​o​u​t​e​r​ ​s​e​t​t​i​n​g​s
 				 */
@@ -8060,6 +8091,10 @@ type RootTranslation = {
 			 * T​e​l​e​m​e​t​r​y​ ​E​r​r​o​r
 			 */
 			title: string
+			/**
+			 * F​a​i​l​e​d​ ​t​o​ ​f​e​t​c​h​ ​t​e​l​e​m​e​t​r​y
+			 */
+			failedFetch: string
 		}
 		/**
 		 * L​o​a​d​i​n​g​ ​h​a​r​d​w​a​r​e​ ​c​o​u​n​t​e​r​s​ ​a​n​d​ ​t​e​l​e​m​e​t​r​y​.​.​.
@@ -9826,18 +9861,6 @@ type RootTranslation = {
 				 */
 				all: RequiredParams<'count'>
 				/**
-				 * R​a​d​i​o​ ​&​ ​E​F​S
-				 */
-				radioEfs: string
-				/**
-				 * B​o​o​t​ ​&​ ​R​e​c​o​v​e​r​y
-				 */
-				bootRecovery: string
-				/**
-				 * S​y​s​t​e​m​ ​O​S
-				 */
-				systemOs: string
-				/**
 				 * S​a​v​e​d​ ​B​a​c​k​u​p​s​ ​(​{​c​o​u​n​t​}​)
 				 * @param {unknown} count
 				 */
@@ -10242,10 +10265,6 @@ type RootTranslation = {
 			 * C​o​p​i​e​d​!
 			 */
 			copied: string
-			/**
-			 * D​o​w​n​l​o​a​d
-			 */
-			download: string
 			/**
 			 * D​o​w​n​l​o​a​d​ ​a​r​c​h​i​v​e​ ​t​o​ ​y​o​u​r​ ​d​e​v​i​c​e
 			 */
@@ -12266,10 +12285,6 @@ export type TranslationFunctions = {
 		 */
 		reset: () => LocalizedString
 		/**
-		 * Save
-		 */
-		save: () => LocalizedString
-		/**
 		 * Cancel
 		 */
 		cancel: () => LocalizedString
@@ -12318,14 +12333,6 @@ export type TranslationFunctions = {
 		 */
 		'delete': () => LocalizedString
 		/**
-		 * Retry
-		 */
-		retry: () => LocalizedString
-		/**
-		 * Confirm
-		 */
-		confirm: () => LocalizedString
-		/**
 		 * Back
 		 */
 		back: () => LocalizedString
@@ -12350,14 +12357,6 @@ export type TranslationFunctions = {
 		 */
 		disable: () => LocalizedString
 		/**
-		 * Start
-		 */
-		start: () => LocalizedString
-		/**
-		 * Stop
-		 */
-		stop: () => LocalizedString
-		/**
 		 * Settings
 		 */
 		settings: () => LocalizedString
@@ -12381,10 +12380,6 @@ export type TranslationFunctions = {
 		 * Status
 		 */
 		status: () => LocalizedString
-		/**
-		 * Done
-		 */
-		done: () => LocalizedString
 		/**
 		 * Pause
 		 */
@@ -12429,6 +12424,10 @@ export type TranslationFunctions = {
 		 * Active
 		 */
 		active: () => LocalizedString
+		/**
+		 * Operation failed
+		 */
+		operationFailed: () => LocalizedString
 	}
 	app: {
 		/**
@@ -12543,6 +12542,14 @@ export type TranslationFunctions = {
 		 * Connect & Community
 		 */
 		connectCommunity: () => LocalizedString
+		/**
+		 * Login failed
+		 */
+		failed: () => LocalizedString
+		/**
+		 * Invalid credentials
+		 */
+		invalidCredentials: () => LocalizedString
 	}
 	changePassword: {
 		/**
@@ -15826,6 +15833,10 @@ export type TranslationFunctions = {
 			 * Band lock request failed
 			 */
 			requestFailed: () => LocalizedString
+			/**
+			 * Execution failed: {detail}
+			 */
+			executionFailed: (arg: { detail: unknown }) => LocalizedString
 			/**
 			 * Modem restored to all factory default bands.
 			 */
@@ -19666,6 +19677,14 @@ export type TranslationFunctions = {
 				 */
 				staticWarningBody: (arg: { clientGateway: unknown, gateway: unknown }) => LocalizedString
 				/**
+				 * the static address
+				 */
+				staticAddress: () => LocalizedString
+				/**
+				 * its own address
+				 */
+				ownAddress: () => LocalizedString
+				/**
 				 * Static Gateway IP
 				 */
 				staticGatewayIp: () => LocalizedString
@@ -19730,6 +19749,32 @@ export type TranslationFunctions = {
 				 */
 				saveRouter: () => LocalizedString
 			}
+			state: {
+				/**
+				 * APPLIED
+				 */
+				applied: () => LocalizedString
+				/**
+				 * ANDROID MANAGED
+				 */
+				androidManaged: () => LocalizedString
+				/**
+				 * SAVED — PENDING
+				 */
+				savedPending: () => LocalizedString
+				/**
+				 * FAILED
+				 */
+				failed: () => LocalizedString
+				/**
+				 * HOTSPOT OFF
+				 */
+				hotspotOff: () => LocalizedString
+				/**
+				 * UNKNOWN
+				 */
+				unknown: () => LocalizedString
+			}
 			toasts: {
 				/**
 				 * Auto-start on boot for {channel} enabled.
@@ -19779,6 +19824,10 @@ export type TranslationFunctions = {
 				 * Settings saved but not applied: {error}
 				 */
 				savedNotApplied: (arg: { error: unknown }) => LocalizedString
+				/**
+				 * runtime state unchanged
+				 */
+				runtimeUnchanged: () => LocalizedString
 				/**
 				 * Failed to save router settings
 				 */
@@ -20088,6 +20137,10 @@ export type TranslationFunctions = {
 			 * Telemetry Error
 			 */
 			title: () => LocalizedString
+			/**
+			 * Failed to fetch telemetry
+			 */
+			failedFetch: () => LocalizedString
 		}
 		/**
 		 * Loading hardware counters and telemetry...
@@ -21790,18 +21843,6 @@ export type TranslationFunctions = {
 				 */
 				all: (arg: { count: unknown }) => LocalizedString
 				/**
-				 * Radio & EFS
-				 */
-				radioEfs: () => LocalizedString
-				/**
-				 * Boot & Recovery
-				 */
-				bootRecovery: () => LocalizedString
-				/**
-				 * System OS
-				 */
-				systemOs: () => LocalizedString
-				/**
 				 * Saved Backups ({count})
 				 */
 				savedBackups: (arg: { count: unknown }) => LocalizedString
@@ -22188,10 +22229,6 @@ export type TranslationFunctions = {
 			 * Copied!
 			 */
 			copied: () => LocalizedString
-			/**
-			 * Download
-			 */
-			download: () => LocalizedString
 			/**
 			 * Download archive to your device
 			 */

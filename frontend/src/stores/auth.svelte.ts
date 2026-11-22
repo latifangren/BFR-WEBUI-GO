@@ -1,3 +1,5 @@
+import { get } from 'svelte/store'
+import { LL } from '../i18n/i18n-svelte'
 import { api } from '../api/client'
 import type { AuthStatus, LoginPayload, LoginResponse } from '../types/auth'
 
@@ -51,10 +53,10 @@ class AuthStore {
         }
         return true
       }
-      this.loginError = res.message || 'Login failed'
+      this.loginError = res.message || get(LL).login.failed()
       return false
     } catch (err: unknown) {
-      this.loginError = err instanceof Error ? err.message : 'Invalid credentials'
+      this.loginError = err instanceof Error ? err.message : get(LL).login.invalidCredentials()
       return false
     } finally {
       this.isLoading = false

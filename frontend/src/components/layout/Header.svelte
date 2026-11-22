@@ -141,7 +141,7 @@
           title={$LL.header.uptimeTitle()}
         >
           <Clock class="w-3.5 h-3.5 text-blue-400" />
-          <span>Up: {uptimeText}</span>
+          <span>{uptimeText}</span>
         </div>
       {/if}
     </div>

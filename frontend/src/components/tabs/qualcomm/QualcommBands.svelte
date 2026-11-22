@@ -187,7 +187,7 @@
           active_lte_bands: [],
           active_nr_bands: [],
           message: msg,
-          step_logs: ['Execution failed: ' + msg],
+          step_logs: [$LL.qualcomm.bands.executionFailed({ detail: msg })],
         }
       }
       toastStore.error(verificationResult?.message || (err instanceof Error ? err.message : $LL.qualcomm.bands.requestFailed()))
