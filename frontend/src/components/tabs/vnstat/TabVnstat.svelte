@@ -7,6 +7,7 @@
     AlertTriangle,
   } from '@lucide/svelte'
   import { api } from '../../../api/client'
+  import { LL } from '../../../i18n/i18n-svelte'
   import { toastStore } from '../../../stores/toast.svelte'
   import type { StatsResponse } from '../../../types/vnstat'
   import Button from '../../ui/Button.svelte'
@@ -31,7 +32,7 @@
       const res = await api.get<StatsResponse>('/api/vnstat/stats')
       stats = res
     } catch (err: unknown) {
-      toastStore.error(err instanceof Error ? err.message : 'Failed to fetch vnstat stats')
+      toastStore.error(err instanceof Error ? err.message : $LL.vnstat.toasts.fetchFailed())
     } finally {
       isLoading = false
     }
@@ -50,18 +51,18 @@
     try {
       isResetting = true
       await api.post('/api/vnstat/reset')
-      toastStore.success('Vnstat traffic database counters reset successfully.')
+      toastStore.success($LL.vnstat.toasts.resetSuccess())
       closeResetModal()
       await fetchVnstat()
     } catch (err: unknown) {
-      toastStore.error(err instanceof Error ? err.message : 'Failed to reset vnstat database')
+      toastStore.error(err instanceof Error ? err.message : $LL.vnstat.toasts.resetFailed())
     } finally {
       isResetting = false
     }
   }
 
   function formatTime(dateStr?: string): string {
-    if (!dateStr) return 'Never'
+    if (!dateStr) return $LL.vnstat.updatedNever()
     try {
       const d = new Date(dateStr)
       return d.toLocaleTimeString('en-US', {
@@ -81,10 +82,10 @@
     <div class="flex items-center gap-2 flex-wrap">
       <Activity class="w-5 h-5 text-accent" />
       <h2 class="text-base sm:text-lg font-mono font-bold uppercase tracking-wider text-foreground">
-        Vnstat Bandwidth Accounting
+        {$LL.vnstat.title()}
       </h2>
       <Badge variant="default" class="text-[10px]">
-        Updated: {formatTime(stats?.last_updated)}
+        {$LL.vnstat.updated({ time: formatTime(stats?.last_updated) })}
       </Badge>
     </div>
 
@@ -96,10 +97,10 @@
         disabled={isResetting}
         onclick={openResetModal}
         class="border-red-900/60 hover:bg-red-950/30 text-red-400 font-mono text-xs"
-        title="Reset all interface bandwidth counters"
+        title={$LL.vnstat.resetTitle()}
       >
         <RotateCcw class="w-3.5 h-3.5 mr-1" />
-        <span>Reset Database</span>
+        <span>{$LL.vnstat.resetDatabase()}</span>
       </Button>
 
       <!-- Refresh Button -->
@@ -108,10 +109,10 @@
         size="sm"
         disabled={isLoading}
         onclick={fetchVnstat}
-        title="Refresh bandwidth telemetry"
+        title={$LL.vnstat.refreshTitle()}
       >
         <RefreshCw class="w-3.5 h-3.5 mr-1.5 {isLoading ? 'animate-spin' : ''}" />
-        <span>Refresh</span>
+        <span>{$LL.common.refresh()}</span>
       </Button>
     </div>
   </div>
@@ -129,17 +130,17 @@
 <!-- Safety Reset Confirmation Modal -->
 <Modal
   open={isResetModalOpen}
-  title="RESET VNSTAT DATABASE"
+  title={$LL.vnstat.resetModal.title()}
   onclose={closeResetModal}
 >
   <div class="space-y-3.5 text-xs font-mono">
     <div class="p-3.5 bg-red-950/40 border-2 border-red-600 rounded text-red-200 space-y-2">
       <div class="flex items-center gap-2 text-red-400 font-bold text-sm uppercase">
         <AlertTriangle size={18} class="shrink-0 text-red-500 animate-pulse" />
-        <span>Database Reset Warning</span>
+        <span>{$LL.vnstat.resetModal.warningTitle()}</span>
       </div>
       <p class="leading-relaxed">
-        Are you sure you want to reset all bandwidth statistics? This will permanently erase all interface counters (cellular, Wi-Fi, hotspot) and historical daily records. This operation <strong class="text-white underline">cannot be undone</strong>!
+        {$LL.vnstat.resetModal.bodyA()}<strong class="text-white underline">{$LL.vnstat.resetModal.bodyB()}</strong>{$LL.vnstat.resetModal.bodyC()}
       </p>
     </div>
   </div>
@@ -151,7 +152,7 @@
         disabled={isResetting}
         onclick={closeResetModal}
       >
-        Cancel
+        {$LL.common.cancel()}
       </Button>
 
       <Button
@@ -161,10 +162,10 @@
       >
         {#if isResetting}
           <RefreshCw size={14} class="animate-spin mr-1.5" />
-          <span>Resetting...</span>
+          <span>{$LL.vnstat.resetting()}</span>
         {:else}
           <RotateCcw size={14} class="mr-1.5" />
-          <span>Reset Database Now</span>
+          <span>{$LL.vnstat.resetDatabaseNow()}</span>
         {/if}
       </Button>
     </div>

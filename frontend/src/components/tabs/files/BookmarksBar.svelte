@@ -5,6 +5,7 @@
   import Input from '../../ui/Input.svelte'
   import Button from '../../ui/Button.svelte'
   import type { Bookmark as BookmarkItem } from './types'
+  import { LL } from '../../../i18n/i18n-svelte'
 
   interface Props {
     currentPath: string
@@ -13,13 +14,13 @@
 
   let { currentPath, onNavigate }: Props = $props()
 
-  const PRESETS: BookmarkItem[] = [
-    { name: 'Root', path: '/', isPreset: true },
-    { name: 'Storage', path: '/sdcard', isPreset: true },
-    { name: 'Magisk', path: '/data/adb', isPreset: true },
-    { name: 'Modules', path: '/data/adb/modules', isPreset: true },
-    { name: 'Temp', path: '/data/local/tmp', isPreset: true },
-  ]
+  const PRESETS = $derived<BookmarkItem[]>([
+    { name: $LL.files.bookmarks.root(), path: '/', isPreset: true },
+    { name: $LL.files.bookmarks.storage(), path: '/sdcard', isPreset: true },
+    { name: $LL.files.bookmarks.magisk(), path: '/data/adb', isPreset: true },
+    { name: $LL.files.bookmarks.modules(), path: '/data/adb/modules', isPreset: true },
+    { name: $LL.files.bookmarks.temp(), path: '/data/local/tmp', isPreset: true },
+  ])
 
   const STORAGE_KEY = 'bfr_fm_custom_bookmarks'
 
@@ -90,7 +91,7 @@
       type="button"
       class="inline-flex items-center gap-1 px-2.5 py-1 rounded border-2 border-border transition-all cursor-pointer shrink-0 font-bold {isActive ? 'bg-accent text-accent-text border-border shadow-neobrutal-sm' : 'bg-card-sub text-foreground hover:bg-card hover:border-accent'}"
       onclick={() => onNavigate(preset.path)}
-      title={`Go to ${preset.path}`}
+      title={$LL.files.bookmarks.goTo({ path: preset.path })}
     >
       <Folder class="w-3 h-3 opacity-70" />
       <span>{preset.name}</span>
@@ -121,8 +122,8 @@
         type="button"
         class="p-0.5 rounded-full hover:bg-red-500/20 hover:text-red-400 cursor-pointer ml-0.5 opacity-70 hover:opacity-100 transition-opacity"
         onclick={(e) => removeBookmark(bookmark.path, e)}
-        title="Remove bookmark"
-        aria-label={`Remove ${bookmark.name} bookmark`}
+        title={$LL.files.bookmarks.removeBookmark()}
+        aria-label={$LL.files.bookmarks.removeBookmarkAria({ name: bookmark.name })}
       >
         <X class="w-3 h-3" />
       </button>
@@ -134,38 +135,38 @@
     type="button"
     class="inline-flex items-center gap-1 px-2 py-1 rounded border-2 border-dashed border-border hover:border-accent text-muted hover:text-foreground transition-all cursor-pointer shrink-0"
     onclick={openAddModal}
-    title="Bookmark current location"
+    title={$LL.files.bookmarks.bookmarkCurrent()}
   >
     <Plus class="w-3 h-3" />
-    <span>Pin</span>
+    <span>{$LL.files.bookmarks.pin()}</span>
   </button>
 </div>
 
 {#if isAddModalOpen}
   <Modal
     open={true}
-    title="Pin Directory Bookmark"
+    title={$LL.files.bookmarks.pinTitle()}
     onclose={() => (isAddModalOpen = false)}
   >
     <form onsubmit={(e) => { e.preventDefault(); addBookmark() }} class="space-y-4 font-mono text-xs">
       <div>
-        <span class="text-[10px] text-muted uppercase font-bold block mb-1">Target Path</span>
+        <span class="text-[10px] text-muted uppercase font-bold block mb-1">{$LL.files.bookmarks.targetPath()}</span>
         <code class="block p-2 rounded bg-card-sub border border-border text-accent font-bold truncate text-[11px]">
           {currentPath}
         </code>
       </div>
       <Input
-        label="Bookmark Label"
-        placeholder="e.g. Config, Downloads, Magisk Modules"
+        label={$LL.files.bookmarks.bookmarkLabel()}
+        placeholder={$LL.files.bookmarks.labelPlaceholder()}
         bind:value={newBookmarkName}
       />
       <div class="flex justify-end gap-2 pt-2 border-t border-border">
         <Button variant="ghost" size="md" onclick={() => (isAddModalOpen = false)}>
-          Cancel
+          {$LL.common.cancel()}
         </Button>
         <Button type="submit" variant="primary" size="md" disabled={!newBookmarkName.trim()}>
           <Pin class="w-3.5 h-3.5 mr-1" />
-          <span>Save Bookmark</span>
+          <span>{$LL.files.bookmarks.saveBookmark()}</span>
         </Button>
       </div>
     </form>

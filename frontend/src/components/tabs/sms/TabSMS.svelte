@@ -12,6 +12,7 @@
   } from '@lucide/svelte'
   import { api } from '../../../api/client'
   import { toastStore } from '../../../stores/toast.svelte'
+  import { LL } from '../../../i18n/i18n-svelte'
   import type { SMSMessage, SMSResponse } from '../../../types/network'
   import Card from '../../ui/Card.svelte'
   import Button from '../../ui/Button.svelte'
@@ -44,7 +45,7 @@
         loadedOffset = offset + res.messages.length
       }
     } catch (err: unknown) {
-      toastStore.error(err instanceof Error ? err.message : 'Failed to load SMS inbox')
+      toastStore.error(err instanceof Error ? err.message : $LL.sms.toasts.loadFailed())
     } finally {
       isLoading = false
     }
@@ -69,12 +70,12 @@
     try {
       await navigator.clipboard.writeText(otp)
       copiedOTP = otp
-      toastStore.success(`OTP ${otp} copied to clipboard!`)
+      toastStore.success($LL.sms.toasts.otpCopied({ otp }))
       setTimeout(() => {
         if (copiedOTP === otp) copiedOTP = null
       }, 3000)
     } catch {
-      toastStore.error('Failed to copy to clipboard')
+      toastStore.error($LL.sms.toasts.copyFailed())
     }
   }
 
@@ -107,10 +108,10 @@
     <div class="flex items-center gap-2">
       <MessageSquare class="w-5 h-5 text-accent" />
       <h2 class="text-base sm:text-lg font-mono font-bold uppercase tracking-wider text-foreground">
-        SMS Messages & Verification Inbox
+        {$LL.sms.title()}
       </h2>
       <Badge variant="default">
-        {messages.length} / {totalCount} Loaded
+        {$LL.sms.loaded({ loaded: messages.length, total: totalCount })}
       </Badge>
     </div>
 
@@ -122,7 +123,7 @@
         onclick={() => fetchInbox()}
       >
         <RefreshCw class="w-3.5 h-3.5 mr-1.5 {isLoading ? 'animate-spin' : ''}" />
-        <span>Refresh</span>
+        <span>{$LL.common.refresh()}</span>
       </Button>
     </div>
   </div>
@@ -131,14 +132,14 @@
   <div class="flex items-center gap-3">
     <div class="relative flex-1 max-w-md">
       <Input
-        placeholder="Filter by sender number or keyword..."
+        placeholder={$LL.sms.searchPlaceholder()}
         bind:value={searchQuery}
         onchange={() => fetchInbox()}
       />
     </div>
     <Button variant="secondary" size="md" onclick={() => fetchInbox()}>
       <Search class="w-3.5 h-3.5 mr-1.5" />
-      <span>Search</span>
+      <span>{$LL.common.search()}</span>
     </Button>
   </div>
 
@@ -146,13 +147,13 @@
   {#if isLoading && messages.length === 0}
     <div class="p-12 text-center text-muted font-mono text-xs">
       <RefreshCw class="w-6 h-6 animate-spin mx-auto mb-2 text-accent" />
-      Reading SMS messages from Android Telephony provider...
+      {$LL.sms.loading()}
     </div>
   {:else if filteredMessages.length === 0}
     <Card tone="ice">
       <div class="p-8 text-center text-muted font-mono text-xs">
         <MessageSquare class="w-6 h-6 mx-auto mb-2 opacity-50" />
-        No SMS messages found matching your criteria.
+        {$LL.sms.empty()}
       </div>
     </Card>
   {:else}
@@ -163,7 +164,7 @@
           <div class="flex items-center justify-between flex-wrap gap-2">
             <div class="flex items-center gap-2">
               <Phone class="w-3.5 h-3.5 text-accent" />
-              <span class="font-bold text-sm text-foreground">{msg.address || 'Unknown'}</span>
+              <span class="font-bold text-sm text-foreground">{msg.address || $LL.common.unknown()}</span>
             </div>
 
             <div class="flex items-center gap-3 text-muted text-[11px]">
@@ -187,7 +188,7 @@
               <div class="flex items-center gap-2">
                 <KeyRound class="w-4 h-4 text-accent" />
                 <div>
-                  <span class="text-[10px] uppercase font-bold text-muted block">Detected OTP Code:</span>
+                  <span class="text-[10px] uppercase font-bold text-muted block">{$LL.sms.detectedOtp()}</span>
                   <span class="font-mono text-base font-black tracking-widest text-accent">{otp}</span>
                 </div>
               </div>
@@ -199,10 +200,10 @@
               >
                 {#if copiedOTP === otp}
                   <Check class="w-3.5 h-3.5 mr-1" />
-                  <span>Copied!</span>
+                  <span>{$LL.sms.copied()}</span>
                 {:else}
                   <Copy class="w-3.5 h-3.5 mr-1" />
-                  <span>Copy OTP</span>
+                  <span>{$LL.sms.copyOtp()}</span>
                 {/if}
               </Button>
             </div>
@@ -219,7 +220,7 @@
         disabled={isLoading}
         onclick={() => fetchInbox(true)}
       >
-        <span>{isLoading ? 'Loading…' : 'Load more messages'}</span>
+        <span>{isLoading ? $LL.common.loading() : $LL.sms.loadMore()}</span>
       </Button>
     </div>
   {/if}

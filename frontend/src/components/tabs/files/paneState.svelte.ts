@@ -1,4 +1,6 @@
+import { get } from 'svelte/store'
 import { api } from '../../../api/client'
+import { LL } from '../../../i18n/i18n-svelte'
 import { toastStore } from '../../../stores/toast.svelte'
 import type {
   FileEntry,
@@ -97,7 +99,7 @@ export class PaneState {
       this.clearSearch()
       this.clearSelection()
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : 'Failed to list directory'
+      const msg = err instanceof Error ? err.message : get(LL).files.pane.toasts.listFailed()
       toastStore.error(msg)
     } finally {
       this.isLoading = false
@@ -141,7 +143,7 @@ export class PaneState {
       )
       this.searchResults = Array.isArray(res?.files) ? res.files : []
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : 'Search failed'
+      const msg = err instanceof Error ? err.message : get(LL).files.pane.toasts.searchFailed()
       toastStore.error(msg)
     } finally {
       this.isSearching = false

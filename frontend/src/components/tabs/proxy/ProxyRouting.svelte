@@ -14,6 +14,7 @@
   import Input from '../../ui/Input.svelte'
   import { api } from '../../../api/client'
   import { toastStore } from '../../../stores/toast.svelte'
+  import { LL } from '../../../i18n/i18n-svelte'
   import { themeStore } from '../../../stores/theme.svelte'
   import SakugaCheckbox from '../../ui/SakugaCheckbox.svelte'
 
@@ -52,12 +53,12 @@
   let isLoading = $state(false)
   let isSaving = $state(false)
 
-  const networkModes = [
-    { id: 'tproxy', label: 'TPROXY', desc: 'TCP + UDP transparent' },
-    { id: 'redirect', label: 'REDIRECT', desc: 'TCP redir, UDP direct' },
-    { id: 'tun', label: 'TUN Mode', desc: 'Virtual meta/tun0 device' },
-    { id: 'mixed', label: 'MIXED', desc: 'TCP redir + UDP tun' },
-  ]
+  const networkModes = $derived([
+    { id: 'tproxy', label: 'TPROXY', desc: $LL.proxy.routing.modeTproxyDesc() },
+    { id: 'redirect', label: 'REDIRECT', desc: $LL.proxy.routing.modeRedirectDesc() },
+    { id: 'tun', label: 'TUN Mode', desc: $LL.proxy.routing.modeTunDesc() },
+    { id: 'mixed', label: 'MIXED', desc: $LL.proxy.routing.modeMixedDesc() },
+  ])
 
   onMount(async () => {
     await fetchSettings()
@@ -91,9 +92,9 @@
         api.post('/api/proxy/settings', settings),
         api.post('/api/proxy/hotspot', hotspot),
       ])
-      toastStore.success('Box for Magisk routing configuration saved successfully!')
+      toastStore.success($LL.proxy.routing.toasts.saved())
     } catch (err: unknown) {
-      toastStore.error(err instanceof Error ? err.message : 'Failed to save configuration')
+      toastStore.error(err instanceof Error ? err.message : $LL.proxy.routing.toasts.saveFailed())
     } finally {
       isSaving = false
     }
@@ -101,8 +102,8 @@
 </script>
 
 <Card
-  title="Transparent Proxy & Tethering Routing"
-  subtitle="Kernel iptables redirection modes, IPv6 interception, Hotspot tethering bypass & Cgroup RAM control"
+  title={$LL.proxy.routing.title()}
+  subtitle={$LL.proxy.routing.subtitle()}
   tone="peach"
 >
   {#snippet action()}
@@ -113,14 +114,14 @@
       onclick={saveAllSettings}
     >
       <Check class="w-3.5 h-3.5 mr-1" />
-      <span>{isSaving ? 'Saving...' : 'Save Settings'}</span>
+      <span>{isSaving ? $LL.proxy.routing.saving() : $LL.proxy.routing.saveSettings()}</span>
     </Button>
   {/snippet}
 
   <div class="space-y-4 font-mono text-xs">
     <!-- Network Mode Selector -->
     <div>
-      <span class="text-[10px] text-muted uppercase font-bold block mb-2">BFM Network Mode</span>
+      <span class="text-[10px] text-muted uppercase font-bold block mb-2">{$LL.proxy.routing.modeTitle()}</span>
       <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
         {#each networkModes as m}
           <button
@@ -142,9 +143,9 @@
         <div class="space-y-0.5">
           <div class="flex items-center gap-1.5 font-bold text-foreground">
             <Wifi class="w-4 h-4 text-accent" />
-            <span>Proxy Hotspot / Tethering</span>
+            <span>{$LL.proxy.routing.hotspotTitle()}</span>
           </div>
-          <p class="text-[10px] text-muted">Route connected Wi-Fi / USB hotspot clients through proxy.</p>
+          <p class="text-[10px] text-muted">{$LL.proxy.routing.hotspotDesc()}</p>
         </div>
         {#if themeStore.useSakugaControls()}
           <SakugaCheckbox bind:checked={hotspot.proxy_hotspot} />
@@ -162,9 +163,9 @@
         <div class="space-y-0.5">
           <div class="flex items-center gap-1.5 font-bold text-foreground">
             <Layers class="w-4 h-4 text-accent" />
-            <span>IPv6 Transparent Proxy</span>
+            <span>{$LL.proxy.routing.ipv6Title()}</span>
           </div>
-          <p class="text-[10px] text-muted">Intercept and redirect IPv6 traffic to proxy core (ip6tables).</p>
+          <p class="text-[10px] text-muted">{$LL.proxy.routing.ipv6Desc()}</p>
         </div>
         {#if themeStore.useSakugaControls()}
           <SakugaCheckbox bind:checked={settings.ipv6} />
@@ -182,7 +183,7 @@
         <div class="flex items-center justify-between">
           <div class="flex items-center gap-1.5 font-bold text-foreground">
             <Cpu class="w-4 h-4 text-accent" />
-            <span>Cgroup RAM Limiter</span>
+            <span>{$LL.proxy.routing.cgroupTitle()}</span>
           </div>
           {#if themeStore.useSakugaControls()}
             <SakugaCheckbox bind:checked={settings.cgroup_memcg} />
@@ -197,10 +198,10 @@
         {#if settings.cgroup_memcg}
           <div class="flex items-center gap-2 pt-1">
             <Input placeholder="150M" bind:value={settings.memcg_limit} />
-            <span class="text-[10px] text-muted shrink-0">Max Core RAM</span>
+            <span class="text-[10px] text-muted shrink-0">{$LL.proxy.routing.maxRam()}</span>
           </div>
         {:else}
-          <p class="text-[10px] text-muted">Constrain core memory consumption to prevent kernel OOM freezes.</p>
+          <p class="text-[10px] text-muted">{$LL.proxy.routing.cgroupDesc()}</p>
         {/if}
       </div>
 
@@ -209,9 +210,9 @@
         <div class="space-y-0.5">
           <div class="flex items-center gap-1.5 font-bold text-foreground">
             <Shield class="w-4 h-4 text-accent" />
-            <span>Block QUIC (UDP 443)</span>
+            <span>{$LL.proxy.routing.quicTitle()}</span>
           </div>
-          <p class="text-[10px] text-muted">Force browsers to fallback to TCP for robust proxy tunneling.</p>
+          <p class="text-[10px] text-muted">{$LL.proxy.routing.quicDesc()}</p>
         </div>
         {#if themeStore.useSakugaControls()}
           <SakugaCheckbox checked={settings.quic === 'disable'} onchange={(e) => (settings.quic = (e.target as HTMLInputElement).checked ? 'disable' : 'enable')} />

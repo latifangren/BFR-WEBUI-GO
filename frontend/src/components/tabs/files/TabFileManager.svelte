@@ -9,6 +9,7 @@
   } from '@lucide/svelte'
   import { api } from '../../../api/client'
   import { toastStore } from '../../../stores/toast.svelte'
+  import { LL } from '../../../i18n/i18n-svelte'
   import Button from '../../ui/Button.svelte'
   import Badge from '../../ui/Badge.svelte'
   import FilePane from './FilePane.svelte'
@@ -105,7 +106,7 @@
           )
           modalState.editor.content = res?.content || ''
         } catch (err: unknown) {
-          toastStore.error(err instanceof Error ? err.message : 'Failed to read file')
+          toastStore.error(err instanceof Error ? err.message : $LL.files.manager.toasts.readFailed())
           modalState.editor.isOpen = false
         } finally {
           modalState.editor.isLoading = false
@@ -196,12 +197,14 @@
         dest_dir: otherPane.currentPath,
       })
       toastStore.success(
-        `${action === 'copy' ? 'Copied' : 'Moved'} ${paths.length} item(s) to ${otherPane.currentPath}`
+        action === 'copy'
+          ? $LL.files.manager.toasts.crossPaneCopy({ count: paths.length, path: otherPane.currentPath })
+          : $LL.files.manager.toasts.crossPaneMove({ count: paths.length, path: otherPane.currentPath })
       )
       activePane.clearSelection()
       await Promise.all([leftPane.refresh(), rightPane.refresh()])
     } catch (err: unknown) {
-      toastStore.error(err instanceof Error ? err.message : 'Cross-pane transfer failed')
+      toastStore.error(err instanceof Error ? err.message : $LL.files.manager.toasts.crossPaneFailed())
     }
   }
 
@@ -226,13 +229,13 @@
       )
       const data = await res.json().catch(() => null)
       if (!res.ok || (data && data.success === false)) {
-        throw new Error(data?.error || `Upload failed with status ${res.status}`)
+        throw new Error(data?.error || $LL.files.manager.toasts.uploadStatusFailed({ status: res.status }))
       }
       const count = data?.uploaded ?? files.length
-      toastStore.success(`Uploaded ${count} file(s) successfully`)
+      toastStore.success($LL.files.manager.toasts.uploaded({ count }))
       await Promise.all([leftPane.refresh(), rightPane.refresh()])
     } catch (err: unknown) {
-      toastStore.error(err instanceof Error ? err.message : 'Upload failed')
+      toastStore.error(err instanceof Error ? err.message : $LL.files.manager.toasts.uploadFailed())
     } finally {
       isUploading = false
     }
@@ -246,11 +249,11 @@
         path: modalState.editor.path,
         content: modalState.editor.content,
       })
-      toastStore.success('File saved successfully')
+      toastStore.success($LL.files.manager.toasts.fileSaved())
       modalState.editor.isOpen = false
       await activePane.refresh()
     } catch (err: unknown) {
-      toastStore.error(err instanceof Error ? err.message : 'Failed to save file')
+      toastStore.error(err instanceof Error ? err.message : $LL.files.manager.toasts.saveFailed())
     } finally {
       modalState.editor.isSaving = false
     }
@@ -263,11 +266,15 @@
         path: fullPath,
         is_dir: modalState.create.type === 'folder',
       })
-      toastStore.success(`Created ${modalState.create.type}: ${modalState.create.name}`)
+      toastStore.success(
+        modalState.create.type === 'file'
+          ? $LL.files.manager.toasts.createdFile({ name: modalState.create.name })
+          : $LL.files.manager.toasts.createdFolder({ name: modalState.create.name })
+      )
       modalState.create.isOpen = false
       await activePane.refresh()
     } catch (err: unknown) {
-      toastStore.error(err instanceof Error ? err.message : 'Failed to create item')
+      toastStore.error(err instanceof Error ? err.message : $LL.files.manager.toasts.createFailed())
     }
   }
 
@@ -278,11 +285,11 @@
         old_path: modalState.rename.target.path,
         new_path: `${activePane.currentPath.replace(/\/$/, '')}/${modalState.rename.newName.trim()}`,
       })
-      toastStore.success('Renamed successfully')
+      toastStore.success($LL.files.manager.toasts.renamed())
       modalState.rename.isOpen = false
       await activePane.refresh()
     } catch (err: unknown) {
-      toastStore.error(err instanceof Error ? err.message : 'Failed to rename item')
+      toastStore.error(err instanceof Error ? err.message : $LL.files.manager.toasts.renameFailed())
     }
   }
 
@@ -292,11 +299,11 @@
       await api.delete(
         `/api/files/delete?path=${encodeURIComponent(modalState.delete.target.path)}`
       )
-      toastStore.success('Deleted successfully')
+      toastStore.success($LL.files.manager.toasts.deleted())
       modalState.delete.isOpen = false
       await activePane.refresh()
     } catch (err: unknown) {
-      toastStore.error(err instanceof Error ? err.message : 'Failed to delete item')
+      toastStore.error(err instanceof Error ? err.message : $LL.files.manager.toasts.deleteFailed())
     }
   }
 
@@ -308,11 +315,11 @@
         mode: modalState.chmod.mode,
         owner: modalState.chmod.owner,
       })
-      toastStore.success('Permissions updated')
+      toastStore.success($LL.files.manager.toasts.permissionsUpdated())
       modalState.chmod.isOpen = false
       await activePane.refresh()
     } catch (err: unknown) {
-      toastStore.error(err instanceof Error ? err.message : 'Failed to update permissions')
+      toastStore.error(err instanceof Error ? err.message : $LL.files.manager.toasts.permissionsFailed())
     }
   }
 
@@ -325,11 +332,11 @@
         destination: dest,
         dest_zip: dest,
       })
-      toastStore.success('Compressed successfully')
+      toastStore.success($LL.files.manager.toasts.compressed())
       modalState.compress.isOpen = false
       await activePane.refresh()
     } catch (err: unknown) {
-      toastStore.error(err instanceof Error ? err.message : 'Compression failed')
+      toastStore.error(err instanceof Error ? err.message : $LL.files.manager.toasts.compressFailed())
     }
   }
 
@@ -342,11 +349,11 @@
         destination: modalState.extract.destDir.trim(),
         dest_dir: modalState.extract.destDir.trim(),
       })
-      toastStore.success('Archive extracted successfully')
+      toastStore.success($LL.files.manager.toasts.extracted())
       modalState.extract.isOpen = false
       await activePane.refresh()
     } catch (err: unknown) {
-      toastStore.error(err instanceof Error ? err.message : 'Extraction failed')
+      toastStore.error(err instanceof Error ? err.message : $LL.files.manager.toasts.extractFailed())
     }
   }
 
@@ -360,11 +367,19 @@
         destination: modalState.copyMove.destPath.trim(),
         dest_dir: modalState.copyMove.destPath.trim(),
       })
-      toastStore.success(`${action === 'copy' ? 'Copied' : 'Moved'} successfully`)
+      toastStore.success(
+        action === 'copy' ? $LL.files.manager.toasts.copied() : $LL.files.manager.toasts.moved()
+      )
       modalState.copyMove.isOpen = false
       await Promise.all([leftPane.refresh(), rightPane.refresh()])
     } catch (err: unknown) {
-      toastStore.error(err instanceof Error ? err.message : `${action} failed`)
+      toastStore.error(
+        err instanceof Error
+          ? err.message
+          : action === 'copy'
+            ? $LL.files.manager.toasts.copyFailed()
+            : $LL.files.manager.toasts.moveFailed()
+      )
     }
   }
 
@@ -375,12 +390,12 @@
         action: 'delete',
         paths: activePane.selectedPaths,
       })
-      toastStore.success(`Deleted ${activePane.selectedPaths.length} items`)
+      toastStore.success($LL.files.manager.toasts.batchDeleted({ count: activePane.selectedPaths.length }))
       activePane.clearSelection()
       modalState.batch.deleteOpen = false
       await activePane.refresh()
     } catch (err: unknown) {
-      toastStore.error(err instanceof Error ? err.message : 'Batch delete failed')
+      toastStore.error(err instanceof Error ? err.message : $LL.files.manager.toasts.batchDeleteFailed())
     } finally {
       isBatchProcessing = false
     }
@@ -397,14 +412,22 @@
         dest_dir: dest,
       })
       toastStore.success(
-        `${action === 'copy' ? 'Copied' : 'Moved'} ${activePane.selectedPaths.length} items`
+        action === 'copy'
+          ? $LL.files.manager.toasts.batchCopied({ count: activePane.selectedPaths.length })
+          : $LL.files.manager.toasts.batchMoved({ count: activePane.selectedPaths.length })
       )
       activePane.clearSelection()
       modalState.batch.copyOpen = false
       modalState.batch.moveOpen = false
       await Promise.all([leftPane.refresh(), rightPane.refresh()])
     } catch (err: unknown) {
-      toastStore.error(err instanceof Error ? err.message : `Batch ${action} failed`)
+      toastStore.error(
+        err instanceof Error
+          ? err.message
+          : action === 'copy'
+            ? $LL.files.manager.toasts.batchCopyFailed()
+            : $LL.files.manager.toasts.batchMoveFailed()
+      )
     } finally {
       isBatchProcessing = false
     }
@@ -420,13 +443,16 @@
         dest_zip: dest,
       })
       toastStore.success(
-        `Compressed ${activePane.selectedPaths.length} items into ${modalState.batch.zipName}`
+        $LL.files.manager.toasts.batchCompressed({
+          count: activePane.selectedPaths.length,
+          name: modalState.batch.zipName,
+        })
       )
       activePane.clearSelection()
       modalState.batch.compressOpen = false
       await activePane.refresh()
     } catch (err: unknown) {
-      toastStore.error(err instanceof Error ? err.message : 'Batch compress failed')
+      toastStore.error(err instanceof Error ? err.message : $LL.files.manager.toasts.batchCompressFailed())
     } finally {
       isBatchProcessing = false
     }
@@ -439,10 +465,10 @@
     <div class="flex items-center gap-2">
       <FolderOpen class="w-5 h-5 text-accent" />
       <h2 class="text-base sm:text-lg font-bold uppercase tracking-wider text-foreground">
-        Root File Explorer
+        {$LL.files.manager.title()}
       </h2>
       <Badge variant="default" class="text-[10px]">
-        {viewMode === 'dual' ? 'Dual Pane' : 'Single Pane'}
+        {viewMode === 'dual' ? $LL.files.manager.dualPane() : $LL.files.manager.singlePane()}
       </Badge>
     </div>
 
@@ -452,20 +478,20 @@
         type="button"
         class="inline-flex items-center gap-1.5 px-3 py-1 rounded text-xs font-bold transition-all cursor-pointer {viewMode === 'single' ? 'bg-accent text-accent-text shadow-neobrutal-sm' : 'text-muted hover:text-foreground'}"
         onclick={() => setViewMode('single')}
-        title="Single Pane Mode"
+        title={$LL.files.manager.singleViewTitle()}
       >
         <Square class="w-3.5 h-3.5" />
-        <span>Single View</span>
+        <span>{$LL.files.manager.singleView()}</span>
       </button>
 
       <button
         type="button"
         class="inline-flex items-center gap-1.5 px-3 py-1 rounded text-xs font-bold transition-all cursor-pointer {viewMode === 'dual' ? 'bg-accent text-accent-text shadow-neobrutal-sm' : 'text-muted hover:text-foreground'}"
         onclick={() => setViewMode('dual')}
-        title="Dual-Pane Split View"
+        title={$LL.files.manager.dualPaneTitle()}
       >
         <Columns2 class="w-3.5 h-3.5" />
-        <span>Dual Pane</span>
+        <span>{$LL.files.manager.dualPane()}</span>
       </button>
     </div>
   </div>
@@ -478,14 +504,14 @@
         class="flex-1 py-1.5 px-2 text-center rounded font-bold transition-all cursor-pointer truncate {activePaneId === 'left' ? 'bg-accent text-accent-text shadow-neobrutal-sm' : 'text-muted hover:text-foreground'}"
         onclick={() => (activePaneId = 'left')}
       >
-        Panel A: {leftPane.currentPath.split('/').filter(Boolean).pop() || '/'}
+        {$LL.files.manager.panelA()}: {leftPane.currentPath.split('/').filter(Boolean).pop() || '/'}
       </button>
       <button
         type="button"
         class="flex-1 py-1.5 px-2 text-center rounded font-bold transition-all cursor-pointer truncate {activePaneId === 'right' ? 'bg-accent text-accent-text shadow-neobrutal-sm' : 'text-muted hover:text-foreground'}"
         onclick={() => (activePaneId = 'right')}
       >
-        Panel B: {rightPane.currentPath.split('/').filter(Boolean).pop() || '/'}
+        {$LL.files.manager.panelB()}: {rightPane.currentPath.split('/').filter(Boolean).pop() || '/'}
       </button>
     </div>
   {/if}
@@ -494,7 +520,7 @@
   {#if viewMode === 'single'}
     <FilePane
       pane={leftPane}
-      paneLabel="Primary"
+      paneLabel={$LL.files.manager.primary()}
       isActive={true}
       hasOtherPane={false}
       onOpenModal={handleOpenModal}
@@ -505,7 +531,7 @@
     <div class="hidden lg:grid lg:grid-cols-2 gap-4 items-start">
       <FilePane
         pane={leftPane}
-        paneLabel="Panel A"
+        paneLabel={$LL.files.manager.panelA()}
         isActive={activePaneId === 'left'}
         hasOtherPane={true}
         otherPanePath={rightPane.currentPath}
@@ -520,7 +546,7 @@
 
       <FilePane
         pane={rightPane}
-        paneLabel="Panel B"
+        paneLabel={$LL.files.manager.panelB()}
         isActive={activePaneId === 'right'}
         hasOtherPane={true}
         otherPanePath={leftPane.currentPath}
@@ -538,7 +564,7 @@
     <div class="block lg:hidden">
       <FilePane
         pane={activePane}
-        paneLabel={activePaneId === 'left' ? 'Panel A' : 'Panel B'}
+        paneLabel={activePaneId === 'left' ? $LL.files.manager.panelA() : $LL.files.manager.panelB()}
         isActive={true}
         hasOtherPane={true}
         otherPanePath={otherPane.currentPath}

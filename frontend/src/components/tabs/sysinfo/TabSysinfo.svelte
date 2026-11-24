@@ -12,6 +12,7 @@
   } from '@lucide/svelte'
   import { sysinfoStore } from '../../../stores/sysinfo.svelte'
   import { navigationStore } from '../../../stores/navigation.svelte'
+  import { LL } from '../../../i18n/i18n-svelte'
   import Card from '../../ui/Card.svelte'
   import Badge from '../../ui/Badge.svelte'
   import Button from '../../ui/Button.svelte'
@@ -58,7 +59,7 @@
     <div class="flex items-center gap-2">
       <Cpu class="w-5 h-5 text-accent" />
       <h2 class="text-base sm:text-lg font-mono font-bold uppercase tracking-wider text-foreground">
-        Hardware & System Telemetry
+        {$LL.sysinfo.title()}
       </h2>
     </div>
     <div class="flex items-center gap-2">
@@ -69,7 +70,7 @@
         onclick={() => sysinfoStore.refresh()}
       >
         <RefreshCw class="w-3.5 h-3.5 mr-1.5 {sysinfoStore.isLoading ? 'animate-spin' : ''}" />
-        <span>Refresh</span>
+        <span>{$LL.common.refresh()}</span>
       </Button>
     </div>
   </div>
@@ -78,7 +79,7 @@
     <div class="bg-red-950/60 border-2 border-red-800 text-red-300 p-4 rounded font-mono text-xs flex items-center gap-3">
       <ShieldAlert class="w-5 h-5 text-red-500 shrink-0" />
       <div>
-        <p class="font-bold uppercase">Telemetry Error</p>
+        <p class="font-bold uppercase">{$LL.sysinfo.error.title()}</p>
         <p>{sysinfoStore.error}</p>
       </div>
     </div>
@@ -87,14 +88,14 @@
   {#if !stats && sysinfoStore.isLoading}
     <div class="neo-card bg-card p-12 text-center font-mono text-sm text-muted">
       <RefreshCw class="w-6 h-6 animate-spin mx-auto mb-3 text-accent" />
-      Loading hardware counters and telemetry...
+      {$LL.sysinfo.loading()}
     </div>
   {:else if stats}
     <!-- Grid 1: Device Details & Quick Metrics -->
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-3 sm:gap-3 sm:gap-6">
       <!-- Device Specs Bento Box -->
       <Card
-        title="Device Specifications & Hardware Info"
+        title={$LL.sysinfo.device.title()}
         class="lg:col-span-2"
       >
         {#snippet action()}
@@ -104,42 +105,42 @@
         {/snippet}
         <div class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 gap-2 sm:gap-3 font-mono text-xs">
           <div class="bg-card-sub border border-border p-2 sm:p-3 rounded space-y-0.5 sm:space-y-1">
-            <span class="text-[10px] text-muted uppercase font-bold">Device Model</span>
+            <span class="text-[10px] text-muted uppercase font-bold">{$LL.sysinfo.device.model()}</span>
             <div class="text-xs font-bold text-foreground truncate" title={stats.model}>
-              {stats.model || 'Android Device'}
+              {stats.model || $LL.sysinfo.device.modelFallback()}
             </div>
           </div>
 
           <div class="bg-card-sub border border-border p-2 sm:p-3 rounded space-y-0.5 sm:space-y-1">
-            <span class="text-[10px] text-muted uppercase font-bold">Android Version</span>
+            <span class="text-[10px] text-muted uppercase font-bold">{$LL.sysinfo.device.androidVersion()}</span>
             <div class="text-xs font-bold text-foreground">
-              Android {stats.android_ver || 'N/A'} (API {stats.sdk_ver || 'N/A'})
+              {$LL.sysinfo.device.androidVersionValue({ android: stats.android_ver || 'N/A', sdk: stats.sdk_ver || 'N/A' })}
             </div>
           </div>
 
           <div class="bg-card-sub border border-border p-2 sm:p-3 rounded space-y-0.5 sm:space-y-1">
-            <span class="text-[10px] text-muted uppercase font-bold">Kernel Release</span>
+            <span class="text-[10px] text-muted uppercase font-bold">{$LL.sysinfo.device.kernel()}</span>
             <div class="text-xs font-bold text-foreground truncate" title={stats.kernel}>
-              {stats.kernel || 'Linux'}
+              {stats.kernel || $LL.sysinfo.device.kernelFallback()}
             </div>
           </div>
 
           <div class="bg-card-sub border border-border p-2 sm:p-3 rounded space-y-0.5 sm:space-y-1">
-            <span class="text-[10px] text-muted uppercase font-bold">Security Patch</span>
+            <span class="text-[10px] text-muted uppercase font-bold">{$LL.sysinfo.device.securityPatch()}</span>
             <div class="text-xs font-bold text-foreground">
               {stats.security_patch || 'N/A'}
             </div>
           </div>
 
           <div class="bg-card-sub border border-border p-2 sm:p-3 rounded space-y-0.5 sm:space-y-1">
-            <span class="text-[10px] text-muted uppercase font-bold">Resolution & Density</span>
+            <span class="text-[10px] text-muted uppercase font-bold">{$LL.sysinfo.device.resolution()}</span>
             <div class="text-xs font-bold text-foreground">
               {stats.resolution || 'N/A'} ({stats.density || 'N/A'})
             </div>
           </div>
 
           <div class="bg-card-sub border border-border p-2 sm:p-3 rounded space-y-0.5 sm:space-y-1">
-            <span class="text-[10px] text-muted uppercase font-bold">System Uptime</span>
+            <span class="text-[10px] text-muted uppercase font-bold">{$LL.sysinfo.device.uptime()}</span>
             <div class="text-xs font-bold text-foreground">
               {formatUptime(stats.uptime)}
             </div>
@@ -148,7 +149,7 @@
       </Card>
 
       <!-- Battery & Power State -->
-      <Card title="Battery & Power Subsystem">
+      <Card title={$LL.sysinfo.battery.title()}>
         {#snippet action()}
           <div class="neo-icon-box">
             {#if stats.battery_status === 'Charging'}
@@ -160,7 +161,7 @@
         {/snippet}
         <div class="space-y-3 sm:space-y-4 font-mono text-xs">
           <div class="flex items-center justify-between">
-            <span class="text-muted">Charge Level</span>
+            <span class="text-muted">{$LL.sysinfo.battery.chargeLevel()}</span>
             <div class="flex items-center gap-1.5">
               {#if stats.battery_status === 'Charging'}
                 <BatteryCharging class="w-4 h-4 text-emerald-400" />
@@ -173,7 +174,7 @@
 
           <!-- Progress bar -->
 {#if themeStore.useSakugaControls()}
-            <SakugaProgress value={stats.battery_level / 100} label="Battery level" />
+            <SakugaProgress value={stats.battery_level / 100} label={$LL.sysinfo.battery.levelLabel()} />
           {:else}
           <div class="neo-progress">
             <div
@@ -186,21 +187,21 @@
 
           <div class="grid grid-cols-2 gap-2 pt-2 border-t border-border">
             <div>
-              <span class="text-[10px] text-muted uppercase font-bold">Status</span>
-              <p class="font-bold text-foreground">{stats.battery_status || 'Discharging'}</p>
+              <span class="text-[10px] text-muted uppercase font-bold">{$LL.common.status()}</span>
+              <p class="font-bold text-foreground">{stats.battery_status || $LL.header.discharging()}</p>
             </div>
             <div>
-              <span class="text-[10px] text-muted uppercase font-bold">Health</span>
-              <p class="font-bold text-emerald-400">{stats.battery_detail?.health || 'Good'}</p>
+              <span class="text-[10px] text-muted uppercase font-bold">{$LL.sysinfo.battery.health()}</span>
+              <p class="font-bold text-emerald-400">{stats.battery_detail?.health || $LL.overview.device.healthGood()}</p>
             </div>
             <div>
-              <span class="text-[10px] text-muted uppercase font-bold">Voltage</span>
+              <span class="text-[10px] text-muted uppercase font-bold">{$LL.sysinfo.battery.voltage()}</span>
               <p class="font-bold text-foreground">
                 {stats.battery_detail?.voltage_mv ? (stats.battery_detail.voltage_mv / 1000).toFixed(2) + ' V' : 'N/A'}
               </p>
             </div>
             <div>
-              <span class="text-[10px] text-muted uppercase font-bold">Battery Temp</span>
+              <span class="text-[10px] text-muted uppercase font-bold">{$LL.sysinfo.battery.temp()}</span>
               <p class="font-bold text-amber-400">
                 {stats.battery_temp ? stats.battery_temp.toFixed(1) + '°C' : stats.battery_detail?.temp ? stats.battery_detail.temp.toFixed(1) + '°C' : 'N/A'}
               </p>
@@ -212,7 +213,7 @@
 
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-6">
       <!-- CPU & Per-Core Telemetry -->
-      <Card title="CPU Core Activity & Thermals">
+      <Card title={$LL.sysinfo.cpu.title()}>
         {#snippet action()}
           <div class="neo-icon-box">
             <Cpu class="w-4 h-4 text-accent" />
@@ -221,7 +222,7 @@
         <div class="space-y-3 sm:space-y-4 font-mono text-xs">
           <!-- Overall CPU Usage -->
           <div class="flex items-center justify-between">
-            <span class="text-muted">Total CPU Utilization</span>
+            <span class="text-muted">{$LL.sysinfo.cpu.totalUtilization()}</span>
             <div class="flex items-center gap-2">
               {#if stats.cpu_temp}
                 <span class="text-amber-400 font-bold flex items-center gap-1">
@@ -234,7 +235,7 @@
           </div>
 
 {#if themeStore.useSakugaControls()}
-            <SakugaProgress value={Math.min(stats.cpu_usage, 100) / 100} label="CPU usage" />
+            <SakugaProgress value={Math.min(stats.cpu_usage, 100) / 100} label={$LL.sysinfo.cpu.usageLabel()} />
           {:else}
           <div class="neo-progress">
             <div
@@ -249,13 +250,13 @@
           {#if stats.cpu_cores && stats.cpu_cores.length > 0}
             <div class="pt-2">
               <span class="text-[10px] text-muted uppercase font-bold block mb-2">
-                Active Cores ({stats.cpu_cores.length} Threads)
+                {$LL.sysinfo.cpu.activeCores({ count: stats.cpu_cores.length })}
               </span>
               <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
                 {#each stats.cpu_cores as core}
                   <div class="bg-card-sub border border-border p-2 rounded space-y-1">
                     <div class="flex items-center justify-between text-[10px]">
-                      <span class="font-bold text-foreground">Core {core.core}</span>
+                      <span class="font-bold text-foreground">{$LL.sysinfo.cpu.core({ core: core.core })}</span>
                       <span class="text-muted">{core.usage.toFixed(0)}%</span>
                     </div>
                     <div class="w-full bg-card h-1.5 rounded overflow-hidden">
@@ -265,7 +266,7 @@
                       ></div>
                     </div>
                     <div class="text-[9px] text-muted truncate">
-                      {core.freq_mhz > 0 ? `${core.freq_mhz.toFixed(0)} MHz` : 'Offline'}
+                      {core.freq_mhz > 0 ? `${core.freq_mhz.toFixed(0)} MHz` : $LL.sysinfo.cpu.offline()}
                     </div>
                   </div>
                 {/each}
@@ -276,7 +277,7 @@
       </Card>
 
       <!-- Memory & Swap Utilization -->
-      <Card title="RAM & Swap Memory">
+      <Card title={$LL.sysinfo.memory.title()}>
         {#snippet action()}
           <div class="neo-icon-box">
             <Activity class="w-4 h-4 text-purple-400" />
@@ -286,13 +287,13 @@
           <!-- Physical RAM -->
           <div class="space-y-2">
             <div class="flex items-center justify-between">
-              <span class="text-muted">Physical RAM ({stats.mem_used_pct.toFixed(1)}%)</span>
+              <span class="text-muted">{$LL.sysinfo.memory.physicalRam({ pct: stats.mem_used_pct.toFixed(1) })}</span>
               <span class="font-bold text-foreground">
                 {formatBytes(stats.mem_used)} / {formatBytes(stats.mem_total)}
               </span>
             </div>
 {#if themeStore.useSakugaControls()}
-              <SakugaProgress value={Math.min(stats.mem_used_pct, 100) / 100} label="Memory usage" />
+              <SakugaProgress value={Math.min(stats.mem_used_pct, 100) / 100} label={$LL.sysinfo.memory.usageLabel()} />
             {:else}
             <div class="neo-progress">
               <div
@@ -303,15 +304,15 @@
             {/if}
             <SparklineWave value={stats.mem_used_pct} color="var(--color-lavender, #c084fc)" height={26} class="mt-1" />
             <div class="flex items-center justify-between text-[10px] text-muted">
-              <span>Free: {formatBytes(stats.mem_free)}</span>
-              <span>Available: {formatBytes(stats.mem_available)}</span>
+              <span>{$LL.sysinfo.memory.free({ free: formatBytes(stats.mem_free) })}</span>
+              <span>{$LL.sysinfo.memory.available({ available: formatBytes(stats.mem_available) })}</span>
             </div>
           </div>
 
           <!-- Swap / ZRAM -->
           <div class="space-y-2 pt-3 border-t border-border">
             <div class="flex items-center justify-between">
-              <span class="text-muted">ZRAM / Swap ({stats.swap_used_pct.toFixed(1)}%)</span>
+              <span class="text-muted">{$LL.sysinfo.memory.swap({ pct: stats.swap_used_pct.toFixed(1) })}</span>
               <span class="font-bold text-foreground">
                 {formatBytes(stats.swap_used)} / {formatBytes(stats.swap_total)}
               </span>
@@ -330,10 +331,10 @@
     <!-- CPU Scaling Governor & Thermal Summary -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-6">
       <!-- CPU Scaling Governor -->
-      <Card title="CPU Scaling & Scheduling Policy">
+      <Card title={$LL.sysinfo.governor.title()}>
         <div class="space-y-4 font-mono text-xs">
           <div class="flex items-center justify-between">
-            <span class="text-muted">Active Governor Policy</span>
+            <span class="text-muted">{$LL.sysinfo.governor.activePolicy()}</span>
             <span class="px-2 py-0.5 rounded bg-accent/15 text-accent font-bold uppercase text-[10px] border border-accent/30 flex items-center gap-1">
               <Check class="w-3 h-3" />
               {stats.governor || 'N/A'}
@@ -341,9 +342,9 @@
           </div>
 
           <div class="p-3 bg-card-sub border border-border rounded space-y-2">
-            <span class="text-[10px] uppercase font-bold text-muted block">Kernel Management</span>
+            <span class="text-[10px] uppercase font-bold text-muted block">{$LL.sysinfo.governor.kernelManagement()}</span>
             <p class="text-[11px] text-muted leading-relaxed">
-              CPU cluster clock frequencies, scaling governors, and VM swappiness are now managed with persistent storage in the <strong>Kernel Manager</strong>.
+              {$LL.sysinfo.governor.bodyA()}<strong>Kernel Manager</strong>{$LL.sysinfo.governor.bodyB()}
             </p>
             <Button
               variant="primary"
@@ -351,17 +352,17 @@
               onclick={() => navigationStore.setTab('kernel')}
             >
               <Sliders class="w-3.5 h-3.5 mr-1.5" />
-              <span>Open Kernel Manager</span>
+              <span>{$LL.sysinfo.governor.openKernelManager()}</span>
             </Button>
           </div>
         </div>
       </Card>
 
       <!-- Thermal Sensors Monitor -->
-      <Card title="Thermal Sensors Telemetry">
+      <Card title={$LL.sysinfo.thermal.title()}>
         <div class="space-y-3 font-mono text-xs">
           <div class="flex items-center justify-between">
-            <span class="text-muted">Primary SoC Temp</span>
+            <span class="text-muted">{$LL.sysinfo.thermal.primarySocTemp()}</span>
             <span class="font-bold text-sm {stats.cpu_temp > 65 ? 'text-red-400' : stats.cpu_temp > 50 ? 'text-amber-400' : 'text-emerald-400'}">
               {stats.cpu_temp ? stats.cpu_temp.toFixed(1) + '°C' : 'N/A'}
             </span>
@@ -380,7 +381,7 @@
             </div>
           {:else}
             <div class="p-4 text-center text-[11px] text-muted bg-card-sub rounded border border-border">
-              Standard thermal zones active.
+              {$LL.sysinfo.thermal.standardZones()}
             </div>
           {/if}
         </div>
@@ -390,14 +391,14 @@
     <!-- Grid 3: Storage Partitions & Services -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-3 sm:gap-6">
       <!-- Disks & Partitions -->
-      <Card title="Storage Filesystems" tone="ice">
+      <Card title={$LL.sysinfo.storage.title()} tone="ice">
         {#if stats.disks && stats.disks.length > 0}
           <div class="space-y-3 font-mono text-xs">
             {#each stats.disks as disk}
               <div class="bg-card-sub border border-border p-3 rounded space-y-2">
                 <div class="flex items-center justify-between">
                   <span class="font-bold text-foreground">{disk.path}</span>
-                  <span class="text-muted text-[11px]">{disk.used_pct.toFixed(1)}% used</span>
+                  <span class="text-muted text-[11px]">{$LL.sysinfo.storage.usedPct({ pct: disk.used_pct.toFixed(1) })}</span>
                 </div>
                 <div class="w-full bg-card h-2 rounded overflow-hidden">
                   <div
@@ -406,20 +407,20 @@
                   ></div>
                 </div>
                 <div class="flex items-center justify-between text-[10px] text-muted">
-                  <span>Used: {formatBytes(disk.used)}</span>
-                  <span>Free: {formatBytes(disk.free)}</span>
-                  <span>Total: {formatBytes(disk.total)}</span>
+                  <span>{$LL.sysinfo.storage.used({ used: formatBytes(disk.used) })}</span>
+                  <span>{$LL.sysinfo.storage.free({ free: formatBytes(disk.free) })}</span>
+                  <span>{$LL.sysinfo.storage.total({ total: formatBytes(disk.total) })}</span>
                 </div>
               </div>
             {/each}
           </div>
         {:else}
-          <p class="font-mono text-xs text-muted">No disk partitions mounted.</p>
+          <p class="font-mono text-xs text-muted">{$LL.sysinfo.storage.empty()}</p>
         {/if}
       </Card>
 
       <!-- Background System Services -->
-      <Card title="Root Daemon Services" tone="lavender">
+      <Card title={$LL.sysinfo.services.title()} tone="lavender">
         {#if stats.active_services && stats.active_services.length > 0}
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 font-mono text-xs">
             {#each stats.active_services as svc}
@@ -432,7 +433,7 @@
                     {/if}
                   </div>
                   <Badge variant={svc.running ? 'success' : 'default'} class="shrink-0">
-                    {svc.running ? 'Active' : 'Stopped'}
+                    {svc.running ? $LL.common.active() : $LL.sysinfo.services.stopped()}
                   </Badge>
                 </div>
 
@@ -440,14 +441,14 @@
                   <div class="flex items-center gap-1.5 pt-1.5 border-t border-border/50 text-[10px] text-muted font-mono flex-wrap">
                     {#if svc.pid}
                       <span class="px-1.5 py-0.5 rounded bg-card border border-border text-foreground font-bold">
-                        PID: {svc.pid}
+                        {$LL.sysinfo.services.pid({ pid: svc.pid })}
                       </span>
                     {/if}
                     <span class="px-1.5 py-0.5 rounded bg-card border border-border text-foreground">
-                      CPU: <strong class="text-accent">{svc.cpu || 0}%</strong>
+                      {$LL.sysinfo.services.cpuLabel()} <strong class="text-accent">{svc.cpu || 0}%</strong>
                     </span>
                     <span class="px-1.5 py-0.5 rounded bg-card border border-border text-foreground">
-                      RAM: <strong class="text-emerald-400">{svc.ram || 0} MB</strong>
+                      {$LL.sysinfo.services.ramLabel()} <strong class="text-emerald-400">{svc.ram || 0} MB</strong>
                     </span>
                   </div>
                 {/if}
@@ -455,7 +456,7 @@
             {/each}
           </div>
         {:else}
-          <p class="font-mono text-xs text-muted">No service hooks detected.</p>
+          <p class="font-mono text-xs text-muted">{$LL.sysinfo.services.empty()}</p>
         {/if}
       </Card>
     </div>

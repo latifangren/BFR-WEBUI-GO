@@ -28,6 +28,7 @@
   import QualcommIMEI from './QualcommIMEI.svelte'
   import { themeStore } from '../../../stores/theme.svelte'
   import SakugaTabs from '../../ui/SakugaTabs.svelte'
+  import { LL } from '../../../i18n/i18n-svelte'
   interface BandConfig {
     engine: 'qualcomm_qrtr' | 'universal' | 'qualcomm_at' | 'intent'
     preferred_rat: 'hybrid' | '5g_only' | '4g_only' | '5g_4g' | '3g_only'
@@ -58,7 +59,7 @@
   }
   let subTab = $state<'bands' | 'cell_lock' | 'searcher' | 'capability' | 'mbn' | 'profiles' | 'efs' | 'nv' | 'imei'>('bands')
   const SUBTAB_IDS: Array<typeof subTab> = ['bands', 'cell_lock', 'searcher', 'capability', 'mbn', 'profiles', 'efs', 'nv', 'imei']
-  const SUBTAB_LABELS: string[] = ['Band Locking', 'Cell & Tower Lock', 'Searcher & Extra Locks', 'RRC Capabilities', 'MBN / PDC Profiles', 'Hardware & Profiles', 'EFS & NV Browser', 'NV Manager', 'IMEI Tool']
+  const SUBTAB_LABELS = $derived([$LL.qualcomm.subtabs.bands(), $LL.qualcomm.subtabs.cellLock(), $LL.qualcomm.subtabs.searcher(), $LL.qualcomm.subtabs.capability(), $LL.qualcomm.subtabs.mbn(), $LL.qualcomm.subtabs.profiles(), $LL.qualcomm.subtabs.efs(), $LL.qualcomm.subtabs.nv(), $LL.qualcomm.subtabs.imei()])
   let bandConfig = $state<BandConfig>({
     engine: 'qualcomm_qrtr',
     preferred_rat: 'hybrid',
@@ -141,12 +142,12 @@
       <div class="flex items-center gap-2">
         <Zap class="w-6 h-6 text-accent" />
         <h1 class="text-xl sm:text-2xl font-black uppercase tracking-wider text-foreground">
-          Snapdragon QMI Control Panel
+          {$LL.qualcomm.title()}
         </h1>
         <Badge variant="success" class="text-[10px]">AF_QIPCRTR</Badge>
       </div>
       <p class="text-xs text-muted mt-1">
-        Direct Qualcomm IPC Router socket modulation via QMI Network Access Service (NAS).
+        {$LL.qualcomm.subtitle()}
       </p>
     </div>
 
@@ -161,7 +162,7 @@
         }}
       >
         <RefreshCw class="w-3.5 h-3.5 mr-1.5 {isLoading || isLoadingSim ? 'animate-spin' : ''}" />
-        <span>Refresh</span>
+        <span>{$LL.common.refresh()}</span>
       </Button>
     </div>
   </div>
@@ -172,37 +173,37 @@
       <div class="flex items-center gap-2">
         <Cpu class="w-4 h-4 text-accent" />
         <span class="text-xs font-bold uppercase tracking-wider text-foreground">
-          Target Architecture & Hardware Compatibility
+          {$LL.modem.compat.title()}
         </span>
       </div>
       {#if bandConfig.is_qualcomm}
         <Badge variant="success" class="flex items-center gap-1.5 w-fit">
           <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-          <span>COMPATIBLE & DETECTED ON THIS DEVICE</span>
+          <span>{$LL.qualcomm.compatible()}</span>
         </Badge>
       {:else}
         <Badge variant="warning" class="flex items-center gap-1.5 w-fit">
           <AlertTriangle class="w-3.5 h-3.5" />
-          <span>NON-QUALCOMM / QRTR NOT DETECTED</span>
+          <span>{$LL.qualcomm.nonQualcomm()}</span>
         </Badge>
       {/if}
     </div>
 
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-xs">
       <div class="p-2.5 bg-card border-2 border-border rounded">
-        <span class="text-[10px] text-muted uppercase font-bold block mb-1">Target Device</span>
+        <span class="text-[10px] text-muted uppercase font-bold block mb-1">{$LL.modem.compat.targetDevice()}</span>
         <p class="font-bold text-foreground">Google Pixel 1-5, Xiaomi, POCO, OnePlus, Sony, Moto, ASUS</p>
       </div>
       <div class="p-2.5 bg-card border-2 border-border rounded">
-        <span class="text-[10px] text-muted uppercase font-bold block mb-1">Target ROM</span>
+        <span class="text-[10px] text-muted uppercase font-bold block mb-1">{$LL.modem.compat.targetRom()}</span>
         <p class="font-bold text-foreground">AOSP, LineageOS, PixelOS, MIUI/HyperOS, OxygenOS (Non-OneUI)</p>
       </div>
       <div class="p-2.5 bg-card border-2 border-border rounded">
-        <span class="text-[10px] text-muted uppercase font-bold block mb-1">Target Chipset</span>
+        <span class="text-[10px] text-muted uppercase font-bold block mb-1">{$LL.modem.compat.targetChipset()}</span>
         <p class="font-bold text-foreground">Qualcomm Snapdragon (All SoCs with Linux QRTR support)</p>
       </div>
       <div class="p-2.5 bg-card border-2 border-border rounded">
-        <span class="text-[10px] text-muted uppercase font-bold block mb-1">Target Modem</span>
+        <span class="text-[10px] text-muted uppercase font-bold block mb-1">{$LL.modem.compat.targetModem()}</span>
         <p class="font-bold text-foreground">Qualcomm MSS Baseband via Linux AF_QIPCRTR Socket</p>
       </div>
     </div>
@@ -218,15 +219,15 @@
   {:else}
   <div class="flex items-center gap-2 border-b-2 border-border pb-2 overflow-x-auto text-xs">
     {#each [
-      { id: 'bands', label: 'Band Locking', icon: Radio },
-      { id: 'cell_lock', label: 'Cell & Tower Lock', icon: Search },
-      { id: 'searcher', label: 'Searcher & Extra Locks', icon: Filter },
-      { id: 'capability', label: 'RRC Capabilities', icon: Zap },
-      { id: 'mbn', label: 'MBN / PDC Profiles', icon: Layers },
-      { id: 'profiles', label: 'Hardware & Profiles', icon: Sliders },
-      { id: 'efs', label: 'EFS & NV Browser', icon: HardDrive },
-      { id: 'nv', label: 'NV Manager', icon: Database },
-      { id: 'imei', label: 'IMEI Tool', icon: Smartphone },
+      { id: 'bands', label: $LL.qualcomm.subtabs.bands(), icon: Radio },
+      { id: 'cell_lock', label: $LL.qualcomm.subtabs.cellLock(), icon: Search },
+      { id: 'searcher', label: $LL.qualcomm.subtabs.searcher(), icon: Filter },
+      { id: 'capability', label: $LL.qualcomm.subtabs.capability(), icon: Zap },
+      { id: 'mbn', label: $LL.qualcomm.subtabs.mbn(), icon: Layers },
+      { id: 'profiles', label: $LL.qualcomm.subtabs.profiles(), icon: Sliders },
+      { id: 'efs', label: $LL.qualcomm.subtabs.efs(), icon: HardDrive },
+      { id: 'nv', label: $LL.qualcomm.subtabs.nv(), icon: Database },
+      { id: 'imei', label: $LL.qualcomm.subtabs.imei(), icon: Smartphone },
     ] as tab}
       <button
         type="button"

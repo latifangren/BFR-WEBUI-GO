@@ -13,6 +13,7 @@
   import Card from '../../ui/Card.svelte'
   import Button from '../../ui/Button.svelte'
   import Badge from '../../ui/Badge.svelte'
+  import { LL } from '../../../i18n/i18n-svelte'
 
   interface Props {
     isRunning: boolean
@@ -40,16 +41,16 @@
     onToggleWatchdog,
   }: Props = $props()
 
-  const availableCores = [
+  const availableCores = $derived([
     { id: 'mihomo', label: 'Mihomo', desc: 'Clash.Meta', repo: 'https://github.com/MetaCubeX/mihomo' },
-    { id: 'sing-box', label: 'Sing-box', desc: 'Next-gen', repo: 'https://github.com/SagerNet/sing-box' },
-    { id: 'clash', label: 'Clash', desc: 'Legacy', repo: 'https://github.com/Dreamacro/clash' },
-  ]
+    { id: 'sing-box', label: 'Sing-box', desc: $LL.proxy.hero.coreNextGen(), repo: 'https://github.com/SagerNet/sing-box' },
+    { id: 'clash', label: 'Clash', desc: $LL.proxy.hero.coreLegacy(), repo: 'https://github.com/Dreamacro/clash' },
+  ])
 </script>
 
 <Card
-  title="Box Core Engine Manager"
-  subtitle="Multi-core proxy daemon lifecycle, memory telemetry & watchdog supervisor"
+  title={$LL.proxy.hero.title()}
+  subtitle={$LL.proxy.hero.subtitle()}
   tone="ice"
 >
   {#snippet action()}
@@ -58,21 +59,21 @@
         type="button"
         onclick={onToggleWatchdog}
         class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded text-xs font-mono font-bold border transition-colors cursor-pointer {watchdog ? 'bg-accent/15 border-accent text-accent' : 'bg-card border-border text-muted hover:text-foreground'}"
-        title="Automatically restart core if it crashes or gets killed"
+        title={$LL.proxy.hero.watchdogTitle()}
       >
         <Eye class="w-3.5 h-3.5 {watchdog ? 'text-accent' : 'text-muted'}" />
-        <span>Watchdog: {watchdog ? 'ON' : 'OFF'}</span>
+        <span>{$LL.proxy.hero.watchdogLabel()} {watchdog ? 'ON' : 'OFF'}</span>
       </button>
 
       {#if isRunning}
         <Badge variant="success" class="flex items-center gap-1.5">
           <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-          <span>CORE RUNNING</span>
+          <span>{$LL.proxy.hero.coreRunning()}</span>
         </Badge>
       {:else}
         <Badge variant="danger" class="flex items-center gap-1.5">
           <span class="w-2 h-2 rounded-full bg-red-400"></span>
-          <span>STOPPED</span>
+          <span>{$LL.proxy.hero.stopped()}</span>
         </Badge>
       {/if}
     </div>
@@ -82,14 +83,14 @@
     <!-- Core Engine Selector Pills & Official Source Links -->
     <div>
       <div class="flex items-center justify-between mb-2">
-        <span class="text-[10px] text-muted uppercase font-bold block">Active Core Binary</span>
+        <span class="text-[10px] text-muted uppercase font-bold block">{$LL.proxy.hero.activeCore()}</span>
         <div class="flex items-center gap-2">
           <a
             href="https://github.com/MetaCubeX/mihomo/releases"
             target="_blank"
             rel="noreferrer"
             class="inline-flex items-center gap-1 text-[10px] text-accent hover:underline font-bold"
-            title="Official MetaCubeX Mihomo Core Releases"
+            title={$LL.proxy.hero.releasesTitle()}
           >
             <Code2 class="w-3 h-3" />
             <span>MetaCubeX/mihomo</span>
@@ -115,22 +116,22 @@
     <!-- Telemetry Cards -->
     <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
       <div class="p-2.5 bg-card-sub border border-border rounded space-y-0.5">
-        <span class="text-[10px] text-muted uppercase font-bold">Process PID</span>
+        <span class="text-[10px] text-muted uppercase font-bold">{$LL.proxy.hero.pid()}</span>
         <div class="font-bold text-foreground text-sm">{isRunning && activePid > 0 ? activePid : '-'}</div>
       </div>
 
       <div class="p-2.5 bg-card-sub border border-border rounded space-y-0.5">
-        <span class="text-[10px] text-muted uppercase font-bold">Memory RSS</span>
+        <span class="text-[10px] text-muted uppercase font-bold">{$LL.proxy.hero.memoryRss()}</span>
         <div class="font-bold text-accent text-sm">{isRunning ? memoryUsage : '-'}</div>
       </div>
 
       <div class="p-2.5 bg-card-sub border border-border rounded space-y-0.5">
-        <span class="text-[10px] text-muted uppercase font-bold">Version</span>
+        <span class="text-[10px] text-muted uppercase font-bold">{$LL.proxy.hero.version()}</span>
         <div class="font-bold text-foreground text-xs truncate" title={coreVersion}>{coreVersion || '-'}</div>
       </div>
 
       <div class="p-2.5 bg-card-sub border border-border rounded space-y-0.5">
-        <span class="text-[10px] text-muted uppercase font-bold">Service Controller</span>
+        <span class="text-[10px] text-muted uppercase font-bold">{$LL.proxy.hero.serviceController()}</span>
         <div class="font-bold text-emerald-400 text-xs">BFM box.service</div>
       </div>
     </div>
@@ -145,7 +146,7 @@
           onclick={() => onAction('stop')}
         >
           <Square class="w-3.5 h-3.5 mr-1" />
-          <span>Stop Core</span>
+          <span>{$LL.proxy.hero.stopCore()}</span>
         </Button>
 
         <Button
@@ -155,7 +156,7 @@
           onclick={() => onAction('restart')}
         >
           <RotateCcw class="w-3.5 h-3.5 mr-1" />
-          <span>Restart</span>
+          <span>{$LL.proxy.hero.restart()}</span>
         </Button>
       {:else}
         <Button
@@ -165,7 +166,7 @@
           onclick={() => onAction('start')}
         >
           <Play class="w-3.5 h-3.5 mr-1" />
-          <span>Start Core</span>
+          <span>{$LL.proxy.hero.startCore()}</span>
         </Button>
       {/if}
     </div>

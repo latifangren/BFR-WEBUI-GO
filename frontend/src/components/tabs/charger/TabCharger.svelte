@@ -26,6 +26,7 @@
   } from '@lucide/svelte'
   import { api } from '../../../api/client'
   import { toastStore } from '../../../stores/toast.svelte'
+  import { LL } from '../../../i18n/i18n-svelte'
   import { sysinfoStore } from '../../../stores/sysinfo.svelte'
   import type {
     ChargerConfig,
@@ -132,16 +133,16 @@
 
   let currentRateLabel = $derived(
     isIdleBypass
-      ? 'Idle Bypass (0 mA net draw)'
+      ? $LL.charger.rate.idleBypass()
       : isCharging
-        ? 'Charging In Progress'
+        ? $LL.charger.rate.charging()
         : isDischarging
-          ? 'Battery Discharging'
-          : 'Standby / Low Draw'
+          ? $LL.charger.rate.discharging()
+          : $LL.charger.rate.standby()
   )
 
   let activeProfileObj = $derived(
-    status.available_switches.find((s) => s.id === config.selected_switch) ||
+    status.available_switches?.find((s) => s.id === config.selected_switch) ||
       status.active_profile
   )
 
@@ -182,7 +183,7 @@
     } catch (err: unknown) {
       if (initial) {
         toastStore.error(
-          err instanceof Error ? err.message : 'Failed to fetch charger telemetry'
+          err instanceof Error ? err.message : $LL.charger.toasts.fetchFailed()
         )
       }
     } finally {
@@ -209,11 +210,11 @@
         custom_on: res.config?.custom_on ?? '1',
         custom_off: res.config?.custom_off ?? '0',
       }
-      toastStore.success('Charger threshold configuration saved.')
+      toastStore.success($LL.charger.toasts.saved())
       await sysinfoStore.refresh()
     } catch (err: unknown) {
       toastStore.error(
-        err instanceof Error ? err.message : 'Failed to save charger config'
+        err instanceof Error ? err.message : $LL.charger.toasts.saveFailed()
       )
     } finally {
       isSaving = false
@@ -235,15 +236,15 @@
       status = res
       if (res.charging_disabled) {
         toastStore.warning(
-          'Hardware cutoff applied: Battery charging forced OFF (Bypass active).'
+          $LL.charger.toasts.cutoffApplied()
         )
       } else {
-        toastStore.success('Normal charging restored: Hardware gate opened.')
+        toastStore.success($LL.charger.toasts.restored())
       }
       await sysinfoStore.refresh()
     } catch (err: unknown) {
       toastStore.error(
-        err instanceof Error ? err.message : 'Failed to toggle charging override'
+        err instanceof Error ? err.message : $LL.charger.toasts.toggleFailed()
       )
     } finally {
       isToggling = false
@@ -253,23 +254,23 @@
   async function runProbe() {
     try {
       isProbing = true
-      toastStore.info('Testing hardware switches... Please keep power connected.')
+      toastStore.info($LL.charger.toasts.probing())
       const results = await api.post<ProbeResult[]>('/api/charger/probe', {})
       status.probe_results = results
       const passCount = results.filter((r) => r.success).length
       if (passCount > 0) {
         toastStore.success(
-          `Probe complete! ${passCount} of ${results.length} switches verified functional.`
+          $LL.charger.toasts.probeComplete({ pass: passCount, total: results.length })
         )
       } else {
         toastStore.warning(
-          `Probe finished. None of ${results.length} switches cut charging current. You may define a custom sysfs node.`
+          $LL.charger.toasts.probeNone({ total: results.length })
         )
       }
       await fetchChargerStatus(false)
     } catch (err: unknown) {
       toastStore.error(
-        err instanceof Error ? err.message : 'Failed to run hardware switch probe'
+        err instanceof Error ? err.message : $LL.charger.toasts.probeFailed()
       )
     } finally {
       isProbing = false
@@ -321,15 +322,15 @@
           <h2
             class="text-base sm:text-lg font-mono font-bold uppercase tracking-wider text-foreground"
           >
-            Smart Charging Limiter
+            {$LL.charger.title()}
           </h2>
           <Badge variant="warning">Hardware ACC</Badge>
           {#if activeProfileObj?.is_bypass}
-            <Badge variant="success">Bypass Ready</Badge>
+            <Badge variant="success">{$LL.charger.bypassReady()}</Badge>
           {/if}
         </div>
         <p class="text-xs text-muted font-mono">
-          Kernel-level charging threshold controller & idle power bypass
+          {$LL.charger.subtitle()}
         </p>
       </div>
     </div>
@@ -337,7 +338,7 @@
     <div class="flex items-center gap-2">
       {#if lastUpdated}
         <span class="text-[10px] font-mono text-muted hidden md:inline-block">
-          Synced: {lastUpdated}
+          {$LL.charger.synced({ time: lastUpdated })}
         </span>
       {/if}
       <Button
@@ -347,15 +348,15 @@
         onclick={() => fetchChargerStatus(true)}
       >
         <RefreshCw class="w-3.5 h-3.5 mr-1.5 {isLoading ? 'animate-spin' : ''}" />
-        <span>Refresh</span>
+        <span>{$LL.common.refresh()}</span>
       </Button>
     </div>
   </div>
 
   <!-- CARD 1: Live Battery & Hardware Telemetry -->
   <Card
-    title="Live Battery & Hardware Telemetry"
-    subtitle="Real-time kernel power supply metrics & thermal monitoring"
+    title={$LL.charger.telemetry.title()}
+    subtitle={$LL.charger.telemetry.subtitle()}
     tone="ice"
   >
     {#snippet action()}
@@ -363,21 +364,21 @@
         {#if isIdleBypass}
           <Badge variant="success" class="flex items-center gap-1">
             <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-            Idle / Bypass (AC Powered)
+            {$LL.charger.telemetry.idleBypassBadge()}
           </Badge>
         {:else if isCharging}
           <Badge variant="warning" class="flex items-center gap-1">
             <Zap class="w-3 h-3 text-amber-400" />
-            Charging
+            {$LL.charger.telemetry.charging()}
           </Badge>
         {:else if isDischarging}
-          <Badge variant="info">Discharging</Badge>
+          <Badge variant="info">{$LL.charger.telemetry.discharging()}</Badge>
         {:else}
-          <Badge variant="default">{status.battery.status || 'Standby'}</Badge>
+          <Badge variant="default">{status.battery.status || $LL.charger.telemetry.standby()}</Badge>
         {/if}
 
         {#if status.charging_disabled}
-          <Badge variant="danger">Cutoff Active</Badge>
+          <Badge variant="danger">{$LL.charger.telemetry.cutoffActive()}</Badge>
         {/if}
       </div>
     {/snippet}
@@ -407,7 +408,7 @@
                 <span class="text-xl font-mono font-bold text-muted">%</span>
               </div>
               <span class="text-[11px] font-mono text-muted uppercase font-bold tracking-wider">
-                Battery Level
+                {$LL.charger.telemetry.batteryLevel()}
               </span>
             </div>
           </div>
@@ -415,10 +416,10 @@
           <!-- Quick status indicators -->
           <div class="text-right space-y-1">
             <div class="text-xs font-mono font-bold text-foreground">
-              {status.battery.is_online ? 'AC Plugged In' : 'Battery Only (Unplugged)'}
+              {status.battery.is_online ? $LL.charger.telemetry.acPlugged() : $LL.charger.telemetry.batteryOnly()}
             </div>
             <div class="text-[10px] font-mono text-muted uppercase">
-              Gate: {status.charging_disabled ? 'FORCED OFF' : 'NORMAL (ON)'}
+              {$LL.charger.telemetry.gateLabel()} {status.charging_disabled ? $LL.charger.telemetry.gateForcedOff() : $LL.charger.telemetry.gateNormal()}
             </div>
           </div>
         </div>
@@ -433,7 +434,7 @@
               <div
                 class="absolute top-0 bottom-0 w-0.5 bg-emerald-400 z-20 pointer-events-none"
                 style="left: {config.start_percent}%;"
-                title="Resume Threshold: {config.start_percent}%"
+                title={$LL.charger.telemetry.resumeTitle({ value: config.start_percent })}
               >
                 <div class="w-2 h-2 -ml-0.75 -mt-0.5 bg-emerald-400 rotate-45"></div>
               </div>
@@ -444,7 +445,7 @@
               <div
                 class="absolute top-0 bottom-0 w-0.5 bg-amber-400 z-20 pointer-events-none"
                 style="left: {config.stop_percent}%;"
-                title="Stop Threshold: {config.stop_percent}%"
+                title={$LL.charger.telemetry.stopTitle({ value: config.stop_percent })}
               >
                 <div class="w-2 h-2 -ml-0.75 -mt-0.5 bg-amber-400 rotate-45"></div>
               </div>
@@ -468,7 +469,7 @@
             >
               <span>0%</span>
               <span class="text-zinc-300 font-normal">
-                Resume: {config.start_percent}% | Stop: {config.stop_percent}%
+                {$LL.charger.telemetry.overlay({ start: config.start_percent, stop: config.stop_percent })}
               </span>
               <span>100%</span>
             </div>
@@ -477,11 +478,11 @@
           <div class="flex justify-between text-[10px] font-mono text-muted px-1">
             <span class="flex items-center gap-1 text-emerald-400">
               <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
-              Start Threshold: {config.start_percent}%
+              {$LL.charger.telemetry.startThreshold({ value: config.start_percent })}
             </span>
             <span class="flex items-center gap-1 text-amber-400">
               <span class="w-1.5 h-1.5 rounded-full bg-amber-400"></span>
-              Stop Threshold: {config.stop_percent}%
+              {$LL.charger.telemetry.stopThreshold({ value: config.stop_percent })}
             </span>
           </div>
         </div>
@@ -496,10 +497,10 @@
             <Flame class="w-5 h-5 text-red-500 shrink-0" />
             <div>
               <span class="font-bold text-red-400 uppercase tracking-wider block">
-                Thermal Alert: High Battery Temperature ({status.battery.temperature.toFixed(1)}°C)
+                {$LL.charger.telemetry.thermalTitle({ temp: status.battery.temperature.toFixed(1) })}
               </span>
               <span class="text-[11px] text-red-300">
-                Battery temperature exceeds safe threshold (&gt; 42°C). Hardware cutoff is strongly recommended.
+                {$LL.charger.telemetry.thermalBody()}
               </span>
             </div>
           </div>
@@ -510,7 +511,7 @@
               onclick={toggleManualCut}
               disabled={isToggling}
             >
-              Cut Power Now
+              {$LL.charger.telemetry.cutPowerNow()}
             </Button>
           {/if}
         </div>
@@ -525,7 +526,7 @@
           <div
             class="flex items-center justify-between text-[10px] font-mono text-muted uppercase font-bold"
           >
-            <span>Current Flow</span>
+            <span>{$LL.charger.telemetry.currentFlow()}</span>
             <Activity class="w-3.5 h-3.5 text-accent" />
           </div>
           <div class="text-xl sm:text-2xl font-mono font-black mt-1 {currentRateColor}">
@@ -543,7 +544,7 @@
           <div
             class="flex items-center justify-between text-[10px] font-mono text-muted uppercase font-bold"
           >
-            <span>Voltage</span>
+            <span>{$LL.charger.telemetry.voltage()}</span>
             <Zap class="w-3.5 h-3.5 text-cyan-400" />
           </div>
           <div class="text-xl sm:text-2xl font-mono font-black text-cyan-400 mt-1">
@@ -552,7 +553,7 @@
               : '--'} V
           </div>
           <div class="text-[10px] font-mono text-muted mt-0.5 truncate">
-            Bus Potential
+            {$LL.charger.telemetry.busPotential()}
           </div>
         </div>
 
@@ -565,7 +566,7 @@
           <div
             class="flex items-center justify-between text-[10px] font-mono text-muted uppercase font-bold"
           >
-            <span>Temperature</span>
+            <span>{$LL.charger.telemetry.temperature()}</span>
             <Thermometer
               class="w-3.5 h-3.5 {isOverheating
                 ? 'text-red-500 animate-bounce'
@@ -582,7 +583,7 @@
               : '--'} °C
           </div>
           <div class="text-[10px] font-mono text-muted mt-0.5 truncate">
-            {isOverheating ? 'CRITICAL HIGH' : 'Normal Operating'}
+            {isOverheating ? $LL.charger.telemetry.criticalHigh() : $LL.charger.telemetry.normalOperating()}
           </div>
         </div>
 
@@ -593,14 +594,14 @@
           <div
             class="flex items-center justify-between text-[10px] font-mono text-muted uppercase font-bold"
           >
-            <span>Power Source</span>
+            <span>{$LL.charger.telemetry.powerSource()}</span>
             <Cpu class="w-3.5 h-3.5 text-accent" />
           </div>
           <div class="text-base sm:text-lg font-mono font-black text-foreground mt-1 truncate">
             {status.battery.power_supply ? status.battery.power_supply.toUpperCase() : 'BATTERY'}
           </div>
           <div class="text-[10px] font-mono text-muted mt-0.5 truncate">
-            {status.battery.is_online ? 'External Powered' : 'Unplugged'}
+            {status.battery.is_online ? $LL.charger.telemetry.externalPowered() : $LL.charger.telemetry.unplugged()}
           </div>
         </div>
       </div>
@@ -611,12 +612,12 @@
       >
         <div class="flex items-center gap-2 overflow-hidden">
           <Layers class="w-4 h-4 text-accent shrink-0" />
-          <span class="text-muted">Active Switch:</span>
+          <span class="text-muted">{$LL.charger.telemetry.activeSwitch()}</span>
           <span class="font-bold text-foreground truncate">
-            {activeProfileObj?.name || status.detected_type || 'Automatic Detection'}
+            {activeProfileObj?.name || status.detected_type || $LL.charger.telemetry.autoDetection()}
           </span>
           {#if activeProfileObj?.is_bypass}
-            <Badge variant="success" class="text-[9px]">BYPASS</Badge>
+            <Badge variant="success" class="text-[9px]">{$LL.charger.telemetry.bypass()}</Badge>
           {/if}
         </div>
         {#if status.detected_path}
@@ -631,17 +632,17 @@
   <div class="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-6">
     <!-- CARD 2: Limiter Threshold Settings (Compact) -->
     <Card
-      title="Smart Charging Limiter"
-      subtitle="Hardware cutoff threshold & AC bypass gate"
+      title={$LL.charger.limiter.title()}
+      subtitle={$LL.charger.limiter.subtitle()}
       tone="peach"
     >
       {#snippet action()}
         <div class="flex items-center gap-2">
           <Badge variant={config.enabled ? 'success' : 'default'}>
-            {config.enabled ? 'AUTO ON' : 'DISABLED'}
+            {config.enabled ? $LL.charger.limiter.autoOn() : $LL.charger.limiter.disabled()}
           </Badge>
           {#if themeStore.useSakugaControls()}
-            <SakugaToggle checked={config.enabled} label="Smart Charging Limiter" onchange={toggleMasterEnabled} />
+            <SakugaToggle checked={config.enabled} label={$LL.charger.limiter.title()} onchange={toggleMasterEnabled} />
           {:else}
           <button
             type="button"
@@ -649,7 +650,7 @@
             class="relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-border transition-colors duration-200 ease-in-out {config.enabled
               ? 'bg-accent border-accent'
               : 'bg-zinc-800'}"
-            title="Toggle Automatic Daemon"
+            title={$LL.charger.limiter.toggleTitle()}
           >
             <span
               class="pointer-events-none inline-block h-3.5 w-3.5 transform rounded-full bg-white shadow-md ring-0 transition duration-200 ease-in-out {config.enabled
@@ -669,7 +670,7 @@
             <div class="flex items-center justify-between">
               <span class="font-bold text-[11px] uppercase text-amber-400 flex items-center gap-1.5">
                 <span class="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>
-                Stop Cutoff
+                {$LL.charger.limiter.stopCutoff()}
               </span>
               <div class="flex items-center gap-1">
                 <input
@@ -698,8 +699,8 @@
             />
             {/if}
             <div class="flex items-center justify-between text-[9px] text-muted">
-              <span>Trips at {config.stop_percent}%</span>
-              <span>Bypass AC</span>
+              <span>{$LL.charger.limiter.tripsAt({ value: config.stop_percent })}</span>
+              <span>{$LL.charger.limiter.bypassAc()}</span>
             </div>
           </div>
 
@@ -708,7 +709,7 @@
             <div class="flex items-center justify-between">
               <span class="font-bold text-[11px] uppercase text-emerald-400 flex items-center gap-1.5">
                 <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
-                Resume Charge
+                {$LL.charger.limiter.resumeCharge()}
               </span>
               <div class="flex items-center gap-1">
                 <input
@@ -737,8 +738,8 @@
             />
             {/if}
             <div class="flex items-center justify-between text-[9px] text-muted">
-              <span>Reopens at &le; {config.start_percent}%</span>
-              <span>Hysteresis {config.stop_percent - config.start_percent}%</span>
+              <span>{$LL.charger.limiter.reopensAt({ value: config.start_percent })}</span>
+              <span>{$LL.charger.limiter.hysteresis({ value: config.stop_percent - config.start_percent })}</span>
             </div>
           </div>
         </div>
@@ -746,27 +747,27 @@
         <!-- Quick Presets Row & Save Action -->
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pt-1 border-t border-border/60">
           <div class="flex items-center gap-1.5 flex-wrap">
-            <span class="text-[9px] text-muted uppercase font-bold mr-0.5">Presets:</span>
+            <span class="text-[9px] text-muted uppercase font-bold mr-0.5">{$LL.charger.limiter.presets()}</span>
             <button
               type="button"
               class="px-2 py-1 bg-card-sub hover:bg-card border border-border rounded text-[10px] font-mono font-bold text-foreground transition cursor-pointer {config.stop_percent === 80 && config.start_percent === 70 ? 'border-accent text-accent shadow-[1px_1px_0px_var(--neo-shadow)]' : ''}"
               onclick={() => applyPreset(80, 70)}
             >
-              80% / 70% <span class="text-[8px] text-muted">Daily</span>
+              80% / 70% <span class="text-[8px] text-muted">{$LL.charger.limiter.presetDaily()}</span>
             </button>
             <button
               type="button"
               class="px-2 py-1 bg-card-sub hover:bg-card border border-border rounded text-[10px] font-mono font-bold text-foreground transition cursor-pointer {config.stop_percent === 85 && config.start_percent === 75 ? 'border-accent text-accent shadow-[1px_1px_0px_var(--neo-shadow)]' : ''}"
               onclick={() => applyPreset(85, 75)}
             >
-              85% / 75% <span class="text-[8px] text-muted">Max</span>
+              85% / 75% <span class="text-[8px] text-muted">{$LL.charger.limiter.presetMax()}</span>
             </button>
             <button
               type="button"
               class="px-2 py-1 bg-card-sub hover:bg-card border border-border rounded text-[10px] font-mono font-bold text-foreground transition cursor-pointer {config.stop_percent === 65 && config.start_percent === 60 ? 'border-accent text-accent shadow-[1px_1px_0px_var(--neo-shadow)]' : ''}"
               onclick={() => applyPreset(65, 60)}
             >
-              65% / 60% <span class="text-[8px] text-muted">24/7 Desk</span>
+              65% / 60% <span class="text-[8px] text-muted">{$LL.charger.limiter.presetDesk()}</span>
             </button>
           </div>
 
@@ -779,10 +780,10 @@
           >
             {#if isSaving}
               <RefreshCw class="w-3.5 h-3.5 mr-1.5 animate-spin" />
-              <span>Saving...</span>
+              <span>{$LL.charger.limiter.saving()}</span>
             {:else}
               <Check class="w-3.5 h-3.5 mr-1.5" />
-              <span>Save Limits</span>
+              <span>{$LL.charger.limiter.saveLimits()}</span>
             {/if}
           </Button>
         </div>
@@ -793,15 +794,15 @@
             <Zap class="w-4 h-4 text-accent shrink-0" />
             <div class="truncate">
               <div class="flex items-center gap-1.5">
-                <span class="font-bold text-[11px] text-foreground uppercase">Manual Gate</span>
+                <span class="font-bold text-[11px] text-foreground uppercase">{$LL.charger.limiter.manualGate()}</span>
                 {#if status.charging_disabled}
-                  <Badge variant="danger">Forced Off</Badge>
+                  <Badge variant="danger">{$LL.charger.limiter.forcedOff()}</Badge>
                 {:else}
-                  <Badge variant="success">Normal Gate</Badge>
+                  <Badge variant="success">{$LL.charger.limiter.normalGate()}</Badge>
                 {/if}
               </div>
               <span class="text-[9px] text-muted block truncate sm:max-w-none max-w-[180px]">
-                Flip hardware switch instantly without saving thresholds.
+                {$LL.charger.limiter.manualDesc()}
               </span>
             </div>
           </div>
@@ -816,7 +817,7 @@
                 class="shadow-[1px_1px_0px_var(--neo-shadow)] shrink-0 text-xs"
               >
                 <Zap class="w-3.5 h-3.5 mr-1" />
-                <span>Restore</span>
+                <span>{$LL.charger.limiter.restore()}</span>
               </Button>
             {:else}
               <Button
@@ -827,7 +828,7 @@
                 class="shadow-[1px_1px_0px_var(--neo-shadow)] shrink-0 text-xs"
               >
                 <ZapOff class="w-3.5 h-3.5 mr-1" />
-                <span>Cut Off</span>
+                <span>{$LL.charger.limiter.cutOff()}</span>
               </Button>
             {/if}
           </div>
@@ -837,8 +838,8 @@
 
     <!-- CARD 3: Hardware Switch Probing & ACC Profile Selection -->
     <Card
-      title="Hardware Switch & ACC Profiles"
-      subtitle="Kernel sysfs switch detection & ACC profile compatibility"
+      title={$LL.charger.switches.title()}
+      subtitle={$LL.charger.switches.subtitle()}
       tone="lavender"
     >
       {#snippet action()}
@@ -849,7 +850,7 @@
           onclick={runProbe}
         >
           <Search class="w-3.5 h-3.5 mr-1.5 {isProbing ? 'animate-spin' : ''}" />
-          <span>{isProbing ? 'Probing...' : 'Probe Hardware Switches'}</span>
+          <span>{isProbing ? $LL.charger.switches.probing() : $LL.charger.switches.probeSwitches()}</span>
         </Button>
       {/snippet}
 
@@ -860,7 +861,7 @@
             for="switch-profile-select"
             class="block text-muted uppercase font-bold tracking-wider text-[11px]"
           >
-            Hardware Control Switch Profile
+            {$LL.charger.switches.profileLabel()}
           </label>
           <select
             id="switch-profile-select"
@@ -868,16 +869,16 @@
             bind:value={config.selected_switch}
             onchange={saveConfig}
           >
-            <option value="">-- Auto-Detected System Default --</option>
+            <option value="">{$LL.charger.switches.autoDefault()}</option>
             {#each status.available_switches as sw}
               <option value={sw.id}>
                 {sw.name} {sw.is_bypass ? '★ [BYPASS]' : ''}
               </option>
             {/each}
-            <option value="custom">⚙️ Custom Sysfs Node...</option>
+            <option value="custom">{$LL.charger.switches.customNode()}</option>
           </select>
           <p class="text-[10px] text-muted">
-            Select an ACC-tested switch profile or define a custom hardware node.
+            {$LL.charger.switches.hint()}
           </p>
         </div>
 
@@ -888,23 +889,23 @@
           >
             <div class="flex items-center gap-1.5 text-accent font-bold">
               <Sliders class="w-4 h-4" />
-              <span>Custom Sysfs Switch Parameters</span>
+              <span>{$LL.charger.switches.customTitle()}</span>
             </div>
 
             <div class="space-y-2">
               <Input
-                label="Sysfs File Path"
+                label={$LL.charger.switches.sysfsPath()}
                 placeholder="/sys/class/power_supply/battery/charging_enabled"
                 bind:value={config.custom_path}
               />
               <div class="grid grid-cols-2 gap-2">
                 <Input
-                  label="Resume / ON Value"
+                  label={$LL.charger.switches.resumeOnValue()}
                   placeholder="1"
                   bind:value={config.custom_on}
                 />
                 <Input
-                  label="Cutoff / OFF Value"
+                  label={$LL.charger.switches.cutoffOffValue()}
                   placeholder="0"
                   bind:value={config.custom_off}
                 />
@@ -918,7 +919,7 @@
               onclick={saveConfig}
               disabled={isSaving}
             >
-              Apply Custom Switch
+              {$LL.charger.switches.applyCustom()}
             </Button>
           </div>
         {:else if activeProfileObj}
@@ -929,9 +930,9 @@
                 {activeProfileObj.name}
               </span>
               {#if activeProfileObj.is_bypass}
-                <Badge variant="success">True Bypass</Badge>
+                <Badge variant="success">{$LL.charger.switches.trueBypass()}</Badge>
               {:else}
-                <Badge variant="default">Standard Cutoff</Badge>
+                <Badge variant="default">{$LL.charger.switches.standardCutoff()}</Badge>
               {/if}
             </div>
             <p class="text-[11px] text-muted">
@@ -940,7 +941,7 @@
             {#if activeProfileObj.nodes && activeProfileObj.nodes.length > 0}
               <div class="space-y-1 pt-1">
                 <span class="text-[9px] uppercase font-bold text-muted block">
-                  Sysfs Nodes ({activeProfileObj.nodes.length}):
+                  {$LL.charger.switches.sysfsNodes({ count: activeProfileObj.nodes.length })}
                 </span>
                 {#each activeProfileObj.nodes as node}
                   <div
@@ -961,11 +962,11 @@
         <div class="space-y-2 pt-1">
           <div class="flex items-center justify-between">
             <span class="text-[11px] font-bold uppercase text-muted tracking-wider">
-              Hardware Probe Benchmark Results
+              {$LL.charger.switches.probeResults()}
             </span>
             {#if status.probe_results && status.probe_results.length > 0}
               <span class="text-[10px] text-accent font-bold">
-                {successfulProbes.length} / {status.probe_results.length} Functional
+                {$LL.charger.switches.functional({ pass: successfulProbes.length, total: status.probe_results.length })}
               </span>
             {/if}
           </div>
@@ -985,19 +986,19 @@
                     {#if probe.success}
                       <Badge variant="success" class="shrink-0 flex items-center gap-1">
                         <CheckCircle2 class="w-3 h-3 text-emerald-400" />
-                        PASS
+                        {$LL.charger.switches.pass()}
                       </Badge>
                     {:else}
                       <Badge variant="default" class="shrink-0 flex items-center gap-1">
                         <XCircle class="w-3 h-3 text-muted" />
-                        FAIL
+                        {$LL.charger.switches.fail()}
                       </Badge>
                     {/if}
                   </div>
 
                   <div class="flex items-center justify-between text-[10px] text-muted">
                     <span class="flex items-center gap-1">
-                      <span>Flow:</span>
+                      <span>{$LL.charger.switches.flow()}</span>
                       <strong class="text-foreground">{formatCurrent(probe.current_before)}</strong>
                       <ArrowRight class="w-2.5 h-2.5 text-muted inline" />
                       <strong class={probe.success ? 'text-emerald-400' : 'text-foreground'}>
@@ -1024,7 +1025,7 @@
                         size="sm"
                         onclick={() => selectProfile(probe.profile_id)}
                       >
-                        Use This Switch Profile
+                        {$LL.charger.switches.useProfile()}
                       </Button>
                     </div>
                   {/if}
@@ -1038,7 +1039,7 @@
             >
               <Search class="w-6 h-6 text-muted mx-auto" />
               <p class="text-xs text-muted">
-                No hardware switches have been probed yet.
+                {$LL.charger.switches.noProbes()}
               </p>
               <Button
                 variant="outline"
@@ -1046,7 +1047,7 @@
                 onclick={runProbe}
                 disabled={isProbing}
               >
-                Run Hardware Switch Benchmark
+                {$LL.charger.switches.runBenchmark()}
               </Button>
             </div>
           {/if}
@@ -1057,14 +1058,14 @@
 
   <!-- CARD 4: Log Controller -->
   <Card
-    title="Limiter Daemon Event Log"
-    subtitle="Audit trail of threshold checks, cutoffs, and power events"
+    title={$LL.charger.log.title()}
+    subtitle={$LL.charger.log.subtitle()}
     tone="none"
   >
     {#snippet action()}
       <div class="flex items-center gap-2">
         <Badge variant="default" class="text-[10px]">
-          {status.logs ? status.logs.length : 0} Events
+          {$LL.charger.log.events({ count: status.logs ? status.logs.length : 0 })}
         </Badge>
         <Button
           variant="ghost"
@@ -1072,7 +1073,7 @@
           onclick={() => fetchChargerStatus(false)}
         >
           <RefreshCw class="w-3.5 h-3.5 mr-1" />
-          <span>Refresh Logs</span>
+          <span>{$LL.charger.log.refreshLogs()}</span>
         </Button>
       </div>
     {/snippet}
@@ -1100,16 +1101,16 @@
           {/each}
         {:else}
           <div class="text-muted text-center py-6 text-xs italic">
-            No daemon activity recorded yet. Logs will populate automatically during threshold evaluations.
+            {$LL.charger.log.empty()}
           </div>
         {/if}
       </div>
       <div class="flex items-center justify-between text-[10px] font-mono text-muted px-1">
         <span class="flex items-center gap-1">
           <Terminal class="w-3 h-3 text-accent" />
-          ACC Limiter Monitoring Service (Cycle: 10s)
+          {$LL.charger.log.service()}
         </span>
-        <span>Auto-sync enabled</span>
+        <span>{$LL.charger.log.autoSync()}</span>
       </div>
     </div>
   </Card>

@@ -1,5 +1,6 @@
 <script lang="ts">
   import { Upload, RefreshCw, Folder } from '@lucide/svelte'
+  import { LL } from '../../../i18n/i18n-svelte'
 
   interface Props {
     currentPath: string
@@ -73,10 +74,10 @@
 
       <div class="space-y-1">
         <h3 class="text-base sm:text-lg font-bold font-mono uppercase tracking-wider text-foreground">
-          {isUploading ? 'Uploading Files...' : 'Drop files to upload'}
+          {isUploading ? $LL.files.dropzone.uploading() : $LL.files.dropzone.dropToUpload()}
         </h3>
         <p class="text-xs font-mono text-muted">
-          Target destination:
+          {$LL.files.dropzone.targetDestination()}
         </p>
         <div class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-card-sub border border-border rounded font-mono text-xs text-accent font-bold max-w-full truncate">
           <Folder class="w-3.5 h-3.5 shrink-0 text-accent" />
@@ -86,7 +87,7 @@
 
       {#if !isUploading}
         <p class="text-[11px] font-mono text-muted/80">
-          Release files to upload directly into Android filesystem.
+          {$LL.files.dropzone.releaseHint()}
         </p>
       {/if}
     </div>

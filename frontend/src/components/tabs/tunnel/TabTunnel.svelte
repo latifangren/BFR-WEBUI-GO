@@ -11,6 +11,7 @@
     Upload,
   } from '@lucide/svelte'
   import { api } from '../../../api/client'
+  import { LL } from '../../../i18n/i18n-svelte'
   import { toastStore } from '../../../stores/toast.svelte'
   import Card from '../../ui/Card.svelte'
   import Button from '../../ui/Button.svelte'
@@ -80,9 +81,9 @@
       await api.post('/api/tunnel/start', payload)
       status.active = true
       status.running = true
-      toastStore.success(`Tunnel (${config.engine}) started successfully.`)
+      toastStore.success($LL.tunnel.toasts.started({ engine: config.engine }))
     } catch (err: unknown) {
-      toastStore.error(err instanceof Error ? err.message : 'Failed to start tunnel')
+      toastStore.error(err instanceof Error ? err.message : $LL.tunnel.toasts.startFailed())
     } finally {
       isToggling = false
     }
@@ -94,9 +95,9 @@
       await api.post('/api/tunnel/stop')
       status.active = false
       status.running = false
-      toastStore.success('Tunnel stopped.')
+      toastStore.success($LL.tunnel.toasts.stopped())
     } catch (err: unknown) {
-      toastStore.error(err instanceof Error ? err.message : 'Failed to stop tunnel')
+      toastStore.error(err instanceof Error ? err.message : $LL.tunnel.toasts.stopFailed())
     } finally {
       isToggling = false
     }
@@ -117,7 +118,7 @@
 
   async function uploadBinary() {
     if (!selectedBinaryFile) {
-      toastStore.warning('Please select a binary file first.')
+      toastStore.warning($LL.tunnel.toasts.selectBinaryFirst())
       return
     }
     try {
@@ -132,14 +133,14 @@
       )
 
       if (res && res.success) {
-        toastStore.success(`Binary for ${uploadEngine} installed successfully to ${res.path || 'system'}`)
+        toastStore.success($LL.tunnel.toasts.binaryInstalled({ engine: uploadEngine, path: res.path || 'system' }))
         selectedBinaryFile = null
         if (binaryFileInputEl) binaryFileInputEl.value = ''
       } else {
-        toastStore.error(res?.error || 'Failed to upload binary')
+        toastStore.error(res?.error || $LL.tunnel.toasts.uploadFailed())
       }
     } catch (err: unknown) {
-      toastStore.error(err instanceof Error ? err.message : 'Binary upload failed')
+      toastStore.error(err instanceof Error ? err.message : $LL.tunnel.toasts.uploadFailed())
     } finally {
       isUploadingBinary = false
     }
@@ -152,10 +153,10 @@
     <div class="flex items-center gap-2">
       <Globe class="w-5 h-5 text-accent" />
       <h2 class="text-base sm:text-lg font-mono font-bold uppercase tracking-wider text-foreground">
-        Remote Access Tunnels
+        {$LL.tunnel.title()}
       </h2>
       <Badge variant={(status.active || status.running) ? 'success' : 'default'}>
-        {(status.active || status.running) ? `${config.engine.toUpperCase()} Active` : 'Inactive'}
+        {(status.active || status.running) ? $LL.tunnel.badgeActive({ engine: config.engine.toUpperCase() }) : $LL.tunnel.badgeInactive()}
       </Badge>
     </div>
 
@@ -167,7 +168,7 @@
         onclick={fetchTunnel}
       >
         <RefreshCw class="w-3.5 h-3.5 mr-1.5 {isLoading ? 'animate-spin' : ''}" />
-        <span>Refresh</span>
+        <span>{$LL.common.refresh()}</span>
       </Button>
 
       {#if (status.active || status.running)}
@@ -178,7 +179,7 @@
           onclick={stopTunnel}
         >
           <Square class="w-3.5 h-3.5 mr-1" />
-          <span>Stop Tunnel</span>
+          <span>{$LL.tunnel.stopTunnel()}</span>
         </Button>
       {:else}
         <Button
@@ -188,7 +189,7 @@
           onclick={startTunnel}
         >
           <Play class="w-3.5 h-3.5 mr-1" />
-          <span>Start Tunnel</span>
+          <span>{$LL.tunnel.startTunnel()}</span>
         </Button>
       {/if}
     </div>
@@ -197,8 +198,8 @@
   <div class="grid grid-cols-1 lg:grid-cols-3 gap-3 sm:gap-6">
     <!-- Tunnel Configuration -->
     <Card
-      title="Tunnel Configuration"
-      subtitle="Expose WebUI remotely without port forwarding"
+      title={$LL.tunnel.config.title()}
+      subtitle={$LL.tunnel.config.subtitle()}
       tone="ice"
       class="lg:col-span-2"
     >
@@ -206,7 +207,7 @@
         <!-- Engine Selector -->
         <div>
           <span class="text-[10px] text-muted uppercase font-bold block mb-2">
-            Tunnel Provider Engine
+            {$LL.tunnel.config.engineLabel()}
           </span>
           <div class="grid grid-cols-3 gap-3">
             {#each ['cloudflare', 'frp', 'zerotier'] as eng}
@@ -218,7 +219,7 @@
               >
                 <div class="font-black text-sm uppercase">{eng}</div>
                 <div class="text-[10px] text-muted mt-0.5">
-                  {eng === 'cloudflare' ? 'Cloudflare Tunnel' : eng === 'frp' ? 'Fast Reverse Proxy' : 'P2P Virtual LAN'}
+                  {eng === 'cloudflare' ? $LL.tunnel.config.engineDesc.cloudflare() : eng === 'frp' ? $LL.tunnel.config.engineDesc.frp() : $LL.tunnel.config.engineDesc.zerotier()}
                 </div>
               </button>
             {/each}
@@ -229,7 +230,7 @@
         {#if config.engine === 'cloudflare'}
           <Input
             type="password"
-            label="Cloudflare Tunnel Token (cloudflared tunnel run --token ...)"
+            label={$LL.tunnel.config.cloudflareTokenLabel()}
             placeholder="eyJhIjoi..."
             bind:value={config.token}
             disabled={Boolean(status.active || status.running)}
@@ -237,14 +238,14 @@
         {:else if config.engine === 'frp'}
           <div class="space-y-3">
             <Input
-              label="FRP Server Address"
+              label={$LL.tunnel.config.frpServerLabel()}
               placeholder="vps.example.com:7000"
               bind:value={config.server}
               disabled={Boolean(status.active || status.running)}
             />
             <Input
               type="password"
-              label="FRP Auth Token"
+              label={$LL.tunnel.config.frpTokenLabel()}
               placeholder="secret_token"
               bind:value={config.token}
               disabled={Boolean(status.active || status.running)}
@@ -252,7 +253,7 @@
           </div>
         {:else if config.engine === 'zerotier'}
           <Input
-            label="ZeroTier Network ID (16 Hex Digits)"
+            label={$LL.tunnel.config.zerotierNetworkLabel()}
             placeholder="8056c2e21c000001"
             bind:value={config.token}
             disabled={Boolean(status.active || status.running)}
@@ -262,11 +263,11 @@
     </Card>
 
     <!-- Public URL & Connectivity -->
-    <Card title="Public Remote Endpoint" subtitle="Worldwide access URL" tone="ice">
+    <Card title={$LL.tunnel.endpoint.title()} subtitle={$LL.tunnel.endpoint.subtitle()} tone="ice">
       <div class="space-y-3 font-mono text-xs">
         {#if (status.active || status.running) && status.public_url}
           <div class="p-3 bg-card-sub border border-border rounded space-y-1">
-            <span class="text-[10px] text-muted uppercase font-bold">Public Domain:</span>
+            <span class="text-[10px] text-muted uppercase font-bold">{$LL.tunnel.endpoint.publicDomain()}</span>
             <a
               href={status.public_url}
               target="_blank"
@@ -279,11 +280,11 @@
           </div>
         {:else if (status.active || status.running)}
           <div class="p-3 bg-card-sub border border-border rounded text-emerald-400 font-bold">
-            Tunnel daemon is connected.
+            {$LL.tunnel.endpoint.daemonConnected()}
           </div>
         {:else}
           <p class="text-muted text-center py-4">
-            Tunnel is stopped. Configure your provider credentials and click Start.
+            {$LL.tunnel.endpoint.stopped()}
           </p>
         {/if}
       </div>
@@ -292,15 +293,15 @@
 
   <!-- Engine Binary Management Card -->
   <Card
-    title="Engine Binary Management"
-    subtitle="Upload custom ARM64 or x86 executable binary for cloudflared / zerotier-one"
+    title={$LL.tunnel.binary.title()}
+    subtitle={$LL.tunnel.binary.subtitle()}
     tone="ice"
   >
     <div class="space-y-4 font-mono text-xs">
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <!-- Engine selection -->
         <div class="space-y-2">
-          <span class="text-[10px] text-muted uppercase font-bold block">Target Tunnel Engine</span>
+          <span class="text-[10px] text-muted uppercase font-bold block">{$LL.tunnel.binary.targetEngine()}</span>
           <div class="grid grid-cols-2 gap-2">
             <button
               type="button"
@@ -324,11 +325,11 @@
 
         <!-- File selection & Upload -->
         <div class="space-y-2">
-          <span class="text-[10px] text-muted uppercase font-bold block">Select Executable Binary</span>
+          <span class="text-[10px] text-muted uppercase font-bold block">{$LL.tunnel.binary.selectLabel()}</span>
           <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
             <label class="flex-1 neo-button bg-card-sub border border-dashed border-border hover:border-accent p-2.5 rounded cursor-pointer text-center truncate select-none">
               <span class="text-xs text-foreground truncate">
-                {selectedBinaryFile ? selectedBinaryFile.name : 'Choose executable binary file...'}
+                {selectedBinaryFile ? selectedBinaryFile.name : $LL.tunnel.binary.chooseFile()}
               </span>
               <input
                 type="file"
@@ -345,14 +346,14 @@
               onclick={uploadBinary}
             >
               <Upload class="w-3.5 h-3.5 mr-1 {isUploadingBinary ? 'animate-bounce' : ''}" />
-              <span>{isUploadingBinary ? 'Uploading...' : 'Upload Binary'}</span>
+              <span>{isUploadingBinary ? $LL.common.uploading() : $LL.tunnel.binary.upload()}</span>
             </Button>
           </div>
         </div>
       </div>
 
       <div class="p-3 bg-card-sub border border-border rounded flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-muted text-[11px]">
-        <span>Binaries are saved to the module bin directory with executable (<code class="text-accent font-bold">0755</code>) permissions.</span>
+        <span>{$LL.tunnel.binary.savedNoteA()}<code class="text-accent font-bold">{$LL.tunnel.binary.savedNoteB()}</code>{$LL.tunnel.binary.savedNoteC()}</span>
         <Badge variant="default">ARM64 / ARMv7</Badge>
       </div>
     </div>

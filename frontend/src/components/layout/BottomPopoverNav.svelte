@@ -34,6 +34,8 @@
     type TabItem,
   } from '../../stores/navigation.svelte'
   import { themeStore } from '../../stores/theme.svelte'
+  import { LL } from '../../i18n/i18n-svelte'
+  import { tNav } from '../../lib/nav-labels'
 
   const iconComponents: Record<string, typeof Cpu> = {
     overview: LayoutDashboard,
@@ -79,13 +81,6 @@
     network: Network,
     system: Cpu,
     tools: Wrench,
-  }
-
-  const categoryLabels: Record<string, string> = {
-    core: 'Core Dashboard',
-    network: 'Network & Connectivity',
-    system: 'Hardware & System',
-    tools: 'Tools & Utilities',
   }
 
   const navItems = [
@@ -154,7 +149,7 @@
     class="fixed bottom-16 left-3 right-3 z-50 max-h-[60vh] flex flex-col font-mono md:hidden select-none overflow-hidden {themeStore.currentStyle === 'neobrutal' ? 'bg-card border-2 border-border shadow-[4px_4px_0px_0px_var(--neo-shadow)] rounded-lg' : 'bg-card/95 backdrop-blur-md border border-border shadow-2xl rounded-2xl'}"
     transition:fly={{ y: 20, duration: 150 }}
     role="dialog"
-    aria-label="Category Navigation"
+    aria-label={$LL.nav.categoryNavigation()}
   >
     <!-- Popover Header -->
     <div class="p-3 border-b border-border/80 flex items-center justify-between bg-card shrink-0">
@@ -163,7 +158,7 @@
           <CatIcon class="w-4 h-4" />
         </div>
         <span class="text-xs font-bold uppercase tracking-wider text-foreground truncate">
-          {categoryLabels[activePopoverCategory] || activeCategoryGroup.label}
+          {tNav($LL, 'categoryTitles', activePopoverCategory, activeCategoryGroup.label)}
         </span>
         <span class="text-[9px] font-bold px-1.5 py-0.2 rounded bg-card-sub border border-border text-muted shrink-0">
           {currentCategoryTabs.length}
@@ -174,7 +169,7 @@
         type="button"
         class="p-1 rounded border border-border text-muted hover:text-foreground hover:bg-card-sub cursor-pointer transition-colors shrink-0"
         onclick={() => (activePopoverCategory = null)}
-        aria-label="Close popover"
+        aria-label={$LL.common.closePopover()}
       >
         <X class="w-4 h-4" />
       </button>
@@ -195,7 +190,7 @@
           </div>
           <div class="min-w-0 flex-1">
             <div class="flex items-center justify-between gap-1">
-              <span class="text-xs truncate font-bold leading-tight">{tab.label}</span>
+              <span class="text-xs truncate font-bold leading-tight">{tNav($LL, 'tabs', tab.id, tab.label)}</span>
               {#if tab.badge}
                 {#if themeStore.currentStyle === 'neobrutal'}
                   <span class="border border-black shadow-[1px_1px_0px_#000] px-1 py-0.2 rounded text-[8px] font-mono font-black uppercase tracking-wider shrink-0 select-none {BADGE_COLOR_MAP[tab.badgeColor || 'mint'] || 'bg-[#c8f5d0] text-black'}">
@@ -222,7 +217,7 @@
 <!-- Bottom Bar -->
 <nav
   class="md:hidden fixed bottom-0 left-0 right-0 z-40 font-mono select-none {themeStore.currentStyle === 'neobrutal' ? 'border-t-2 border-border bg-card shadow-lg' : 'border-t border-border bg-card/90 backdrop-blur-md shadow-lg'}"
-  aria-label="Mobile Bottom Popover Navigation"
+  aria-label={$LL.nav.mobileBottomNav()}
 >
   <div class="grid grid-cols-5 h-14 max-w-lg mx-auto px-1 items-center">
     {#each navItems as item}
@@ -240,7 +235,7 @@
         <div class="p-1 rounded-md transition-colors {isHighlighted ? 'bg-accent/15' : ''}">
           <Icon class="w-4 h-4 {isHighlighted ? 'stroke-[2.5]' : 'stroke-2'}" />
         </div>
-        <span class="truncate max-w-[56px] leading-tight text-[9px] uppercase tracking-wider">{item.label}</span>
+        <span class="truncate max-w-[56px] leading-tight text-[9px] uppercase tracking-wider">{tNav($LL, 'categories', item.id, item.label)}</span>
         {#if isCurrentCategory}
           <span class="absolute top-1 w-1.5 h-1.5 rounded-full bg-accent"></span>
         {/if}

@@ -1,5 +1,6 @@
 <script lang="ts">
   import { fireSakugaFx } from '../../lib/sakuga-fx'
+  import { LL } from '../../i18n/i18n-svelte'
 
   // Native range input dressed as a neo slider. The fill is a gradient
   // driven by the value, so it tracks live without any element sync.
@@ -61,7 +62,7 @@
     onchange={handleChange}
     class="sakuga-slider w-full"
     style="--sakuga-fill: {fillPct}%"
-    aria-label={label || 'Slider'}
+    aria-label={label || $LL.common.slider()}
   />
 </div>
 

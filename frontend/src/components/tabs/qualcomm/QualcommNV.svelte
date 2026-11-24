@@ -20,6 +20,7 @@
   import { toastStore } from '../../../stores/toast.svelte'
   import Button from '../../ui/Button.svelte'
   import Modal from '../../ui/Modal.svelte'
+  import { LL } from '../../../i18n/i18n-svelte'
 
   // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -144,7 +145,7 @@
         applyFilter()
       }
     } catch {
-      toastStore.error('Failed to load NV catalog')
+      toastStore.error($LL.qualcomm.nv.loadFailed())
     } finally {
       isLoading = false
     }
@@ -195,14 +196,14 @@
         readResult = {
           id: item.id, name: item.name, category: item.category,
           index: 0, data_hex: '', formatted: '', data_type: item.data_type,
-          size: 0, success: false, error: res.error ?? 'Unknown error',
+          size: 0, success: false, error: res.error ?? $LL.qualcomm.nv.unknownError(),
         }
       }
     } catch (e: any) {
       readResult = {
         id: item.id, name: item.name, category: item.category,
         index: 0, data_hex: '', formatted: '', data_type: item.data_type,
-        size: 0, success: false, error: e?.message ?? 'Request failed',
+        size: 0, success: false, error: e?.message ?? $LL.qualcomm.nv.requestFailed(),
       }
     } finally {
       isReading = false
@@ -219,13 +220,13 @@
       })
       if (res?.ok && res.unlocked) {
         isSpcUnlocked = true
-        toastStore.success('SPC accepted: Modem DIAG security session elevated.')
+        toastStore.success($LL.qualcomm.efs.spcAccepted())
         showSpcModal = false
       } else {
-        toastStore.error(res?.error || 'SPC rejected by modem. Ensure code is correct.')
+        toastStore.error(res?.error || $LL.qualcomm.efs.spcRejected())
       }
     } catch (err: any) {
-      toastStore.error(err instanceof Error ? err.message : 'SPC verification failed')
+      toastStore.error(err instanceof Error ? err.message : $LL.qualcomm.efs.spcFailed())
     } finally {
       isUnlockingSpc = false
     }
@@ -250,14 +251,14 @@
         data_hex: writeHex.replace(/\s/g, ''),
       })
       if (res?.ok) {
-        toastStore.success(`NV ${selectedItem.id} (${selectedItem.name}) written`)
+        toastStore.success($LL.qualcomm.nv.written({ id: selectedItem.id, name: selectedItem.name }))
         writeModalOpen = false
         await readItem(selectedItem)
       } else {
-        writeError = res?.error ?? 'Write failed'
+        writeError = res?.error ?? $LL.qualcomm.nv.writeFailed()
       }
     } catch (e: any) {
-      writeError = e?.message ?? 'DIAG write error'
+      writeError = e?.message ?? $LL.qualcomm.nv.diagWriteError()
     } finally {
       isWriting = false
     }
@@ -279,12 +280,12 @@
       )
       if (res?.ok) {
         backupStats = res.stats
-        toastStore.success(`Backup: ${res.stats.success} ok, ${res.stats.failed} failed`)
+        toastStore.success($LL.qualcomm.nv.backupToast({ success: res.stats.success, failed: res.stats.failed }))
       } else {
-        toastStore.error(res?.error ?? 'Backup failed')
+        toastStore.error(res?.error ?? $LL.qualcomm.nv.backupFailed())
       }
     } catch (e: any) {
-      toastStore.error(e?.message ?? 'Backup error')
+      toastStore.error(e?.message ?? $LL.qualcomm.nv.backupError())
     } finally {
       isBackingUp = false
     }
@@ -301,12 +302,12 @@
       )
       if (res?.ok) {
         restoreStats = res.stats
-        toastStore.success(`Restore: ${res.stats.success} ok, ${res.stats.failed} failed`)
+        toastStore.success($LL.qualcomm.nv.restoreToast({ success: res.stats.success, failed: res.stats.failed }))
       } else {
-        toastStore.error(res?.error ?? 'Restore failed')
+        toastStore.error(res?.error ?? $LL.qualcomm.nv.restoreFailed())
       }
     } catch (e: any) {
-      toastStore.error(e?.message ?? 'Restore error')
+      toastStore.error(e?.message ?? $LL.qualcomm.nv.restoreError())
     } finally {
       isRestoring = false
     }
@@ -315,7 +316,7 @@
   // ─── Helpers ─────────────────────────────────────────────────────────────────
 
   function copyToClipboard(text: string) {
-    navigator.clipboard.writeText(text).then(() => toastStore.success('Copied'))
+    navigator.clipboard.writeText(text).then(() => toastStore.success($LL.qualcomm.nv.copied()))
   }
 
   function categoryColor(cat: string): string {
@@ -356,21 +357,21 @@
   <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
     <div class="flex items-center gap-2">
       <Database class="w-4 h-4 text-accent" />
-      <span class="text-sm font-black uppercase tracking-wider text-foreground">NV Manager</span>
+      <span class="text-sm font-black uppercase tracking-wider text-foreground">{$LL.qualcomm.nv.title()}</span>
       <span class="text-[10px] text-muted font-normal">
-        {filteredItems.length} / {allItems.length} items
+        {$LL.qualcomm.nv.itemCount({ filtered: filteredItems.length, total: allItems.length })}
       </span>
     </div>
     <div class="flex items-center gap-2">
       <Button variant="ghost" size="sm" onclick={() => { showSpcModal = true }}>
         <Key class="w-3.5 h-3.5 mr-1 {isSpcUnlocked ? 'text-emerald-400' : 'text-muted'}" />
-        <span>{isSpcUnlocked ? 'SPC Unlocked' : 'Unlock SPC'}</span>
+        <span>{isSpcUnlocked ? $LL.qualcomm.efs.spcUnlocked() : $LL.qualcomm.efs.unlockSpc()}</span>
       </Button>
       <Button variant="ghost" size="sm" onclick={() => { backupModalOpen = true }}>
-        <Download class="w-3.5 h-3.5 mr-1" />Backup
+        <Download class="w-3.5 h-3.5 mr-1" />{$LL.qualcomm.nv.backup()}
       </Button>
       <Button variant="ghost" size="sm" onclick={() => { restoreModalOpen = true }}>
-        <Upload class="w-3.5 h-3.5 mr-1" />Restore
+        <Upload class="w-3.5 h-3.5 mr-1" />{$LL.qualcomm.nv.restore()}
       </Button>
       <Button variant="secondary" size="sm" disabled={isLoading} onclick={loadCatalog}>
         <RefreshCw class="w-3.5 h-3.5 {isLoading ? 'animate-spin' : ''}" />
@@ -387,7 +388,7 @@
                  ? 'border-accent bg-accent/15 text-accent'
                  : 'border-border text-muted hover:text-foreground hover:border-border/80'}"
         onclick={() => { selectedCategory = 'all' }}
-      >All</button>
+      >{$LL.common.all()}</button>
       {#each categories as cat}
         <button
           class="px-2.5 py-1 text-[10px] font-bold uppercase rounded border-2 transition-all
@@ -402,7 +403,7 @@
       <Search class="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted pointer-events-none" />
       <input
         type="text"
-        placeholder="Search ID, name, description..."
+        placeholder={$LL.qualcomm.nv.searchPlaceholder()}
         bind:value={searchQuery}
         class="w-full pl-8 pr-3 py-1.5 text-xs bg-card border-2 border-border rounded
                text-foreground placeholder:text-muted focus:outline-none focus:border-accent transition-colors"
@@ -417,16 +418,16 @@
     <div class="border-2 border-border rounded-lg overflow-hidden">
       <div class="grid grid-cols-[56px_1fr_80px_60px] text-[10px] font-black uppercase tracking-wider
                   text-muted bg-card border-b-2 border-border px-3 py-2">
-        <span>ID</span><span>Name</span><span>Category</span><span class="text-right">Size</span>
+        <span>{$LL.qualcomm.nv.thId()}</span><span>{$LL.qualcomm.nv.thName()}</span><span>{$LL.qualcomm.nv.thCategory()}</span><span class="text-right">{$LL.qualcomm.nv.thSize()}</span>
       </div>
       <div class="overflow-y-auto max-h-[460px]">
         {#if isLoading}
           <div class="flex items-center justify-center py-16 text-muted text-xs gap-2">
-            <RefreshCw class="w-4 h-4 animate-spin" />Loading catalog...
+            <RefreshCw class="w-4 h-4 animate-spin" />{$LL.qualcomm.nv.loadingCatalog()}
           </div>
         {:else if filteredItems.length === 0}
           <div class="flex flex-col items-center justify-center py-16 text-muted text-xs gap-2">
-            <Database class="w-8 h-8 opacity-30" /><span>No items found</span>
+            <Database class="w-8 h-8 opacity-30" /><span>{$LL.qualcomm.nv.noItems()}</span>
           </div>
         {:else}
           {#each filteredItems as item (item.id)}
@@ -459,7 +460,7 @@
       {#if !selectedItem}
         <div class="flex flex-col items-center justify-center h-full min-h-[300px] text-muted text-xs gap-3">
           <Cpu class="w-10 h-10 opacity-20" />
-          <p>Select an NV item to read from modem</p>
+          <p>{$LL.qualcomm.nv.selectItem()}</p>
         </div>
       {:else}
         <!-- Item header -->
@@ -469,7 +470,7 @@
               <span class="text-base font-black text-accent">#{selectedItem.id}</span>
               <span class="text-sm font-bold text-foreground">{selectedItem.name}</span>
               {#if selectedItem.read_only}
-                <span class="text-[9px] font-bold px-1.5 py-0.5 rounded border border-amber-500/40 bg-amber-500/10 text-amber-400">READ-ONLY</span>
+                <span class="text-[9px] font-bold px-1.5 py-0.5 rounded border border-amber-500/40 bg-amber-500/10 text-amber-400">{$LL.qualcomm.nv.readOnlyBadge()}</span>
               {/if}
             </div>
             <p class="text-[11px] text-muted mt-0.5">{selectedItem.description}</p>
@@ -491,7 +492,7 @@
             </Button>
             {#if !selectedItem.read_only}
               <Button size="sm" variant="primary" onclick={openWriteModal}>
-                <Edit3 class="w-3 h-3 mr-1" />Write
+                <Edit3 class="w-3 h-3 mr-1" />{$LL.qualcomm.nv.write()}
               </Button>
             {/if}
           </div>
@@ -501,13 +502,13 @@
         <div class="p-3 space-y-3">
           {#if isReading}
             <div class="flex items-center gap-2 text-muted text-xs py-8 justify-center">
-              <RefreshCw class="w-4 h-4 animate-spin" />Reading from modem...
+              <RefreshCw class="w-4 h-4 animate-spin" />{$LL.qualcomm.nv.reading()}
             </div>
           {:else if readResult}
             {#if readResult.success}
               <!-- ✅ Success -->
               <div class="space-y-1">
-                <p class="text-[10px] text-muted uppercase font-bold">Formatted Value</p>
+                <p class="text-[10px] text-muted uppercase font-bold">{$LL.qualcomm.nv.formattedValue()}</p>
                 <div class="flex items-center gap-2">
                   <p class="text-base font-black text-foreground break-all">{readResult.formatted}</p>
                   <button class="text-muted hover:text-accent transition-colors shrink-0"
@@ -517,7 +518,7 @@
                 </div>
               </div>
               <div class="space-y-1">
-                <p class="text-[10px] text-muted uppercase font-bold">Raw Hex</p>
+                <p class="text-[10px] text-muted uppercase font-bold">{$LL.qualcomm.nv.rawHex()}</p>
                 <div class="flex items-start gap-2">
                   <code class="text-[11px] font-mono text-accent break-all leading-relaxed flex-1
                                 bg-card border border-border rounded p-2">
@@ -531,11 +532,11 @@
               </div>
               <div class="grid grid-cols-2 gap-2 text-[10px]">
                 <div class="p-2 bg-card border border-border rounded">
-                  <p class="text-muted uppercase font-bold mb-0.5">Data Size</p>
-                  <p class="font-bold text-foreground">{readResult.size} bytes</p>
+                  <p class="text-muted uppercase font-bold mb-0.5">{$LL.qualcomm.nv.dataSize()}</p>
+                  <p class="font-bold text-foreground">{$LL.qualcomm.nv.bytes({ count: readResult.size })}</p>
                 </div>
                 <div class="p-2 bg-card border border-border rounded">
-                  <p class="text-muted uppercase font-bold mb-0.5">Data Type</p>
+                  <p class="text-muted uppercase font-bold mb-0.5">{$LL.qualcomm.nv.dataType()}</p>
                   <p class="font-bold text-foreground">{readResult.data_type.toUpperCase()}</p>
                 </div>
               </div>
@@ -544,9 +545,9 @@
               <!-- ℹ️ Not provisioned on this device — not an error -->
               <div class="flex flex-col items-center justify-center py-8 gap-2 text-muted">
                 <MinusCircle class="w-8 h-8 opacity-30" />
-                <p class="text-xs font-bold">Not Available on This Device</p>
+                <p class="text-xs font-bold">{$LL.qualcomm.nv.notAvailable()}</p>
                 <p class="text-[10px] text-center max-w-[220px] opacity-70">
-                  NV item #{readResult.id} is not provisioned on this modem. This is normal — not all devices have every NV item.
+                  {$LL.qualcomm.nv.notAvailableBody({ id: readResult.id })}
                 </p>
               </div>
 
@@ -555,7 +556,7 @@
               <div class="flex items-start gap-2 p-3 bg-red-500/10 border border-red-500/30 rounded text-xs text-red-400">
                 <AlertTriangle class="w-4 h-4 shrink-0 mt-0.5" />
                 <div>
-                  <p class="font-bold">Read failed</p>
+                  <p class="font-bold">{$LL.qualcomm.nv.readFailed()}</p>
                   <p class="opacity-80 break-all">{readResult.error}</p>
                 </div>
               </div>
@@ -563,7 +564,7 @@
 
           {:else}
             <div class="flex items-center justify-center py-8 text-muted text-xs">
-              Click <RefreshCw class="w-3 h-3 mx-1" /> to read this item from the modem
+              {$LL.qualcomm.nv.clickToReadA()} <RefreshCw class="w-3 h-3 mx-1" /> {$LL.qualcomm.nv.clickToReadB()}
             </div>
           {/if}
         </div>
@@ -576,27 +577,27 @@
 <!-- WRITE MODAL — bind:open pattern                                             -->
 <!-- ─────────────────────────────────────────────────────────────────────────── -->
 
-<Modal title="Write NV {selectedItem?.id} — {selectedItem?.name}" bind:open={writeModalOpen}
+<Modal title={$LL.qualcomm.nv.writeTitle({ id: selectedItem?.id ?? 0, name: selectedItem?.name ?? '' })} bind:open={writeModalOpen}
   onclose={() => { writeError = '' }}>
   <div class="space-y-4 text-xs font-mono">
     <div class="p-3 bg-amber-500/10 border border-amber-500/30 rounded flex items-start gap-2 text-amber-400">
       <AlertTriangle class="w-4 h-4 shrink-0 mt-0.5" />
-      <p>Writing incorrect values can destabilize the modem. Double-check before writing.</p>
+      <p>{$LL.qualcomm.nv.writeWarning()}</p>
     </div>
 
     <div class="space-y-1">
       <span class="text-[10px] text-muted uppercase font-bold block">
-        Hex Data ({selectedItem?.size ?? 0} bytes expected)
+        {$LL.qualcomm.nv.hexData({ size: selectedItem?.size ?? 0 })}
       </span>
       <input
         type="text"
         bind:value={writeHex}
-        placeholder="e.g. 080123456789ABFF00"
+        placeholder={$LL.qualcomm.nv.hexPlaceholder()}
         class="w-full px-3 py-2 text-xs font-mono bg-card border-2 border-border rounded
                text-foreground placeholder:text-muted focus:outline-none focus:border-accent transition-colors"
       />
       <p class="text-[10px] text-muted">
-        {Math.floor(writeHex.replace(/\s/g, '').length / 2)} / {selectedItem?.size ?? 0} bytes entered
+        {$LL.qualcomm.nv.bytesEntered({ entered: Math.floor(writeHex.replace(/\s/g, '').length / 2), total: selectedItem?.size ?? 0 })}
       </p>
     </div>
 
@@ -608,7 +609,7 @@
 
     <div class="flex gap-2 pt-1">
       <Button variant="secondary" size="sm" class="flex-1" onclick={() => { writeModalOpen = false }}>
-        Cancel
+        {$LL.common.cancel()}
       </Button>
       <Button
         variant="primary"
@@ -622,7 +623,7 @@
         {:else}
           <Save class="w-3.5 h-3.5 mr-1" />
         {/if}
-        Write to Modem
+        {$LL.qualcomm.nv.writeToModem()}
       </Button>
     </div>
   </div>
@@ -632,7 +633,7 @@
 <!-- BACKUP MODAL                                                                -->
 <!-- ─────────────────────────────────────────────────────────────────────────── -->
 
-<Modal title="NV Backup" bind:open={backupModalOpen} onclose={() => { backupStats = null }}>
+<Modal title={$LL.qualcomm.nv.backupTitle()} bind:open={backupModalOpen} onclose={() => { backupStats = null }}>
   <div class="space-y-4 text-xs font-mono">
     <div class="flex gap-1">
       {#each [{ key: 'catalog', label: 'Catalog Items' }, { key: 'range', label: 'ID Range' }] as mode}
@@ -642,34 +643,34 @@
                    ? 'border-accent bg-accent/15 text-accent'
                    : 'border-border text-muted hover:text-foreground'}"
           onclick={() => { backupMode = mode.key as 'catalog' | 'range' }}
-        >{mode.label}</button>
+        >{mode.key === 'catalog' ? $LL.qualcomm.nv.catalogItems() : $LL.qualcomm.nv.idRange()}</button>
       {/each}
     </div>
 
     {#if backupMode === 'range'}
       <div class="grid grid-cols-2 gap-2">
         <div class="space-y-1">
-          <span class="text-[10px] text-muted uppercase font-bold block">Start ID</span>
+          <span class="text-[10px] text-muted uppercase font-bold block">{$LL.qualcomm.nv.startId()}</span>
           <input type="number" bind:value={backupRangeStart} min="0" max="65535"
             class="w-full px-3 py-1.5 text-xs bg-card border-2 border-border rounded
                    text-foreground focus:outline-none focus:border-accent transition-colors" />
         </div>
         <div class="space-y-1">
-          <span class="text-[10px] text-muted uppercase font-bold block">End ID</span>
+          <span class="text-[10px] text-muted uppercase font-bold block">{$LL.qualcomm.nv.endId()}</span>
           <input type="number" bind:value={backupRangeEnd} min="0" max="65535"
             class="w-full px-3 py-1.5 text-xs bg-card border-2 border-border rounded
                    text-foreground focus:outline-none focus:border-accent transition-colors" />
         </div>
       </div>
       <p class="text-[10px] text-muted">
-        {backupRangeEnd - backupRangeStart + 1} items · ~{Math.ceil((backupRangeEnd - backupRangeStart + 1) * 0.25)}s est.
+        {$LL.qualcomm.nv.rangeEstimate({ count: backupRangeEnd - backupRangeStart + 1, seconds: Math.ceil((backupRangeEnd - backupRangeStart + 1) * 0.25) })}
       </p>
     {:else}
-      <p class="text-[10px] text-muted">Will backup all {allItems.length} known catalog items.</p>
+      <p class="text-[10px] text-muted">{$LL.qualcomm.nv.backupAll({ count: allItems.length })}</p>
     {/if}
 
     <div class="space-y-1">
-      <span class="text-[10px] text-muted uppercase font-bold block">Output File Path</span>
+      <span class="text-[10px] text-muted uppercase font-bold block">{$LL.qualcomm.nv.outputPath()}</span>
       <input type="text" bind:value={backupFilename} placeholder="/sdcard/nv_backup.json"
         class="w-full px-3 py-1.5 text-xs font-mono bg-card border-2 border-border rounded
                text-foreground placeholder:text-muted focus:outline-none focus:border-accent transition-colors" />
@@ -677,24 +678,24 @@
 
     {#if backupStats}
       <div class="p-3 bg-card border-2 border-border rounded space-y-2">
-        <p class="text-[10px] uppercase font-bold text-muted">Result</p>
+        <p class="text-[10px] uppercase font-bold text-muted">{$LL.qualcomm.nv.result()}</p>
         <div class="grid grid-cols-3 gap-2 text-center">
           <div>
             <p class="text-lg font-black text-emerald-400">{backupStats.success}</p>
-            <p class="text-[9px] text-muted uppercase">OK</p>
+            <p class="text-[9px] text-muted uppercase">{$LL.qualcomm.nv.statOk()}</p>
           </div>
           <div>
             <p class="text-lg font-black text-red-400">{backupStats.failed}</p>
-            <p class="text-[9px] text-muted uppercase">Failed</p>
+            <p class="text-[9px] text-muted uppercase">{$LL.qualcomm.nv.statFailed()}</p>
           </div>
           <div>
             <p class="text-lg font-black text-amber-400">{backupStats.skipped}</p>
-            <p class="text-[9px] text-muted uppercase">Skipped</p>
+            <p class="text-[9px] text-muted uppercase">{$LL.qualcomm.nv.statSkipped()}</p>
           </div>
         </div>
         {#if !backupStats.error}
           <p class="text-emerald-400 text-[10px] flex items-center gap-1">
-            <Check class="w-3 h-3" /> Saved to {backupFilename}
+            <Check class="w-3 h-3" /> {$LL.qualcomm.nv.savedTo({ path: backupFilename })}
           </p>
         {:else}
           <p class="text-red-400 text-[10px]">{backupStats.error}</p>
@@ -703,12 +704,12 @@
     {/if}
 
     <div class="flex gap-2 pt-1">
-      <Button variant="secondary" size="sm" class="flex-1" onclick={() => { backupModalOpen = false; backupStats = null }}>Close</Button>
+      <Button variant="secondary" size="sm" class="flex-1" onclick={() => { backupModalOpen = false; backupStats = null }}>{$LL.common.close()}</Button>
       <Button variant="primary" size="sm" class="flex-1" disabled={isBackingUp} onclick={runBackup}>
         {#if isBackingUp}
-          <RefreshCw class="w-3.5 h-3.5 animate-spin mr-1" />Backing up...
+          <RefreshCw class="w-3.5 h-3.5 animate-spin mr-1" />{$LL.qualcomm.nv.backingUp()}
         {:else}
-          <Download class="w-3.5 h-3.5 mr-1" />Start Backup
+          <Download class="w-3.5 h-3.5 mr-1" />{$LL.qualcomm.nv.startBackup()}
         {/if}
       </Button>
     </div>
@@ -719,15 +720,15 @@
 <!-- RESTORE MODAL                                                               -->
 <!-- ─────────────────────────────────────────────────────────────────────────── -->
 
-<Modal title="NV Restore" bind:open={restoreModalOpen} onclose={() => { restoreStats = null }}>
+<Modal title={$LL.qualcomm.nv.restoreTitle()} bind:open={restoreModalOpen} onclose={() => { restoreStats = null }}>
   <div class="space-y-4 text-xs font-mono">
     <div class="p-3 bg-red-500/10 border border-red-500/30 rounded flex items-start gap-2 text-red-400">
       <AlertTriangle class="w-4 h-4 shrink-0 mt-0.5" />
-      <p>Restoring will overwrite current modem NV values. Ensure the backup matches this device.</p>
+      <p>{$LL.qualcomm.nv.restoreWarning()}</p>
     </div>
 
     <div class="space-y-1">
-      <span class="text-[10px] text-muted uppercase font-bold block">Backup File Path</span>
+      <span class="text-[10px] text-muted uppercase font-bold block">{$LL.qualcomm.nv.restorePath()}</span>
       <input type="text" bind:value={restoreFilename} placeholder="/sdcard/nv_backup.json"
         class="w-full px-3 py-1.5 text-xs font-mono bg-card border-2 border-border rounded
                text-foreground placeholder:text-muted focus:outline-none focus:border-accent transition-colors" />
@@ -735,20 +736,20 @@
 
     {#if restoreStats}
       <div class="p-3 bg-card border-2 border-border rounded space-y-2">
-        <p class="text-[10px] uppercase font-bold text-muted">Result</p>
+        <p class="text-[10px] uppercase font-bold text-muted">{$LL.qualcomm.nv.result()}</p>
         <div class="grid grid-cols-2 gap-2 text-center">
           <div>
             <p class="text-lg font-black text-emerald-400">{restoreStats.success}</p>
-            <p class="text-[9px] text-muted uppercase">Restored</p>
+            <p class="text-[9px] text-muted uppercase">{$LL.qualcomm.nv.statRestored()}</p>
           </div>
           <div>
             <p class="text-lg font-black text-red-400">{restoreStats.failed}</p>
-            <p class="text-[9px] text-muted uppercase">Failed</p>
+            <p class="text-[9px] text-muted uppercase">{$LL.qualcomm.nv.statFailed()}</p>
           </div>
         </div>
         {#if !restoreStats.error}
           <p class="text-emerald-400 text-[10px] flex items-center gap-1">
-            <Check class="w-3 h-3" /> Restore complete
+            <Check class="w-3 h-3" /> {$LL.qualcomm.nv.restoreComplete()}
           </p>
         {:else}
           <p class="text-red-400 text-[10px]">{restoreStats.error}</p>
@@ -757,12 +758,12 @@
     {/if}
 
     <div class="flex gap-2 pt-1">
-      <Button variant="secondary" size="sm" class="flex-1" onclick={() => { restoreModalOpen = false; restoreStats = null }}>Close</Button>
+      <Button variant="secondary" size="sm" class="flex-1" onclick={() => { restoreModalOpen = false; restoreStats = null }}>{$LL.common.close()}</Button>
       <Button variant="danger" size="sm" class="flex-1" disabled={isRestoring} onclick={runRestore}>
         {#if isRestoring}
-          <RefreshCw class="w-3.5 h-3.5 animate-spin mr-1" />Restoring...
+          <RefreshCw class="w-3.5 h-3.5 animate-spin mr-1" />{$LL.qualcomm.nv.restoring()}
         {:else}
-          <Upload class="w-3.5 h-3.5 mr-1" />Restore Now
+          <Upload class="w-3.5 h-3.5 mr-1" />{$LL.qualcomm.nv.restoreNow()}
         {/if}
       </Button>
     </div>
@@ -773,15 +774,15 @@
 <!-- SPC UNLOCK MODAL                                                             -->
 <!-- ─────────────────────────────────────────────────────────────────────────── -->
 
-<Modal title="Unlock DIAG Security Session (SPC)" bind:open={showSpcModal} size="sm">
+<Modal title={$LL.qualcomm.efsModals.spcTitle()} bind:open={showSpcModal} size="sm">
   <div class="space-y-3 font-mono text-xs">
     <p class="text-muted text-[11px]">
-      Qualcomm NV writes require elevating the DIAG security level via the 6-digit Service Programming Code (SPC). Default is usually <code>000000</code>.
+      {$LL.qualcomm.nv.spcBodyA()} <code>000000</code>{$LL.qualcomm.nv.spcBodyB()}
     </p>
 
     <div>
       <label class="block text-[10px] text-muted uppercase font-bold mb-1">
-        <span>Service Programming Code (6 Digits)</span>
+        <span>{$LL.qualcomm.efsModals.spcLabel()}</span>
         <input
           type="text"
           maxlength="6"
@@ -793,9 +794,9 @@
     </div>
 
     <div class="flex gap-2 pt-2">
-      <Button variant="secondary" size="sm" class="flex-1" onclick={() => (showSpcModal = false)}>Cancel</Button>
+      <Button variant="secondary" size="sm" class="flex-1" onclick={() => (showSpcModal = false)}>{$LL.common.cancel()}</Button>
       <Button variant="primary" size="sm" class="flex-1" disabled={isUnlockingSpc} onclick={submitSpcUnlock}>
-        <span>{isUnlockingSpc ? 'Verifying...' : 'Unlock SPC'}</span>
+        <span>{isUnlockingSpc ? $LL.qualcomm.efsModals.verifying() : $LL.qualcomm.efs.unlockSpc()}</span>
       </Button>
     </div>
   </div>

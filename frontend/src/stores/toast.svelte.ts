@@ -1,3 +1,5 @@
+import { get } from 'svelte/store'
+import { LL } from '../i18n/i18n-svelte'
 import type { ToastMessage } from '../types/common'
 
 class ToastStore {
@@ -7,7 +9,7 @@ class ToastStore {
     const id = Math.random().toString(36).substring(2, 9)
     const toast: ToastMessage = {
       id,
-      title: title || type.toUpperCase(),
+      title: title || get(LL).toast[type](),
       message,
       type,
       duration,
@@ -26,23 +28,23 @@ class ToastStore {
     this.toasts = this.toasts.filter((t) => t.id !== id)
   }
 
-  success(message: string, title = 'Success') {
+  success(message: string, title?: string) {
     this.show(message, 'success', title)
   }
 
-  error(message: string, title = 'Error') {
+  error(message: string, title?: string) {
     this.show(message, 'error', title)
   }
 
-  danger(message: string, title = 'Error') {
+  danger(message: string, title?: string) {
     this.show(message, 'error', title)
   }
 
-  warning(message: string, title = 'Warning') {
+  warning(message: string, title?: string) {
     this.show(message, 'warning', title)
   }
 
-  info(message: string, title = 'Info') {
+  info(message: string, title?: string) {
     this.show(message, 'info', title)
   }
 }

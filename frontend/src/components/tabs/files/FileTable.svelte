@@ -22,6 +22,7 @@
   import type { FileEntry } from './types'
   import type { PaneState } from './paneState.svelte'
   import { themeStore } from '../../../stores/theme.svelte'
+  import { LL } from '../../../i18n/i18n-svelte'
   import SakugaCheckbox from '../../ui/SakugaCheckbox.svelte'
 
   interface Props {
@@ -90,15 +91,15 @@
   {#if pane.isLoading && pane.files.length === 0}
     <div class="p-12 text-center text-muted font-mono text-xs">
       <RefreshCw class="w-6 h-6 animate-spin mx-auto mb-2 text-accent" />
-      <span>Loading filesystem entries...</span>
+      <span>{$LL.files.table.loading()}</span>
     </div>
   {:else if pane.displayedFiles.length === 0}
     <div class="p-12 text-center text-muted font-mono text-xs">
       <FolderOpen class="w-6 h-6 mx-auto mb-2 opacity-50" />
       <span>
         {pane.searchResults !== null
-          ? 'No files match your search query.'
-          : 'This directory is empty.'}
+          ? $LL.files.table.noSearchMatch()
+          : $LL.files.table.emptyDir()}
       </span>
     </div>
   {:else}
@@ -115,7 +116,7 @@
               checked={pane.allSelected}
               onchange={() => pane.toggleSelectAll()}
               class="w-4 h-4 accent-accent rounded cursor-pointer"
-              title={pane.allSelected ? 'Deselect All' : 'Select All'}
+              title={pane.allSelected ? $LL.common.deselectAll() : $LL.common.selectAll()}
             />
             {/if}
           </th>
@@ -124,10 +125,10 @@
           <th
             class="py-2.5 px-3 cursor-pointer select-none hover:text-foreground transition-colors"
             onclick={() => pane.setSort('name')}
-            title="Sort by Name"
+            title={$LL.files.table.sortByName()}
           >
             <div class="flex items-center gap-1">
-              <span>Name</span>
+              <span>{$LL.files.table.name()}</span>
               {#if pane.sortField === 'name'}
                 {#if pane.sortOrder === 'asc'}
                   <ArrowUp class="w-3 h-3 text-accent" />
@@ -144,10 +145,10 @@
           <th
             class="py-2.5 px-3 w-24 cursor-pointer select-none hover:text-foreground transition-colors"
             onclick={() => pane.setSort('size')}
-            title="Sort by Size"
+            title={$LL.files.table.sortBySize()}
           >
             <div class="flex items-center gap-1">
-              <span>Size</span>
+              <span>{$LL.files.table.size()}</span>
               {#if pane.sortField === 'size'}
                 {#if pane.sortOrder === 'asc'}
                   <ArrowUp class="w-3 h-3 text-accent" />
@@ -161,16 +162,16 @@
           </th>
 
           <!-- Perms Column (Desktop/Tablet) -->
-          <th class="py-2.5 px-3 w-28 hidden sm:table-cell">Perms</th>
+          <th class="py-2.5 px-3 w-28 hidden sm:table-cell">{$LL.files.table.perms()}</th>
 
           <!-- Modified Column (Desktop, Sortable) -->
           <th
             class="py-2.5 px-3 w-36 hidden md:table-cell cursor-pointer select-none hover:text-foreground transition-colors"
             onclick={() => pane.setSort('modified')}
-            title="Sort by Date Modified"
+            title={$LL.files.table.sortByDate()}
           >
             <div class="flex items-center gap-1">
-              <span>Modified</span>
+              <span>{$LL.files.table.modified()}</span>
               {#if pane.sortField === 'modified'}
                 {#if pane.sortOrder === 'asc'}
                   <ArrowUp class="w-3 h-3 text-accent" />
@@ -184,7 +185,7 @@
           </th>
 
           <!-- Actions Column -->
-          <th class="py-2.5 px-3 text-right">Actions</th>
+          <th class="py-2.5 px-3 text-right">{$LL.common.actions()}</th>
         </tr>
       </thead>
       <tbody class="divide-y divide-border">
@@ -249,7 +250,7 @@
                 type="button"
                 class="hover:text-accent hover:underline cursor-pointer"
                 onclick={() => onPermissions(file)}
-                title="Change permissions"
+                title={$LL.files.table.changePermissions()}
               >
                 {file.permissions || (file.is_dir ? '0755' : '0644')}
               </button>
@@ -269,8 +270,8 @@
                     type="button"
                     class="p-1 rounded hover:bg-card text-muted hover:text-cyan-400 transition-colors cursor-pointer"
                     onclick={() => onTransferToOtherPane([file.path], 'copy')}
-                    title={`Copy to other pane (${otherPanePath || 'secondary'})`}
-                    aria-label="Copy to other pane"
+                    title={$LL.files.table.copyToOtherTitle({ path: otherPanePath || $LL.files.pane.secondary() })}
+                    aria-label={$LL.files.table.copyToOtherPane()}
                   >
                     <ArrowRightLeft class="w-3.5 h-3.5" />
                   </button>
@@ -282,8 +283,8 @@
                     type="button"
                     class="p-1 rounded hover:bg-card text-muted hover:text-amber-400 transition-colors cursor-pointer"
                     onclick={() => onExtract(file)}
-                    title="Extract Archive"
-                    aria-label="Extract Archive"
+                    title={$LL.files.table.extractArchive()}
+                    aria-label={$LL.files.table.extractArchive()}
                   >
                     <FileArchive class="w-3.5 h-3.5" />
                   </button>
@@ -294,8 +295,8 @@
                   type="button"
                   class="p-1 rounded hover:bg-card text-muted hover:text-blue-400 transition-colors cursor-pointer"
                   onclick={() => onCompress(file)}
-                  title="Compress into ZIP"
-                  aria-label="Compress"
+                  title={$LL.files.table.compressIntoZip()}
+                  aria-label={$LL.files.pane.compress()}
                 >
                   <FolderInput class="w-3.5 h-3.5" />
                 </button>
@@ -305,8 +306,8 @@
                   type="button"
                   class="p-1 rounded hover:bg-card text-muted hover:text-purple-400 transition-colors cursor-pointer"
                   onclick={() => onCopyMove(file, 'copy')}
-                  title="Copy"
-                  aria-label="Copy"
+                  title={$LL.common.copy()}
+                  aria-label={$LL.common.copy()}
                 >
                   <Copy class="w-3.5 h-3.5" />
                 </button>
@@ -316,8 +317,8 @@
                   type="button"
                   class="p-1 rounded hover:bg-card text-muted hover:text-emerald-400 transition-colors cursor-pointer"
                   onclick={() => onCopyMove(file, 'move')}
-                  title="Move"
-                  aria-label="Move"
+                  title={$LL.files.pane.move()}
+                  aria-label={$LL.files.pane.move()}
                 >
                   <FolderInput class="w-3.5 h-3.5" />
                 </button>
@@ -328,8 +329,8 @@
                     type="button"
                     class="p-1 rounded hover:bg-card text-muted hover:text-accent transition-colors cursor-pointer"
                     onclick={() => downloadFile(file)}
-                    title="Download"
-                    aria-label="Download"
+                    title={$LL.common.download()}
+                    aria-label={$LL.common.download()}
                   >
                     <Download class="w-3.5 h-3.5" />
                   </button>
@@ -338,8 +339,8 @@
                     type="button"
                     class="p-1 rounded hover:bg-card text-muted hover:text-accent transition-colors cursor-pointer"
                     onclick={() => onOpenEditor(file)}
-                    title="Edit text"
-                    aria-label="Edit"
+                    title={$LL.files.table.editText()}
+                    aria-label={$LL.common.edit()}
                   >
                     <Edit2 class="w-3.5 h-3.5" />
                   </button>
@@ -350,8 +351,8 @@
                   type="button"
                   class="p-1 rounded hover:bg-card text-muted hover:text-amber-400 transition-colors cursor-pointer"
                   onclick={() => onPermissions(file)}
-                  title="Permissions (Chmod)"
-                  aria-label="Permissions"
+                  title={$LL.files.table.permissionsChmod()}
+                  aria-label={$LL.files.table.permissions()}
                 >
                   <Shield class="w-3.5 h-3.5" />
                 </button>
@@ -361,8 +362,8 @@
                   type="button"
                   class="p-1 rounded hover:bg-card text-muted hover:text-foreground transition-colors cursor-pointer"
                   onclick={() => onRename(file)}
-                  title="Rename"
-                  aria-label="Rename"
+                  title={$LL.files.table.rename()}
+                  aria-label={$LL.files.table.rename()}
                 >
                   <Edit2 class="w-3.5 h-3.5" />
                 </button>
@@ -372,8 +373,8 @@
                   type="button"
                   class="p-1 rounded hover:bg-card text-muted hover:text-red-400 transition-colors cursor-pointer"
                   onclick={() => onDelete(file)}
-                  title="Delete"
-                  aria-label="Delete"
+                  title={$LL.common.delete()}
+                  aria-label={$LL.common.delete()}
                 >
                   <Trash2 class="w-3.5 h-3.5" />
                 </button>

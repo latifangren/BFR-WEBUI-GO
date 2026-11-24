@@ -23,6 +23,7 @@
   import BookmarksBar from './BookmarksBar.svelte'
   import FileTable from './FileTable.svelte'
   import { PaneState } from './paneState.svelte'
+  import { LL } from '../../../i18n/i18n-svelte'
   import type { FileEntry } from './types'
 
   interface Props {
@@ -110,7 +111,7 @@
               type="button"
               class="p-1 rounded hover:bg-card text-foreground font-bold hover:text-accent cursor-pointer shrink-0"
               onclick={() => pane.navigateTo('/')}
-              title="Root directory (/)"
+              title={$LL.files.pane.rootTitle()}
             >
               /
             </button>
@@ -131,7 +132,7 @@
               type="button"
               class="p-1 text-muted hover:text-foreground cursor-pointer shrink-0 opacity-60 hover:opacity-100 ml-1"
               onclick={() => { isEditingPath = true }}
-              title="Edit path directly"
+              title={$LL.files.pane.editPathTitle()}
             >
               <Edit2 class="w-3 h-3" />
             </button>
@@ -155,10 +156,10 @@
           size="sm"
           disabled={pane.currentPath === '/' || pane.isLoading}
           onclick={() => pane.goUp()}
-          title="Parent Directory (Up)"
+          title={$LL.files.pane.upTitle()}
         >
           <ArrowUp class="w-3.5 h-3.5 mr-1" />
-          <span class="hidden sm:inline">Up</span>
+          <span class="hidden sm:inline">{$LL.files.pane.up()}</span>
         </Button>
 
         <Button
@@ -166,7 +167,7 @@
           size="sm"
           disabled={pane.isLoading}
           onclick={() => pane.refresh()}
-          title="Refresh Directory"
+          title={$LL.files.pane.refreshTitle()}
         >
           <RefreshCw class="w-3.5 h-3.5 {pane.isLoading ? 'animate-spin' : ''}" />
         </Button>
@@ -175,20 +176,20 @@
           variant="secondary"
           size="sm"
           onclick={() => onOpenModal('create', undefined, { type: 'file' })}
-          title="Create New File"
+          title={$LL.files.pane.createFileTitle()}
         >
           <Plus class="w-3.5 h-3.5 mr-1 text-accent" />
-          <span class="hidden sm:inline">File</span>
+          <span class="hidden sm:inline">{$LL.files.pane.file()}</span>
         </Button>
 
         <Button
           variant="secondary"
           size="sm"
           onclick={() => onOpenModal('create', undefined, { type: 'folder' })}
-          title="Create New Folder"
+          title={$LL.files.pane.createFolderTitle()}
         >
           <Plus class="w-3.5 h-3.5 mr-1 text-accent" />
-          <span class="hidden sm:inline">Folder</span>
+          <span class="hidden sm:inline">{$LL.files.pane.folder()}</span>
         </Button>
 
         <Button
@@ -196,10 +197,10 @@
           size="sm"
           disabled={pane.isLoading}
           onclick={() => fileInputEl?.click()}
-          title="Upload Files"
+          title={$LL.files.pane.uploadTitle()}
         >
           <Upload class="w-3.5 h-3.5 mr-1" />
-          <span>Upload</span>
+          <span>{$LL.common.upload()}</span>
         </Button>
       </div>
     </div>
@@ -216,7 +217,7 @@
         <div class="flex items-center gap-1.5 truncate">
           <HardDrive class="w-3.5 h-3.5 text-accent shrink-0" />
           <span class="truncate font-bold text-foreground">{pane.storageInfo.mount || '/sdcard'}</span>
-          <span>({pane.storageInfo.used_pct || 0}% used)</span>
+          <span>({$LL.files.pane.storageUsed({ pct: pane.storageInfo.used_pct || 0 })})</span>
         </div>
         <div class="flex items-center gap-2 shrink-0">
           <div class="w-20 sm:w-28 bg-card border border-border h-2 rounded overflow-hidden">
@@ -236,7 +237,7 @@
     <div class="flex items-center gap-2 font-mono text-xs">
       <div class="relative flex-1">
         <Input
-          placeholder="Search directory..."
+          placeholder={$LL.files.pane.searchPlaceholder()}
           bind:value={pane.searchQuery}
           onkeydown={(e: KeyboardEvent) => { if (e.key === 'Enter') pane.runSearch() }}
         />
@@ -258,10 +259,10 @@
       >
         {#if pane.isSearching}
           <RefreshCw class="w-3 h-3 mr-1 animate-spin" />
-          <span>Searching</span>
+          <span>{$LL.files.pane.searching()}</span>
         {:else}
           <Search class="w-3 h-3 mr-1" />
-          <span>Search</span>
+          <span>{$LL.common.search()}</span>
         {/if}
       </Button>
     </div>
@@ -269,13 +270,13 @@
     <!-- Active Search Filter Banner -->
     {#if pane.searchResults !== null}
       <div class="flex items-center justify-between p-2 bg-accent/10 border border-accent/30 rounded font-mono text-xs text-accent">
-        <span>Found {pane.searchResults.length} entries matching query "{pane.searchQuery}"</span>
+        <span>{$LL.files.pane.searchFound({ count: pane.searchResults.length, query: pane.searchQuery })}</span>
         <button
           type="button"
           class="text-xs font-bold hover:underline cursor-pointer"
           onclick={() => pane.clearSearch()}
         >
-          Clear Search
+          {$LL.files.pane.clearSearch()}
         </button>
       </div>
     {/if}
@@ -302,11 +303,11 @@
       >
         <div class="flex items-center gap-2">
           <span class="px-2 py-0.5 bg-accent text-accent-text font-black rounded text-[11px] shadow-neobrutal-sm">
-            {pane.selectedPaths.length} selected
+            {$LL.files.pane.selectedCount({ count: pane.selectedPaths.length })}
           </span>
           <Button variant="ghost" size="sm" onclick={() => pane.clearSelection()}>
             <X class="w-3 h-3 mr-1" />
-            <span>Clear</span>
+            <span>{$LL.common.clear()}</span>
           </Button>
         </div>
 
@@ -316,19 +317,19 @@
               variant="primary"
               size="sm"
               onclick={() => onTransferToOtherPane?.(pane.selectedPaths, 'copy')}
-              title={`Copy to other pane (${otherPanePath || 'secondary'})`}
+              title={$LL.files.pane.copyToOtherTitle({ path: otherPanePath || $LL.files.pane.secondary() })}
             >
               <ArrowRightLeft class="w-3 h-3 mr-1" />
-              <span>Copy to {otherPanePath ? otherPanePath.split('/').filter(Boolean).pop() || 'Other' : 'Other'}</span>
+              <span>{$LL.files.pane.copyTo({ name: otherPanePath ? otherPanePath.split('/').filter(Boolean).pop() || $LL.files.pane.other() : $LL.files.pane.other() })}</span>
             </Button>
             <Button
               variant="outline"
               size="sm"
               onclick={() => onTransferToOtherPane?.(pane.selectedPaths, 'move')}
-              title={`Move to other pane (${otherPanePath || 'secondary'})`}
+              title={$LL.files.pane.moveToOtherTitle({ path: otherPanePath || $LL.files.pane.secondary() })}
             >
               <FolderInput class="w-3 h-3 mr-1 text-emerald-400" />
-              <span>Move to {otherPanePath ? otherPanePath.split('/').filter(Boolean).pop() || 'Other' : 'Other'}</span>
+              <span>{$LL.files.pane.moveTo({ name: otherPanePath ? otherPanePath.split('/').filter(Boolean).pop() || $LL.files.pane.other() : $LL.files.pane.other() })}</span>
             </Button>
           {/if}
 
@@ -338,7 +339,7 @@
             onclick={() => onOpenModal('batchCopy')}
           >
             <Copy class="w-3 h-3 mr-1" />
-            <span>Copy</span>
+            <span>{$LL.common.copy()}</span>
           </Button>
 
           <Button
@@ -347,7 +348,7 @@
             onclick={() => onOpenModal('batchMove')}
           >
             <FolderInput class="w-3 h-3 mr-1" />
-            <span>Move</span>
+            <span>{$LL.files.pane.move()}</span>
           </Button>
 
           <Button
@@ -356,7 +357,7 @@
             onclick={() => onOpenModal('batchCompress')}
           >
             <FileArchive class="w-3 h-3 mr-1 text-accent" />
-            <span>Compress</span>
+            <span>{$LL.files.pane.compress()}</span>
           </Button>
 
           <Button
@@ -365,7 +366,7 @@
             onclick={() => onOpenModal('batchDelete')}
           >
             <Trash2 class="w-3 h-3 mr-1" />
-            <span>Delete</span>
+            <span>{$LL.common.delete()}</span>
           </Button>
         </div>
       </div>

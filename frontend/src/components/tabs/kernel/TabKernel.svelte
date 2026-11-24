@@ -16,6 +16,7 @@
   } from '@lucide/svelte'
   import { api } from '../../../api/client'
   import { toastStore } from '../../../stores/toast.svelte'
+  import { LL } from '../../../i18n/i18n-svelte'
   import type { KernelStatusResponse, CPUCluster } from '../../../types/kernel'
   import Card from '../../ui/Card.svelte'
   import Button from '../../ui/Button.svelte'
@@ -66,7 +67,7 @@
         }
       }
     } catch (err: unknown) {
-      toastStore.error(err instanceof Error ? err.message : 'Failed to fetch kernel status')
+      toastStore.error(err instanceof Error ? err.message : $LL.kernel.toasts.fetchFailed())
     } finally {
       isLoading = false
     }
@@ -77,13 +78,13 @@
       applyingProfile = profile
       const res = await api.post<{ success: boolean; error?: string }>('/api/kernel/profile', { profile })
       if (res && res.success) {
-        toastStore.success(`Applied ${profile.toUpperCase()} profile successfully`)
+        toastStore.success($LL.kernel.toasts.profileApplied({ profile: profile.toUpperCase() }))
         await fetchStatus()
       } else {
-        toastStore.error(res?.error || 'Failed to apply profile')
+        toastStore.error(res?.error || $LL.kernel.toasts.applyProfileFailed())
       }
     } catch (err: unknown) {
-      toastStore.error(err instanceof Error ? err.message : 'Error applying profile')
+      toastStore.error(err instanceof Error ? err.message : $LL.kernel.toasts.applyProfileError())
     } finally {
       applyingProfile = null
     }
@@ -100,13 +101,13 @@
         max_freq: clusterMaxFreqs[pID] || cluster.max_freq,
       })
       if (res && res.success) {
-        toastStore.success(`Updated CPU cluster ${cluster.label} successfully`)
+        toastStore.success($LL.kernel.toasts.clusterUpdated({ cluster: cluster.label }))
         await fetchStatus()
       } else {
-        toastStore.error(res?.error || 'Failed to update cluster')
+        toastStore.error(res?.error || $LL.kernel.toasts.updateClusterFailed())
       }
     } catch (err: unknown) {
-      toastStore.error(err instanceof Error ? err.message : 'Error updating cluster')
+      toastStore.error(err instanceof Error ? err.message : $LL.kernel.toasts.updateClusterError())
     } finally {
       updatingCluster = null
     }
@@ -123,13 +124,13 @@
         tcp_congestion: vmTcp,
       })
       if (res && res.success) {
-        toastStore.success('Kernel VM parameters updated successfully')
+        toastStore.success($LL.kernel.toasts.vmUpdated())
         await fetchStatus()
       } else {
-        toastStore.error(res?.error || 'Failed to update VM settings')
+        toastStore.error(res?.error || $LL.kernel.toasts.updateVMFailed())
       }
     } catch (err: unknown) {
-      toastStore.error(err instanceof Error ? err.message : 'Error updating VM settings')
+      toastStore.error(err instanceof Error ? err.message : $LL.kernel.toasts.updateVMError())
     } finally {
       updatingVM = false
     }
@@ -150,7 +151,7 @@
     <div class="flex items-center gap-2">
       <Cpu class="w-5 h-5 text-accent" />
       <h2 class="text-base sm:text-lg font-mono font-bold uppercase tracking-wider text-foreground">
-        Kernel Manager & SoC Tuner
+        {$LL.kernel.title()}
       </h2>
       {#if status?.kernel_release}
         <Badge variant="default" class="hidden sm:inline-flex text-[10px] font-mono">
@@ -163,7 +164,7 @@
       {#if status?.active_profile}
         <span class="px-2 py-0.5 rounded bg-accent/15 text-accent text-xs font-mono font-bold uppercase border border-accent/30 flex items-center gap-1">
           <Check class="w-3 h-3" />
-          Profile: {status.active_profile}
+          {$LL.kernel.activeProfile({ profile: status.active_profile })}
         </span>
       {/if}
       <Button
@@ -173,7 +174,7 @@
         onclick={fetchStatus}
       >
         <RefreshCw class="w-3.5 h-3.5 mr-1.5 {isLoading ? 'animate-spin' : ''}" />
-        <span>Refresh</span>
+        <span>{$LL.common.refresh()}</span>
       </Button>
     </div>
   </div>
@@ -181,7 +182,7 @@
   {#if isLoading && !status}
     <div class="neo-card bg-card p-12 text-center font-mono text-sm text-muted">
       <RefreshCw class="w-6 h-6 animate-spin mx-auto mb-3 text-accent" />
-      Reading CPU clusters, cpufreq policies, and virtual memory parameters...
+      {$LL.kernel.loading()}
     </div>
   {:else if status}
     <!-- Section 1: Quick Tuning Profiles -->
@@ -197,17 +198,17 @@
         <div class="flex items-center justify-between mb-2">
           <div class="flex items-center gap-2 font-mono text-xs font-bold uppercase text-foreground">
             <Battery class="w-4 h-4 text-emerald-400" />
-            <span>Battery Saver</span>
+            <span>{$LL.kernel.profiles.powersave.name()}</span>
           </div>
           {#if status.active_profile === 'powersave'}
             <span class="w-2 h-2 rounded-full bg-emerald-400 beacon-pulse"></span>
           {/if}
         </div>
         <p class="text-[11px] text-muted font-mono leading-relaxed mb-3">
-          Caps frequency ceiling & limits scheduler bursts. Swappiness 30.
+          {$LL.kernel.profiles.powersave.desc()}
         </p>
         <div class="text-[10px] font-mono font-bold {status.active_profile === 'powersave' ? 'text-emerald-400' : 'text-muted group-hover:text-foreground'}">
-          {applyingProfile === 'powersave' ? 'Applying...' : status.active_profile === 'powersave' ? '✓ Active Profile' : 'Click to Activate'}
+          {applyingProfile === 'powersave' ? $LL.kernel.profiles.applying() : status.active_profile === 'powersave' ? $LL.kernel.profiles.activeProfileLabel() : $LL.kernel.profiles.clickToActivate()}
         </div>
       </button>
 
@@ -222,17 +223,17 @@
         <div class="flex items-center justify-between mb-2">
           <div class="flex items-center gap-2 font-mono text-xs font-bold uppercase text-foreground">
             <Gauge class="w-4 h-4 text-accent" />
-            <span>Balanced</span>
+            <span>{$LL.kernel.profiles.balanced.name()}</span>
           </div>
           {#if status.active_profile === 'balanced'}
             <span class="w-2 h-2 rounded-full bg-accent beacon-pulse"></span>
           {/if}
         </div>
         <p class="text-[11px] text-muted font-mono leading-relaxed mb-3">
-          Energy-Aware EAS (schedutil). Dynamic clock scaling. Swappiness 60.
+          {$LL.kernel.profiles.balanced.desc()}
         </p>
         <div class="text-[10px] font-mono font-bold {status.active_profile === 'balanced' ? 'text-accent' : 'text-muted group-hover:text-foreground'}">
-          {applyingProfile === 'balanced' ? 'Applying...' : status.active_profile === 'balanced' ? '✓ Active Profile' : 'Click to Activate'}
+          {applyingProfile === 'balanced' ? $LL.kernel.profiles.applying() : status.active_profile === 'balanced' ? $LL.kernel.profiles.activeProfileLabel() : $LL.kernel.profiles.clickToActivate()}
         </div>
       </button>
 
@@ -247,17 +248,17 @@
         <div class="flex items-center justify-between mb-2">
           <div class="flex items-center gap-2 font-mono text-xs font-bold uppercase text-foreground">
             <Flame class="w-4 h-4 text-red-500" />
-            <span>Performance</span>
+            <span>{$LL.kernel.profiles.performance.name()}</span>
           </div>
           {#if status.active_profile === 'performance'}
             <span class="w-2 h-2 rounded-full bg-red-500 beacon-pulse"></span>
           {/if}
         </div>
         <p class="text-[11px] text-muted font-mono leading-relaxed mb-3">
-          Peak CPU clock lock, zero throttle latency. Swappiness 100.
+          {$LL.kernel.profiles.performance.desc()}
         </p>
         <div class="text-[10px] font-mono font-bold {status.active_profile === 'performance' ? 'text-red-400' : 'text-muted group-hover:text-foreground'}">
-          {applyingProfile === 'performance' ? 'Applying...' : status.active_profile === 'performance' ? '✓ Active Profile' : 'Click to Activate'}
+          {applyingProfile === 'performance' ? $LL.kernel.profiles.applying() : status.active_profile === 'performance' ? $LL.kernel.profiles.activeProfileLabel() : $LL.kernel.profiles.clickToActivate()}
         </div>
       </button>
     </div>
@@ -267,16 +268,16 @@
       <div class="flex items-center justify-between">
         <h3 class="text-xs font-mono font-bold uppercase tracking-wider text-muted flex items-center gap-1.5">
           <Sliders class="w-3.5 h-3.5 text-accent" />
-          <span>CPU Frequency Scaling & Clusters ({status.clusters.length} Policies)</span>
+          <span>{$LL.kernel.clusters.title({ count: status.clusters.length })}</span>
         </h3>
         <span class="text-[10px] text-muted font-mono">
-          Persistent in /data/adb/bfr_webui_go/data/kernel_config.json
+          {$LL.kernel.clusters.persistentIn()}
         </span>
       </div>
 
       {#if status.clusters.length === 0}
         <div class="p-6 bg-card border-2 border-border rounded text-center text-xs font-mono text-muted">
-          No cpufreq policies found on this device.
+          {$LL.kernel.clusters.noPolicies()}
         </div>
       {:else}
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
@@ -293,7 +294,7 @@
               <div class="space-y-3 font-mono text-xs">
                 <!-- Live Frequency Status -->
                 <div class="flex items-center justify-between p-2 rounded bg-card-sub border border-border">
-                  <span class="text-muted text-[11px]">Current Clock</span>
+                  <span class="text-muted text-[11px]">{$LL.kernel.clusters.currentClock()}</span>
                   <span class="font-bold text-sm text-foreground">
                     {formatFreq(cluster.cur_freq)}
                   </span>
@@ -302,7 +303,7 @@
                 <!-- Governor Selector -->
                 <div class="space-y-1">
                   <label for="gov-{cluster.policy_id}" class="text-[10px] text-muted uppercase font-bold block">
-                    Scaling Governor
+                    {$LL.kernel.clusters.governor()}
                   </label>
                   <select
                     id="gov-{cluster.policy_id}"
@@ -310,7 +311,7 @@
                     class="neo-input w-full bg-card-sub border border-border rounded px-2.5 py-1.5 text-xs font-mono text-foreground focus:outline-none focus:border-accent"
                   >
                     {#each cluster.available_governors as gov}
-                      <option value={gov}>{gov} {gov === cluster.governor ? '(Active)' : ''}</option>
+                      <option value={gov}>{gov} {gov === cluster.governor ? $LL.kernel.clusters.activeSuffix() : ''}</option>
                     {/each}
                   </select>
                 </div>
@@ -320,7 +321,7 @@
                   <div class="grid grid-cols-2 gap-2">
                     <div class="space-y-1">
                       <label for="min-freq-{cluster.policy_id}" class="text-[10px] text-muted uppercase font-bold block">
-                        Min Clock
+                        {$LL.kernel.clusters.minClock()}
                       </label>
                       <select
                         id="min-freq-{cluster.policy_id}"
@@ -335,7 +336,7 @@
 
                     <div class="space-y-1">
                       <label for="max-freq-{cluster.policy_id}" class="text-[10px] text-muted uppercase font-bold block">
-                        Max Clock
+                        {$LL.kernel.clusters.maxClock()}
                       </label>
                       <select
                         id="max-freq-{cluster.policy_id}"
@@ -359,7 +360,7 @@
                   onclick={() => applyCluster(cluster)}
                 >
                   <Check class="w-3.5 h-3.5 mr-1" />
-                  <span>{updatingCluster === cluster.policy_id ? 'Saving...' : 'Apply Cluster'}</span>
+                  <span>{updatingCluster === cluster.policy_id ? $LL.kernel.clusters.saving() : $LL.kernel.clusters.applyCluster()}</span>
                 </Button>
               </div>
             </Card>
@@ -369,7 +370,7 @@
     </div>
 
     <!-- Section 3: Virtual Memory & I/O Tuning -->
-    <Card title="Virtual Memory & Network Subsystem Tuning">
+    <Card title={$LL.kernel.vm.title()}>
       {#snippet action()}
         <div class="neo-icon-box">
           <HardDrive class="w-4 h-4 text-accent" />
@@ -381,7 +382,7 @@
           <!-- Swappiness -->
           <div class="p-3 rounded bg-card-sub border border-border space-y-1.5">
             <div class="flex items-center justify-between">
-              <span class="text-[10px] uppercase font-bold text-muted">VM Swappiness</span>
+              <span class="text-[10px] uppercase font-bold text-muted">{$LL.kernel.vm.swappiness()}</span>
               <span class="text-xs font-bold text-accent">{vmSwappiness}</span>
             </div>
             {#if themeStore.useSakugaControls()}
@@ -397,14 +398,14 @@
             />
             {/if}
             <p class="text-[10px] text-muted leading-tight">
-              Aggressiveness of kernel swapping memory into ZRAM (0=min, 100=std, 200=max).
+              {$LL.kernel.vm.swappinessDesc()}
             </p>
           </div>
 
           <!-- VFS Cache Pressure -->
           <div class="p-3 rounded bg-card-sub border border-border space-y-1.5">
             <div class="flex items-center justify-between">
-              <span class="text-[10px] uppercase font-bold text-muted">VFS Cache Pressure</span>
+              <span class="text-[10px] uppercase font-bold text-muted">{$LL.kernel.vm.vfsPressure()}</span>
               <span class="text-xs font-bold text-accent">{vmVfsPressure}</span>
             </div>
             {#if themeStore.useSakugaControls()}
@@ -420,14 +421,14 @@
             />
             {/if}
             <p class="text-[10px] text-muted leading-tight">
-              Tendency of the kernel to reclaim memory used for directory & inode caches.
+              {$LL.kernel.vm.vfsPressureDesc()}
             </p>
           </div>
 
           <!-- Dirty Ratio -->
           <div class="p-3 rounded bg-card-sub border border-border space-y-1.5">
             <div class="flex items-center justify-between">
-              <span class="text-[10px] uppercase font-bold text-muted">Dirty Ratio</span>
+              <span class="text-[10px] uppercase font-bold text-muted">{$LL.kernel.vm.dirtyRatio()}</span>
               <span class="text-xs font-bold text-accent">{vmDirtyRatio}%</span>
             </div>
             {#if themeStore.useSakugaControls()}
@@ -443,14 +444,14 @@
             />
             {/if}
             <p class="text-[10px] text-muted leading-tight">
-              Max percentage of system memory filled with dirty pages before writeback.
+              {$LL.kernel.vm.dirtyRatioDesc()}
             </p>
           </div>
 
           <!-- Dirty Background Ratio -->
           <div class="p-3 rounded bg-card-sub border border-border space-y-1.5">
             <div class="flex items-center justify-between">
-              <span class="text-[10px] uppercase font-bold text-muted">Dirty Background Ratio</span>
+              <span class="text-[10px] uppercase font-bold text-muted">{$LL.kernel.vm.dirtyBgRatio()}</span>
               <span class="text-xs font-bold text-accent">{vmDirtyBgRatio}%</span>
             </div>
             {#if themeStore.useSakugaControls()}
@@ -466,14 +467,14 @@
             />
             {/if}
             <p class="text-[10px] text-muted leading-tight">
-              Percentage threshold where pdflush/kswapd begins background disk flushing.
+              {$LL.kernel.vm.dirtyBgRatioDesc()}
             </p>
           </div>
 
           <!-- TCP Congestion Control -->
           <div class="p-3 rounded bg-card-sub border border-border space-y-1.5 sm:col-span-2 lg:col-span-2">
             <div class="flex items-center justify-between">
-              <span class="text-[10px] uppercase font-bold text-muted">TCP Congestion Control</span>
+              <span class="text-[10px] uppercase font-bold text-muted">{$LL.kernel.vm.tcp()}</span>
               <span class="text-xs font-bold text-emerald-400 uppercase">{vmTcp}</span>
             </div>
             <select
@@ -481,11 +482,11 @@
               class="neo-input w-full bg-card border border-border rounded px-3 py-1.5 text-xs font-mono text-foreground focus:outline-none focus:border-accent"
             >
               {#each status.vm.available_tcp_congestion as cc}
-                <option value={cc}>{cc} {cc === status.vm.tcp_congestion ? '(Active)' : ''}</option>
+                <option value={cc}>{cc} {cc === status.vm.tcp_congestion ? $LL.kernel.clusters.activeSuffix() : ''}</option>
               {/each}
             </select>
             <p class="text-[10px] text-muted leading-tight">
-              Network throughput algorithm (BBR reduces bufferbloat; Cubic is default TCP standard).
+              {$LL.kernel.vm.tcpDesc()}
             </p>
           </div>
         </div>
@@ -498,7 +499,7 @@
             onclick={applyVMSettings}
           >
             <Check class="w-4 h-4 mr-1.5" />
-            <span>{updatingVM ? 'Applying Changes...' : 'Save & Apply VM Parameters'}</span>
+            <span>{updatingVM ? $LL.kernel.vm.applyingChanges() : $LL.kernel.vm.saveApply()}</span>
           </Button>
         </div>
       </div>

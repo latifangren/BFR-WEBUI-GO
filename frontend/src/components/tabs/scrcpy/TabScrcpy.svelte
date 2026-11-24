@@ -35,6 +35,7 @@
   import { toastStore } from '../../../stores/toast.svelte'
   import { themeStore } from '../../../stores/theme.svelte'
   import SakugaCheckbox from '../../ui/SakugaCheckbox.svelte'
+  import { LL } from '../../../i18n/i18n-svelte'
 
   // --- Runtime Streaming & Device State ---
   let isMirroring = $state(false)
@@ -86,23 +87,23 @@
   )
 
   // Resolution options
-  const resolutionOptions = [
-    { label: 'Native 1:1', value: 0, desc: 'Original (No Scale)' },
+  const resolutionOptions = $derived([
+    { label: 'Native 1:1', value: 0, desc: $LL.scrcpy.stream.nativeDesc() },
     { label: '1440p', value: 2560, desc: 'Ultra (2560)' },
     { label: '1080p', value: 1920, desc: 'FHD (1920)' },
     { label: '720p', value: 1280, desc: 'HD (1280)' },
-    { label: '540p', value: 960, desc: 'Fast (960)' },
-  ]
+    { label: '540p', value: 960, desc: $LL.scrcpy.stream.fastDesc() },
+  ])
 
   // Bitrate options
-  const bitrateOptions = [
-    { label: '2M', value: 2000000, desc: 'Low' },
-    { label: '4M', value: 4000000, desc: 'Balanced' },
-    { label: '8M', value: 8000000, desc: 'High' },
-    { label: '16M', value: 16000000, desc: 'Very High' },
+  const bitrateOptions = $derived([
+    { label: '2M', value: 2000000, desc: $LL.scrcpy.stream.bitrateLow() },
+    { label: '4M', value: 4000000, desc: $LL.scrcpy.stream.bitrateBalanced() },
+    { label: '8M', value: 8000000, desc: $LL.scrcpy.stream.bitrateHigh() },
+    { label: '16M', value: 16000000, desc: $LL.scrcpy.stream.bitrateVeryHigh() },
     { label: '24M', value: 24000000, desc: 'Ultra' },
-    { label: '32M', value: 32000000, desc: 'Near Lossless' },
-  ]
+    { label: '32M', value: 32000000, desc: $LL.scrcpy.stream.bitrateNearLossless() },
+  ])
 
   onMount(() => {
     window.addEventListener('keydown', handleGlobalKeyDown)
@@ -271,7 +272,7 @@
             frameCounter = 0
           }, 1000)
 
-          toastStore.success('Hardware screen stream connected', 'Scrcpy Live')
+          toastStore.success($LL.scrcpy.toasts.connected(), $LL.scrcpy.toasts.connectedTitle())
         },
         onMessage: (data) => {
           handleIncomingMessage(data)
@@ -281,7 +282,7 @@
         },
         onError: () => {
           stopMirroring()
-          toastStore.error('Connection to scrcpy server lost', 'Connection Error')
+          toastStore.error($LL.scrcpy.toasts.lost(), $LL.scrcpy.toasts.lostTitle())
         },
       })
 
@@ -460,12 +461,12 @@
     if (!textInput.trim()) return
     sendEvent({ action: 'text', text: textInput })
     textInput = ''
-    toastStore.success('Text sent to device', 'Injected')
+    toastStore.success($LL.scrcpy.toasts.textSent(), $LL.scrcpy.toasts.textSentTitle())
   }
 
   function sendQuickText(str: string) {
     sendEvent({ action: 'text', text: str })
-    toastStore.success(`Sent: ${str}`, 'Quick Input')
+    toastStore.success($LL.scrcpy.toasts.quickSent({ text: str }), $LL.scrcpy.toasts.quickSentTitle())
   }
 
   // --- Dynamic Canvas Coordinate Mapping ---
@@ -603,16 +604,16 @@
     isPhysicalScreenOff = !isPhysicalScreenOff
     sendEvent({ action: 'screen_power', on: !isPhysicalScreenOff })
     if (isPhysicalScreenOff) {
-      toastStore.info('Device physical panel powered off (touch & mirror active)', 'Display Power')
+      toastStore.info($LL.scrcpy.toasts.screenOff(), $LL.scrcpy.toasts.displayPowerTitle())
     } else {
-      toastStore.info('Device physical panel powered on', 'Display Power')
+      toastStore.info($LL.scrcpy.toasts.screenOn(), $LL.scrcpy.toasts.displayPowerTitle())
     }
   }
 
   // --- Screenshot Capture ---
   function captureScreenshot() {
     if (!canvasEl || !isMirroring) {
-      toastStore.warning('Start mirroring before taking a screenshot', 'Screenshot')
+      toastStore.warning($LL.scrcpy.toasts.screenshotFirst(), $LL.scrcpy.toasts.screenshotTitle())
       return
     }
 
@@ -625,10 +626,10 @@
       document.body.appendChild(a)
       a.click()
       document.body.removeChild(a)
-      toastStore.success('Saved screenshot to downloads folder', 'Screenshot Saved')
+      toastStore.success($LL.scrcpy.toasts.screenshotSaved(), $LL.scrcpy.toasts.screenshotSavedTitle())
     } catch (err) {
       console.error('Screenshot error:', err)
-      toastStore.error('Failed to capture frame from canvas', 'Screenshot Error')
+      toastStore.error($LL.scrcpy.toasts.screenshotFailed(), $LL.scrcpy.toasts.screenshotErrorTitle())
     }
   }
 
@@ -672,24 +673,24 @@
         <div>
           <div class="flex items-center gap-2">
             <h2 class="text-base sm:text-lg font-mono font-bold uppercase tracking-wider text-foreground">
-              SCRCPY REMOTE CONTROL
+              {$LL.scrcpy.title()}
             </h2>
             {#if isMirroring}
               <Badge variant="success" class="flex items-center gap-1.5 animate-pulse">
                 <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
-                <span>{fps > 0 ? `LIVE ${fps} FPS` : 'LIVE (Idle 60Hz)'}</span>
+                <span>{fps > 0 ? $LL.scrcpy.liveFps({ fps }) : $LL.scrcpy.liveIdle()}</span>
               </Badge>
             {:else if isConnecting}
               <Badge variant="warning" class="flex items-center gap-1.5 animate-pulse">
                 <RefreshCw class="w-3 h-3 animate-spin" />
-                <span>CONNECTING...</span>
+                <span>{$LL.scrcpy.connectingBadge()}</span>
               </Badge>
             {:else}
-              <Badge variant="default">OFFLINE</Badge>
+              <Badge variant="default">{$LL.scrcpy.offline()}</Badge>
             {/if}
           </div>
           <p class="text-xs text-muted font-mono mt-0.5">
-            Low-latency hardware video mirroring with zero-delay pointer injection
+            {$LL.scrcpy.subtitle()}
           </p>
         </div>
       </div>
@@ -701,10 +702,10 @@
           variant={showSettings ? 'secondary' : 'outline'}
           size="sm"
           onclick={() => (showSettings = !showSettings)}
-          title="Toggle stream customization sidebar"
+          title={$LL.scrcpy.settingsTitle()}
         >
           <SlidersHorizontal class="w-3.5 h-3.5 mr-1" />
-          <span class="hidden sm:inline">Settings</span>
+          <span class="hidden sm:inline">{$LL.common.settings()}</span>
         </Button>
 
         <!-- Screenshot Button -->
@@ -713,10 +714,10 @@
           size="sm"
           disabled={!isMirroring}
           onclick={captureScreenshot}
-          title="Capture instant screenshot to PNG"
+          title={$LL.scrcpy.snapTitle()}
         >
           <Camera class="w-3.5 h-3.5 mr-1 text-cyan-400" />
-          <span class="hidden sm:inline">Snap</span>
+          <span class="hidden sm:inline">{$LL.scrcpy.snap()}</span>
         </Button>
 
         <!-- Fullscreen Button -->
@@ -724,14 +725,14 @@
           variant="outline"
           size="sm"
           onclick={toggleFullscreen}
-          title="Toggle phone stage fullscreen"
+          title={$LL.scrcpy.fullscreenTitle()}
         >
           {#if isFullscreen}
             <Minimize2 class="w-3.5 h-3.5 mr-1" />
-            <span class="hidden sm:inline">Exit</span>
+            <span class="hidden sm:inline">{$LL.scrcpy.exitFullscreen()}</span>
           {:else}
             <Maximize2 class="w-3.5 h-3.5 mr-1" />
-            <span class="hidden sm:inline">Full</span>
+            <span class="hidden sm:inline">{$LL.scrcpy.enterFullscreen()}</span>
           {/if}
         </Button>
 
@@ -739,7 +740,7 @@
         {#if isMirroring}
           <Button variant="danger" size="sm" onclick={stopMirroring}>
             <Square class="w-3.5 h-3.5 mr-1 fill-current" />
-            <span>Stop Stream</span>
+            <span>{$LL.scrcpy.stopStream()}</span>
           </Button>
         {:else}
           <Button
@@ -750,10 +751,10 @@
           >
             {#if isConnecting}
               <RefreshCw class="w-3.5 h-3.5 mr-1 animate-spin" />
-              <span>Starting...</span>
+              <span>{$LL.scrcpy.starting()}</span>
             {:else}
               <Play class="w-3.5 h-3.5 mr-1 fill-current" />
-              <span>Start Mirroring</span>
+              <span>{$LL.scrcpy.startMirroring()}</span>
             {/if}
           </Button>
         {/if}
@@ -765,11 +766,11 @@
       <div class="mt-3 pt-3 border-t border-border/80 flex items-center justify-between gap-2 text-xs font-mono bg-amber-950/30 border border-amber-800/60 text-amber-300 px-3 py-2 rounded-lg">
         <div class="flex items-center gap-2">
           <Zap class="w-4 h-4 text-amber-400 shrink-0" />
-          <span>Stream settings modified. Restart session to apply new bitrate/resolution.</span>
+          <span>{$LL.scrcpy.settingsChanged()}</span>
         </div>
         <Button variant="outline" size="sm" class="border-amber-700 hover:bg-amber-900/40 text-amber-200" onclick={startMirroring}>
           <RefreshCw class="w-3 h-3 mr-1" />
-          <span>Restart</span>
+          <span>{$LL.scrcpy.restart()}</span>
         </Button>
       </div>
     {/if}
@@ -800,7 +801,7 @@
             {#if isMirroring}
               <span class="text-emerald-400 font-bold">{detectedWidth}x{detectedHeight}</span>
             {:else}
-              <span>OFFLINE</span>
+              <span>{$LL.scrcpy.offline()}</span>
             {/if}
           </div>
         </div>
@@ -831,10 +832,10 @@
 
               <div>
                 <h3 class="text-sm sm:text-base font-bold text-foreground uppercase tracking-wider">
-                  Mirroring Inactive
+                  {$LL.scrcpy.offlineOverlay.title()}
                 </h3>
                 <p class="text-xs text-muted mt-1 max-w-xs">
-                  Connect to your device's native low-latency scrcpy server engine
+                  {$LL.scrcpy.offlineOverlay.body()}
                 </p>
               </div>
 
@@ -842,7 +843,7 @@
                 <Badge variant="info">WebCodecs H.264</Badge>
                 <Badge variant="default">&lt;15ms Latency</Badge>
                 <Badge variant="default">Zero ADB Lag</Badge>
-                <Badge variant="default">Hardware Touch</Badge>
+                <Badge variant="default">{$LL.scrcpy.offlineOverlay.hardwareTouch()}</Badge>
               </div>
 
               <div class="pt-2">
@@ -855,10 +856,10 @@
                 >
                   {#if isConnecting}
                     <RefreshCw class="w-4 h-4 mr-1.5 animate-spin" />
-                    <span>Connecting...</span>
+                    <span>{$LL.scrcpy.connecting()}</span>
                   {:else}
                     <Play class="w-4 h-4 mr-1.5 fill-current" />
-                    <span>Start Mirroring</span>
+                    <span>{$LL.scrcpy.startMirroring()}</span>
                   {/if}
                 </Button>
               </div>
@@ -869,7 +870,7 @@
           {#if isMirroring && isKeyboardActive}
             <div class="absolute top-2 left-2 pointer-events-none bg-emerald-950/90 text-emerald-300 border border-emerald-700/80 px-2 py-1 rounded text-[10px] font-mono flex items-center gap-1.5 shadow-md">
               <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span>
-              <span>PC Keyboard Captured</span>
+              <span>{$LL.scrcpy.keyboardCaptured()}</span>
             </div>
           {/if}
         </div>
@@ -883,11 +884,11 @@
               size="sm"
               disabled={!isMirroring}
               onclick={() => sendNavKey('back', 4)}
-              title="Android Back (Keycode 4 / Esc)"
+              title={$LL.scrcpy.nav.backTitle()}
               class="hover:bg-card-sub py-1.5 sm:py-2 px-1.5 sm:px-3 text-[11px] sm:text-xs"
             >
               <ArrowLeft class="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1" />
-              <span>Back</span>
+              <span>{$LL.common.back()}</span>
             </Button>
 
             <Button
@@ -895,11 +896,11 @@
               size="sm"
               disabled={!isMirroring}
               onclick={() => sendNavKey('home', 3)}
-              title="Android Home (Keycode 3)"
+              title={$LL.scrcpy.nav.homeTitle()}
               class="hover:bg-card-sub py-1.5 sm:py-2 px-1.5 sm:px-3 text-[11px] sm:text-xs"
             >
               <Home class="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1" />
-              <span>Home</span>
+              <span>{$LL.scrcpy.nav.home()}</span>
             </Button>
 
             <Button
@@ -907,11 +908,11 @@
               size="sm"
               disabled={!isMirroring}
               onclick={() => sendNavKey('recents', 187)}
-              title="Android Recents / App Switcher (Keycode 187)"
+              title={$LL.scrcpy.nav.recentsTitle()}
               class="hover:bg-card-sub py-1.5 sm:py-2 px-1.5 sm:px-3 text-[11px] sm:text-xs"
             >
               <Menu class="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1" />
-              <span>Recents</span>
+              <span>{$LL.scrcpy.nav.recents()}</span>
             </Button>
           </div>
 
@@ -922,7 +923,7 @@
               size="sm"
               disabled={!isMirroring}
               onclick={() => sendNavKey('vol_down', 25)}
-              title="Volume Down (Keycode 25)"
+              title={$LL.scrcpy.nav.volDownTitle()}
               class="py-1.5 sm:py-2 px-1 sm:px-1.5 flex justify-center items-center"
             >
               <Volume1 class="w-3.5 h-3.5 text-amber-400" />
@@ -933,7 +934,7 @@
               size="sm"
               disabled={!isMirroring}
               onclick={() => sendNavKey('vol_up', 24)}
-              title="Volume Up (Keycode 24)"
+              title={$LL.scrcpy.nav.volUpTitle()}
               class="py-1.5 sm:py-2 px-1 sm:px-1.5 flex justify-center items-center"
             >
               <Volume2 class="w-3.5 h-3.5 text-emerald-400" />
@@ -944,7 +945,7 @@
               size="sm"
               disabled={!isMirroring}
               onclick={() => sendNavKey('power', 26)}
-              title="Physical Power Key (Keycode 26)"
+              title={$LL.scrcpy.nav.powerTitle()}
               class="py-1.5 sm:py-2 px-1 sm:px-1.5 flex justify-center items-center"
             >
               <Power class="w-3.5 h-3.5 text-red-400" />
@@ -956,7 +957,7 @@
               size="sm"
               disabled={!isMirroring}
               onclick={togglePhysicalScreen}
-              title={isPhysicalScreenOff ? 'Turn Physical Screen ON' : 'Turn Physical Screen OFF (Save Battery & Heat)'}
+              title={isPhysicalScreenOff ? $LL.scrcpy.nav.screenOnTitle() : $LL.scrcpy.nav.screenOffTitle()}
               class="py-1.5 sm:py-2 px-1 sm:px-1.5 flex justify-center items-center {isPhysicalScreenOff ? 'border-accent bg-accent/20 text-accent' : ''}"
             >
               {#if isPhysicalScreenOff}
@@ -974,10 +975,10 @@
               onclick={() => {
                 isKeyboardActive = !isKeyboardActive
                 if (isKeyboardActive) {
-                  toastStore.info('PC Keyboard captured: typing sends keys directly to device', 'Keyboard ON')
+                  toastStore.info($LL.scrcpy.toasts.keyboardOn(), $LL.scrcpy.toasts.keyboardOnTitle())
                 }
               }}
-              title={isKeyboardActive ? 'Disable PC Keyboard Capture' : 'Enable PC Keyboard Capture'}
+              title={isKeyboardActive ? $LL.scrcpy.nav.keyboardOffTitle() : $LL.scrcpy.nav.keyboardOnTitle()}
               class="py-1.5 sm:py-2 px-1 sm:px-1.5 flex justify-center items-center"
             >
               <Keyboard class="w-3.5 h-3.5" />
@@ -991,12 +992,12 @@
     {#if showSettings}
       <div class="lg:col-span-5 xl:col-span-4 space-y-4">
         <!-- 1. Stream Customization Card -->
-        <Card title="Stream Customization" subtitle="Adjust encoder quality & parameters">
+        <Card title={$LL.scrcpy.stream.title()} subtitle={$LL.scrcpy.stream.subtitle()}>
           <div class="space-y-4 font-mono text-xs">
             <!-- Resolution Selector -->
             <div>
               <div class="block text-[11px] font-bold text-muted uppercase tracking-wider mb-1.5">
-                Resolution Limit
+                {$LL.scrcpy.stream.resolutionLimit()}
               </div>
               <div class="grid grid-cols-2 gap-1.5">
                 {#each resolutionOptions as opt}
@@ -1019,7 +1020,7 @@
             <div>
               <div class="flex items-center justify-between mb-1.5">
                 <span class="text-[11px] font-bold text-muted uppercase tracking-wider">
-                  Video Bitrate
+                  {$LL.scrcpy.stream.bitrate()}
                 </span>
                 <span class="text-[11px] font-mono text-accent font-bold">
                   {(bitRate / 1000000).toFixed(0)} Mbps
@@ -1045,7 +1046,7 @@
 
               <!-- Custom Bitrate Input -->
               <div class="flex items-center gap-2 p-2 bg-card-sub rounded-lg border border-border">
-                <span class="text-[11px] text-muted whitespace-nowrap font-bold">Custom:</span>
+                <span class="text-[11px] text-muted whitespace-nowrap font-bold">{$LL.scrcpy.stream.custom()}</span>
                 <input
                   type="number"
                   min="1"
@@ -1071,7 +1072,7 @@
                     onSettingModified()
                   }}
                 >
-                  Apply
+                  {$LL.scrcpy.stream.apply()}
                 </button>
               </div>
             </div>
@@ -1080,7 +1081,7 @@
             <div class="grid grid-cols-2 gap-3">
               <div>
                 <div class="block text-[11px] font-bold text-muted uppercase tracking-wider mb-1.5">
-                  Target FPS
+                  {$LL.scrcpy.stream.targetFps()}
                 </div>
                 <div class="grid grid-cols-2 gap-1.5">
                   <button
@@ -1108,7 +1109,7 @@
 
               <div>
                 <div class="block text-[11px] font-bold text-muted uppercase tracking-wider mb-1.5">
-                  Target Display
+                  {$LL.scrcpy.stream.targetDisplay()}
                 </div>
                 <div class="grid grid-cols-2 gap-1.5">
                   <button
@@ -1119,7 +1120,7 @@
                       onSettingModified()
                     }}
                   >
-                    Main (0)
+                    {$LL.scrcpy.stream.mainDisplay()}
                   </button>
                   <button
                     type="button"
@@ -1129,7 +1130,7 @@
                       onSettingModified()
                     }}
                   >
-                    Cover (1)
+                    {$LL.scrcpy.stream.coverDisplay()}
                   </button>
                 </div>
               </div>
@@ -1148,7 +1149,7 @@
                   class="rounded border-border text-accent focus:ring-accent bg-card-sub w-4 h-4 cursor-pointer"
                 />
                 {/if}
-                <span class="text-xs text-foreground">Turn off physical screen on stream launch</span>
+                <span class="text-xs text-foreground">{$LL.scrcpy.stream.turnScreenOff()}</span>
               </label>
 
               <label class="flex items-center gap-2.5 cursor-pointer select-none">
@@ -1162,24 +1163,24 @@
                   class="rounded border-border text-accent focus:ring-accent bg-card-sub w-4 h-4 cursor-pointer"
                 />
                 {/if}
-                <span class="text-xs text-foreground">Keep device awake while mirroring</span>
+                <span class="text-xs text-foreground">{$LL.scrcpy.stream.stayAwake()}</span>
               </label>
             </div>
           </div>
         </Card>
 
         <!-- 2. Real-Time Diagnostics Card -->
-        <Card title="Diagnostics & Telemetry" subtitle="Hardware decoding & pipeline metrics">
+        <Card title={$LL.scrcpy.diagnostics.title()} subtitle={$LL.scrcpy.diagnostics.subtitle()}>
           <div class="space-y-3 font-mono text-xs">
             <!-- Digital FPS Gauge -->
             <div class="p-3 bg-card-sub rounded-xl border border-border flex items-center justify-between">
               <div>
-                <span class="text-[10px] text-muted uppercase font-bold tracking-wider">Live Refresh Rate</span>
+                <span class="text-[10px] text-muted uppercase font-bold tracking-wider">{$LL.scrcpy.diagnostics.liveRefreshRate()}</span>
                 <div class="flex items-baseline gap-1 mt-0.5">
                   <span class="text-2xl font-bold {fps >= 50 ? 'text-emerald-400' : fps >= 25 ? 'text-amber-400' : isMirroring ? 'text-emerald-400/80' : 'text-muted'}">
-                    {fps > 0 ? fps : (isMirroring ? 'Idle' : '0')}
+                    {fps > 0 ? fps : (isMirroring ? $LL.scrcpy.diagnostics.idle() : '0')}
                   </span>
-                  <span class="text-xs text-muted">{fps > 0 ? 'FPS' : (isMirroring ? '(60Hz Standby)' : 'FPS')}</span>
+                  <span class="text-xs text-muted">{fps > 0 ? 'FPS' : (isMirroring ? $LL.scrcpy.diagnostics.standby() : 'FPS')}</span>
                 </div>
               </div>
 
@@ -1194,7 +1195,7 @@
                   {/if}
                 </Badge>
                 <div class="text-[10px] text-muted mt-1">
-                  {totalFrames > 0 ? `${totalFrames.toLocaleString()} frames decoded` : 'No frames'}
+                  {totalFrames > 0 ? $LL.scrcpy.diagnostics.framesDecoded({ frames: totalFrames.toLocaleString() }) : $LL.scrcpy.diagnostics.noFrames()}
                 </div>
               </div>
             </div>
@@ -1202,35 +1203,35 @@
             <!-- Detailed Grid Readouts -->
             <div class="grid grid-cols-2 gap-2 text-[11px]">
               <div class="p-2.5 bg-card-sub rounded-lg border border-border col-span-2">
-                <div class="text-muted text-[10px] uppercase">Active Hardware Encoder</div>
+                <div class="text-muted text-[10px] uppercase">{$LL.scrcpy.diagnostics.activeEncoder()}</div>
                 <div class="font-bold text-foreground mt-0.5 truncate text-[11px]" title={hardwareEncoderName}>
-                  {hardwareEncoderName || 'Detecting...'}
+                  {hardwareEncoderName || $LL.scrcpy.diagnostics.detecting()}
                 </div>
               </div>
 
               <div class="p-2.5 bg-card-sub rounded-lg border border-border">
-                <div class="text-muted text-[10px] uppercase">Display Output</div>
+                <div class="text-muted text-[10px] uppercase">{$LL.scrcpy.diagnostics.displayOutput()}</div>
                 <div class="font-bold text-foreground mt-0.5">
                   {isMirroring ? `${detectedWidth} × ${detectedHeight}` : '—'}
                 </div>
               </div>
 
               <div class="p-2.5 bg-card-sub rounded-lg border border-border">
-                <div class="text-muted text-[10px] uppercase">Codec Profile</div>
+                <div class="text-muted text-[10px] uppercase">{$LL.scrcpy.diagnostics.codecProfile()}</div>
                 <div class="font-bold text-foreground mt-0.5 truncate" title={codecName}>
                   {codecName || 'avc1.640033'}
                 </div>
               </div>
 
               <div class="p-2.5 bg-card-sub rounded-lg border border-border">
-                <div class="text-muted text-[10px] uppercase">Encoder Bitrate</div>
+                <div class="text-muted text-[10px] uppercase">{$LL.scrcpy.diagnostics.encoderBitrate()}</div>
                 <div class="font-bold text-foreground mt-0.5">
                   {(bitRate / 1000000).toFixed(0)} Mbps
                 </div>
               </div>
 
               <div class="p-2.5 bg-card-sub rounded-lg border border-border">
-                <div class="text-muted text-[10px] uppercase">Pipeline Latency</div>
+                <div class="text-muted text-[10px] uppercase">{$LL.scrcpy.diagnostics.pipelineLatency()}</div>
                 <div class="font-bold text-emerald-400 mt-0.5">
                   {isMirroring ? '< 15 ms' : '—'}
                 </div>
@@ -1240,7 +1241,7 @@
         </Card>
 
         <!-- 3. Direct Text Injection & Quick URL Bar -->
-        <Card title="Direct Text Injection" subtitle="Send strings, passwords or URLs to phone">
+        <Card title={$LL.scrcpy.injection.title()} subtitle={$LL.scrcpy.injection.subtitle()}>
           <form
             onsubmit={(e) => {
               e.preventDefault()
@@ -1250,7 +1251,7 @@
           >
             <div class="flex items-center gap-2">
               <Input
-                placeholder="Paste URL or type string to send..."
+                placeholder={$LL.scrcpy.injection.placeholder()}
                 bind:value={textInput}
                 disabled={!isMirroring}
                 class="text-xs"
@@ -1260,7 +1261,7 @@
                 variant="primary"
                 size="md"
                 disabled={!isMirroring || !textInput.trim()}
-                title="Inject string to active input field"
+                title={$LL.scrcpy.injection.sendTitle()}
               >
                 <Send class="w-3.5 h-3.5" />
               </Button>
@@ -1268,7 +1269,7 @@
 
             <!-- Quick Paste Presets -->
             <div class="flex items-center flex-wrap gap-1.5 pt-1">
-              <span class="text-[10px] text-muted uppercase font-bold mr-1">Quick:</span>
+              <span class="text-[10px] text-muted uppercase font-bold mr-1">{$LL.scrcpy.injection.quick()}</span>
               <button
                 type="button"
                 disabled={!isMirroring}

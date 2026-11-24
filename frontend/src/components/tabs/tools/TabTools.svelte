@@ -18,6 +18,7 @@
     ArrowRight,
   } from '@lucide/svelte'
   import { api } from '../../../api/client'
+  import { LL } from '../../../i18n/i18n-svelte'
   import { toastStore } from '../../../stores/toast.svelte'
   import { navigationStore } from '../../../stores/navigation.svelte'
   import Card from '../../ui/Card.svelte'
@@ -84,11 +85,11 @@
       const res = await api.post<CloudConfig>('/api/backup/cloud/config', cloudConfig)
       if (res) {
         cloudConfig = res
-        toastStore.success('Cloud backup settings saved successfully.')
+        toastStore.success($LL.tools.toasts.cloudSaved())
         showCloudModal = false
       }
     } catch (err: unknown) {
-      toastStore.error(err instanceof Error ? err.message : 'Failed to save cloud config')
+      toastStore.error(err instanceof Error ? err.message : $LL.tools.toasts.saveCloudFailed())
     } finally {
       isSavingCloud = false
     }
@@ -99,13 +100,13 @@
       isSyncingCloud = true
       const res = await api.post<{ success: boolean; error?: string }>('/api/backup/cloud/sync')
       if (res?.success) {
-        toastStore.success('Cloud synchronization succeeded!')
+        toastStore.success($LL.tools.toasts.syncSucceeded())
         await fetchCloudConfig()
       } else {
-        toastStore.error(res?.error || 'Cloud sync failed')
+        toastStore.error(res?.error || $LL.tools.toasts.syncFailed())
       }
     } catch (err: unknown) {
-      toastStore.error(err instanceof Error ? err.message : 'Error triggering cloud sync')
+      toastStore.error(err instanceof Error ? err.message : $LL.tools.toasts.syncError())
     } finally {
       isSyncingCloud = false
     }
@@ -124,7 +125,7 @@
       a.click()
       document.body.removeChild(a)
       window.URL.revokeObjectURL(url)
-      toastStore.success('Configuration backup exported.')
+      toastStore.success($LL.tools.toasts.exported())
     } catch {
       window.open('/api/backup/export', '_blank')
     }
@@ -140,7 +141,7 @@
 
   async function doImportBackup() {
     if (!importJsonText.trim()) {
-      toastStore.error('Please select a valid JSON backup file')
+      toastStore.error($LL.tools.toasts.selectValidJson())
       return
     }
     try {
@@ -148,14 +149,14 @@
       const parsed = JSON.parse(importJsonText)
       const res = await api.post<{ success: boolean; error?: string }>('/api/backup/import', parsed)
       if (res?.success) {
-        toastStore.success('Backup configuration imported successfully!')
+        toastStore.success($LL.tools.toasts.imported())
         showImportModal = false
         importJsonText = ''
       } else {
-        toastStore.error(res?.error || 'Failed to import backup payload')
+        toastStore.error(res?.error || $LL.tools.toasts.importFailed())
       }
     } catch (err: unknown) {
-      toastStore.error(err instanceof Error ? err.message : 'Invalid JSON backup format')
+      toastStore.error(err instanceof Error ? err.message : $LL.tools.toasts.invalidJson())
     } finally {
       isImporting = false
     }
@@ -168,7 +169,7 @@
     <div class="flex items-center gap-2">
       <Wrench class="w-5 h-5 text-accent" />
       <h2 class="text-base sm:text-lg font-bold uppercase tracking-wider text-foreground">
-        System Tools & Backup
+        {$LL.tools.title()}
       </h2>
     </div>
 
@@ -177,30 +178,30 @@
         variant="outline"
         size="sm"
         onclick={exportBackup}
-        title="Download full JSON configuration backup"
+        title={$LL.tools.exportTitle()}
       >
         <Download class="w-3.5 h-3.5 mr-1" />
-        <span>Export Backup</span>
+        <span>{$LL.tools.exportBackup()}</span>
       </Button>
 
       <Button
         variant="secondary"
         size="sm"
         onclick={() => (showImportModal = true)}
-        title="Restore system configuration from JSON"
+        title={$LL.tools.importTitle()}
       >
         <Upload class="w-3.5 h-3.5 mr-1" />
-        <span>Import</span>
+        <span>{$LL.tools.import()}</span>
       </Button>
 
       <Button
         variant="primary"
         size="sm"
         onclick={() => (showCloudModal = true)}
-        title="Configure WebDAV Cloud Backup"
+        title={$LL.tools.cloudTitle()}
       >
         <Cloud class="w-3.5 h-3.5 mr-1" />
-        <span>Cloud Sync</span>
+        <span>{$LL.tools.cloudSync()}</span>
       </Button>
 
       <Button
@@ -210,21 +211,21 @@
         onclick={fetchCloudConfig}
       >
         <RefreshCw class="w-3.5 h-3.5 mr-1.5 {isLoading ? 'animate-spin' : ''}" />
-        <span>Refresh</span>
+        <span>{$LL.common.refresh()}</span>
       </Button>
     </div>
   </div>
 
   <!-- Security & Authentication Card -->
-  <Card title="Security & Authentication" subtitle="Manage root WebUI access credentials" tone="butter">
+  <Card title={$LL.tools.security.title()} subtitle={$LL.tools.security.subtitle()} tone="butter">
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-3.5 bg-card-sub border border-border rounded font-mono text-xs">
       <div class="flex items-center gap-3">
         <div class="p-2.5 rounded bg-card border border-border text-accent">
           <KeyRound class="w-5 h-5" />
         </div>
         <div>
-          <span class="font-bold text-foreground text-sm block">Admin WebUI Password</span>
-          <span class="text-[11px] text-muted">Update administrative authentication password for this device.</span>
+          <span class="font-bold text-foreground text-sm block">{$LL.tools.security.adminPassword()}</span>
+          <span class="text-[11px] text-muted">{$LL.tools.security.adminPasswordDesc()}</span>
         </div>
       </div>
       <Button
@@ -233,35 +234,35 @@
         onclick={() => (showPasswordModal = true)}
       >
         <KeyRound class="w-3.5 h-3.5 mr-1.5" />
-        <span>Change Admin Password</span>
+        <span>{$LL.common.changePassword()}</span>
       </Button>
     </div>
   </Card>
 
   <!-- Backup & Cloud Synchronization Status Card -->
-  <Card title="Configuration Backup & Cloud Synchronization" tone="butter">
+  <Card title={$LL.tools.backup.title()} tone="butter">
     <div class="grid grid-cols-1 md:grid-cols-3 gap-4 font-mono text-xs">
       <!-- Cloud State -->
       <div class="p-3.5 rounded bg-card-sub border border-border space-y-2 flex flex-col justify-between">
         <div>
           <div class="flex items-center justify-between mb-1">
-            <span class="text-[10px] text-muted uppercase font-bold">Cloud Provider</span>
+            <span class="text-[10px] text-muted uppercase font-bold">{$LL.tools.cloud.provider()}</span>
             <Badge variant={cloudConfig.enabled ? 'success' : 'default'}>
-              {cloudConfig.enabled ? 'Active' : 'Disabled'}
+              {cloudConfig.enabled ? $LL.common.active() : $LL.tools.cloud.disabled()}
             </Badge>
           </div>
           <div class="text-sm font-bold text-foreground capitalize">
             {cloudConfig.provider || 'WebDAV'}
           </div>
           <p class="text-[11px] text-muted truncate mt-0.5">
-            {cloudConfig.url || 'No cloud endpoint configured'}
+            {cloudConfig.url || $LL.tools.cloud.noEndpoint()}
           </p>
         </div>
 
         <div class="pt-2 border-t border-border/60 flex items-center justify-between text-[10px]">
-          <span class="text-muted">Last Synced:</span>
+          <span class="text-muted">{$LL.tools.cloud.lastSynced()}</span>
           <span class="font-bold text-foreground">
-            {cloudConfig.last_sync ? new Date(cloudConfig.last_sync).toLocaleString() : 'Never'}
+            {cloudConfig.last_sync ? new Date(cloudConfig.last_sync).toLocaleString() : $LL.tools.cloud.never()}
           </span>
         </div>
       </div>
@@ -269,9 +270,9 @@
       <!-- Quick Actions Strip -->
       <div class="p-3.5 rounded bg-card-sub border border-border space-y-2.5 flex flex-col justify-between">
         <div>
-          <span class="text-[10px] text-muted uppercase font-bold block mb-1">Instant Cloud Operations</span>
+          <span class="text-[10px] text-muted uppercase font-bold block mb-1">{$LL.tools.cloud.instantOps()}</span>
           <p class="text-[11px] text-muted leading-relaxed">
-            Push local configuration settings (network tweaks, DNS, TTL, shortcuts, charging limits) to remote cloud repository.
+            {$LL.tools.cloud.instantOpsDesc()}
           </p>
         </div>
 
@@ -284,7 +285,7 @@
             onclick={syncCloudBackup}
           >
             <CloudUpload class="w-3.5 h-3.5 mr-1 {isSyncingCloud ? 'animate-spin' : ''}" />
-            <span>{isSyncingCloud ? 'Syncing...' : 'Sync Cloud Now'}</span>
+            <span>{isSyncingCloud ? $LL.tools.cloud.syncing() : $LL.tools.cloud.syncNow()}</span>
           </Button>
         </div>
       </div>
@@ -292,20 +293,20 @@
       <!-- Local Backup Management -->
       <div class="p-3.5 rounded bg-card-sub border border-border space-y-2.5 flex flex-col justify-between">
         <div>
-          <span class="text-[10px] text-muted uppercase font-bold block mb-1">Local Configuration Snapshot</span>
+          <span class="text-[10px] text-muted uppercase font-bold block mb-1">{$LL.tools.local.title()}</span>
           <p class="text-[11px] text-muted leading-relaxed">
-            Create or restore offline snapshots. Encodes full BFR daemon configuration into a single portable JSON file.
+            {$LL.tools.local.desc()}
           </p>
         </div>
 
         <div class="flex items-center gap-2 pt-2 border-t border-border/60">
           <Button variant="outline" size="sm" class="flex-1" onclick={exportBackup}>
             <Download class="w-3.5 h-3.5 mr-1" />
-            <span>Export</span>
+            <span>{$LL.tools.export()}</span>
           </Button>
           <Button variant="secondary" size="sm" class="flex-1" onclick={() => (showImportModal = true)}>
             <Upload class="w-3.5 h-3.5 mr-1" />
-            <span>Restore</span>
+            <span>{$LL.tools.restore()}</span>
           </Button>
         </div>
       </div>
@@ -314,8 +315,8 @@
 
   <!-- Root Modules Quick Navigation Card -->
   <Card
-    title="Root Modules"
-    subtitle="Manage Magisk / KernelSU extensions"
+    title={$LL.tools.modules.title()}
+    subtitle={$LL.tools.modules.subtitle()}
     tone="butter"
   >
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-3.5 bg-card-sub border border-border rounded font-mono text-xs">
@@ -324,9 +325,9 @@
           <Layers class="w-5 h-5" />
         </div>
         <div>
-          <span class="font-bold text-foreground text-sm block">Systemless Module Overlays</span>
+          <span class="font-bold text-foreground text-sm block">{$LL.tools.modules.overlays()}</span>
           <span class="text-[11px] text-muted">
-            Inspect, toggle, or flash modules in the dedicated Modules control center.
+            {$LL.tools.modules.overlaysDesc()}
           </span>
         </div>
       </div>
@@ -335,7 +336,7 @@
         size="sm"
         onclick={() => navigationStore.setTab('modules')}
       >
-        <span>Open Modules</span>
+        <span>{$LL.tools.modules.openModules()}</span>
         <ArrowRight class="w-3.5 h-3.5 ml-1.5" />
       </Button>
     </div>
@@ -345,15 +346,15 @@
 <!-- Cloud Sync Configuration Modal -->
 <Modal
   open={showCloudModal}
-  title="Cloud Backup & WebDAV Synchronization"
+  title={$LL.tools.cloudModal.title()}
   onclose={() => (showCloudModal = false)}
   class="!max-w-md"
 >
   <div class="space-y-3 font-mono text-xs">
     <div class="flex items-center justify-between p-3 rounded bg-card-sub border border-border">
       <div>
-        <span class="font-bold text-foreground block text-xs">Enable Automatic Cloud Sync</span>
-        <span class="text-[10px] text-muted">Scheduled remote backup sync</span>
+        <span class="font-bold text-foreground block text-xs">{$LL.tools.cloudModal.enableAuto()}</span>
+        <span class="text-[10px] text-muted">{$LL.tools.cloudModal.enableAutoDesc()}</span>
       </div>
       {#if themeStore.useSakugaControls()}
         <SakugaCheckbox bind:checked={cloudConfig.enabled} />
@@ -367,46 +368,46 @@
     </div>
 
     <div class="space-y-1">
-      <label for="cloud-provider" class="text-[10px] uppercase font-bold text-muted block">Provider Protocol</label>
+      <label for="cloud-provider" class="text-[10px] uppercase font-bold text-muted block">{$LL.tools.cloudModal.providerLabel()}</label>
       <select
         id="cloud-provider"
         bind:value={cloudConfig.provider}
         class="neo-input w-full bg-card-sub border border-border rounded px-3 py-2 text-xs font-mono text-foreground focus:outline-none focus:border-accent"
       >
-        <option value="webdav">WebDAV (Nextcloud, ownCloud, Fastmail, Box)</option>
+        <option value="webdav">{$LL.tools.cloudModal.providerWebdav()}</option>
       </select>
     </div>
 
     <Input
-      label="WebDAV Server Endpoint URL"
+      label={$LL.tools.cloudModal.endpointLabel()}
       placeholder="https://dav.example.com/remote.php/webdav/backups/"
       bind:value={cloudConfig.url}
     />
 
     <Input
-      label="Username"
-      placeholder="e.g. admin or service account"
+      label={$LL.tools.cloudModal.username()}
+      placeholder={$LL.tools.cloudModal.usernamePlaceholder()}
       bind:value={cloudConfig.username}
     />
 
     <Input
       type="password"
-      label="Password / App Token"
-      placeholder="Enter WebDAV token or password"
+      label={$LL.tools.cloudModal.passwordLabel()}
+      placeholder={$LL.tools.cloudModal.passwordPlaceholder()}
       bind:value={cloudConfig.password}
     />
 
     <div class="space-y-1">
-      <label for="interval-select" class="text-[10px] uppercase font-bold text-muted block">Sync Interval</label>
+      <label for="interval-select" class="text-[10px] uppercase font-bold text-muted block">{$LL.tools.cloudModal.intervalLabel()}</label>
       <select
         id="interval-select"
         bind:value={cloudConfig.interval_hours}
         class="neo-input w-full bg-card-sub border border-border rounded px-3 py-2 text-xs font-mono text-foreground focus:outline-none focus:border-accent"
       >
-        <option value={6}>Every 6 Hours</option>
-        <option value={12}>Every 12 Hours</option>
-        <option value={24}>Every 24 Hours (Daily)</option>
-        <option value={48}>Every 48 Hours (2 Days)</option>
+        <option value={6}>{$LL.tools.cloudModal.interval6()}</option>
+        <option value={12}>{$LL.tools.cloudModal.interval12()}</option>
+        <option value={24}>{$LL.tools.cloudModal.interval24()}</option>
+        <option value={48}>{$LL.tools.cloudModal.interval48()}</option>
       </select>
     </div>
   </div>
@@ -417,7 +418,7 @@
       size="sm"
       onclick={() => (showCloudModal = false)}
     >
-      Cancel
+      {$LL.common.cancel()}
     </Button>
     <Button
       variant="primary"
@@ -425,7 +426,7 @@
       disabled={isSavingCloud}
       onclick={saveCloudConfig}
     >
-      {isSavingCloud ? 'Saving...' : 'Save Settings'}
+      {isSavingCloud ? $LL.tools.cloudModal.saving() : $LL.tools.cloudModal.saveSettings()}
     </Button>
   {/snippet}
 </Modal>
@@ -433,7 +434,7 @@
 <!-- Import Configuration Backup Modal -->
 <Modal
   open={showImportModal}
-  title="Restore Configuration from Backup"
+  title={$LL.tools.importModal.title()}
   onclose={() => (showImportModal = false)}
   class="!max-w-lg"
 >
@@ -441,16 +442,16 @@
     <div class="p-3 rounded bg-amber-950/30 border border-amber-800 text-amber-300 flex items-start gap-2.5">
       <AlertCircle class="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
       <div class="space-y-1 leading-relaxed">
-        <span class="font-bold block text-amber-300">Warning: Configuration Overwrite</span>
+        <span class="font-bold block text-amber-300">{$LL.tools.importModal.warningTitle()}</span>
         <p class="text-[11px]">
-          Importing a backup will replace current system parameters, network tweaks, DNS, TTL, and shortcuts.
+          {$LL.tools.importModal.warningBody()}
         </p>
       </div>
     </div>
 
     <!-- File Picker Input -->
     <div class="space-y-1.5">
-      <label for="backup-file" class="text-[10px] uppercase font-bold text-muted block">Select Backup JSON File</label>
+      <label for="backup-file" class="text-[10px] uppercase font-bold text-muted block">{$LL.tools.importModal.selectFile()}</label>
       <input
         id="backup-file"
         type="file"
@@ -462,11 +463,11 @@
 
     <!-- Raw JSON Preview / Paste Area -->
     <div class="space-y-1.5">
-      <label for="backup-json-preview" class="text-[10px] uppercase font-bold text-muted block">Or Paste JSON Payload</label>
+      <label for="backup-json-preview" class="text-[10px] uppercase font-bold text-muted block">{$LL.tools.importModal.pasteJson()}</label>
       <textarea
         id="backup-json-preview"
         bind:value={importJsonText}
-        placeholder="Paste JSON configuration payload here..."
+        placeholder={$LL.tools.importModal.pastePlaceholder()}
         rows={6}
         class="neo-input w-full bg-card-sub border border-border rounded p-2.5 text-xs font-mono text-foreground placeholder:text-muted focus:outline-none focus:border-accent resize-none"
       ></textarea>
@@ -479,7 +480,7 @@
       size="sm"
       onclick={() => (showImportModal = false)}
     >
-      Cancel
+      {$LL.common.cancel()}
     </Button>
     <Button
       variant="danger"
@@ -487,7 +488,7 @@
       disabled={isImporting || !importJsonText.trim()}
       onclick={doImportBackup}
     >
-      {isImporting ? 'Importing...' : 'Restore Configuration'}
+      {isImporting ? $LL.tools.importModal.importing() : $LL.tools.importModal.restore()}
     </Button>
   {/snippet}
 </Modal>

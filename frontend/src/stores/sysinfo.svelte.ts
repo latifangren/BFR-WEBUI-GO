@@ -1,3 +1,5 @@
+import { get } from 'svelte/store'
+import { LL } from '../i18n/i18n-svelte'
 import { api } from '../api/client'
 import type { SysinfoStats } from '../types/sysinfo'
 
@@ -83,7 +85,7 @@ class SysinfoStore {
       }
       this.error = null
     } catch (err: unknown) {
-      this.error = err instanceof Error ? err.message : 'Failed to fetch telemetry'
+      this.error = err instanceof Error ? err.message : get(LL).sysinfo.error.failedFetch()
     } finally {
       this.isLoading = false
     }

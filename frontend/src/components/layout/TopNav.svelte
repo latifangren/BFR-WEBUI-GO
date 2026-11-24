@@ -34,6 +34,8 @@
     type TabItem,
   } from '../../stores/navigation.svelte'
   import { themeStore } from '../../stores/theme.svelte'
+  import { LL } from '../../i18n/i18n-svelte'
+  import { tNav } from '../../lib/nav-labels'
 
   const iconComponents: Record<string, typeof Cpu> = {
     overview: LayoutDashboard,
@@ -141,7 +143,7 @@
 
 <nav
   class="top-nav-container hidden md:flex items-center gap-1 sm:gap-1.5 font-mono text-xs select-none relative"
-  aria-label="Desktop Top Flyout Navigation"
+  aria-label={$LL.nav.desktopTopNav()}
 >
   {#each NAV_CATEGORIES as cat}
     {@const CatIcon = categoryIcons[cat.id] || LayoutDashboard}
@@ -163,7 +165,7 @@
         aria-expanded={isOpen}
       >
         <CatIcon class="w-3.5 h-3.5 shrink-0 {isCatActive ? 'text-accent-text' : 'text-accent'}" />
-        <span>{cat.label}</span>
+        <span>{tNav($LL, 'categories', cat.id, cat.label)}</span>
         <ChevronDown
           class="w-3 h-3 transition-transform duration-200 opacity-70 {isOpen ? 'rotate-180' : ''}"
         />
@@ -178,7 +180,7 @@
         >
           <!-- Small Header inside Flyout -->
           <div class="px-2.5 py-1 text-[10px] font-bold uppercase text-muted tracking-wider border-b border-border/60 flex items-center justify-between mb-1">
-            <span>{cat.label} Tabs</span>
+            <span>{tNav($LL, 'categories', cat.id, cat.label)} {$LL.common.tabs()}</span>
             <span class="text-[9px] px-1.5 py-0.2 rounded bg-card-sub border border-border text-foreground font-bold">
               {tabs.length}
             </span>
@@ -196,7 +198,7 @@
               >
                 <div class="flex items-center gap-2 min-w-0">
                   <TabIcon class="w-3.5 h-3.5 shrink-0 {isTabActive ? 'text-accent-text' : 'text-muted'}" />
-                  <span class="truncate">{tab.label}</span>
+                  <span class="truncate">{tNav($LL, 'tabs', tab.id, tab.label)}</span>
                 </div>
                 <div class="flex items-center gap-2 shrink-0 ml-2">
                   {#if tab.badge}

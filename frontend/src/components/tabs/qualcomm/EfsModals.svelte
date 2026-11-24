@@ -3,6 +3,7 @@
   import Modal from '../../ui/Modal.svelte'
   import Button from '../../ui/Button.svelte'
   import Badge from '../../ui/Badge.svelte'
+  import { LL } from '../../../i18n/i18n-svelte'
 
   interface Props {
     status?: any
@@ -88,15 +89,15 @@
 </script>
 
 <!-- SPC UNLOCK MODAL -->
-<Modal bind:open={showSpcModal} title="Unlock DIAG Security Session (SPC)" size="sm">
+<Modal bind:open={showSpcModal} title={$LL.qualcomm.efsModals.spcTitle()} size="sm">
   <div class="space-y-3 font-mono text-xs">
     <p class="text-muted text-[11px]">
-      Qualcomm NV item writes require raising the DIAG security level via the 6-digit Service Programming Code (SPC). Default is usually <code>000000</code>.
+      {$LL.qualcomm.efsModals.spcBodyA()} <code>000000</code>{$LL.qualcomm.efsModals.spcBodyB()}
     </p>
 
     <div>
       <label class="block text-[10px] text-muted uppercase font-bold mb-1">
-        <span>Service Programming Code (6 Digits)</span>
+        <span>{$LL.qualcomm.efsModals.spcLabel()}</span>
         <input
           type="text"
           maxlength="6"
@@ -109,20 +110,20 @@
   </div>
 
   {#snippet footer()}
-    <Button variant="secondary" size="sm" onclick={() => (showSpcModal = false)}>Cancel</Button>
+    <Button variant="secondary" size="sm" onclick={() => (showSpcModal = false)}>{$LL.common.cancel()}</Button>
     <Button variant="primary" size="sm" disabled={isUnlockingSpc} onclick={submitSpcUnlock}>
-      <span>{isUnlockingSpc ? 'Verifying...' : 'Submit Code'}</span>
+      <span>{isUnlockingSpc ? $LL.qualcomm.efsModals.verifying() : $LL.qualcomm.efsModals.submitCode()}</span>
     </Button>
   {/snippet}
 </Modal>
 
 <!-- NV ITEM INSPECTOR MODAL -->
-<Modal bind:open={showNvModal} title="Qualcomm NV Item Inspector" size="lg">
+<Modal bind:open={showNvModal} title={$LL.qualcomm.efsModals.nvTitle()} size="lg">
   <div class="space-y-4 font-mono text-xs">
     <div class="grid grid-cols-2 gap-3">
       <div>
         <label class="block text-[10px] text-muted uppercase font-bold mb-1">
-          <span>NV Item ID (0-65535)</span>
+          <span>{$LL.qualcomm.efsModals.nvItemLabel()}</span>
           <input
             type="number"
             bind:value={nvItemInput}
@@ -133,7 +134,7 @@
       </div>
       <div>
         <label class="block text-[10px] text-muted uppercase font-bold mb-1">
-          <span>Subsystem Index (-1 for Default)</span>
+          <span>{$LL.qualcomm.efsModals.nvIndexLabel()}</span>
           <input
             type="number"
             bind:value={nvIndexInput}
@@ -147,14 +148,14 @@
     <div class="flex items-center justify-end gap-2">
       <Button variant="secondary" size="sm" disabled={isLoadingNv} onclick={readNvItem}>
         <RefreshCw class="w-3.5 h-3.5 mr-1 {isLoadingNv ? 'animate-spin' : ''}" />
-        <span>Read NV Item</span>
+        <span>{$LL.qualcomm.efsModals.readNv()}</span>
       </Button>
     </div>
 
     {#if nvResult}
       <div class="p-3 bg-zinc-950 border-2 border-border rounded space-y-2">
         <div class="flex items-center justify-between text-[11px]">
-          <span class="text-muted">Return Status:</span>
+          <span class="text-muted">{$LL.qualcomm.efsModals.returnStatus()}</span>
           <Badge variant={nvResult.status === 0 ? 'success' : 'danger'}>
             {nvResult.status_str} ({nvResult.status})
           </Badge>
@@ -162,7 +163,7 @@
 
         <div>
           <label class="block text-[10px] text-muted uppercase font-bold mb-1">
-            <span>NV Payload (128 Bytes Hex)</span>
+            <span>{$LL.qualcomm.efsModals.nvPayload()}</span>
             <textarea
               bind:value={nvHexInput}
               rows="4"
@@ -175,120 +176,120 @@
   </div>
 
   {#snippet footer()}
-    <Button variant="secondary" size="sm" onclick={() => (showNvModal = false)}>Close</Button>
+    <Button variant="secondary" size="sm" onclick={() => (showNvModal = false)}>{$LL.common.close()}</Button>
     <Button
       variant="danger"
       size="sm"
       disabled={status.readonly || isWritingNv || !nvResult}
       onclick={writeNvItem}
     >
-      <span>{isWritingNv ? 'Writing...' : 'Write NV to Modem'}</span>
+      <span>{isWritingNv ? $LL.qualcomm.efsModals.writingNv() : $LL.qualcomm.efsModals.writeNv()}</span>
     </Button>
   {/snippet}
 </Modal>
 
 <!-- RESTART MODEM (SSR) MODAL -->
-<Modal bind:open={showSsrModal} title="Confirm Modem Subsystem Restart (SSR)" size="sm">
+<Modal bind:open={showSsrModal} title={$LL.qualcomm.efsModals.ssrTitle()} size="sm">
   <div class="space-y-3 font-mono text-xs">
     <div class="p-3 bg-amber-950/40 border-2 border-amber-600 rounded text-amber-200 space-y-1">
       <p class="font-bold flex items-center gap-1.5 text-amber-300">
         <AlertTriangle class="w-4 h-4 text-amber-400" />
-        <span>Temporary Cellular Interruption</span>
+        <span>{$LL.qualcomm.efsModals.ssrHeading()}</span>
       </p>
       <p class="text-[11px] text-amber-200/90 leading-relaxed">
-        This command flushes the dirty EFS journal to flash and issues a hardware-level Subsystem Restart (SSR) to the Qualcomm modem. Cellular data and calls will reset for approximately 2 to 3 seconds.
+        {$LL.qualcomm.efsModals.ssrBody()}
       </p>
     </div>
   </div>
 
   {#snippet footer()}
-    <Button variant="secondary" size="sm" onclick={() => (showSsrModal = false)}>Cancel</Button>
+    <Button variant="secondary" size="sm" onclick={() => (showSsrModal = false)}>{$LL.common.cancel()}</Button>
     <Button variant="danger" size="sm" disabled={isRestartingModem} onclick={triggerSsr}>
-      <span>{isRestartingModem ? 'Rebooting Modem...' : 'Restart Radio Now'}</span>
+      <span>{isRestartingModem ? $LL.qualcomm.efsModals.rebooting() : $LL.qualcomm.efsModals.restartRadio()}</span>
     </Button>
   {/snippet}
 </Modal>
 
 <!-- UNLOCK WRITE ACCESS WARNING MODAL -->
-<Modal bind:open={showUnlockWarningModal} title="Unlock Modem Write Access" size="sm">
+<Modal bind:open={showUnlockWarningModal} title={$LL.qualcomm.efsModals.unlockTitle()} size="sm">
   <div class="space-y-3 font-mono text-xs">
     <div class="p-3 bg-red-950/40 border-2 border-red-600 rounded text-red-200 space-y-1">
       <p class="font-bold flex items-center gap-1.5 text-red-300">
         <AlertTriangle class="w-4 h-4 text-red-400" />
-        <span>Caution: Raw Baseband Filesystem</span>
+        <span>{$LL.qualcomm.efsModals.unlockHeading()}</span>
       </p>
       <p class="text-[11px] text-red-200/90 leading-relaxed">
-        Writing incorrect or corrupt configurations directly to Qualcomm EFS2 can cause modem bootloops or loss of IMEI / radio calibrations.
+        {$LL.qualcomm.efsModals.unlockBody()}
       </p>
       <p class="text-[10px] text-red-300/80 mt-1 font-bold">
-        Always download a .TAR backup before making modifications!
+        {$LL.qualcomm.efsModals.unlockNote()}
       </p>
     </div>
   </div>
 
   {#snippet footer()}
     <Button variant="secondary" size="sm" onclick={() => (showUnlockWarningModal = false)}>
-      Keep Read-Only
+      {$LL.qualcomm.efsModals.keepReadonly()}
     </Button>
     <Button variant="danger" size="sm" onclick={() => setReadOnlyMode(false)}>
-      I Understand, Unlock
+      {$LL.qualcomm.efsModals.understandUnlock()}
     </Button>
   {/snippet}
 </Modal>
 
 <!-- CREATE DIRECTORY MODAL -->
-<Modal bind:open={showMkdirModal} title="Create Directory" size="sm">
+<Modal bind:open={showMkdirModal} title={$LL.qualcomm.efsModals.mkdirTitle()} size="sm">
   <div class="space-y-3 font-mono text-xs">
     <div>
       <label class="block text-[10px] text-muted uppercase font-bold mb-1">
-        <span>Directory Name</span>
+        <span>{$LL.qualcomm.efsModals.dirNameLabel()}</span>
         <input
           type="text"
           bind:value={newDirName}
           class="neo-input mt-1 w-full bg-card-sub border-2 border-border rounded px-3 py-2 text-foreground focus:outline-none focus:border-accent"
-          placeholder="my_folder"
+          placeholder={$LL.qualcomm.efsModals.dirNamePlaceholder()}
         />
       </label>
     </div>
   </div>
 
   {#snippet footer()}
-    <Button variant="secondary" size="sm" onclick={() => (showMkdirModal = false)}>Cancel</Button>
+    <Button variant="secondary" size="sm" onclick={() => (showMkdirModal = false)}>{$LL.common.cancel()}</Button>
     <Button variant="primary" size="sm" disabled={isCreatingDir || !newDirName.trim()} onclick={createDirectory}>
-      <span>{isCreatingDir ? 'Creating...' : 'Create Folder'}</span>
+      <span>{isCreatingDir ? $LL.qualcomm.efsModals.creating() : $LL.qualcomm.efsModals.createFolder()}</span>
     </Button>
   {/snippet}
 </Modal>
 
 <!-- DELETE CONFIRM MODAL -->
-<Modal bind:open={showDeleteModal} title="Confirm Deletion" size="sm">
+<Modal bind:open={showDeleteModal} title={$LL.qualcomm.efsModals.deleteTitle()} size="sm">
   <div class="space-y-3 font-mono text-xs">
     <p>
-      Are you sure you want to permanently delete <strong class="text-red-400">{entryToDelete?.path}</strong> from the Qualcomm modem filesystem?
+      {$LL.qualcomm.efsModals.deleteBodyA()} <strong class="text-red-400">{entryToDelete?.path}</strong> {$LL.qualcomm.efsModals.deleteBodyB()}
     </p>
   </div>
 
   {#snippet footer()}
-    <Button variant="secondary" size="sm" onclick={() => (showDeleteModal = false)}>Cancel</Button>
+    <Button variant="secondary" size="sm" onclick={() => (showDeleteModal = false)}>{$LL.common.cancel()}</Button>
     <Button variant="danger" size="sm" disabled={isDeleting} onclick={confirmDelete}>
-      <span>{isDeleting ? 'Deleting...' : 'Delete Permanently'}</span>
+      <span>{isDeleting ? $LL.qualcomm.efsModals.deleting() : $LL.qualcomm.efsModals.deletePermanently()}</span>
     </Button>
   {/snippet}
 </Modal>
 
 <!-- STANDALONE CARRIER POLICY / CA COMBOS MODAL -->
-<Modal bind:open={showCaModal} title="Qualcomm Carrier Policy / CA Combos Visualizer" size="lg">
+<Modal bind:open={showCaModal} title={$LL.qualcomm.efsModals.caTitle()} size="lg">
   <div class="space-y-3 font-mono text-xs">
     <div class="flex items-center justify-between">
       <p class="text-muted text-[11px]">
-        Paste raw carrier policy XML, <code>&lt;ca_band_combos&gt;</code> tag, or semicolon-separated combo list below:
+        {$LL.qualcomm.efsModals.caBodyA()} <code>&lt;ca_band_combos&gt;</code> {$LL.qualcomm.efsModals.caBodyB()}
       </p>
       <button
         type="button"
         class="text-[10px] text-cyan-400 hover:underline font-bold cursor-pointer"
         onclick={loadSampleCarrierPolicy}
       >
-        Load Demo Combos
+        {$LL.qualcomm.efsModals.loadDemo()}
       </button>
     </div>
 
@@ -297,19 +298,19 @@
         rows="9"
         bind:value={caInputContent}
         class="neo-input w-full bg-zinc-950 border-2 border-border rounded p-3 font-mono text-xs text-foreground focus:outline-none focus:border-cyan-500 placeholder:text-muted"
-        placeholder="Paste carrier_policy.xml or ca_band_combos string here..."
+        placeholder={$LL.qualcomm.efsModals.caPlaceholder()}
       ></textarea>
     </div>
 
     <div class="p-2.5 bg-card-sub rounded border border-border text-[11px] text-muted space-y-1">
-      <div class="font-bold text-foreground">Supported Formats:</div>
-      <div>• Qualcomm carrier policy XML: <code>&lt;ca_band_combos string="..." /&gt;</code></div>
-      <div>• Raw combo list: <code>4A2A-2A2-mAll; 66C44A-2A4-m3; 5B22A-m1; ...</code></div>
+      <div class="font-bold text-foreground">{$LL.qualcomm.efsModals.supportedFormats()}</div>
+      <div>• {$LL.qualcomm.efsModals.formatXmlA()} <code>&lt;ca_band_combos string="..." /&gt;</code></div>
+      <div>• {$LL.qualcomm.efsModals.formatRawA()} <code>4A2A-2A2-mAll; 66C44A-2A4-m3; 5B22A-m1; ...</code></div>
     </div>
   </div>
 
   {#snippet footer()}
-    <Button variant="secondary" size="sm" onclick={() => (showCaModal = false)}>Cancel</Button>
+    <Button variant="secondary" size="sm" onclick={() => (showCaModal = false)}>{$LL.common.cancel()}</Button>
     <Button
       variant="primary"
       size="sm"
@@ -317,7 +318,7 @@
       onclick={parseCustomCarrierPolicy}
     >
       <Radio class="w-3.5 h-3.5 mr-1 text-black" />
-      <span>{isParsingCa ? 'Analyzing...' : 'Parse & Visualize Combos'}</span>
+      <span>{isParsingCa ? $LL.qualcomm.efsModals.analyzing() : $LL.qualcomm.efsModals.parseVisualize()}</span>
     </Button>
   {/snippet}
 </Modal>

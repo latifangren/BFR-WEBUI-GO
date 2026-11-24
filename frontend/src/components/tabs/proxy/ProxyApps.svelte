@@ -14,6 +14,7 @@
   import Input from '../../ui/Input.svelte'
   import { api } from '../../../api/client'
   import { toastStore } from '../../../stores/toast.svelte'
+  import { LL } from '../../../i18n/i18n-svelte'
   import { themeStore } from '../../../stores/theme.svelte'
   import SakugaCheckbox from '../../ui/SakugaCheckbox.svelte'
 
@@ -103,17 +104,17 @@
         mode,
         packages,
       })
-      toastStore.success(`App proxy policy saved (${mode}: ${packages.length} apps)`)
+      toastStore.success($LL.proxy.apps.toasts.saved({ mode, count: packages.length }))
     } catch (err: unknown) {
-      toastStore.error(err instanceof Error ? err.message : 'Failed to save app proxy policy')
+      toastStore.error(err instanceof Error ? err.message : $LL.proxy.apps.toasts.saveFailed())
       isSaving = false
     }
   }
 </script>
 
 <Card
-  title="Per-App Proxy Routing (package.list.cfg)"
-  subtitle="Filter which Android apps are routed through proxy or bypassed directly (Blacklist / Whitelist)"
+  title={$LL.proxy.apps.title()}
+  subtitle={$LL.proxy.apps.subtitle()}
   tone="ice"
 >
   {#snippet action()}
@@ -125,7 +126,7 @@
         onclick={saveAppProxy}
       >
         <Check class="w-3.5 h-3.5 mr-1" />
-        <span>{isSaving ? 'Saving...' : 'Apply Policy'}</span>
+        <span>{isSaving ? $LL.proxy.apps.saving() : $LL.proxy.apps.applyPolicy()}</span>
       </Button>
     </div>
   {/snippet}
@@ -133,15 +134,15 @@
   <div class="space-y-4 font-mono text-xs">
     <!-- Mode Switcher: Blacklist vs Whitelist -->
     <div class="p-3 bg-card-sub border border-border rounded-lg space-y-2">
-      <span class="text-[10px] text-muted uppercase font-bold block">App Routing Policy</span>
+      <span class="text-[10px] text-muted uppercase font-bold block">{$LL.proxy.apps.policyTitle()}</span>
       <div class="grid grid-cols-2 gap-2">
         <button
           type="button"
           onclick={() => (mode = 'blacklist')}
           class="p-2.5 rounded border-2 text-left cursor-pointer transition-all {mode === 'blacklist' ? 'border-accent bg-accent/15 text-accent font-bold shadow-neobrutal-sm' : 'border-border bg-card text-muted hover:text-foreground'}"
         >
-          <div class="font-bold text-xs">Blacklist Mode</div>
-          <div class="text-[10px] opacity-75 mt-0.5">Proxy ALL apps EXCEPT checked packages</div>
+          <div class="font-bold text-xs">{$LL.proxy.apps.blacklistTitle()}</div>
+          <div class="text-[10px] opacity-75 mt-0.5">{$LL.proxy.apps.blacklistDesc()}</div>
         </button>
 
         <button
@@ -149,8 +150,8 @@
           onclick={() => (mode = 'whitelist')}
           class="p-2.5 rounded border-2 text-left cursor-pointer transition-all {mode === 'whitelist' ? 'border-accent bg-accent/15 text-accent font-bold shadow-neobrutal-sm' : 'border-border bg-card text-muted hover:text-foreground'}"
         >
-          <div class="font-bold text-xs">Whitelist Mode</div>
-          <div class="text-[10px] opacity-75 mt-0.5">Proxy ONLY checked packages directly</div>
+          <div class="font-bold text-xs">{$LL.proxy.apps.whitelistTitle()}</div>
+          <div class="text-[10px] opacity-75 mt-0.5">{$LL.proxy.apps.whitelistDesc()}</div>
         </button>
       </div>
     </div>
@@ -159,7 +160,7 @@
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pt-2 border-t border-border">
       <div class="flex items-center gap-2 flex-1">
         <div class="relative flex-1">
-          <Input placeholder="Search apps or package name..." bind:value={searchQuery} />
+          <Input placeholder={$LL.proxy.apps.searchPlaceholder()} bind:value={searchQuery} />
         </div>
         <div class="flex items-center gap-1">
           <button
@@ -167,35 +168,35 @@
             onclick={() => (filterType = 'user')}
             class="px-2.5 py-1.5 rounded border text-[10px] font-bold cursor-pointer transition-colors {filterType === 'user' ? 'bg-accent/15 border-accent text-accent' : 'bg-card-sub border-border text-muted'}"
           >
-            User Apps
+            {$LL.proxy.apps.userApps()}
           </button>
           <button
             type="button"
             onclick={() => (filterType = 'all')}
             class="px-2.5 py-1.5 rounded border text-[10px] font-bold cursor-pointer transition-colors {filterType === 'all' ? 'bg-accent/15 border-accent text-accent' : 'bg-card-sub border-border text-muted'}"
           >
-            All Apps
+            {$LL.proxy.apps.allApps()}
           </button>
         </div>
       </div>
 
       <div class="flex items-center gap-1.5 justify-end">
         <span class="text-[11px] text-muted font-bold mr-1">
-          {selectedCount} selected
+          {$LL.proxy.apps.selectedCount({ count: selectedCount })}
         </span>
         <button
           type="button"
           onclick={selectAllUserApps}
           class="px-2 py-1 rounded bg-card-sub border border-border text-[10px] text-foreground hover:border-accent cursor-pointer"
         >
-          Select All User Apps
+          {$LL.proxy.apps.selectAllUser()}
         </button>
         <button
           type="button"
           onclick={clearSelection}
           class="px-2 py-1 rounded bg-card-sub border border-border text-[10px] text-muted hover:text-red-400 cursor-pointer"
         >
-          Clear Selection
+          {$LL.proxy.apps.clearSelection()}
         </button>
       </div>
     </div>
@@ -205,11 +206,11 @@
       {#if isLoading && apps.length === 0}
         <div class="p-8 text-center text-muted">
           <RefreshCw class="w-5 h-5 animate-spin mx-auto mb-2 text-accent" />
-          <span>Scanning Android installed application packages...</span>
+          <span>{$LL.proxy.apps.scanning()}</span>
         </div>
       {:else if filteredApps.length === 0}
         <div class="p-6 text-center text-muted">
-          No apps matched your filter query.
+          {$LL.proxy.apps.empty()}
         </div>
       {:else}
         {#each filteredApps as app (app.package_name)}
@@ -235,7 +236,7 @@
 
             {#if app.is_system}
               <span class="px-1.5 py-0.2 rounded bg-card border border-border text-[9px] text-muted shrink-0">
-                System
+                {$LL.proxy.apps.system()}
               </span>
             {/if}
           </label>

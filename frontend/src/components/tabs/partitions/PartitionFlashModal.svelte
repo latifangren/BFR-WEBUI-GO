@@ -6,6 +6,7 @@
     Check,
   } from '@lucide/svelte'
   import type { PartitionInfo } from '../../../types/partition'
+  import { LL } from '../../../i18n/i18n-svelte'
   import Modal from '../../ui/Modal.svelte'
   import Button from '../../ui/Button.svelte'
   import { themeStore } from '../../../stores/theme.svelte'
@@ -46,7 +47,7 @@
   function handleFileSelect(file: File) {
     fileError = null
     if (!file.name.toLowerCase().endsWith('.img')) {
-      fileError = 'Warning: Selected file does not have a .img extension.'
+      fileError = $LL.partitions.flashModal.fileError()
     }
     selectedFile = file
   }
@@ -81,7 +82,7 @@
 
 <Modal
   open={isOpen}
-  title="FLASH RAW BLOCK PARTITION"
+  title={$LL.partitions.flashModal.title()}
   onclose={() => {
     if (!isFlashing) onClose()
   }}
@@ -91,10 +92,10 @@
     <div class="p-3.5 bg-red-950/40 border-2 border-red-600 rounded text-red-200 space-y-2">
       <div class="flex items-center gap-2 text-red-400 font-bold text-sm uppercase">
         <AlertTriangle size={18} class="shrink-0 text-red-500 animate-pulse" />
-        <span>High-Risk Operation Warning</span>
+        <span>{$LL.partitions.flashModal.warning()}</span>
       </div>
       <p class="leading-relaxed">
-        Writing directly to raw block partitions can cause an unbootable device, bootloop, or hard-brick if the image is corrupted or incompatible. Ensure this image matches your exact hardware model and active slot.
+        {$LL.partitions.flashModal.warningBody()}
       </p>
     </div>
 
@@ -102,25 +103,25 @@
     {#if partition}
       <div class="p-3 bg-card-sub border border-border rounded space-y-1.5">
         <div class="text-[10px] text-muted uppercase font-bold tracking-wider">
-          Target Partition to Overwrite
+          {$LL.partitions.flashModal.targetTitle()}
         </div>
         <div class="grid grid-cols-2 gap-2 text-foreground">
           <div>
-            <span class="text-muted">Name:</span>
+            <span class="text-muted">{$LL.partitions.flashModal.nameLabel()}</span>
             <span class="font-bold ml-1 text-sm text-accent">{partition.name}</span>
           </div>
           <div>
-            <span class="text-muted">Block Size:</span>
+            <span class="text-muted">{$LL.partitions.flashModal.blockSize()}</span>
             <span class="font-bold ml-1">{partition.size_human}</span>
           </div>
           <div class="col-span-2 truncate">
-            <span class="text-muted">Path:</span>
+            <span class="text-muted">{$LL.partitions.flashModal.pathLabel()}</span>
             <span class="font-mono ml-1 text-[11px]">{partition.device_path}</span>
           </div>
           {#if partition.slot}
             <div class="col-span-2">
-              <span class="text-muted">Slot:</span>
-              <span class="font-bold ml-1">_{partition.slot.toUpperCase()} {partition.is_active_slot ? '(Active Slot)' : ''}</span>
+              <span class="text-muted">{$LL.partitions.flashModal.slotLabel()}</span>
+              <span class="font-bold ml-1">_{partition.slot.toUpperCase()} {partition.is_active_slot ? $LL.partitions.flashModal.activeSlot() : ''}</span>
             </div>
           {/if}
         </div>
@@ -130,9 +131,9 @@
     <!-- Auto-backup Pre-flash Toggle -->
     <div class="p-3 bg-card-sub border border-border rounded flex items-center justify-between">
       <div class="space-y-0.5 pr-2">
-        <div class="font-bold text-foreground">Auto-Backup Before Flashing</div>
+        <div class="font-bold text-foreground">{$LL.partitions.flashModal.autoBackupTitle()}</div>
         <div class="text-[11px] text-muted">
-          Automatically creates an emergency backup image of this partition before writing.
+          {$LL.partitions.flashModal.autoBackupDesc()}
         </div>
       </div>
       <label class="relative inline-flex items-center cursor-pointer shrink-0">
@@ -175,13 +176,13 @@
           <span class="break-all">{selectedFile.name}</span>
         </div>
         <div class="text-[11px] text-muted mt-1">
-          Size: {formatBytes(selectedFile.size)} (Click to select a different file)
+          {$LL.partitions.flashModal.sizeLabel({ size: formatBytes(selectedFile.size) })}
         </div>
       {:else}
         <Flame size={24} class="mx-auto text-muted mb-1 opacity-70" />
-        <div class="font-bold text-foreground">Select partition image (.img)</div>
+        <div class="font-bold text-foreground">{$LL.partitions.flashModal.selectTitle()}</div>
         <div class="text-[11px] text-muted mt-1">
-          Click or drag-and-drop your kernel, boot, or recovery image here
+          {$LL.partitions.flashModal.selectHint()}
         </div>
       {/if}
     </div>
@@ -195,14 +196,14 @@
     <!-- Safety Confirmation Input Requirement -->
     <div class="space-y-1.5 pt-1">
       <label for="flash-confirm-input" class="block text-muted text-[11px] font-bold uppercase tracking-wider">
-        Type <span class="text-red-400 font-extrabold tracking-widest">FLASH</span> to enable confirmation button:
+        {$LL.partitions.flashModal.typeA()} <span class="text-red-400 font-extrabold tracking-widest">FLASH</span> {$LL.partitions.flashModal.typeB()}
       </label>
       <input
         id="flash-confirm-input"
         type="text"
         bind:value={confirmationText}
         disabled={isFlashing}
-        placeholder="Type FLASH here..."
+        placeholder={$LL.partitions.flashModal.confirmPlaceholder()}
         autocomplete="off"
         class="neo-input w-full bg-card-sub border-2 border-border focus:border-red-500 rounded px-3 py-2 text-sm font-mono font-bold tracking-widest text-foreground uppercase placeholder:text-muted/50"
       />
@@ -212,10 +213,10 @@
       <div class="p-3 bg-red-950/40 border border-red-700 rounded text-center space-y-2">
         <div class="flex items-center justify-center gap-2 text-red-300 font-bold">
           <RefreshCw size={16} class="animate-spin text-red-400" />
-          <span>Writing image to partition {partition?.name}...</span>
+          <span>{$LL.partitions.flashModal.flashing({ name: partition?.name ?? '' })}</span>
         </div>
         <p class="text-[11px] text-muted animate-pulse">
-          Do not reboot the device or close the browser window!
+          {$LL.partitions.flashModal.flashingNote()}
         </p>
       </div>
     {/if}
@@ -228,7 +229,7 @@
         disabled={isFlashing}
         onclick={onClose}
       >
-        Cancel
+        {$LL.common.cancel()}
       </Button>
 
       <Button
@@ -238,10 +239,10 @@
       >
         {#if isFlashing}
           <RefreshCw size={14} class="animate-spin mr-1.5" />
-          <span>Writing Image...</span>
+          <span>{$LL.partitions.flashModal.writing()}</span>
         {:else}
           <Flame size={14} class="mr-1.5" />
-          <span>Flash Image Now</span>
+          <span>{$LL.partitions.flashModal.flashNow()}</span>
         {/if}
       </Button>
     </div>

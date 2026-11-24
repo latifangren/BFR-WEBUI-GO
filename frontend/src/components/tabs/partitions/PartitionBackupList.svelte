@@ -12,6 +12,7 @@
     AlertTriangle,
   } from '@lucide/svelte'
   import type { BackupFile } from '../../../types/partition'
+  import { LL } from '../../../i18n/i18n-svelte'
   import Card from '../../ui/Card.svelte'
   import Button from '../../ui/Button.svelte'
   import Modal from '../../ui/Modal.svelte'
@@ -104,12 +105,12 @@
     try {
       await navigator.clipboard.writeText(text)
       copiedHash = id
-      toastStore.info('SHA256 checksum copied to clipboard')
+      toastStore.info($LL.partitions.backupList.hashCopied())
       setTimeout(() => {
         if (copiedHash === id) copiedHash = null
       }, 2500)
     } catch {
-      toastStore.error('Failed to copy hash to clipboard')
+      toastStore.error($LL.partitions.backupList.copyFailed())
     }
   }
 
@@ -188,8 +189,8 @@
 
 <div class="space-y-4">
   <Card
-    title="SAVED BACKUP ARCHIVES"
-    subtitle="Partition images stored on module internal storage (/data/adb/bfr/backups)"
+    title={$LL.partitions.backupList.title()}
+    subtitle={$LL.partitions.backupList.subtitle()}
     tone="ice"
   >
     {#snippet action()}
@@ -202,7 +203,7 @@
           <input
             type="text"
             bind:value={searchQuery}
-            placeholder="Filter archives..."
+            placeholder={$LL.partitions.backupList.searchPlaceholder()}
             class="neo-input w-full bg-card-sub border border-border rounded pl-8 pr-7 py-1 text-xs font-mono text-foreground placeholder:text-muted focus:outline-none focus:border-accent"
           />
           {#if searchQuery}
@@ -222,7 +223,7 @@
           size="sm"
           disabled={isLoading}
           onclick={onRefresh}
-          title="Refresh backup archives"
+          title={$LL.partitions.backupList.refreshTitle()}
         >
           <RefreshCw size={13} class={isLoading ? 'animate-spin' : ''} />
         </Button>
@@ -234,10 +235,10 @@
           disabled={isLoading || backups.length === 0}
           onclick={openDeleteAllModal}
           class="border-red-900/60 hover:bg-red-950/30 text-red-400 font-mono text-xs"
-          title="Delete all backup archives stored on device"
+          title={$LL.partitions.backupList.deleteAllTitle()}
         >
           <Trash2 size={13} class="mr-1" />
-          <span>Delete All</span>
+          <span>{$LL.partitions.backupList.deleteAll()}</span>
         </Button>
       </div>
     {/snippet}
@@ -249,7 +250,7 @@
           <span class="px-2 py-0.5 rounded bg-accent text-accent-text font-bold">
             {selectedFilenames.size}
           </span>
-          <span class="text-foreground font-bold">archive(s) selected</span>
+          <span class="text-foreground font-bold">{$LL.partitions.backupList.selected()}</span>
           <span class="text-muted">({formatBytes(selectedTotalSizeBytes)})</span>
         </div>
 
@@ -260,7 +261,7 @@
             onclick={clearSelection}
             class="text-xs"
           >
-            Clear Selection
+            {$LL.partitions.backupList.clearSelection()}
           </Button>
 
           <Button
@@ -270,7 +271,7 @@
             class="text-xs"
           >
             <Trash2 size={13} class="mr-1.5" />
-            <span>Delete Selected ({selectedFilenames.size})</span>
+            <span>{$LL.partitions.backupList.deleteSelected({ count: selectedFilenames.size })}</span>
           </Button>
         </div>
       </div>
@@ -279,14 +280,14 @@
     {#if isLoading && backups.length === 0}
       <div class="p-8 text-center text-muted font-mono text-sm flex items-center justify-center gap-2">
         <RefreshCw size={16} class="animate-spin" />
-        <span>Loading saved backups...</span>
+        <span>{$LL.partitions.backupList.loading()}</span>
       </div>
     {:else if filteredBackups.length === 0}
       <div class="p-8 text-center border-2 border-dashed border-border rounded bg-card-sub">
         <HardDriveDownload size={32} class="mx-auto text-muted mb-2 opacity-50" />
-        <p class="font-mono text-sm text-foreground font-bold">No Backup Archives Found</p>
+        <p class="font-mono text-sm text-foreground font-bold">{$LL.partitions.backupList.emptyTitle()}</p>
         <p class="text-xs text-muted mt-1">
-          Create partition backups using the Quick Actions above or the Partition Table backup buttons.
+          {$LL.partitions.backupList.emptyBody()}
         </p>
       </div>
     {:else}
@@ -304,16 +305,16 @@
                   checked={isAllFilteredSelected}
                   onchange={toggleSelectAll}
                   class="rounded bg-card border-border text-accent focus:ring-accent w-4 h-4 cursor-pointer"
-                  title="Select / deselect all filtered backups"
+                  title={$LL.partitions.backupList.selectAllTitle()}
                 />
                 {/if}
               </th>
-              <th class="p-3">File / Target Partition</th>
-              <th class="p-3">Size</th>
-              <th class="p-3">Format</th>
-              <th class="p-3">Created At</th>
-              <th class="p-3">SHA256 Checksum</th>
-              <th class="p-3 text-right">Actions</th>
+              <th class="p-3">{$LL.partitions.backupList.thFile()}</th>
+              <th class="p-3">{$LL.partitions.backupList.thSize()}</th>
+              <th class="p-3">{$LL.partitions.backupList.thFormat()}</th>
+              <th class="p-3">{$LL.partitions.backupList.thCreatedAt()}</th>
+              <th class="p-3">{$LL.partitions.backupList.thChecksum()}</th>
+              <th class="p-3 text-right">{$LL.partitions.backupList.thActions()}</th>
             </tr>
           </thead>
           <tbody class="divide-y divide-border">
@@ -329,7 +330,7 @@
                     checked={selectedFilenames.has(file.filename)}
                     onchange={() => toggleSelect(file.filename)}
                     class="rounded bg-card border-border text-accent focus:ring-accent w-4 h-4 cursor-pointer"
-                    title="Select {file.filename}"
+                    title={$LL.partitions.backupList.selectTitle({ filename: file.filename })}
                   />
                   {/if}
                 </td>
@@ -343,7 +344,7 @@
                         {file.filename}
                       </div>
                       <div class="text-[10px] text-muted flex items-center gap-1">
-                        <span>Target:</span>
+                        <span>{$LL.partitions.backupList.target()}</span>
                         <span class="font-bold text-foreground">{file.partition_name}</span>
                       </div>
                     </div>
@@ -383,12 +384,12 @@
                     <button
                       type="button"
                       onclick={() => copyToClipboard(file.sha256, file.filename)}
-                      title="Click to copy full SHA256 checksum"
+                      title={$LL.partitions.backupList.copyTitle()}
                       class="inline-flex items-center gap-1.5 px-2 py-1 bg-card-sub hover:bg-card border border-border rounded text-[10px] text-muted hover:text-foreground font-mono transition-colors cursor-pointer"
                     >
                       {#if copiedHash === file.filename}
                         <Check size={11} class="text-emerald-400" />
-                        <span class="text-emerald-400 font-bold">Copied!</span>
+                        <span class="text-emerald-400 font-bold">{$LL.partitions.backupList.copied()}</span>
                       {:else}
                         <Copy size={11} />
                         <span>{file.sha256.substring(0, 10)}...</span>
@@ -406,17 +407,17 @@
                       href="/api/partitions/download?filename={encodeURIComponent(file.filename)}"
                       download={file.filename}
                       class="neo-button inline-flex items-center justify-center font-mono font-bold px-2.5 py-1 text-xs bg-card text-foreground hover:bg-card-sub border-border border rounded cursor-pointer"
-                      title="Download archive to your device"
+                      title={$LL.partitions.backupList.downloadTitle()}
                     >
                       <Download size={13} class="mr-1" />
-                      <span>Download</span>
+                      <span>{$LL.common.download()}</span>
                     </a>
 
                     <Button
                       variant="danger"
                       size="sm"
                       onclick={() => openDeleteSingleModal(file)}
-                      title="Delete backup archive"
+                      title={$LL.partitions.backupList.deleteTitle()}
                     >
                       <Trash2 size={13} />
                     </Button>
@@ -435,10 +436,10 @@
 <Modal
   open={isConfirmModalOpen}
   title={deleteMode === 'all'
-    ? 'DELETE ALL BACKUP ARCHIVES'
+    ? $LL.partitions.backupList.modalTitleAll()
     : deleteMode === 'selected'
-      ? 'DELETE SELECTED ARCHIVES'
-      : 'DELETE BACKUP ARCHIVE'}
+      ? $LL.partitions.backupList.modalTitleSelected()
+      : $LL.partitions.backupList.modalTitleSingle()}
   onclose={closeConfirmModal}
 >
   <div class="space-y-3.5 text-xs font-mono">
@@ -446,20 +447,20 @@
     <div class="p-3.5 bg-red-950/40 border-2 border-red-600 rounded text-red-200 space-y-2">
       <div class="flex items-center gap-2 text-red-400 font-bold text-sm uppercase">
         <AlertTriangle size={18} class="shrink-0 text-red-500 animate-pulse" />
-        <span>Permanent Deletion Warning</span>
+        <span>{$LL.partitions.backupList.warning()}</span>
       </div>
 
       {#if deleteMode === 'all'}
         <p class="leading-relaxed">
-          Permanently delete <strong class="text-white underline">ALL {backups.length}</strong> backup archives (<span class="font-bold text-white">{formatBytes(allTotalSizeBytes)}</span>)? This will erase all cellular/IMEI and boot backups stored on this device. This operation <strong class="text-white underline">cannot be undone</strong>!
+          {$LL.partitions.backupList.deleteAllA()} <strong class="text-white underline">{$LL.partitions.backupList.allCount({ count: backups.length })}</strong>{$LL.partitions.backupList.deleteAllB()}<span class="font-bold text-white">{formatBytes(allTotalSizeBytes)}</span>{$LL.partitions.backupList.deleteAllC()}<strong class="text-white underline">{$LL.partitions.backupList.cannotBeUndone()}</strong>!
         </p>
       {:else if deleteMode === 'selected'}
         <p class="leading-relaxed">
-          Permanently delete <strong class="text-white">{selectedFilenames.size}</strong> selected backup archive(s) (<span class="font-bold text-white">{formatBytes(selectedTotalSizeBytes)}</span>)? The raw images and sidecar checksums will be removed permanently from disk.
+          {$LL.partitions.backupList.deleteSelectedA()} <strong class="text-white">{selectedFilenames.size}</strong>{$LL.partitions.backupList.deleteSelectedB()}<span class="font-bold text-white">{formatBytes(selectedTotalSizeBytes)}</span>{$LL.partitions.backupList.deleteSelectedC()}
         </p>
       {:else}
         <p class="leading-relaxed">
-          Are you sure you want to permanently delete backup archive <strong class="text-white">{targetSingleBackup?.filename}</strong>? This action cannot be undone.
+          {$LL.partitions.backupList.deleteSingleA()} <strong class="text-white">{targetSingleBackup?.filename}</strong>{$LL.partitions.backupList.deleteSingleB()}
         </p>
       {/if}
     </div>
@@ -468,22 +469,22 @@
     {#if deleteMode === 'single' && targetSingleBackup}
       <div class="p-3 bg-card-sub border border-border rounded space-y-1 text-foreground">
         <div>
-          <span class="text-muted">Target Partition:</span>
+          <span class="text-muted">{$LL.partitions.backupList.targetPartition()}</span>
           <span class="font-bold ml-1">{targetSingleBackup.partition_name}</span>
         </div>
         <div>
-          <span class="text-muted">Archive Size:</span>
+          <span class="text-muted">{$LL.partitions.backupList.archiveSize()}</span>
           <span class="font-bold ml-1">{targetSingleBackup.size_human}</span>
         </div>
         <div class="truncate">
-          <span class="text-muted">File:</span>
+          <span class="text-muted">{$LL.partitions.backupList.fileLabel()}</span>
           <span class="font-bold ml-1">{targetSingleBackup.filename}</span>
         </div>
       </div>
     {:else if deleteMode === 'selected'}
       <div class="space-y-1">
         <div class="text-[10px] text-muted uppercase font-bold tracking-wider">
-          Archives to be deleted ({selectedFilenames.size}):
+          {$LL.partitions.backupList.archivesToDelete({ count: selectedFilenames.size })}
         </div>
         <div class="max-h-36 overflow-y-auto custom-scrollbar p-2 bg-card-sub border border-border rounded text-[11px] text-muted space-y-1">
           {#each selectedFiles as f}
@@ -504,7 +505,7 @@
         disabled={isDeleting}
         onclick={closeConfirmModal}
       >
-        Cancel
+        {$LL.common.cancel()}
       </Button>
 
       <Button
@@ -514,15 +515,15 @@
       >
         {#if isDeleting}
           <RefreshCw size={14} class="animate-spin mr-1.5" />
-          <span>Deleting...</span>
+          <span>{$LL.partitions.backupList.deleting()}</span>
         {:else}
           <Trash2 size={14} class="mr-1.5" />
           <span>
             {deleteMode === 'all'
-              ? 'Delete All Permanently'
+              ? $LL.partitions.backupList.deleteAllPermanently()
               : deleteMode === 'selected'
-                ? `Delete ${selectedFilenames.size} Archives`
-                : 'Delete Permanently'}
+                ? $LL.partitions.backupList.deleteCountArchives({ count: selectedFilenames.size })
+                : $LL.partitions.backupList.deletePermanently()}
           </span>
         {/if}
       </Button>

@@ -15,6 +15,7 @@
   import Card from '../../ui/Card.svelte'
   import Button from '../../ui/Button.svelte'
   import Badge from '../../ui/Badge.svelte'
+  import { LL } from '../../../i18n/i18n-svelte'
 
   interface HardwareBandsInfo {
     lte_bands: number[]
@@ -81,7 +82,7 @@
     const mccNum = parseInt(mccStr, 10)
     const mncNum = parseInt(mncStr, 10)
     if (isNaN(mccNum) || isNaN(mncNum)) {
-      toastStore.error('Please enter valid numeric MCC and MNC values')
+      toastStore.error($LL.qualcomm.profiles.invalidMccMnc())
       return
     }
 
@@ -94,15 +95,15 @@
         mnc: mncNum,
       })
       if (res && res.success) {
-        toastStore.success(`PLMN locked to MCC ${mccNum}, MNC ${mncNum}`)
+        toastStore.success($LL.qualcomm.profiles.locked({ mcc: mccNum, mnc: mncNum }))
         plmnState.mode = 'manual'
         plmnState.mcc = mccNum
         plmnState.mnc = mncNum
       } else {
-        toastStore.error(res?.message || 'Modem rejected PLMN lock')
+        toastStore.error(res?.message || $LL.qualcomm.profiles.lockRejected())
       }
     } catch (err: unknown) {
-      toastStore.error(err instanceof Error ? err.message : 'PLMN lock request failed')
+      toastStore.error(err instanceof Error ? err.message : $LL.qualcomm.profiles.lockFailed())
     } finally {
       isLockingPlmn = false
     }
@@ -116,13 +117,13 @@
         mode: 'auto',
       })
       if (res && res.success) {
-        toastStore.success('Network selection restored to Automatic (PLMN lock cleared).')
+        toastStore.success($LL.qualcomm.profiles.cleared())
         plmnState.mode = 'auto'
       } else {
-        toastStore.error(res?.message || 'Failed to clear PLMN lock')
+        toastStore.error(res?.message || $LL.qualcomm.profiles.clearFailed())
       }
     } catch (err: unknown) {
-      toastStore.error(err instanceof Error ? err.message : 'Clear PLMN request failed')
+      toastStore.error(err instanceof Error ? err.message : $LL.qualcomm.profiles.clearRequestFailed())
     } finally {
       isClearingPlmn = false
     }
@@ -131,7 +132,7 @@
 
 <div class="space-y-3 sm:space-y-6 font-mono text-xs">
   <!-- HARDWARE RF CAPABILITIES CARD -->
-  <Card title="Hardware RF Physical Capabilities" subtitle="Exact radio frequency bands physically wired to the modem baseband transceiver" tone="mint">
+  <Card title={$LL.qualcomm.profiles.hwTitle()} subtitle={$LL.qualcomm.profiles.hwSubtitle()} tone="mint">
     {#snippet action()}
       <Button
         variant="secondary"
@@ -140,23 +141,23 @@
         onclick={fetchHardwareBands}
       >
         <RefreshCw class="w-3.5 h-3.5 mr-1.5 {isLoadingHw ? 'animate-spin' : ''}" />
-        <span>Refresh Capabilities</span>
+        <span>{$LL.qualcomm.profiles.refreshCaps()}</span>
       </Button>
     {/snippet}
 
     <div class="space-y-4">
       <div class="p-3 bg-card-sub border-2 border-border rounded flex items-center justify-between">
-        <span class="text-muted">Target Interface:</span>
-        <strong class="text-foreground">SIM {simSlot + 1} Baseband Transceiver</strong>
+        <span class="text-muted">{$LL.qualcomm.profiles.targetInterface()}</span>
+        <strong class="text-foreground">{$LL.qualcomm.profiles.targetSim({ slot: simSlot + 1 })}</strong>
       </div>
 
       <!-- LTE Hardware Bands Grid -->
       <div class="space-y-2">
         <div class="flex items-center justify-between">
           <span class="font-bold text-foreground uppercase tracking-wider">
-            Physically Supported LTE Bands ({hwBands.lte_bands.length})
+            {$LL.qualcomm.profiles.lteBands({ count: hwBands.lte_bands.length })}
           </span>
-          <Badge variant="success">FACTORY SUPPORTED</Badge>
+          <Badge variant="success">{$LL.qualcomm.profiles.factorySupported()}</Badge>
         </div>
         <div class="flex flex-wrap gap-1.5 p-3 bg-card-sub border-2 border-border rounded">
           {#each hwBands.lte_bands as b}
@@ -171,9 +172,9 @@
       <div class="space-y-2 pt-2 border-t border-border">
         <div class="flex items-center justify-between">
           <span class="font-bold text-foreground uppercase tracking-wider">
-            Physically Supported 5G NR Bands ({hwBands.nr_bands.length})
+            {$LL.qualcomm.profiles.nrBands({ count: hwBands.nr_bands.length })}
           </span>
-          <Badge variant="info">SUB-6 & C-BAND</Badge>
+          <Badge variant="info">{$LL.qualcomm.profiles.sub6Badge()}</Badge>
         </div>
         <div class="flex flex-wrap gap-1.5 p-3 bg-card-sub border-2 border-border rounded">
           {#each hwBands.nr_bands as b}
@@ -187,24 +188,24 @@
   </Card>
 
   <!-- MANUAL NETWORK / PLMN LOCK CARD -->
-  <Card title="Manual PLMN & Operator Network Selection" subtitle="Pin modem to specific Public Land Mobile Network (MCC/MNC)" tone="mint">
+  <Card title={$LL.qualcomm.profiles.plmnTitle()} subtitle={$LL.qualcomm.profiles.plmnSubtitle()} tone="mint">
     <div class="space-y-4">
       <div class="p-3 bg-card-sub border-2 border-border rounded flex flex-col sm:flex-row sm:items-center justify-between gap-2">
         <div class="flex items-center gap-2">
           <Globe class="w-4 h-4 text-accent" />
-          <span class="text-muted">Network Selection State:</span>
+          <span class="text-muted">{$LL.qualcomm.profiles.networkState()}</span>
           <strong class="text-foreground uppercase">{plmnState.mode}</strong>
         </div>
         {#if plmnState.mode === 'manual'}
-          <Badge variant="warning">MANUAL LOCKED (MCC {plmnState.mcc} / MNC {plmnState.mnc})</Badge>
+          <Badge variant="warning">{$LL.qualcomm.profiles.manualLocked({ mcc: plmnState.mcc, mnc: plmnState.mnc })}</Badge>
         {:else}
-          <Badge variant="success">AUTOMATIC SELECTION</Badge>
+          <Badge variant="success">{$LL.qualcomm.profiles.autoSelection()}</Badge>
         {/if}
       </div>
 
       <!-- Quick Preset Operators -->
       <div class="space-y-1.5">
-        <span class="text-[10px] text-muted uppercase font-bold block">Quick Indonesian Carrier Presets</span>
+        <span class="text-[10px] text-muted uppercase font-bold block">{$LL.qualcomm.profiles.quickPresets()}</span>
         <div class="grid grid-cols-2 sm:grid-cols-5 gap-2">
           {#each popularIndoCarriers as c}
             <button
@@ -226,24 +227,24 @@
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 p-3 bg-card-sub border-2 border-border rounded-lg">
         <div>
           <label for="plmn-mcc-input" class="text-[10px] text-muted uppercase font-bold block mb-1">
-            Mobile Country Code (MCC)
+            {$LL.qualcomm.profiles.mccLabel()}
           </label>
           <input
             id="plmn-mcc-input"
             type="number"
-            placeholder="e.g. 510"
+            placeholder={$LL.qualcomm.profiles.mccPlaceholder()}
             bind:value={manualMcc}
             class="neo-input w-full bg-card border-2 border-border rounded px-2.5 py-1 text-xs font-mono text-foreground focus:outline-none focus:border-accent"
           />
         </div>
         <div>
           <label for="plmn-mnc-input" class="text-[10px] text-muted uppercase font-bold block mb-1">
-            Mobile Network Code (MNC)
+            {$LL.qualcomm.profiles.mncLabel()}
           </label>
           <input
             id="plmn-mnc-input"
             type="number"
-            placeholder="e.g. 11 (XL) or 10 (Telkomsel)"
+            placeholder={$LL.qualcomm.profiles.mncPlaceholder()}
             bind:value={manualMnc}
             class="neo-input w-full bg-card border-2 border-border rounded px-2.5 py-1 text-xs font-mono text-foreground focus:outline-none focus:border-accent"
           />
@@ -259,7 +260,7 @@
           onclick={clearPlmnLock}
         >
           <Unlock class="w-3.5 h-3.5 mr-1" />
-          <span>Restore Auto Selection</span>
+          <span>{$LL.qualcomm.profiles.restoreAuto()}</span>
         </Button>
         <Button
           variant="primary"
@@ -268,7 +269,7 @@
           onclick={() => applyPlmnLock(manualMcc, manualMnc)}
         >
           <Lock class="w-3.5 h-3.5 mr-1 text-accent-text" />
-          <span>{isLockingPlmn ? 'Locking PLMN...' : 'Lock Operator PLMN'}</span>
+          <span>{isLockingPlmn ? $LL.qualcomm.profiles.locking() : $LL.qualcomm.profiles.lockPlmn()}</span>
         </Button>
       </div>
     </div>

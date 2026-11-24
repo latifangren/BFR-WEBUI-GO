@@ -5,6 +5,7 @@
     ArrowUp,
   } from '@lucide/svelte'
   import type { StatsResponse } from '../../../types/vnstat'
+  import { LL } from '../../../i18n/i18n-svelte'
   import Card from '../../ui/Card.svelte'
   import { themeStore } from '../../../stores/theme.svelte'
   import SakugaProgress from '../../ui/SakugaProgress.svelte'
@@ -62,29 +63,29 @@
       .sort((a, b) => b.total - a.total)
   )
 
-  const categoryBadges = {
-    cellular: { label: 'CELLULAR', class: 'bg-cyan-950/60 text-cyan-300 border-cyan-800' },
-    wifi: { label: 'WI-FI', class: 'bg-emerald-950/60 text-emerald-300 border-emerald-800' },
-    softap: { label: 'SOFTAP', class: 'bg-amber-950/60 text-amber-300 border-amber-800' },
-    other: { label: 'OTHER', class: 'bg-card-sub text-muted border-border' },
-  }
+  const categoryBadges = $derived({
+    cellular: { label: $LL.vnstat.interfaces.categoryBadges.cellular(), class: 'bg-cyan-950/60 text-cyan-300 border-cyan-800' },
+    wifi: { label: $LL.vnstat.interfaces.categoryBadges.wifi(), class: 'bg-emerald-950/60 text-emerald-300 border-emerald-800' },
+    softap: { label: $LL.vnstat.interfaces.categoryBadges.softap(), class: 'bg-amber-950/60 text-amber-300 border-amber-800' },
+    other: { label: $LL.vnstat.interfaces.categoryBadges.other(), class: 'bg-card-sub text-muted border-border' },
+  })
 </script>
 
 <Card
-  title="INTERFACE BANDWIDTH BREAKDOWN"
-  subtitle="Per-interface data accounting and relative traffic share across selected periods"
+  title={$LL.vnstat.interfaces.title()}
+  subtitle={$LL.vnstat.interfaces.subtitle()}
   tone="none"
 >
   <!-- Controls: Period Selector & Category Filter Pills -->
   <div class="space-y-3 mb-4 font-mono text-xs">
     <!-- Period Pills -->
     <div class="flex items-center gap-1.5 flex-wrap">
-      <span class="text-muted text-[11px] font-bold uppercase tracking-wider mr-1">Period:</span>
+      <span class="text-muted text-[11px] font-bold uppercase tracking-wider mr-1">{$LL.vnstat.interfaces.period()}</span>
       {#each [
-        { id: 'daily', label: 'Today' },
-        { id: 'yesterday', label: 'Yesterday' },
-        { id: 'weekly', label: 'This Week' },
-        { id: 'monthly', label: 'This Month' }
+        { id: 'daily', label: $LL.vnstat.interfaces.periods.today() },
+        { id: 'yesterday', label: $LL.vnstat.interfaces.periods.yesterday() },
+        { id: 'weekly', label: $LL.vnstat.interfaces.periods.weekly() },
+        { id: 'monthly', label: $LL.vnstat.interfaces.periods.monthly() }
       ] as p}
         <button
           type="button"
@@ -98,13 +99,13 @@
 
     <!-- Category Filter Pills -->
     <div class="flex items-center gap-1.5 flex-wrap">
-      <span class="text-muted text-[11px] font-bold uppercase tracking-wider mr-1">Category:</span>
+      <span class="text-muted text-[11px] font-bold uppercase tracking-wider mr-1">{$LL.vnstat.interfaces.category()}</span>
       {#each [
-        { id: 'all', label: 'All' },
-        { id: 'cellular', label: 'Cellular (rmnet)' },
-        { id: 'wifi', label: 'Wi-Fi (wlan)' },
-        { id: 'softap', label: 'SoftAP (ap)' },
-        { id: 'other', label: 'Other' }
+        { id: 'all', label: $LL.common.all() },
+        { id: 'cellular', label: $LL.vnstat.interfaces.categories.cellular() },
+        { id: 'wifi', label: $LL.vnstat.interfaces.categories.wifi() },
+        { id: 'softap', label: $LL.vnstat.interfaces.categories.softap() },
+        { id: 'other', label: $LL.vnstat.interfaces.categories.other() }
       ] as c}
         <button
           type="button"
@@ -120,9 +121,9 @@
   {#if rows.length === 0}
     <div class="p-8 text-center border-2 border-dashed border-border rounded bg-card-sub font-mono">
       <Network class="w-8 h-8 mx-auto text-muted mb-2 opacity-50" />
-      <p class="text-sm font-bold text-foreground">No Interface Traffic Detected</p>
+      <p class="text-sm font-bold text-foreground">{$LL.vnstat.interfaces.emptyTitle()}</p>
       <p class="text-xs text-muted mt-1">
-        No active traffic recorded for the selected period and category filter.
+        {$LL.vnstat.interfaces.emptyBody()}
       </p>
     </div>
   {:else}
@@ -130,12 +131,12 @@
       <table class="w-full text-left border-collapse text-xs font-mono">
         <thead>
           <tr class="bg-card-sub border-b border-border text-muted uppercase text-[10px] tracking-wider">
-            <th class="p-3">Interface</th>
-            <th class="p-3">Category</th>
-            <th class="p-3">Download (RX)</th>
-            <th class="p-3">Upload (TX)</th>
-            <th class="p-3">Total Volume</th>
-            <th class="p-3 text-right">Traffic Share</th>
+            <th class="p-3">{$LL.vnstat.interfaces.th.interface()}</th>
+            <th class="p-3">{$LL.vnstat.interfaces.th.category()}</th>
+            <th class="p-3">{$LL.vnstat.interfaces.th.download()}</th>
+            <th class="p-3">{$LL.vnstat.interfaces.th.upload()}</th>
+            <th class="p-3">{$LL.vnstat.interfaces.th.total()}</th>
+            <th class="p-3 text-right">{$LL.vnstat.interfaces.th.share()}</th>
           </tr>
         </thead>
         <tbody class="divide-y divide-border">
@@ -180,7 +181,7 @@
                 <div class="flex items-center justify-end gap-2">
                   <span class="text-[11px] font-bold text-foreground">{row.sharePct.toFixed(1)}%</span>
 {#if themeStore.useSakugaControls()}
-                    <SakugaProgress value={row.sharePct / 100} label="Traffic share" />
+                    <SakugaProgress value={row.sharePct / 100} label={$LL.vnstat.interfaces.trafficShareLabel()} />
                   {:else}
                   <div class="w-20 bg-card h-2 rounded overflow-hidden border border-border/80">
                     <div

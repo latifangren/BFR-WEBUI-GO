@@ -16,6 +16,7 @@
   import { api } from '../../../../api/client'
   import { toastStore } from '../../../../stores/toast.svelte'
   import type { HotspotStatus, RouterConfig, RouterStatus, RouterSettingsResponse } from '../../../../types/hotspot'
+  import { LL } from '../../../../i18n/i18n-svelte'
   import Card from '../../../ui/Card.svelte'
   import Button from '../../../ui/Button.svelte'
   import Badge from '../../../ui/Badge.svelte'
@@ -67,17 +68,17 @@
   function applyStateLabel(state: string | undefined, mode: string): string {
     switch (state) {
       case 'applied':
-        return 'APPLIED'
+        return $LL.hotspot.tethering.state.applied()
       case 'auto':
-        return 'ANDROID MANAGED'
+        return $LL.hotspot.tethering.state.androidManaged()
       case 'pending':
-        return 'SAVED — PENDING'
+        return $LL.hotspot.tethering.state.savedPending()
       case 'failed':
-        return 'FAILED'
+        return $LL.hotspot.tethering.state.failed()
       case 'inactive':
-        return mode === 'static' ? 'HOTSPOT OFF' : 'ANDROID MANAGED'
+        return mode === 'static' ? $LL.hotspot.tethering.state.hotspotOff() : $LL.hotspot.tethering.state.androidManaged()
       default:
-        return 'UNKNOWN'
+        return $LL.hotspot.tethering.state.unknown()
     }
   }
 
@@ -155,10 +156,14 @@
       await api.post('/api/hotspot/settings', nextCfg)
       routerCfg = nextCfg
       const isEnabled = channel === 'wifi' ? nextCfg.auto_start_wifi : channel === 'usb' ? nextCfg.auto_start_usb : nextCfg.auto_start_ethernet
-      toastStore.success(`Auto-start on boot for ${channel.toUpperCase()} ${isEnabled ? 'enabled' : 'disabled'}.`)
+      toastStore.success(
+        isEnabled
+          ? $LL.hotspot.tethering.toasts.autoStartOn({ channel: channel.toUpperCase() })
+          : $LL.hotspot.tethering.toasts.autoStartOff({ channel: channel.toUpperCase() })
+      )
       await fetchRouterSettings()
     } catch (err: unknown) {
-      toastStore.error(err instanceof Error ? err.message : 'Failed to update auto-start configuration')
+      toastStore.error(err instanceof Error ? err.message : $LL.hotspot.tethering.toasts.autoStartFailed())
     } finally {
       isSavingAutoStart = false
     }
@@ -186,11 +191,15 @@
         band: type === 'wifi' ? selectedBand : undefined,
         password: type === 'wifi' ? (securityType === 'open' ? 'none' : (passwordInput || undefined)) : undefined,
       })
-      toastStore.success(`${type.toUpperCase()} tethering ${nextState ? 'enabled' : 'disabled'}.`)
+      toastStore.success(
+        nextState
+          ? $LL.hotspot.tethering.toasts.tetherEnabled({ channel: type.toUpperCase() })
+          : $LL.hotspot.tethering.toasts.tetherDisabled({ channel: type.toUpperCase() })
+      )
       await onRefresh()
       await fetchRouterSettings()
     } catch (err: unknown) {
-      toastStore.error(err instanceof Error ? err.message : `Failed to toggle ${type} tethering`)
+      toastStore.error(err instanceof Error ? err.message : $LL.hotspot.tethering.toasts.toggleFailed({ channel: type }))
     } finally {
       if (type === 'wifi') isTogglingWifi = false
       if (type === 'usb') isTogglingUsb = false
@@ -231,13 +240,13 @@
       passwordInput = ''
       toastStore.success(
         status.wifi_enabled
-          ? `SoftAP reloaded (SSID: ${ssidInput}, Band: ${selectedBand.toUpperCase()}, Mode: ${securityType.toUpperCase()})`
-          : `SoftAP credentials saved (SSID: ${ssidInput}, Band: ${selectedBand.toUpperCase()}, Mode: ${securityType.toUpperCase()})`
+          ? $LL.hotspot.tethering.toasts.softapReloaded({ ssid: ssidInput, band: selectedBand.toUpperCase(), mode: securityType.toUpperCase() })
+          : $LL.hotspot.tethering.toasts.softapSaved({ ssid: ssidInput, band: selectedBand.toUpperCase(), mode: securityType.toUpperCase() })
       )
       await onRefresh()
       await fetchRouterSettings()
     } catch (err: unknown) {
-      toastStore.error(err instanceof Error ? err.message : 'Failed to update hotspot config')
+      toastStore.error(err instanceof Error ? err.message : $LL.hotspot.tethering.toasts.hotspotConfigFailed())
     } finally {
       isSavingWifi = false
     }
@@ -252,18 +261,18 @@
         routerCfg
       )
       if (res && res.saved && routerCfg.gateway_mode !== 'static') {
-        toastStore.success('Router settings saved (Android manages gateway, DHCP and DNS).')
+        toastStore.success($LL.hotspot.tethering.toasts.routerSavedAuto())
       } else if (res && res.saved && res.applied) {
-        toastStore.success('Router settings saved and applied to the kernel.')
+        toastStore.success($LL.hotspot.tethering.toasts.routerSavedApplied())
       } else if (res && res.saved) {
-        toastStore.warning(`Settings saved but not applied: ${res.error || 'runtime state unchanged'}`)
+        toastStore.warning($LL.hotspot.tethering.toasts.savedNotApplied({ error: res.error || $LL.hotspot.tethering.toasts.runtimeUnchanged() }))
       } else {
-        toastStore.error(res?.error || 'Failed to save router settings')
+        toastStore.error(res?.error || $LL.hotspot.tethering.toasts.saveRouterFailed())
       }
       await onRefresh()
       await fetchRouterSettings()
     } catch (err: unknown) {
-      toastStore.error(err instanceof Error ? err.message : 'Failed to save router settings')
+      toastStore.error(err instanceof Error ? err.message : $LL.hotspot.tethering.toasts.saveRouterFailed())
     } finally {
       isSavingRouter = false
     }
@@ -281,22 +290,22 @@
             <Wifi class="w-4 h-4" />
           </div>
           <div>
-            <h4 class="font-bold text-foreground text-xs uppercase tracking-wider">Wi-Fi SoftAP</h4>
-            <span class="text-[10px] text-muted">Wireless LAN Hotspot</span>
+            <h4 class="font-bold text-foreground text-xs uppercase tracking-wider">{$LL.hotspot.tethering.wifiTitle()}</h4>
+            <span class="text-[10px] text-muted">{$LL.hotspot.tethering.wifiSub()}</span>
           </div>
         </div>
         <Badge variant={status.wifi_enabled ? 'success' : 'default'}>
-          {status.wifi_enabled ? 'Active' : 'Off'}
+          {status.wifi_enabled ? $LL.common.active() : $LL.hotspot.tethering.off()}
         </Badge>
       </div>
 
       <div class="text-[11px] font-mono text-muted space-y-0.5">
         <div>SSID: <span class="text-foreground font-bold">{status.ssid || 'AndroidAP'}</span></div>
-        <div>Band: <span class="text-accent font-bold uppercase">{selectedBand === 'any' ? 'Dual/Auto' : `${selectedBand} GHz`}</span></div>
+        <div>Band: <span class="text-accent font-bold uppercase">{selectedBand === 'any' ? $LL.hotspot.tethering.dualAuto() : `${selectedBand} GHz`}</span></div>
       </div>
 
       <div class="flex items-center justify-between pt-2 border-t border-border/40 text-[11px]">
-        <span class="text-muted font-medium">Auto-start on boot:</span>
+        <span class="text-muted font-medium">{$LL.hotspot.tethering.autoStart()}</span>
         <button
           type="button"
           class="px-2 py-0.5 rounded text-[10px] font-bold border transition-colors cursor-pointer {routerCfg.auto_start_wifi ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/40' : 'bg-card text-muted border-border hover:border-muted'}"
@@ -314,7 +323,7 @@
         onclick={() => toggleChannel('wifi')}
       >
         <Power class="w-3.5 h-3.5 mr-1" />
-        <span>{status.wifi_enabled ? 'Stop Hotspot' : 'Start Hotspot'}</span>
+        <span>{status.wifi_enabled ? $LL.hotspot.tethering.stopHotspot() : $LL.hotspot.tethering.startHotspot()}</span>
       </Button>
     </div>
 
@@ -326,22 +335,22 @@
             <Usb class="w-4 h-4" />
           </div>
           <div>
-            <h4 class="font-bold text-foreground text-xs uppercase tracking-wider">USB RNDIS / NCM</h4>
-            <span class="text-[10px] text-muted">Direct USB Cable Link</span>
+            <h4 class="font-bold text-foreground text-xs uppercase tracking-wider">{$LL.hotspot.tethering.usbTitle()}</h4>
+            <span class="text-[10px] text-muted">{$LL.hotspot.tethering.usbSub()}</span>
           </div>
         </div>
         <Badge variant={status.usb_enabled ? 'success' : 'default'}>
-          {status.usb_enabled ? 'Active' : 'Off'}
+          {status.usb_enabled ? $LL.common.active() : $LL.hotspot.tethering.off()}
         </Badge>
       </div>
 
       <div class="text-[11px] font-mono text-muted space-y-0.5">
         <div>Port: <span class="text-foreground font-bold">rndis0 / usb0</span></div>
-        <div>Link: <span class="text-accent font-bold">Host OTG</span></div>
+        <div>{$LL.hotspot.tethering.linkLabel()} <span class="text-accent font-bold">Host OTG</span></div>
       </div>
 
       <div class="flex items-center justify-between pt-2 border-t border-border/40 text-[11px]">
-        <span class="text-muted font-medium">Auto-start on boot:</span>
+        <span class="text-muted font-medium">{$LL.hotspot.tethering.autoStart()}</span>
         <button
           type="button"
           class="px-2 py-0.5 rounded text-[10px] font-bold border transition-colors cursor-pointer {routerCfg.auto_start_usb ? 'bg-sky-500/20 text-sky-400 border-sky-500/40' : 'bg-card text-muted border-border hover:border-muted'}"
@@ -359,7 +368,7 @@
         onclick={() => toggleChannel('usb')}
       >
         <Power class="w-3.5 h-3.5 mr-1" />
-        <span>{status.usb_enabled ? 'Stop USB Tether' : 'Start USB Tether'}</span>
+        <span>{status.usb_enabled ? $LL.hotspot.tethering.stopUsb() : $LL.hotspot.tethering.startUsb()}</span>
       </Button>
     </div>
 
@@ -371,22 +380,22 @@
             <Network class="w-4 h-4" />
           </div>
           <div>
-            <h4 class="font-bold text-foreground text-xs uppercase tracking-wider">Ethernet OTG</h4>
-            <span class="text-[10px] text-muted">USB to LAN Dongle</span>
+            <h4 class="font-bold text-foreground text-xs uppercase tracking-wider">{$LL.hotspot.tethering.ethTitle()}</h4>
+            <span class="text-[10px] text-muted">{$LL.hotspot.tethering.ethSub()}</span>
           </div>
         </div>
         <Badge variant={status.ethernet_enabled ? 'success' : 'default'}>
-          {status.ethernet_enabled ? 'Active' : 'Off'}
+          {status.ethernet_enabled ? $LL.common.active() : $LL.hotspot.tethering.off()}
         </Badge>
       </div>
 
       <div class="text-[11px] font-mono text-muted space-y-0.5">
-        <div>Interface: <span class="text-foreground font-bold">eth0 gateway</span></div>
-        <div>Type: <span class="text-accent font-bold">Gigabit OTG</span></div>
+        <div>{$LL.hotspot.tethering.interfaceLabel()} <span class="text-foreground font-bold">eth0 gateway</span></div>
+        <div>{$LL.hotspot.tethering.typeLabel()} <span class="text-accent font-bold">Gigabit OTG</span></div>
       </div>
 
       <div class="flex items-center justify-between pt-2 border-t border-border/40 text-[11px]">
-        <span class="text-muted font-medium">Auto-start on boot:</span>
+        <span class="text-muted font-medium">{$LL.hotspot.tethering.autoStart()}</span>
         <button
           type="button"
           class="px-2 py-0.5 rounded text-[10px] font-bold border transition-colors cursor-pointer {routerCfg.auto_start_ethernet ? 'bg-amber-500/20 text-amber-400 border-amber-500/40' : 'bg-card text-muted border-border hover:border-muted'}"
@@ -404,7 +413,7 @@
         onclick={() => toggleChannel('ethernet')}
       >
         <Power class="w-3.5 h-3.5 mr-1" />
-        <span>{status.ethernet_enabled ? 'Stop Ethernet' : 'Start Ethernet'}</span>
+        <span>{status.ethernet_enabled ? $LL.hotspot.tethering.stopEth() : $LL.hotspot.tethering.startEth()}</span>
       </Button>
     </div>
   </div>
@@ -413,74 +422,74 @@
   <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
     <!-- Wi-Fi SSID, Band & Security Form -->
     <Card
-      title="Wi-Fi Hotspot Credentials & Radio"
-      subtitle="Broadcast configuration, frequency band and security mode"
+      title={$LL.hotspot.tethering.wifi.title()}
+      subtitle={$LL.hotspot.tethering.wifi.subtitle()}
       tone="mint"
     >
       <div class="space-y-3 font-mono text-xs">
         <!-- Security Mode Switcher -->
         <div class="flex items-center gap-2 pb-2 border-b border-border">
-          <span class="text-muted uppercase font-bold text-[11px]">Security Mode:</span>
+          <span class="text-muted uppercase font-bold text-[11px]">{$LL.hotspot.tethering.wifi.securityMode()}</span>
           <button
             type="button"
             class="px-2.5 py-1 text-[11px] uppercase font-bold rounded border transition-all cursor-pointer {securityType === 'wpa2' ? 'bg-accent text-accent-text border-accent' : 'bg-card-sub border-border text-foreground hover:border-accent'}"
             onclick={() => (securityType = 'wpa2')}
           >
-            WPA2-PSK (Secured)
+            {$LL.hotspot.tethering.wifi.wpa2Secured()}
           </button>
           <button
             type="button"
             class="px-2.5 py-1 text-[11px] uppercase font-bold rounded border transition-all cursor-pointer {securityType === 'open' ? 'bg-accent text-accent-text border-accent' : 'bg-card-sub border-border text-foreground hover:border-accent'}"
             onclick={() => { securityType = 'open'; passwordInput = ''; }}
           >
-            Open (No Password)
+            {$LL.hotspot.tethering.wifi.openNoPassword()}
           </button>
         </div>
 
         <!-- Frequency Band Switcher -->
         <div class="flex items-center gap-2 pb-2 border-b border-border">
-          <span class="text-muted uppercase font-bold text-[11px]">Radio Band:</span>
+          <span class="text-muted uppercase font-bold text-[11px]">{$LL.hotspot.tethering.wifi.radioBand()}</span>
           <button
             type="button"
             class="px-2.5 py-1 text-[11px] uppercase font-bold rounded border transition-all cursor-pointer {selectedBand === 'any' ? 'bg-accent text-accent-text border-accent' : 'bg-card-sub border-border text-foreground hover:border-accent'}"
             onclick={() => (selectedBand = 'any')}
           >
-            Auto / Any
+            {$LL.hotspot.tethering.wifi.autoAny()}
           </button>
           <button
             type="button"
             class="px-2.5 py-1 text-[11px] uppercase font-bold rounded border transition-all cursor-pointer {selectedBand === '5' ? 'bg-accent text-accent-text border-accent' : 'bg-card-sub border-border text-foreground hover:border-accent'}"
             onclick={() => (selectedBand = '5')}
           >
-            5 GHz (High Speed)
+            {$LL.hotspot.tethering.wifi.band5()}
           </button>
           <button
             type="button"
             class="px-2.5 py-1 text-[11px] uppercase font-bold rounded border transition-all cursor-pointer {selectedBand === '2' ? 'bg-accent text-accent-text border-accent' : 'bg-card-sub border-border text-foreground hover:border-accent'}"
             onclick={() => (selectedBand = '2')}
           >
-            2.4 GHz (Long Range)
+            {$LL.hotspot.tethering.wifi.band24()}
           </button>
         </div>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <Input
-            label="SSID Name (1-32 chars)"
-            placeholder="Network SSID"
+            label={$LL.hotspot.tethering.wifi.ssidLabel()}
+            placeholder={$LL.hotspot.tethering.wifi.ssidPlaceholder()}
             bind:value={ssidInput}
           />
           {#if securityType === 'wpa2'}
             <Input
               type="password"
-              label="Passphrase (8-63 chars)"
-              placeholder="Leave blank to keep current"
+              label={$LL.hotspot.tethering.wifi.passphraseLabel()}
+              placeholder={$LL.hotspot.tethering.wifi.passphrasePlaceholder()}
               bind:value={passwordInput}
             />
           {:else}
             <div class="space-y-1">
-              <span class="text-[10px] text-muted uppercase font-bold">Passphrase</span>
+              <span class="text-[10px] text-muted uppercase font-bold">{$LL.hotspot.tethering.wifi.passphraseOpen()}</span>
               <div class="p-2.5 bg-card border border-border rounded text-muted text-xs italic">
-                No password required (Open Network)
+                {$LL.hotspot.tethering.wifi.noPasswordRequired()}
               </div>
             </div>
           {/if}
@@ -489,8 +498,8 @@
         <div class="flex justify-between items-center pt-2 border-t border-border">
           <span class="text-[11px] text-muted">
             {status.wifi_enabled
-              ? 'Radio will reload when credentials change.'
-              : 'Credentials saved without starting hotspot.'}
+              ? $LL.hotspot.tethering.wifi.reloadNote()
+              : $LL.hotspot.tethering.wifi.savedNote()}
           </span>
           <Button
             variant="secondary"
@@ -499,7 +508,7 @@
             onclick={saveWifiConfig}
           >
             <Check class="w-3.5 h-3.5 mr-1" />
-            <span>{status.wifi_enabled ? 'Apply & Reload SoftAP' : 'Save Credentials'}</span>
+            <span>{status.wifi_enabled ? $LL.hotspot.tethering.wifi.applyReload() : $LL.hotspot.tethering.wifi.saveCredentials()}</span>
           </Button>
         </div>
       </div>
@@ -507,28 +516,28 @@
 
     <!-- Modular Gateway & Router Suite (L3 Engine) -->
     <Card
-      title="Modular Gateway & Router Suite"
-      subtitle="Static gateway address, upstream steering and OS-owned DHCP"
+      title={$LL.hotspot.tethering.router.title()}
+      subtitle={$LL.hotspot.tethering.router.subtitle()}
       tone="lavender"
     >
       <div class="space-y-3 font-mono text-xs">
         <!-- Gateway Mode Selector -->
         <div class="flex flex-wrap items-center justify-between gap-2 pb-2 border-b border-border">
           <div class="flex flex-wrap items-center gap-2">
-            <span class="text-muted uppercase font-bold text-[11px]">Gateway Mode:</span>
+            <span class="text-muted uppercase font-bold text-[11px]">{$LL.hotspot.tethering.router.gatewayMode()}</span>
             <button
               type="button"
               class="px-2.5 py-1 text-[11px] uppercase font-bold rounded border transition-all cursor-pointer {routerCfg.gateway_mode === 'auto' ? 'bg-accent text-accent-text border-accent' : 'bg-card-sub border-border text-foreground hover:border-accent'}"
               onclick={() => (routerCfg.gateway_mode = 'auto')}
             >
-              Auto (Android Managed)
+              {$LL.hotspot.tethering.router.autoManaged()}
             </button>
             <button
               type="button"
               class="px-2.5 py-1 text-[11px] uppercase font-bold rounded border transition-all cursor-pointer {routerCfg.gateway_mode === 'static' ? 'bg-accent text-accent-text border-accent' : 'bg-card-sub border-border text-foreground hover:border-accent'}"
               onclick={() => (routerCfg.gateway_mode = 'static')}
             >
-              Custom Static Gateway
+              {$LL.hotspot.tethering.router.customStatic()}
             </button>
           </div>
 
@@ -540,34 +549,32 @@
         <!-- Live / Observed state -->
         <div class="space-y-2 p-3 bg-card-sub border border-border rounded-lg">
           <div class="flex items-center justify-between">
-            <span class="text-muted">Client Gateway (DHCP):</span>
+            <span class="text-muted">{$LL.hotspot.tethering.router.clientGateway()}</span>
             <span class="font-bold text-accent">{routerStatus.client_gateway || status.gateway_ip || '—'}</span>
           </div>
           <div class="flex items-center justify-between">
-            <span class="text-muted">Client Subnet (DHCP):</span>
+            <span class="text-muted">{$LL.hotspot.tethering.router.clientSubnet()}</span>
             <span class="font-bold text-foreground">{routerStatus.client_subnet || status.subnet || '—'}</span>
           </div>
           <div class="flex items-center justify-between">
-            <span class="text-muted">Tether Interface:</span>
+            <span class="text-muted">{$LL.hotspot.tethering.router.tetherInterface()}</span>
             <span class="font-bold text-foreground">{routerStatus.observed_iface || (status.active_interfaces || [])[0] || '—'}</span>
           </div>
           <div class="flex items-center justify-between">
-            <span class="text-muted">Upstream Routing Table:</span>
+            <span class="text-muted">{$LL.hotspot.tethering.router.upstreamTable()}</span>
             <span class="font-bold text-foreground">{routerStatus.upstream_table || '—'}</span>
           </div>
           <div class="flex items-center justify-between">
-            <span class="text-muted">DHCP &amp; DNS Server:</span>
-            <span class="font-bold text-emerald-400">Android NetworkStack (OS owned)</span>
+            <span class="text-muted">{$LL.hotspot.tethering.router.dhcpDnsServer()}</span>
+            <span class="font-bold text-emerald-400">{$LL.hotspot.tethering.router.networkStackOwned()}</span>
           </div>
         </div>
 
         {#if routerCfg.gateway_mode === 'static' && routerStatus.apply_state === 'applied' && !routerStatus.gateway_effective}
           <div class="p-2.5 bg-card border border-warning/40 rounded-lg text-[10px] text-warning space-y-1">
-            <p class="font-bold uppercase">Static gateway installed but not handed to clients</p>
+            <p class="font-bold uppercase">{$LL.hotspot.tethering.router.staticWarningTitle()}</p>
             <p>
-              BFR installed {routerStatus.observed_gateway || 'the static address'} and its policy rules in the kernel,
-              but Android's DHCP server still advertises {routerStatus.client_gateway || 'its own address'} as the client gateway.
-              Clients keep using the Android address until Android's DHCP server is replaced.
+              {$LL.hotspot.tethering.router.staticWarningBody({ gateway: routerStatus.observed_gateway || $LL.hotspot.tethering.router.staticAddress(), clientGateway: routerStatus.client_gateway || $LL.hotspot.tethering.router.ownAddress() })}
             </p>
           </div>
         {/if}
@@ -577,12 +584,12 @@
           <div class="space-y-2">
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
               <Input
-                label="Static Gateway IP"
+                label={$LL.hotspot.tethering.router.staticGatewayIp()}
                 placeholder="192.168.1.1"
                 bind:value={routerCfg.gateway_ip}
               />
               <Input
-                label="Subnet Mask"
+                label={$LL.hotspot.tethering.router.subnetMask()}
                 placeholder="255.255.255.0"
                 bind:value={routerCfg.subnet_mask}
               />
@@ -590,56 +597,54 @@
 
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
               <Input
-                label="Upstream Interface (auto)"
+                label={$LL.hotspot.tethering.router.upstreamInterface()}
                 placeholder="auto"
                 bind:value={routerCfg.upstream_interface}
               />
               <Input
-                label="Lease Time (OS managed)"
+                label={$LL.hotspot.tethering.router.leaseTime()}
                 placeholder="12h"
                 bind:value={routerCfg.lease_time}
               />
             </div>
 
             <div class="p-2.5 bg-card border border-border rounded-lg text-[10px] text-muted space-y-1">
-              <p class="font-bold text-foreground uppercase">Dhcp Pool &amp; Dns (Android owned)</p>
+              <p class="font-bold text-foreground uppercase">{$LL.hotspot.tethering.router.dhcpPoolTitle()}</p>
               <p>
-                <span class="text-foreground">DHCP Range:</span>
+                <span class="text-foreground">{$LL.hotspot.tethering.router.dhcpRange()}</span>
                 {routerCfg.dhcp_start} — {routerCfg.dhcp_end} ·
                 <span class="text-foreground">DNS:</span>
                 {routerCfg.dns_primary}, {routerCfg.dns_secondary}
               </p>
               <p class="text-warning">
-                Android's NetworkStack still hands out leases and the DNS addresses to clients.
-                These values are stored for a future BFR-managed DHCP mode and are not applied yet.
+                {$LL.hotspot.tethering.router.dhcpPoolWarning()}
               </p>
             </div>
           </div>
         {:else}
           <p class="text-[10px] text-muted pt-1 border-t border-border/60">
-            Android OS owns the AP address, DHCP, DNS and forwarding. BFR only reports the live values
-            and can layer scoped features (QoS, MAC filtering) on top.
+            {$LL.hotspot.tethering.router.autoNote()}
           </p>
         {/if}
 
         {#if routerStatus.last_apply_error}
-          <p class="text-[10px] text-red-400 font-bold">Last apply error: {routerStatus.last_apply_error}</p>
+          <p class="text-[10px] text-red-400 font-bold">{$LL.hotspot.tethering.router.lastApplyError()} {routerStatus.last_apply_error}</p>
         {/if}
 
         <div class="flex justify-between items-center pt-2 border-t border-border">
           <div class="text-[10px] text-muted">
             {#if routerStatus.apply_state === 'applied'}
-              <span class="text-emerald-400 font-bold">● static gateway verified in kernel</span>
+              <span class="text-emerald-400 font-bold">{$LL.hotspot.tethering.router.stateApplied()}</span>
             {:else if routerStatus.apply_state === 'auto'}
-              <span>● Android manages gateway, DHCP and DNS — no BFR state applied</span>
+              <span>{$LL.hotspot.tethering.router.stateAuto()}</span>
             {:else if routerStatus.apply_state === 'inactive'}
-              <span>hotspot disabled — state idle</span>
+              <span>{$LL.hotspot.tethering.router.stateInactive()}</span>
             {:else if routerStatus.apply_state === 'pending'}
-              <span class="text-warning">● saved, waiting for tether interface</span>
+              <span class="text-warning">{$LL.hotspot.tethering.router.statePending()}</span>
             {:else if routerStatus.apply_state === 'failed'}
-              <span class="text-red-400">● apply failed</span>
+              <span class="text-red-400">{$LL.hotspot.tethering.router.stateFailed()}</span>
             {:else}
-              <span>not applied</span>
+              <span>{$LL.hotspot.tethering.router.stateNotApplied()}</span>
             {/if}
           </div>
           <Button
@@ -649,7 +654,7 @@
             onclick={saveRouterSettings}
           >
             <Check class="w-3.5 h-3.5 mr-1" />
-            <span>Save Router Settings</span>
+            <span>{$LL.hotspot.tethering.router.saveRouter()}</span>
           </Button>
         </div>
       </div>

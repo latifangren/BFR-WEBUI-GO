@@ -18,6 +18,7 @@
   import Button from '../../ui/Button.svelte'
   import Badge from '../../ui/Badge.svelte'
   import Modal from '../../ui/Modal.svelte'
+  import { LL } from '../../../i18n/i18n-svelte'
 
   interface BandConfig {
     engine: 'qualcomm_qrtr' | 'universal' | 'qualcomm_at' | 'intent'
@@ -116,13 +117,13 @@
         slot: slotIndex,
       })
       if (res && res.success) {
-        toastStore.success(res.message || `Switched data SIM to slot ${slotIndex + 1}`)
+        toastStore.success(res.message || $LL.qualcomm.bands.simSwitched({ slot: slotIndex + 1 }))
         onSlotChange(slotIndex)
       } else {
-        toastStore.error('Failed to switch data SIM')
+        toastStore.error($LL.qualcomm.bands.switchFailed())
       }
     } catch (err: unknown) {
-      toastStore.error(err instanceof Error ? err.message : 'SIM switch failed')
+      toastStore.error(err instanceof Error ? err.message : $LL.qualcomm.bands.simSwitchFailed())
     } finally {
       isSwitchingSim = false
     }
@@ -151,14 +152,14 @@
       if (res && res.result) {
         verificationResult = res.result
         if (res.result.verified) {
-          toastStore.success('Band lock verified by modem baseband hardware!')
+          toastStore.success($LL.qualcomm.bands.verified())
         } else if (res.result.success) {
-          toastStore.warning(res.result.message || 'Band lock applied, but baseband reports different bands.')
+          toastStore.warning(res.result.message || $LL.qualcomm.bands.partial())
         } else {
-          toastStore.error(res.result.message || 'Modem baseband rejected band lock command.')
+          toastStore.error(res.result.message || $LL.qualcomm.bands.rejected())
         }
       } else if (res && res.success) {
-        toastStore.success('Qualcomm QRTR band lock applied directly to modem baseband.')
+        toastStore.success($LL.qualcomm.bands.applied())
       }
 
       if (res?.config) {
@@ -176,7 +177,7 @@
       ) {
         verificationResult = (err.data as { result: BandLockVerificationResult }).result
       } else {
-        const msg = err instanceof Error ? err.message : 'Band lock request failed'
+        const msg = err instanceof Error ? err.message : $LL.qualcomm.bands.requestFailed()
         verificationResult = {
           success: false,
           verified: false,
@@ -186,10 +187,10 @@
           active_lte_bands: [],
           active_nr_bands: [],
           message: msg,
-          step_logs: ['Execution failed: ' + msg],
+          step_logs: [$LL.qualcomm.bands.executionFailed({ detail: msg })],
         }
       }
-      toastStore.error(verificationResult?.message || (err instanceof Error ? err.message : 'Band lock request failed'))
+      toastStore.error(verificationResult?.message || (err instanceof Error ? err.message : $LL.qualcomm.bands.requestFailed()))
     } finally {
       isApplying = false
     }
@@ -201,14 +202,14 @@
       verificationResult = null
       const res = await api.post<{ success: boolean; error?: string }>('/api/modem/reset')
       if (res && res.success) {
-        toastStore.success('Modem restored to all factory default bands.')
+        toastStore.success($LL.qualcomm.bands.resetSuccess())
         showResetModal = false
         onReload()
       } else {
-        toastStore.error(res?.error || 'Failed to reset modem bands')
+        toastStore.error(res?.error || $LL.qualcomm.bands.resetFailed())
       }
     } catch (err: unknown) {
-      toastStore.error(err instanceof Error ? err.message : 'Reset request failed')
+      toastStore.error(err instanceof Error ? err.message : $LL.qualcomm.bands.resetRequestFailed())
     } finally {
       isResetting = false
     }
@@ -252,7 +253,7 @@
 
     if (navigator?.clipboard) {
       navigator.clipboard.writeText(text)
-      toastStore.success('Verification logs copied to clipboard')
+      toastStore.success($LL.qualcomm.bands.logsCopied())
     }
   }
 
@@ -261,22 +262,22 @@
   )
 </script>
 
-<Card title="Frequency Band Configuration" subtitle="Modulate active cellular frequencies instantly without reboot" tone="mint">
+<Card title={$LL.qualcomm.bands.title()} subtitle={$LL.qualcomm.bands.subtitle()} tone="mint">
   <div class="space-y-3 sm:space-y-6 text-xs">
     <!-- TARGET SIM SLOT & ACTIVE DATA STATUS -->
     <div class="space-y-3 p-3.5 bg-card-sub border-2 border-border rounded-lg">
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
         <div>
           <span class="text-xs font-bold uppercase tracking-wider text-foreground block">
-            Multi-SIM Slot Selection & Active Data Route
+            {$LL.qualcomm.bands.simTitle()}
           </span>
           <span class="text-[11px] text-muted">
-            Choose the SIM slot you want to configure. Band locks apply to the target modem port directly.
+            {$LL.qualcomm.bands.simDesc()}
           </span>
         </div>
         {#if simStatus}
           <Badge variant="default" class="text-[10px] w-fit">
-            Active Data: Slot {(simStatus.active_slot ?? 0) + 1} (SubID {simStatus.active_sub_id})
+            {$LL.qualcomm.bands.activeData({ slot: (simStatus.active_slot ?? 0) + 1, subId: simStatus.active_sub_id })}
           </Badge>
         {/if}
       </div>
@@ -317,7 +318,7 @@
                     </span>
                   </div>
                   <span class="text-[10px] text-muted block">
-                    {slot.carrier || (isAbsent ? 'No SIM Card Inserted' : 'Unknown Operator')}
+                    {slot.carrier || (isAbsent ? $LL.modem.sim.noSim() : $LL.modem.sim.unknownOperator())}
                   </span>
                 </div>
               </div>
@@ -326,12 +327,12 @@
                 {#if isActiveData}
                   <Badge variant="success" class="text-[9px] flex items-center gap-1">
                     <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                    <span>ACTIVE DATA</span>
+                    <span>{$LL.modem.sim.activeData()}</span>
                   </Badge>
                 {:else if isAbsent}
                   <Badge variant="danger" class="text-[9px]">ABSENT</Badge>
                 {:else}
-                  <Badge variant="default" class="text-[9px]">STANDBY</Badge>
+                  <Badge variant="default" class="text-[9px]">{$LL.modem.sim.standby()}</Badge>
                 {/if}
               </div>
             </div>
@@ -341,7 +342,7 @@
                 SubID: <strong class="text-foreground">{slot.sub_id > 0 ? slot.sub_id : '--'}</strong>
               </span>
               <span class="font-bold {isSelected ? 'text-accent' : 'text-muted'}">
-                {isSelected ? '✓ Selected for Band Lock' : 'Click to select'}
+                {isSelected ? $LL.qualcomm.bands.selectedForLock() : $LL.qualcomm.bands.clickToSelect()}
               </span>
             </div>
           </button>
@@ -353,7 +354,7 @@
           <div class="p-2.5 rounded bg-red-950/30 border-2 border-red-800 text-red-300 text-xs flex items-center gap-2">
             <AlertTriangle class="w-4 h-4 shrink-0 text-red-400" />
             <span>
-              <strong>Warning:</strong> Slot {(bandConfig.sim_slot ?? 0) + 1} has no physical or eSIM inserted (ABSENT). Band locks applied here will not affect cellular data.
+              <strong>{$LL.qualcomm.bands.warningLabel()}</strong> {$LL.qualcomm.bands.absentWarning({ slot: (bandConfig.sim_slot ?? 0) + 1 })}
             </span>
           </div>
         {:else if simStatus && simStatus.active_slot !== (bandConfig.sim_slot ?? 0)}
@@ -361,7 +362,7 @@
             <div class="flex items-center gap-2">
               <Info class="w-4 h-4 shrink-0 text-amber-400" />
               <span>
-                <strong>Notice:</strong> Mobile Data is currently routing through <strong>SIM {simStatus.active_slot + 1}</strong>. You are configuring <strong>SIM {(bandConfig.sim_slot ?? 0) + 1}</strong>.
+                <strong>{$LL.qualcomm.bands.noticeLabel()}</strong> {$LL.qualcomm.bands.noticeA()} <strong>SIM {simStatus.active_slot + 1}</strong>{$LL.qualcomm.bands.noticeB()} <strong>SIM {(bandConfig.sim_slot ?? 0) + 1}</strong>{$LL.qualcomm.bands.noticeC()}
               </span>
             </div>
             <Button
@@ -372,7 +373,7 @@
               class="shrink-0 text-[11px]"
             >
               <ArrowLeftRight class="w-3 h-3 mr-1" />
-              <span>Switch Data to SIM {(bandConfig.sim_slot ?? 0) + 1}</span>
+              <span>{$LL.modem.sim.switchData({ slot: (bandConfig.sim_slot ?? 0) + 1 })}</span>
             </Button>
           </div>
         {/if}
@@ -381,14 +382,14 @@
 
     <!-- PREFERRED NETWORK MODE (RAT) -->
     <div class="space-y-2 p-3 bg-card-sub border-2 border-border rounded-lg">
-      <span class="text-[10px] text-muted uppercase font-bold block">Preferred Network Technology (RAT)</span>
+      <span class="text-[10px] text-muted uppercase font-bold block">{$LL.qualcomm.bands.ratTitle()}</span>
       <div class="grid grid-cols-2 sm:grid-cols-5 gap-2">
         {#each [
-          { id: 'hybrid', label: 'Hybrid (Auto)', badge: '5G/4G/3G' },
-          { id: '5g_4g', label: '5G & 4G Only', badge: 'Dual Lock' },
-          { id: '4g_only', label: '4G LTE Only', badge: 'LTE-A' },
-          { id: '5g_only', label: '5G NR Only', badge: 'SA/NSA' },
-          { id: '3g_only', label: '3G Only', badge: 'WCDMA' }
+          { id: 'hybrid', label: $LL.qualcomm.bands.ratHybrid(), badge: '5G/4G/3G' },
+          { id: '5g_4g', label: $LL.qualcomm.bands.ratDual(), badge: 'Dual Lock' },
+          { id: '4g_only', label: $LL.qualcomm.bands.ratLte(), badge: 'LTE-A' },
+          { id: '5g_only', label: $LL.qualcomm.bands.ratNr(), badge: 'SA/NSA' },
+          { id: '3g_only', label: $LL.qualcomm.bands.rat3g(), badge: 'WCDMA' }
         ] as rat}
           <button
             type="button"
@@ -409,7 +410,7 @@
           <ShieldCheck class="w-5 h-5 text-emerald-400 shrink-0" />
           <div>
             <div class="text-xs font-bold text-foreground">
-              Baseband Active LTE Bands (SIM {(bandConfig.sim_slot ?? 0) + 1}):
+              {$LL.qualcomm.bands.activeLteBands({ slot: (bandConfig.sim_slot ?? 0) + 1 })}
             </div>
             <div class="text-xs font-mono text-emerald-300 font-bold mt-0.5">
               {bandConfig.active_lte_bands.map(b => 'B' + b).join(', ')}
@@ -425,7 +426,7 @@
             }
           }}
         >
-          Sync Selection to Active
+          {$LL.qualcomm.bands.syncToActive()}
         </button>
       </div>
     {/if}
@@ -442,17 +443,17 @@
             {#if verificationResult.verified}
               <CheckCircle class="w-5 h-5 text-emerald-400 shrink-0" />
               <span class="font-bold text-sm text-emerald-300 uppercase">
-                Hardware Verified (Ground Truth Confirmed)
+                {$LL.qualcomm.bands.verifiedTitle()}
               </span>
             {:else if verificationResult.success}
               <AlertTriangle class="w-5 h-5 text-amber-400 shrink-0" />
               <span class="font-bold text-sm text-amber-300 uppercase">
-                Partial Acceptance / Baseband Notice
+                {$LL.qualcomm.bands.partialTitle()}
               </span>
             {:else}
               <XCircle class="w-5 h-5 text-red-400 shrink-0" />
               <span class="font-bold text-sm text-red-300 uppercase">
-                Command Rejected by Modem Baseband
+                {$LL.qualcomm.bands.rejectedTitle()}
               </span>
             {/if}
           </div>
@@ -460,14 +461,14 @@
           <div class="flex items-center gap-2">
             <Button variant="ghost" size="sm" onclick={copyLogs} class="text-[11px]">
               <Copy class="w-3.5 h-3.5 mr-1" />
-              <span>Copy Logs</span>
+              <span>{$LL.qualcomm.bands.copyLogs()}</span>
             </Button>
             <button
               type="button"
               class="text-xs text-muted hover:text-foreground cursor-pointer px-1.5 py-0.5"
               onclick={() => (verificationResult = null)}
             >
-              ✕ Dismiss
+              {$LL.qualcomm.bands.dismiss()}
             </button>
           </div>
         </div>
@@ -478,32 +479,32 @@
 
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 text-[11px]">
           <div class="p-2 bg-card border rounded">
-            <span class="text-muted block text-[10px]">Target SIM Slot</span>
+            <span class="text-muted block text-[10px]">{$LL.qualcomm.bands.targetSlot()}</span>
             <strong class="text-foreground">{verificationResult.target_slot_name} (Slot {verificationResult.target_slot})</strong>
           </div>
           <div class="p-2 bg-card border rounded">
-            <span class="text-muted block text-[10px]">Requested LTE Bands</span>
+            <span class="text-muted block text-[10px]">{$LL.qualcomm.bands.requestedLte()}</span>
             <strong class="text-foreground">
-              {verificationResult.requested_lte.length > 0 ? verificationResult.requested_lte.map(b => 'B' + b).join(', ') : 'None'}
+              {verificationResult.requested_lte.length > 0 ? verificationResult.requested_lte.map(b => 'B' + b).join(', ') : $LL.common.none()}}
             </strong>
           </div>
           <div class="p-2 bg-card border rounded">
-            <span class="text-muted block text-[10px]">Baseband Active LTE</span>
+            <span class="text-muted block text-[10px]">{$LL.qualcomm.bands.basebandActiveLte()}</span>
             <strong class="{verificationResult.verified ? 'text-emerald-400' : 'text-amber-400'}">
-              {verificationResult.active_lte_bands.length > 0 ? verificationResult.active_lte_bands.map(b => 'B' + b).join(', ') : 'None / Not Reported'}
+              {verificationResult.active_lte_bands.length > 0 ? verificationResult.active_lte_bands.map(b => 'B' + b).join(', ') : $LL.qualcomm.bands.noneNotReported()}}
             </strong>
           </div>
         </div>
 
         <div class="space-y-1">
           <div class="flex items-center justify-between text-[10px] text-muted">
-            <span>Step-by-Step Baseband Transaction Logs</span>
+            <span>{$LL.qualcomm.bands.stepLogs()}</span>
             <button
               type="button"
               class="hover:underline cursor-pointer"
               onclick={() => (showLogs = !showLogs)}
             >
-              {showLogs ? 'Hide details' : 'Show details'}
+              {showLogs ? $LL.qualcomm.bands.hideDetails() : $LL.qualcomm.bands.showDetails()}
             </button>
           </div>
           {#if showLogs}
@@ -526,8 +527,8 @@
     <div class="space-y-3">
       <div class="flex items-center justify-between">
         <div class="flex items-center gap-2">
-          <span class="font-bold text-sm text-foreground uppercase tracking-wider">LTE 4G Frequency Bands</span>
-          <Badge variant="default">{bandConfig.lte_bands.length} Bands Selected</Badge>
+          <span class="font-bold text-sm text-foreground uppercase tracking-wider">{$LL.qualcomm.bands.lteTitle()}</span>
+          <Badge variant="default">{$LL.qualcomm.bands.bandsSelected({ count: bandConfig.lte_bands.length })}</Badge>
         </div>
         <div class="flex items-center gap-1.5">
           <button
@@ -535,14 +536,14 @@
             class="px-2 py-0.5 text-[10px] font-bold border-2 border-border rounded bg-card-sub hover:border-accent text-muted hover:text-foreground cursor-pointer"
             onclick={selectAllLTE}
           >
-            Select All
+            {$LL.common.selectAll()}
           </button>
           <button
             type="button"
             class="px-2 py-0.5 text-[10px] font-bold border-2 border-border rounded bg-card-sub hover:border-red-500 text-muted hover:text-red-400 cursor-pointer"
             onclick={clearAllLTE}
           >
-            Clear All
+            {$LL.common.clearAll()}
           </button>
         </div>
       </div>
@@ -572,8 +573,8 @@
     <!-- 5G NR BANDS CHECKLIST -->
     <div class="space-y-3 pt-4 border-t-2 border-border">
       <div class="flex items-center gap-2">
-        <span class="font-bold text-sm text-foreground uppercase tracking-wider">5G NR Frequency Bands</span>
-        <Badge variant="info">{bandConfig.nr_bands.length} Bands Selected</Badge>
+        <span class="font-bold text-sm text-foreground uppercase tracking-wider">{$LL.qualcomm.bands.nrTitle()}</span>
+        <Badge variant="info">{$LL.qualcomm.bands.bandsSelected({ count: bandConfig.nr_bands.length })}</Badge>
       </div>
 
       <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-2.5">
@@ -601,10 +602,10 @@
     <!-- HEX BITMASK & ACTION BAR -->
     <div class="pt-4 border-t-2 border-border flex flex-col sm:flex-row items-center justify-between gap-3">
       <div class="flex items-center gap-2 w-full sm:w-auto">
-        <span class="text-[11px] text-muted whitespace-nowrap">Hex Bitmask Override:</span>
+        <span class="text-[11px] text-muted whitespace-nowrap">{$LL.qualcomm.bands.hexBitmask()}</span>
         <input
           type="text"
-          placeholder="Auto-calculated"
+          placeholder={$LL.qualcomm.bands.hexPlaceholder()}
           bind:value={bandConfig.hex_bitmask}
           class="neo-input w-full sm:w-64 bg-card-sub border-2 border-border rounded px-2.5 py-1 text-xs font-mono text-foreground focus:outline-none focus:border-accent"
         />
@@ -618,7 +619,7 @@
           onclick={() => (showResetModal = true)}
         >
           <RotateCcw class="w-3.5 h-3.5 mr-1" />
-          <span>Reset Bands</span>
+          <span>{$LL.qualcomm.bands.resetBands()}</span>
         </Button>
         <Button
           variant="primary"
@@ -627,7 +628,7 @@
           onclick={applyBandLock}
         >
           <Lock class="w-3.5 h-3.5 mr-1 text-accent-text" />
-          <span>{isApplying ? 'Applying & Verifying...' : 'Lock Selected Bands'}</span>
+          <span>{isApplying ? $LL.qualcomm.bands.applying() : $LL.qualcomm.bands.lockBands()}</span>
         </Button>
       </div>
     </div>
@@ -636,16 +637,16 @@
 
 <Modal
   open={showResetModal}
-  title="Reset Snapdragon Modem Bands"
+  title={$LL.qualcomm.bands.resetModalTitle()}
   onclose={() => (showResetModal = false)}
 >
   <div class="space-y-3 text-xs">
     <div class="flex items-start gap-3 p-3 bg-red-950/30 border-2 border-red-800 rounded text-red-200">
       <AlertTriangle class="w-5 h-5 text-red-400 shrink-0 mt-0.5" />
       <div>
-        <p class="font-bold text-red-400">Restore All Qualcomm Factory Bands?</p>
+        <p class="font-bold text-red-400">{$LL.qualcomm.bands.resetModalHeading()}</p>
         <p class="text-[11px] mt-1 text-red-300/80">
-          This will wipe all active frequency band lock overrides and restore Qualcomm baseband modem to full hardware-supported bands.
+          {$LL.qualcomm.bands.resetModalBody()}
         </p>
       </div>
     </div>
@@ -658,7 +659,7 @@
       disabled={isResetting}
       onclick={() => (showResetModal = false)}
     >
-      Cancel
+      {$LL.common.cancel()}
     </Button>
     <Button
       variant="danger"
@@ -667,7 +668,7 @@
       onclick={confirmReset}
     >
       <RotateCcw class="w-3.5 h-3.5 mr-1" />
-      <span>{isResetting ? 'Resetting...' : 'Reset Modem Now'}</span>
+      <span>{isResetting ? $LL.qualcomm.bands.resetting() : $LL.qualcomm.bands.resetNow()}</span>
     </Button>
   {/snippet}
 </Modal>

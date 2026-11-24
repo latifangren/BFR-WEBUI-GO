@@ -14,6 +14,7 @@
   import Input from '../../ui/Input.svelte'
   import { api } from '../../../api/client'
   import { toastStore } from '../../../stores/toast.svelte'
+  import { LL } from '../../../i18n/i18n-svelte'
   import { navigationStore } from '../../../stores/navigation.svelte'
 
   interface SubsConfig {
@@ -40,7 +41,7 @@
 
   async function updateSubscription() {
     if (!subURL.trim()) {
-      toastStore.error('Please enter a remote Subscription URL first')
+      toastStore.error($LL.proxy.subscription.toasts.enterUrl())
       return
     }
 
@@ -52,14 +53,14 @@
         url: subURL.trim(),
       })
       if (res && res.success) {
-        toastStore.success('Subscription downloaded and updated successfully!')
-        subStatusMessage = res.message || 'Updated successfully'
+        toastStore.success($LL.proxy.subscription.toasts.subUpdated())
+        subStatusMessage = res.message || $LL.proxy.subscription.updatedSuccessfully()
       } else {
-        toastStore.error(res?.error || 'Failed to update subscription')
-        subStatusMessage = res?.error || 'Update failed'
+        toastStore.error(res?.error || $LL.proxy.subscription.toasts.subFailed())
+        subStatusMessage = res?.error || $LL.proxy.subscription.toasts.updateFailed()
       }
     } catch (err: unknown) {
-      toastStore.error(err instanceof Error ? err.message : 'Subscription download error')
+      toastStore.error(err instanceof Error ? err.message : $LL.proxy.subscription.toasts.downloadError())
     } finally {
       isUpdatingSub = false
     }
@@ -72,12 +73,12 @@
         action: 'update_geox',
       })
       if (res && res.success) {
-        toastStore.success('GeoX database (Country.mmdb) updated successfully!')
+        toastStore.success($LL.proxy.subscription.toasts.geoXUpdated())
       } else {
-        toastStore.error(res?.error || 'Failed to update GeoX')
+        toastStore.error(res?.error || $LL.proxy.subscription.toasts.geoXFailed())
       }
     } catch (err: unknown) {
-      toastStore.error(err instanceof Error ? err.message : 'GeoX update failed')
+      toastStore.error(err instanceof Error ? err.message : $LL.proxy.subscription.toasts.geoXError())
     } finally {
       isUpdatingGeoX = false
     }
@@ -85,13 +86,13 @@
 
   function openInFileManager() {
     navigationStore.activeTab = 'files'
-    toastStore.info('Opening File Manager. Navigate to /data/adb/box to view config files.')
+    toastStore.info($LL.proxy.subscription.toasts.openingFiles())
   }
 </script>
 
 <Card
-  title="Subscription & Config Assets"
-  subtitle="Remote subscription updater, GeoIP/GeoSite database synchronizer & File Manager shortcut"
+  title={$LL.proxy.subscription.title()}
+  subtitle={$LL.proxy.subscription.subtitle()}
   tone="mint"
 >
   {#snippet action()}
@@ -99,10 +100,10 @@
       variant="outline"
       size="sm"
       onclick={openInFileManager}
-      title="Open the /data/adb/box config folder in File Manager"
+      title={$LL.proxy.subscription.openFolderTitle()}
     >
       <FolderOpen class="w-3.5 h-3.5 mr-1.5 text-accent" />
-      <span>Open in File Manager</span>
+      <span>{$LL.proxy.subscription.openInFiles()}</span>
       <ExternalLink class="w-3 h-3 ml-1 text-muted" />
     </Button>
   {/snippet}
@@ -110,7 +111,7 @@
   <div class="space-y-4 font-mono text-xs">
     <!-- Subscription URL Input & Update Button -->
     <div class="space-y-2 p-3 bg-card-sub border border-border rounded-lg">
-      <span class="text-[10px] text-muted uppercase font-bold block">Remote Subscription Provider URL</span>
+      <span class="text-[10px] text-muted uppercase font-bold block">{$LL.proxy.subscription.providerUrl()}</span>
       <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
         <div class="flex-1">
           <Input
@@ -125,7 +126,7 @@
           onclick={updateSubscription}
         >
           <Download class="w-4 h-4 mr-1.5 {isUpdatingSub ? 'animate-bounce' : ''}" />
-          <span>{isUpdatingSub ? 'Downloading...' : 'Update Subs'}</span>
+          <span>{isUpdatingSub ? $LL.proxy.subscription.downloading() : $LL.proxy.subscription.updateSubs()}</span>
         </Button>
       </div>
       {#if subStatusMessage}
@@ -140,19 +141,19 @@
         <div class="space-y-1">
           <div class="flex items-center gap-1.5 font-bold text-foreground">
             <Globe class="w-4 h-4 text-accent" />
-            <span>GeoX Asset Database</span>
+            <span>{$LL.proxy.subscription.geoXTitle()}</span>
             <a
               href="https://github.com/MetaCubeX/meta-rules-dat"
               target="_blank"
               rel="noreferrer"
               class="inline-flex items-center gap-0.5 text-[10px] text-accent hover:underline ml-auto"
-              title="Official MetaCubeX meta-rules-dat releases"
+              title={$LL.proxy.subscription.sourceTitle()}
             >
-              <span>Source</span>
+              <span>{$LL.proxy.subscription.source()}</span>
               <ExternalLink class="w-2.5 h-2.5" />
             </a>
           </div>
-          <p class="text-[10px] text-muted">Synchronize Country.mmdb & GeoSite databases from MetaCubeX releases.</p>
+          <p class="text-[10px] text-muted">{$LL.proxy.subscription.geoXDesc()}</p>
         </div>
         <Button
           variant="secondary"
@@ -161,7 +162,7 @@
           onclick={updateGeoX}
         >
           <RefreshCw class="w-3.5 h-3.5 mr-1.5 {isUpdatingGeoX ? 'animate-spin' : ''}" />
-          <span>{isUpdatingGeoX ? 'Updating GeoX...' : 'Update GeoX Database'}</span>
+          <span>{isUpdatingGeoX ? $LL.proxy.subscription.updatingGeoX() : $LL.proxy.subscription.updateGeoX()}</span>
         </Button>
       </div>
 
@@ -170,9 +171,9 @@
         <div class="space-y-1">
           <div class="flex items-center gap-1.5 font-bold text-foreground">
             <FileCode class="w-4 h-4 text-emerald-400" />
-            <span>Full Config Files</span>
+            <span>{$LL.proxy.subscription.configFilesTitle()}</span>
           </div>
-          <p class="text-[10px] text-muted">Inspect and edit config.yaml, proxy-providers, or rulesets directly using BFR File Manager.</p>
+          <p class="text-[10px] text-muted">{$LL.proxy.subscription.configFilesDesc()}</p>
         </div>
         <Button
           variant="outline"
@@ -180,7 +181,7 @@
           onclick={openInFileManager}
         >
           <FolderOpen class="w-3.5 h-3.5 mr-1.5 text-accent" />
-          <span>Open /data/adb/box in Files</span>
+          <span>{$LL.proxy.subscription.openBoxFolder()}</span>
         </Button>
       </div>
     </div>

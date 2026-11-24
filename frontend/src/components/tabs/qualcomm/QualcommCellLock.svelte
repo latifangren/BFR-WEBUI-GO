@@ -16,6 +16,7 @@
   import Button from '../../ui/Button.svelte'
   import Badge from '../../ui/Badge.svelte'
   import QualcommCellScanner from './QualcommCellScanner.svelte'
+  import { LL } from '../../../i18n/i18n-svelte'
 
   interface SimSlotInfo {
     slot_index: number
@@ -97,11 +98,11 @@
     const pciNum = parseInt(ltePci.trim(), 10)
 
     if (isNaN(earfcnNum) || earfcnNum <= 0) {
-      toastStore.error('Please enter a valid EARFCN frequency channel')
+      toastStore.error($LL.qualcomm.cellLock.invalidEarfcn())
       return
     }
     if (isNaN(pciNum) || pciNum < 0 || pciNum > 503) {
-      toastStore.error('Physical Cell ID (PCI) must be between 0 and 503')
+      toastStore.error($LL.qualcomm.cellLock.invalidPci())
       return
     }
 
@@ -115,13 +116,13 @@
       })
 
       if (res && res.success) {
-        toastStore.success(res.message || `LTE Cell Lock applied: EARFCN ${earfcnNum}, PCI ${pciNum}`)
+        toastStore.success(res.message || $LL.qualcomm.cellLock.applied({ earfcn: earfcnNum, pci: pciNum }))
         await fetchCellLockState()
       } else {
-        toastStore.error(res?.message || 'Modem rejected cell lock command')
+        toastStore.error(res?.message || $LL.qualcomm.cellLock.rejected())
       }
     } catch (err: unknown) {
-      toastStore.error(err instanceof Error ? err.message : 'Cell lock request failed')
+      toastStore.error(err instanceof Error ? err.message : $LL.qualcomm.cellLock.requestFailed())
     } finally {
       isLocking = false
     }
@@ -134,15 +135,15 @@
         slot: simSlot,
       })
       if (res && res.success) {
-        toastStore.success('LTE Cell Lock cleared. Modem will connect to optimal tower automatically.')
+        toastStore.success($LL.qualcomm.cellLock.cleared())
         lteEarfcn = ''
         ltePci = ''
         await fetchCellLockState()
       } else {
-        toastStore.error(res?.message || 'Failed to clear cell lock')
+        toastStore.error(res?.message || $LL.qualcomm.cellLock.clearFailed())
       }
     } catch (err: unknown) {
-      toastStore.error(err instanceof Error ? err.message : 'Clear cell lock failed')
+      toastStore.error(err instanceof Error ? err.message : $LL.qualcomm.cellLock.clearRequestFailed())
     } finally {
       isClearing = false
     }
@@ -151,7 +152,7 @@
   function handleSelectTower(earfcn: number, pci: number) {
     lteEarfcn = String(earfcn)
     ltePci = String(pci)
-    toastStore.info(`Loaded tower into form: EARFCN ${earfcn}, PCI ${pci}`)
+    toastStore.info($LL.qualcomm.cellLock.loadedTower({ earfcn, pci }))
     document.getElementById('cell-earfcn-input')?.focus()
   }
 
@@ -164,13 +165,13 @@
 
 <div class="space-y-3 sm:space-y-6 font-mono">
   <!-- CELL LOCK STATUS HERO -->
-  <Card title="Instant Cell & Tower Locking" subtitle="Pin baseband modem to a specific Physical Cell ID (PCI) and radio frequency channel (EARFCN)" tone="mint">
+  <Card title={$LL.qualcomm.cellLock.title()} subtitle={$LL.qualcomm.cellLock.subtitle()} tone="mint">
     {#snippet action()}
       <div class="flex items-center gap-2 flex-wrap">
         {#if cellState.active_lock || cellState.persistent_enabled}
           <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-emerald-500/15 text-emerald-500 border border-emerald-500/30">
             <ShieldCheck class="w-3 h-3" />
-            <span>Persistent Boot</span>
+            <span>{$LL.qualcomm.cellLock.persistentBoot()}</span>
           </span>
         {/if}
         <Button
@@ -180,7 +181,7 @@
           onclick={fetchCellLockState}
         >
           <RefreshCw class="w-3.5 h-3.5 mr-1.5 {isLoading ? 'animate-spin' : ''}" />
-          <span>Refresh</span>
+          <span>{$LL.common.refresh()}</span>
         </Button>
       </div>
     {/snippet}
@@ -189,18 +190,18 @@
       <!-- Target Slot Indicator -->
       <div class="p-3 bg-card-sub border-2 border-border rounded flex flex-col sm:flex-row sm:items-center justify-between gap-2">
         <div class="flex items-center gap-2">
-          <span class="text-muted">Target Interface:</span>
+          <span class="text-muted">{$LL.qualcomm.cellLock.targetInterface()}</span>
           <strong class="text-foreground">{targetSimName} (Slot {simSlot})</strong>
         </div>
         {#if cellState.active_lock}
           <Badge variant="warning" class="flex items-center gap-1.5 w-fit">
             <span class="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>
-            <span>CELL LOCK ACTIVE (EARFCN {cellState.earfcn} / PCI {cellState.pci})</span>
+            <span>{$LL.qualcomm.cellLock.lockActive({ earfcn: cellState.earfcn, pci: cellState.pci })}</span>
           </Badge>
         {:else}
           <Badge variant="success" class="flex items-center gap-1.5 w-fit">
             <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
-            <span>AUTO TOWER SELECTION (UNLOCKED)</span>
+            <span>{$LL.qualcomm.cellLock.autoSelection()}</span>
           </Badge>
         {/if}
       </div>
@@ -209,17 +210,17 @@
       <div class="p-3.5 bg-card-sub border-2 border-amber-500/50 rounded-lg space-y-2 text-xs">
         <div class="flex items-center gap-2 text-amber-400 font-bold">
           <AlertTriangle class="w-4 h-4 shrink-0" />
-          <span>Carrier Aggregation (CA) & Coverage Warning</span>
+          <span>{$LL.qualcomm.cellLock.caWarningTitle()}</span>
         </div>
         <div class="space-y-1.5 text-[11px] text-muted leading-relaxed pl-6">
           <p>
-            <strong class="text-foreground">• Primary Anchor (PCC) Only:</strong> Cell Lock pins only the Primary Component Carrier (PCell). Secondary Carriers (SCCs) are dynamically aggregated by the serving eNodeB mast scheduler and cannot be locked individually.
+            <strong class="text-foreground">{$LL.qualcomm.cellLock.warnPccA()}</strong> {$LL.qualcomm.cellLock.warnPccB()}
           </p>
           <p>
-            <strong class="text-foreground">• Multi-CA Coexistence:</strong> To preserve speed aggregation (e.g. B3+B1 / B3+B8), do not restrict other bands in the <em>Band Lock</em> tab.
+            <strong class="text-foreground">{$LL.qualcomm.cellLock.warnMultiA()}</strong> {$LL.qualcomm.cellLock.warnMultiB()} <em>{$LL.qualcomm.cellLock.warnMultiTab()}</em>{$LL.qualcomm.cellLock.warnMultiC()}
           </p>
           <p>
-            <strong class="text-foreground">• Handover Restriction:</strong> The modem will reject handover to adjacent towers. If you move out of range or this sector goes offline, the modem will drop to <em>Out of Service</em> until reset.
+            <strong class="text-foreground">{$LL.qualcomm.cellLock.warnHoA()}</strong> {$LL.qualcomm.cellLock.warnHoB()} <em>Out of Service</em> {$LL.qualcomm.cellLock.warnHoC()}
           </p>
         </div>
       </div>
@@ -227,35 +228,35 @@
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4 bg-card-sub border-2 border-border rounded-lg">
         <div class="space-y-1.5">
           <label for="cell-earfcn-input" class="text-[11px] font-bold text-foreground uppercase tracking-wider block">
-            LTE Radio Frequency Channel (EARFCN)
+            {$LL.qualcomm.cellLock.earfcnLabel()}
           </label>
           <input
             id="cell-earfcn-input"
             type="number"
-            placeholder="e.g. 1800 (Band 3) or 37900 (Band 40)"
+            placeholder={$LL.qualcomm.cellLock.earfcnPlaceholder()}
             bind:value={lteEarfcn}
             class="neo-input w-full bg-card border-2 border-border rounded px-3 py-2 text-xs font-mono text-foreground focus:outline-none focus:border-accent"
           />
           <span class="text-[10px] text-muted block">
-            Downlink center frequency channel of target cell (1-262143).
+            {$LL.qualcomm.cellLock.earfcnHint()}
           </span>
         </div>
 
         <div class="space-y-1.5">
           <label for="cell-pci-input" class="text-[11px] font-bold text-foreground uppercase tracking-wider block">
-            Physical Cell ID (PCI)
+            {$LL.qualcomm.cellLock.pciLabel()}
           </label>
           <input
             id="cell-pci-input"
             type="number"
-            placeholder="0 to 503"
+            placeholder={$LL.qualcomm.cellLock.pciPlaceholder()}
             bind:value={ltePci}
             min="0"
             max="503"
             class="neo-input w-full bg-card border-2 border-border rounded px-3 py-2 text-xs font-mono text-foreground focus:outline-none focus:border-accent"
           />
           <span class="text-[10px] text-muted block">
-            Cell identity number broadcasted by specific mast antenna (0-503).
+            {$LL.qualcomm.cellLock.pciHint()}
           </span>
         </div>
       </div>
@@ -264,9 +265,9 @@
       <div class="flex flex-col sm:flex-row items-center justify-between gap-3 pt-2">
         <div class="text-[11px] text-muted">
           {#if cellState.active_lock}
-            Currently locked to: <strong class="text-amber-300">EARFCN {cellState.earfcn}, PCI {cellState.pci}</strong>
+            {$LL.qualcomm.cellLock.lockedToA()} <strong class="text-amber-300">{$LL.qualcomm.cellLock.lockedToB({ earfcn: cellState.earfcn, pci: cellState.pci })}</strong>
           {:else}
-            No cell lock currently active.
+            {$LL.qualcomm.cellLock.noLock()}
           {/if}
         </div>
 
@@ -276,10 +277,10 @@
             size="sm"
             disabled={isClearing || isLocking}
             onclick={clearCellLock}
-            title="Reset cell lock to automatic carrier selection"
+            title={$LL.qualcomm.cellLock.resetTitle()}
           >
             <RotateCcw class="w-3.5 h-3.5 mr-1 {isClearing ? 'animate-spin' : ''}" />
-            <span>{isClearing ? 'Resetting...' : 'Reset to Auto'}</span>
+            <span>{isClearing ? $LL.qualcomm.cellLock.resetting() : $LL.qualcomm.cellLock.resetToAuto()}</span>
           </Button>
           <Button
             variant="primary"
@@ -288,7 +289,7 @@
             onclick={applyCellLock}
           >
             <Lock class="w-3.5 h-3.5 mr-1 text-accent-text" />
-            <span>{isLocking ? 'Locking Cell...' : 'Apply Cell Lock'}</span>
+            <span>{isLocking ? $LL.qualcomm.cellLock.locking() : $LL.qualcomm.cellLock.apply()}</span>
           </Button>
         </div>
       </div>
